@@ -22,7 +22,7 @@ class CurrencyPicker extends StatefulWidget {
   final bool isMoneroWallet;
   final bool isConvertFrom;
   final String? hintText;
-  
+
   @override
   CurrencyPickerState createState() => CurrencyPickerState(items);
 }

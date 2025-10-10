@@ -57,7 +57,7 @@ class EditTokenPageBody extends StatefulWidget {
 
   final HomeSettingsViewModel homeSettingsViewModel;
   final CryptoCurrency? token;
-  final String? initialContractAddress;   
+  final String? initialContractAddress;
 
   @override
   State<EditTokenPageBody> createState() => _EditTokenPageBodyState();
@@ -124,8 +124,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
   void _checkIfTokenIsVerified(String? contractAddress) {
     if (contractAddress == null) return;
 
-    final isVerified =
-    widget.homeSettingsViewModel.checkIfTokenIsWhitelisted(contractAddress);
+    final isVerified = widget.homeSettingsViewModel.checkIfTokenIsWhitelisted(contractAddress);
 
     if (!mounted) return;
     setState(() {

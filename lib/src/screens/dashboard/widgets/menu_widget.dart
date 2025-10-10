@@ -114,10 +114,8 @@ class MenuWidgetState extends State<MenuWidget> {
     }
     int itemCount = items.length;
 
-    moneroIcon =
-        Image.asset('assets/images/crypto/monero.png');
-    bitcoinIcon =
-        Image.asset('assets/images/crypto/bitcoin.png');
+    moneroIcon = Image.asset('assets/images/crypto/monero.png');
+    bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.png');
 
     return Row(
       mainAxisSize: MainAxisSize.max,

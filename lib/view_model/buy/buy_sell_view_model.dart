@@ -13,7 +13,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -78,8 +77,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   void onWalletChange(wallet) {
     cryptoCurrency = wallet.currency;
   }
-
-  MaterialThemeBase get currentTheme => _appStore.themeStore.currentTheme;
 
   double get amount {
     final formattedFiatAmount = double.tryParse(fiatAmount) ?? 200.0;

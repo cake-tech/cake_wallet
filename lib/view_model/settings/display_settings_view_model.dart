@@ -42,8 +42,7 @@ abstract class DisplaySettingsViewModelBase with Store {
   ThemeMode get themeMode => _themeStore.themeMode;
 
   @computed
-  bool get isBlackThemeOledEnabled =>
-      _themeStore.currentTheme is BlackTheme && _themeStore.isOled;
+  bool get isBlackThemeOledEnabled => _themeStore.currentTheme is BlackTheme && _themeStore.isOled;
 
   @computed
   bool get disabledFiatApiMode => _settingsStore.fiatApiMode == FiatApiMode.disabled;

@@ -9,8 +9,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class PresentReceiveOptionPicker extends StatelessWidget {
-  PresentReceiveOptionPicker(
-      {required this.receiveOptionViewModel, required this.color});
+  PresentReceiveOptionPicker({required this.receiveOptionViewModel, required this.color});
 
   final ReceiveOptionViewModel receiveOptionViewModel;
   final Color color;
@@ -24,70 +23,63 @@ class PresentReceiveOptionPicker extends StatelessWidget {
     );
 
     return Padding(
-      padding: EdgeInsets.only(left: 6),
-    child: TextButton(
-      onPressed: () => _showPicker(context),
-      style: ButtonStyle(
-        padding: WidgetStateProperty.all(EdgeInsets.zero),
-        splashFactory: NoSplash.splashFactory,
-        foregroundColor: WidgetStateProperty.all(Colors.transparent),
-        overlayColor: WidgetStateProperty.all(Colors.transparent),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+        padding: EdgeInsets.only(left: 6),
+        child: TextButton(
+          onPressed: () => _showPicker(context),
+          style: ButtonStyle(
+            padding: WidgetStateProperty.all(EdgeInsets.zero),
+            splashFactory: NoSplash.splashFactory,
+            foregroundColor: WidgetStateProperty.all(Colors.transparent),
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+          ),
+          child: Row(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                S.current.receive,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 17.0,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-              ),
-              Row(
-                children: [
-                  Observer(
-                    builder: (_) => Text(
-                      receiveOptionViewModel.selectedReceiveOption
-                          .toString()
-                          .replaceAll(
-                              RegExp(r'silent payments', caseSensitive: false),
-                              S.current.silent_payments)
-                          .replaceAll(RegExp(r'default', caseSensitive: false),
-                              S.current.string_default),
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            fontSize: 10.0,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    S.current.receive,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 17.0,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                  ),
+                  Row(
+                    children: [
+                      Observer(
+                        builder: (_) => Text(
+                          receiveOptionViewModel.selectedReceiveOption
+                              .toString()
+                              .replaceAll(RegExp(r'silent payments', caseSensitive: false),
+                                  S.current.silent_payments)
+                              .replaceAll(RegExp(r'default', caseSensitive: false),
+                                  S.current.string_default),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                fontSize: 10.0,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
+              SizedBox(width: 5),
+              Padding(
+                padding: EdgeInsets.only(top: 12),
+                child: arrowBottom,
+              )
             ],
           ),
-          SizedBox(width: 5),
-          Padding(
-            padding: EdgeInsets.only(top: 12),
-            child: arrowBottom,
-          )
-        ],
-      ),
-    )
-    );
+        ));
   }
 
   void _showPicker(BuildContext context) async {
-    final arrowBottom = Image.asset(
-      'assets/images/arrow_bottom_purple_icon.png',
-      color: color,
-      height: 6,
-    );
     await showPopUp<void>(
       builder: (BuildContext popUpContext) => Scaffold(
         resizeToAvoidBottomInset: false,
@@ -119,40 +111,30 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                             onTap: () {
                               Navigator.pop(popUpContext);
 
-                              receiveOptionViewModel
-                                  .selectReceiveOption(option);
+                              receiveOptionViewModel.selectReceiveOption(option);
                             },
                             child: Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 24, right: 24),
+                              padding: const EdgeInsets.only(left: 24, right: 24),
                               child: Observer(builder: (_) {
-                                final value = receiveOptionViewModel
-                                    .selectedReceiveOption;
+                                final value = receiveOptionViewModel.selectedReceiveOption;
 
                                 return Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                         option
                                             .toString()
                                             .replaceAll(
-                                                RegExp(r'silent payments',
-                                                    caseSensitive: false),
+                                                RegExp(r'silent payments', caseSensitive: false),
                                                 S.current.silent_payments)
-                                            .replaceAll(
-                                                RegExp(r'default',
-                                                    caseSensitive: false),
+                                            .replaceAll(RegExp(r'default', caseSensitive: false),
                                                 S.current.string_default),
                                         textAlign: TextAlign.left,
                                         style: textSmall(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                         ).copyWith(
-                                          fontWeight: value == option
-                                              ? FontWeight.w800
-                                              : FontWeight.w500,
+                                          fontWeight:
+                                              value == option ? FontWeight.w800 : FontWeight.w500,
                                         )),
                                     RoundedCheckbox(
                                       value: value == option,
@@ -171,8 +153,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                 ],
               ),
             ),
-            AlertCloseButton(
-                onTap: () => Navigator.of(popUpContext).pop(), bottom: 40)
+            AlertCloseButton(onTap: () => Navigator.of(popUpContext).pop(), bottom: 40)
           ],
         ),
       ),

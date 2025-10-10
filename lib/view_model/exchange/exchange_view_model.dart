@@ -38,7 +38,6 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
@@ -101,7 +100,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         limitsState = LimitsInitialState(),
         receiveCurrency = appStore.wallet!.currency,
         depositCurrency = appStore.wallet!.currency,
-        currentTheme = appStore.themeStore.currentTheme,
         providerList = [],
         selectedProviders = ObservableList<ExchangeProvider>(),
         super(appStore: appStore) {
@@ -367,9 +365,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final Box<WalletInfo> walletInfoSource;
 
   @observable
-  MaterialThemeBase currentTheme;
-
-  @observable
   double bestRate = 0.0;
 
   late Timer bestRateSync;
@@ -554,7 +549,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
         try {
-           newSortedProviders[result[i]] = _providers[i];
+          newSortedProviders[result[i]] = _providers[i];
         } catch (e) {
           // will throw "Concurrent modification during iteration" error if modified at the same
           // time [createTrade] is called, as this is not a normal map, but a sorted map
