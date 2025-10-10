@@ -255,6 +255,14 @@ abstract class ThemeStoreBase with Store {
           return savedDark;
         }
       } catch (_) {}
+      
+      // If no saved dark theme, check if current theme is BlackTheme with accent colors
+      // and preserve it when switching to dark mode
+      if (_currentTheme is BlackTheme) {
+        final currentBlackTheme = _currentTheme as BlackTheme;
+        return BlackTheme(currentBlackTheme.accentColor, isOled: currentBlackTheme.isOled);
+      }
+      
       return ThemeList.darkTheme;
     }
 
