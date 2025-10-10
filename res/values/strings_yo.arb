@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay jẹ́ kí ẹ lè fi owó wẹ́ẹ̀bù ra àwọn káàdì ìrajà t'á lò nínú iye ìtajà kan. Ẹ lè san wọn láìpẹ́ nítajà 150,000 nínú Amẹ́ríkà.",
+  "accent_color": "Awọ ara",
   "account": "Àkáǹtì",
   "accounts": "Àwọn àkáǹtì",
   "accounts_subaddresses": "Àwọn àkáǹtì àti àwọn àdírẹ́sì kékeré",
@@ -55,6 +56,7 @@
   "and": "àti",
   "anonpay_description": "Ṣe akọkọ ${type}. Awọn alabara le ${method} pẹlu eyikeyi iwo ise ati owo yoo wọle si iwe iwe yii.",
   "apk_update": "Àtúnse áàpù títun wà",
+  "appearance": "Ifarahan",
   "approve": "Fi ọwọ si",
   "approve_request": "IKILỌ RẸ",
   "approve_tokens": "Ṣe fọwọsi awọn àmi",
@@ -569,6 +571,7 @@
   "offline": "kò wà lórí ayélujára",
   "ok": "Ó dáa",
   "old_fee": "Oya atijọ",
+  "oled_mode": "Ipo OED",
   "onion_link": "Kọja ilọ alubosa",
   "online": "Lórí ayélujára",
   "onramper_option_description": "Ni kiakia Ra Crypto pẹlu ọpọlọpọ awọn ọna isanwo. Wa ni ọpọlọpọ awọn orilẹ-ede. Itankale ati awọn idiyele yatọ.",

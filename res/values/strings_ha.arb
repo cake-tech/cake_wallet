@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Biyan Cake yana ba ku damar sauƙin siyan katunan kyauta tare da kadarorin kama-da-wane, wanda za'a iya kashewa nan take a sama da yan kasuwa 150,000 a Amurka.",
+  "accent_color": "Launi mai launi",
   "account": "Asusu",
   "accounts": "Lissafi",
   "accounts_subaddresses": "Accounts da subaddresses",
@@ -55,6 +56,7 @@
   "and": "kuma",
   "anonpay_description": "Ƙirƙirar ${type}. Maƙiyantun mai nasara zai iya ${method} da duk abubuwan da ke samun lambar waya, kuma zaku samu kuɗin dama a wannan kashi.",
   "apk_update": "apk sabunta",
+  "appearance": "Bayyanawa",
   "approve": "Amincewa",
   "approve_request": "Amince da bukata",
   "approve_tokens": "Amince da Alamu",
@@ -568,6 +570,7 @@
   "offline": "Offline",
   "ok": "OK",
   "old_fee": "Tsohon kudin",
+  "oled_mode": "Yanayin Oled",
   "onion_link": "Lambar onion",
   "online": "Kan layi",
   "onramper_option_description": "Da sauri sayi Crypto tare da hanyoyin biyan kuɗi da yawa. Akwai a yawancin ƙasashe. Yaduwa da kudade sun bambanta.",

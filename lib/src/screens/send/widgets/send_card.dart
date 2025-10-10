@@ -121,8 +121,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       WidgetsBinding.instance.addPostFrameCallback(
         (timeStamp) {
           if (mounted) {
-            final prefix  = initialPaymentRequest!.scheme.isNotEmpty ? "${initialPaymentRequest!.scheme}:" : "";
-            final amount = initialPaymentRequest!.amount.isNotEmpty ? "?amount=${initialPaymentRequest!.amount}" : "";
+            final prefix =
+                initialPaymentRequest!.scheme.isNotEmpty ? "${initialPaymentRequest!.scheme}:" : "";
+            final amount = initialPaymentRequest!.amount.isNotEmpty
+                ? "?amount=${initialPaymentRequest!.amount}"
+                : "";
             final uri = prefix + initialPaymentRequest!.address + amount;
             _handlePaymentFlow(uri, initialPaymentRequest!);
           }
@@ -188,7 +191,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           paymentFlowResult: result,
           paymentViewModel: paymentViewModel,
           walletSwitcherViewModel: walletSwitcherViewModel,
-          currentTheme: currentTheme,
           paymentRequest: paymentRequest,
           onSelectWallet: () => _handleSelectWallet(
             paymentViewModel,
@@ -221,7 +223,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       builder: (BuildContext dialogContext) {
         return WalletSwitcherBottomSheet(
           viewModel: walletSwitcherViewModel,
-          currentTheme: currentTheme,
           filterWalletType: paymentViewModel.detectedWalletType,
         );
       },

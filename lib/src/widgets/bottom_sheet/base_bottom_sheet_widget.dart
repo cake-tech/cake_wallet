@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 enum FooterType { none, slideActionButton, singleActionButton, doubleActionButton }
@@ -11,7 +10,6 @@ abstract class BaseBottomSheet extends StatelessWidget {
     required this.titleText,
     this.titleIconPath,
     required this.footerType,
-    this.currentTheme,
     this.slideActionButtonText,
     this.onSlideActionComplete,
     this.singleActionButtonText,
@@ -25,12 +23,11 @@ abstract class BaseBottomSheet extends StatelessWidget {
     this.leftActionButtonKey,
     this.rightActionButtonKey,
     required this.maxHeight,
-  }) : assert(footerType == FooterType.none || currentTheme != null,
+  }) : assert(footerType == FooterType.none,
             'currentTheme is required unless footerType is none');
 
   final String titleText;
   final String? titleIconPath;
-  final MaterialThemeBase? currentTheme;
   final FooterType footerType;
   final String? slideActionButtonText;
   final VoidCallback? onSlideActionComplete;
@@ -115,7 +112,6 @@ abstract class BaseBottomSheet extends StatelessWidget {
             key: ValueKey('base_bottom_sheet_widget_standard_slide_button_key'),
             buttonText: slideActionButtonText ?? '',
             onSlideComplete: onSlideActionComplete ?? () {},
-            currentTheme: currentTheme!,
             accessibleNavigationModeButtonText: accessibleNavigationModeSlideActionButtonText ?? '',
           ),
         );

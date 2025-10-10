@@ -37,7 +37,7 @@ class MobileExchangeCardsSection extends StatelessWidget {
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
               ),
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
             ),
             padding: EdgeInsets.fromLTRB(24, 105, 24, 24),
             child: Column(

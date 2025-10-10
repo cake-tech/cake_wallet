@@ -121,7 +121,6 @@ class RBFDetailsPage extends BasePage {
     }
 
     reaction((_) => transactionDetailsViewModel.sendViewModel.state, (ExecutionState state) {
-
       if (state is! IsExecutingState &&
           loadingBottomSheetContext != null &&
           loadingBottomSheetContext!.mounted) {
@@ -191,16 +190,20 @@ class RBFDetailsPage extends BasePage {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('rbf_confirm_sending_bottom_sheet'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
-                  currentTheme: currentTheme,
                   walletType: transactionDetailsViewModel.sendViewModel.walletType,
-                  titleIconPath: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+                  titleIconPath:
+                      transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-                  fiatAmountValue: transactionDetailsViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                  amountValue:
+                      transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                  fiatAmountValue: transactionDetailsViewModel
+                      .sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: S.of(bottomSheetContext).send_fee,
-                  feeValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                  feeFiatAmount: transactionDetailsViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  feeValue:
+                      transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                  feeFiatAmount: transactionDetailsViewModel
+                      .sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: transactionDetailsViewModel.sendViewModel.outputs,
                   footerType: FooterType.slideActionButton,
                   accessibleNavigationModeSlideActionButtonText: S.of(context).send,

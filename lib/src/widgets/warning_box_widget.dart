@@ -1,11 +1,9 @@
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class WarningBox extends StatelessWidget {
   const WarningBox({
     required this.content,
-    required this.currentTheme,
     this.showBorder = true,
     this.textColor,
     this.textAlign,
@@ -18,7 +16,6 @@ class WarningBox extends StatelessWidget {
   });
 
   final String content;
-  final MaterialThemeBase currentTheme;
   final bool showBorder;
   final Color? textColor;
   final TextAlign? textAlign;
@@ -33,15 +30,11 @@ class WarningBox extends StatelessWidget {
     return Container(
       padding: padding ?? EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: currentTheme.isDark
-            ? CustomThemeColors.warningContainerColorDark
-            : CustomThemeColors.warningContainerColorLight,
+        color: context.customColors.warningContainerColor,
         borderRadius: BorderRadius.all(Radius.circular(12)),
         border: showBorder
             ? Border.all(
-                color: currentTheme.isDark
-                    ? CustomThemeColors.warningOutlineColorDark
-                    : CustomThemeColors.warningOutlineColorLight,
+                color: context.customColors.warningOutlineColor,
                 width: 2.0,
               )
             : null,
@@ -53,8 +46,8 @@ class WarningBox extends StatelessWidget {
               Icons.warning_amber_rounded,
               size: iconSize ?? 64,
               color: textColor ?? Theme.of(context).colorScheme.onSurface,
-          ),
-          SizedBox(width:iconSpacing ?? 6),
+            ),
+          SizedBox(width: iconSpacing ?? 6),
           Expanded(
             child: Text(
               content,

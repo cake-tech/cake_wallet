@@ -1176,7 +1176,6 @@ Future<void> setup({
   getIt.registerFactoryParam<SwapConfirmationBottomSheet, PaymentFlowResult, void>(
     (paymentFlowResult, _) => SwapConfirmationBottomSheet(
       paymentFlowResult: paymentFlowResult,
-      currentTheme: getIt.get<AppStore>().themeStore.currentTheme,
       exchangeViewModel: getIt.get<ExchangeViewModel>(),
       authService: getIt.get<AuthService>(),
     ),
@@ -1184,7 +1183,6 @@ Future<void> setup({
 
   getIt.registerFactory<SwapDetailsBottomSheet>(
     () => SwapDetailsBottomSheet(
-      currentTheme: getIt.get<AppStore>().themeStore.currentTheme,
       exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>(),
     ),
   );
