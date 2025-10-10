@@ -90,7 +90,7 @@ class AnonPayReceivePage extends BasePage {
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
       (BuildContext context, Widget scaffold) =>
-          GradientBackground(scaffold: scaffold, currentTheme: currentTheme);
+          GradientBackground(scaffold: scaffold);
 
   @override
   Widget body(BuildContext context) {

@@ -34,7 +34,7 @@ class DEuroSavingsPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (context, scaffold) => GradientBackground(scaffold: scaffold, currentTheme: currentTheme);
+      (context, scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   String get title => S.current.deuro_savings;
