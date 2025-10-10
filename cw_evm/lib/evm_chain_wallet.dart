@@ -29,8 +29,9 @@ import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_addresses.dart';
-import 'package:cw_evm/hardware/evm_bitbox_credentials.dart';
-import 'package:cw_evm/hardware/evm_ledger_credentials.dart';
+import 'package:cw_evm/hardware/evm_chain_bitbox_credentials.dart';
+import 'package:cw_evm/hardware/evm_chain_ledger_credentials.dart';
+import 'package:cw_evm/hardware/evm_chain_trezor_credentials.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -213,6 +214,9 @@ abstract class EVMChainWalletBase
       walletAddresses.address = walletInfo.address;
     } else if (walletInfo.hardwareWalletType == HardwareWalletType.bitbox) {
       _evmChainPrivateKey = EvmBitboxCredentials(walletInfo.address);
+      walletAddresses.address = walletInfo.address;
+    } else if (walletInfo.hardwareWalletType == HardwareWalletType.trezor) {
+      _evmChainPrivateKey = EvmTrezorCredentials(walletInfo.address);
       walletAddresses.address = walletInfo.address;
     } else {
       _evmChainPrivateKey = await getPrivateKey(

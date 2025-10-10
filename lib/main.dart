@@ -62,6 +62,7 @@ import 'package:cw_core/window_size.dart';
 import 'package:logging/logging.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/core/reset_service.dart';
+import 'package:trezor_connect/trezor_connect.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -375,6 +376,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           linkViewModel: linkViewModel,
           tradeMonitor: tradeMonitor,
           nodeSwitchingService: nodeSwitchingService,
+          trezorConnect: getIt<TrezorConnect>(),
           child: ThemeProvider(
             themeStore: appStore.themeStore,
             materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(

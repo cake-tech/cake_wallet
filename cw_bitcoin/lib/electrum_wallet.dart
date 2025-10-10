@@ -47,7 +47,6 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
@@ -163,7 +162,7 @@ abstract class ElectrumWalletBase
       [HardwareWalletType? hardwareWalletType]) {
     switch (network) {
       case LitecoinNetwork.mainnet:
-        if (hardwareWalletType == HardwareWalletType.ledger)
+        if ([HardwareWalletType.ledger, HardwareWalletType.trezor].contains(hardwareWalletType))
           return Bip44Conf.litecoinMainNet.altKeyNetVer;
         return null;
       default:
@@ -1422,8 +1421,6 @@ abstract class ElectrumWalletBase
   }
 
   HardwareWalletService? hardwareWalletService;
-
-  void setLedgerConnection(ledger.LedgerConnection connection) => throw UnimplementedError();
 
   Future<BtcTransaction> buildHardwareWalletTransaction({
     required List<BitcoinBaseOutput> outputs,

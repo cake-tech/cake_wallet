@@ -4,7 +4,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
-  url_launcher: 6.3.1
+  url_launcher: 6.3.2
   qr_flutter:
     git:
       url: https://github.com/cake-tech/qr.flutter.git
@@ -116,6 +116,10 @@ dependencies:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: 60817d4b20144f9da9029f5034790272795b9d38
+  trezor_connect:
+    git:
+      url: https://github.com/cake-tech/trezor_connect
+      ref: 59b3ceec158d3393b20d0c596cab2abcc62ac8e4
   bitbox_flutter:
     path: ./scripts/bitbox_flutter
   hashlib: 1.19.2

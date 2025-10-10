@@ -13,7 +13,7 @@ enum DeviceConnectionType {
       case HardwareWalletType.bitbox:
         isSupported = [
           WalletType.bitcoin,
-          // WalletType.litecoin,
+          WalletType.litecoin,
           WalletType.ethereum,
           WalletType.polygon
         ].contains(walletType);
@@ -25,6 +25,15 @@ enum DeviceConnectionType {
           WalletType.litecoin,
           WalletType.ethereum,
           WalletType.polygon
+        ].contains(walletType);
+        break;
+      case HardwareWalletType.trezor:
+        isSupported = [
+          // WalletType.monero,
+          WalletType.bitcoin,
+          WalletType.litecoin,
+          WalletType.ethereum,
+          WalletType.polygon,
         ].contains(walletType);
         break;
     }

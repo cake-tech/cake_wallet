@@ -1,26 +1,28 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/socket_health_logger.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:mobx/mobx.dart';
+import 'package:trezor_connect/trezor_connect.dart';
 import 'package:uni_links/uni_links.dart';
-import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
-import 'package:cake_wallet/reactions/wallet_utils.dart';
-import 'package:cw_core/utils/socket_health_logger.dart';
 
 class Root extends StatefulWidget {
   Root({
@@ -33,6 +35,7 @@ class Root extends StatefulWidget {
     required this.linkViewModel,
     required this.tradeMonitor,
     required this.nodeSwitchingService,
+    required this.trezorConnect,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
@@ -43,6 +46,7 @@ class Root extends StatefulWidget {
   final LinkViewModel linkViewModel;
   final TradeMonitor tradeMonitor;
   final NodeSwitchingService nodeSwitchingService;
+  final TrezorConnect trezorConnect;
 
   @override
   RootState createState() => RootState();
@@ -109,6 +113,11 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     if (uri == null || !mounted) return;
 
     widget.linkViewModel.currentLink = uri;
+
+    if (uri.toString().startsWith(widget.trezorConnect.callbackBackUri)) {
+      widget.trezorConnect.handleCallback(uri);
+      return;
+    }
 
     bool requireAuth = await widget.authService.requireAuth();
 

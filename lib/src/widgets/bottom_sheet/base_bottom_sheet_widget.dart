@@ -23,8 +23,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
     this.leftActionButtonKey,
     this.rightActionButtonKey,
     required this.maxHeight,
-  }) : assert(footerType == FooterType.none,
-            'currentTheme is required unless footerType is none');
+  });
 
   final String titleText;
   final String? titleIconPath;
