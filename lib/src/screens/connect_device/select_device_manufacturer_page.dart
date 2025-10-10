@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -41,21 +43,26 @@ class SelectDeviceManufacturerPage extends BasePage {
           ),
           hardwareWalletType: HardwareWalletType.ledger,
         ),
-        _DeviceManufacturer(
-          image: SvgPicture.asset(
-            'assets/images/hardware_wallet/trezor_man.svg',
-            height: 25,
-            colorFilter: _colorFilter,
+        if (Platform.isAndroid) ...[
+          _DeviceManufacturer(
+            image: SvgPicture.asset(
+              'assets/images/hardware_wallet/trezor_man.svg',
+              height: 25,
+              colorFilter: _colorFilter,
+            ),
+            hardwareWalletType: HardwareWalletType.trezor,
+            tag: S.current.new_tag,
           ),
-          hardwareWalletType: HardwareWalletType.trezor,
-          tag: S.current.new_tag,
-        ),
-        _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25,
-                    colorFilter: _colorFilter,),
-          hardwareWalletType: HardwareWalletType.bitbox,
-          tag: S.current.new_tag,
-        ),
+          _DeviceManufacturer(
+            image: SvgPicture.asset(
+              'assets/images/hardware_wallet/bitbox_man.svg',
+              height: 25,
+              colorFilter: _colorFilter,
+            ),
+            hardwareWalletType: HardwareWalletType.bitbox,
+            tag: S.current.new_tag,
+          ),
+        ],
         _DeviceManufacturer(
           image: SvgPicture.asset(
             'assets/images/hardware_wallet/cupcake_man.svg',
@@ -74,15 +81,15 @@ class SelectDeviceManufacturerPage extends BasePage {
           hardwareWalletType: HardwareWalletType.coldcard,
           tag: S.current.new_tag,
         ),
-        _DeviceManufacturer(
-          image: SvgPicture.asset(
-            'assets/images/hardware_wallet/seedsigner_man.svg',
-            height: 25,
-            colorFilter: _colorFilter,
-          ),
-          hardwareWalletType: HardwareWalletType.seedsigner,
-          tag: S.current.new_tag,
-        ),
+        // _DeviceManufacturer(
+        //   image: SvgPicture.asset(
+        //     'assets/images/hardware_wallet/seedsigner_man.svg',
+        //     height: 25,
+        //     colorFilter: _colorFilter,
+        //   ),
+        //   hardwareWalletType: HardwareWalletType.seedsigner,
+        //   tag: S.current.new_tag,
+        // ),
       ]
           .where((e) => availableHardwareWalletTypes == null
               ? ![HardwareWalletType.cupcake].contains(e.hardwareWalletType)
@@ -90,15 +97,17 @@ class SelectDeviceManufacturerPage extends BasePage {
           .toList();
 
   List<_DeviceManufacturer> get comingManufacturers => [
-        _DeviceManufacturer(
-          image: SvgPicture.asset(
-            'assets/images/hardware_wallet/bitbox_man.svg',
-            height: 25,
-            colorFilter: _colorFilter,
+        if (!Platform.isAndroid) ...[
+          _DeviceManufacturer(
+            image: SvgPicture.asset(
+              'assets/images/hardware_wallet/bitbox_man.svg',
+              height: 25,
+              colorFilter: _colorFilter,
+            ),
+            hardwareWalletType: HardwareWalletType.bitbox,
+            tag: S.current.coming_soon_tag,
           ),
-          hardwareWalletType: HardwareWalletType.bitbox,
-          tag: S.current.coming_soon_tag,
-        ),
+        ],
         _DeviceManufacturer(
           image: SvgPicture.asset(
             'assets/images/hardware_wallet/seedsigner_man.svg',
@@ -152,7 +161,6 @@ class SelectDeviceManufacturerPage extends BasePage {
                                 arguments: [manufacturer.hardwareWalletType]);
                           }
                         },
-
                       ),
                     ),
                   ),
