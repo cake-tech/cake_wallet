@@ -105,6 +105,7 @@ class RBFDetailsPage extends BasePage {
                       text: S.of(context).send,
                       isLoading:
                           transactionDetailsViewModel.sendViewModel.state is IsExecutingState,
+                  isDisabled: transactionDetailsViewModel.sendViewModel.state is ExecutedSuccessfullyState,
                       color: Theme.of(context).colorScheme.primary,
                       textColor: Theme.of(context).colorScheme.onPrimary,
                     ))),
@@ -179,9 +180,9 @@ class RBFDetailsPage extends BasePage {
       }
 
       if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (context.mounted) {
-            showModalBottomSheet<void>(
+            final result = await showModalBottomSheet<bool>(
               context: context,
               isDismissible: false,
               isScrollControlled: true,
@@ -217,6 +218,9 @@ class RBFDetailsPage extends BasePage {
                 );
               },
             );
+            if (result == null) {
+              transactionDetailsViewModel.sendViewModel.dismissTransaction();
+            }
           }
         });
       }

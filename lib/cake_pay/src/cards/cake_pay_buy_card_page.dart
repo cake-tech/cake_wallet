@@ -369,7 +369,7 @@ class CakePayBuyCardPage extends BasePage {
                       },
                       text: S.of(context).purchase_gift_card,
                       isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
-                          cakePayBuyCardViewModel.isPurchasing,
+                          cakePayBuyCardViewModel.isPurchasing || _sendViewModel.state is ExecutedSuccessfullyState,
                       isLoading: _sendViewModel.state is IsExecutingState ||
                           cakePayBuyCardViewModel.isPurchasing,
                       color: Theme.of(context).colorScheme.primary,
