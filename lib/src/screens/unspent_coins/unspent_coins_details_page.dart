@@ -51,7 +51,6 @@ class UnspentCoinsDetailsPage extends BasePage {
           if (item is UnspentCoinsSwitchItem) {
             return Observer(
               builder: (_) => UnspentCoinsSwitchRow(
-                currentTheme: currentTheme,
                 title: item.title,
                 switchValue: item.switchValue(),
                 onSwitchValueChange: item.onSwitchValueChange,

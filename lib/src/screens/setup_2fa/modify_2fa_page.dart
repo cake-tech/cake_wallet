@@ -83,7 +83,6 @@ class _2FAControlsWidget extends StatelessWidget {
         Observer(
           builder: (context) {
             return SettingsSwitcherCell(
-              currentTheme: currentTheme,
               title: S.current.require_for_assessing_wallet,
               value: setup2FAViewModel.shouldRequireTOTP2FAForAccessingWallet,
               onValueChange: (context, value) async =>
@@ -95,7 +94,6 @@ class _2FAControlsWidget extends StatelessWidget {
         Observer(
           builder: (context) {
             return SettingsSwitcherCell(
-              currentTheme: currentTheme,
               title: S.current.require_for_sends_to_non_contacts,
               value: setup2FAViewModel.shouldRequireTOTP2FAForSendsToNonContact,
               onValueChange: (context, value) async =>
@@ -107,7 +105,6 @@ class _2FAControlsWidget extends StatelessWidget {
         Observer(
           builder: (context) {
             return SettingsSwitcherCell(
-              currentTheme: currentTheme,
               title: S.current.require_for_sends_to_contacts,
               value: setup2FAViewModel.shouldRequireTOTP2FAForSendsToContact,
               onValueChange: (context, value) async =>
@@ -119,7 +116,6 @@ class _2FAControlsWidget extends StatelessWidget {
         Observer(
           builder: (context) {
             return SettingsSwitcherCell(
-              currentTheme: currentTheme,
               title: S.current.require_for_sends_to_internal_wallets,
               value: setup2FAViewModel.shouldRequireTOTP2FAForSendsToInternalWallets,
               onValueChange: (context, value) async =>
@@ -131,7 +127,6 @@ class _2FAControlsWidget extends StatelessWidget {
         Observer(
           builder: (context) {
             return SettingsSwitcherCell(
-              currentTheme: currentTheme,
               title: S.current.require_for_exchanges_to_internal_wallets,
               value: setup2FAViewModel.shouldRequireTOTP2FAForExchangesToInternalWallets,
               onValueChange: (context, value) async =>
@@ -143,7 +138,6 @@ class _2FAControlsWidget extends StatelessWidget {
         Observer(
           builder: (context) {
             return SettingsSwitcherCell(
-              currentTheme: currentTheme,
               title: S.current.require_for_exchanges_to_external_wallets,
               value: setup2FAViewModel.shouldRequireTOTP2FAForExchangesToExternalWallets,
               onValueChange: (context, value) async =>
@@ -155,7 +149,6 @@ class _2FAControlsWidget extends StatelessWidget {
         Observer(
           builder: (context) {
             return SettingsSwitcherCell(
-              currentTheme: currentTheme,
               title: S.current.require_for_adding_contacts,
               value: setup2FAViewModel.shouldRequireTOTP2FAForAddingContacts,
               onValueChange: (context, value) async =>
@@ -167,7 +160,6 @@ class _2FAControlsWidget extends StatelessWidget {
         Observer(
           builder: (context) {
             return SettingsSwitcherCell(
-              currentTheme: currentTheme,
               title: S.current.require_for_creating_new_wallets,
               value: setup2FAViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
               onValueChange: (context, value) async =>
@@ -179,7 +171,6 @@ class _2FAControlsWidget extends StatelessWidget {
         Observer(
           builder: (context) {
             return SettingsSwitcherCell(
-              currentTheme: currentTheme,
               title: S.current.require_for_all_security_and_backup_settings,
               value: setup2FAViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
               onValueChange: (context, value) async => setup2FAViewModel

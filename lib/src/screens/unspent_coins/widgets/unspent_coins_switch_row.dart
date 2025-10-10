@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 class UnspentCoinsSwitchRow extends StatelessWidget {
@@ -7,14 +6,12 @@ class UnspentCoinsSwitchRow extends StatelessWidget {
       {required this.title,
       required this.switchValue,
       required this.onSwitchValueChange,
-      this.titleFontSize = 14,
-      required this.currentTheme});
+      this.titleFontSize = 14});
 
   final String title;
   final double titleFontSize;
   final bool switchValue;
   final void Function(bool value) onSwitchValueChange;
-  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +35,6 @@ class UnspentCoinsSwitchRow extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(top: 12),
               child: StandardSwitch(
-                currentTheme: currentTheme,
                 value: switchValue,
                 onTapped: () => onSwitchValueChange(!switchValue),
               ),

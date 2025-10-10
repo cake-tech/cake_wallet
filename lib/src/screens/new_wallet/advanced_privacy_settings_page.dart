@@ -13,7 +13,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
@@ -55,7 +54,6 @@ class AdvancedPrivacySettingsPage extends BasePage {
         advancedPrivacySettingsViewModel,
         nodeViewModel,
         seedSettingsViewModel,
-        currentTheme,
       );
 }
 
@@ -68,13 +66,11 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
     this.privacySettingsViewModel,
     this.nodeViewModel,
     this.seedTypeViewModel,
-    this.currentTheme,
   );
 
   final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
   final SeedSettingsViewModel seedTypeViewModel;
-  final MaterialThemeBase currentTheme;
 
   final bool isFromRestore;
   final bool isChildWallet;
@@ -255,7 +251,6 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
               return Column(
                 children: [
                   SettingsSwitcherCell(
-                    currentTheme: widget.currentTheme,
                     title: S.current.disable_bulletin,
                     value: widget.privacySettingsViewModel.disableBulletin,
                     onValueChange: (BuildContext _, bool value) {
@@ -263,7 +258,6 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                     },
                   ),
                   SettingsSwitcherCell(
-                    currentTheme: widget.currentTheme,
                     title: S.current.add_custom_node,
                     value: widget.privacySettingsViewModel.addCustomNode,
                     onValueChange: (_, __) => widget.privacySettingsViewModel.toggleAddCustomNode(),
@@ -284,7 +278,6 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
               Builder(builder: (_) {
                 final val = testnetValue ?? false;
                 return SettingsSwitcherCell(
-                    currentTheme: widget.currentTheme,
                     title: S.current.use_testnet,
                     value: val,
                     onValueChange: (_, __) {

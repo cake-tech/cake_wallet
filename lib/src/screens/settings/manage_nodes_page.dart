@@ -37,7 +37,6 @@ class ManageNodesPage extends BasePage {
           ),
           Observer(
             builder: (_) => SettingsSwitcherCell(
-              currentTheme: currentTheme,
               key: ValueKey('manage_nodes_page_enable_auto_node_switching_button_key'),
               title: S.current.enable_auto_node_switching,
               value: isPow

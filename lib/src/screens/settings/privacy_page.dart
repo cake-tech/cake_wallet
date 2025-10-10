@@ -51,7 +51,6 @@ class PrivacyPage extends BasePage {
               ),
               if (_privacySettingsViewModel.canUsePayjoin)
                 SettingsSwitcherCell(
-                  currentTheme: currentTheme,
                   title: S.of(context).use_payjoin,
                   value: _privacySettingsViewModel.usePayjoin,
                   onValueChange: (BuildContext _, bool value) {
@@ -59,7 +58,6 @@ class PrivacyPage extends BasePage {
                   },
                 ),
               SettingsSwitcherCell(
-                  currentTheme: currentTheme,
                   title: S.current.settings_save_recipient_address,
                   value: _privacySettingsViewModel.shouldSaveRecipientAddress,
                   onValueChange: (BuildContext _, bool value) {
@@ -67,7 +65,6 @@ class PrivacyPage extends BasePage {
                   }),
               if (_privacySettingsViewModel.isAutoGenerateSubaddressesVisible)
                 SettingsSwitcherCell(
-                  currentTheme: currentTheme,
                   title: _privacySettingsViewModel.isMoneroWallet
                       ? S.current.auto_generate_subaddresses
                       : S.current.auto_generate_addresses,
@@ -78,7 +75,6 @@ class PrivacyPage extends BasePage {
                 ),
               if (DeviceInfo.instance.isMobile)
                 SettingsSwitcherCell(
-                  currentTheme: currentTheme,
                   title: S.current.prevent_screenshots,
                   value: _privacySettingsViewModel.isAppSecure,
                   onValueChange: (BuildContext _, bool value) {
@@ -86,7 +82,6 @@ class PrivacyPage extends BasePage {
                   },
                 ),
               SettingsSwitcherCell(
-                currentTheme: currentTheme,
                 title: S.current.disable_buy,
                 value: _privacySettingsViewModel.disableTradeOption,
                 onValueChange: (BuildContext _, bool value) {
@@ -94,7 +89,6 @@ class PrivacyPage extends BasePage {
                 },
               ),
               SettingsSwitcherCell(
-                currentTheme: currentTheme,
                 title: S.current.disable_automatic_exchange_status_updates,
                 value: _privacySettingsViewModel.disableAutomaticExchangeStatusUpdates,
                 onValueChange: (BuildContext _, bool value) {
@@ -102,7 +96,6 @@ class PrivacyPage extends BasePage {
                 },
               ),
               SettingsSwitcherCell(
-                currentTheme: currentTheme,
                 title: S.current.disable_bulletin,
                 value: _privacySettingsViewModel.disableBulletin,
                 onValueChange: (BuildContext _, bool value) {
@@ -111,7 +104,6 @@ class PrivacyPage extends BasePage {
               ),
               if (_privacySettingsViewModel.canUseEtherscan)
                 SettingsSwitcherCell(
-                  currentTheme: currentTheme,
                   title: S.current.etherscan_history,
                   value: _privacySettingsViewModel.useEtherscan,
                   onValueChange: (BuildContext _, bool value) {
@@ -120,7 +112,6 @@ class PrivacyPage extends BasePage {
                 ),
               if (_privacySettingsViewModel.canUsePolygonScan)
                 SettingsSwitcherCell(
-                  currentTheme: currentTheme,
                   title: S.current.polygonscan_history,
                   value: _privacySettingsViewModel.usePolygonScan,
                   onValueChange: (BuildContext _, bool value) {
@@ -129,7 +120,6 @@ class PrivacyPage extends BasePage {
                 ),
               if (_privacySettingsViewModel.canUseTronGrid)
                 SettingsSwitcherCell(
-                  currentTheme: currentTheme,
                   title: S.current.trongrid_history,
                   value: _privacySettingsViewModel.useTronGrid,
                   onValueChange: (BuildContext _, bool value) {
@@ -138,7 +128,6 @@ class PrivacyPage extends BasePage {
                 ),
               if (_privacySettingsViewModel.canUseMempoolFeeAPI)
                 SettingsSwitcherCell(
-                  currentTheme: currentTheme,
                   title: S.current.enable_mempool_api,
                   value: _privacySettingsViewModel.useMempoolFeeAPI,
                   onValueChange: (BuildContext _, bool isEnabled) async {

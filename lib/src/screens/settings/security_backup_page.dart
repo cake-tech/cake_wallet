@@ -38,7 +38,6 @@ class SecurityBackupPage extends BasePage {
           if (DeviceInfo.instance.isMobile || Platform.isMacOS || Platform.isLinux)
             Observer(builder: (_) {
               return SettingsSwitcherCell(
-                  currentTheme: currentTheme,
                   key: ValueKey('security_backup_page_allow_biometrics_button_key'),
                   title: S.current.settings_allow_biometrical_authentication,
                   value: _securitySettingsViewModel.allowBiometricalAuthentication,

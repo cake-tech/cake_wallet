@@ -145,7 +145,6 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: StandardSwitch(
-                        currentTheme: widget.currentTheme,
                         value: widget.doSingleScan,
                         onTapped: () => widget.toggleSingleScan?.call(),
                       ),

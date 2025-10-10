@@ -39,7 +39,6 @@ class HomeSettingsPage extends BasePage {
           Divider(color: Theme.of(context).colorScheme.outlineVariant),
           Observer(
             builder: (_) => SettingsSwitcherCell(
-              currentTheme: currentTheme,
               title: S.of(context).pin_at_top(_homeSettingsViewModel.nativeToken.title),
               value: _homeSettingsViewModel.pinNativeToken,
               onValueChange: (_, bool value) {
@@ -111,7 +110,6 @@ class HomeSettingsPage extends BasePage {
                         final token = _homeSettingsViewModel.tokens.elementAt(index);
 
                         return SettingsSwitcherCell(
-                          currentTheme: currentTheme,
                           title: "${token.name} "
                               "(${token.title})",
                           value: token.enabled,

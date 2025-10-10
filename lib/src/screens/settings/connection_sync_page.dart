@@ -74,7 +74,6 @@ class ConnectionSyncPage extends BasePage {
           if (FeatureFlag.isInAppTorEnabled)
             Observer(builder: (context) {
               return SettingsSwitcherCell(
-                currentTheme: currentTheme,
                 leading: Container(
                 padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                 decoration: BoxDecoration(

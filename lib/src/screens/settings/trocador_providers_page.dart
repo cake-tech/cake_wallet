@@ -33,7 +33,6 @@ class TrocadorProvidersPage extends BasePage {
               final providerName = providerStates.keys.elementAt(index);
               final providerEnabled = providerStates[providerName] ?? true;
               return SettingsSwitcherCell(
-                currentTheme: currentTheme,
                 title: providerName,
                 value: providerEnabled,
                 leading: Badge(
@@ -54,7 +53,11 @@ class TrocadorProvidersPage extends BasePage {
 }
 
 class Badge extends StatelessWidget {
-  Badge({required this.textColor, required this.backgroundColor, required this.title, required this.subTitle});
+  Badge(
+      {required this.textColor,
+      required this.backgroundColor,
+      required this.title,
+      required this.subTitle});
 
   final String title;
   final String subTitle;
@@ -80,10 +83,10 @@ class Badge extends StatelessWidget {
                   title,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: textColor,
-                    fontSize: 7,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: textColor,
+                        fontSize: 7,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 VerticalDivider(
                   color: textColor,
@@ -92,9 +95,9 @@ class Badge extends StatelessWidget {
                 Text(
                   subTitle,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: textColor,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: textColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ],
             ),

@@ -276,7 +276,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                               ),
                               Observer(
                                 builder: (_) => StandardSwitch(
-                                  currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                                   value: dashboardViewModel.silentPaymentsScanningActive,
                                   onTapped: () => _toggleSilentPaymentsScanning(context),
                                 ),

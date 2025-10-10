@@ -114,7 +114,6 @@ class SettingsThemeChoicesCell extends StatelessWidget {
               ],
               if (_displaySettingsViewModel.currentTheme is BlackTheme)
                 SettingsSwitcherCell(
-                  currentTheme: currentTheme,
                   title: S.current.oled_mode,
                   value: _displaySettingsViewModel.isBlackThemeOledEnabled,
                   onValueChange: (_, bool value) {
