@@ -10,7 +10,7 @@ do
         cd $cwcoin; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd ..
     fi
 done
-for cwcoin in cw_{polygon,ethereum,mweb,base};
+for cwcoin in cw_{polygon,ethereum,mweb};
 do
     if [[ "x$1" == "xasync" ]];
     then
