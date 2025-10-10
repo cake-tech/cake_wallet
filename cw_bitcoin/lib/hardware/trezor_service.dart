@@ -6,11 +6,11 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
+import 'package:cw_bitcoin/psbt/transaction_builder.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:ledger_bitcoin/psbt.dart';
-import 'package:ledger_litecoin/src/tx_utils/transaction.dart';
 import 'package:trezor_connect/trezor_connect.dart';
 
 class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWalletService {
@@ -88,12 +88,9 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
         message: hex.encode(message), hex: true);
     return base64Decode(sig!.signature);
   }
-
-  @override
-  Future<Uint8List> getMasterFingerprint() async => Uint8List.fromList([0, 0, 0, 0]);
 }
 
-class LitecoinTrezorService extends HardwareWalletService with LitecoinHardwareWalletService {
+class LitecoinTrezorService extends HardwareWalletService with BitcoinHardwareWalletService, LitecoinHardwareWalletService {
   LitecoinTrezorService(this.connect);
 
   final TrezorConnect connect;
@@ -127,30 +124,25 @@ class LitecoinTrezorService extends HardwareWalletService with LitecoinHardwareW
   }
 
   @override
-  Future<String> signLitecoinTransaction(
-      {required List<BitcoinBaseOutput> outputs,
-      required List<LedgerTransaction> inputs,
-      required Map<String, PublicKeyWithDerivationPath> publicKeys}) async {
-    final readyInputs = <TrezorTxInput>[];
-    for (final input in inputs) {
-      final inputTx = BtcTransaction.fromRaw(input.rawTx);
-      final inputOutputIndex = input.outputIndex;
+  Future<String> signLitecoinTransaction({
+    required List<BitcoinBaseOutput> outputs,
+    required List<PSBTReadyUtxoWithAddress> inputs,
+    required Map<String, PublicKeyWithDerivationPath> publicKeys,
+  }) async {
+    final readyInputs = inputs
+        .map((input) => TrezorTxInput(
+              prevHash: input.utxo.txHash,
+              prevIndex: input.utxo.vout,
+              amount: input.utxo.value.toInt(),
+              addressPath: Bip32PathParser.parse(input.ownerDerivationPath).toList(),
+              scriptType: "SPENDWITNESS",
+            ))
+        .toList();
 
-      readyInputs.add(TrezorTxInput(
-        prevHash: inputTx.txId(),
-        prevIndex: inputOutputIndex,
-        amount: inputTx.outputs[inputOutputIndex].amount.toInt(),
-        addressPath: Bip32PathParser.parse(input.ownerDerivationPath).toList(),
-        sequence: input.sequence,
-        scriptType: "SPENDWITNESS",
-      ));
-    }
-
-    final readyOutputs = <TrezorTxOutput>[];
-    for (final output in outputs) {
+    final readyOutputs = outputs.map((output) {
       final maybeChangePath = publicKeys[(output as BitcoinOutput).address.pubKeyHash()];
 
-      readyOutputs.add(TrezorTxOutput(
+      return TrezorTxOutput(
         amount: output.toOutput.amount.toInt(),
         address: maybeChangePath != null
             ? null
@@ -159,8 +151,8 @@ class LitecoinTrezorService extends HardwareWalletService with LitecoinHardwareW
         addressPath: maybeChangePath != null
             ? Bip32PathParser.parse(maybeChangePath.derivationPath).toList()
             : null,
-      ));
-    }
+      );
+    }).toList();
 
     final signedTx =
         await connect.signTransaction(coin: 'LTC', inputs: readyInputs, outputs: readyOutputs);

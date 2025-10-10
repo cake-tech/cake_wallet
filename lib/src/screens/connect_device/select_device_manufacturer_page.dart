@@ -50,12 +50,12 @@ class SelectDeviceManufacturerPage extends BasePage {
           hardwareWalletType: HardwareWalletType.trezor,
           tag: S.current.new_tag,
         ),
-        // _DeviceManufacturer(
-        //   image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25,
-        //             colorFilter: _colorFilter,),
-        //   hardwareWalletType: HardwareWalletType.bitbox,
-        //   tag: S.current.new_tag,
-        // ),
+        _DeviceManufacturer(
+          image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25,
+                    colorFilter: _colorFilter,),
+          hardwareWalletType: HardwareWalletType.bitbox,
+          tag: S.current.new_tag,
+        ),
         _DeviceManufacturer(
           image: SvgPicture.asset(
             'assets/images/hardware_wallet/cupcake_man.svg',

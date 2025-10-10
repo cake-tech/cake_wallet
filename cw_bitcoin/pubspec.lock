@@ -604,8 +604,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/ledger-bitcoin"
-      ref: "6e6ce17c2ba5cfe3d16a60d53f930db8e827b8f3"
-      resolved-ref: "6e6ce17c2ba5cfe3d16a60d53f930db8e827b8f3"
+      ref: dc42621f55702d0732681afc2f90bc0047f26633
+      resolved-ref: dc42621f55702d0732681afc2f90bc0047f26633
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.3"
@@ -1095,8 +1095,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "5c3557656801df684d8c7e905085244f8448d7af"
-      resolved-ref: "5c3557656801df684d8c7e905085244f8448d7af"
+      ref: "59b3ceec158d3393b20d0c596cab2abcc62ac8e4"
+      resolved-ref: "59b3ceec158d3393b20d0c596cab2abcc62ac8e4"
       url: "https://github.com/cake-tech/trezor_connect"
     source: git
     version: "0.0.1"
