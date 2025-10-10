@@ -109,7 +109,6 @@ class SelectDeviceManufacturerPage extends BasePage {
                               arguments: [manufacturer.hardwareWalletType]);
                         }
                       },
-                      currentTheme: currentTheme,
                     ),
                   ),
                 ),
@@ -127,7 +126,6 @@ class SelectDeviceManufacturerPage extends BasePage {
                         onPressed: () =>
                             Fluttertoast.showToast(msg: 'One more tap and it might work'),
                         // Ester egg
-                        currentTheme: currentTheme,
                         isUnavailable: true,
                       ),
                     ),

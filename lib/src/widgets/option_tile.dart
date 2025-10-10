@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 
 class OptionTile extends StatelessWidget {
   const OptionTile({
@@ -8,7 +8,6 @@ class OptionTile extends StatelessWidget {
     this.icon,
     required this.title,
     required this.description,
-    required this.currentTheme,
     this.tag,
     super.key,
   }) : assert(image != null || icon != null);
@@ -19,7 +18,6 @@ class OptionTile extends StatelessWidget {
   final String title;
   final String description;
   final String? tag;
-  final MaterialThemeBase currentTheme;
 
 
   @override
@@ -30,8 +28,8 @@ class OptionTile extends StatelessWidget {
       decoration: ShapeDecoration(
         gradient: LinearGradient(
           colors: [
-            currentTheme.customColors.cardGradientColorPrimary,
-            currentTheme.customColors.cardGradientColorSecondary,
+            context.currentTheme.customColors.cardGradientColorPrimary,
+            context.currentTheme.customColors.cardGradientColorSecondary,
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,

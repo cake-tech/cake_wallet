@@ -26,30 +26,23 @@ class RestoreOptionsPage extends BasePage {
     return _RestoreOptionsBody(
       isNewInstall: isNewInstall,
       themeType: currentTheme.type,
-      currentTheme: currentTheme,
     );
   }
 }
 
 class _RestoreOptionsBody extends StatefulWidget {
-  const _RestoreOptionsBody({
-    required this.isNewInstall,
-    required this.themeType,
-    required this.currentTheme,
-  });
+  const _RestoreOptionsBody({required this.isNewInstall, required this.themeType});
 
   final bool isNewInstall;
   final ThemeType themeType;
-  final MaterialThemeBase currentTheme;
 
   @override
-  _RestoreOptionsBodyState createState() => _RestoreOptionsBodyState(currentTheme: currentTheme);
+  _RestoreOptionsBodyState createState() => _RestoreOptionsBodyState();
 }
 
 class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
-  _RestoreOptionsBodyState({required this.currentTheme});
+  _RestoreOptionsBodyState();
   bool isRestoring = false;
-  final MaterialThemeBase currentTheme;
 
   String get imageRestoreHWPath => widget.themeType == ThemeType.dark
       ? 'assets/images/restore_hw_dark.png'
@@ -93,7 +86,6 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                 image: imageSeedKeys,
                 title: S.of(context).restore_title_from_seed_keys,
                 description: S.of(context).restore_description_from_seed_keys,
-                currentTheme: currentTheme,
               ),
               if (FeatureFlag.hasBitcoinViewOnly && DeviceInfo.instance.isMobile)
                 Padding(
@@ -105,21 +97,19 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     title: S.of(context).restore_title_from_cupcake,
                     description: S.of(context).restore_description_from_cupcake,
                     tag: S.of(context).new_tag,
-                    currentTheme: currentTheme,
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 12),
-                  child: OptionTile(
-                    key: ValueKey('restore_options_from_hardware_wallet_button_key'),
-                    onPressed: () =>
-                        Navigator.pushNamed(context, Routes.restoreWalletFromHardwareWallet),
-                    image: imageRestoreHW,
-                    title: S.of(context).restore_title_from_hardware_wallet,
-                    description: S.of(context).restore_description_from_hardware_wallet,
-                    currentTheme: currentTheme,
-                  ),
+              Padding(
+                padding: EdgeInsets.only(top: 12),
+                child: OptionTile(
+                  key: ValueKey('restore_options_from_hardware_wallet_button_key'),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, Routes.restoreWalletFromHardwareWallet),
+                  image: imageRestoreHW,
+                  title: S.of(context).restore_title_from_hardware_wallet,
+                  description: S.of(context).restore_description_from_hardware_wallet,
                 ),
+              ),
               if (widget.isNewInstall)
                 Padding(
                   padding: EdgeInsets.only(top: 12),
@@ -129,7 +119,6 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     image: imageRestoreBackup,
                     title: S.of(context).restore_title_from_backup,
                     description: S.of(context).restore_description_from_backup,
-                    currentTheme: currentTheme,
                   ),
                 ),
               if (DeviceInfo.instance.isMobile)
@@ -141,7 +130,6 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     image: imageRestoreQR,
                     title: S.of(context).scan_qr_code,
                     description: S.of(context).cold_or_recover_wallet,
-                    currentTheme: currentTheme,
                   ),
                 ),
             ],
