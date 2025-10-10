@@ -191,7 +191,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           paymentFlowResult: result,
           paymentViewModel: paymentViewModel,
           walletSwitcherViewModel: walletSwitcherViewModel,
-          currentTheme: currentTheme,
           paymentRequest: paymentRequest,
           onSelectWallet: () => _handleSelectWallet(
             paymentViewModel,
@@ -224,7 +223,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       builder: (BuildContext dialogContext) {
         return WalletSwitcherBottomSheet(
           viewModel: walletSwitcherViewModel,
-          currentTheme: currentTheme,
           filterWalletType: paymentViewModel.detectedWalletType,
         );
       },

@@ -6,7 +6,6 @@ class TooltipSheet extends BaseBottomSheet {
   final String tooltip;
 
   const TooltipSheet({
-    required super.currentTheme,
     required super.titleText,
     super.titleIconPath,
     required this.tooltip,

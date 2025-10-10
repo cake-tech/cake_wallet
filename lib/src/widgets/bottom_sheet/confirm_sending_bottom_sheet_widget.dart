@@ -1,6 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
@@ -17,7 +17,6 @@ import 'base_bottom_sheet_widget.dart';
 class ConfirmSendingBottomSheet extends BaseBottomSheet {
   ConfirmSendingBottomSheet({
     required String titleText,
-    required MaterialThemeBase currentTheme,
     required FooterType footerType,
     String? titleIconPath,
     String? slideActionButtonText,
@@ -42,12 +41,10 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     this.quantity,
     Key? key,
   })  : showScrollbar = outputs.length > 3,
-        _currentTheme = currentTheme,
         super(
             titleText: titleText,
             maxHeight: 900,
             titleIconPath: titleIconPath,
-            currentTheme: currentTheme,
             footerType: footerType,
             slideActionButtonText: slideActionButtonText ?? 'Swipe to send',
             onSlideActionComplete: onSlideActionComplete,
@@ -56,7 +53,6 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
             key: key);
 
   final CryptoCurrency currency;
-  final MaterialThemeBase _currentTheme;
   final String? paymentId;
   final String? paymentIdValue;
   final String? expirationTime;
@@ -90,9 +86,9 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
           decoration: TextDecoration.none,
         );
 
-    final tileBackgroundColor = _currentTheme.isDark
-        ? _currentTheme.customColors.backgroundGradientColor.withAlpha(140)
-        : _currentTheme.customColors.cardGradientColorPrimary;
+    final tileBackgroundColor = context.currentTheme.isDark
+        ? context.currentTheme.customColors.backgroundGradientColor.withAlpha(140)
+        : context.currentTheme.customColors.cardGradientColorPrimary;
 
     Widget content = Padding(
       padding: EdgeInsets.fromLTRB(8, 0, showScrollbar ? 16 : 8, 8),

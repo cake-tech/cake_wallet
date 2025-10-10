@@ -4,7 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +23,6 @@ class SavingsCard extends StatelessWidget {
     this.isLoading = false,
     this.fiatSavingsBalance,
     this.fiatCurrency,
-    required this.currentTheme,
   });
 
   final bool isEnabled;
@@ -37,7 +36,6 @@ class SavingsCard extends StatelessWidget {
   final VoidCallback onRemoveSavingsPressed;
   final VoidCallback onApproveSavingsPressed;
   final VoidCallback onTooltipPressed;
-  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -77,8 +75,8 @@ class SavingsCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(15),
               gradient: LinearGradient(
                 colors: [
-                  currentTheme.customColors.cardGradientColorPrimary,
-                  currentTheme.customColors.cardGradientColorSecondary,
+                  context.currentTheme.customColors.cardGradientColorPrimary,
+                  context.currentTheme.customColors.cardGradientColorSecondary,
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,

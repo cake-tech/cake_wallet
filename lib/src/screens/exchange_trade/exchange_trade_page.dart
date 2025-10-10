@@ -276,7 +276,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 isScrollControlled: true,
                 builder: (BuildContext bottomSheetContext) {
                   return ConfirmSendingBottomSheet(
-                    currentTheme: widget.currentTheme,
                     key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
                     footerType: FooterType.slideActionButton,
                     walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
@@ -321,7 +320,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 isScrollControlled: true,
                 builder: (BuildContext bottomSheetContext) {
                   return InfoBottomSheet(
-                    currentTheme: widget.currentTheme,
                     footerType: FooterType.singleActionButton,
                     titleText: S.of(bottomSheetContext).transaction_sent,
                     contentImage: 'assets/images/birthday_cake.png',

@@ -1,7 +1,7 @@
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +15,6 @@ class InterestCardWidget extends StatelessWidget {
     required this.onTooltipPressed,
     this.fiatAccruedInterest,
     this.fiatCurrency,
-    required this.currentTheme,
   });
 
   final String title;
@@ -26,7 +25,6 @@ class InterestCardWidget extends StatelessWidget {
   final VoidCallback onCollectInterest;
   final VoidCallback onReinvestInterest;
   final VoidCallback onTooltipPressed;
-  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) => Stack(children: [
@@ -37,8 +35,8 @@ class InterestCardWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(15),
             gradient: LinearGradient(
               colors: [
-                currentTheme.customColors.cardGradientColorPrimary,
-                currentTheme.customColors.cardGradientColorSecondary,
+                context.currentTheme.customColors.cardGradientColorPrimary,
+                context.currentTheme.customColors.cardGradientColorSecondary,
               ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,

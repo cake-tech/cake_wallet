@@ -311,7 +311,6 @@ class QRWidget extends StatelessWidget {
       builder: (context) => InfoBottomSheet(
         titleText: S.of(context).payjoin_unavailable_sheet_title,
         content: S.of(context).payjoin_unavailable_sheet_content,
-        currentTheme: currentTheme,
         footerType: FooterType.doubleActionButton,
         doubleActionLeftButtonText: S.of(context).learn_more,
         onLeftActionButtonPressed: () => launchUrl(
