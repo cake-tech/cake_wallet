@@ -116,23 +116,6 @@ class WalletListBody extends StatefulWidget {
 }
 
 class WalletListBodyState extends State<WalletListBody> {
-  final moneroIcon = Image.asset('assets/images/crypto/monero.png', height: 24, width: 24);
-  final bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.png', height: 24, width: 24);
-  final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
-  final litecoinIcon = Image.asset('assets/images/crypto/litecoin.png', height: 24, width: 24);
-  final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
-  final ethereumIcon = Image.asset('assets/images/crypto/ethereum.png', height: 24, width: 24);
-  final polygonIcon = Image.asset('assets/images/crypto/polygon.png', height: 24, width: 24);
-  final bitcoinCashIcon =
-      Image.asset('assets/images/crypto/bitcoin-cash.png', height: 24, width: 24);
-  final nanoIcon = Image.asset('assets/images/crypto/nano.png', height: 24, width: 24);
-  final bananoIcon = Image.asset('assets/images/crypto/nano.png', height: 24, width: 24);
-  final solanaIcon = Image.asset('assets/images/crypto/solana.png', height: 24, width: 24);
-  final tronIcon = Image.asset('assets/images/crypto/tron.png', height: 24, width: 24);
-  final wowneroIcon = Image.asset('assets/images/crypto/wownero.png', height: 24, width: 24);
-  final zanoIcon = Image.asset('assets/images/crypto/zano.png', height: 24, width: 24);
-  final decredIcon = Image.asset('assets/images/crypto/decred.png', height: 24, width: 24);
-  final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;
