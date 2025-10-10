@@ -7,13 +7,11 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 
 class WalletSwitcherBottomSheet extends BaseBottomSheet {
   WalletSwitcherBottomSheet({
     Key? key,
     required this.viewModel,
-    required this.currentTheme,
     this.filterWalletType,
     this.subtitle,
     this.onWalletSelected,
@@ -21,11 +19,9 @@ class WalletSwitcherBottomSheet extends BaseBottomSheet {
           titleText: S.current.select_a_wallet,
           footerType: FooterType.none,
           maxHeight: 900,
-          currentTheme: currentTheme,
         );
 
   final WalletSwitcherViewModel viewModel;
-  final MaterialThemeBase currentTheme;
   final WalletType? filterWalletType;
   final String? subtitle;
   final Function(WalletInfo)? onWalletSelected;

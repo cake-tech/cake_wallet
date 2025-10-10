@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay 让您可以轻松购买带有虚拟资产的礼品卡，可立即在美国超过 150,000 家商家消费。",
+  "accent_color": "口音颜色",
   "account": "帐户",
   "accounts": "账户",
   "accounts_subaddresses": "账户和子地址",
@@ -55,6 +56,7 @@
   "and": "和",
   "anonpay_description": "生成 ${type}。收款人可以使用任何受支持的加密货币 ${method}，您将在此钱包中收到资金。",
   "apk_update": "APK更新",
+  "appearance": "外貌",
   "approve": "批准",
   "approve_request": "批准请求",
   "approve_tokens": "批准令牌",
@@ -569,6 +571,7 @@
   "offline": "离线",
   "ok": "确认",
   "old_fee": "旧费用",
+  "oled_mode": "OLED模式",
   "onion_link": "洋葱链接",
   "online": "在线",
   "onramper_option_description": "快速使用许多付款方式购买加密货币。在大多数国家 /地区可用。利差和费用各不相同。",

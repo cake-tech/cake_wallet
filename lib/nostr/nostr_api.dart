@@ -29,7 +29,10 @@ class NostrProfileHandler {
   }
 
   static Future<UserMetadata?> processRelays(
-      BuildContext context, ProfilePointer profile, String nip05Address) async {
+    BuildContext context,
+    ProfilePointer profile,
+    String nip05Address,
+  ) async {
     String userDomain = _extractDomain(nip05Address);
     const int metaData = 0;
 
@@ -45,7 +48,8 @@ class NostrProfileHandler {
     }
     await _showErrorDialog(context, S.of(context).no_relays, S.of(context).no_relay_on_domain);
 
-    String? chosenRelayUrl = await _showRelayChoiceDialog(context, profile.relays ?? []);
+    String? chosenRelayUrl =
+        await _showRelayChoiceDialog(context, profile.relays ?? []);
     if (chosenRelayUrl != null) {
       final userData = await _fetchInfoFromRelay(chosenRelayUrl, profile.pubkey, [metaData]);
       if (userData != null) {
@@ -121,7 +125,10 @@ class NostrProfileHandler {
     }
   }
 
-  static Future<String?> _showRelayChoiceDialog(BuildContext context, List<String> relays) async {
+  static Future<String?> _showRelayChoiceDialog(
+    BuildContext context,
+    List<String> relays,
+  ) async {
     String? selectedRelay;
 
     if (context.mounted) {

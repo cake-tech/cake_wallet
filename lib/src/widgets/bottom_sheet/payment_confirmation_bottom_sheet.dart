@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class PaymentConfirmationBottomSheet extends BaseBottomSheet {
@@ -16,7 +15,6 @@ class PaymentConfirmationBottomSheet extends BaseBottomSheet {
     required this.paymentFlowResult,
     required this.paymentViewModel,
     required this.walletSwitcherViewModel,
-    required this.currentTheme,
     required this.paymentRequest,
     required this.onSelectWallet,
     required this.onChangeWallet,
@@ -25,13 +23,11 @@ class PaymentConfirmationBottomSheet extends BaseBottomSheet {
           titleText: '',
           footerType: FooterType.none,
           maxHeight: 900,
-          currentTheme: currentTheme,
         );
 
   final PaymentFlowResult paymentFlowResult;
   final PaymentViewModel paymentViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
-  final MaterialThemeBase currentTheme;
   final PaymentRequest paymentRequest;
   final VoidCallback onSelectWallet;
   final VoidCallback onChangeWallet;

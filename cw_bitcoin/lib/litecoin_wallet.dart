@@ -1,53 +1,53 @@
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:convert/convert.dart' as convert;
 import 'dart:math';
-import 'package:collection/collection.dart';
-import 'package:crypto/crypto.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
-import 'package:cw_core/cake_hive.dart';
-import 'package:cw_core/mweb_utxo.dart';
-import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_mweb/mwebd.pbgrpc.dart';
-import 'package:fixnum/fixnum.dart';
+
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:blockchain_utils/signer/ecdsa_signing_key.dart';
+import 'package:collection/collection.dart';
+import 'package:convert/convert.dart' as convert;
+import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_bitcoin/electrum_transaction_info.dart';
-import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
-import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
-import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
+import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
+import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
+import 'package:cw_bitcoin/psbt/transaction_builder.dart';
+import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/mweb_utxo.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
-import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
-import 'package:cw_core/output_info.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_mweb/cw_mweb.dart';
+import 'package:cw_mweb/mwebd.pbgrpc.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
-import 'package:ledger_litecoin/ledger_litecoin.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_mweb/cw_mweb.dart';
-import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
 import 'package:pointycastle/ecc/api.dart';
 import 'package:pointycastle/ecc/curves/secp256k1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -144,6 +144,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     });
   }
+
   late final Bip32Slip10Secp256k1? mwebHd;
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
@@ -160,6 +161,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   bool get hasRescan => true;
 
   List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+
   List<int> get spendSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
 
   static Future<LitecoinWallet> create(
@@ -1064,9 +1066,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       tx.isMweb = mwebEnabled;
 
       if (!mwebEnabled) {
-        tx.changeAddressOverride =
-            (await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(coinTypeToSpendFrom: UnspentCoinType.nonMweb))
-                .address;
+        tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
+                .getChangeAddress(coinTypeToSpendFrom: UnspentCoinType.nonMweb))
+            .address;
         return tx;
       }
       await waitForMwebAddresses();
@@ -1119,7 +1121,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       bool isRegular = !hasMwebInput && !hasMwebOutput;
       bool shouldNotUseMwebChange = isPegIn || isRegular || !hasMwebInput;
       tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
-              .getChangeAddress(coinTypeToSpendFrom: shouldNotUseMwebChange ? UnspentCoinType.nonMweb : UnspentCoinType.any))
+              .getChangeAddress(
+                  coinTypeToSpendFrom:
+                      shouldNotUseMwebChange ? UnspentCoinType.nonMweb : UnspentCoinType.any))
           .address;
       if (isRegular) {
         tx.isMweb = false;
@@ -1368,16 +1372,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return false;
   }
 
-  LedgerConnection? _ledgerConnection;
-  LitecoinLedgerApp? _litecoinLedgerApp;
-
-  @override
-  void setLedgerConnection(LedgerConnection connection) {
-    _ledgerConnection = connection;
-    _litecoinLedgerApp = LitecoinLedgerApp(_ledgerConnection!,
-        derivationPath: walletInfo.derivationInfo!.derivationPath!);
-  }
-
   @override
   Future<BtcTransaction> buildHardwareWalletTransaction({
     required List<BitcoinBaseOutput> outputs,
@@ -1391,38 +1385,26 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
   }) async {
-    final readyInputs = <LedgerTransaction>[];
+    final masterFingerprint =
+        await (hardwareWalletService as BitcoinHardwareWalletService).getMasterFingerprint();
+
+    final readyInputs = <PSBTReadyUtxoWithAddress>[];
     for (final utxo in utxos) {
       final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
       final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
-      readyInputs.add(LedgerTransaction(
+      readyInputs.add(PSBTReadyUtxoWithAddress(
+        utxo: utxo.utxo,
         rawTx: rawTx,
-        outputIndex: utxo.utxo.vout,
-        ownerPublicKey: Uint8List.fromList(hex.decode(publicKeyAndDerivationPath.publicKey)),
+        ownerDetails: utxo.ownerDetails,
         ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
-        // sequence: enableRBF ? 0x1 : 0xffffffff,
-        sequence: 0xffffffff,
+        ownerMasterFingerprint:masterFingerprint,
+        ownerPublicKey: publicKeyAndDerivationPath.publicKey,
       ));
     }
 
-    String? changePath;
-    for (final output in outputs) {
-      final maybeChangePath = publicKeys[(output as BitcoinOutput).address.pubKeyHash()];
-      if (maybeChangePath != null) changePath ??= maybeChangePath.derivationPath;
-    }
-
-    final rawHex = await _litecoinLedgerApp!.createTransaction(
-        inputs: readyInputs,
-        outputs: outputs
-            .map((e) => TransactionOutput.fromBigInt((e as BitcoinOutput).value,
-                Uint8List.fromList(e.address.toScriptPubKey().toBytes())))
-            .toList(),
-        changePath: changePath,
-        sigHashType: 0x01,
-        additionals: ["bech32"],
-        isSegWit: true,
-        useTrustedInputForSegwit: true);
+    final rawHex = await (hardwareWalletService as LitecoinHardwareWalletService)
+        .signLitecoinTransaction(outputs: outputs, inputs: readyInputs, publicKeys: publicKeys);
 
     return BtcTransaction.fromRaw(rawHex);
   }

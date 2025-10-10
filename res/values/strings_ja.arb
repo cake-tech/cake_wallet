@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Payを使用すると、仮想資産を含むギフトカードを簡単に購入でき、米国内の150,000を超える加盟店ですぐに利用できます。",
+  "accent_color": "アクセント色",
   "account": "アカウント",
   "accounts": "アカウント",
   "accounts_subaddresses": "アカウントとサブアドレス",
@@ -55,6 +56,7 @@
   "and": "と",
   "anonpay_description": "${type} を生成します。受取人はサポートされている任意の暗号通貨で ${method} でき、あなたはこのウォレットで資金を受け取ります。",
   "apk_update": "APKアップデート",
+  "appearance": "外観",
   "approve": "承認する",
   "approve_request": "リクエストを承認します",
   "approve_tokens": "トークンを承認します",
@@ -570,6 +572,7 @@
   "offline": "オフライン",
   "ok": "OK",
   "old_fee": "古い料金",
+  "oled_mode": "OLEDモード",
   "onion_link": "オニオンリンク",
   "online": "オンライン",
   "onramper_option_description": "多くの支払い方法で暗号をすばやく購入してください。ほとんどの国で利用可能です。スプレッドと料金は異なります。",

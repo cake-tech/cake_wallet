@@ -549,7 +549,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
         try {
-           newSortedProviders[result[i]] = _providers[i];
+          newSortedProviders[result[i]] = _providers[i];
         } catch (e) {
           // will throw "Concurrent modification during iteration" error if modified at the same
           // time [createTrade] is called, as this is not a normal map, but a sorted map

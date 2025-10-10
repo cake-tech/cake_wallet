@@ -10,13 +10,10 @@ import 'package:cake_wallet/cake_pay/src/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/cake_pay_card_info_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/tab_view_wrapper_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -94,10 +91,7 @@ class CakePayCardsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return CakePayCardsPageBody(
-        cardsListViewModel: _cardsListViewModel,
-        currentTheme: currentTheme,
-        titleColor: titleColor);
+    return CakePayCardsPageBody(cardsListViewModel: _cardsListViewModel, titleColor: titleColor);
   }
 }
 
@@ -105,12 +99,10 @@ class CakePayCardsPageBody extends StatefulWidget {
   const CakePayCardsPageBody({
     super.key,
     required CakePayCardsListViewModel cardsListViewModel,
-    required this.currentTheme,
     required this.titleColor,
   }) : _cardsListViewModel = cardsListViewModel;
 
   final CakePayCardsListViewModel _cardsListViewModel;
-  final MaterialThemeBase currentTheme;
   final Color? Function(BuildContext) titleColor;
 
   @override
@@ -188,8 +180,8 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
                   ],
                   views: [
                     _MyCardsTab(
-                        cardsListViewModel: widget._cardsListViewModel,
-                        currentTheme: widget.currentTheme),
+                      cardsListViewModel: widget._cardsListViewModel,
+                    ),
                     _ShopTab(cardsListViewModel: widget._cardsListViewModel)
                   ]),
             )
@@ -258,10 +250,9 @@ class _TrailingIcon extends StatelessWidget {
 }
 
 class _MyCardsTab extends StatefulWidget {
-  const _MyCardsTab({required this.cardsListViewModel, required this.currentTheme});
+  const _MyCardsTab({required this.cardsListViewModel});
 
   final CakePayCardsListViewModel cardsListViewModel;
-  final MaterialThemeBase currentTheme;
 
   @override
   State<_MyCardsTab> createState() => _MyCardsTabState();
@@ -322,18 +313,20 @@ class _MyCardsTabState extends State<_MyCardsTab> {
                         logoUrl: card.cardImageUrl,
                         title: card.name,
                         subTitle: '\$100',
-                        onTap: () => _showCardInfoBottomSheet(context, card, widget.currentTheme),
+                        onTap: () => _showCardInfoBottomSheet(context, card),
                       );
                     },
                   ),
                 ],
               );
-              return showThumb ? Scrollbar(
-                key: ValueKey('cake_pay_my_cards_tab_scrollbar_key'),
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: userCardsList,
-              ) : userCardsList;
+              return showThumb
+                  ? Scrollbar(
+                      key: ValueKey('cake_pay_my_cards_tab_scrollbar_key'),
+                      thumbVisibility: true,
+                      trackVisibility: true,
+                      child: userCardsList,
+                    )
+                  : userCardsList;
             }),
           ),
         ],
@@ -342,8 +335,7 @@ class _MyCardsTabState extends State<_MyCardsTab> {
   }
 }
 
-Future<void> _showCardInfoBottomSheet(
-    BuildContext context, CakePayCard card, MaterialThemeBase currentTheme) async {
+Future<void> _showCardInfoBottomSheet(BuildContext context, CakePayCard card) async {
   bool isReloadable = false; // TODO: replace with real logic
   if (card.name.toLowerCase().contains('prepaid')) {
     isReloadable = true;
@@ -360,7 +352,6 @@ Future<void> _showCardInfoBottomSheet(
               titleText: 'Reloadable Card',
               balance: '100 USD',
               howToUse: card.howToUse,
-              currentTheme: currentTheme,
               footerType: FooterType.doubleActionButton,
               applyBoxShadow: true,
               contentImage: card.cardImageUrl,
@@ -376,7 +367,6 @@ Future<void> _showCardInfoBottomSheet(
               titleText: card.name,
               balance: '500 USD',
               howToUse: card.howToUse,
-              currentTheme: currentTheme,
               footerType: FooterType.singleActionButton,
               applyBoxShadow: true,
               contentImage: card.cardImageUrl,
@@ -399,7 +389,6 @@ class _ShopTab extends StatefulWidget {
 
 class _ShopTabState extends State<_ShopTab> {
   late final ScrollController _scroll;
-
 
   @override
   void initState() {
@@ -466,8 +455,7 @@ class _ShopTabState extends State<_ShopTab> {
               return const _Loading();
             }
 
-            if (vendors.isEmpty)
-              return Center(child: Text(S.of(context).no_cards_found));
+            if (vendors.isEmpty) return Center(child: Text(S.of(context).no_cards_found));
 
             final loadingMore = viewModel.isLoadingNextPage;
             final showThumb = vendors.length > 3;

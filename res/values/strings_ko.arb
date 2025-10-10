@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay를 사용하면 가상 자산으로 기프트 카드를 쉽게 구매하여 미국 내 150,000개 이상의 가맹점에서 즉시 사용할 수 있습니다.",
+  "accent_color": "악센트 색상",
   "account": "계정",
   "accounts": "계정",
   "accounts_subaddresses": "계정 및 하위 주소",
@@ -55,6 +56,7 @@
   "and": "및",
   "anonpay_description": "${type} 생성. 수신자는 지원되는 모든 암호화폐로 ${method}할 수 있으며, 귀하는 이 지갑으로 자금을 받게 됩니다.",
   "apk_update": "APK 업데이트",
+  "appearance": "모습",
   "approve": "승인",
   "approve_request": "요청 승인",
   "approve_tokens": "토큰을 승인합니다",
@@ -569,6 +571,7 @@
   "offline": "오프라인",
   "ok": "확인",
   "old_fee": "이전 수수료",
+  "oled_mode": "OLED 모드",
   "onion_link": "Onion 링크",
   "online": "온라인",
   "onramper_option_description": "다양한 결제 방법으로 빠르게 암호화폐 구매. 대부분의 국가에서 사용 가능. 스프레드 및 수수료는 다양함.",

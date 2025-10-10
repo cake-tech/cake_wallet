@@ -316,7 +316,6 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       isScrollControlled: true,
       builder: (BuildContext bottomSheetContext) => InfoStepsBottomSheet(
         titleText: S.of(context).how_to_connect,
-        currentTheme: widget.currentTheme,
         steps: [
           InfoStep('${S.of(context).step} 1', S.of(context).connect_hw_info_step_1),
           InfoStep('${S.of(context).step} 2', S.of(context).connect_hw_info_step_2),

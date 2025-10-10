@@ -38,6 +38,9 @@ class PreferencesKey {
   static const exchangeStatusKey = 'exchange_status';
   static const currentTheme = 'current_theme';
   static const themeMode = 'theme_mode';
+  static const blackThemeOled = 'black_theme_oled_enabled';
+  static const savedDarkTheme = 'saved_dark_theme';
+  static const savedLightTheme = 'saved_light_theme';
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';

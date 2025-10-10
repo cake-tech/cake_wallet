@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "O Cake Pay permite que você compre facilmente cartões-presente com ativos virtuais, que podem ser gastos instantaneamente em mais de 150.000 comerciantes nos Estados Unidos.",
+  "accent_color": "Cor de destaque",
   "account": "Conta",
   "accounts": "Contas",
   "accounts_subaddresses": "Contas e sub-endereços",
@@ -55,6 +56,7 @@
   "and": "e",
   "anonpay_description": "Gere ${type}. O destinatário pode ${method} com qualquer criptomoeda suportada e você receberá fundos nesta carteira.",
   "apk_update": "Atualização de APK",
+  "appearance": "Aparência",
   "approve": "Aprovar",
   "approve_request": "Aprovar solicitação",
   "approve_tokens": "Aprovar tokens",
@@ -570,6 +572,7 @@
   "offline": "offline",
   "ok": "Ok",
   "old_fee": "Taxa antiga",
+  "oled_mode": "Modo OLED",
   "onion_link": "ligação de cebola",
   "online": "Online",
   "onramper_option_description": "Compre rapidamente criptografia com muitos métodos de pagamento. Disponível na maioria dos países. Os spreads e taxas variam.",
