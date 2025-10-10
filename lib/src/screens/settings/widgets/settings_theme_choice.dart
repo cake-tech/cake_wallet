@@ -23,9 +23,13 @@ class SettingsThemeChoicesCell extends StatelessWidget {
         final availableThemes = _displaySettingsViewModel.availableThemes;
         final currentTheme = _displaySettingsViewModel.currentTheme;
         final availableAccentColors = _displaySettingsViewModel.availableAccentColors;
+        final screenHeight = MediaQuery.of(context).size.height;
+
+        final previewHeight = _getResponsivePreviewHeight(screenHeight);
+        final previewWidth = previewHeight * 0.6;
 
         return Container(
-          height: getHeight(currentTheme, currentTheme.hasAccentColors),
+          height: getHeight(context, currentTheme, currentTheme.hasAccentColors),
           padding: EdgeInsets.all(12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -61,8 +65,8 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                             child: CakeImageWidget(
                               imageUrl: _displaySettingsViewModel.getImageForTheme(theme),
                               fit: BoxFit.cover,
-                              height: 200,
-                              width: 120,
+                              height: previewHeight,
+                              width: previewWidth,
                             ),
                           ),
                         ),
@@ -129,11 +133,22 @@ class SettingsThemeChoicesCell extends StatelessWidget {
     );
   }
 
-  double getHeight(MaterialThemeBase theme, bool hasAccentColors) {
-    if (theme is BlackTheme && hasAccentColors) return 356;
+  double getHeight(BuildContext context, MaterialThemeBase theme, bool hasAccentColors) {
+    final screenHeight = MediaQuery.of(context).size.height;
 
-    if (hasAccentColors) return 306;
+    double baseHeight = (screenHeight * 0.25).clamp(150.0, screenHeight * 0.5);
 
-    return 236;
+    if (hasAccentColors) {
+      baseHeight += (screenHeight * 0.05).clamp(35.0, 60.0);
+    }
+
+    if (theme is BlackTheme) {
+      baseHeight += (screenHeight * 0.08).clamp(48.0, 96.0);
+    }
+
+    return baseHeight;
   }
+
+  double _getResponsivePreviewHeight(double screenHeight) =>
+      (screenHeight * 0.22).clamp(160.0, 240.0);
 }
