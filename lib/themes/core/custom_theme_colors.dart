@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Abstract interface for theme-specific custom colors
@@ -26,7 +27,8 @@ abstract class CustomThemeColors {
   static const syncYellow = Color(0xFFFFFB84E);
 }
 
-/// For access to colors that we would have had to do a lot of constructor pass down for.
-extension CustomColorsX on BuildContext {
-  CustomThemeColors get customColors => getIt<ThemeStore>().currentTheme.customColors;
+/// For access to the current theme that we would have had to do a lot of constructor pass down for.
+extension ThemeX on BuildContext {
+  MaterialThemeBase get currentTheme => getIt<ThemeStore>().currentTheme;
+  CustomThemeColors get customColors => currentTheme.customColors;
 }
