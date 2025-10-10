@@ -45,10 +45,11 @@ class SettingActions {
     name: (context) => S.of(context).export_outputs,
     image: 'assets/images/crypto/monero.png',
     onTap: (BuildContext context) {
-      Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: {'export-outputs': 'export-outputs'});
+      Navigator.of(context)
+          .pushNamed(Routes.urqrAnimatedPage, arguments: {'export-outputs': 'export-outputs'});
     },
   );
-  
+
   static SettingActions litecoinMwebSettingAction = SettingActions._(
     key: ValueKey('dashboard_page_menu_widget_litecoin_mweb_settings_button_key'),
     name: (context) => S.of(context).litecoin_mweb_settings,

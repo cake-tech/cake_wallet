@@ -41,8 +41,8 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
   bool obscurePassphrase = true;
   @override
   Widget build(BuildContext context) {
-
-    final passphraseImage = context.currentTheme.isDark ? passphraseImageDark : passphraseImageLight;
+    final passphraseImage =
+        context.currentTheme.isDark ? passphraseImageDark : passphraseImageLight;
 
     return Container(
       decoration: BoxDecoration(

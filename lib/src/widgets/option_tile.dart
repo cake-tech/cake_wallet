@@ -19,7 +19,6 @@ class OptionTile extends StatelessWidget {
   final String description;
   final String? tag;
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -42,7 +41,6 @@ class OptionTile extends StatelessWidget {
           backgroundColor: Colors.transparent,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           padding: EdgeInsets.all(24),
-
         ),
         onPressed: onPressed,
         child: Row(
@@ -65,15 +63,15 @@ class OptionTile extends StatelessWidget {
                           constraints: BoxConstraints(maxWidth: 220),
                           child: Text(title, style: Theme.of(context).textTheme.titleMedium),
                         ),
-                        if (tag != null) Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(),
-                              borderRadius: BorderRadius.circular(20),
-                              color: Theme.of(context).colorScheme.onSurfaceVariant
-                            ),
-                            padding: EdgeInsets.symmetric(horizontal: 5),
-                            margin: EdgeInsets.only(left: 5),
-                            child: Text(tag!))
+                        if (tag != null)
+                          Container(
+                              decoration: BoxDecoration(
+                                  border: Border.all(),
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              padding: EdgeInsets.symmetric(horizontal: 5),
+                              margin: EdgeInsets.only(left: 5),
+                              child: Text(tag!))
                       ],
                     ),
                     Padding(

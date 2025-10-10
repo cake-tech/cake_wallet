@@ -39,7 +39,7 @@ class AnonInvoiceForm extends StatelessWidget {
   final FocusNode _descriptionFocusNode;
   final GlobalKey<FormState> formKey;
   final bool isInvoice;
-  
+
   @override
   Widget build(BuildContext context) {
     return Form(

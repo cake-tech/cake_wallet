@@ -37,11 +37,10 @@ class FilteredListState extends State<FilteredList> {
                 borderRadius: BorderRadius.circular(20.0),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 5,
-                    offset: const Offset(0, 6),
-                    spreadRadius: 1
-                  )
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 5,
+                      offset: const Offset(0, 6),
+                      spreadRadius: 1)
                 ],
               ),
               child: child,

@@ -23,14 +23,12 @@ class EditWalletButtonWidget extends StatelessWidget {
           TextButton(
             onPressed: onTap,
             style: TextButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              shape: CircleBorder()
-            ),
+                backgroundColor: Theme.of(context).colorScheme.surface, shape: CircleBorder()),
             child: Icon(
-                    Icons.edit,
-                    size: 14,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+              Icons.edit,
+              size: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           if (isGroup) ...{
             Icon(

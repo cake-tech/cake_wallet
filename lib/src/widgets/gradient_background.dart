@@ -16,7 +16,7 @@ class GradientBackground extends StatelessWidget {
             Theme.of(context).colorScheme.surface,
             context.customColors.backgroundGradientColor,
           ],
-          begin: Alignment.topCenter, 
+          begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
       ),

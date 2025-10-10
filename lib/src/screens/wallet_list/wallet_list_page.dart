@@ -123,7 +123,8 @@ class WalletListBodyState extends State<WalletListBody> {
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final ethereumIcon = Image.asset('assets/images/crypto/ethereum.png', height: 24, width: 24);
   final polygonIcon = Image.asset('assets/images/crypto/polygon.png', height: 24, width: 24);
-  final bitcoinCashIcon = Image.asset('assets/images/crypto/bitcoin-cash.png', height: 24, width: 24);
+  final bitcoinCashIcon =
+      Image.asset('assets/images/crypto/bitcoin-cash.png', height: 24, width: 24);
   final nanoIcon = Image.asset('assets/images/crypto/nano.png', height: 24, width: 24);
   final bananoIcon = Image.asset('assets/images/crypto/nano.png', height: 24, width: 24);
   final solanaIcon = Image.asset('assets/images/crypto/solana.png', height: 24, width: 24);
@@ -166,8 +167,8 @@ class WalletListBodyState extends State<WalletListBody> {
                   SizedBox(height: 16),
                   Container(
                     child: Padding(
-                        padding: EdgeInsets.only(left: 20, right: 20),
-                        child: Observer(
+                      padding: EdgeInsets.only(left: 20, right: 20),
+                      child: Observer(
                         builder: (_) => FilteredList(
                           shrinkWrap: true,
                           list: widget.walletListViewModel.multiWalletGroups,
@@ -226,15 +227,15 @@ class WalletListBodyState extends State<WalletListBody> {
                                 return item.isCurrent
                                     ? SizedBox.shrink()
                                     : EditWalletButtonWidget(
-                                          width: 60,
-                                          onTap: () => Navigator.of(context).pushNamed(
-                                            Routes.walletEdit,
-                                            arguments: WalletEditPageArguments(
-                                              walletListViewModel: widget.walletListViewModel,
-                                              editingWallet: item,
-                                            ),
+                                        width: 60,
+                                        onTap: () => Navigator.of(context).pushNamed(
+                                          Routes.walletEdit,
+                                          arguments: WalletEditPageArguments(
+                                            walletListViewModel: widget.walletListViewModel,
+                                            editingWallet: item,
                                           ),
-                                        );
+                                        ),
+                                      );
                               },
                             );
                           },
@@ -483,7 +484,8 @@ class WalletListBodyState extends State<WalletListBody> {
                 walletType: WalletType.monero,
                 hardwareWalletType: HardwareWalletType.ledger,
                 onConnectDevice: (context, ledgerVM) async {
-                  if (ledgerVM is LedgerViewModel) monero!.setGlobalLedgerConnection(ledgerVM.connection);
+                  if (ledgerVM is LedgerViewModel)
+                    monero!.setGlobalLedgerConnection(ledgerVM.connection);
                   didConnect = true;
                   Navigator.of(context).pop();
                 },

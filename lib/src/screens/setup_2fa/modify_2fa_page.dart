@@ -3,7 +3,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/material.dart';
@@ -26,17 +25,16 @@ class Modify2FAPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return SingleChildScrollView(
-      child: _2FAControlsWidget(setup2FAViewModel: setup2FAViewModel, currentTheme: currentTheme),
+      child: _2FAControlsWidget(setup2FAViewModel: setup2FAViewModel),
     );
   }
 }
 
 class _2FAControlsWidget extends StatelessWidget {
-  const _2FAControlsWidget({required this.setup2FAViewModel, required this.currentTheme});
+  const _2FAControlsWidget({required this.setup2FAViewModel});
 
   final Setup2FAViewModel setup2FAViewModel;
-  final MaterialThemeBase currentTheme;
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(

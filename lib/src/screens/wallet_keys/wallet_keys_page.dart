@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/text_info_box.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
-import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -157,7 +156,11 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                 if (showKeyTab)
                   Padding(
                     padding: const EdgeInsets.only(left: 22, right: 22),
-                    child: _buildKeysTab(context, showSilentPaymentsTab ? widget.walletKeysViewModel.items.sublist(0, 4) : widget.walletKeysViewModel.items),
+                    child: _buildKeysTab(
+                        context,
+                        showSilentPaymentsTab
+                            ? widget.walletKeysViewModel.items.sublist(0, 4)
+                            : widget.walletKeysViewModel.items),
                   ),
                 if (showSilentPaymentsTab)
                   Padding(

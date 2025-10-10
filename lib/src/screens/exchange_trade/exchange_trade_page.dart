@@ -6,7 +6,6 @@ import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_ca
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:mobx/mobx.dart';
@@ -87,17 +86,13 @@ class ExchangeTradePage extends BasePage {
   }
 
   @override
-  Widget body(BuildContext context) => ExchangeTradeForm(
-        exchangeTradeViewModel,
-        currentTheme,
-      );
+  Widget body(BuildContext context) => ExchangeTradeForm(exchangeTradeViewModel);
 }
 
 class ExchangeTradeForm extends StatefulWidget {
-  ExchangeTradeForm(this.exchangeTradeViewModel, this.currentTheme);
+  ExchangeTradeForm(this.exchangeTradeViewModel);
 
   final ExchangeTradeViewModel exchangeTradeViewModel;
-  final MaterialThemeBase currentTheme;
 
   @override
   ExchangeTradeState createState() => ExchangeTradeState();

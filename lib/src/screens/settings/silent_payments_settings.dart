@@ -21,7 +21,7 @@ class SilentPaymentsSettingsPage extends BasePage {
       child: Observer(builder: (_) {
         return Container(
           padding: EdgeInsets.only(top: 10),
-          child: Column(  
+          child: Column(
             children: [
               SettingsSwitcherCell(
                 title: S.current.silent_payments_display_card,

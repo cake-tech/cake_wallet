@@ -22,12 +22,10 @@ class RestoreOptionsPage extends BasePage {
   final bool isNewInstall;
 
   @override
-  Widget body(BuildContext context) {
-    return _RestoreOptionsBody(
-      isNewInstall: isNewInstall,
-      themeType: currentTheme.type,
-    );
-  }
+  Widget body(BuildContext context) => _RestoreOptionsBody(
+        isNewInstall: isNewInstall,
+        themeType: currentTheme.type,
+      );
 }
 
 class _RestoreOptionsBody extends StatefulWidget {
@@ -41,7 +39,6 @@ class _RestoreOptionsBody extends StatefulWidget {
 }
 
 class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
-  _RestoreOptionsBodyState();
   bool isRestoring = false;
 
   String get imageRestoreHWPath => widget.themeType == ThemeType.dark

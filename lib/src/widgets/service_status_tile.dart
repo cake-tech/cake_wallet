@@ -22,11 +22,10 @@ class ServiceStatusTile extends StatelessWidget {
               child: AutoSizeText(
                 "${status.title}${status.status != null ? " - ${status.status}" : ""}",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 16,
-                   
-                  fontWeight: FontWeight.w800,
-                  height: 1,
-                ),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      height: 1,
+                    ),
                 maxLines: 1,
                 textAlign: TextAlign.start,
               ),
