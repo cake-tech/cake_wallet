@@ -10,7 +10,7 @@ import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -43,7 +43,6 @@ class EditTokenPage extends BasePage {
       homeSettingsViewModel: homeSettingsViewModel,
       token: token,
       initialContractAddress: initialContractAddress,
-      currentTheme: currentTheme,
     );
   }
 }
@@ -54,13 +53,11 @@ class EditTokenPageBody extends StatefulWidget {
     required this.homeSettingsViewModel,
     this.token,
     this.initialContractAddress,
-    required this.currentTheme,
   }) : super(key: key);
 
   final HomeSettingsViewModel homeSettingsViewModel;
   final CryptoCurrency? token;
-  final String? initialContractAddress;
-  final MaterialThemeBase currentTheme;
+  final String? initialContractAddress;   
 
   @override
   State<EditTokenPageBody> createState() => _EditTokenPageBodyState();
@@ -150,11 +147,10 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               WarningBox(
                 padding: EdgeInsets.all(16),
                 content: S.of(context).add_token_warning,
-                currentTheme: widget.currentTheme,
                 showBorder: false,
                 textWeight: FontWeight.w500,
                 textAlign: TextAlign.start,
-                textColor: widget.currentTheme.customColors.warningOutlineColor,
+                textColor: context.customColors.warningOutlineColor,
                 iconSize: 22,
                 iconSpacing: 16,
               ),
@@ -440,10 +436,9 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               ? WarningBox(
                   padding: EdgeInsets.all(16),
                   content: S.of(context).tokens_strong_warning,
-                  currentTheme: widget.currentTheme,
                   showBorder: false,
                   textWeight: FontWeight.w500,
-                  textColor: widget.currentTheme.customColors.warningOutlineColor,
+                  textColor: context.customColors.warningOutlineColor,
                   showIcon: false,
                 )
               : Text(

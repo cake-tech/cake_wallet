@@ -26,8 +26,8 @@ class ManufacturerOptionTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               gradient: LinearGradient(
                 colors: [
-                  context.currentTheme.customColors.cardGradientColorPrimary,
-                  context.currentTheme.customColors.cardGradientColorSecondary,
+                  context.customColors.cardGradientColorPrimary,
+                  context.customColors.cardGradientColorSecondary,
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,

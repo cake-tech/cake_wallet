@@ -9,7 +9,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/add_passphrase_bottom_sheet
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -43,7 +42,6 @@ class WalletRestorePage extends BasePage {
               : S.current.restore_title_from_keys,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontSize: 18,
-                 
                 fontWeight: FontWeight.w600,
               ),
         ),
@@ -86,7 +84,6 @@ class WalletRestorePage extends BasePage {
             children: [
               Expanded(
                 child: _WalletRestorePageBody(
-                  currentTheme: currentTheme,
                   walletRestoreViewModel: walletRestoreViewModel,
                   seedSettingsViewModel: seedSettingsViewModel,
                   walletRestoreFromSeedFormKey: walletRestoreFromSeedFormKey,
@@ -149,7 +146,6 @@ class WalletRestorePage extends BasePage {
                                       bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom,
                                     ),
                                     child: AddPassphraseBottomSheet(
-                                      currentTheme: currentTheme,
                                       titleText: S.of(context).add_passphrase,
                                       onRestoreButtonPressed: (passphrase) async {
                                         await _onPassphraseBottomSheetRestoreButtonPressed(
@@ -335,7 +331,6 @@ class _WalletRestorePageBody extends StatefulWidget {
     required this.blockHeightFocusNode,
     required this.derivationInfo,
     required this.onDerivationInfoChanged,
-    required this.currentTheme,
   }) : super(key: key);
 
   final WalletRestoreViewModel walletRestoreViewModel;
@@ -345,7 +340,6 @@ class _WalletRestorePageBody extends StatefulWidget {
   final FocusNode blockHeightFocusNode;
   final DerivationInfo? derivationInfo;
   final void Function(DerivationInfo?) onDerivationInfoChanged;
-  final MaterialThemeBase currentTheme;
 
   @override
   State<_WalletRestorePageBody> createState() => _WalletRestorePageBodyState(
@@ -510,7 +504,6 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
 
   WalletRestoreFromKeysForm _buildWalletRestoreFromKeysTab() {
     return WalletRestoreFromKeysForm(
-      currentTheme: widget.currentTheme,
       key: widget.walletRestoreFromKeysFormKey,
       restoredWallet: walletRestoreViewModel.restoredWallet,
       walletRestoreViewModel: widget.walletRestoreViewModel,
@@ -538,7 +531,6 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
 
   WalletRestoreFromSeedForm _buildWalletRestoreFromSeedTab() {
     return WalletRestoreFromSeedForm(
-      currentTheme: widget.currentTheme,
       key: widget.walletRestoreFromSeedFormKey,
       restoredWallet: walletRestoreViewModel.restoredWallet,
       seedSettingsViewModel: widget.seedSettingsViewModel,

@@ -9,7 +9,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/decred/decred.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 
 class BlockchainHeightWidget extends StatefulWidget {
   BlockchainHeightWidget({
@@ -25,7 +24,6 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.bitcoinMempoolAPIEnabled,
     required this.walletType,
     this.blockHeightTextFieldKey,
-    required this.currentTheme,
   }) : super(key: key);
 
   final Function(int)? onHeightChange;
@@ -39,7 +37,6 @@ class BlockchainHeightWidget extends StatefulWidget {
   final Function()? toggleSingleScan;
   final WalletType walletType;
   final Key? blockHeightTextFieldKey;
-  final MaterialThemeBase currentTheme;
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
 }

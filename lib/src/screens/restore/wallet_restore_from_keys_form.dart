@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -22,7 +21,6 @@ class WalletRestoreFromKeysForm extends StatefulWidget {
     required this.onRepeatedPasswordChange,
     this.restoredWallet,
     this.onPasswordChange,
-    required this.currentTheme,
     Key? key,
   }) : super(key: key);
 
@@ -35,8 +33,7 @@ class WalletRestoreFromKeysForm extends StatefulWidget {
   final RestoredWallet? restoredWallet;
   final void Function(String)? onPasswordChange;
   final void Function(String)? onRepeatedPasswordChange;
-  final MaterialThemeBase currentTheme;
-  
+
   @override
   WalletRestoreFromKeysFormState createState() => WalletRestoreFromKeysFormState(
       displayWalletPassword: displayWalletPassword, restoredWallet: restoredWallet);
@@ -262,7 +259,6 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
         ),
         if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
           BlockchainHeightWidget(
-            currentTheme: widget.currentTheme,
             key: blockchainHeightKey,
             hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
             onHeightChange: (_) => null,
