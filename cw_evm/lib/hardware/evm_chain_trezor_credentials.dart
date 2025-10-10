@@ -87,25 +87,8 @@ class EvmTrezorCredentials extends CredentialsWithKnownAddress {
           BigInt.parse(strip0x(sig.r), radix: 16), BigInt.parse(strip0x(sig.s), radix: 16), v);
     }
 
-    var truncChainId = chainId ?? 1;
-    while (truncChainId.bitLength > 32) {
-      truncChainId >>= 8;
-    }
-
-    final truncTarget = truncChainId * 2 + 35;
-
-    int parity = v;
-    if (truncTarget & 0xff == v) {
-      parity = 0;
-    } else if ((truncTarget + 1) & 0xff == v) {
-      parity = 1;
-    }
-
-    // https://github.com/ethereumjs/ethereumjs-util/blob/8ffe697fafb33cefc7b7ec01c11e3a7da787fe0e/src/signature.ts#L26
-    final chainIdV = chainId != null ? (parity + (chainId * 2 + 35)) : parity;
-
     return MsgSignature(
-        BigInt.parse(strip0x(sig.r), radix: 16), BigInt.parse(strip0x(sig.s), radix: 16), chainIdV);
+        BigInt.parse(strip0x(sig.r), radix: 16), BigInt.parse(strip0x(sig.s), radix: 16), v);
   }
 
   @override
