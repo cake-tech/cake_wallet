@@ -33,11 +33,8 @@ class BaseWallet extends EVMChainWallet {
   @override
   Future<void> initErc20TokensBox() async {
     final boxName = "${walletInfo.name.replaceAll(" ", "_")}_ ${Erc20Token.baseBoxName}";
-    if (await CakeHive.boxExists(boxName)) {
-      evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
-    } else {
-      evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName.replaceAll(" ", ""));
-    }
+
+    evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
   }
 
   @override

@@ -71,6 +71,7 @@ class BaseWalletService extends EVMChainWalletService<BaseWallet> {
       );
 
       await wallet.init();
+      wallet.addInitialTokens(true);
       await wallet.save();
       return wallet;
     }

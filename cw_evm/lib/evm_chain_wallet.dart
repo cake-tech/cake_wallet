@@ -599,7 +599,7 @@ abstract class EVMChainWalletBase
       gasFee: estimatedFeesForTransaction,
       priority: _credentials.priority!,
       currency: transactionCurrency,
-      feeCurrency: switch (_client.chainId) { 1 => "ETH", 137 => "POL", _ => "" },
+      feeCurrency: switch (_client.chainId) { 1 => "ETH", 137 => "POL", 8453 => "ETH", _ => "ETH" },
       maxFeePerGas: maxFeePerGasForTransaction,
       exponent: exponent,
       contractAddress:
