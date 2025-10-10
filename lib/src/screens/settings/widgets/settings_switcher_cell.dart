@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 class SettingsSwitcherCell extends StandardListRow {
@@ -8,7 +7,6 @@ class SettingsSwitcherCell extends StandardListRow {
     required String title,
     required this.value,
     this.onValueChange,
-    required this.currentTheme,
     Decoration? decoration,
     this.leading,
     void Function(BuildContext context)? onTap,
@@ -21,12 +19,10 @@ class SettingsSwitcherCell extends StandardListRow {
   final Color? switchBackgroundColor;
   final void Function(BuildContext context, bool value)? onValueChange;
   final Widget? leading;
-  final MaterialThemeBase currentTheme;
   final EdgeInsets? padding;
 
   @override
   Widget buildTrailing(BuildContext context) => StandardSwitch(
-        currentTheme: currentTheme,
         value: value,
         onTapped: () => onValueChange?.call(context, !value),
         backgroundColor: switchBackgroundColor,
