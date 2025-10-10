@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Binibigyan-daan ka ng Cake Pay na madaling makabili ng mga gift card na may mga virtual na asset na magagastos kaagad sa mahigit na 150,000 merchant sa United States.",
+  "accent_color": "Kulay ng accent",
   "account": "Account",
   "accounts": "Mga Account",
   "accounts_subaddresses": "Mga account at mga subaddress",
@@ -55,6 +56,7 @@
   "and": "at",
   "anonpay_description": "Bumuo ng ${type}. Ang tatanggap ay maaaring ${method} na may anumang suportadong cryptocurrency, at makakatanggap ka ng mga pondo sa wallet na ito.",
   "apk_update": "APK update",
+  "appearance": "Hitsura",
   "approve": "Aprubahan",
   "approve_request": "Aprubahan ang kahilingan",
   "approve_tokens": "Aprubahan ang mga token",
@@ -568,6 +570,7 @@
   "offline": "Offline",
   "ok": "OK",
   "old_fee": "Dating fee",
+  "oled_mode": "OLED mode",
   "onion_link": "Onion link",
   "online": "Online",
   "onramper_option_description": "Mabilis na bumili ng crypto na may maraming paraan ng pagbabayad. Available sa karamihan ng mga bansa. Iba-iba ang mga spread at fee.",

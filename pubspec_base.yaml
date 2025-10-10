@@ -105,7 +105,7 @@ dependencies:
     git:
       url: https://github.com/LacticWhale/socks_dart
       ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
-  flutter_svg: ^2.0.9
+  flutter_svg: ^2.2.0
   polyseed: ^0.0.7
   nostr_tools:
     git:
@@ -215,6 +215,7 @@ flutter:
     - assets/images/
     - assets/images/flags/
     - assets/images/hardware_wallet/
+    - assets/images/crypto/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml

@@ -37,7 +37,6 @@ class BlockchainHeightWidget extends StatefulWidget {
   final Function()? toggleSingleScan;
   final WalletType walletType;
   final Key? blockHeightTextFieldKey;
-
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
 }

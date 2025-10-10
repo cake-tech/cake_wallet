@@ -1,0 +1,28 @@
+import 'dart:ui';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+
+class BlackThemeCustomColors extends CustomThemeColors {
+  @override
+  Color get warningContainerColor => const Color(0xFF8E5800);
+
+  @override
+  Color get warningOutlineColor => const Color(0xFFFFB84E);
+
+  @override
+  Color get backgroundMainColor => const Color(0xFF000000);
+
+  @override
+  Color get backgroundGradientColor => const Color(0xFF000000);
+
+  @override
+  Color get cardGradientColorPrimary => const Color(0xFF202023);
+
+  @override
+  Color get cardGradientColorSecondary => const Color(0xFF181819);
+
+  @override
+  Color get toggleKnobStateColor => const Color(0xFFFFFFFF);
+
+  @override
+  Color get toggleColorOffState => const Color(0xFF2B292B);
+}

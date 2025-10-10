@@ -24,21 +24,21 @@ class MenuWidgetState extends State<MenuWidget> {
         this.tileHeight = 60,
         this.fromTopEdge = 50,
         this.fromBottomEdge = 25,
-        this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
-        this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
-        this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
+        this.moneroIcon = Image.asset('assets/images/crypto/monero.png'),
+        this.bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.png'),
+        this.litecoinIcon = Image.asset('assets/images/crypto/litecoin.png'),
         this.havenIcon = Image.asset('assets/images/haven_menu.png'),
-        this.ethereumIcon = Image.asset('assets/images/eth_icon.png'),
-        this.nanoIcon = Image.asset('assets/images/nano_icon.png'),
-        this.bananoIcon = Image.asset('assets/images/nano_icon.png'),
-        this.bitcoinCashIcon = Image.asset('assets/images/bch_icon.png'),
-        this.polygonIcon = Image.asset('assets/images/matic_icon.png'),
-        this.solanaIcon = Image.asset('assets/images/sol_icon.png'),
-        this.tronIcon = Image.asset('assets/images/trx_icon.png'),
-        this.wowneroIcon = Image.asset('assets/images/wownero_icon.png'),
-        this.zanoIcon = Image.asset('assets/images/zano_icon.png'),
-        this.decredIcon = Image.asset('assets/images/decred_menu.png'),
-        this.dogecoinIcon = Image.asset('assets/images/doge_icon.png');
+        this.ethereumIcon = Image.asset('assets/images/crypto/ethereum.png'),
+        this.nanoIcon = Image.asset('assets/images/crypto/nano.png'),
+        this.bananoIcon = Image.asset('assets/images/crypto/nano.png'),
+        this.bitcoinCashIcon = Image.asset('assets/images/crypto/bitcoin-cash.png'),
+        this.polygonIcon = Image.asset('assets/images/crypto/polygon.png'),
+        this.solanaIcon = Image.asset('assets/images/crypto/solana.png'),
+        this.tronIcon = Image.asset('assets/images/crypto/tron.png'),
+        this.wowneroIcon = Image.asset('assets/images/crypto/wownero.png'),
+        this.zanoIcon = Image.asset('assets/images/crypto/zano.png'),
+        this.decredIcon = Image.asset('assets/images/crypto/decred.png'),
+        this.dogecoinIcon = Image.asset('assets/images/crypto/dogecoin.png');
 
   final largeScreen = 731;
 
@@ -114,10 +114,8 @@ class MenuWidgetState extends State<MenuWidget> {
     }
     int itemCount = items.length;
 
-    moneroIcon =
-        Image.asset('assets/images/monero_menu.png', color: Theme.of(context).colorScheme.primary);
-    bitcoinIcon =
-        Image.asset('assets/images/bitcoin_menu.png', color: Theme.of(context).colorScheme.primary);
+    moneroIcon = Image.asset('assets/images/crypto/monero.png');
+    bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.png');
 
     return Row(
       mainAxisSize: MainAxisSize.max,

@@ -6,7 +6,6 @@ import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_ca
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:mobx/mobx.dart';
@@ -87,20 +86,13 @@ class ExchangeTradePage extends BasePage {
   }
 
   @override
-  Widget body(BuildContext context) => ExchangeTradeForm(
-        exchangeTradeViewModel,
-        currentTheme,
-      );
+  Widget body(BuildContext context) => ExchangeTradeForm(exchangeTradeViewModel);
 }
 
 class ExchangeTradeForm extends StatefulWidget {
-  ExchangeTradeForm(
-    this.exchangeTradeViewModel,
-    this.currentTheme,
-  );
+  ExchangeTradeForm(this.exchangeTradeViewModel);
 
   final ExchangeTradeViewModel exchangeTradeViewModel;
-  final MaterialThemeBase currentTheme;
 
   @override
   ExchangeTradeState createState() => ExchangeTradeState();
@@ -162,7 +154,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   : Offstage(),
               _ExchangeTradeItemsCardSection(
                 viewModel: widget.exchangeTradeViewModel,
-                currentTheme: widget.currentTheme,
               ),
             ],
           );
@@ -282,7 +273,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 builder: (BuildContext bottomSheetContext) {
                   return ConfirmSendingBottomSheet(
                     key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
-                    currentTheme: widget.currentTheme,
                     footerType: FooterType.slideActionButton,
                     walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
                     titleText: S.of(bottomSheetContext).confirm_transaction,
@@ -329,7 +319,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 isScrollControlled: true,
                 builder: (BuildContext bottomSheetContext) {
                   return InfoBottomSheet(
-                    currentTheme: widget.currentTheme,
                     footerType: FooterType.singleActionButton,
                     titleText: S.of(bottomSheetContext).transaction_sent,
                     contentImage: 'assets/images/birthday_cake.png',
@@ -359,24 +348,18 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 }
 
 class _ExchangeTradeItemsCardSection extends StatelessWidget {
-  const _ExchangeTradeItemsCardSection({
-    required this.viewModel,
-    required this.currentTheme,
-  });
+  const _ExchangeTradeItemsCardSection({required this.viewModel});
 
   final ExchangeTradeViewModel viewModel;
-  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
     final firstExchangeCard = ExchangeTradeCardItemWidget(
-      currentTheme: currentTheme,
       isReceiveDetailsCard: true,
       exchangeTradeViewModel: viewModel,
     );
 
     final secondExchangeCard = ExchangeTradeCardItemWidget(
-      currentTheme: currentTheme,
       isReceiveDetailsCard: false,
       exchangeTradeViewModel: viewModel,
     );

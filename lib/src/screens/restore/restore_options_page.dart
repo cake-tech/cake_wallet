@@ -10,7 +10,6 @@ import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -20,12 +19,13 @@ class RestoreOptionsPage extends BasePage {
 
   @override
   String get title => S.current.restore_restore_wallet;
-
   final bool isNewInstall;
 
   @override
-  Widget body(BuildContext context) =>
-      _RestoreOptionsBody(isNewInstall: isNewInstall, themeType: currentTheme.type);
+  Widget body(BuildContext context) => _RestoreOptionsBody(
+        isNewInstall: isNewInstall,
+        themeType: currentTheme.type,
+      );
 }
 
 class _RestoreOptionsBody extends StatefulWidget {
@@ -71,70 +71,68 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
 
     return Center(
       child: Container(
-          width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
-          height: double.infinity,
-          padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                OptionTile(
-                  key: ValueKey('restore_options_from_seeds_or_keys_button_key'),
-                  onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletFromSeedKeys),
-                  image: imageSeedKeys,
-                  title: S.of(context).restore_title_from_seed_keys,
-                  description: S.of(context).restore_description_from_seed_keys,
-                ),
-                if (FeatureFlag.hasBitcoinViewOnly && DeviceInfo.instance.isMobile)
-                  Padding(
-                    padding: EdgeInsets.only(top: 24),
-                    child: OptionTile(
-                      key: ValueKey('restore_options_from_cupcake_button_key'),
-                      onPressed: () => _onScanQRCode(context),
-                      image: imageRestoreCupcake,
-                      title: S.of(context).restore_title_from_cupcake,
-                      description: S.of(context).restore_description_from_cupcake,
-                      tag: S.of(context).new_tag,
-                    ),
-                  ),
+        width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
+        height: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              OptionTile(
+                key: ValueKey('restore_options_from_seeds_or_keys_button_key'),
+                onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletFromSeedKeys),
+                image: imageSeedKeys,
+                title: S.of(context).restore_title_from_seed_keys,
+                description: S.of(context).restore_description_from_seed_keys,
+              ),
+              if (FeatureFlag.hasBitcoinViewOnly && DeviceInfo.instance.isMobile)
                 Padding(
-                  padding: EdgeInsets.only(top: 24),
+                  padding: EdgeInsets.only(top: 12),
                   child: OptionTile(
-                    key: ValueKey('restore_options_from_hardware_wallet_button_key'),
-                    onPressed: () => Navigator.pushNamed(
-                        context,
-                        isSingleCoin
-                            ? Routes.connectHardwareWallet
-                            : Routes.restoreWalletFromHardwareWallet),
-                    image: imageRestoreHW,
-                    title: S.of(context).restore_title_from_hardware_wallet,
-                    description: S.of(context).restore_description_from_hardware_wallet,
+                    key: ValueKey('restore_options_from_cupcake_button_key'),
+                    onPressed: () => _onScanQRCode(context),
+                    image: imageRestoreCupcake,
+                    title: S.of(context).restore_title_from_cupcake,
+                    description: S.of(context).restore_description_from_cupcake,
+                    tag: S.of(context).new_tag,
                   ),
                 ),
-                if (widget.isNewInstall)
-                  Padding(
-                    padding: EdgeInsets.only(top: 24),
-                    child: OptionTile(
-                      key: ValueKey('restore_options_from_backup_button_key'),
-                      onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
-                      image: imageRestoreBackup,
-                      title: S.of(context).restore_title_from_backup,
-                      description: S.of(context).restore_description_from_backup,
-                    ),
+              Padding(
+                padding: EdgeInsets.only(top: 12),
+                child: OptionTile(
+                  key: ValueKey('restore_options_from_hardware_wallet_button_key'),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, Routes.restoreWalletFromHardwareWallet),
+                  image: imageRestoreHW,
+                  title: S.of(context).restore_title_from_hardware_wallet,
+                  description: S.of(context).restore_description_from_hardware_wallet,
+                ),
+              ),
+              if (widget.isNewInstall)
+                Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: OptionTile(
+                    key: ValueKey('restore_options_from_backup_button_key'),
+                    onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
+                    image: imageRestoreBackup,
+                    title: S.of(context).restore_title_from_backup,
+                    description: S.of(context).restore_description_from_backup,
                   ),
-                if (DeviceInfo.instance.isMobile)
-                  Padding(
-                    padding: EdgeInsets.only(top: 24),
-                    child: OptionTile(
-                      key: ValueKey('restore_options_from_qr_button_key'),
-                      onPressed: () => _onScanQRCode(context),
-                      image: imageRestoreQR,
-                      title: S.of(context).scan_qr_code,
-                      description: S.of(context).cold_or_recover_wallet,
-                    ),
+                ),
+              if (DeviceInfo.instance.isMobile)
+                Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: OptionTile(
+                    key: ValueKey('restore_options_from_qr_button_key'),
+                    onPressed: () => _onScanQRCode(context),
+                    image: imageRestoreQR,
+                    title: S.of(context).scan_qr_code,
+                    description: S.of(context).cold_or_recover_wallet,
                   ),
-              ],
-            ),
-          )),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

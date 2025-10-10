@@ -49,7 +49,6 @@ class TransactionsPage extends StatelessWidget {
               final status = dashboardViewModel.status;
               if (status is SyncingSyncStatus) {
                 return DashBoardRoundedCardWidget(
-                  isDarkTheme: dashboardViewModel.isDarkTheme,
                   key: ValueKey('transactions_page_syncing_alert_card_key'),
                   onTap: () {
                     try {

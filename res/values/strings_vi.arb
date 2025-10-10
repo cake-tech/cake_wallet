@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay cho phép bạn dễ dàng mua thẻ quà tặng bằng tài sản ảo, có thể sử dụng ngay lập tức tại hơn 150.000 cửa hàng tại Hoa Kỳ.",
+  "accent_color": "Màu nhấn",
   "account": "Tài khoản",
   "accounts": "Tài khoản",
   "accounts_subaddresses": "Tài khoản và địa chỉ phụ",
@@ -55,6 +56,7 @@
   "and": "và",
   "anonpay_description": "Tạo ${type}. Người nhận có thể ${method} với bất kỳ loại tiền điện tử nào được hỗ trợ, và bạn sẽ nhận được tiền trong ví này.",
   "apk_update": "Cập nhật APK",
+  "appearance": "Vẻ bề ngoài",
   "approve": "Phê duyệt",
   "approve_request": "Phê duyệt yêu cầu",
   "approve_tokens": "Phê duyệt mã thông báo",
@@ -566,6 +568,7 @@
   "offline": "Ngoại tuyến",
   "ok": "OK",
   "old_fee": "Phí cũ",
+  "oled_mode": "Chế độ OLED",
   "onion_link": "Liên kết Onion",
   "online": "Trực tuyến",
   "onramper_option_description": "Mua tiền điện tử nhanh chóng với nhiều phương thức thanh toán. Có sẵn ở hầu hết các quốc gia. Chênh lệch và phí thay đổi.",

@@ -1,6 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
@@ -8,11 +7,9 @@ class WCVerifyContextWidget extends StatelessWidget {
   const WCVerifyContextWidget({
     super.key,
     required this.verifyContext,
-    required this.currentTheme,
   });
 
   final VerifyContext? verifyContext;
-  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {

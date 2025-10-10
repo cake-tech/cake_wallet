@@ -19,7 +19,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -29,7 +28,6 @@ class SwapConfirmationBottomSheet extends BaseBottomSheet {
   SwapConfirmationBottomSheet({
     Key? key,
     required this.paymentFlowResult,
-    required this.currentTheme,
     required this.exchangeViewModel,
     required this.authService,
     this.sessionId,
@@ -37,11 +35,9 @@ class SwapConfirmationBottomSheet extends BaseBottomSheet {
           titleText: S.current.swap,
           footerType: FooterType.none,
           maxHeight: 900,
-          currentTheme: currentTheme,
         );
 
   final PaymentFlowResult paymentFlowResult;
-  final MaterialThemeBase currentTheme;
   final ExchangeViewModel exchangeViewModel;
   final AuthService authService;
   final String? sessionId;

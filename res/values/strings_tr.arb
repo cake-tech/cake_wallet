@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay, Amerika Birleşik Devletleri'ndeki 150.000'den fazla işyerinde anında harcanabilen sanal varlıklarla kolayca hediye kartları satın almanızı sağlar.",
+  "accent_color": "Aksan rengi",
   "account": "Hesap",
   "accounts": "Hesaplar",
   "accounts_subaddresses": "Hesaplar ve alt adresler",
@@ -55,6 +56,7 @@
   "and": "ve",
   "anonpay_description": "${type} oluşturun. Alıcı, desteklenen herhangi bir kripto para birimi ile ${method} yapabilir ve bu cüzdanda para alırsınız.",
   "apk_update": "APK güncellemesi",
+  "appearance": "Dış görünüş",
   "approve": "Onaylamak",
   "approve_request": "Talebi Onaylama",
   "approve_tokens": "Jetonları onaylayın",
@@ -568,6 +570,7 @@
   "offline": "Çevrimdışı",
   "ok": "Tamam",
   "old_fee": "Eski ücret",
+  "oled_mode": "OLED modu",
   "onion_link": "soğan bağlantısı",
   "online": "Çevrimiçi",
   "onramper_option_description": "Birçok ödeme yöntemi ile hızlı bir şekilde kripto satın alın. Çoğu ülkede mevcuttur. Forma ve ücretler değişir.",
