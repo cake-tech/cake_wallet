@@ -9,6 +9,7 @@
 -
   uri: base-rpc.publicnode.com
   useSSL: true
+  isEnabledForAutoSwitching: true
 -
   uri: 1rpc.io/base
   useSSL: true
