@@ -1,4 +1,4 @@
-import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class StandardSwitch extends StatefulWidget {

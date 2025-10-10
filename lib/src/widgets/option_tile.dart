@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 
 class OptionTile extends StatelessWidget {
   const OptionTile({
@@ -28,8 +28,8 @@ class OptionTile extends StatelessWidget {
       decoration: ShapeDecoration(
         gradient: LinearGradient(
           colors: [
-            context.currentTheme.customColors.cardGradientColorPrimary,
-            context.currentTheme.customColors.cardGradientColorSecondary,
+            context.customColors.cardGradientColorPrimary,
+            context.customColors.cardGradientColorSecondary,
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,

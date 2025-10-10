@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
-import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/material.dart';

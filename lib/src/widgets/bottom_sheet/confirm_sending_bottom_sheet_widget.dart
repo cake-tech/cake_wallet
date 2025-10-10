@@ -1,6 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
-import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
@@ -87,8 +87,8 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
         );
 
     final tileBackgroundColor = context.currentTheme.isDark
-        ? context.currentTheme.customColors.backgroundGradientColor.withAlpha(140)
-        : context.currentTheme.customColors.cardGradientColorPrimary;
+        ? context.customColors.backgroundGradientColor.withAlpha(140)
+        : context.customColors.cardGradientColorPrimary;
 
     Widget content = Padding(
       padding: EdgeInsets.fromLTRB(8, 0, showScrollbar ? 16 : 8, 8),

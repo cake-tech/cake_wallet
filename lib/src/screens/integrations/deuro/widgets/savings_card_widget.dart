@@ -4,7 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -75,8 +75,8 @@ class SavingsCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(15),
               gradient: LinearGradient(
                 colors: [
-                  context.currentTheme.customColors.cardGradientColorPrimary,
-                  context.currentTheme.customColors.cardGradientColorSecondary,
+                  context.customColors.cardGradientColorPrimary,
+                  context.customColors.cardGradientColorSecondary,
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,

@@ -1,4 +1,4 @@
-import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class GradientBackground extends StatelessWidget {
@@ -14,9 +14,9 @@ class GradientBackground extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             Theme.of(context).colorScheme.surface,
-            context.currentTheme.customColors.backgroundGradientColor,
+            context.customColors.backgroundGradientColor,
           ],
-          begin: Alignment.topCenter,
+          begin: Alignment.topCenter, 
           end: Alignment.bottomCenter,
         ),
       ),
