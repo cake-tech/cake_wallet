@@ -1,4 +1,7 @@
-Payjoin enhancements
-Connectivity improvements
-UI enhancements
+Add Base coin wallet
+Add support for Trezor
+Add support for Bitbox
+Hardware wallets flow enhancements
+New Themes
+New designs
 Bug fixes
