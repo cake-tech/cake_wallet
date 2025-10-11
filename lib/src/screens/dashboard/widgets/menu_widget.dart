@@ -114,6 +114,9 @@ class MenuWidgetState extends State<MenuWidget> {
     if (!widget.dashboardViewModel.hasMweb) {
       items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
     }
+    if (!widget.dashboardViewModel.isEVM) {
+      items.removeWhere((element) => element.name(context) == S.of(context).walletConnect);
+    }
     int itemCount = items.length;
 
     moneroIcon = Image.asset('assets/images/crypto/monero.png');
