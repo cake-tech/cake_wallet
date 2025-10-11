@@ -88,6 +88,7 @@
   "backup_password": "백업 비밀번호",
   "balance": "잔액",
   "balance_page": "잔액 페이지",
+  "basescan_history": "바스 스칸 역사",
   "bill_amount": "청구 금액",
   "billing_address_info": "청구지 주소를 묻는 경우 배송 주소를 제공하세요",
   "biometric_auth_reason": "인증하려면 지문을 스캔하세요",

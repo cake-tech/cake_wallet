@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
@@ -94,7 +95,7 @@ class _WalletSwitcherContent extends StatelessWidget {
                         child: Row(
                           children: [
                             Image.asset(
-                              walletTypeToCryptoCurrency(wallet.type).iconPath!,
+                              walletTypeToCryptoCurrency(wallet.type).normalizedIconPath!,
                               width: 32,
                               height: 32,
                             ),

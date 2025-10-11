@@ -88,6 +88,7 @@
   "backup_password": "كلمة مرور النسخ الاحتياطي",
   "balance": "توازن",
   "balance_page": "صفحة التوازن",
+  "basescan_history": "تاريخ باسيسكان",
   "bill_amount": "مبلغ الفاتورة",
   "billing_address_info": "إذا طُلب منك عنوان إرسال فواتير ، فأدخل عنوان الشحن الخاص بك",
   "biometric_auth_reason": "امسح بصمة إصبعك للمصادقة",

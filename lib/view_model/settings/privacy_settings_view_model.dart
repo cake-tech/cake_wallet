@@ -1,3 +1,4 @@
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -76,6 +77,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get usePolygonScan => _settingsStore.usePolygonScan;
 
   @computed
+  bool get useBaseScan => _settingsStore.useBaseScan;
+
+  @computed
   bool get useTronGrid => _settingsStore.useTronGrid;
 
   @computed
@@ -111,6 +115,8 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
+
+  bool get canUseBaseScan => _wallet.type == WalletType.base;
 
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
@@ -175,6 +181,12 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setUsePolygonScan(bool value) {
     _settingsStore.usePolygonScan = value;
     polygon!.updatePolygonScanUsageState(_wallet, value);
+  }
+
+  @action
+  void setUseBaseScan(bool value) {
+    _settingsStore.useBaseScan = value;
+    base!.updateBaseScanUsageState(_wallet, value);
   }
 
   @action

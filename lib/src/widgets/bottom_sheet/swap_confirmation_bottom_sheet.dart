@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.d
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 
 import 'package:flutter/material.dart';
@@ -136,7 +137,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
   @override
   Widget build(BuildContext context) {
-    final detectedCurrencyName = walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!);
+    final detectedCurrency = walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!);
 
     return Form(
       key: _formKey,
@@ -159,7 +160,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                 const SizedBox(width: 12),
                 CakeImageWidget(
                   imageUrl:
-                      walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!).iconPath!,
+                      detectedCurrency.iconPath!,
                   width: 32,
                   height: 32,
                 ),
@@ -168,7 +169,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
             const SizedBox(height: 16),
             SwapConfirmationTextfield(
               key: ValueKey('swap_confirmation_bottomsheet_amount_textfield_key'),
-              hintText: 'Amount (${detectedCurrencyName})',
+              hintText: 'Amount (${detectedCurrency})',
               focusNode: _amountFocus,
               controller: _amountController,
               keyboardType: TextInputType.numberWithOptions(decimal: true, signed: false),
@@ -226,7 +227,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                         min != null
                             ? Text(
                                 key: ValueKey('min_limit_text_key'),
-                                S.of(context).min_value(min, detectedCurrencyName.toString()),
+                                S.of(context).min_value(min, detectedCurrency.toString()),
                                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                       fontSize: 10,
                                       height: 1.2,
@@ -238,7 +239,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                         max != null
                             ? Text(
                                 key: ValueKey('max_limit_text_key'),
-                                S.of(context).max_value(max, detectedCurrencyName.toString()),
+                                S.of(context).max_value(max, detectedCurrency.toString()),
                                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                       fontSize: 10,
                                       height: 1.2,

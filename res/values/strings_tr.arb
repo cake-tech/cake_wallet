@@ -88,6 +88,7 @@
   "backup_password": "Yedek parolası",
   "balance": "Denge",
   "balance_page": "Bakiye Sayfası",
+  "basescan_history": "Basescan tarihi",
   "bill_amount": "Fatura Tutarı",
   "billing_address_info": "Eğer fatura adresi istenirse, kargo adresinizi girin",
   "biometric_auth_reason": "Kimlik doğrulaması için parmak izini okutun",

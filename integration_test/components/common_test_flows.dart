@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -109,7 +110,7 @@ class CommonTestFlows {
 
   void confirmAllAvailableWalletTypeIconsDisplayCorrectly() {
     for (var walletType in availableWalletTypes) {
-      final imageUrl = walletTypeToCryptoCurrency(walletType).iconPath;
+      final imageUrl = walletTypeToCryptoCurrency(walletType).normalizedIconPath;
 
       final walletIconFinder = find.image(
         Image.asset(
@@ -353,6 +354,8 @@ class CommonTestFlows {
         return secrets.polygonTestWalletSeeds;
       case WalletType.solana:
         return secrets.solanaTestWalletSeeds;
+      case WalletType.base:
+        return secrets.baseTestWalletSeeds;
       case WalletType.tron:
         return secrets.tronTestWalletSeeds;
       case WalletType.nano:
@@ -387,6 +390,8 @@ class CommonTestFlows {
         return secrets.bitcoinCashTestWalletReceiveAddress;
       case WalletType.polygon:
         return secrets.polygonTestWalletReceiveAddress;
+      case WalletType.base:
+        return secrets.baseTestWalletReceiveAddress;
       case WalletType.solana:
         return secrets.solanaTestWalletReceiveAddress;
       case WalletType.tron:

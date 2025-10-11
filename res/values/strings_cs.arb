@@ -88,6 +88,7 @@
   "backup_password": "Heslo pro zálohy",
   "balance": "Zůstatek",
   "balance_page": "Stránka zůstatku",
+  "basescan_history": "Historie basescan",
   "bill_amount": "Účtovaná částka",
   "billing_address_info": "Při dotazu na fakturační adresu, zadejte svou doručovací adresu",
   "biometric_auth_reason": "Naskenujte otisk prstu pro ověření",

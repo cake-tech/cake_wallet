@@ -2,7 +2,7 @@
 
 git clone https://github.com/konstantinullrich/bitbox_flutter
 cd bitbox_flutter
-bash ./build_bindings.sh --dont-install
+bash ./build_bindings.sh
 
 FILE=api.aar
 if [ -f "$FILE" ]; then

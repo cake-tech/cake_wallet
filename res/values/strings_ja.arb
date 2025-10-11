@@ -88,6 +88,7 @@
   "backup_password": "バックアップパスワード",
   "balance": "バランス",
   "balance_page": "残高ページ",
+  "basescan_history": "Basescanの歴史",
   "bill_amount": "請求額",
   "billing_address_info": "請求先住所を尋ねられた場合は、配送先住所を入力してください",
   "biometric_auth_reason": "प指紋をスキャンして認証する",

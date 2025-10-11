@@ -88,6 +88,7 @@
   "backup_password": "รหัสผ่านสำรองข้อมูล",
   "balance": "สมดุล",
   "balance_page": "หน้ายอดคงเหลือ",
+  "basescan_history": "ประวัติศาสตร์ Basescan",
   "bill_amount": "จำนวนบิล",
   "billing_address_info": "ถ้าถูกร้องขอที่อยู่สำหรับการวางบิล ให้ใช้ที่อยู่จัดส่งของคุณ",
   "biometric_auth_reason": "สแกนลายนิ้วมือของคุณเพื่อยืนยันตัวตน",

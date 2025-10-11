@@ -88,6 +88,7 @@
   "backup_password": "Hasło kpoii zapasowej",
   "balance": "Saldo",
   "balance_page": "Strona salda",
+  "basescan_history": "Historia Basescan",
   "bill_amount": "Kwota rachunku",
   "billing_address_info": "Jeśli zostaniesz poproszony o podanie adresu rozliczeniowego, podaj swój adres wysyłki",
   "biometric_auth_reason": "Zeskanuj swój odcisk palca, aby uwierzytelnić",

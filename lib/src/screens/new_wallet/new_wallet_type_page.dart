@@ -15,6 +15,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -142,9 +143,9 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                         child: SelectButton(
                           key: ValueKey('new_wallet_type_${type.name}_button_key'),
                           image: Image.asset(
-                            walletTypeToCryptoCurrency(type).iconPath ?? '',
-                            height: 28,
-                            width: 28,
+                            walletTypeToCryptoCurrency(type).normalizedIconPath ?? '',
+                            height: 24,
+                            width: 24,
                           ),
                           text: walletTypeToDisplayName(type),
                           showTrailingIcon: false,

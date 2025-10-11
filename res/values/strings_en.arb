@@ -88,6 +88,7 @@
   "backup_password": "Backup password",
   "balance": "Balance",
   "balance_page": "Balance Page",
+  "basescan_history": "BaseScan History",
   "bill_amount": "Bill Amount",
   "billing_address_info": "If asked for a billing address, provide your shipping address",
   "biometric_auth_reason": "Scan your fingerprint to authenticate",
