@@ -76,7 +76,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
     final lowerAddress = address.toLowerCase();
 
     // Check for MWEB addresses (Litecoin MWEB addresses start with "ltcmweb1")
-    if (lowerAddress.contains('mweb')) return true;
+    if (lowerAddress.startsWith('ltcmweb1')) return true;
 
     // Check for Silent Payment addresses (Bitcoin SP addresses start with "sp1", "tsp1")
     if (lowerAddress.startsWith('sp1') || lowerAddress.startsWith('tsp1')) return true;
