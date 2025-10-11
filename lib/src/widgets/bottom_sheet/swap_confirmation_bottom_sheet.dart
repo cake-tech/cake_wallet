@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
@@ -12,8 +10,10 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -77,14 +77,12 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
   late TextEditingController _amountController;
   late TextEditingController _amountFiatController;
   late TextEditingController _addressController;
-  late TextEditingController _noteController;
 
   final _receiveAmountDebounce = Debounce(Duration(milliseconds: 500));
   final _receiveAmountFiatDebounce = Debounce(Duration(milliseconds: 500));
   final FocusNode _amountFocus = FocusNode();
   final FocusNode _amountFiatFocus = FocusNode();
   final FocusNode _addressFocus = FocusNode();
-  final FocusNode _noteFocus = FocusNode();
   final _formKey = GlobalKey<FormState>();
 
   ReactionDisposer? _receiveAmountReaction;
@@ -95,6 +93,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
   bool _showingFailureDialog = false;
   bool _showingSwapDetailsDialog = false;
+  bool _isUserTypingFiat = false;
 
   @override
   void initState() {
@@ -107,8 +106,6 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
             : '0.00');
     _amountFiatController =
         TextEditingController(text: widget.exchangeViewModel.receiveAmountFiatFormatted);
-    _noteController =
-        TextEditingController(text: widget.paymentFlowResult.addressDetectionResult?.note ?? '');
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _setUpReactions(
@@ -124,11 +121,9 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     _amountController.dispose();
     _amountFiatController.dispose();
     _addressController.dispose();
-    _noteController.dispose();
     _amountFocus.dispose();
     _amountFiatFocus.dispose();
     _addressFocus.dispose();
-    _noteFocus.dispose();
     _receiveAmountReaction?.call();
     _receiveAddressReaction?.call();
     _tradeStateReaction?.call();
@@ -177,7 +172,23 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
               hintText: 'Amount (${detectedCurrency})',
               focusNode: _amountFocus,
               controller: _amountController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              keyboardType: TextInputType.numberWithOptions(decimal: true, signed: false),
+              inputFormatters: [
+                FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]')),
+              ],
+              onChanged: (value) {
+                final sanitized = value
+                    .replaceAll(',', '.')
+                    .withMaxDecimals(widget.exchangeViewModel.receiveCurrency.decimals);
+                if (sanitized != _amountController.text) {
+                  // Update text while preserving a sane cursor position to avoid auto-selection
+                  _amountController.value = _amountController.value.copyWith(
+                    text: sanitized,
+                    selection: TextSelection.collapsed(offset: sanitized.length),
+                    composing: TextRange.empty,
+                  );
+                }
+              },
               validator: (value) {
                 return AmountValidator(
                   isAutovalidate: true,
@@ -261,14 +272,6 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
               focusNode: _addressFocus,
               controller: _addressController,
             ),
-            const SizedBox(height: 8),
-            SwapConfirmationTextfield(
-              maxLines: 1,
-              key: ValueKey('swap_confirmation_bottomsheet_note_textfield_key'),
-              hintText: 'Transaction Note',
-              focusNode: _noteFocus,
-              controller: _noteController,
-            ),
             SizedBox(height: 8),
             Center(
               child: Text(
@@ -304,7 +307,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
     _receiveAmountFiatReaction =
         reaction((_) => exchangeViewModel.receiveAmountFiatFormatted, (String amount) {
-      if (_amountFiatController.text != amount) {
+      if (!_isUserTypingFiat && _amountFiatController.text != amount) {
         _amountFiatController.text = amount;
       }
     });
@@ -382,9 +385,14 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
     _amountFiatController.addListener(() {
       if (_amountFiatController.text != exchangeViewModel.receiveAmountFiatFormatted) {
+        _isUserTypingFiat = true;
         _receiveAmountFiatDebounce.run(() {
           exchangeViewModel.loadLimits();
           exchangeViewModel.setReceiveAmountFromFiat(fiatAmount: _amountFiatController.text);
+          // Reset the flag after the debounced operation completes
+          Future.delayed(Duration(milliseconds: 100), () {
+            _isUserTypingFiat = false;
+          });
         });
       }
     });
@@ -392,6 +400,17 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     _amountFocus.addListener(() {
       if (_amountFocus.hasFocus) {
         exchangeViewModel.enableFixedRateMode();
+      }
+    });
+
+    _amountFiatFocus.addListener(() {
+      if (_amountFiatFocus.hasFocus) {
+        _isUserTypingFiat = true;
+      } else {
+        // Reset the flag when user stops focusing on the field
+        Future.delayed(Duration(milliseconds: 200), () {
+          _isUserTypingFiat = false;
+        });
       }
     });
 
@@ -418,6 +437,8 @@ class SwapConfirmationTextfield extends StatelessWidget {
     this.maxLines = 1,
     this.validator,
     this.keyboardType,
+    this.onChanged,
+    this.inputFormatters,
   });
 
   final FocusNode focusNode;
@@ -428,7 +449,8 @@ class SwapConfirmationTextfield extends StatelessWidget {
   final int maxLines;
   final String? Function(String?)? validator;
   final TextInputType? keyboardType;
-
+  final void Function(String)? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -473,6 +495,8 @@ class SwapConfirmationTextfield extends StatelessWidget {
                   maxLines: maxLines,
                   validator: validator,
                   keyboardType: keyboardType,
+                  onChanged: onChanged,
+                  inputFormatters: inputFormatters,
                 ),
         ],
       ),
