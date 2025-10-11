@@ -54,13 +54,13 @@ class DarkTheme extends MaterialThemeBase {
         outline: const Color(0xFF9EACC1),
         outlineVariant: const Color(0xFF3E5579),
       );
-  static const String fontFamily = 'Lato';
+  static const String fontFamily = 'WixMadeforText';
   @override
   TextTheme get textTheme => TextTheme(
         displayLarge: TextStyle(
           fontSize: 57,
           fontWeight: FontWeight.w400,
-          letterSpacing: -0.25,
+          letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         displayMedium: TextStyle(
@@ -76,75 +76,75 @@ class DarkTheme extends MaterialThemeBase {
           color: colorScheme.onSurface,
         ),
         headlineLarge: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.w400,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineMedium: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w400,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineSmall: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w400,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         titleLarge: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w400,
+          fontSize: 20,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         titleMedium: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          letterSpacing: 0.15,
+          letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         titleSmall: TextStyle(
-          fontSize: 14,
+          fontSize: 12,
           fontWeight: FontWeight.w500,
-          letterSpacing: 0.1,
+          letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         bodyLarge: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w400,
-          letterSpacing: 0.5,
+          letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         bodyMedium: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w400,
-          letterSpacing: 0.25,
+          letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         bodySmall: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w400,
-          letterSpacing: 0.4,
+          letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         labelLarge: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          letterSpacing: 0.1,
+          letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         labelMedium: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          letterSpacing: 0.5,
+          letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         labelSmall: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w500,
-          letterSpacing: 0.5,
+          letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
       );
