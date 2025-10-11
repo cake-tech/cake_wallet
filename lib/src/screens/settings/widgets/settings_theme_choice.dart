@@ -85,7 +85,6 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Container(
-                      height: 40,
                       child: Row(
                         children: availableAccentColors.map((accentColor) {
                           final isSelected = _displaySettingsViewModel
