@@ -220,10 +220,10 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const storj = CryptoCurrency(title: 'STORJ', tag: 'ETH', fullName: 'Storj', raw: 79, name: 'storj', iconPath: 'assets/images/storj_icon.png', decimals: 8);
   static const tusd = CryptoCurrency(title: 'TUSD', tag: 'ETH', fullName: 'TrueUSD', raw: 80, name: 'tusd', iconPath: 'assets/images/tusd_icon.png', decimals: 18);
   static const wbtc = CryptoCurrency(title: 'WBTC', tag: 'ETH', fullName: 'Wrapped Bitcoin', raw: 81, name: 'wbtc', iconPath: 'assets/images/crypto/wbtc.webp', decimals: 8);
-  static const weth = CryptoCurrency(title: 'WETH', tag: 'ETH', fullName: 'Wrapped Ethereum', raw: 82, name: 'weth', iconPath: 'assets/images/weth_icon.png', decimals: 18);
+  static const weth = CryptoCurrency(title: 'WETH', tag: 'ETH', fullName: 'Wrapped Ethereum', raw: 82, name: 'weth', iconPath: 'assets/images/wcrypto/ethereum.webp', decimals: 18);
   static const zrx = CryptoCurrency(title: 'ZRX', tag: 'ETH', fullName: '0x Protocol', raw: 83, name: 'zrx', iconPath: 'assets/images/zrx_icon.png', decimals: 18);
   static const dydx = CryptoCurrency(title: 'DYDX', tag: 'ETH', fullName: 'dYdX', raw: 84, name: 'dydx', iconPath: 'assets/images/dydx_icon.png', decimals: 18);
-  static const steth = CryptoCurrency(title: 'STETH', tag: 'ETH', fullName: 'Lido Staked Ethereum', raw: 85, name: 'steth', iconPath: 'assets/images/steth_icon.png', decimals: 18);
+  static const steth = CryptoCurrency(title: 'STETH', tag: 'ETH', fullName: 'Lido Staked Ethereum', raw: 85, name: 'steth', iconPath: 'assets/images/stcrypto/ethereum.webp', decimals: 18);
   static const banano = CryptoCurrency(title: 'BAN', fullName: 'Banano', raw: 86, name: 'banano', iconPath: 'assets/images/nano_icon.png', decimals: 29);
   static const usdtPoly = CryptoCurrency(title: 'USDT', tag: 'POL', fullName: 'Tether USD (PoS)', raw: 87, name: 'usdtpoly', iconPath: 'assets/images/crypto/tether.webp', decimals: 6);
   static const usdcEPoly = CryptoCurrency(title: 'USDC.E', tag: 'POL', fullName: 'USD Coin (PoS)', raw: 88, name: 'usdcepoly', iconPath: 'assets/images/crypto/usdc.webp', decimals: 6);
@@ -242,7 +242,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const deps = CryptoCurrency(title: 'DEPS', tag: 'ETH', fullName: 'Decentralized Euro Protocol Share', raw: 101, name: 'deps', iconPath: 'assets/images/deps_icon.png', decimals: 18);
   static const kbtc = CryptoCurrency(title: 'KBTC', tag: 'ETH', fullName: 'Kraken Wrapped Bitcoin', raw: 102, name: 'kbtc', iconPath: 'assets/images/kbtc_icon.png', decimals: 8);
   static const cbbtc = CryptoCurrency(title: 'CBBTC', tag: 'ETH', fullName: 'Coinbase Wrapped BTC', raw: 103, name: 'cbbtc', iconPath: 'assets/images/cbbtc_icon.png', decimals: 8);
-  static const baseEth = CryptoCurrency(title: 'ETH', tag: 'BASE', fullName: 'Ethereum', raw: 104, name: 'baseth', iconPath: 'assets/images/eth_icon.png', decimals: 18);
+  static const baseEth = CryptoCurrency(title: 'ETH', tag: 'BASE', fullName: 'Ethereum', raw: 104, name: 'baseth', iconPath: 'assets/images/crypto/ethereum.webp', decimals: 18);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
