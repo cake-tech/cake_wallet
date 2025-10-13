@@ -33,7 +33,7 @@ class MenuWidgetState extends State<MenuWidget> {
         this.bananoIcon = Image.asset('assets/images/crypto/nano.webp'),
         this.bitcoinCashIcon = Image.asset('assets/images/crypto/bitcoin-cash.webp'),
         this.polygonIcon = Image.asset('assets/images/crypto/polygon.webp'),
-        this.baseIcon = Image.asset('assets/images/base_icon.webp'),
+        this.baseIcon = Image.asset('assets/images/crypto/base_icon.webp'),
         this.solanaIcon = Image.asset('assets/images/crypto/solana.webp'),
         this.tronIcon = Image.asset('assets/images/crypto/tron.webp'),
         this.wowneroIcon = Image.asset('assets/images/crypto/wownero.webp'),
