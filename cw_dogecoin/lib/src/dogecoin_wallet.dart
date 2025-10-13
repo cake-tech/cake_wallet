@@ -7,6 +7,7 @@ import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -64,6 +65,19 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
 
   @override
   int get networkDustAmount => 100000000; // 1 DOGE = 1e8 koinu
+
+  static int estimatedDogeCoinTransactionSize(int inputsCount, int outputsCounts) =>
+      inputsCount * 180 + outputsCounts * 34 + 10;
+
+  @override
+  int feeAmountForPriority(TransactionPriority priority, int inputsCount, int outputsCount,
+      {int? size}) =>
+      feeRate(priority) * (size ?? estimatedDogeCoinTransactionSize(inputsCount, outputsCount));
+
+  @override
+  int feeAmountWithFeeRate(int feeRate, int inputsCount, int outputsCount, {int? size}) =>
+      feeRate * (size ?? estimatedDogeCoinTransactionSize(inputsCount, outputsCount));
+
 
   static Future<DogeCoinWallet> create(
       {required String mnemonic,

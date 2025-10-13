@@ -113,6 +113,7 @@ class WalletCreationService {
       case WalletType.bitcoinCash:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.dogecoin:

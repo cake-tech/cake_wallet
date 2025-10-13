@@ -4,7 +4,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
@@ -24,7 +23,6 @@ import 'package:url_launcher/url_launcher.dart';
 class QRWidget extends StatelessWidget {
   QRWidget({
     required this.addressListViewModel,
-    required this.currentTheme,
     this.qrVersion,
     this.heroTag,
     required this.amountController,
@@ -36,7 +34,6 @@ class QRWidget extends StatelessWidget {
   final TextEditingController amountController;
   final FocusNode? amountTextFieldFocusNode;
   final GlobalKey<FormState> formKey;
-  final MaterialThemeBase currentTheme;
   final int? qrVersion;
   final String? heroTag;
 
@@ -111,7 +108,7 @@ class QRWidget extends StatelessWidget {
                                     ),
                                     if (addressListViewModel.isPayjoinUnavailable &&
                                         !addressListViewModel.isSilentPayments &&
-                                        !addressListViewModel.isCupcake) ...[
+                                        !addressListViewModel.isBitcoinViewOnly) ...[
                                       GestureDetector(
                                         onTap: () => _onPayjoinInactivePressed(context),
                                         child: Row(
@@ -211,7 +208,6 @@ class QRWidget extends StatelessWidget {
                               amountFocusNode: amountTextFieldFocusNode,
                               amountController: amountController,
                               padding: EdgeInsets.only(top: 20, left: _width / 4),
-                              currentThemeType: currentTheme.type,
                               isAmountEditable: true,
                               tag: addressListViewModel.selectedCurrency.tag,
                               onTapPicker: () => _presentPicker(context),
@@ -312,7 +308,6 @@ class QRWidget extends StatelessWidget {
       builder: (context) => InfoBottomSheet(
         titleText: S.of(context).payjoin_unavailable_sheet_title,
         content: S.of(context).payjoin_unavailable_sheet_content,
-        currentTheme: currentTheme,
         footerType: FooterType.doubleActionButton,
         doubleActionLeftButtonText: S.of(context).learn_more,
         onLeftActionButtonPressed: () => launchUrl(

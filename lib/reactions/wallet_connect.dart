@@ -8,6 +8,7 @@ bool isEVMCompatibleChain(WalletType walletType) {
   switch (walletType) {
     case WalletType.polygon:
     case WalletType.ethereum:
+    case WalletType.base:
       return true;
     default:
       return false;
@@ -18,6 +19,7 @@ bool isNFTACtivatedChain(WalletType walletType) {
   switch (walletType) {
     case WalletType.polygon:
     case WalletType.ethereum:
+    case WalletType.base:
     case WalletType.solana:
       return true;
     default:
@@ -29,6 +31,7 @@ bool isWalletConnectCompatibleChain(WalletType walletType) {
   switch (walletType) {
     case WalletType.polygon:
     case WalletType.ethereum:
+    case WalletType.base:
     case WalletType.solana:
       return true;
     default:
@@ -42,6 +45,8 @@ String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType) {
       return EVMChainId.ethereum.chain();
     case WalletType.polygon:
       return EVMChainId.polygon.chain();
+    case WalletType.base:
+      return EVMChainId.base.chain();
     case WalletType.solana:
       return SolanaChainId.mainnet.chain();
     default:
@@ -52,8 +57,8 @@ String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType) {
 List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
   switch (walletType) {
     case WalletType.ethereum:
-      return EVMSupportedMethods.values.map((e) => e.name).toList();
     case WalletType.polygon:
+    case WalletType.base:
       return EVMSupportedMethods.values.map((e) => e.name).toList();
     case WalletType.solana:
       return SolanaSupportedMethods.values.map((e) => e.name).toList();
@@ -66,7 +71,8 @@ int getChainIdBasedOnWalletType(WalletType walletType) {
   switch (walletType) {
     case WalletType.polygon:
       return 137;
-
+    case WalletType.base:
+      return 8453;
     // For now, we return eth chain Id as the default, we'll modify as we add more wallets
     case WalletType.ethereum:
     default:
@@ -80,6 +86,8 @@ String getChainNameBasedOnWalletType(WalletType walletType) {
       return 'eth';
     case WalletType.polygon:
       return 'polygon';
+    case WalletType.base:
+      return 'base';
     case WalletType.solana:
       return 'mainnet';
     default:
@@ -93,6 +101,8 @@ String getTokenNameBasedOnWalletType(WalletType walletType) {
       return 'ETH';
     case WalletType.polygon:
       return 'MATIC';
+    case WalletType.base:
+      return 'BASE';
     case WalletType.solana:
       return 'SOL';
     default:

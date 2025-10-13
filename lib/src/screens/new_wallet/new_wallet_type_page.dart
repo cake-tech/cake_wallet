@@ -3,6 +3,8 @@ import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/di.dart';
 import 'dart:io';
 
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/routes.dart';
@@ -25,7 +27,9 @@ import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -65,11 +69,11 @@ class NewWalletTypePage extends BasePage {
       newWalletTypeViewModel: newWalletTypeViewModel,
       seedSettingsViewModel: seedSettingsViewModel,
       onTypeSelected: newWalletTypeArguments.onTypeSelected,
-      isHardwareWallet: newWalletTypeArguments.isHardwareWallet,
       allowMultiSelect: newWalletTypeArguments.allowMultiSelect,
       constrainBip39Only: newWalletTypeArguments.constrainBip39Only,
       preselectedTypes: newWalletTypeArguments.preselectedTypes,
       credentials: newWalletTypeArguments.credentials,
+  hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
       currentTheme: currentTheme);
 }
 
@@ -80,7 +84,7 @@ class WalletTypeForm extends StatefulWidget {
       required this.newWalletTypeViewModel,
       required this.seedSettingsViewModel,
       this.onTypeSelected,
-      required this.isHardwareWallet,
+      this.hardwareWalletType,
       this.allowMultiSelect = false,
       this.constrainBip39Only = false,
       this.preselectedTypes,
@@ -99,13 +103,15 @@ class WalletTypeForm extends StatefulWidget {
   final NewWalletTypeViewModel newWalletTypeViewModel;
   final SeedSettingsViewModel seedSettingsViewModel;
   final void Function(BuildContext, WalletType)? onTypeSelected;
-  final bool isHardwareWallet;
   final bool allowMultiSelect;
   final bool constrainBip39Only;
   final Set<WalletType>? preselectedTypes;
   final List<WalletType> filteredAvailableWalletTypes;
   final Object? credentials;
   final MaterialThemeBase currentTheme;
+  final HardwareWalletType? hardwareWalletType;
+  bool get isHardwareWallet => hardwareWalletType != null;
+
 
   @override
   WalletTypeFormState createState() => WalletTypeFormState();
@@ -127,7 +133,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         .where((element) =>
             !widget.isHardwareWallet ||
             DeviceConnectionType.supportedConnectionTypes(
-                    element, Platform.isIOS)
+                    element, widget.hardwareWalletType!, Platform.isIOS)
                 .isNotEmpty)
         .toList();
 
@@ -255,11 +261,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                                   }
                                 }
                               },
-                              deviceConnectionTypes: widget.isHardwareWallet
-                                  ? DeviceConnectionType
-                                      .supportedConnectionTypes(
-                                          type, Platform.isIOS)
-                                  : [],
+    deviceConnectionTypes: widget.isHardwareWallet
+    ? DeviceConnectionType.supportedConnectionTypes(
+    type, widget.hardwareWalletType!, Platform.isIOS)
+        : [],
                             ),
                           ),
                         ),

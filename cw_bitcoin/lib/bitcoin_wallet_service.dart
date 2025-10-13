@@ -7,6 +7,7 @@ import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
@@ -150,9 +151,12 @@ class BitcoinWalletService extends WalletService<
     credentials.walletInfo?.network = network.value;
     credentials.walletInfo?.derivationInfo?.derivationPath =
         credentials.hwAccountData.derivationPath;
+    
+    final xpub = convertZpubToXpub(credentials.hwAccountData.xpub!);
+    
     final wallet = await BitcoinWallet(
       password: credentials.password!,
-      xpub: credentials.hwAccountData.xpub,
+      xpub: xpub,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
@@ -166,13 +170,15 @@ class BitcoinWalletService extends WalletService<
 
   @override
   Future<BitcoinWallet> restoreFromKeys(BitcoinWalletFromKeysCredentials credentials,
-          {bool? isTestnet}) async {
+      {bool? isTestnet}) async {
     final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
 
+    final xpub = convertZpubToXpub(credentials.xpub);
+
     final wallet = await BitcoinWallet(
       password: credentials.password!,
-      xpub: credentials.xpub,
+      xpub: xpub,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,

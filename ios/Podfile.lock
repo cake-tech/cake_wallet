@@ -252,6 +252,13 @@ SPEC CHECKSUMS:
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   payjoin_flutter: d9d4c8aa16bd5dfedb9b21d0edc8199e0187d96e
+  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
+  reown_yttrium: cee334ade64725b1d83f7b34c706a6aae2696d58
+  SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a
+  sensitive_clipboard: 161e9abc3d56b3131309d8a321eb4690a803c16b
+  share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
+  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  sp_scanner: b1bc9321690980bdb44bba7ec85d5543e716d1b5
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   reown_yttrium: c0e87e5965fa60a3559564cc35cffbba22976089
   SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a

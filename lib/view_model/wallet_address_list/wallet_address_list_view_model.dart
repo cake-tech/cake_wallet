@@ -1,6 +1,7 @@
 import 'dart:developer' as dev;
 import 'dart:core';
 
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/payment_uris.dart';
@@ -30,6 +31,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -37,7 +39,6 @@ import 'package:mobx/mobx.dart';
 part 'wallet_address_list_view_model.g.dart';
 
 class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletAddressListViewModel;
-
 
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
@@ -143,6 +144,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return DecredURI(amount: amount, address: address.address);
       case WalletType.dogecoin:
         return DogeURI(amount: amount, address: address.address);
+      case WalletType.base:
+        return BaseURI(amount: amount, address: address.address);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
@@ -259,6 +262,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (wallet.type == WalletType.polygon) {
       final primaryAddress = polygon!.getAddress(wallet);
+
+      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+    }
+
+    if (wallet.type == WalletType.base) {
+      final primaryAddress = base!.getAddress(wallet);
 
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
@@ -435,7 +444,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           'assets/images/zano_icon.svg',
           'assets/images/more_tokens.svg',
         ];
-
+      case WalletType.base:
+        return [
+          'assets/images/eth_icon.svg',
+          'assets/images/usdc_icon.svg',
+          'assets/images/more_tokens.svg',
+        ];
       default:
         return [];
     }
@@ -457,6 +471,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return 'assets/images/trx_chain_mono.svg';
       case WalletType.zano:
         return 'assets/images/zano_chain_mono.svg';
+      case WalletType.base:
+        return 'assets/images/base_chain_mono.svg';
       default:
         return 'assets/images/eth_chain_mono.svg';
     }
@@ -473,7 +489,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
 
   @computed
-  bool get isCupcake =>
+  bool get isBitcoinViewOnly =>
       wallet.type == WalletType.bitcoin &&
       (bitcoin!.getWalletKeys(wallet)["privateKey"] ?? "").isEmpty;
 
