@@ -1,6 +1,7 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -191,25 +192,46 @@ class WalletListBodyState extends State<WalletListBody> {
                               Icons.account_balance_wallet_outlined,
                               size: 28,
                             ),
-                            trailingWidget: EditWalletButtonWidget(
-                              width: 74,
-                              isGroup: true,
-                              isExpanded:
-                                  widget.walletListViewModel.expansionTileStateTrack[index]!,
-                              onTap: () {
-                                final wallet = widget.walletListViewModel
-                                    .convertWalletInfoToWalletListItem(group.wallets.first);
-                                Navigator.of(context).pushNamed(
-                                  Routes.walletEdit,
-                                  arguments: WalletEditPageArguments(
-                                    walletListViewModel: widget.walletListViewModel,
-                                    editingWallet: wallet,
-                                    isWalletGroup: true,
-                                    groupName: groupName,
-                                    walletGroupKey: group.groupKey,
-                                  ),
-                                );
-                              },
+                            trailingWidget: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                AddWalletButtonWidget(
+                                  onTap: () {
+                                    final existingTypes = widget.walletListViewModel.getTypesInGroup(group);
+                                    final arguments = NewWalletTypeArguments(
+                                      onTypeSelected: null,
+                                      isCreate: true,
+                                      isHardwareWallet: false,
+                                      allowMultiSelect: true,
+                                      constrainBip39Only: true,
+                                      preselectedTypes: existingTypes,
+                                    );
+                                    Navigator.of(context)
+                                        .pushNamed(Routes.newWalletType, arguments: arguments);
+                                  },
+                                ),
+                                SizedBox(width: 4),
+                                EditWalletButtonWidget(
+                                  width: 74,
+                                  isGroup: true,
+                                  isExpanded:
+                                      widget.walletListViewModel.expansionTileStateTrack[index]!,
+                                  onTap: () {
+                                    final wallet = widget.walletListViewModel
+                                        .convertWalletInfoToWalletListItem(group.wallets.first);
+                                    Navigator.of(context).pushNamed(
+                                      Routes.walletEdit,
+                                      arguments: WalletEditPageArguments(
+                                        walletListViewModel: widget.walletListViewModel,
+                                        editingWallet: wallet,
+                                        isWalletGroup: true,
+                                        groupName: groupName,
+                                        walletGroupKey: group.groupKey,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                             childWallets: group.wallets.map((walletInfo) {
                               return widget.walletListViewModel
@@ -539,5 +561,37 @@ class WalletListBodyState extends State<WalletListBody> {
       _progressBar?.dismiss();
       _progressBar = null;
     });
+  }
+}
+
+
+class AddWalletButtonWidget extends StatelessWidget {
+  const AddWalletButtonWidget({
+    required this.onTap,
+    super.key,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Center(
+        child: Container(
+          height: 40,
+          width: 44,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).colorScheme.surface,
+          ),
+          child: Icon(
+            Icons.add,
+            size: 24,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
   }
 }

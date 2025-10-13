@@ -23,6 +23,13 @@ bool isBIP39Wallet(WalletType walletType) {
   }
 }
 
+bool onlyBIP39Selected(List<WalletType> types) {
+  for (var type in types) {
+    if (!isBIP39Wallet(type)) return false;
+  }
+  return true;
+}
+
 bool isElectrumWallet(WalletType walletType) {
   switch (walletType) {
     case WalletType.bitcoin:

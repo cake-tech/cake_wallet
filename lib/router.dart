@@ -55,6 +55,7 @@ import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/new_wallet_group_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/wallet_group_display_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/advanced_privacy_settings_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
@@ -132,6 +133,7 @@ import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
+import 'package:cake_wallet/view_model/new_wallet_group_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
@@ -204,18 +206,24 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return createRoute(RouteSettings(name: Routes.newWalletType));
 
     case Routes.newWalletType:
+      final args = settings.arguments;
+
+      final NewWalletTypeArguments param = (args is NewWalletTypeArguments)
+          ? args
+          : NewWalletTypeArguments(
+        onTypeSelected: (BuildContext context, WalletType type) {
+
+          Navigator.of(context).pushNamed(
+            Routes.newWallet,
+            arguments: NewWalletArguments(type: type),
+          );
+        },
+        isCreate: true,
+        isHardwareWallet: false,
+      );
+
       return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<NewWalletTypePage>(
-          param1: NewWalletTypeArguments(
-            onTypeSelected: (BuildContext context, WalletType type) =>
-                Navigator.of(context).pushNamed(
-              Routes.newWallet,
-              arguments: NewWalletArguments(type: type),
-            ),
-            isCreate: true,
-            isHardwareWallet: false,
-          ),
-        ),
+            (_) => getIt.get<NewWalletTypePage>(param1: param),
       );
 
     case Routes.walletGroupsDisplayPage:
@@ -241,6 +249,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
           isChildWallet: args.isChildWallet,
         ),
       );
+
+    case Routes.newWalletGroup:
+      final args = settings.arguments as WalletGroupArguments;
+      final seedSettingsViewModel = getIt.get<SeedSettingsViewModel>();
+      return handleRouteWithPlatformAwareness(
+            (_) => NewWalletGroupPage(getIt.get<WalletGroupNewVM>(param1: args),seedSettingsViewModel));
 
     case Routes.chooseHardwareWalletAccount:
       final arguments = settings.arguments as List<dynamic>;

@@ -68,6 +68,14 @@ abstract class WalletListViewModelBase with Store {
 
   WalletType get currentWalletType => _appStore.wallet!.type;
 
+  Set<WalletType> getTypesInGroup(WalletGroup group) {
+    final types = <WalletType>{};
+    for (var wallet in group.wallets) {
+      types.add(wallet.type);
+    }
+    return types;
+  }
+
   bool requireHardwareWalletConnection(WalletListItem walletItem) =>
       _walletLoadingService.requireHardwareWalletConnection(
           walletItem.type, walletItem.name);

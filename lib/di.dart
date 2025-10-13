@@ -57,6 +57,7 @@ import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
+import 'package:cake_wallet/view_model/new_wallet_group_view_model.dart';
 import 'package:cake_wallet/view_model/start_tor_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
@@ -426,6 +427,12 @@ Future<void> setup({
       getIt.get<SeedSettingsViewModel>(),
       newWalletArguments: newWalletArgs,));
 
+
+  getIt.registerFactoryParam<WalletGroupNewVM, WalletGroupArguments, void>(
+          (args, _) => WalletGroupNewVM(getIt.get<AppStore>(),
+          getIt.get<WalletCreationService>(param1: WalletType.none),
+          args: args,
+          walletNewVMBuilder: (args) => getIt<WalletNewVM>(param1: args)));
 
   getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
 
@@ -1297,6 +1304,7 @@ Future<void> setup({
     return NewWalletTypePage(
       newWalletTypeArguments: newWalletTypeArguments,
       newWalletTypeViewModel: getIt.get<NewWalletTypeViewModel>(),
+        seedSettingsViewModel:  getIt.get<SeedSettingsViewModel>()
     );
   });
 

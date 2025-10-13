@@ -30,8 +30,13 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   final SettingsStore _settingsStore;
 
+  bool get _isGroupCreation => type == WalletType.none;
+
   @computed
   bool get hasSeedPhraseLengthOption {
+
+    if (_isGroupCreation) return false; // group flow = BIP-39 only
+
     // convert to switch case so that it give a syntax error when adding a new wallet type
     // thus we don't forget about it
     switch (type) {
@@ -61,19 +66,19 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     }
   }
 
-  bool get isMoneroSeedTypeOptionsEnabled => [
+  bool get isMoneroSeedTypeOptionsEnabled => !_isGroupCreation && [
         WalletType.monero,
         WalletType.wownero,
       ].contains(type);
 
-  bool get isBitcoinSeedTypeOptionsEnabled => [
+  bool get isBitcoinSeedTypeOptionsEnabled => !_isGroupCreation && [
         WalletType.bitcoin,
         WalletType.litecoin,
       ].contains(type);
 
-  bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
+  bool get isNanoSeedTypeOptionsEnabled => !_isGroupCreation && [WalletType.nano].contains(type);
 
-  bool get hasPassphraseOption => [
+  bool get hasPassphraseOption => _isGroupCreation || [
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
@@ -94,7 +99,10 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   SeedPhraseLength get seedPhraseLength => _settingsStore.seedPhraseLength;
 
   @computed
-  bool get isPolySeed => _settingsStore.moneroSeedType == MoneroSeedType.polyseed;
+  bool get isPolySeed =>
+      _isGroupCreation
+          ? false
+          : _settingsStore.moneroSeedType == MoneroSeedType.polyseed;
 
   @action
   void setFiatApiMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;

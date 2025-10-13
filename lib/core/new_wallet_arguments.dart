@@ -11,3 +11,28 @@ class NewWalletArguments {
     this.isChildWallet = false,
   });
 }
+
+class WalletGroupArguments {
+  WalletGroupArguments({
+    required this.types,
+    this.currentType,
+    this.mnemonic,
+  });
+
+  final List<WalletType> types;
+  final WalletType? currentType;
+  final String? mnemonic;
+}
+
+class WalletGroupParams {
+  final List<WalletType> restTypes;
+  final String sharedMnemonic;
+  final bool isChildWallet;
+  final String groupKey;
+  const WalletGroupParams({
+    required this.restTypes,
+    required this.sharedMnemonic,
+    required this.isChildWallet,
+    required this.groupKey,
+  });
+}
