@@ -47,7 +47,7 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
 extension CryptoCurrencyForWalletType on CryptoCurrency {
   String? get normalizedIconPath {
     if (this == CryptoCurrency.baseEth) {
-      return 'assets/images/base_icon.png';
+      return 'assets/images/crypto/base_icon.webp';
     }
     return iconPath;
   }

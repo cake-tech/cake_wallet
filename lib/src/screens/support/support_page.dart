@@ -20,16 +20,16 @@ class SupportPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
   String get _imageSupportChat => currentTheme.isDark
-      ? 'assets/images/support_chat_dark.svg'
-      : 'assets/images/support_chat.svg';
+      ? 'assets/images/support_chat_dark.webp'
+      : 'assets/images/support_chat.webp';
 
   String get _imageSupportDocs => currentTheme.isDark
-      ? 'assets/images/support_docs_dark.svg'
-      : 'assets/images/support_docs.svg';
+      ? 'assets/images/support_docs_dark.webp'
+      : 'assets/images/support_docs.webp';
 
   String get _imageSupportLinks => currentTheme.isDark
-      ? 'assets/images/support_links_dark.svg'
-      : 'assets/images/support_links.svg';
+      ? 'assets/images/support_links_dark.webp'
+      : 'assets/images/support_links.webp';
 
   @override
   Widget body(BuildContext context) => Center(
@@ -40,7 +40,7 @@ class SupportPage extends BasePage {
               Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: OptionTile(
-                  image: SvgPicture.asset(_imageSupportChat, width: 55, height: 55),
+                  image: Image.asset(_imageSupportChat, width: 55, height: 55),
                   title: S.of(context).support_title_live_chat,
                   description: S.of(context).support_description_live_chat,
                   onPressed: () => _onPressedSupportChat(context),
@@ -49,7 +49,7 @@ class SupportPage extends BasePage {
               Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: OptionTile(
-                  image: SvgPicture.asset(_imageSupportDocs, width: 55, height: 55),
+                  image: Image.asset(_imageSupportDocs, width: 55, height: 55),
                   title: S.of(context).support_title_guides,
                   description: S.of(context).support_description_guides,
                   onPressed: () => _launchUrl(supportViewModel.docsUrl),
@@ -58,7 +58,7 @@ class SupportPage extends BasePage {
               Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: OptionTile(
-                  image: SvgPicture.asset(_imageSupportLinks, width: 55, height: 55),
+                  image: Image.asset(_imageSupportLinks, width: 55, height: 55),
                   title: S.of(context).support_title_other_links,
                   description: S.of(context).support_description_other_links,
                   onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
