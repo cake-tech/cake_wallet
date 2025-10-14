@@ -489,7 +489,6 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
         footerType: FooterType.singleActionButton,
         height: 500,
-        currentTheme: currentTheme,
         titleText: '',
         contentImage: currentTheme == ThemeList.lightTheme
             ? 'assets/images/wallet_group_options_light.png'
