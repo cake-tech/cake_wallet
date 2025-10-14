@@ -223,7 +223,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const weth = CryptoCurrency(title: 'WETH', tag: 'ETH', fullName: 'Wrapped Ethereum', raw: 82, name: 'weth', iconPath: 'assets/images/crypto/ethereum.webp', decimals: 18);
   static const zrx = CryptoCurrency(title: 'ZRX', tag: 'ETH', fullName: '0x Protocol', raw: 83, name: 'zrx', iconPath: 'assets/images/zrx_icon.png', decimals: 18);
   static const dydx = CryptoCurrency(title: 'DYDX', tag: 'ETH', fullName: 'dYdX', raw: 84, name: 'dydx', iconPath: 'assets/images/dydx_icon.png', decimals: 18);
-  static const steth = CryptoCurrency(title: 'STETH', tag: 'ETH', fullName: 'Lido Staked Ethereum', raw: 85, name: 'steth', iconPath: 'assets/images/stcrypto/ethereum.webp', decimals: 18);
+  static const steth = CryptoCurrency(title: 'STETH', tag: 'ETH', fullName: 'Lido Staked Ethereum', raw: 85, name: 'steth', iconPath: 'assets/images/crypto/ethereum.webp', decimals: 18);
   static const banano = CryptoCurrency(title: 'BAN', fullName: 'Banano', raw: 86, name: 'banano', iconPath: 'assets/images/nano_icon.png', decimals: 29);
   static const usdtPoly = CryptoCurrency(title: 'USDT', tag: 'POL', fullName: 'Tether USD (PoS)', raw: 87, name: 'usdtpoly', iconPath: 'assets/images/crypto/tether.webp', decimals: 6);
   static const usdcEPoly = CryptoCurrency(title: 'USDC.E', tag: 'POL', fullName: 'USD Coin (PoS)', raw: 88, name: 'usdcepoly', iconPath: 'assets/images/crypto/usdc.webp', decimals: 6);
