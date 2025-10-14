@@ -242,7 +242,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const deps = CryptoCurrency(title: 'DEPS', tag: 'ETH', fullName: 'Decentralized Euro Protocol Share', raw: 101, name: 'deps', iconPath: 'assets/images/deps_icon.png', decimals: 18);
   static const kbtc = CryptoCurrency(title: 'KBTC', tag: 'ETH', fullName: 'Kraken Wrapped Bitcoin', raw: 102, name: 'kbtc', iconPath: 'assets/images/kbtc_icon.png', decimals: 8);
   static const cbbtc = CryptoCurrency(title: 'CBBTC', tag: 'ETH', fullName: 'Coinbase Wrapped BTC', raw: 103, name: 'cbbtc', iconPath: 'assets/images/cbbtc_icon.png', decimals: 8);
-  static const baseEth = CryptoCurrency(title: 'ETH', tag: 'BASE', fullName: 'Ethereum', raw: 104, name: 'baseth', iconPath: 'assets/images/eth_icon.png', decimals: 18);
+  static const baseEth = CryptoCurrency(title: 'ETH', tag: 'BASE', fullName: 'Ethereum', raw: 104, name: 'baseth', iconPath: 'assets/images/crypto/ethereum.png', decimals: 18);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
