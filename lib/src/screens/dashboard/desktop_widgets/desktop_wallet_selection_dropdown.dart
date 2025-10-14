@@ -32,7 +32,7 @@ class DesktopWalletSelectionDropDown extends StatefulWidget {
 class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionDropDown> {
   final moneroIcon = Image.asset('assets/images/crypto/monero.webp', height: 24, width: 24);
   final bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.webp', height: 24, width: 24);
-  final tBitcoinIcon = Image.asset('assets/images/tbtc.webp', height: 24, width: 24);
+  final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
   final litecoinIcon = Image.asset('assets/images/crypto/litecoin.webp', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.webp', height: 24, width: 24);
   final ethereumIcon = Image.asset('assets/images/crypto/ethereum.webp', height: 24, width: 24);
