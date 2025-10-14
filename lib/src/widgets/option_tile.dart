@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
+import 'package:flutter/material.dart';
 
 class OptionTile extends StatelessWidget {
   const OptionTile({
@@ -13,7 +13,7 @@ class OptionTile extends StatelessWidget {
   }) : assert(image != null || icon != null);
 
   final VoidCallback onPressed;
-  final Image? image;
+  final Widget? image;
   final Icon? icon;
   final String title;
   final String description;
@@ -65,13 +65,18 @@ class OptionTile extends StatelessWidget {
                         ),
                         if (tag != null)
                           Container(
-                              decoration: BoxDecoration(
-                                  border: Border.all(),
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              margin: EdgeInsets.only(left: 5),
-                              child: Text(tag!))
+                            decoration: BoxDecoration(
+                              border: Border.all(style: BorderStyle.none),
+                              borderRadius: BorderRadius.circular(20),
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 5),
+                            margin: EdgeInsets.only(left: 5),
+                            child: Text(
+                              tag!,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                            ),
+                          )
                       ],
                     ),
                     Padding(

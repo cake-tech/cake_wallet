@@ -2,10 +2,11 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
-import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SupportPage extends BasePage {
   SupportPage(this.supportViewModel);
@@ -18,56 +19,46 @@ class SupportPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
-  @override
-  Widget body(BuildContext context) {
-    final iconColor = Theme.of(context).colorScheme.primary;
+  String get _imageSupportChat => currentTheme.isDark
+      ? 'assets/images/support_chat_dark.webp'
+      : 'assets/images/support_chat.webp';
 
-    return Container(
-      child: Center(
+  String get _imageSupportDocs => currentTheme.isDark
+      ? 'assets/images/support_docs_dark.webp'
+      : 'assets/images/support_docs.webp';
+
+  String get _imageSupportLinks => currentTheme.isDark
+      ? 'assets/images/support_links_dark.webp'
+      : 'assets/images/support_links.webp';
+
+  @override
+  Widget body(BuildContext context) => Center(
         child: Container(
-          padding: EdgeInsets.only(left: 24, right: 24),
+          padding: const EdgeInsets.only(left: 24, right: 24),
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.only(top: 20),
+                padding: const EdgeInsets.only(top: 20),
                 child: OptionTile(
-                  icon: Icon(
-                    Icons.support_agent,
-                    color: iconColor,
-                    size: 50,
-                  ),
+                  image: Image.asset(_imageSupportChat, width: 55, height: 55),
                   title: S.of(context).support_title_live_chat,
                   description: S.of(context).support_description_live_chat,
-                  onPressed: () {
-                    if (DeviceInfo.instance.isDesktop) {
-                      _launchUrl(supportViewModel.fetchUrl());
-                    } else {
-                      Navigator.pushNamed(context, Routes.supportLiveChat);
-                    }
-                  },
+                  onPressed: () => _onPressedSupportChat(context),
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(top: 20),
+                padding: const EdgeInsets.only(top: 20),
                 child: OptionTile(
-                  icon: Icon(
-                    Icons.find_in_page,
-                    color: iconColor,
-                    size: 50,
-                  ),
+                  image: Image.asset(_imageSupportDocs, width: 55, height: 55),
                   title: S.of(context).support_title_guides,
                   description: S.of(context).support_description_guides,
                   onPressed: () => _launchUrl(supportViewModel.docsUrl),
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(top: 20),
+                padding: const EdgeInsets.only(top: 20),
                 child: OptionTile(
-                  icon: Icon(
-                    Icons.contact_support,
-                    color: iconColor,
-                    size: 50,
-                  ),
+                  image: Image.asset(_imageSupportLinks, width: 55, height: 55),
                   title: S.of(context).support_title_other_links,
                   description: S.of(context).support_description_other_links,
                   onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
@@ -76,8 +67,14 @@ class SupportPage extends BasePage {
             ],
           ),
         ),
-      ),
-    );
+      );
+
+  void _onPressedSupportChat(BuildContext context) {
+    if (DeviceInfo.instance.isDesktop) {
+      _launchUrl(supportViewModel.fetchUrl());
+    } else {
+      Navigator.pushNamed(context, Routes.supportLiveChat);
+    }
   }
 
   void _launchUrl(String url) async {
