@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class EditWalletButtonWidget extends StatelessWidget {
   const EditWalletButtonWidget({
-    required this.width,
     required this.onTap,
     this.isGroup = false,
     this.isExpanded = false,
@@ -10,35 +9,43 @@ class EditWalletButtonWidget extends StatelessWidget {
   });
 
   final bool isGroup;
-  final double width;
   final bool isExpanded;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      child: Row(
-        children: [
-          TextButton(
-            onPressed: onTap,
-            style: TextButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.surface, shape: CircleBorder()),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Center(
+            child: Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              child: Icon(
+                Icons.edit,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
+        if (isGroup) ...{
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
             child: Icon(
-              Icons.edit,
-              size: 14,
+              isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+              size: 28,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-          if (isGroup) ...{
-            Icon(
-              isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-              size: 24,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          },
-        ],
-      ),
+        },
+      ],
     );
   }
 }

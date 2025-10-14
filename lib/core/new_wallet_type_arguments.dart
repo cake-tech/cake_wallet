@@ -7,17 +7,19 @@ class NewWalletTypeArguments {
   final bool isCreate;
   final bool allowMultiSelect;
   final bool constrainBip39Only;
-  final Set<WalletType>? preselectedTypes;
+  final Set<WalletType> preselectedTypes;
   final Object? credentials;
   final HardwareWalletType? hardwareWalletType;
+  final String? walletGroupKey;
 
   NewWalletTypeArguments({
     required this.onTypeSelected,
     required this.isCreate,
     this.allowMultiSelect = false,
     this.constrainBip39Only = false,
-    this.preselectedTypes,
+    this.preselectedTypes = const {},
     this.credentials,
     this.hardwareWalletType,
+    this.walletGroupKey,
   });
 }

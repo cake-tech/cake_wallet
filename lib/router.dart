@@ -226,14 +226,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
       return handleRouteWithPlatformAwareness(
         (_) => getIt.get<NewWalletTypePage>(
-          param1: NewWalletTypeArguments(
-            onTypeSelected: (BuildContext context, WalletType type) =>
-                Navigator.of(context).pushNamed(
-              Routes.newWallet,
-              arguments: NewWalletArguments(type: type),
-            ),
-            isCreate: true,
-          ),
+          param1: param
         ),
       );
 

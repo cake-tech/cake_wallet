@@ -193,14 +193,14 @@ class WalletListBodyState extends State<WalletListBody> {
                                       allowMultiSelect: true,
                                       constrainBip39Only: true,
                                       preselectedTypes: existingTypes,
+                                      walletGroupKey: group.groupKey,
                                     );
                                     Navigator.of(context)
                                         .pushNamed(Routes.newWalletType, arguments: arguments);
                                   },
                                 ),
-                                SizedBox(width: 4),
+                                SizedBox(width: 6),
                                 EditWalletButtonWidget(
-                                  width: 74,
                                   isGroup: true,
                                   isExpanded:
                                       widget.walletListViewModel.expansionTileStateTrack[index]!,
@@ -232,9 +232,8 @@ class WalletListBodyState extends State<WalletListBody> {
                               return item.isCurrent
                                   ? SizedBox.shrink()
                                   : Padding(
-                                      padding: const EdgeInsets.only(right: 16),
+                                      padding: const EdgeInsets.only(right: 12.0),
                                       child: EditWalletButtonWidget(
-                                        width: 44,
                                         onTap: () => Navigator.of(context).pushNamed(
                                           Routes.walletEdit,
                                           arguments: WalletEditPageArguments(
@@ -315,7 +314,6 @@ class WalletListBodyState extends State<WalletListBody> {
                               trailingWidget: wallet.isCurrent
                                   ? null
                                   : EditWalletButtonWidget(
-                                      width: 64,
                                       onTap: () {
                                         Navigator.of(context).pushNamed(
                                           Routes.walletEdit,
@@ -572,7 +570,7 @@ class AddWalletButtonWidget extends StatelessWidget {
       child: Center(
         child: Container(
           height: 40,
-          width: 44,
+          width: 40,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Theme.of(context).colorScheme.surface,

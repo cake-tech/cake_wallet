@@ -312,7 +312,7 @@ class WalletRestorePage extends BasePage {
           Routes.newWalletType,
           arguments: NewWalletTypeArguments(
             onTypeSelected: null,
-            isCreate: true,
+            isCreate: false,
             allowMultiSelect: true,
             constrainBip39Only: true,
             preselectedTypes: {walletRestoreViewModel.type},
