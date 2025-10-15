@@ -13,7 +13,7 @@ CONFIG_ARGS=""
 
 case $APP_LINUX_TYPE in
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --dogecoin --base";;
+		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --dogecoin --base --arbitrum";;
 esac
 
 cp -rf pubspec_description.yaml pubspec.yaml

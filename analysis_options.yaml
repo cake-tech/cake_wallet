@@ -24,6 +24,7 @@ analyzer:
     lib/wownero/cw_wownero.dart,
     lib/zano/cw_zano.dart,
     lib/base/cw_base.dart,
+    lib/arbitrum/cw_arbitrum.dart,
     ]
   language:
     strict-casts: true
