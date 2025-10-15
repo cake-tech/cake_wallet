@@ -5,7 +5,7 @@ publish_to: none
 homepage: https://cakewallet.com
 
 environment:
-  sdk: ^3.8.1
+  sdk: '>=3.0.6 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
