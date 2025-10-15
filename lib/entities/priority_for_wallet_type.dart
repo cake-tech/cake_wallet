@@ -1,3 +1,4 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
@@ -31,6 +32,8 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return polygon!.getTransactionPriorities();
     case WalletType.base:
       return base!.getTransactionPriorities();
+    case WalletType.arbitrum:
+      return arbitrum!.getTransactionPriorities();
     // no such thing for nano/banano/solana/tron:
     case WalletType.nano:
     case WalletType.banano:
