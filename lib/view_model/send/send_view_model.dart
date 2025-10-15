@@ -540,73 +540,84 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (isEVMWallet && trade != null && provider is SwapsXyzExchangeProvider) {
         final routerTo = trade.inputAddress;
         final routerData = trade.routerData;
-        final routerValueWei = BigInt.tryParse((trade.routerValue ?? '0').toString()) ?? BigInt.zero;
+        final routerValueWei =
+            BigInt.tryParse((trade.routerValue ?? '0').toString()) ?? BigInt.zero;
 
         if (routerTo?.isNotEmpty == true && routerData?.isNotEmpty == true) {
+
+          // detect prepared ERC-20 transfer(...) (alt-vm deposit pattern)
+          String _selector(String s) =>
+              (s.startsWith('0x') && s.length >= 10) ? s.substring(0, 10) : '';
+          const _transferSig = '0xa9059cbb';
+          final _sel = _selector(routerData!);
+          final _isPreparedTransfer = _sel == _transferSig &&
+              (trade.sourceTokenAddress ?? '').toLowerCase() == (routerTo ?? '').toLowerCase();
+
           _pendingApprovalTx = null;
 
-          // Optionally prebuild approval
-            final tokenContract = trade.sourceTokenAddress ?? '';
-            final requiredAmount = BigInt.tryParse(
-              (trade.sourceTokenAmountRaw ?? '0').replaceAll('n', ''),
-            ) ?? BigInt.zero;
+          // Optionally prebuild approval (SKIP for prepared transfer)
+          final tokenContract = trade.sourceTokenAddress ?? '';
+          final requiredAmount = BigInt.tryParse(
+            (trade.sourceTokenAmountRaw ?? '0').replaceAll('n', ''),
+          ) ?? BigInt.zero;
 
-            if (tokenContract.isNotEmpty && requiredAmount > BigInt.zero) {
-              if (walletType == WalletType.ethereum) {
-                final priority = _settingsStore.priority[WalletType.ethereum]!;
-                _pendingApprovalTx = await buildApprovalIfNeeded(
-                  spender: routerTo!,
-                  tokenContract: tokenContract,
-                  requiredAmount: requiredAmount,
-                  sourceTokenDecimals: trade.sourceTokenDecimals,
-                );
+          // Only do approval when NOT a prepared transfer, and only if the API hinted we might need it
+          final requiresTokenApproval = (trade.requiresTokenApproval ?? false) && !_isPreparedTransfer;
 
-                // Build the callData tx
-                pendingTransaction = await ethereum!.createRawCallDataTransaction(
-                  wallet,
-                  routerTo,
-                  routerData!,
-                  routerValueWei,
-                  priority,
-                );
+          if (requiresTokenApproval && tokenContract.isNotEmpty && requiredAmount > BigInt.zero) {
+            if (walletType == WalletType.ethereum) {
+              final priority = _settingsStore.priority[WalletType.ethereum]!;
+              _pendingApprovalTx = await buildApprovalIfNeeded(
+                spender: routerTo!, // if API provides a specific spender, use that instead
+                tokenContract: tokenContract,
+                requiredAmount: requiredAmount,
+                sourceTokenDecimals: trade.sourceTokenDecimals,
+              );
 
-                _isSwapsXYZCallDataTx = true;
-                state = ExecutedSuccessfullyState();
-                return pendingTransaction; // do NOT fall back to regular flow
-              }
-              if (walletType == WalletType.polygon) {
-                final priority = _settingsStore.priority[WalletType.polygon]!;
-                _pendingApprovalTx = await buildApprovalIfNeeded(
-                  spender: routerTo!,
-                  tokenContract: tokenContract,
-                  requiredAmount: requiredAmount,
-                  sourceTokenDecimals: trade.sourceTokenDecimals,
-                );
+              // Build the callData tx
+              pendingTransaction = await ethereum!.createRawCallDataTransaction(
+                wallet,
+                routerTo,
+                routerData,
+                routerValueWei,
+                priority,
+              );
 
-                // Build the callData tx
-                pendingTransaction = await polygon!.createRawCallDataTransaction(
-                  wallet,
-                  routerTo,
-                  routerData!,
-                  routerValueWei,
-                  priority,
-                );
-
-                _isSwapsXYZCallDataTx = true;
-                state = ExecutedSuccessfullyState();
-                return pendingTransaction; // do NOT fall back to regular flow
-              }
-
+              _isSwapsXYZCallDataTx = true;
+              state = ExecutedSuccessfullyState();
+              return pendingTransaction; // do NOT fall back to regular flow
             }
+            if (walletType == WalletType.polygon) {
+              final priority = _settingsStore.priority[WalletType.polygon]!;
+              _pendingApprovalTx = await buildApprovalIfNeeded(
+                spender: routerTo!,
+                tokenContract: tokenContract,
+                requiredAmount: requiredAmount,
+                sourceTokenDecimals: trade.sourceTokenDecimals,
+              );
 
+              // Build the callData tx
+              pendingTransaction = await polygon!.createRawCallDataTransaction(
+                wallet,
+                routerTo,
+                routerData,
+                routerValueWei,
+                priority,
+              );
 
-          // No approval needed: still build callData tx
+              _isSwapsXYZCallDataTx = true;
+              state = ExecutedSuccessfullyState();
+              return pendingTransaction; // do NOT fall back to regular flow
+            }
+          }
+
+          // No approval needed (or prepared transfer): send exactly what backend prepared
           if (walletType == WalletType.ethereum) {
             final priority = _settingsStore.priority[WalletType.ethereum]!;
             pendingTransaction = await ethereum!.createRawCallDataTransaction(
               wallet,
               routerTo!,
-              routerData!,
+              routerData,
               routerValueWei,
               priority,
             );
@@ -619,7 +630,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             pendingTransaction = await polygon!.createRawCallDataTransaction(
               wallet,
               routerTo!,
-              routerData!,
+              routerData,
               routerValueWei,
               priority,
             );

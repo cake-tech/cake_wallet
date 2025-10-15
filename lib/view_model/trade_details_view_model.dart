@@ -138,8 +138,13 @@ abstract class TradeDetailsViewModelBase with Store {
     try {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
-      if (updatedTrade.createdAt == null && trade.createdAt != null)
+      if (updatedTrade.createdAt == null && trade.createdAt != null) {
         updatedTrade.createdAt = trade.createdAt;
+      }
+
+      if (updatedTrade.toRaw == -1 && trade.toRaw != -1) {
+        updatedTrade.toRaw = trade.toRaw;
+      }
 
       Trade? foundElement = trades.values.firstWhereOrNull((element) => element.id == trade.id);
       if (foundElement != null) {

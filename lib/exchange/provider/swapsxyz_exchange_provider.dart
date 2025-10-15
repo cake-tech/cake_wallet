@@ -152,22 +152,21 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount
-  }) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
-
       final chains = await _geSupportedChain();
       if (chains.isEmpty) return 0.0;
 
       final srcChain = _findChainByCurrency(from, chains);
       final dstChain = _findChainByCurrency(to, chains);
 
-      await _ensureTokensCached(fromChain: srcChain, toChain: dstChain, from: from, to: to);
+      await _ensureTokensCached(
+          fromChain: srcChain, toChain: dstChain, from: from, to: to);
 
       final srcToken = _getTokenAddress(currency: from, chain: srcChain);
       final dstToken = _getTokenAddress(currency: to, chain: dstChain);
@@ -180,11 +179,11 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
           dstToken: dstToken,
         );
         if (path == null || !path.supportsExactOut) {
-          printV('fetchRate: route does not support exact-amount-out for ${from.title} -> ${to.title}');
+          printV(
+              'fetchRate: route does not support exact-amount-out for ${from.title} -> ${to.title}');
           return 0.0;
         }
       }
-
 
       final humanAmountStr = amount.toString();
       final formattedAmount = AmountConverter.toBaseUnits(
@@ -193,7 +192,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       );
 
       final params = {
-        'swapDirection': isReceiveAmount ? 'exact-amount-out' : 'exact-amount-in',
+        'swapDirection':
+            isReceiveAmount ? 'exact-amount-out' : 'exact-amount-in',
         'srcToken': srcToken,
         'dstToken': dstToken,
         'srcChainId': '${srcChain.chainId}',
@@ -201,9 +201,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         'amount': formattedAmount,
       };
 
-
       final uri = Uri.https(_baseUrl, _getQuotePaths, params);
-      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final response =
+          await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
       if (response.statusCode != 200) {
         printV('fetchRate failed: ${response.body}');
@@ -229,7 +229,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final sender = request.refundAddress.trim();
       final recipient = request.toAddress.trim();
       if (sender.isEmpty || recipient.isEmpty) {
-        throw Exception('Sender (refundAddress) or recipient (toAddress) is empty');
+        throw Exception(
+            'Sender (refundAddress) or recipient (toAddress) is empty');
       }
 
       final chains = await _geSupportedChain();
@@ -244,8 +245,10 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         to: request.toCurrency,
       );
 
-      final srcToken = _getTokenAddress(currency: request.fromCurrency, chain: srcChain);
-      final dstToken = _getTokenAddress(currency: request.toCurrency, chain: dstChain);
+      final srcToken =
+          _getTokenAddress(currency: request.fromCurrency, chain: srcChain);
+      final dstToken =
+          _getTokenAddress(currency: request.toCurrency, chain: dstChain);
 
       // Optional: ensure path supports exact-out before attempting fixed rate.
       if (isFixedRateMode) {
@@ -256,7 +259,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
           dstToken: dstToken,
         );
         if (path == null || !path.supportsExactOut) {
-          throw Exception('This route does not support fixed receive (exact-amount-out)');
+          throw Exception(
+              'This route does not support fixed receive (exact-amount-out)');
         }
       }
 
@@ -266,7 +270,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
       final formattedAmount = AmountConverter.toBaseUnits(
         amountStr,
-        isFixedRateMode ? request.toCurrency.decimals : request.fromCurrency.decimals,
+        isFixedRateMode
+            ? request.toCurrency.decimals
+            : request.fromCurrency.decimals,
       );
 
       final params = {
@@ -277,7 +283,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         'dstChainId': '${dstChain.chainId}',
         'dstToken': dstToken,
         'slippage': '100',
-        'swapDirection': isFixedRateMode ? 'exact-amount-out' : 'exact-amount-in',
+        'swapDirection':
+            isFixedRateMode ? 'exact-amount-out' : 'exact-amount-in',
         'amount': formattedAmount,
         'recipient': recipient,
       };
@@ -306,13 +313,17 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final amtIn = (data['amountIn'] as Map?) ?? const {};
       final amtInMax = (data['amountInMax'] as Map?) ?? const {};
       final srcTokenAddr = amtIn['address']?.toString();
-      final srcTokenDecs = (amtIn['decimals'] as num?)?.toInt() ?? request.fromCurrency.decimals;
-      final requiresTokenApproval = data['requiresTokenApproval'] as bool? ?? false;
+      final srcTokenDecs =
+          (amtIn['decimals'] as num?)?.toInt() ?? request.fromCurrency.decimals;
+      final requiresTokenApproval =
+          data['requiresTokenApproval'] as bool? ?? false;
 
-      final reqAmountStr = (amtInMax['amount'] ?? amtIn['amount'])?.toString() ?? '0';
+      final reqAmountStr =
+          (amtInMax['amount'] ?? amtIn['amount'])?.toString() ?? '0';
       final reqAmountRaw = reqAmountStr.replaceAll('n', '');
 
-      final needToRegisterInSwapXyz = vmId == 'alt-vm' || bridgeIds.contains('alt-vm');
+      final needToRegisterInSwapXyz =
+          vmId == 'alt-vm' || bridgeIds.contains('alt-vm');
 
       final trade = Trade(
         id: txId,
@@ -337,8 +348,10 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         requiresTokenApproval: requiresTokenApproval,
         routerData: routerData,
         routerValue: txValue,
-        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
+        userCurrencyFromRaw:
+            '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+        userCurrencyToRaw:
+            '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
 
       return trade;
@@ -435,6 +448,11 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     final fromSymbol = (srcPaymentToken?['symbol'] as String?) ?? '';
     final toSymbol = (dstPaymentToken?['symbol'] as String?) ?? '';
 
+    CryptoCurrency? toCurrency;
+    if (toSymbol.isNotEmpty) {
+      toCurrency = CryptoCurrency.safeParseCurrencyFromString(toSymbol);
+    }
+
     final srcDecimals = (srcPaymentToken?['decimals'] as num?)?.toInt() ?? 0;
     final dstDecimals = (dstPaymentToken?['decimals'] as num?)?.toInt() ?? 0;
 
@@ -443,14 +461,16 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     // Minimal-unit amounts like "12000n"
     final srcAmountRaw = srcPaymentToken?['amount']?.toString();
     final dstAmountRaw = dstPaymentToken?['amount']?.toString();
+    String? receiveAmount;
+    if (dstAmountRaw != null) {
+      final dstAmountMinimal = _stripN(dstAmountRaw);
+      receiveAmount =
+          AmountConverter.fromBaseUnits(dstAmountMinimal, dstDecimals);
+    }
+
     final srcAmountMinimal = _stripN(srcAmountRaw);
-    final dstAmountMinimal = _stripN(dstAmountRaw);
-
-    final amount        = AmountConverter.fromBaseUnits(srcAmountMinimal, srcDecimals);
-    final receiveAmount = AmountConverter.fromBaseUnits(dstAmountMinimal, dstDecimals);
-
+    final amount = AmountConverter.fromBaseUnits(srcAmountMinimal, srcDecimals);
     final fromCurrency = CryptoCurrency.safeParseCurrencyFromString(fromSymbol);
-    final toCurrency = CryptoCurrency.safeParseCurrencyFromString(toSymbol);
 
     // Timestamps can be num or "123n"  handle both
     final srcTs = _parseUnixSeconds(srcTransaction?['timestamp']);
@@ -458,7 +478,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     final timestamp = srcTs ?? dstTs;
 
     final createdAt = timestamp != null
-        ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: true).toLocal()
+        ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: true)
+            .toLocal()
         : null;
 
     return Trade(
@@ -569,7 +590,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       'srcChainId': '$srcChainId',
       'srcToken': srcToken,
       'dstChainId': '$dstChainId',
-      'dstToken': dstToken,
     };
 
     final uri = Uri.https(_baseUrl, _getPaths, params);
@@ -653,6 +673,10 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         return 'SOL';
       case 'CARDANO':
         return 'ADA';
+      case 'Bitcoin Cash':
+        return 'BCH';
+      case 'POLYGON':
+        return 'POL';
       default:
         return network;
     }
@@ -726,6 +750,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       'ADA' => 'CARDANO',
       'KAS' => 'KASPA',
       'TON' => 'TONCOIN',
+      'BCH' => 'BiTCOIN CASH',
       _ => network.toUpperCase(),
     };
   }
