@@ -1,0 +1,5 @@
+const String savingsGatewayAddress = "0x073493d73258C4BEb6542e8dd3e1b2891C972303";
+const String mintingGatewayAddress = "0x0";
+
+const String dEuroAddress = "0xbA3f535bbCcCcA2A154b573Ca6c5A49BAAE0a3ea";
+const String frontendCode = "0x00000000000000000000000000000000000000000043616b652057616c6c6574";

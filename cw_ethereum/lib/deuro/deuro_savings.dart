@@ -1,4 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_ethereum/deuro/constants.dart';
 import 'package:cw_ethereum/deuro/deuro_savings_contract.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_evm/contract/erc20.dart';
@@ -7,11 +8,6 @@ import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
-
-const String savingsGatewayAddress = "0x073493d73258C4BEb6542e8dd3e1b2891C972303";
-
-const String dEuroAddress = "0xbA3f535bbCcCcA2A154b573Ca6c5A49BAAE0a3ea";
-const String frontendCode = "0x00000000000000000000000000000000000000000043616b652057616c6c6574";
 
 class DEuro {
   final SavingsGateway _savingsGateway;
