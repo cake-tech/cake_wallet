@@ -707,7 +707,7 @@
   "restore_bitcoin_title_from_keys": "Restore from WIF",
   "restore_description_from_backup": "You can restore the whole Cake Wallet app from your back-up file",
   "restore_description_from_cupcake": "Link with our companion air-gapped app, installed on a second phone.",
-  "restore_description_from_hardware_wallet": "Restore from a Ledger hardware wallet",
+  "restore_description_from_hardware_wallet": "Link your hardware wallet device from a variety of manufacturers.",
   "restore_description_from_keys": "Restore your wallet from generated keystrokes saved from your private keys",
   "restore_description_from_seed": "Restore your wallet from either the 25 word or 13 word combination code",
   "restore_description_from_seed_keys": "Get back your wallet from seed/keys that you've saved to secure place",
