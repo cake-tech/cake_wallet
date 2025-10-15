@@ -37,5 +37,5 @@ class ArbitrumTransactionInfo extends EVMChainTransactionInfo {
   }
 
   @override
-  String get feeCurrency => 'ARB';
+  String get feeCurrency => 'ETH';
 }

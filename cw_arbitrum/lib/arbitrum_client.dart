@@ -68,7 +68,7 @@ class ArbitrumClient extends EVMChainClient {
         res.removeWhere((e) => e['value'] == '0');
 
         return res
-            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ARB'))
+            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'))
             .toList();
       }
 
@@ -95,7 +95,7 @@ class ArbitrumClient extends EVMChainClient {
 
       if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
         return (jsonResponse['result'] as List)
-            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ARB'))
+            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'))
             .toList();
       }
 

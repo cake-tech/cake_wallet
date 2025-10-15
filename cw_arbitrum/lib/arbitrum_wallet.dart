@@ -28,7 +28,7 @@ class ArbitrumWallet extends EVMChainWallet {
     required super.client,
     required super.encryptionFileUtils,
     super.passphrase,
-  }) : super(nativeCurrency: CryptoCurrency.arb);
+  }) : super(nativeCurrency: CryptoCurrency.arbEth);
 
   @override
   Future<void> initErc20TokensBox() async {
@@ -76,7 +76,7 @@ class ArbitrumWallet extends EVMChainWallet {
       contractAddress: token.contractAddress,
       decimal: token.decimal,
       enabled: token.enabled,
-      tag: token.tag ?? 'ARB',
+      tag: token.tag ?? 'ETH',
       iconPath: iconPath,
       isPotentialScam: token.isPotentialScam,
     );
@@ -99,7 +99,7 @@ class ArbitrumWallet extends EVMChainWallet {
       confirmations: transactionModel.confirmations,
       ethFee: BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
       exponent: transactionModel.tokenDecimal ?? 18,
-      tokenSymbol: transactionModel.tokenSymbol ?? "ARB",
+      tokenSymbol: transactionModel.tokenSymbol ?? "ETH",
       to: transactionModel.to,
       from: transactionModel.from,
       contractAddress: transactionModel.contractAddress,
