@@ -140,8 +140,7 @@ class BalanceRowWidget extends StatelessWidget {
                             availableBalance,
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurface,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 24,
+                                  //fontWeight: FontWeight.w700,
                                   height: 1,
                                 ),
                             maxLines: 1,
@@ -161,8 +160,6 @@ class BalanceRowWidget extends StatelessWidget {
                               '${availableFiatBalance}',
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     height: 1,
                                   ),
@@ -199,9 +196,7 @@ class BalanceRowWidget extends StatelessWidget {
                               const SizedBox(height: 10),
                               Text(
                                 currency.title,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
+                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurface,
                                       height: 1,
                                     ),
