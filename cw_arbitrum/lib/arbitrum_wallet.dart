@@ -32,7 +32,7 @@ class ArbitrumWallet extends EVMChainWallet {
 
   @override
   Future<void> initErc20TokensBox() async {
-    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_ ${Erc20Token.arbitrumBoxName}";
+    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.arbitrumBoxName}";
 
     evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
   }
