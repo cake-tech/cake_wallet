@@ -38,18 +38,19 @@ class ArbitrumWallet extends EVMChainWallet {
   }
 
   @override
-  void addInitialTokens([bool isMigration = false]) {
+  void addInitialTokens() {
     final initialErc20Tokens = DefaultArbitrumErc20Tokens().initialArbitrumErc20Tokens;
 
     for (final token in initialErc20Tokens) {
-      if (evmChainErc20TokensBox.containsKey(token.contractAddress)) {
-        final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
-        if (existingToken?.tag != token.tag) {
-          evmChainErc20TokensBox.put(token.contractAddress, token);
-        }
-      } else {
-        if (isMigration) token.enabled = false;
+      if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
         evmChainErc20TokensBox.put(token.contractAddress, token);
+      } else {
+        // update existing token
+        final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
+        evmChainErc20TokensBox.put(
+          token.contractAddress,
+          Erc20Token.copyWith(token, enabled: existingToken!.enabled),
+        );
       }
     }
   }

@@ -223,7 +223,7 @@ class CWArbitrum extends Arbitrum {
 
   @override
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager) =>
-      EVMChainBitboxService(manager, chainId: 8453);
+      EVMChainBitboxService(manager, chainId: 42161);
 
   @override
   List<String> getDefaultTokenContractAddresses() => DefaultArbitrumErc20Tokens()

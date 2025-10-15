@@ -53,7 +53,7 @@ class ArbitrumWalletService extends EVMChainWalletService<ArbitrumWallet> {
       );
 
       await wallet.init();
-      wallet.addInitialTokens(true);
+      wallet.addInitialTokens();
       await wallet.save();
       saveBackup(name);
       return wallet;
@@ -68,7 +68,7 @@ class ArbitrumWalletService extends EVMChainWalletService<ArbitrumWallet> {
       );
 
       await wallet.init();
-      wallet.addInitialTokens(true);
+      wallet.addInitialTokens();
       await wallet.save();
       return wallet;
     }

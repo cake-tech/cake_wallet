@@ -55,13 +55,17 @@ class DefaultArbitrumErc20Tokens {
   ];
 
   List<Erc20Token> get initialArbitrumErc20Tokens => _defaultTokens.map((token) {
-        String? iconPath;
-        try {
-          iconPath = CryptoCurrency.all
-              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-              .iconPath;
-        } catch (_) {}
+    String? iconPath;
+    if (token.iconPath?.isEmpty ?? true) {
+      try {
+        iconPath = CryptoCurrency.all
+            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+            .iconPath;
+      } catch (_) {}
+    } else {
+      iconPath = token.iconPath;
+    }
 
-        return Erc20Token.copyWith(token, iconPath, 'ARB');
-      }).toList();
+    return Erc20Token.copyWith(token, icon: iconPath, tag: 'ARB');
+  }).toList();
 }
