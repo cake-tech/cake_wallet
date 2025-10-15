@@ -18,6 +18,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.eth;
     case WalletType.base:
       return CryptoCurrency.baseEth;
+    case WalletType.arbitrum:
+      return CryptoCurrency.arbEth;
     case WalletType.bitcoinCash:
       return CryptoCurrency.bch;
     case WalletType.nano:
@@ -49,6 +51,11 @@ extension CryptoCurrencyForWalletType on CryptoCurrency {
     if (this == CryptoCurrency.baseEth) {
       return 'assets/images/crypto/base_icon.webp';
     }
+
+    if (this == CryptoCurrency.arbEth) {
+      return 'assets/images/crypto/arb_icon.webp';
+    }
+
     return iconPath;
   }
 }
