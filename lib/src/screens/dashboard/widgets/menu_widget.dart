@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+
 
 class MenuWidget extends StatefulWidget {
   MenuWidget(this.dashboardViewModel, Key? key);
@@ -24,22 +26,22 @@ class MenuWidgetState extends State<MenuWidget> {
         this.tileHeight = 60,
         this.fromTopEdge = 50,
         this.fromBottomEdge = 25,
-        this.moneroIcon = Image.asset('assets/images/crypto/monero.webp'),
-        this.bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.webp'),
-        this.litecoinIcon = Image.asset('assets/images/crypto/litecoin.webp'),
-        this.havenIcon = Image.asset('assets/images/haven_menu.webp'),
-        this.ethereumIcon = Image.asset('assets/images/crypto/ethereum.webp'),
-        this.nanoIcon = Image.asset('assets/images/crypto/nano.webp'),
-        this.bananoIcon = Image.asset('assets/images/crypto/nano.webp'),
-        this.bitcoinCashIcon = Image.asset('assets/images/crypto/bitcoin-cash.webp'),
-        this.polygonIcon = Image.asset('assets/images/crypto/polygon.webp'),
-        this.baseIcon = Image.asset('assets/images/crypto/base_icon.webp'),
-        this.solanaIcon = Image.asset('assets/images/crypto/solana.webp'),
-        this.tronIcon = Image.asset('assets/images/crypto/tron.webp'),
-        this.wowneroIcon = Image.asset('assets/images/crypto/wownero.webp'),
-        this.zanoIcon = Image.asset('assets/images/crypto/zano.webp'),
-        this.decredIcon = Image.asset('assets/images/crypto/decred.webp'),
-        this.dogecoinIcon = Image.asset('assets/images/crypto/dogecoin.webp');
+        this.moneroIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/monero.svg', height: 40, width: 40),
+        this.bitcoinIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/bitcoin.svg', height: 40, width: 40),
+        this.litecoinIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/litecoin.svg', height: 40, width: 40),
+        this.havenIcon = CakeImageWidget(imageUrl: 'assets/images/haven_menu.svg', height: 40, width: 40),
+        this.ethereumIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/ethereum.svg', height: 40, width: 40),
+        this.nanoIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/nano.svg', height: 40, width: 40),
+        this.bananoIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/nano.svg', height: 40, width: 40),
+        this.bitcoinCashIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/bitcoin-cash.svg', height: 40, width: 40),
+        this.polygonIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/polygon.svg', height: 40, width: 40),
+        this.baseIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/base.svg', height: 40, width: 40),
+        this.solanaIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/solana.svg', height: 40, width: 40),
+        this.tronIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/tron.svg', height: 40, width: 40),
+        this.wowneroIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/wownero.svg', height: 40, width: 40),
+        this.zanoIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/zano.svg', height: 40, width: 40),
+        this.decredIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/decred.svg', height: 40, width: 40),
+        this.dogecoinIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/dogecoin.svg', height: 40, width: 40);
 
   final largeScreen = 731;
 
@@ -52,22 +54,22 @@ class MenuWidgetState extends State<MenuWidget> {
   double fromTopEdge;
   double fromBottomEdge;
 
-  Image moneroIcon;
-  Image bitcoinIcon;
-  Image litecoinIcon;
-  Image havenIcon;
-  Image ethereumIcon;
-  Image bitcoinCashIcon;
-  Image nanoIcon;
-  Image bananoIcon;
-  Image polygonIcon;
-  Image baseIcon;
-  Image solanaIcon;
-  Image tronIcon;
-  Image wowneroIcon;
-  Image zanoIcon;
-  Image decredIcon;
-  Image dogecoinIcon;
+  Widget moneroIcon;
+  Widget bitcoinIcon;
+  Widget litecoinIcon;
+  Widget havenIcon;
+  Widget ethereumIcon;
+  Widget bitcoinCashIcon;
+  Widget nanoIcon;
+  Widget bananoIcon;
+  Widget polygonIcon;
+  Widget baseIcon;
+  Widget solanaIcon;
+  Widget tronIcon;
+  Widget wowneroIcon;
+  Widget zanoIcon;
+  Widget decredIcon;
+  Widget dogecoinIcon;
 
   @override
   void initState() {
@@ -116,8 +118,8 @@ class MenuWidgetState extends State<MenuWidget> {
     }
     int itemCount = items.length;
 
-    moneroIcon = Image.asset('assets/images/crypto/monero.webp');
-    bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.webp');
+    moneroIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/monero.svg', height: 40, width: 40);
+    bitcoinIcon = CakeImageWidget(imageUrl: 'assets/images/crypto/bitcoin.svg', height: 40, width: 40);
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -227,7 +229,7 @@ class MenuWidgetState extends State<MenuWidget> {
     );
   }
 
-  Image _iconFor({required WalletType type}) {
+  Widget _iconFor({required WalletType type}) {
     switch (type) {
       case WalletType.monero:
         return moneroIcon;

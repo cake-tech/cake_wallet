@@ -43,7 +43,7 @@ class SettingActions {
   static SettingActions exportOutputsAction = SettingActions._(
     key: ValueKey('dashboard_page_menu_widget_export_outputs_settings_button_key'),
     name: (context) => S.of(context).export_outputs,
-    image: 'assets/images/crypto/monero.webp',
+    image: 'assets/images/crypto/monero.svg',
     onTap: (BuildContext context) {
       Navigator.of(context)
           .pushNamed(Routes.urqrAnimatedPage, arguments: {'export-outputs': 'export-outputs'});

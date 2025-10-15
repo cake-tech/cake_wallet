@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 
 class PickerItemWidget extends StatelessWidget {
@@ -21,8 +22,8 @@ class PickerItemWidget extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                child: Image.asset(
-                  iconPath ?? '',
+                child: CakeImageWidget(
+                  imageUrl: iconPath ?? '',
                   height: 20.0,
                   width: 20.0,
                 ),
