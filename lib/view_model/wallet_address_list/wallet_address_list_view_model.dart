@@ -461,7 +461,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         ];
       case WalletType.arbitrum:
         return [
-          'assets/images/arb_icon.svg',
+          'assets/images/crypto/arbitrum.webp',
           'assets/images/usdc_icon.svg',
           'assets/images/more_tokens.svg',
         ];
@@ -489,7 +489,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.base:
         return 'assets/images/base_chain_mono.svg';
       case WalletType.arbitrum:
-        return 'assets/images/arb_chain_mono.svg';
+        return 'assets/images/arbitrum_chain_mono.svg';
       default:
         return 'assets/images/eth_chain_mono.svg';
     }

@@ -31,7 +31,7 @@ String getQrImage(WalletType type) {
     case WalletType.base:
       return 'assets/images/base_chain_QR.svg';
     case WalletType.arbitrum:
-      return 'assets/images/arb_chain_qr.svg';
+      return 'assets/images/arbitrum_chain_QR.svg';
     case WalletType.banano:
     case WalletType.haven:
     case WalletType.none:
