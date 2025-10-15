@@ -60,6 +60,7 @@
   "approve": "Phê duyệt",
   "approve_request": "Phê duyệt yêu cầu",
   "approve_tokens": "Phê duyệt mã thông báo",
+  "arbiscan_history": "Lịch sử quét Arbi",
   "arrive_in_this_address": "${currency} ${tag} sẽ đến địa chỉ này",
   "ascending": "Tăng dần",
   "ask_each_time": "Hỏi mỗi lần",
