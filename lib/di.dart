@@ -5,6 +5,7 @@ import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
@@ -56,6 +57,7 @@ import 'package:cake_wallet/view_model/dev/secure_preferences.dart';
 import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/bitbox_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/trezor_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
@@ -281,6 +283,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trezor_connect/trezor_connect.dart';
 import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
@@ -400,6 +403,7 @@ Future<void> setup({
     switch(type) {
       case HardwareWalletType.bitbox: return getIt<BitboxViewModel>();
       case HardwareWalletType.ledger: return getIt<LedgerViewModel>();
+      case HardwareWalletType.trezor: return getIt<TrezorViewModel>();
       case HardwareWalletType.cupcake:
       case HardwareWalletType.coldcard:
       case HardwareWalletType.seedsigner:
@@ -411,6 +415,10 @@ Future<void> setup({
   getIt.registerLazySingleton(() => LedgerViewModel());
 
   getIt.registerLazySingleton(() => BitboxViewModel());
+
+  getIt.registerLazySingleton(() => TrezorConnect("cakewallet://trezor_connect",
+      appName: "Cake Wallet"));
+  getIt.registerLazySingleton(() => TrezorViewModel(getIt<TrezorConnect>()));
 
   final secretStore = await SecretStoreBase.load(getIt.get<SecureStorage>());
 
@@ -1169,7 +1177,6 @@ Future<void> setup({
   getIt.registerFactoryParam<SwapConfirmationBottomSheet, PaymentFlowResult, void>(
     (paymentFlowResult, _) => SwapConfirmationBottomSheet(
       paymentFlowResult: paymentFlowResult,
-      currentTheme: getIt.get<AppStore>().themeStore.currentTheme,
       exchangeViewModel: getIt.get<ExchangeViewModel>(),
       authService: getIt.get<AuthService>(),
     ),
@@ -1177,7 +1184,6 @@ Future<void> setup({
 
   getIt.registerFactory<SwapDetailsBottomSheet>(
     () => SwapDetailsBottomSheet(
-      currentTheme: getIt.get<AppStore>().themeStore.currentTheme,
       exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>(),
     ),
   );
@@ -1236,6 +1242,8 @@ Future<void> setup({
         return zano!.createZanoWalletService(_walletInfoSource);
       case WalletType.decred:
         return decred!.createDecredWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+      case WalletType.base:
+        return base!.createBaseWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.haven:
         return HavenWalletService(_walletInfoSource);
       case WalletType.none:

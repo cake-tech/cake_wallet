@@ -43,16 +43,17 @@ class SettingActions {
   static SettingActions exportOutputsAction = SettingActions._(
     key: ValueKey('dashboard_page_menu_widget_export_outputs_settings_button_key'),
     name: (context) => S.of(context).export_outputs,
-    image: 'assets/images/monero_menu.png',
+    image: 'assets/images/crypto/monero.webp',
     onTap: (BuildContext context) {
-      Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: {'export-outputs': 'export-outputs'});
+      Navigator.of(context)
+          .pushNamed(Routes.urqrAnimatedPage, arguments: {'export-outputs': 'export-outputs'});
     },
   );
-  
+
   static SettingActions litecoinMwebSettingAction = SettingActions._(
     key: ValueKey('dashboard_page_menu_widget_litecoin_mweb_settings_button_key'),
     name: (context) => S.of(context).litecoin_mweb_settings,
-    image: 'assets/images/litecoin_menu.png',
+    image: 'assets/images/mweb_logo.png',
     onTap: (BuildContext context) {
       Navigator.of(context).pushNamed(Routes.mwebSettings);
     },

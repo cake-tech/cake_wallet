@@ -55,6 +55,9 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
   }
 
   @override
+  HardwareWalletType get hardwareWalletType => HardwareWalletType.ledger;
+
+  @override
   @observable
   bool isBleEnabled = false;
 

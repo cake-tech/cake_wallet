@@ -20,7 +20,6 @@ class AddressListPage extends BasePage {
         children: <Widget>[
           AddressList(
             addressListViewModel: addressListViewModel,
-            currentTheme: currentTheme,
             onSelect: (String address) async {
               Navigator.of(context).pop(address);
             },

@@ -44,6 +44,7 @@ import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
@@ -454,10 +455,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @action
   void setReceiveAmountFromFiat({required String fiatAmount}) {
     final _enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0.0;
-    final crypto = _enteredAmount / fiatConversionStore.prices[receiveCurrency]!;
+    final price = fiatConversionStore.prices[receiveCurrency];
+    if (price == null || price == 0.0) return;
+
+    final crypto = _enteredAmount / price;
     final receiveAmountTmp = _cryptoNumberFormat.format(crypto);
     if (receiveAmount != receiveAmountTmp) {
-      changeReceiveAmount(amount: receiveAmountTmp);
+      changeReceiveAmount(amount: receiveAmountTmp.withMaxDecimals(receiveCurrency.decimals));
     }
   }
 
@@ -551,7 +555,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
         try {
-           newSortedProviders[result[i]] = _providers[i];
+          newSortedProviders[result[i]] = _providers[i];
         } catch (e) {
           // will throw "Concurrent modification during iteration" error if modified at the same
           // time [createTrade] is called, as this is not a normal map, but a sorted map
@@ -874,6 +878,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.polygon:
         depositCurrency = CryptoCurrency.maticpoly;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.base:
+        depositCurrency = CryptoCurrency.baseEth;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.solana:

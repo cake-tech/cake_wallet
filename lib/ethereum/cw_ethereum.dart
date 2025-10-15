@@ -188,6 +188,9 @@ class CWEthereum extends Ethereum {
     } else if (service is EVMChainBitboxService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
           .setBitbox(service.manager, wallet.walletInfo.derivationInfo?.derivationPath);
+    } else if (service is EVMChainTrezorService) {
+      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials)
+          .setTrezorConnect(service.connect, wallet.walletInfo.derivationInfo?.derivationPath);
     }
   }
   @override
@@ -197,6 +200,10 @@ class CWEthereum extends Ethereum {
   @override
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager) =>
       EVMChainBitboxService(manager);
+
+  @override
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect) =>
+      EVMChainTrezorService(connect);
 
   @override
   List<String> getDefaultTokenContractAddresses() {

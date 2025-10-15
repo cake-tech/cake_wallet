@@ -12,14 +12,12 @@ class HomeScreenAccountWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async  {
-        await showPopUp<void>(
-    context: context,
-    builder: (_) => getIt.get<MoneroAccountListPage>());
-    },
+      onTap: () async {
+        await showPopUp<void>(context: context, builder: (_) => getIt.get<MoneroAccountListPage>());
+      },
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: EdgeInsets.only(top: 25, bottom: 25, left: 25, right: 0),
+        padding: EdgeInsets.all(25.0),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -32,30 +30,35 @@ class HomeScreenAccountWidget extends StatelessWidget {
                   child: Text(
                     walletName ?? '',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                   ),
                 ),
                 SizedBox(
                   height: 5.0,
                 ),
-                Container(
-                  child: Text(
-                    accountName ?? '',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                Row(
+                  children: [
+                    Padding(padding: EdgeInsets.only(left: 20)),
+                    Container(
+                      child: Text(
+                        accountName ?? '',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
                     ),
-                  ),
+                    Container(
+                      child: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
-            Container(
-              child: Icon(
-                Icons.keyboard_arrow_down,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
             ),
           ],
         ),

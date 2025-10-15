@@ -24,7 +24,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   WalletType get type => walletInfo.type;
 
-  CryptoCurrency get currency => currencyForWalletType(type, isTestnet: isTestnet);
+  CryptoCurrency get currency => walletTypeToCryptoCurrency(type, isTestnet: isTestnet);
 
   String get id => walletInfo.id;
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -29,28 +31,62 @@ class SelectDeviceManufacturerPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
+  ColorFilter get _colorFilter =>
+      ColorFilter.mode(currentTheme.colorScheme.onSurface, BlendMode.srcIn);
+
   List<_DeviceManufacturer> get availableManufacturers => [
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/ledger_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/ledger_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           hardwareWalletType: HardwareWalletType.ledger,
         ),
-        // _DeviceManufacturer(
-        //   image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25),
-        //   hardwareWalletType: HardwareWalletType.bitbox,
-        //   tag: S.current.new_tag,
-        // ),
+        if (Platform.isAndroid) ...[
+          _DeviceManufacturer(
+            image: SvgPicture.asset(
+              'assets/images/hardware_wallet/trezor_man.svg',
+              height: 25,
+              colorFilter: _colorFilter,
+            ),
+            hardwareWalletType: HardwareWalletType.trezor,
+            tag: S.current.new_tag,
+          ),
+          _DeviceManufacturer(
+            image: SvgPicture.asset(
+              'assets/images/hardware_wallet/bitbox_man.svg',
+              height: 25,
+              colorFilter: _colorFilter,
+            ),
+            hardwareWalletType: HardwareWalletType.bitbox,
+            tag: S.current.new_tag,
+          ),
+        ],
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/cupcake_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/cupcake_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           hardwareWalletType: HardwareWalletType.cupcake,
           tag: S.current.new_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/coldcard_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/coldcard_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           hardwareWalletType: HardwareWalletType.coldcard,
           tag: S.current.new_tag,
         ),
         // _DeviceManufacturer(
-        //   image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
+        //   image: SvgPicture.asset(
+        //     'assets/images/hardware_wallet/seedsigner_man.svg',
+        //     height: 25,
+        //     colorFilter: _colorFilter,
+        //   ),
         //   hardwareWalletType: HardwareWalletType.seedsigner,
         //   tag: S.current.new_tag,
         // ),
@@ -61,26 +97,40 @@ class SelectDeviceManufacturerPage extends BasePage {
           .toList();
 
   List<_DeviceManufacturer> get comingManufacturers => [
+        if (!Platform.isAndroid) ...[
+          _DeviceManufacturer(
+            image: SvgPicture.asset(
+              'assets/images/hardware_wallet/bitbox_man.svg',
+              height: 25,
+              colorFilter: _colorFilter,
+            ),
+            hardwareWalletType: HardwareWalletType.bitbox,
+            tag: S.current.coming_soon_tag,
+          ),
+        ],
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/trezor_man.svg', height: 25),
-          tag: S.current.coming_soon_tag,
-        ),
-        _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25),
-          hardwareWalletType: HardwareWalletType.bitbox,
-          tag: S.current.coming_soon_tag,
-        ),
-        _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/seedsigner_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           hardwareWalletType: HardwareWalletType.seedsigner,
           tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/foundation_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/foundation_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/keystone_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/keystone_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           tag: S.current.coming_soon_tag,
         ),
       ];
@@ -90,50 +140,52 @@ class SelectDeviceManufacturerPage extends BasePage {
         child: Center(
           child: Container(
             padding: EdgeInsets.only(left: 24, right: 24),
-            child: Column(
-              children: [
-                ...availableManufacturers.map(
-                  (manufacturer) => Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: ManufacturerOptionTile(
-                      image: manufacturer.image,
-                      tag: manufacturer.tag,
-                      onPressed: () {
-                        if (onSelect != null)
-                          return onSelect!.call(context, manufacturer.hardwareWalletType!);
-
-                        if (isAirgappedWallet(manufacturer.hardwareWalletType)) {
-                          _onScanQRCode(context, manufacturer.hardwareWalletType!);
-                        } else if (manufacturer.hardwareWalletType != null) {
-                          Navigator.pushNamed(context, Routes.connectHardwareWallet,
-                              arguments: [manufacturer.hardwareWalletType]);
-                        }
-                      },
-                      isDarkTheme: currentTheme.isDark,
-                    ),
-                  ),
-                ),
-                if (showUnavailable) ...[
-                  Padding(
-                    padding: EdgeInsets.only(top: 20, bottom: 10),
-                    child: DottedDivider(color: Theme.of(context).colorScheme.surfaceContainer),
-                  ),
-                  ...comingManufacturers.map(
+            height: double.infinity,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  ...availableManufacturers.map(
                     (manufacturer) => Padding(
                       padding: EdgeInsets.only(top: 10),
                       child: ManufacturerOptionTile(
                         image: manufacturer.image,
                         tag: manufacturer.tag,
-                        onPressed: () =>
-                            Fluttertoast.showToast(msg: 'One more tap and it might work'),
-                        // Ester egg
-                        isDarkTheme: currentTheme.isDark,
-                        isUnavailable: true,
+                        onPressed: () {
+                          if (onSelect != null)
+                            return onSelect!.call(context, manufacturer.hardwareWalletType!);
+
+                          if (isAirgappedWallet(manufacturer.hardwareWalletType)) {
+                            _onScanQRCode(context, manufacturer.hardwareWalletType!);
+                          } else if (manufacturer.hardwareWalletType != null) {
+                            Navigator.pushNamed(context, Routes.connectHardwareWallet,
+                                arguments: [manufacturer.hardwareWalletType]);
+                          }
+                        },
                       ),
                     ),
                   ),
-                ]
-              ],
+                  if (showUnavailable) ...[
+                    Padding(
+                      padding: EdgeInsets.only(top: 20, bottom: 10),
+                      child: DottedDivider(color: Theme.of(context).colorScheme.surfaceContainer),
+                    ),
+                    ...comingManufacturers.map(
+                      (manufacturer) => Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: ManufacturerOptionTile(
+                          image: manufacturer.image,
+                          tag: manufacturer.tag,
+                          onPressed: () =>
+                              Fluttertoast.showToast(msg: 'One more tap and it might work'),
+                          // Ester egg
+
+                          isUnavailable: true,
+                        ),
+                      ),
+                    ),
+                  ]
+                ],
+              ),
             ),
           ),
         ),

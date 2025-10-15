@@ -49,11 +49,15 @@ dependencies:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
       path: packages/ledger-bitcoin
-      ref: 6e6ce17c2ba5cfe3d16a60d53f930db8e827b8f3
+      ref: dc42621f55702d0732681afc2f90bc0047f26633
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
       path: packages/ledger-litecoin
+  trezor_connect:
+    git:
+      url: https://github.com/cake-tech/trezor_connect
+      ref: 59b3ceec158d3393b20d0c596cab2abcc62ac8e4
   bitbox_flutter:
     path: ../scripts/bitbox_flutter
   socks_socket:

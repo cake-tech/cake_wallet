@@ -56,12 +56,12 @@ class TronToken extends CryptoCurrency with HiveObjectMixin {
           isPotentialScam: isPotentialScam,
         );
 
-  TronToken.copyWith(TronToken other, String? icon, String? tag)
+  TronToken.copyWith(TronToken other, {String? icon, String? tag, bool? enabled})
       : name = other.name,
         symbol = other.symbol,
         contractAddress = other.contractAddress,
         decimal = other.decimal,
-        _enabled = other.enabled,
+        _enabled = enabled ?? other.enabled,
         tag = tag ?? other.tag,
         iconPath = icon ?? other.iconPath,
         isPotentialScam = other.isPotentialScam,

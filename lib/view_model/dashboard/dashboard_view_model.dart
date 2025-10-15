@@ -878,6 +878,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.bitcoinCash:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
       case WalletType.solana:
       case WalletType.nano:
       case WalletType.banano:

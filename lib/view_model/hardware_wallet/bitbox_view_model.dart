@@ -11,6 +11,7 @@ import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:bitbox_flutter/bitbox_flutter.dart' as sdk;
 import 'package:mobx/mobx.dart';
@@ -27,6 +28,9 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       bitboxManager = sdk.BitboxManager();
       }
   }
+
+  @override
+  HardwareWalletType get hardwareWalletType => HardwareWalletType.bitbox;
 
   @override
   @observable

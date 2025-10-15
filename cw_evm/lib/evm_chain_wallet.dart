@@ -29,8 +29,9 @@ import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_addresses.dart';
-import 'package:cw_evm/hardware/evm_bitbox_credentials.dart';
-import 'package:cw_evm/hardware/evm_ledger_credentials.dart';
+import 'package:cw_evm/hardware/evm_chain_bitbox_credentials.dart';
+import 'package:cw_evm/hardware/evm_chain_ledger_credentials.dart';
+import 'package:cw_evm/hardware/evm_chain_trezor_credentials.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -139,7 +140,7 @@ abstract class EVMChainWalletBase
 
   //! Methods to be overridden by every child
 
-  void addInitialTokens([bool isMigration]);
+  void addInitialTokens();
 
   // Future<EVMChainWallet> open({
   //   required String name,
@@ -171,25 +172,29 @@ abstract class EVMChainWalletBase
     try {
       // Check native balance
       await _client.getBalance(_evmChainPrivateKey.address, throwOnError: true);
-      
+
       // Check USDC token balance
       String usdcContractAddress;
-      if (_client.chainId == 1) {
-        // Ethereum mainnet
-        usdcContractAddress = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
-      } else if (_client.chainId == 137) {
-        // Polygon mainnet
-        usdcContractAddress = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174";
-      } else {
-        // If we are not on Ethereum or Polygon, we skip ERC20 token check
-        return true;
+
+      switch (_client.chainId) {
+        case 1:
+          usdcContractAddress = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
+          break;
+        case 137:
+          usdcContractAddress = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174";
+          break;
+        case 8453:
+          usdcContractAddress = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
+          break;
+        default:
+          return true;
       }
-      
+
       await _client.fetchERC20Balances(
         _evmChainPrivateKey.address,
         usdcContractAddress,
       );
-      
+
       return true;
     } catch (e) {
       return false;
@@ -214,6 +219,9 @@ abstract class EVMChainWalletBase
       walletAddresses.address = walletInfo.address;
     } else if (walletInfo.hardwareWalletType == HardwareWalletType.bitbox) {
       _evmChainPrivateKey = EvmBitboxCredentials(walletInfo.address);
+      walletAddresses.address = walletInfo.address;
+    } else if (walletInfo.hardwareWalletType == HardwareWalletType.trezor) {
+      _evmChainPrivateKey = EvmTrezorCredentials(walletInfo.address);
       walletAddresses.address = walletInfo.address;
     } else {
       _evmChainPrivateKey = await getPrivateKey(
@@ -539,6 +547,32 @@ abstract class EVMChainWalletBase
       maxFeePerGasForTransaction = gasFeesModel.maxFeePerGas;
 
       if (output.sendAll && transactionCurrency is! Erc20Token) {
+        if (_client.chainId == 8453) {
+          // Add a safety buffer for Base chain to account for gas price fluctuations
+          // Use 1% buffer or minimum 1000 wei (0.000001 ETH), whichever is higher
+          final gasBufferPercent =
+              estimatedFeesForTransaction * BigInt.from(101) ~/ BigInt.from(100);
+          final gasBufferMin = estimatedFeesForTransaction + BigInt.from(1000);
+          final gasBuffer = gasBufferPercent > gasBufferMin ? gasBufferPercent : gasBufferMin;
+
+          totalAmount = (currencyBalance.balance - gasBuffer);
+
+          // Re-estimate gas with the correct amount to get more accurate gas estimation
+          final refinedGasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
+            amount: totalAmount,
+            receivingAddressHex: toAddress,
+            priority: _credentials.priority!,
+            contractAddress: contractAddress,
+          );
+
+          // Use the higher of the two gas estimations to be safe
+          final refinedGasFee = BigInt.from(refinedGasFeesModel.estimatedGasFee);
+          estimatedFeesForTransaction = refinedGasFee > gasBuffer ? refinedGasFee : gasBuffer;
+          estimatedGasUnitsForTransaction = refinedGasFeesModel.estimatedGasUnits;
+          maxFeePerGasForTransaction = refinedGasFeesModel.maxFeePerGas;
+        }
+
+        // Final amount calculation with the higher gas estimation
         totalAmount = (currencyBalance.balance - estimatedFeesForTransaction);
       }
 
@@ -566,11 +600,7 @@ abstract class EVMChainWalletBase
       gasFee: estimatedFeesForTransaction,
       priority: _credentials.priority!,
       currency: transactionCurrency,
-      feeCurrency: switch (_client.chainId) {
-        1 => "ETH",
-        137 => "POL",
-        _ => ""
-      },
+      feeCurrency: switch (_client.chainId) { 1 => "ETH", 137 => "POL", 8453 => "ETH", _ => "ETH" },
       maxFeePerGas: maxFeePerGasForTransaction,
       exponent: exponent,
       contractAddress:
@@ -961,6 +991,8 @@ abstract class EVMChainWalletBase
   /// EtherScan for Ethereum.
   ///
   /// PolygonScan for Polygon.
+  ///
+  /// BaseScan for Base.
   void updateScanProviderUsageState(bool isEnabled) {
     if (isEnabled) {
       _updateTransactions();

@@ -18,6 +18,7 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
@@ -330,6 +331,9 @@ abstract class ExchangeTradeViewModelBase with Store {
         wallet.currency == CryptoCurrency.maticpoly &&
         tradeFrom?.tag == CryptoCurrency.maticpoly.tag;
 
+    bool _isBaseToken() =>
+        wallet.currency == CryptoCurrency.baseEth && tradeFrom?.tag == CryptoCurrency.baseEth.title;
+
     bool _isTronToken() =>
         wallet.currency == CryptoCurrency.trx && tradeFrom?.tag == CryptoCurrency.trx.title;
 
@@ -341,7 +345,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isEthToken() ||
         _isPolygonToken() ||
         _isSplToken() ||
-        _isTronToken();
+        _isTronToken() ||
+        _isBaseToken();
   }
   
   Future<void> registerSwapsXyzTransaction() async {
@@ -414,6 +419,8 @@ abstract class ExchangeTradeViewModelBase with Store {
       // TODO: Expand ERC681URI support to Polygon(modify decoding flow for QRs, pay anything, and deep link handling)
       case WalletType.polygon:
         return PolygonURI(amount: amount, address: inputAddress);
+      case WalletType.base:
+        return BaseURI(amount: amount, address: inputAddress);
       case WalletType.solana:
         return SolanaURI(amount: amount, address: inputAddress);
       case WalletType.tron:
@@ -448,7 +455,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         contractAddress: null,
       );
     } else {
-      if (wallet.type == WalletType.polygon || wallet.type == WalletType.ethereum) {
+      if (isEVMCompatibleChain(wallet.type)) {
         final erc20Token = TokenUtilities.findErc20Token(currency, wallet);
 
         if (erc20Token != null) {

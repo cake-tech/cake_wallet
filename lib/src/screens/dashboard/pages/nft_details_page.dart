@@ -232,19 +232,19 @@ class _NFTSingleInfoTile extends StatelessWidget {
           Text(
             infoType,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-              height: 1,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                  height: 1,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             infoValue,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface,
-              height: 1,
-            ),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                  height: 1,
+                ),
           ),
         ],
       ),
