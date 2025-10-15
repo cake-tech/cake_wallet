@@ -8,6 +8,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_alert.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
@@ -142,8 +143,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                         padding: EdgeInsets.only(top: 12),
                         child: SelectButton(
                           key: ValueKey('new_wallet_type_${type.name}_button_key'),
-                          image: Image.asset(
-                            walletTypeToCryptoCurrency(type).iconPath ?? '',
+                          image: CakeImageWidget(
+                            imageUrl: walletTypeToCryptoCurrency(type).iconPath ?? '',
                             height: 24,
                             width: 24,
                           ),
