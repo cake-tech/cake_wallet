@@ -148,9 +148,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required double amount,
     required bool isFixedRateMode,
-    required bool isReceiveAmount,
-    String? senderAddress,
-    String? recipientAddress,
+    required bool isReceiveAmount
   }) async {
     try {
       final rates = await getRatesForPair(from: from, to: to);

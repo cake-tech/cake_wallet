@@ -23,6 +23,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   static const _baseUrl = 'api-v2.swaps.xyz';
   static const _getChainList = 'api/getChainList';
   static const _getPaths = 'api/getPaths';
+  static const _getQuotePaths = 'api/getQuote';
   static const _getAction = 'api/getAction';
   static const _registerTxs = 'api/registerTxs';
   static const _getStatus = 'api/getStatus';
@@ -156,18 +157,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required double amount,
     required bool isFixedRateMode,
-    required bool isReceiveAmount,
-    String? senderAddress,
-    String? recipientAddress,
+    required bool isReceiveAmount
   }) async {
     try {
-      if (senderAddress == null ||
-          senderAddress.isEmpty ||
-          recipientAddress == null ||
-          recipientAddress.isEmpty) {
-        printV('fetchRate error: senderAddress or recipientAddress is null or empty');
-        return 0.0;
-      }
 
       final chains = await _geSupportedChain();
       if (chains.isEmpty) return 0.0;
@@ -201,20 +193,16 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       );
 
       final params = {
-        'actionType': 'swap-action',
-        'sender': senderAddress,
-        'srcChainId': '${srcChain.chainId}',
-        'srcToken': srcToken,
-        'dstChainId': '${dstChain.chainId}',
-        'dstToken': dstToken,
-        'slippage': '100',
         'swapDirection': isReceiveAmount ? 'exact-amount-out' : 'exact-amount-in',
+        'srcToken': srcToken,
+        'dstToken': dstToken,
+        'srcChainId': '${srcChain.chainId}',
+        'dstChainId': '${dstChain.chainId}',
         'amount': formattedAmount,
-        'recipient': recipientAddress,
       };
 
 
-      final uri = Uri.https(_baseUrl, _getAction, params);
+      final uri = Uri.https(_baseUrl, _getQuotePaths, params);
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
       if (response.statusCode != 200) {
@@ -663,6 +651,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       case 'SOL':
       case 'SOLANA':
         return 'SOL';
+      case 'CARDANO':
+        return 'ADA';
       default:
         return network;
     }
@@ -697,7 +687,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   String _nativePlaceholderForVm(String vmId) {
     switch (vmId.toLowerCase()) {
       case 'evm':
-        return '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+        return '0x0000000000000000000000000000000000000000';
       case 'alt-vm':
         return '0x0000000000000000000000000000000000000000';
       default:

@@ -117,9 +117,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required double amount,
     required bool isFixedRateMode,
-    required bool isReceiveAmount,
-    String? senderAddress,
-    String? recipientAddress,
+    required bool isReceiveAmount
   }) async {
     try {
       if (amount == 0) return 0.0;

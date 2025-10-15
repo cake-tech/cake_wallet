@@ -38,9 +38,7 @@ abstract class ExchangeProvider {
     required CryptoCurrency to,
     required double amount,
     required bool isFixedRateMode,
-    required bool isReceiveAmount,
-    String senderAddress,
-    String recipientAddress,
+    required bool isReceiveAmount
   });
 
   Future<bool> checkIsAvailable();

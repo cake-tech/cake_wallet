@@ -534,9 +534,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               to: receiveCurrency,
               amount: amount,
               isFixedRateMode: isFixedRateMode,
-              isReceiveAmount: isFixedRateMode,
-              senderAddress: depositAddress,
-              recipientAddress: receiveAddress,
+              isReceiveAmount: isFixedRateMode
             )
             .timeout(
               Duration(seconds: 7),

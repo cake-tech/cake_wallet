@@ -96,9 +96,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required double amount,
     required bool isFixedRateMode,
-    required bool isReceiveAmount,
-    String? senderAddress,
-    String? recipientAddress,
+    required bool isReceiveAmount
   }) async {
     // TODO: It seems this rate is getting cached, and re-used for different amounts, can we not do this?
 
