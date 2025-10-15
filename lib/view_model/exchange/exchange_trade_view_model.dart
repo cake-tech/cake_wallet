@@ -17,6 +17,7 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -310,6 +311,9 @@ abstract class ExchangeTradeViewModelBase with Store {
     bool _isBaseToken() =>
         wallet.currency == CryptoCurrency.baseEth && tradeFrom?.tag == CryptoCurrency.baseEth.title;
 
+    bool _isArbitrumToken() =>
+        wallet.currency == CryptoCurrency.arbEth && tradeFrom?.tag == CryptoCurrency.arbEth.title;
+
     bool _isTronToken() =>
         wallet.currency == CryptoCurrency.trx && tradeFrom?.tag == CryptoCurrency.trx.title;
 
@@ -322,7 +326,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isPolygonToken() ||
         _isSplToken() ||
         _isTronToken() ||
-        _isBaseToken();
+        _isBaseToken() ||
+        _isArbitrumToken();
   }
 
   PaymentURI? get paymentUri {
@@ -350,6 +355,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         return PolygonURI(amount: amount, address: inputAddress);
       case WalletType.base:
         return BaseURI(amount: amount, address: inputAddress);
+      case WalletType.arbitrum:
+        return ArbitrumURI(amount: amount, address: inputAddress);
       case WalletType.solana:
         return SolanaURI(amount: amount, address: inputAddress);
       case WalletType.tron:
