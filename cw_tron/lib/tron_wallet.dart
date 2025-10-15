@@ -178,7 +178,12 @@ abstract class TronWalletBase
     final initialTronTokens = DefaultTronTokens().initialTronTokens;
 
     for (var token in initialTronTokens) {
-      tronTokensBox.put(token.contractAddress, token);
+      if (!tronTokensBox.containsKey(token.contractAddress)) {
+        tronTokensBox.put(token.contractAddress, token);
+      } else { // update existing token
+        final existingToken = tronTokensBox.get(token.contractAddress);
+        tronTokensBox.put(token.contractAddress, TronToken.copyWith(token, enabled: existingToken!.enabled));
+      }
     }
   }
 

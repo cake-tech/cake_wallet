@@ -220,6 +220,7 @@ flutter:
     - assets/images/flags/
     - assets/images/hardware_wallet/
     - assets/images/crypto/
+    - assets/images/stocks/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml

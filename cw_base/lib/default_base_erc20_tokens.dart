@@ -56,12 +56,16 @@ class DefaultBaseErc20Tokens {
 
   List<Erc20Token> get initialBaseErc20Tokens => _defaultTokens.map((token) {
         String? iconPath;
-        try {
-          iconPath = CryptoCurrency.all
-              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-              .iconPath;
-        } catch (_) {}
+        if (token.iconPath?.isEmpty ?? true) {
+          try {
+            iconPath = CryptoCurrency.all
+                .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+                .iconPath;
+          } catch (_) {}
+        } else {
+          iconPath = token.iconPath;
+        }
 
-        return Erc20Token.copyWith(token, iconPath, 'BASE');
+        return Erc20Token.copyWith(token, icon: iconPath, tag: 'BASE');
       }).toList();
 }

@@ -47,14 +47,14 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
           isPotentialScam: isPotentialScam,
         );
 
-  Erc20Token.copyWith(Erc20Token other, String? icon, String? tag)
+  Erc20Token.copyWith(Erc20Token other, {String? icon, String? tag, bool? enabled})
       : this.name = other.name,
         this.symbol = other.symbol,
         this.contractAddress = other.contractAddress,
         this.decimal = other.decimal,
-        this._enabled = other.enabled,
-        this.tag = tag,
-        this.iconPath = icon,
+        this._enabled = enabled ?? other.enabled,
+        this.tag = tag ?? other.tag,
+        this.iconPath = icon ?? other.iconPath,
         this.isPotentialScam = other.isPotentialScam,
         super(
           name: other.name,

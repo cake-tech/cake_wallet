@@ -95,7 +95,7 @@ class _WalletSwitcherContent extends StatelessWidget {
                         child: Row(
                           children: [
                             Image.asset(
-                              walletTypeToCryptoCurrency(wallet.type).normalizedIconPath!,
+                              walletTypeToCryptoCurrency(wallet.type).iconPath!,
                               width: 32,
                               height: 32,
                             ),
