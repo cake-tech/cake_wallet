@@ -1,3 +1,4 @@
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -129,6 +130,10 @@ void startCurrentWalletChangeReaction(
       if (wallet.type == WalletType.polygon) {
         currencies =
             polygon!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+      }
+      if (wallet.type == WalletType.base) {
+        currencies =
+            base!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
       }
       if (wallet.type == WalletType.solana) {
         currencies =

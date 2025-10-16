@@ -107,6 +107,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
   bool _effectsInstalled = false;
   BuildContext? loadingBottomSheetContext;
+  bool _justHandledPasteButton = false;
+  String _lastHandledAddress = '';
 
   @override
   void initState() {
@@ -121,8 +123,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       WidgetsBinding.instance.addPostFrameCallback(
         (timeStamp) {
           if (mounted) {
-            final prefix  = initialPaymentRequest!.scheme.isNotEmpty ? "${initialPaymentRequest!.scheme}:" : "";
-            final amount = initialPaymentRequest!.amount.isNotEmpty ? "?amount=${initialPaymentRequest!.amount}" : "";
+            final prefix =
+                initialPaymentRequest!.scheme.isNotEmpty ? "${initialPaymentRequest!.scheme}:" : "";
+            final amount = initialPaymentRequest!.amount.isNotEmpty
+                ? "?amount=${initialPaymentRequest!.amount}"
+                : "";
             final uri = prefix + initialPaymentRequest!.address + amount;
             _handlePaymentFlow(uri, initialPaymentRequest!);
           }
@@ -188,7 +193,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           paymentFlowResult: result,
           paymentViewModel: paymentViewModel,
           walletSwitcherViewModel: walletSwitcherViewModel,
-          currentTheme: currentTheme,
           paymentRequest: paymentRequest,
           onSelectWallet: () => _handleSelectWallet(
             paymentViewModel,
@@ -221,7 +225,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       builder: (BuildContext dialogContext) {
         return WalletSwitcherBottomSheet(
           viewModel: walletSwitcherViewModel,
-          currentTheme: currentTheme,
           filterWalletType: paymentViewModel.detectedWalletType,
         );
       },
@@ -384,22 +387,27 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                   onPushPasteButton: (context) async {
-                    output.resetParsedAddress();
-                    await output.fetchParsedAddress(context);
+                    _justHandledPasteButton = true;
+                    try {
+                      output.resetParsedAddress();
+                      await output.fetchParsedAddress(context);
 
-                    final address =
-                        output.isParsedAddress ? output.extractedAddress : output.address;
+                      final address =
+                          output.isParsedAddress ? output.extractedAddress : output.address;
 
-                    await _handlePaymentFlow(
-                      address,
-                      PaymentRequest(
+                      await _handlePaymentFlow(
                         address,
-                        cryptoAmountController.text,
-                        noteController.text,
-                        "",
-                        null,
-                      ),
-                    );
+                        PaymentRequest(
+                          address,
+                          cryptoAmountController.text,
+                          noteController.text,
+                          "",
+                          null,
+                        ),
+                      );
+                    } finally {
+                      _justHandledPasteButton = false;
+                    }
                   },
                   onPushAddressBookButton: (context) async {
                     output.resetParsedAddress();
@@ -418,6 +426,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     controller: extractedAddressController,
                     readOnly: true,
+                    enableInteractiveSelection: false,
                     textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -767,7 +776,42 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
     addressFocusNode.addListener(() async {
       if (!addressFocusNode.hasFocus && addressController.text.isNotEmpty) {
+        final current = addressController.text.trim();
+        if (current.isEmpty) return;
+        if (_justHandledPasteButton || _lastHandledAddress == current) return;
+
         await output.fetchParsedAddress(context);
+
+        // If it's a URI with params, go through URI flow
+        if (current.contains('=')) {
+          try {
+            final uri = Uri.parse(current);
+            _lastHandledAddress = current;
+            await _handlePaymentFlow(
+              uri.toString(),
+              PaymentRequest.fromUri(uri),
+            );
+            return;
+          } catch (_) {
+            // fall through to plain address
+          }
+        }
+
+        final parsedAddress = output.isParsedAddress
+            ? output.extractedAddress
+            : output.address;
+
+        _lastHandledAddress = current;
+        await _handlePaymentFlow(
+          parsedAddress,
+          PaymentRequest(
+            parsedAddress,
+            cryptoAmountController.text,
+            noteController.text,
+            "",
+            null,
+          ),
+        );
       }
     });
 

@@ -1,6 +1,7 @@
 enum EVMChainId {
   ethereum,
   polygon,
+  base,
   goerli,
   mumbai,
   arbitrum,
@@ -16,6 +17,9 @@ extension EVMChainIdX on EVMChainId {
         break;
       case EVMChainId.polygon:
         name = '137';
+        break;
+      case EVMChainId.base:
+        name = '8453';
         break;
       case EVMChainId.goerli:
         name = '5';

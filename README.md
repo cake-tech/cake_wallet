@@ -25,6 +25,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Litecoin (LTC)
 * Bitcoin Cash (BCH)
 * Polygon (POL)
+* Base (BASE)
 * Solana (SOL)
 * Tron (TRX)
 * Nano (XNO)

@@ -77,13 +77,17 @@ class DefaultPolygonErc20Tokens {
 
   List<Erc20Token> get initialPolygonErc20Tokens => _defaultTokens.map((token) {
         String? iconPath;
-        try {
-          iconPath = CryptoCurrency.all
-              .firstWhere((element) =>
-                  element.title.toUpperCase() == token.symbol.split(".").first.toUpperCase())
-              .iconPath;
-        } catch (_) {}
+        if (token.iconPath?.isEmpty ?? true) {
+          try {
+            iconPath = CryptoCurrency.all
+                .firstWhere((element) =>
+                    element.title.toUpperCase() == token.symbol.split(".").first.toUpperCase())
+                .iconPath;
+          } catch (_) {}
+        } else {
+          iconPath = token.iconPath;
+        }
 
-        return Erc20Token.copyWith(token, iconPath, 'POL');
+        return Erc20Token.copyWith(token, icon: iconPath, tag: 'POL');
       }).toList();
 }

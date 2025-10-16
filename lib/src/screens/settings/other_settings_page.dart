@@ -138,6 +138,12 @@ class OtherSettingsPage extends BasePage {
                   title: '[dev] *QR tools',
                   handler: (context) => Navigator.of(context).pushNamed(Routes.devQRTools),
                 ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] exchange provider logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs),
+                ),
               Spacer(),
               SettingsVersionCell(
                 title: S.of(context).version(_otherSettingsViewModel.currentVersion),
