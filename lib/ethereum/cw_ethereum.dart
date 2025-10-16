@@ -218,38 +218,39 @@ class CWEthereum extends Ethereum {
   // Integrations
   @override
   Future<BigInt> getDEuroSavingsBalance(WalletBase wallet) =>
-      DEuro(wallet as EthereumWallet).savingsBalance;
+      DEuroSavings(wallet as EthereumWallet).savingsBalance;
 
   @override
   Future<BigInt> getDEuroAccruedInterest(WalletBase wallet) =>
-      DEuro(wallet as EthereumWallet).accruedInterest;
+      DEuroSavings(wallet as EthereumWallet).accruedInterest;
 
   @override
   Future<BigInt> getDEuroInterestRate(WalletBase wallet) =>
-      DEuro(wallet as EthereumWallet).interestRate;
+      DEuroSavings(wallet as EthereumWallet).interestRate;
 
   @override
   Future<BigInt> getDEuroSavingsApproved(WalletBase wallet) =>
-      DEuro(wallet as EthereumWallet).approvedBalance;
+      DEuroSavings(wallet as EthereumWallet).approvedBalance;
 
   @override
   Future<PendingTransaction> addDEuroSaving(
           WalletBase wallet, BigInt amount, TransactionPriority priority) =>
-      DEuro(wallet as EthereumWallet)
+      DEuroSavings(wallet as EthereumWallet)
           .depositSavings(amount, priority as EVMChainTransactionPriority);
 
   @override
   Future<PendingTransaction> removeDEuroSaving(
           WalletBase wallet, BigInt amount, TransactionPriority priority) =>
-      DEuro(wallet as EthereumWallet)
+      DEuroSavings(wallet as EthereumWallet)
           .withdrawSavings(amount, priority as EVMChainTransactionPriority);
 
   @override
   Future<PendingTransaction> reinvestDEuroInterest(
           WalletBase wallet, TransactionPriority priority) =>
-      DEuro(wallet as EthereumWallet).reinvestInterest(priority as EVMChainTransactionPriority);
+      DEuroSavings(wallet as EthereumWallet)
+          .reinvestInterest(priority as EVMChainTransactionPriority);
 
   @override
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority) =>
-      DEuro(wallet as EthereumWallet).enableSavings(priority as EVMChainTransactionPriority);
+      DEuroSavings(wallet as EthereumWallet).enableSavings(priority as EVMChainTransactionPriority);
 }
