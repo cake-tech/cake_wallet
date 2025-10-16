@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0.468 0.614 498.759 500.158" width="500
+px" height="500px">
+    <defs>
+        <linearGradient id="paint0_linear_306_24" x1="66.49" y1="0.0200195" x2="66.49" y2="133" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.875312, 0, 0, 1.880575, 0.468736, 0.576712)">
+            <stop stop-color="#D5A2FF"/>
+            <stop offset="0.5" stop-color="#4B68B3"/>
+            <stop offset="1" stop-color="#30001A"/>
+        </linearGradient>
+        <linearGradient id="paint1_linear_306_24" x1="199.47" y1="0.0200195" x2="199.47" y2="126.85" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.875312, 0, 0, 1.880575, 0.468736, 0.576712)">
+            <stop stop-color="#D5A2FF"/>
+            <stop offset="0.5" stop-color="#4B68B3"/>
+            <stop offset="1" stop-color="#30001A"/>
+        </linearGradient>
+        <linearGradient id="paint2_linear_306_24" x1="199.47" y1="133" x2="199.47" y2="265.98" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.875312, 0, 0, 1.880575, 0.468736, 0.576712)">
+            <stop stop-color="#30001A"/>
+            <stop offset="0.5" stop-color="#4B68B3"/>
+            <stop offset="1" stop-color="#D5A2FF"/>
+        </linearGradient>
+        <linearGradient id="paint3_linear_306_24" x1="66.49" y1="139.15" x2="66.49" y2="265.98" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.875312, 0, 0, 1.880575, 0.468736, 0.576712)">
+            <stop stop-color="#30001A"/>
+            <stop offset="0.5" stop-color="#4B68B3"/>
+            <stop offset="1" stop-color="#D5A2FF"/>
+        </linearGradient>
+        <linearGradient id="paint4_linear_306_24" x1="196.7" y1="85.6736" x2="133.028" y2="133.067" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.875312, 0, 0, 1.880575, 0.468736, 0.576712)">
+            <stop stop-color="#D5A2FF"/>
+            <stop offset="0.5" stop-color="#4B68B3"/>
+            <stop offset="1" stop-color="#30001A"/>
+        </linearGradient>
+        <linearGradient id="paint5_linear_306_24" x1="69.2504" y1="180.326" x2="132.922" y2="132.933" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.875312, 0, 0, 1.880575, 0.468736, 0.576712)">
+            <stop stop-color="#D5A2FF"/>
+            <stop offset="0.5" stop-color="#4B68B3"/>
+            <stop offset="1" stop-color="#30001A"/>
+        </linearGradient>
+    </defs>
+    <path d="M 249.847 0.614 L 249.847 250.694 L 125.158 250.694 C 90.728 250.694 59.559 236.683 36.981 214.078 C 14.421 191.454 0.468 160.181 0.468 125.652 C 0.468 91.127 14.421 59.852 36.981 37.23 C 59.559 14.625 90.728 0.614 125.158 0.614 L 249.847 0.614 Z" fill="url(#paint0_linear_306_24)" style="stroke-width: 1;" transform="matrix(1, 0, 0, 1, 0, 1.4210854715202004e-14)"/>
+    <path d="M 499.227 125.652 C 499.227 175.94 469.634 219.287 426.952 239.127 L 249.847 0.614 L 374.537 0.614 C 408.967 0.614 440.135 14.625 462.713 37.23 C 485.293 59.852 499.227 91.108 499.227 125.652 Z" fill="url(#paint1_linear_306_24)" style="stroke-width: 1;" transform="matrix(1, 0, 0, 1, 0, 1.4210854715202004e-14)"/>
+    <path d="M 499.227 375.732 C 499.227 444.786 443.398 500.772 374.537 500.772 L 249.847 500.772 L 249.847 250.694 L 374.537 250.694 C 408.967 250.694 440.135 264.702 462.713 287.308 C 485.293 309.931 499.227 341.187 499.227 375.732 Z" fill="url(#paint2_linear_306_24)" style="stroke-width: 1;" transform="matrix(1, 0, 0, 1, 0, 1.4210854715202004e-14)"/>
+    <path d="M 249.847 500.772 L 125.158 500.772 C 90.728 500.772 59.559 486.761 36.981 464.138 C 14.421 441.534 0.468 410.259 0.468 375.732 C 0.468 325.446 30.061 282.099 72.744 262.259 L 249.829 500.772 L 249.847 500.772 Z" fill="url(#paint3_linear_306_24)" style="stroke-width: 1;" transform="matrix(1, 0, 0, 1, 0, 1.4210854715202004e-14)"/>
+    <path d="M 462.695 287.308 C 440.117 264.684 408.949 250.694 374.518 250.694 L 249.829 250.694 L 249.829 0.614 L 426.914 239.127 L 462.676 287.308 L 462.695 287.308 Z" fill="url(#paint4_linear_306_24)" style="stroke-width: 1;" transform="matrix(1, 0, 0, 1, 0, 1.4210854715202004e-14)"/>
+    <path d="M 36.981 214.078 C 59.559 236.701 90.728 250.694 125.158 250.694 L 249.847 250.694 L 249.847 500.772 L 72.762 262.259 L 36.999 214.078 L 36.981 214.078 Z" fill="url(#paint5_linear_306_24)" style="stroke-width: 1;" transform="matrix(1, 0, 0, 1, 0, 1.4210854715202004e-14)"/>
+</svg>

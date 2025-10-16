@@ -91,12 +91,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     // TODO: It seems this rate is getting cached, and re-used for different amounts, can we not do this?
 
     try {

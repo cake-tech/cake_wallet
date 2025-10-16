@@ -183,6 +183,13 @@ class CWPolygon extends Polygon {
   @override
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
+  Future<bool> isApprovalRequired(WalletBase wallet, String tokenContract,String spender, BigInt requiredAmount) =>
+      (wallet as PolygonWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
+
+  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to, String dataHex, BigInt valueWei,
+      TransactionPriority priority) =>
+      (wallet as EVMChainWallet).createCallDataTransaction(to, dataHex, valueWei, priority as EVMChainTransactionPriority);
+
   @override
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,

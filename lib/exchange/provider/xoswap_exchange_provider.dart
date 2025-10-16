@@ -142,12 +142,13 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     }
   }
 
+  @override
   Future<double> fetchRate({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required double amount,
     required bool isFixedRateMode,
-    required bool isReceiveAmount,
+    required bool isReceiveAmount
   }) async {
     try {
       final rates = await getRatesForPair(from: from, to: to);

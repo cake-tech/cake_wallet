@@ -33,12 +33,13 @@ abstract class ExchangeProvider {
 
   Future<Trade> findTradeById({required String id});
 
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount});
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  });
 
   Future<bool> checkIsAvailable();
 }
