@@ -1,5 +1,10 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
@@ -27,13 +32,19 @@ abstract class UnspentCoinsListViewModelBase with Store {
     required this.wallet,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     this.coinTypeToSpendFrom = UnspentCoinType.any,
+    required FiatConversionStore fiatConversationStore,
+    required SettingsStore settingsStore,
   })  : _unspentCoinsInfo = unspentCoinsInfo,
+        _fiatConversationStore = fiatConversationStore,
+        _settingsStore = settingsStore,
         items = ObservableList<UnspentCoinsItem>(),
         _originalState = {};
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
+  final FiatConversionStore _fiatConversationStore;
+  final SettingsStore _settingsStore;
   final UnspentCoinType coinTypeToSpendFrom;
 
   @observable
@@ -46,6 +57,30 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   @computed
   bool get isAllSelected => items.every((element) => element.isFrozen || element.isSending);
+
+  @computed
+  FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
+
+  @computed
+  bool get isFiatDisabled => _settingsStore.fiatApiMode == FiatApiMode.disabled;
+
+  @action
+  String estimatedFiatAmount (int cryptoAmount) {
+
+    // forces mobx to rebuild the computed value
+    final _ = wallet.syncStatus;
+    final currency = wallet.currency;
+
+    try {
+      final formatedCryptoAmount = formatAmountToString(cryptoAmount);
+      final cryptoAmountDouble = double.tryParse(formatedCryptoAmount.replaceAll(',', '')) ?? 0.0;
+      final fiat = calculateFiatAmountRaw(
+          price: _fiatConversationStore.prices[currency]!, cryptoAmount: cryptoAmountDouble);
+      return fiat;
+    } catch (_) {
+      return '0.00';
+    }
+  }
 
   Future<void> initialSetup() async {
     await _updateUnspents();
@@ -177,6 +212,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
           try {
             final existingItem = _unspentCoinsInfo.values
                 .firstWhereOrNull((item) => item.walletId == wallet.id && item == elem);
+            final fiatAmount = isFiatDisabled ? '' : fiatCurrency.title + ' ' + estimatedFiatAmount(elem.value);
 
             if (existingItem == null) return null;
 
@@ -188,6 +224,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
               note: existingItem.note,
               isSending: existingItem.isSending,
               value: elem.value,
+              fiatAmount: fiatAmount,
               vout: elem.vout,
               keyImage: elem.keyImage,
               isChange: elem.isChange,

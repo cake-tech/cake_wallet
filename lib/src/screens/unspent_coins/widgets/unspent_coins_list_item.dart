@@ -7,6 +7,7 @@ class UnspentCoinsListItem extends StatelessWidget {
   UnspentCoinsListItem({
     required this.note,
     required this.amount,
+    required this.fiatAmount,
     required this.address,
     required this.isSending,
     required this.isFrozen,
@@ -17,6 +18,7 @@ class UnspentCoinsListItem extends StatelessWidget {
 
   final String note;
   final String amount;
+  final String fiatAmount;
   final String address;
   final bool isSending;
   final bool isFrozen;
@@ -106,6 +108,22 @@ class UnspentCoinsListItem extends StatelessWidget {
                               ),
                         ),
                       ),
+                  ],
+                ),
+                if (fiatAmount.isNotEmpty)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      fiatAmount,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: amountColor,
+                        fontSize: 1,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                    ),
                   ],
                 ),
                 Expanded(

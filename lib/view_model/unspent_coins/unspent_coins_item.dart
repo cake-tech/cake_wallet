@@ -9,6 +9,7 @@ abstract class UnspentCoinsItemBase with Store, UnspentComparable {
   UnspentCoinsItemBase({
     required this.address,
     required this.amount,
+    required this.fiatAmount,
     required this.hash,
     required this.isFrozen,
     required this.note,
@@ -25,6 +26,9 @@ abstract class UnspentCoinsItemBase with Store, UnspentComparable {
 
   @observable
   String amount;
+
+  @observable
+  String fiatAmount;
 
   @observable
   String hash;
