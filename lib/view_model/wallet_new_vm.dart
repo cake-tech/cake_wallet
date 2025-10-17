@@ -59,8 +59,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       [WalletType.monero, WalletType.wownero].contains(type);
 
   @override
-  WalletCredentials getCredentials(dynamic _options) {
-    final options = _options as List<dynamic>?;
+  WalletCredentials getCredentials(Map<String, dynamic>? options) {
     final passphrase = seedSettingsViewModel.passphrase;
     seedSettingsViewModel.setPassphrase(null);
 
@@ -68,12 +67,12 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
           name: name,
-          language: options!.first as String,
+          language: options?['language'] as String,
           password: walletPassword,
           passphrase: passphrase,
           seedType: newWalletArguments!.mnemonic != null
               ? MoneroSeedType.bip39.raw
-              : (options.last as MoneroSeedType).raw,
+              : (options?['moneroSeedType'] as MoneroSeedType).raw,
           mnemonic: newWalletArguments!.mnemonic,
         );
       case WalletType.bitcoin:
@@ -144,8 +143,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.wownero:
         return wownero!.createWowneroNewWalletCredentials(
           name: name,
-          language: options!.first as String,
-          isPolyseed: (options.last as MoneroSeedType).raw == 1,
+          language: options?['language'] as String,
+          isPolyseed: (options?['moneroSeedType'] as MoneroSeedType).raw == 1,
           password: walletPassword,
           passphrase: passphrase,
         );
@@ -156,7 +155,11 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           passphrase: passphrase,
         );
       case WalletType.decred:
-        return decred!.createDecredNewWalletCredentials(name: name);
+        return decred!.createDecredNewWalletCredentials(
+          name: name,
+          isBip39: (options?['decredSeedType'] as DecredSeedType).type == DerivationType.bip39,
+          mnemonic: newWalletArguments!.mnemonic,
+        );
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected type: ${type.toString()}');
