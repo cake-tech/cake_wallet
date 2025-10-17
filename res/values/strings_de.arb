@@ -257,6 +257,8 @@
   "description": "Beschreibung",
   "destination_tag": "Ziel-Tag:",
   "deuro_about_deuro": "Über dEURO",
+  "deuro_borrowing": "Ausleihen",
+  "deuro_borrowing_subtitle": "Leihen Sie sich dEURO gegen BTC, ETH und andere Kryptowährungen.",
   "deuro_collect_interest": "Auszahlen",
   "deuro_reinvest_interest": "Reinvestieren",
   "deuro_savings": "dEuro-Savings",

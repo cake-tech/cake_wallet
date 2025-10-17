@@ -257,6 +257,8 @@
   "description": "Descrizione",
   "destination_tag": "Tag destinazione:",
   "deuro_about_deuro": "Su Deuro",
+  "deuro_borrowing": "Prendere in prestito",
+  "deuro_borrowing_subtitle": "Prendi in prestito dEURO contro BTC, ETH e altre criptovalute.",
   "deuro_collect_interest": "Raccogliere",
   "deuro_reinvest_interest": "Reinvest",
   "deuro_savings": "Risparmio di dEuro",

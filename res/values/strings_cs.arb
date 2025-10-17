@@ -257,6 +257,8 @@
   "description": "Popis",
   "destination_tag": "Destination Tag:",
   "deuro_about_deuro": "O Deuro",
+  "deuro_borrowing": "Půjčování",
+  "deuro_borrowing_subtitle": "Půjčte si dEURO proti BTC, ETH a dalším kryptoměnám.",
   "deuro_collect_interest": "Sbírat",
   "deuro_reinvest_interest": "Reinvest",
   "deuro_savings": "dEuro úspory",

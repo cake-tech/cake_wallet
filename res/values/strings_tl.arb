@@ -257,6 +257,8 @@
   "description": "Paglalarawan",
   "destination_tag": "Tag ng patutunguhan:",
   "deuro_about_deuro": "Tungkol kay Deuro",
+  "deuro_borrowing": "Paghiram",
+  "deuro_borrowing_subtitle": "Humiram ng Deuro laban sa BTC, ETH at iba pang mga cryptocurrencies.",
   "deuro_collect_interest": "Mangolekta",
   "deuro_reinvest_interest": "Muling mamuhunan",
   "deuro_savings": "Pagtipid ni dEuro",

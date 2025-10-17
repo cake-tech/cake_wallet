@@ -257,6 +257,8 @@
   "description": "คำอธิบาย",
   "destination_tag": "แท็กปลายทาง:",
   "deuro_about_deuro": "เกี่ยวกับ Deuro",
+  "deuro_borrowing": "การยืม",
+  "deuro_borrowing_subtitle": "ยืม dEURO กับ BTC, ETH และสกุลเงินดิจิทัลอื่น ๆ",
   "deuro_collect_interest": "เก็บรวบรวม",
   "deuro_reinvest_interest": "ลงทุนใหม่",
   "deuro_savings": "การออมของ dEuro",

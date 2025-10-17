@@ -193,6 +193,7 @@ class CWEthereum extends Ethereum {
           .setTrezorConnect(service.connect, wallet.walletInfo.derivationInfo?.derivationPath);
     }
   }
+
   @override
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
       EVMChainLedgerService(connection);
@@ -210,11 +211,11 @@ class CWEthereum extends Ethereum {
     return DefaultEthereumErc20Tokens().initialErc20Tokens.map((e) => e.contractAddress).toList();
   }
 
-
   @override
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
     final ethereumWallet = wallet as EthereumWallet;
-    return ethereumWallet.erc20Currencies.any((element) => element.contractAddress.toLowerCase() == contractAddress.toLowerCase());
+    return ethereumWallet.erc20Currencies
+        .any((element) => element.contractAddress.toLowerCase() == contractAddress.toLowerCase());
   }
 
   Future<PendingTransaction> createTokenApproval(WalletBase wallet, BigInt amount, String spender,
@@ -260,4 +261,12 @@ class CWEthereum extends Ethereum {
   @override
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority) =>
       DEuroSavings(wallet as EthereumWallet).enableSavings(priority as EVMChainTransactionPriority);
+
+  @override
+  Future<List<Map<String, dynamic>>> getDEuroOwnedPositions(WalletBase wallet) =>
+      DEuroBorrowing(wallet as EthereumWallet).getPositionsOfAddress();
+
+  @override
+  Future<List<Map<String, dynamic>>> getCloneablePositions(WalletBase wallet) =>
+      DEuroBorrowing(wallet as EthereumWallet).getCloneablePositions();
 }

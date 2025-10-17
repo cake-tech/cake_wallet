@@ -257,6 +257,8 @@
   "description": "ﻒﺻﻭ",
   "destination_tag": "علامة الوجهة:",
   "deuro_about_deuro": "حول ديورو",
+  "deuro_borrowing": "الاقتراض",
+  "deuro_borrowing_subtitle": "استعارة dEURO مقابل BTC وETH والعملات المشفرة الأخرى.",
   "deuro_collect_interest": "يجمع",
   "deuro_reinvest_interest": "إعادة الاستثمار",
   "deuro_savings": "الادخار ديورو",

@@ -257,6 +257,8 @@
   "description": "Descrição",
   "destination_tag": "Tag de destino:",
   "deuro_about_deuro": "Sobre Deuro",
+  "deuro_borrowing": "Empréstimo",
+  "deuro_borrowing_subtitle": "Peça emprestado dEURO contra BTC, ETH e outras criptomoedas.",
   "deuro_collect_interest": "Coletar",
   "deuro_reinvest_interest": "Reinvestir",
   "deuro_savings": "dEuro Savings",

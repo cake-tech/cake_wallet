@@ -257,6 +257,8 @@
   "description": "Apejuwe",
   "destination_tag": "Orúkọ tí ìbí tó a ránṣẹ́ sí:",
   "deuro_about_deuro": "Nipa deuro",
+  "deuro_borrowing": "Ajọdun",
+  "deuro_borrowing_subtitle": "Dide Deuro si BTC, ETH ati awọn ohun cryprecurenas miiran.",
   "deuro_collect_interest": "Kojọ",
   "deuro_reinvest_interest": "Reinvest",
   "deuro_savings": "dEuro Awọn ifowopamọ",

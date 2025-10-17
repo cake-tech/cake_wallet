@@ -257,6 +257,8 @@
   "description": "Նկարագրություն",
   "destination_tag": "Նպատակակետի պիտակ:",
   "deuro_about_deuro": "Deuro- ի մասին",
+  "deuro_borrowing": "Փոխառություն",
+  "deuro_borrowing_subtitle": "Վերցրեք dEURO BTC-ի, ETH-ի և այլ կրիպտոարժույթների դեմ:",
   "deuro_collect_interest": "Հավաքել",
   "deuro_reinvest_interest": "Վերազինել",
   "deuro_savings": "dEuro խնայողություններ",

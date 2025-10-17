@@ -257,6 +257,8 @@
   "description": "विवरण",
   "destination_tag": "गंतव्य टैग:",
   "deuro_about_deuro": "देउरो के बारे में",
+  "deuro_borrowing": "उधार",
+  "deuro_borrowing_subtitle": "बीटीसी, ईटीएच और अन्य क्रिप्टोकरेंसी के बदले डीयूरो उधार लें।",
   "deuro_collect_interest": "इकट्ठा करना",
   "deuro_reinvest_interest": "पुनर्निवेश करना",
   "deuro_savings": "देउरो बचत",

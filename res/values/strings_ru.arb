@@ -257,6 +257,8 @@
   "description": "Описание",
   "destination_tag": "Целевой тег:",
   "deuro_about_deuro": "О Deuro",
+  "deuro_borrowing": "Заимствование",
+  "deuro_borrowing_subtitle": "Займите dEURO под BTC, ETH и другие криптовалюты.",
   "deuro_collect_interest": "Собирать",
   "deuro_reinvest_interest": "Реинвестирование",
   "deuro_savings": "dEuro Savings",

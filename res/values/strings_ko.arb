@@ -257,6 +257,8 @@
   "description": "설명",
   "destination_tag": "목적지 태그:",
   "deuro_about_deuro": "Deuro에 대해",
+  "deuro_borrowing": "차용",
+  "deuro_borrowing_subtitle": "BTC, ETH 및 기타 암호화폐에 대해 dEURO를 빌리세요.",
   "deuro_collect_interest": "모으다",
   "deuro_reinvest_interest": "재투자",
   "deuro_savings": "도로 저축",

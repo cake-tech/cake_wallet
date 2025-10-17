@@ -63,8 +63,8 @@ class CakeFeaturesPage extends StatelessWidget {
                     return DashBoardRoundedCardWidget(
                       shadowBlur: dashboardViewModel.getShadowBlur(),
                       shadowSpread: dashboardViewModel.getShadowSpread(),
-                      onTap: () => Navigator.of(context).pushNamed(Routes.dEuroSavings),
-                      title: S.of(context).deuro_savings,
+                      onTap: () => Navigator.of(context).pushNamed(Routes.dEuro),
+                      title: "dEuro",
                       subTitle: S.of(context).deuro_savings_subtitle,
                       image: Image.asset(
                         'assets/images/deuro_icon.png',

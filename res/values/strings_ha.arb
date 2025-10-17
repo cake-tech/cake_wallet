@@ -257,6 +257,8 @@
   "description": "Bayani",
   "destination_tag": "Tambarin makoma:",
   "deuro_about_deuro": "Game da Deuro",
+  "deuro_borrowing": "Ara",
+  "deuro_borrowing_subtitle": "Aro deuro da BTC, Eth da sauran cryptocurrencies.",
   "deuro_collect_interest": "Tara",
   "deuro_reinvest_interest": "Sarkin m",
   "deuro_savings": "deuro tanadi",

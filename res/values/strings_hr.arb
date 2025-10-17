@@ -257,6 +257,8 @@
   "description": "Opis",
   "destination_tag": "Odredišna oznaka:",
   "deuro_about_deuro": "O deuru",
+  "deuro_borrowing": "Posuđivanje",
+  "deuro_borrowing_subtitle": "Posudite dEURO za BTC, ETH i druge kriptovalute.",
   "deuro_collect_interest": "Prikupiti",
   "deuro_reinvest_interest": "Reinvestirati",
   "deuro_savings": "deuro ušteda",

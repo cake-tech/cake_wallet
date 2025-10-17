@@ -257,6 +257,8 @@
   "description": "描述",
   "destination_tag": "目标Tag:",
   "deuro_about_deuro": "关于Deuro",
+  "deuro_borrowing": "借款",
+  "deuro_borrowing_subtitle": "以 BTC、ETH 和其他加密货币借入 dEURO。",
   "deuro_collect_interest": "收集",
   "deuro_reinvest_interest": "再投资",
   "deuro_savings": "dEuro储蓄",

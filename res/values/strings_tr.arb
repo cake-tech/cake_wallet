@@ -257,6 +257,8 @@
   "description": "Tanım",
   "destination_tag": "Hedef Etiketi:",
   "deuro_about_deuro": "Deuro hakkında",
+  "deuro_borrowing": "Borçlanma",
+  "deuro_borrowing_subtitle": "BTC, ETH ve diğer kripto para birimlerine karşı dEURO'yu ödünç alın.",
   "deuro_collect_interest": "TOPLAMAK",
   "deuro_reinvest_interest": "Yeniden yatırım yapmak",
   "deuro_savings": "dEuro Tasarruf",

@@ -1,7 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/integrations/deuro/widgets/info_chip.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/interest_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_edit_sheet.dart';
@@ -13,7 +12,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/tooltip_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
+import 'package:cake_wallet/view_model/integrations/deuro_savings_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -25,7 +24,7 @@ import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class DEuroSavingsPage extends BasePage {
-  final DEuroViewModel _dEuroViewModel;
+  final DEuroSavingsViewModel _dEuroViewModel;
 
   DEuroSavingsPage(this._dEuroViewModel);
 
@@ -80,28 +79,7 @@ class DEuroSavingsPage extends BasePage {
                       isEnabled: _dEuroViewModel.isSavingsActionsEnabled,
                     ),
                   ),
-                  Spacer(),
-                  SafeArea(
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 30),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          InfoChip(
-                            label: S.of(context).deuro_about_deuro,
-                            icon: CupertinoIcons.info,
-                            onPressed: () => _showWelcomeTooltip(context),
-                          ),
-                          SizedBox(width: 10),
-                          InfoChip(
-                            label: S.of(context).website,
-                            icon: CupertinoIcons.globe,
-                            onPressed: () => launchUrlString("https://deuro.com/"),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
+
                 ],
               ),
             ),
@@ -145,9 +123,8 @@ class DEuroSavingsPage extends BasePage {
 
   bool _isReactionsSet = false;
 
-  void _setReactions(BuildContext context, DEuroViewModel dEuroViewModel) {
+  void _setReactions(BuildContext context, DEuroSavingsViewModel dEuroViewModel) {
     if (_isReactionsSet) return;
-    if (_dEuroViewModel.isFistTime) _showWelcomeTooltip(context);
 
     reaction((_) => dEuroViewModel.transaction, (PendingTransaction? tx) async {
       if (tx == null) return;
@@ -318,33 +295,6 @@ class DEuroSavingsPage extends BasePage {
         onLeftActionButtonPressed: onLearnMorePressed,
       ),
     );
-  }
-
-  Future<void> _showWelcomeTooltip(BuildContext context) async {
-    if (!context.mounted) return;
-
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
-        height: 350,
-        titleText: "dEURO",
-        titleIconPath: CryptoCurrency.deuro.iconPath,
-        contentImage: 'assets/images/deuro_hero.png',
-        contentImageSize: 200,
-        content: S.of(context).deuro_savings_welcome_description,
-        footerType: FooterType.doubleActionButton,
-        doubleActionRightButtonText: S.of(context).close,
-        rightActionButtonKey: ValueKey('deuro_page_tooltip_dialog_welcome_ok_button_key'),
-        onRightActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
-        doubleActionLeftButtonText: S.of(context).learn_more,
-        leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_welcome_learn_more_button_key'),
-        onLeftActionButtonPressed: () => launchUrlString("https://deuro.com/what-is-deuro.html"),
-        showDisclaimerText: _dEuroViewModel.isFistTime,
-      ),
-    );
-
-    if (_dEuroViewModel.isFistTime) _dEuroViewModel.acceptDisclaimer();
   }
 
   Future<void> _showNoEthTooltip(BuildContext context) async {

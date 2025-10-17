@@ -256,6 +256,8 @@
   "description": "Mô tả",
   "destination_tag": "Thẻ đích:",
   "deuro_about_deuro": "Về Deuro",
+  "deuro_borrowing": "Vay",
+  "deuro_borrowing_subtitle": "Vay dEURO bằng BTC, ETH và các loại tiền điện tử khác.",
   "deuro_collect_interest": "Sưu tầm",
   "deuro_reinvest_interest": "Tái đầu tư",
   "deuro_savings": "Tiết kiệm dEuro",

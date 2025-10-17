@@ -257,6 +257,8 @@
   "description": "ဖော်ပြချက်",
   "destination_tag": "ခရီးဆုံးအမှတ်-",
   "deuro_about_deuro": "Deurro အကြောင်း",
+  "deuro_borrowing": "ငွေချေးစရာ",
+  "deuro_borrowing_subtitle": "BTC, Eth နှင့်အခြား cryptocurrencrienrencrienrencrienrencrienrencrienrencrienrencrienrencrien နာများဆန့်ကျင်ရေး Deurro ကိုငှားပါ။",
   "deuro_collect_interest": "စုဝေး",
   "deuro_reinvest_interest": "အသစ်တီထွင်စိတ်ချဆုံး",
   "deuro_savings": "dEuro ငွေစု",

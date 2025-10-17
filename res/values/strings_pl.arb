@@ -257,6 +257,8 @@
   "description": "Opis",
   "destination_tag": "Tag docelowy:",
   "deuro_about_deuro": "O Deuro",
+  "deuro_borrowing": "Pożyczanie",
+  "deuro_borrowing_subtitle": "Pożycz deEURO pod BTC, ETH i inne kryptowaluty.",
   "deuro_collect_interest": "Zbierać",
   "deuro_reinvest_interest": "Reinwestuj",
   "deuro_savings": "dEuro oszczędności",

@@ -137,5 +137,7 @@ class Routes {
   static const walletSeedVerificationPage = '/wallet_seed_verification_page';
   static const exchangeTradeExternalSendPage = '/exchange_trade_external_send_page';
 
+  static const dEuro = '/integration/dEuro';
   static const dEuroSavings = '/integration/dEuro/savings';
+  static const dEuroBorrowing = '/integration/dEuro/borrowing';
 }

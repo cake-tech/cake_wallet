@@ -728,6 +728,7 @@ import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_service.dart';
 import 'package:cw_ethereum/default_ethereum_erc20_tokens.dart';
 import 'package:cw_ethereum/deuro/deuro_savings.dart';
+import 'package:cw_ethereum/deuro/deuro_borrowing.dart';
 
 import 'package:eth_sig_util/util/utils.dart';
 
@@ -786,6 +787,8 @@ abstract class Ethereum {
   Future<PendingTransaction> removeDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority);
   Future<PendingTransaction> reinvestDEuroInterest(WalletBase wallet, TransactionPriority priority);
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority);
+  Future<List<Map<String, dynamic>>> getDEuroOwnedPositions(WalletBase wallet);
+  Future<List<Map<String, dynamic>>> getCloneablePositions(WalletBase wallet);
   
   void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);

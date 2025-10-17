@@ -257,6 +257,8 @@
   "description": "Keterangan",
   "destination_tag": "Tag tujuan:",
   "deuro_about_deuro": "Tentang Deuro",
+  "deuro_borrowing": "Peminjaman",
+  "deuro_borrowing_subtitle": "Pinjam dEURO terhadap BTC, ETH, dan mata uang kripto lainnya.",
   "deuro_collect_interest": "Mengumpulkan",
   "deuro_reinvest_interest": "Berinvestasi kembali",
   "deuro_savings": "Tabungan dEuro",

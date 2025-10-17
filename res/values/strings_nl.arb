@@ -257,6 +257,8 @@
   "description": "Beschrijving",
   "destination_tag": "Bestemmingstag:",
   "deuro_about_deuro": "Over Deuro",
+  "deuro_borrowing": "Lenen",
+  "deuro_borrowing_subtitle": "Leen dEURO tegen BTC, ETH en andere cryptocurrencies.",
   "deuro_collect_interest": "Verzamelen",
   "deuro_reinvest_interest": "Herinvesteren",
   "deuro_savings": "dEuro -besparingen",

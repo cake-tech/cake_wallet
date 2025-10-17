@@ -257,6 +257,8 @@
   "description": "説明",
   "destination_tag": "宛先タグ:",
   "deuro_about_deuro": "Deuroについて",
+  "deuro_borrowing": "借りる",
+  "deuro_borrowing_subtitle": "BTC、ETH、その他の暗号通貨に対して dEURO を借ります。",
   "deuro_collect_interest": "集める",
   "deuro_reinvest_interest": "再投資",
   "deuro_savings": "dEuro Savings",

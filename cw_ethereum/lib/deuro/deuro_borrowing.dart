@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_ethereum/deuro/constants.dart';
 import 'package:cw_ethereum/deuro/deuro_base.dart';
-import 'package:cw_ethereum/deuro/deuro_lending_contract.dart';
+import 'package:cw_ethereum/deuro/deuro_borrowing_contract.dart';
 import 'package:cw_evm/contract/erc20.dart';
 import 'package:cw_evm/evm_chain_exceptions.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -11,35 +11,53 @@ import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
-class DEuroLending extends DEuroBase {
+class DEuroBorrowing extends DEuroBase {
   final MintingHubGateway _mintingGateway;
 
-  DEuroLending(super.wallet_) : _mintingGateway = _getMintingGateway(wallet_.getWeb3Client()!);
+  DEuroBorrowing(super.wallet_) : _mintingGateway = _getMintingGateway(wallet_.getWeb3Client()!);
 
   static MintingHubGateway _getMintingGateway(Web3Client client) => MintingHubGateway(
         address: EthereumAddress.fromHex(mintingGatewayAddress),
         client: client,
       );
 
-  static const String _positionsEndpoint = 'https://api.deuro.com/positions/owners';
+  static const String _positionOwnersEndpoint = 'https://api.deuro.com/positions/owners';
+  static const String _positionsOpenEndpoint = 'https://api.deuro.com/positions/open';
 
   Future<BigInt> getApprovedBalance(String tokenAddress) =>
       ERC20(address: EthereumAddress.fromHex(tokenAddress), client: wallet.getWeb3Client()!)
           .allowance(walletAddress, _mintingGateway.self.address);
 
-  Future<List<Map<String, dynamic>>> getPositionsOfAddress(String address) async {
-    final result = await ProxyWrapper().get(clearnetUri: Uri.parse(_positionsEndpoint));
+  Future<List<Map<String, dynamic>>> getPositionsOfAddress() async {
+    final result = await ProxyWrapper().get(clearnetUri: Uri.parse(_positionOwnersEndpoint));
 
     if (result.statusCode != 200) throw Exception("Unable to load dEuro Positions");
     final data = jsonDecode(result.body) as Map<String, dynamic>;
 
-    if ((data["owners"] as List).contains(address.toLowerCase())) {
-      return (data["map"][address.toLowerCase()] as List)
+    if ((data["owners"] as List).contains(walletAddress.hex.toLowerCase())) {
+      return (data["map"][walletAddress.hex.toLowerCase()] as List)
           .map((e) => e as Map<String, dynamic>)
           .toList();
     }
 
     return [];
+  }
+
+  Future<List<Map<String, dynamic>>> getCloneablePositions() async {
+    final reqResult = await ProxyWrapper().get(clearnetUri: Uri.parse(_positionsOpenEndpoint));
+
+    if (reqResult.statusCode != 200) throw Exception("Unable to load dEuro Positions");
+    final data = jsonDecode(reqResult.body) as Map<String, dynamic>;
+
+    final result = <Map<String, dynamic>>[];
+    for (final entry_ in (data["map"] as Map<String, dynamic>).values){
+      final entry = entry_ as Map<String, dynamic>;
+      if (entry["isOriginal"] == true) {
+        result.add(entry);
+      }
+    }
+
+    return result;
   }
 
   Future<PendingEVMChainTransaction> clonePosition(
