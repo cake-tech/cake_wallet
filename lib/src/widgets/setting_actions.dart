@@ -34,7 +34,7 @@ class SettingActions {
   static SettingActions silentPaymentsSettingAction = SettingActions._(
     key: ValueKey('dashboard_page_menu_widget_silent_payment_settings_button_key'),
     name: (context) => S.of(context).silent_payments_settings,
-    image: 'assets/images/crypto/bitcoin.webp',
+    image: 'assets/images/bitcoin_menu.png',
     onTap: (BuildContext context) {
       Navigator.of(context).pushNamed(Routes.silentPaymentsSettings);
     },
@@ -53,7 +53,7 @@ class SettingActions {
   static SettingActions litecoinMwebSettingAction = SettingActions._(
     key: ValueKey('dashboard_page_menu_widget_litecoin_mweb_settings_button_key'),
     name: (context) => S.of(context).litecoin_mweb_settings,
-    image: 'assets/images/crypto/litecoin.webp',
+    image: 'assets/images/mweb_logo.png',
     onTap: (BuildContext context) {
       Navigator.of(context).pushNamed(Routes.mwebSettings);
     },
