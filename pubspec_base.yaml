@@ -127,7 +127,8 @@ dependencies:
     git:
       url: https://github.com/cake-tech/on_chain.git
       ref: cake-update-v2
-  reown_walletkit: 1.1.5+1
+  reown_walletkit:
+    path: ./scripts/reown_flutter/packages/reown_walletkit
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
@@ -181,7 +182,6 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
-  flutter_secure_storage_platform_interface: 1.0.2
   protobuf: ^3.1.0
   bitcoin_base:
     git:
