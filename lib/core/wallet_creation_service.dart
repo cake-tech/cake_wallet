@@ -84,6 +84,7 @@ class WalletCreationService {
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.dogecoin:
+      case WalletType.decred:
         return true;
       case WalletType.monero:
       case WalletType.wownero:
@@ -92,7 +93,6 @@ class WalletCreationService {
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.zano:
-      case WalletType.decred:
         return false;
     }
   }
