@@ -12,6 +12,7 @@ import 'package:path/path.dart';
 import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:bip39/bip39.dart' as bip39;
 
 class DecredWalletService extends WalletService<
     DecredNewWalletCredentials,
@@ -57,6 +58,11 @@ class DecredWalletService extends WalletService<
   @override
   Future<DecredWallet> create(DecredNewWalletCredentials credentials, {bool? isTestnet}) async {
     await this.init();
+    if (credentials.isBip39) {
+      final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+      final mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
+      return restoreFromSeed(DecredRestoreWalletFromSeedCredentials(name: credentials.name, password: credentials.password!, mnemonic: mnemonic, walletInfo: credentials.walletInfo));
+    }
     final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
     final network = isTestnet == true ? testnet : mainnet;
     final config = {

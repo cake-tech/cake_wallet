@@ -1418,7 +1418,7 @@ import 'package:cw_decred/mnemonic.dart';
 
 abstract class Decred {
   WalletCredentials createDecredNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo});
+      {required String name, WalletInfo? walletInfo, required bool isBip39, required String? mnemonic});
   WalletCredentials createDecredRestoreWalletFromSeedCredentials(
       {required String name, required String mnemonic, required String password});
   WalletCredentials createDecredRestoreWalletFromPubkeyCredentials(
