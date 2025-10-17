@@ -70,7 +70,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   }
 
   @override
-  WalletCredentials getCredentials(dynamic _options) {
+  WalletCredentials getCredentials(Map<String, dynamic>? options) {
     WalletCredentials credentials;
     switch (type) {
       case WalletType.bitcoin:
@@ -92,7 +92,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
           name: name,
           ledgerConnection: (hardwareWalletVM as LedgerViewModel).connection,
           password: password,
-          height: _options['height'] as int? ?? 0,
+          height: options?['height'] as int? ?? 0,
         );
       default:
         throw Exception('Unexpected type: ${type.toString()}');
