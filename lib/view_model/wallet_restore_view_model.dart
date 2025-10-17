@@ -119,15 +119,15 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   bool isButtonEnabled;
 
   @override
-  WalletCredentials getCredentials(dynamic options) {
+  WalletCredentials getCredentials(Map<String, dynamic>? options) {
     final password = walletPassword ?? generateWalletPassword();
-    String? passphrase = options['passphrase'] as String?;
-    final height = options['height'] as int? ?? 0;
-    name = options['name'] as String;
-    DerivationInfo? derivationInfo = options["derivationInfo"] as DerivationInfo?;
+    String? passphrase = options?['passphrase'] as String?;
+    final height = options?['height'] as int? ?? 0;
+    name = options?['name'] as String;
+    DerivationInfo? derivationInfo = options?["derivationInfo"] as DerivationInfo?;
 
     if (mode == WalletRestoreMode.seed) {
-      final seed = options['seed'] as String;
+      final seed = options?['seed'] as String;
       switch (type) {
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromSeedCredentials(
@@ -236,9 +236,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     }
 
     if (mode == WalletRestoreMode.keys) {
-      final viewKey = options['viewKey'] as String?;
-      final spendKey = options['spendKey'] as String?;
-      final address = options['address'] as String?;
+      final viewKey = options?['viewKey'] as String?;
+      final spendKey = options?['spendKey'] as String?;
+      final address = options?['address'] as String?;
 
       switch (type) {
         case WalletType.bitcoin:
@@ -263,7 +263,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromPrivateKey(
             name: name,
-            privateKey: options['private_key'] as String,
+            privateKey: options?['private_key'] as String,
             password: password,
           );
 
@@ -271,20 +271,20 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           return nano!.createNanoRestoreWalletFromKeysCredentials(
             name: name,
             password: password,
-            seedKey: options['private_key'] as String,
+            seedKey: options?['private_key'] as String,
             derivationType: derivationInfo!.derivationType!,
           );
         case WalletType.polygon:
           return polygon!.createPolygonRestoreWalletFromPrivateKey(
             name: name,
             password: password,
-            privateKey: options['private_key'] as String,
+            privateKey: options?['private_key'] as String,
           );
         case WalletType.base:
           return base!.createBaseRestoreWalletFromPrivateKey(
             name: name,
             password: password,
-            privateKey: options['private_key'] as String,
+            privateKey: options?['private_key'] as String,
           );
         case WalletType.arbitrum:
           return arbitrum!.createArbitrumRestoreWalletFromPrivateKey(
@@ -296,13 +296,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           return solana!.createSolanaRestoreWalletFromPrivateKey(
             name: name,
             password: password,
-            privateKey: options['private_key'] as String,
+            privateKey: options?['private_key'] as String,
           );
         case WalletType.tron:
           return tron!.createTronRestoreWalletFromPrivateKey(
             name: name,
             password: password,
-            privateKey: options['private_key'] as String,
+            privateKey: options?['private_key'] as String,
           );
         case WalletType.wownero:
           return wownero!.createWowneroRestoreWalletFromKeysCredentials(

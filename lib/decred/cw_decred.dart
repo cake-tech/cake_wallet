@@ -5,8 +5,8 @@ class CWDecred extends Decred {
 
   @override
   WalletCredentials createDecredNewWalletCredentials(
-          {required String name, WalletInfo? walletInfo}) =>
-      DecredNewWalletCredentials(name: name, walletInfo: walletInfo);
+          {required String name, WalletInfo? walletInfo, required bool isBip39, required String? mnemonic}) =>
+      DecredNewWalletCredentials(name: name, walletInfo: walletInfo, isBip39: isBip39, mnemonic: mnemonic);
 
   @override
   WalletCredentials createDecredRestoreWalletFromSeedCredentials(
