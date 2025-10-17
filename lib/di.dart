@@ -41,6 +41,7 @@ import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/exchange_provider_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
+import 'package:cake_wallet/src/screens/integrations/deuro/borrowing_overview_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/deuro_options_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
@@ -59,6 +60,7 @@ import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/bitbox_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_view_model.dart';
+import 'package:cake_wallet/view_model/integrations/deuro_borrowing_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_savings_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
@@ -1626,9 +1628,15 @@ Future<void> setup({
         getIt<FiatConversionStore>(),
       ));
 
+  getIt.registerFactory(() => DEuroBorrowingViewModel(
+        getIt<AppStore>(),
+      ));
+
   getIt.registerFactory(() => DEuroOptionsPage(getIt<DEuroViewModel>()));
 
   getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroSavingsViewModel>()));
+
+  getIt.registerFactory(() => DEuroBorrowingOverviewPage(getIt<DEuroBorrowingViewModel>()));
 
   getIt.registerLazySingleton(() => NodeSwitchingService(
     appStore: getIt.get<AppStore>(),

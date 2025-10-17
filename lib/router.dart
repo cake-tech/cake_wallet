@@ -53,6 +53,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dar
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
+import 'package:cake_wallet/src/screens/integrations/deuro/borrowing_overview_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/deuro_options_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
@@ -985,10 +986,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.dEuro:
-      return handleRouteWithPlatformAwareness((_) => getIt.get<DEuroOptionsPage>());
+      return handleRouteWithPlatformAwareness((_) => getIt<DEuroOptionsPage>());
 
     case Routes.dEuroSavings:
-      return handleRouteWithPlatformAwareness((_) => getIt.get<DEuroSavingsPage>());
+      return handleRouteWithPlatformAwareness((_) => getIt<DEuroSavingsPage>());
+
+    case Routes.dEuroBorrowing:
+      return handleRouteWithPlatformAwareness((_) => getIt<DEuroBorrowingOverviewPage>());
 
     default:
       return MaterialPageRoute<void>(

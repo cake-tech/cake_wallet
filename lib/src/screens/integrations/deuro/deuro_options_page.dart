@@ -55,7 +55,7 @@ class DEuroOptionsPage extends BasePage {
                 ),
                 title: S.of(context).deuro_borrowing,
                 description: S.of(context).deuro_borrowing_subtitle,
-                onPressed: () => Navigator.of(context).pushNamed(Routes.dEuroSavings),
+                onPressed: () => Navigator.of(context).pushNamed(Routes.dEuroBorrowing),
               ),
             ),
             Spacer(),
