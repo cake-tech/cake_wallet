@@ -2,9 +2,7 @@
 
 set -e -x
 
-if [[ "$1" == "--dont-install" ]]; then
-  echo "Skipping Go installation as per --dont-install flag"
-else
+if [[ "$1" == "--install" ]]; then
   # install go > 1.24:
   brew install go
   export PATH=$PATH:~/go/bin
