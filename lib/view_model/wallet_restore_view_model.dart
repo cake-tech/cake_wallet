@@ -1,3 +1,4 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
@@ -53,6 +54,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.decred:
       case WalletType.bitcoin:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
@@ -93,6 +95,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     WalletType.ethereum,
     WalletType.polygon,
     WalletType.base,
+    WalletType.arbitrum,
     WalletType.nano,
     WalletType.banano,
     WalletType.solana,
@@ -179,6 +182,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.base:
           return base!.createBaseRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase,
+          );
+        case WalletType.arbitrum:
+          return arbitrum!.createArbitrumRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,
@@ -273,6 +283,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.base:
           return base!.createBaseRestoreWalletFromPrivateKey(
+            name: name,
+            password: password,
+            privateKey: options['private_key'] as String,
+          );
+        case WalletType.arbitrum:
+          return arbitrum!.createArbitrumRestoreWalletFromPrivateKey(
             name: name,
             password: password,
             privateKey: options['private_key'] as String,

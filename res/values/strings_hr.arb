@@ -60,6 +60,7 @@
   "approve": "Odobriti",
   "approve_request": "Odobriti zahtjev",
   "approve_tokens": "Odobriti tokene",
+  "arbiscan_history": "Arbiskanska povijest",
   "arrive_in_this_address": "${currency} ${tag}će stići na ovu adresu",
   "ascending": "Uzlazni",
   "ask_each_time": "Pitajte svaki put",

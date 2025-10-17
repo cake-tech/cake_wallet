@@ -324,6 +324,8 @@ class OnRamperBuyProvider extends BuyProvider {
     switch (tag) {
       case 'POL':
         return 'POLYGON';
+      case 'ARB':
+        return 'ARBITRUM';
       case 'ETH':
         return 'ETHEREUM';
       case 'TRX':

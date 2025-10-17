@@ -60,6 +60,7 @@
   "approve": "승인",
   "approve_request": "요청 승인",
   "approve_tokens": "토큰을 승인합니다",
+  "arbiscan_history": "ArbiScan 역사",
   "arrive_in_this_address": "${currency} ${tag}이(가) 이 주소로 도착합니다",
   "ascending": "오름차순",
   "ask_each_time": "매번 묻기",

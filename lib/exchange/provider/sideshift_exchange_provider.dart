@@ -465,6 +465,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return 'lightning';
       case 'POL':
         return 'polygon';
+      case 'ARB':
+        return 'arbitrum';
       case 'ZEC':
         return 'zcash';
       case 'AVAXC':
@@ -480,6 +482,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       'tron' => 'TRX',
       'lightning' => 'LN',
       'polygon' => 'POL',
+      'arbitrum' => 'ARB',
       'zcash' => 'ZEC',
       'avax' => 'AVAXC',
       _ => network,

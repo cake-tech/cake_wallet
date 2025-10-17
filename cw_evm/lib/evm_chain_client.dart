@@ -171,10 +171,15 @@ abstract class EVMChainClient {
     int? gasPrice,
   }) async {
     assert(currency == CryptoCurrency.eth ||
-        currency == CryptoCurrency.maticpoly || currency == CryptoCurrency.baseEth ||
+        currency == CryptoCurrency.maticpoly ||
+        currency == CryptoCurrency.baseEth ||
+        currency == CryptoCurrency.arbEth ||
         contractAddress != null);
 
-    bool isNativeToken = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly || currency == CryptoCurrency.baseEth;
+    bool isNativeToken = currency == CryptoCurrency.eth ||
+        currency == CryptoCurrency.maticpoly ||
+        currency == CryptoCurrency.baseEth ||
+        currency == CryptoCurrency.arbEth;
 
     final Transaction transaction = createTransaction(
       from: privateKey.address,

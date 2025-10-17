@@ -60,6 +60,7 @@
   "approve": "मंज़ूरी देना",
   "approve_request": "अनुरोध को स्वीकृत करें",
   "approve_tokens": "टोकन को मंजूरी देना",
+  "arbiscan_history": "अरबीस्कैन इतिहास",
   "arrive_in_this_address": "${currency} ${tag}इस पते पर पहुंचेंगे",
   "ascending": "आरोही",
   "ask_each_time": "हर बार पूछें",

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -26,6 +27,10 @@ class EnsRecord {
       _client = base!.getWeb3Client(wallet);
     }
 
+    if (wallet != null && wallet.type == WalletType.arbitrum) {
+      _client = arbitrum!.getWeb3Client(wallet);
+    }
+
     if (_client == null) {
       late final client = ProxyWrapper().getHttpIOClient();
 
@@ -48,6 +53,7 @@ class EnsRecord {
           case WalletType.ethereum:
           case WalletType.polygon:
           case WalletType.base:
+          case WalletType.arbitrum:
           default:
             return (await ens.withName(name).getAddress()).hex;
         }

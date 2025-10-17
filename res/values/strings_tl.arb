@@ -60,6 +60,7 @@
   "approve": "Aprubahan",
   "approve_request": "Aprubahan ang kahilingan",
   "approve_tokens": "Aprubahan ang mga token",
+  "arbiscan_history": "Kasaysayan ng Arbiscan",
   "arrive_in_this_address": "Ang ${currency} ${tag} ay darating sa address na ito",
   "ascending": "Umakyat",
   "ask_each_time": "Magtanong sa tuwing",

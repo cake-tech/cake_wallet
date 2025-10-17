@@ -575,7 +575,7 @@ abstract class EVMChainWalletBase
         totalAmount = (currencyBalance.balance - estimatedFeesForTransaction);
       }
 
-      // check the fees on the base currency (Eth/Polygon)
+      // check the fees on the base currency
       if (estimatedFeesForTransaction > balance[currency]!.balance) {
         throw EVMChainTransactionFeesException(currency.title);
       }
@@ -918,6 +918,8 @@ abstract class EVMChainWalletBase
   /// PolygonScan for Polygon.
   ///
   /// BaseScan for Base.
+  /// 
+  /// ArbiScan for Arbitrum.
   void updateScanProviderUsageState(bool isEnabled) {
     if (isEnabled) {
       _updateTransactions();

@@ -322,6 +322,26 @@
                 <string>base-wallet</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>arbitrum</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>arbitrum</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>arbitrum-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>arbitrum-wallet</string>
+            </array>
+        </dict>
     </array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>

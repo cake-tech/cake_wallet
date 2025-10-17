@@ -115,6 +115,7 @@ class AddressResolver {
     "pog",
     "polygon",
     "base",
+    "arbitrum"
     "press",
     "privacy",
     "pro",

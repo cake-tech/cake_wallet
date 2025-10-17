@@ -57,6 +57,7 @@ abstract class SendTemplateViewModelBase with Store {
       _wallet.type != WalletType.ethereum &&
       _wallet.type != WalletType.polygon &&
       _wallet.type != WalletType.base &&
+      _wallet.type != WalletType.arbitrum &&
       _wallet.type != WalletType.solana &&
       _wallet.type != WalletType.tron;
 

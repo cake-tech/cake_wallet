@@ -162,6 +162,8 @@ class OpenCryptoPayService {
         return "Ethereum";
       case "POL":
         return "Polygon";
+      case "ARB":
+        return "Arbitrum";
       case "TRX":
         return "Tron";
       case "SOL":

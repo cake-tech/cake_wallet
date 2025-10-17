@@ -60,6 +60,7 @@
   "approve": "Утвердить",
   "approve_request": "Утвердить запрос",
   "approve_tokens": "Одобрить токены",
+  "arbiscan_history": "История АрбиСкан",
   "arrive_in_this_address": "${currency} ${tag}придет на этот адрес",
   "ascending": "Восходящий",
   "ask_each_time": "Спросите каждый раз",

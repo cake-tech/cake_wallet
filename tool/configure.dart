@@ -13,6 +13,7 @@ const zanoOutputPath = 'lib/zano/zano.dart';
 const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
 const baseOutputPath = 'lib/base/base.dart';
+const arbitrumOutputPath = 'lib/arbitrum/arbitrum.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -34,6 +35,7 @@ Future<void> main(List<String> args) async {
   final hasDecred = args.contains('${prefix}decred');
   final hasDogecoin = args.contains('${prefix}dogecoin');
   final hasBase = args.contains('${prefix}base');
+  final hasArbitrum = args.contains('${prefix}arbitrum');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -50,6 +52,7 @@ Future<void> main(List<String> args) async {
   await generateDecred(hasDecred);
   await generateDogecoin(hasDogecoin);
   await generateBase(hasBase);
+  await generateArbitrum(hasArbitrum);
 
   await generatePubspec(
     hasMonero: hasMonero,
@@ -67,6 +70,7 @@ Future<void> main(List<String> args) async {
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
     hasBase: hasBase,
+    hasArbitrum: hasArbitrum,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -83,6 +87,7 @@ Future<void> main(List<String> args) async {
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
     hasBase: hasBase,
+    hasArbitrum: hasArbitrum,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
@@ -1628,6 +1633,133 @@ abstract class Base {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateArbitrum(bool hasImplementation) async {
+  final outputFile = File(arbitrumOutputPath);
+  const arbitrumCommonHeaders = """
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
+import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
+import 'package:web3dart/web3dart.dart';
+
+""";
+  const arbitrumCWHeaders = """
+import 'package:cw_evm/evm_chain_formatter.dart';
+import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_evm/evm_chain_transaction_credentials.dart';
+import 'package:cw_evm/evm_chain_transaction_info.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
+import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+import 'package:cw_evm/hardware/evm_chain_ledger_credentials.dart';
+import 'package:cw_evm/hardware/evm_chain_bitbox_credentials.dart';
+import 'package:cw_evm/evm_chain_wallet.dart';
+import 'package:cw_evm/hardware/evm_chain_bitbox_service.dart';
+import 'package:cw_evm/hardware/evm_chain_ledger_service.dart';
+
+import 'package:cw_arbitrum/arbitrum_client.dart';
+import 'package:cw_arbitrum/arbitrum_wallet.dart';
+import 'package:cw_arbitrum/arbitrum_wallet_service.dart';
+import 'package:cw_arbitrum/default_arbitrum_erc20_tokens.dart';
+import 'package:eth_sig_util/util/utils.dart';
+
+""";
+  const arbitrumCwPart = "part 'cw_arbitrum.dart';";
+  const arbitrumContent = """
+abstract class Arbitrum {
+  List<String> getArbitrumWordList(String language);
+  WalletService createArbitrumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletCredentials createArbitrumNewWalletCredentials(
+      {required String name,
+      WalletInfo? walletInfo,
+      String? password,
+      String? mnemonic,
+      String? passphrase});
+  WalletCredentials createArbitrumRestoreWalletFromSeedCredentials(
+      {required String name,
+      required String mnemonic,
+      required String password,
+      String? passphrase});
+  WalletCredentials createArbitrumRestoreWalletFromPrivateKey(
+      {required String name, required String privateKey, required String password});
+  WalletCredentials createArbitrumHardwareWalletCredentials(
+      {required String name, required HardwareAccountData hwAccountData, WalletInfo? walletInfo});
+  String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getArbitrumTransactionPrioritySlow();
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority deserializeArbitrumTransactionPriority(int raw);
+
+  Object createArbitrumTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    required CryptoCurrency currency,
+    int? feeRate,
+  });
+
+  Object createArbitrumTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
+    TransactionPriority? priority,
+    required CryptoCurrency currency,
+    required int feeRate,
+  });
+
+  int formatterArbitrumParseAmount(String amount);
+  double formatterArbitrumAmountToDouble(
+      {TransactionInfo? transaction, BigInt? amount, int exponent = 18});
+  List<Erc20Token> getERC20Currencies(WalletBase wallet);
+  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token);
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
+
+  Future<PendingTransaction> createTokenApproval(WalletBase wallet, BigInt amount, String spender,
+      CryptoCurrency token, TransactionPriority priority);
+
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  void updateArbitrumScanUsageState(WalletBase wallet, bool isEnabled);
+  Web3Client? getWeb3Client(WalletBase wallet);
+  String getTokenAddress(CryptoCurrency asset);
+
+  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
+  List<String> getDefaultTokenContractAddresses();
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
+}
+
+  """;
+
+  const arbitrumEmptyDefinition = 'Arbitrum? arbitrum;\n';
+  const arbitrumCWDefinition = 'Arbitrum? arbitrum = CWArbitrum();\n';
+
+  final output = '$arbitrumCommonHeaders\n' +
+      (hasImplementation ? '$arbitrumCWHeaders\n' : '\n') +
+      (hasImplementation ? '$arbitrumCwPart\n\n' : '\n') +
+      (hasImplementation ? arbitrumCWDefinition : arbitrumEmptyDefinition) +
+      '\n' +
+      arbitrumContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generatePubspec({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1644,6 +1776,7 @@ Future<void> generatePubspec({
   required bool hasDecred,
   required bool hasDogecoin,
   required bool hasBase,
+  required bool hasArbitrum,
 }) async {
   const cwCore = """
   cw_core:
@@ -1716,7 +1849,10 @@ Future<void> generatePubspec({
   cw_base:
       path: ./cw_base
   """;
-  
+  const cwArbitrum = """
+  cw_arbitrum:
+      path: ./cw_arbitrum
+  """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -1790,6 +1926,10 @@ Future<void> generatePubspec({
     output += '\n$cwBase';
   }
 
+  if (hasArbitrum) {
+    output += '\n$cwArbitrum';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -1817,6 +1957,7 @@ Future<void> generateWalletTypes({
   required bool hasDecred,
   required bool hasDogecoin,
   required bool hasBase,
+  required bool hasArbitrum,
 }) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -1850,6 +1991,10 @@ Future<void> generateWalletTypes({
 
   if (hasBase) {
     outputContent += '\tWalletType.base,\n';
+  }
+
+  if (hasArbitrum) {
+    outputContent += '\tWalletType.arbitrum,\n';
   }
 
   if (hasBitcoinCash) {

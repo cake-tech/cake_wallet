@@ -60,6 +60,7 @@
   "approve": "ﺪﻤﺘﻌﻳ",
   "approve_request": "الموافقة على الطلب",
   "approve_tokens": "الموافقة على الرموز",
+  "arbiscan_history": "تاريخ أربيسكان",
   "arrive_in_this_address": "سيصل ${currency} ${tag}إلى هذا العنوان",
   "ascending": "تصاعدي",
   "ask_each_time": "اسأل في كل مرة",

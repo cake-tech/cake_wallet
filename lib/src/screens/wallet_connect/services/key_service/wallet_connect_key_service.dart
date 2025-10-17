@@ -1,3 +1,4 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -26,6 +27,8 @@ class KeyServiceImpl implements WalletConnectKeyService {
         return polygon!.getPrivateKey(wallet);
       case WalletType.base:
         return base!.getPrivateKey(wallet);
+      case WalletType.arbitrum:
+        return arbitrum!.getPrivateKey(wallet);
       case WalletType.solana:
         return solana!.getPrivateKey(wallet);
       default:
@@ -41,6 +44,8 @@ class KeyServiceImpl implements WalletConnectKeyService {
         return polygon!.getPublicKey(wallet);
       case WalletType.base:
         return base!.getPublicKey(wallet);
+      case WalletType.arbitrum:
+        return arbitrum!.getPublicKey(wallet);
       case WalletType.solana:
         return solana!.getPublicKey(wallet);
       default:
