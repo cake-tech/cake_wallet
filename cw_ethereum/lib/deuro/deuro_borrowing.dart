@@ -29,14 +29,16 @@ class DEuroBorrowing extends DEuroBase {
           .allowance(walletAddress, _mintingGateway.self.address);
 
   Future<List<Map<String, dynamic>>> getPositionsOfAddress() async {
+    final address = walletAddress.hex.toLowerCase();
     final result = await ProxyWrapper().get(clearnetUri: Uri.parse(_positionOwnersEndpoint));
 
     if (result.statusCode != 200) throw Exception("Unable to load dEuro Positions");
     final data = jsonDecode(result.body) as Map<String, dynamic>;
 
-    if ((data["owners"] as List).contains(walletAddress.hex.toLowerCase())) {
-      return (data["map"][walletAddress.hex.toLowerCase()] as List)
+    if ((data["owners"] as List).contains(address)) {
+      return (data["map"][address] as List)
           .map((e) => e as Map<String, dynamic>)
+          .where((e) => e["closed"] == false)
           .toList();
     }
 
@@ -50,7 +52,7 @@ class DEuroBorrowing extends DEuroBase {
     final data = jsonDecode(reqResult.body) as Map<String, dynamic>;
 
     final result = <Map<String, dynamic>>[];
-    for (final entry_ in (data["map"] as Map<String, dynamic>).values){
+    for (final entry_ in (data["map"] as Map<String, dynamic>).values) {
       final entry = entry_ as Map<String, dynamic>;
       if (entry["isOriginal"] == true) {
         result.add(entry);
@@ -112,7 +114,7 @@ class DEuroBorrowing extends DEuroBase {
       );
     } catch (e) {
       if (e.toString().contains('insufficient funds for gas')) {
-      final ethBalance = await wallet.getWeb3Client()!.getBalance(walletAddress);
+        final ethBalance = await wallet.getWeb3Client()!.getBalance(walletAddress);
         throw InsufficientGasFeeException(currentBalance: ethBalance.getInWei);
       }
       rethrow;
