@@ -706,7 +706,7 @@
   "restore_bitcoin_title_from_keys": "กู้จาก WIF",
   "restore_description_from_backup": "คุณสามารถกู้แอพ Cake Wallet ทั้งหมดจากไฟล์สำรองข้อมูลของคุณ",
   "restore_description_from_cupcake": "เชื่อมโยงกับแอพที่มี Gapped Air-Gapped ของเราติดตั้งบนโทรศัพท์เครื่องที่สอง",
-  "restore_description_from_hardware_wallet": "กู้คืนจากกระเป๋าเงินฮาร์ดแวร์บัญชีแยกประเภท",
+  "restore_description_from_hardware_wallet": "เชื่อมโยงอุปกรณ์กระเป๋าเงินฮาร์ดแวร์ของคุณจากผู้ผลิตหลายราย",
   "restore_description_from_keys": "กู้กระเป๋าของคุณจากการกดปุ่มที่สร้างขึ้นจาก private keys ของคุณที่บันทึกไว้",
   "restore_description_from_seed": "กู้กระเป๋าของคุณจากรหัสผสมของ 25 คำหรือ 13 คำ",
   "restore_description_from_seed_keys": "เรียกกระเป๋าของคุณกลับมาจาก seed/keys ที่คุณได้บันทึกไว้ในที่ปลอดภัย",
