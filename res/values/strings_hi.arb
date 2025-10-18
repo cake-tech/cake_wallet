@@ -708,7 +708,7 @@
   "restore_bitcoin_title_from_keys": "WIF से पुनर्स्थापित करें",
   "restore_description_from_backup": "आप से पूरे केक वॉलेट एप्लिकेशन को पुनर्स्थापित कर सकते हैं आपकी बैक-अप फ़ाइल",
   "restore_description_from_cupcake": "एक दूसरे फोन पर इंस्टॉल किए गए हमारे साथी एयर-गपड़ी ऐप के साथ लिंक।",
-  "restore_description_from_hardware_wallet": "एक लेजर हार्डवेयर वॉलेट से पुनर्स्थापित करें",
+  "restore_description_from_hardware_wallet": "अपने हार्डवेयर वॉलेट डिवाइस को विभिन्न निर्माताओं से लिंक करें।",
   "restore_description_from_keys": "अपने वॉलेट को जेनरेट से पुनर्स्थापित करें आपकी निजी कुंजी से कीस्ट्रोक्स सहेजे गए",
   "restore_description_from_seed": "या तो 25 शब्द से अपने वॉलेट को पुनर्स्थापित करें या 13 शब्द संयोजन कोड",
   "restore_description_from_seed_keys": "अपने बटुए को बीज से वापस लें/वे कुंजियाँ जिन्हें आपने सुरक्षित स्थान पर सहेजा है",

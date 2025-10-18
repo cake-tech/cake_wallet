@@ -706,7 +706,7 @@
   "restore_bitcoin_title_from_keys": "WIF မှ ပြန်လည်ရယူပါ။",
   "restore_description_from_backup": "သင့်အရန်ဖိုင်မှ Cake Wallet အက်ပ်တစ်ခုလုံးကို သင်ပြန်လည်ရယူနိုင်သည်။",
   "restore_description_from_cupcake": "ဒုတိယဖုန်းတွင်တပ်ဆင်ထားသောကျွန်ုပ်တို့၏အဖော် Air-Gensess App နှင့်ချိတ်ဆက်ပါ။",
-  "restore_description_from_hardware_wallet": "Ledger ဟာ့ဒ်ဝဲပိုက်ဆံအိတ်မှ Restore",
+  "restore_description_from_hardware_wallet": "သင်၏ hardware ပိုက်ဆံအိတ်စက်ကိုထုတ်လုပ်သူအမျိုးမျိုးမှချိတ်ဆက်ပါ။",
   "restore_description_from_keys": "သင့်ကိုယ်ပိုင်သော့များမှ သိမ်းဆည်းထားသော ထုတ်ပေးထားသော သော့ချက်များမှ သင့်ပိုက်ဆံအိတ်ကို ပြန်လည်ရယူပါ။",
   "restore_description_from_seed": "25 စကားလုံး သို့မဟုတ် 13 စကားလုံးပေါင်းစပ်ကုဒ်မှ သင့်ပိုက်ဆံအိတ်ကို ပြန်လည်ရယူပါ။",
   "restore_description_from_seed_keys": "သင့်ပိုက်ဆံအိတ်ကို လုံခြုံသောနေရာတွင် သိမ်းဆည်းထားသော မျိုးစေ့/သော့များမှ ပြန်လည်ရယူပါ။",

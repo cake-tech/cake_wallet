@@ -706,7 +706,7 @@
   "restore_bitcoin_title_from_keys": "WIF'den geri yükle",
   "restore_description_from_backup": "Yedek dosyandan tüm Cake Wallet uygulamasını geri döndürebilirsin",
   "restore_description_from_cupcake": "İkinci bir telefona yüklü eşlik eden hava kaplı uygulamamızla bağlantı kurun.",
-  "restore_description_from_hardware_wallet": "Bir defter donanım cüzdanından geri yükleyin",
+  "restore_description_from_hardware_wallet": "Çeşitli üreticilerin donanım cüzdanı cihazınızı bağlayın.",
   "restore_description_from_keys": "Cüzdanınızı özel anahtarlarınızdan kaydedilen oluşturulmuş tuş vuruşlarından geri yükleyin",
   "restore_description_from_seed": "Cüzdanınızı 25 veya 13 kelimelik kombinasyon kodundan geri döndürün",
   "restore_description_from_seed_keys": "Güvenli bir yere kaydettiğin tohumdan/anahtarlardan cüzdanını geri döndür",

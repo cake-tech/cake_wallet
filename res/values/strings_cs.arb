@@ -706,7 +706,7 @@
   "restore_bitcoin_title_from_keys": "Obnovit z WIF",
   "restore_description_from_backup": "Můžete obnovit celou Cake Wallet aplikaci ze souboru se zálohou",
   "restore_description_from_cupcake": "Odkaz na naši doprovodnou aplikaci Air-mezerou nainstalovanou na druhém telefonu.",
-  "restore_description_from_hardware_wallet": "Obnovit z peněženky hardwaru knihy",
+  "restore_description_from_hardware_wallet": "Propojte své hardwarové peněženky od různých výrobců.",
   "restore_description_from_keys": "Obnovte svou peněženku pomocí generovaných stisků kláves uložených z vašich soukromých klíčů",
   "restore_description_from_seed": "Obnovte svou peněženku pomocí kombinace 25, nebo 13 slov",
   "restore_description_from_seed_keys": "Obnovte svou peněženku ze seedu/klíčů, které jste si uložili na bezpečném místě",
