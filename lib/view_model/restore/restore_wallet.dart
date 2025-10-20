@@ -52,9 +52,13 @@ class RestoredWallet {
     } catch (e) {
       // fine, we don't care, it is only for monero anyway
     }
+    if (json['ltub'] != null) {
+      json['xpub'] = convertLtubToXpub(json['ltub'] as String);
+    }
     if (json['zpub'] != null) {
       json['xpub'] = convertZpubToXpub(json['zpub'] as String);
     }
+    json['xpub'] = convertAnyToXpub(json['xpub'] as String);
     json['view_key'] ??= json['xpub'];
     final height = json['height'] as String?;
     return RestoredWallet(

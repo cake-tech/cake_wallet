@@ -521,7 +521,8 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
         }
       },
       onViewKeyEntered: (bool entered) {
-        if (widget.walletRestoreViewModel.onlyViewKeyRestore) {
+        if (widget.walletRestoreViewModel.onlyViewKeyRestore ||
+        walletRestoreViewModel.type == WalletType.litecoin) {
           walletRestoreViewModel.isButtonEnabled = entered;
         }
       },
