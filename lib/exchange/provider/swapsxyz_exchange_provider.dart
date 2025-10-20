@@ -282,7 +282,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         'srcToken': srcToken,
         'dstChainId': '${dstChain.chainId}',
         'dstToken': dstToken,
-        'slippage': '100',
+        'slippage': '300',
         'swapDirection':
             isFixedRateMode ? 'exact-amount-out' : 'exact-amount-in',
         'amount': formattedAmount,
