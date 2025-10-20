@@ -43,16 +43,16 @@ class SelectDeviceManufacturerPage extends BasePage {
           ),
           hardwareWalletType: HardwareWalletType.ledger,
         ),
-        if (Platform.isAndroid) ...[
-          _DeviceManufacturer(
-            image: SvgPicture.asset(
-              'assets/images/hardware_wallet/trezor_man.svg',
-              height: 25,
-              colorFilter: _colorFilter,
-            ),
-            hardwareWalletType: HardwareWalletType.trezor,
-            tag: S.current.new_tag,
+        _DeviceManufacturer(
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/trezor_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
           ),
+          hardwareWalletType: HardwareWalletType.trezor,
+          tag: S.current.new_tag,
+        ),
+        if (Platform.isAndroid) ...[
           _DeviceManufacturer(
             image: SvgPicture.asset(
               'assets/images/hardware_wallet/bitbox_man.svg',
