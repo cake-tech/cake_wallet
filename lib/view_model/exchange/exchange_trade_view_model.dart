@@ -114,6 +114,8 @@ abstract class ExchangeTradeViewModelBase with Store {
       (wallet.type == WalletType.ethereum &&
           wallet.currency != trade.from ||
           (wallet.type == WalletType.polygon &&
+              wallet.currency != trade.from) ||
+          (wallet.type == WalletType.base &&
               wallet.currency != trade.from));
 
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
