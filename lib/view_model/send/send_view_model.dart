@@ -1144,6 +1144,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       needsApproval = await polygon!.isApprovalRequired(
         wallet, tokenContract, spender, requiredAmount,
       );
+    } else if (walletType == WalletType.base) {
+      needsApproval = await base!.isApprovalRequired(
+        wallet, tokenContract, spender, requiredAmount,
+      );
     }
 
     if (!needsApproval) return null;
@@ -1167,6 +1171,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     } else if (walletType == WalletType.polygon) {
       final priority = _settingsStore.priority[WalletType.polygon]!;
       return await polygon!.createTokenApproval(
+        wallet, requiredAmount, spender, erc20Token, priority,
+      );
+    } else if (walletType == WalletType.base) {
+      final priority = _settingsStore.priority[WalletType.base]!;
+      return await base!.createTokenApproval(
         wallet, requiredAmount, spender, erc20Token, priority,
       );
     }
