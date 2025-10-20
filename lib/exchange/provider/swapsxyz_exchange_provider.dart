@@ -750,7 +750,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       'ADA' => 'CARDANO',
       'KAS' => 'KASPA',
       'TON' => 'TONCOIN',
-      'BCH' => 'BiTCOIN CASH',
+      'BCH' => 'BITCOIN CASH',
       _ => network.toUpperCase(),
     };
   }

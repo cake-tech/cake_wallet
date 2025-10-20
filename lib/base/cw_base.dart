@@ -190,6 +190,10 @@ class CWBase extends Base {
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
+  Future<bool> isApprovalRequired(WalletBase wallet, String tokenContract,String spender, BigInt requiredAmount) =>
+      (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
+
+  @override
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
     BigInt amount,
@@ -204,6 +208,12 @@ class CWBase extends Base {
         priority as EVMChainTransactionPriority,
         "BASE",
       );
+
+  @override
+  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to, String dataHex, BigInt valueWei,
+      TransactionPriority priority) =>
+      (wallet as EVMChainWallet).createCallDataTransaction(to, dataHex, valueWei, priority as EVMChainTransactionPriority);
+
 
   @override
   void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {

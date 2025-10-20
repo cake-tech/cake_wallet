@@ -630,6 +630,7 @@ abstract class EVMChainWalletBase
 
     final nativeCurrency = switch (_client.chainId) {
       137 => CryptoCurrency.maticpoly,
+      8453 => CryptoCurrency.baseEth,
       _   => CryptoCurrency.eth,
     };
 
