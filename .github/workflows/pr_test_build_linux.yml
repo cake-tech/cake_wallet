@@ -187,6 +187,19 @@ jobs:
             pushd torch_dart
               tar -xzf ../torch_dart.tar.gz
             popd
+            rm ./torch_dart.tar.gz
+          popd
+
+      - name: Fetch prebuilt Reown
+        run: |
+          set -x -e
+          pushd scripts
+            wget https://github.com/cake-tech/reown_flutter/releases/download/v0.0.4/reown_flutter-v0.0.4.tar.gz -O reown_flutter.tar.gz
+            mkdir reown_flutter
+            pushd reown_flutter
+              tar -xzf ../reown_flutter.tar.gz
+            popd
+            rm ./reown_flutter.tar.gz
           popd
 
       - name: Execute Build and Setup Commands
@@ -210,7 +223,7 @@ jobs:
         run: |
           set -x -e
           pushd scripts
-            ./build_bitbox_flutter.sh --dont-install
+            ./build_bitbox_flutter.sh
           popd
 
       - name: Install Flutter dependencies
@@ -223,7 +236,7 @@ jobs:
           export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
           echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
           pushd scripts/android
-            ./build_mwebd.sh --dont-install
+            ./build_mwebd.sh
           popd
 
       - name: Build generated code

@@ -257,7 +257,7 @@ jobs:
           echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
           pushd scripts/android
             gomobile init;
-            ./build_mwebd.sh --dont-install
+            ./build_mwebd.sh
           popd
 
       - name: Build Decred
