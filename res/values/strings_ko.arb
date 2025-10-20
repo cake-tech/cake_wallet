@@ -707,7 +707,7 @@
   "restore_bitcoin_title_from_keys": "WIF에서 복구",
   "restore_description_from_backup": "백업 파일에서 전체 Cake Wallet 앱을 복구할 수 있습니다",
   "restore_description_from_cupcake": "두 번째 전화에 설치된 동반자 에어 갭 앱과 링크하십시오.",
-  "restore_description_from_hardware_wallet": "Ledger 하드웨어 지갑에서 복구",
+  "restore_description_from_hardware_wallet": "다양한 제조업체의 하드웨어 지갑 장치를 연결하세요.",
   "restore_description_from_keys": "개인 키에서 저장된 키 입력으로 지갑 복구",
   "restore_description_from_seed": "25단어 또는 13단어 조합 코드로 지갑 복구",
   "restore_description_from_seed_keys": "안전한 장소에 저장한 시드/키로 지갑 복구",

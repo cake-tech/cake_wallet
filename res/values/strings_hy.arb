@@ -705,7 +705,7 @@
   "restore_bitcoin_title_from_keys": "Վերականգնել WIF-ից",
   "restore_description_from_backup": "Դուք կարող եք վերականգնել ամբողջ Cake Wallet հավելվածը ձեր կրկնօրինակ ֆայլից",
   "restore_description_from_cupcake": "Հղում մեր ուղեկից օդային բացված ծրագրի հետ, տեղադրված երկրորդ հեռախոսով:",
-  "restore_description_from_hardware_wallet": "Վերականգնեք Ledger հարդվերային դրամապանակից",
+  "restore_description_from_hardware_wallet": "Ձեր ապարատային դրամապանակի սարքը կապեք մի շարք արտադրողներից:",
   "restore_description_from_keys": "Վերականգնեք ձեր դրամապանակը ձեր գախտնի բանալիների հիման վրա ստեղծված մուտքագրումներից",
   "restore_description_from_seed": "Վերականգնեք ձեր դրամապպանակը 25 բառերի կամ 13 բառերի համադրությամբ",
   "restore_description_from_seed_keys": "Վերականգնեք ձեր դրամապանակը սերմից/բանալիներից, որը դուք պահպանել եք ապահով վայրում",
