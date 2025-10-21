@@ -160,12 +160,13 @@ late RouteSettings currentRouteSettings;
 
 Route<T> handleRouteWithPlatformAwareness<T>(
   Widget Function(BuildContext) builder, {
+      RouteSettings? settings,
   bool fullscreenDialog = false,
 }) {
   if (Platform.isIOS) {
-    return CupertinoPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return CupertinoPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog, settings: settings);
   } else {
-    return MaterialPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return MaterialPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog, settings: settings);
   }
 }
 
@@ -412,6 +413,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: initialPaymentRequest,
           param2: coinTypeToSpendFrom,
         ),
+        settings: settings
       );
 
     case Routes.sendTemplate:
@@ -419,7 +421,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
 
     case Routes.receive:
-      return CupertinoPageRoute<void>(builder: (context) => getIt.get<ReceivePage>());
+      return CupertinoPageRoute<void>(builder: (context) => getIt.get<ReceivePage>(), settings: settings);
 
     case Routes.addressPage:
       return handleRouteWithPlatformAwareness(

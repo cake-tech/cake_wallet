@@ -57,6 +57,7 @@ import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:quick_actions/quick_actions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
 import 'package:logging/logging.dart';
@@ -67,6 +68,7 @@ import 'package:trezor_connect/trezor_connect.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
+final quickActionsStream = StreamController<Uri?>.broadcast();
 
 Future<void> main({Key? topLevelKey}) async {
   await runAppWithZone(topLevelKey: topLevelKey);
@@ -77,6 +79,43 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    final Completer<String?> initialShortcutCompleter = Completer<String?>();
+
+    const QuickActions quickActions = QuickActions();
+
+    quickActions.initialize((String shortcutType) {
+      // Complete the completer only once (for cold starts)
+      if (!initialShortcutCompleter.isCompleted) {
+        initialShortcutCompleter.complete(shortcutType);
+      }
+
+      // Convert the shortcut type to a URI and add it to the stream
+      final uri = Uri.parse('cakewallet://quickaction/$shortcutType');
+      quickActionsStream.sink.add(uri);
+    });
+
+    quickActions.setShortcutItems(<ShortcutItem>[
+      const ShortcutItem(
+          type: 'send',
+          icon: 'send',
+          localizedTitle: 'Send',
+          localizedSubtitle: 'Send funds'),
+      const ShortcutItem(
+          type: 'receive',
+          icon: 'receive',
+          localizedTitle: 'Receive',
+          localizedSubtitle: 'Receive funds')
+    ]);
+
+    // Fallback in case the initial shortcut is not received (normal cold start)
+    Future<void>.delayed(const Duration(milliseconds: 500), () {
+      if (!initialShortcutCompleter.isCompleted) {
+        initialShortcutCompleter.complete(null);
+      }
+    });
+
+    final initialQuickAction = await initialShortcutCompleter.future;
     FlutterError.onError = ExceptionHandler.onError;
 
     /// A callback that is invoked when an unhandled error occurs in the root
@@ -114,11 +153,11 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       runApp(
         DefaultAssetBundle(
           bundle: TestAssetBundle(),
-          child: App(key: topLevelKey),
+          child: App(key: topLevelKey, initialQuickAction:initialQuickAction,quickActionsStream: quickActionsStream.stream),
         ),
       );
     } else {
-      runApp(App(key: topLevelKey));
+      runApp(App(key: topLevelKey, initialQuickAction: initialQuickAction, quickActionsStream: quickActionsStream.stream));
     }
 
     isAppRunning = true;
@@ -334,9 +373,11 @@ Future<void> initialSetup({
 }
 
 class App extends StatefulWidget {
-  App({this.key});
+  App({this.key, this.initialQuickAction, required this.quickActionsStream});
 
   final Key? key;
+  final String? initialQuickAction;
+  final Stream<Uri?> quickActionsStream;
   @override
   AppState createState() => AppState();
 }
@@ -367,9 +408,13 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             statusBarBrightness: statusBarBrightness,
             statusBarIconBrightness: statusBarIconBrightness));
 
+        final appRouteObserver = AppRouteObserver();
+
         return Root(
           key: widget.key ?? rootKey,
           appStore: appStore,
+          initialQuickAction: widget.initialQuickAction,
+          quickActionsStream: widget.quickActionsStream,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
@@ -380,7 +425,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           child: ThemeProvider(
             themeStore: appStore.themeStore,
             materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(
-              navigatorObservers: [routeObserver],
+              navigatorObservers: [routeObserver, appRouteObserver],
               navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
               theme: theme,
@@ -503,6 +548,26 @@ Future<void> backgroundSync() async {
       await FlutterDaemon().unmarkBackgroundSync();
     } else {
       printV("Not unmarking background sync");
+    }
+  }
+}
+
+class AppRouteObserver extends RouteObserver<PageRoute<dynamic>> {
+  final AppStore appStore = getIt.get<AppStore>();
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    if (route is PageRoute) {
+      appStore.currentRouteName = route.settings.name;
+    }
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    if (previousRoute is PageRoute) {
+      appStore.currentRouteName = previousRoute.settings.name;
     }
   }
 }

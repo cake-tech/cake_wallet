@@ -36,6 +36,8 @@ class Root extends StatefulWidget {
     required this.tradeMonitor,
     required this.nodeSwitchingService,
     required this.trezorConnect,
+    this.initialQuickAction,
+    required this.quickActionsStream,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
@@ -47,6 +49,8 @@ class Root extends StatefulWidget {
   final TradeMonitor tradeMonitor;
   final NodeSwitchingService nodeSwitchingService;
   final TrezorConnect trezorConnect;
+  final String? initialQuickAction;
+  final Stream<Uri?> quickActionsStream;
 
   @override
   RootState createState() => RootState();
@@ -103,7 +107,18 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         handleDeepLinking(uri);
       });
 
+      // listen for quick actions
+      widget.quickActionsStream.listen((Uri? uri) {
+        handleDeepLinking(uri);
+      });
+
       handleDeepLinking(await getInitialUri());
+
+      if (widget.initialQuickAction != null) {
+        final uri = Uri.parse('cakewallet://quickaction/${widget.initialQuickAction}');
+        handleDeepLinking(uri);
+      }
+
     } catch (e) {
       printV(e);
     }

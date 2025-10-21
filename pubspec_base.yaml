@@ -152,6 +152,7 @@ dependencies:
       ref: b48a9defddce036048bae02e2069ebcbd6824afc
   torch_dart:
     path: ./scripts/torch_dart
+  quick_actions: ^1.1.0
 
 dev_dependencies:
   flutter_test:
