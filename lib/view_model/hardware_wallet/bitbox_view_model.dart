@@ -82,7 +82,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   bool get isConnected => false;
 
   @override
-  Future<HardwareWalletService> getHardwareWalletService(WalletType type) {
+  HardwareWalletService getHardwareWalletService(WalletType type) {
     switch (type) {
       case WalletType.bitcoin:
         return bitcoin!.getBitboxHardwareWalletService(bitboxManager, true);

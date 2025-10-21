@@ -534,13 +534,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
     (wallet as ElectrumWallet).hardwareWalletService = service;
-  }
-
-  @override
-  Future<void> setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) async {
-    await (wallet as ElectrumWallet).setLedgerConnection(connection);
   }
 
   @override

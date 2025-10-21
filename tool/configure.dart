@@ -253,9 +253,9 @@ abstract class Bitcoin {
   Future<void> updateFeeRates(Object wallet);
   int getMaxCustomFeeRate(Object wallet);
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
-  Future<HardwareWalletService> getLedgerHardwareWalletService(ledger.LedgerConnection connection, bool isBitcoin);
-  Future<HardwareWalletService> getBitboxHardwareWalletService(bitbox.BitboxManager manager, bool isBitcoin);
-  Future<HardwareWalletService> getTrezorHardwareWalletService(trezor.TrezorConnect connect, bool isBitcoin);
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection, bool isBitcoin);
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager, bool isBitcoin);
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect, bool isBitcoin);
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
   bool txIsReceivedSilentPayment(TransactionInfo txInfo);
   bool txIsMweb(TransactionInfo txInfo);
@@ -790,10 +790,9 @@ abstract class Ethereum {
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority);
   
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
-  Future<void> setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
-  Future<HardwareWalletService> getLedgerHardwareWalletService(ledger.LedgerConnection connection);
-  Future<HardwareWalletService> getBitboxHardwareWalletService(bitbox.BitboxManager manager);
-  Future<HardwareWalletService> getTrezorHardwareWalletService(trezor.TrezorConnect connect);
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
   List<String> getDefaultTokenContractAddresses();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
 }
@@ -912,9 +911,9 @@ abstract class Polygon {
   String getTokenAddress(CryptoCurrency asset);
   
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
-  Future<HardwareWalletService> getLedgerHardwareWalletService(ledger.LedgerConnection connection);
-  Future<HardwareWalletService> getBitboxHardwareWalletService(bitbox.BitboxManager manager);
-  Future<HardwareWalletService> getTrezorHardwareWalletService(trezor.TrezorConnect connect);
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
   List<String> getDefaultTokenContractAddresses();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
 }
@@ -1608,7 +1607,7 @@ abstract class Base {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
 
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
   List<String> getDefaultTokenContractAddresses();

@@ -196,7 +196,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
   }
 
   @override
-  Future<HardwareWalletService> getHardwareWalletService(WalletType type) {
+  HardwareWalletService getHardwareWalletService(WalletType type) {
     switch (type) {
       case WalletType.bitcoin:
         return bitcoin!.getLedgerHardwareWalletService(connection, true);

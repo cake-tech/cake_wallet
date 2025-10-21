@@ -20,7 +20,7 @@ abstract class HardwareWalletViewModel {
 
   Future<bool> connectDevice(HardwareWalletDevice device, WalletType type);
 
-  Future<HardwareWalletService> getHardwareWalletService(WalletType type);
+  HardwareWalletService getHardwareWalletService(WalletType type);
 
   Future<void> initWallet(WalletBase wallet);
 

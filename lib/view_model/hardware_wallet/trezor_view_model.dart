@@ -50,7 +50,7 @@ abstract class TrezorViewModelBase extends HardwareWalletViewModel with Store {
   bool get isConnected => true;
 
   @override
-  Future<HardwareWalletService> getHardwareWalletService(WalletType type) {
+  HardwareWalletService getHardwareWalletService(WalletType type) {
     switch (type) {
       case WalletType.bitcoin:
         return bitcoin!.getTrezorHardwareWalletService(trezorConnect, true);
