@@ -1,6 +1,7 @@
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/tron_token.dart';
@@ -14,7 +15,7 @@ class TokenUtilities {
     Box<WalletInfo> walletInfoSource,
   ) async {
     final evmWallets = walletInfoSource.values.where(
-      (w) =>  isEVMCompatibleChain(w.type),
+      (w) => isEVMCompatibleChain(w.type),
     );
 
     final seen = <String>{};
@@ -225,5 +226,51 @@ class TokenUtilities {
     return token.title.toLowerCase() == currency.title.toLowerCase() &&
         (token.tag?.toLowerCase() == currency.tag?.toLowerCase() ||
             (token.tag == null && currency.tag == null));
+  }
+
+  static Future<List<CryptoCurrency>> getAvailableTokensForNetwork(
+    WalletType network,
+    Box<WalletInfo> walletInfoSource,
+  ) async {
+    final baseCurrency = walletTypeToCryptoCurrency(network);
+
+    final userTokens = await _getUserTokensForNetwork(baseCurrency, walletInfoSource);
+
+    final allTokens = <CryptoCurrency>[];
+    final addedAddresses = <String>{};
+
+    allTokens.add(baseCurrency);
+
+    for (final token in userTokens) {
+      if (token is Erc20Token) {
+        final address = token.contractAddress.toLowerCase();
+        if (!addedAddresses.contains(address)) {
+          allTokens.add(token);
+          addedAddresses.add(address);
+        }
+      } else {
+        final exists = allTokens.any((existing) =>
+            existing.title.toUpperCase() == token.title.toUpperCase() &&
+            (existing.tag?.toUpperCase() == token.tag?.toUpperCase() || existing.tag == null));
+        if (!exists) {
+          allTokens.add(token);
+        }
+      }
+    }
+
+    return allTokens;
+  }
+
+  static Future<List<CryptoCurrency>> _getUserTokensForNetwork(
+    CryptoCurrency baseCurrency,
+    Box<WalletInfo> walletInfoSource,
+  ) async {
+    final tokens = await TokenUtilities.loadAllUniqueEvmTokens(walletInfoSource);
+
+    return tokens.where((token) {
+      if (baseCurrency == CryptoCurrency.eth) return token.tag == baseCurrency.title;
+
+      return token.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase();
+    }).toList();
   }
 }

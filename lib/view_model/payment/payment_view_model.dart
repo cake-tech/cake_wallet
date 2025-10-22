@@ -44,7 +44,9 @@ abstract class PaymentViewModelBase with Store {
         return PaymentFlowResult.incompatible('Unable to detect address type');
       }
 
-      detectedWalletType = detectionResult.detectedWalletType;
+      if (_isEVMAddress(detectionResult.address)) {
+        return PaymentFlowResult.evmNetworkSelection(detectionResult);
+      }
 
       // Check if current wallet is compatible
       final currentWallet = appStore.wallet;
@@ -70,6 +72,10 @@ abstract class PaymentViewModelBase with Store {
     }
   }
 
+  bool _isEVMAddress(String address) {
+    return RegExp(r'^0x[a-fA-F0-9]{40}$').hasMatch(address);
+  }
+
   List<WalletInfo> getWalletsByType(WalletType walletType) {
     return walletInfoSource.values.where((wallet) => wallet.type == walletType).toList();
   }
@@ -92,13 +98,30 @@ class PaymentFlowResult {
     this.addressDetectionResult,
   });
 
+  /// EVM address detected - needs network selection
+  /// We'll also take note of the number of compatible wallets for EVM ecosystem
+  factory PaymentFlowResult.evmNetworkSelection(
+    AddressDetectionResult addressDetectionResult, {
+    List<WalletInfo>? compatibleWallets,
+    WalletInfo? wallet,
+  }) =>
+      PaymentFlowResult._(
+        type: PaymentFlowType.evmNetworkSelection,
+        addressDetectionResult: addressDetectionResult,
+        walletType: addressDetectionResult.detectedWalletType,
+        wallets: compatibleWallets ?? [],
+        wallet: wallet,
+      );
+
   /// Current wallet is compatible
   factory PaymentFlowResult.currentWalletCompatible() =>
       PaymentFlowResult._(type: PaymentFlowType.currentWalletCompatible);
 
   /// Single compatible wallet available
   factory PaymentFlowResult.singleWallet(
-          WalletInfo wallet, AddressDetectionResult addressDetectionResult) =>
+    WalletInfo wallet,
+    AddressDetectionResult addressDetectionResult,
+  ) =>
       PaymentFlowResult._(
           type: PaymentFlowType.singleWallet,
           wallet: wallet,
@@ -136,6 +159,7 @@ enum PaymentFlowType {
   singleWallet,
   multipleWallets,
   noWallets,
+  evmNetworkSelection,
   error,
   incompatible,
 }

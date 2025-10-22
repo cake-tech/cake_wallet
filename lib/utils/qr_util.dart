@@ -36,3 +36,22 @@ String getQrImage(WalletType type) {
       return 'assets/images/qr-cake.png';
   }
 }
+
+String getChainMonoImage(WalletType type) {
+  switch (type) {
+    case WalletType.ethereum:
+      return 'assets/images/eth_chain_mono.svg';
+    case WalletType.solana:
+      return 'assets/images/sol_chain_mono.svg';
+    case WalletType.polygon:
+      return 'assets/images/pol_chain_mono.svg';
+    case WalletType.tron:
+      return 'assets/images/trx_chain_mono.svg';
+    case WalletType.zano:
+      return 'assets/images/zano_chain_mono.svg';
+    case WalletType.base:
+      return 'assets/images/base_chain_mono.svg';
+    default:
+      return 'assets/images/eth_chain_mono.svg';
+  }
+}
