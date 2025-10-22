@@ -240,22 +240,6 @@ class CWArbitrum extends Arbitrum {
   }
 
   @override
-  Future<PendingTransaction> createTokenApproval(
-    WalletBase wallet,
-    BigInt amount,
-    String spender,
-    CryptoCurrency token,
-    TransactionPriority priority,
-  ) =>
-      (wallet as EVMChainWallet).createApprovalTransaction(
-        amount,
-        spender,
-        token,
-        priority as EVMChainTransactionPriority,
-        "ARB",
-      );
-
-  @override
   Future<bool> isApprovalRequired(
           WalletBase wallet, String tokenContract, String spender, BigInt requiredAmount) =>
       (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
