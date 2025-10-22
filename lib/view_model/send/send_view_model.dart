@@ -140,9 +140,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
 
-  bool get isEVMWallet => walletType == WalletType.ethereum || walletType == WalletType.polygon ||
-      walletType == WalletType.base;
-
+  bool get isEVMWallet => isEVMCompatibleChain(walletType);
   @action
   void setShowAddressBookPopup(bool value) {
     _settingsStore.showAddressBookPopupEnabled = value;
@@ -516,7 +514,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           });
       }
 
-
       // Swaps.xyz (EVM) path
 
       if (isEVMWallet && trade != null && provider is SwapsXyzExchangeProvider) {
@@ -526,7 +523,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             BigInt.tryParse((trade.routerValue ?? '0').toString()) ?? BigInt.zero;
 
         if (routerTo?.isNotEmpty == true && routerData?.isNotEmpty == true) {
-
           // detect prepared ERC-20 transfer(...) (alt-vm deposit pattern)
           String _selector(String s) =>
               (s.startsWith('0x') && s.length >= 10) ? s.substring(0, 10) : '';
@@ -540,11 +536,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // Optionally prebuild approval (SKIP for prepared transfer)
           final tokenContract = trade.sourceTokenAddress ?? '';
           final requiredAmount = BigInt.tryParse(
-            (trade.sourceTokenAmountRaw ?? '0').replaceAll('n', ''),
-          ) ?? BigInt.zero;
+                (trade.sourceTokenAmountRaw ?? '0').replaceAll('n', ''),
+              ) ??
+              BigInt.zero;
 
           // Only do approval when NOT a prepared transfer, and only if the API hinted we might need it
-          final requiresTokenApproval = (trade.requiresTokenApproval ?? false) && !_isPreparedTransfer;
+          final requiresTokenApproval =
+              (trade.requiresTokenApproval ?? false) && !_isPreparedTransfer;
 
           if (requiresTokenApproval && tokenContract.isNotEmpty && requiredAmount > BigInt.zero) {
             if (walletType == WalletType.ethereum) {
@@ -613,6 +611,28 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               state = ExecutedSuccessfullyState();
               return pendingTransaction; // do NOT fall back to regular flow
             }
+            if (walletType == WalletType.arbitrum) {
+              final priority = _settingsStore.priority[WalletType.arbitrum]!;
+              _pendingApprovalTx = await buildApprovalIfNeeded(
+                spender: routerTo!,
+                tokenContract: tokenContract,
+                requiredAmount: requiredAmount,
+                sourceTokenDecimals: trade.sourceTokenDecimals,
+              );
+
+              // Build the callData tx
+              pendingTransaction = await arbitrum!.createRawCallDataTransaction(
+                wallet,
+                routerTo,
+                routerData,
+                routerValueWei,
+                priority,
+              );
+
+              _isSwapsXYZCallDataTx = true;
+              state = ExecutedSuccessfullyState();
+              return pendingTransaction; // do NOT fall back to regular flow
+            }
           }
 
           // No approval needed (or prepared transfer): send exactly what backend prepared
@@ -643,8 +663,21 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             return pendingTransaction;
           }
           if (walletType == WalletType.base) {
-            final priority = _settingsStore.priority[WalletType.polygon]!;
+            final priority = _settingsStore.priority[WalletType.base]!;
             pendingTransaction = await base!.createRawCallDataTransaction(
+              wallet,
+              routerTo!,
+              routerData,
+              routerValueWei,
+              priority,
+            );
+            _isSwapsXYZCallDataTx = true;
+            state = ExecutedSuccessfullyState();
+            return pendingTransaction;
+          }
+          if (walletType == WalletType.arbitrum) {
+            final priority = _settingsStore.priority[WalletType.arbitrum]!;
+            pendingTransaction = await arbitrum!.createRawCallDataTransaction(
               wallet,
               routerTo!,
               routerData,
@@ -657,7 +690,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           }
         }
       }
-
 
       // Regular flow
 
@@ -1130,7 +1162,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     required BigInt requiredAmount,
     int? sourceTokenDecimals,
   }) async {
-
     // Only EVM chains support ERC20 approvals
     if (!isEVMWallet) return null;
 
@@ -1144,15 +1175,31 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     bool needsApproval = false;
     if (walletType == WalletType.ethereum) {
       needsApproval = await ethereum!.isApprovalRequired(
-        wallet, tokenContract, spender, requiredAmount,
+        wallet,
+        tokenContract,
+        spender,
+        requiredAmount,
       );
     } else if (walletType == WalletType.polygon) {
       needsApproval = await polygon!.isApprovalRequired(
-        wallet, tokenContract, spender, requiredAmount,
+        wallet,
+        tokenContract,
+        spender,
+        requiredAmount,
       );
     } else if (walletType == WalletType.base) {
       needsApproval = await base!.isApprovalRequired(
-        wallet, tokenContract, spender, requiredAmount,
+        wallet,
+        tokenContract,
+        spender,
+        requiredAmount,
+      );
+    } else if (walletType == WalletType.arbitrum) {
+      needsApproval = await arbitrum!.isApprovalRequired(
+        wallet,
+        tokenContract,
+        spender,
+        requiredAmount,
       );
     }
 
@@ -1160,29 +1207,50 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     final erc20Token = wallet.balance.keys.whereType<Erc20Token>().firstWhere(
           (t) => t.contractAddress.toLowerCase() == tokenLc,
-      orElse: () => Erc20Token(
-        name: '',
-        symbol: '',
-        contractAddress: tokenContract,
-        decimal: sourceTokenDecimals ?? 18,
-        enabled: true,
-      ),
-    );
+          orElse: () => Erc20Token(
+            name: '',
+            symbol: '',
+            contractAddress: tokenContract,
+            decimal: sourceTokenDecimals ?? 18,
+            enabled: true,
+          ),
+        );
 
     if (walletType == WalletType.ethereum) {
       final priority = _settingsStore.priority[WalletType.ethereum]!;
       return await ethereum!.createTokenApproval(
-        wallet, requiredAmount, spender, erc20Token, priority,
+        wallet,
+        requiredAmount,
+        spender,
+        erc20Token,
+        priority,
       );
     } else if (walletType == WalletType.polygon) {
       final priority = _settingsStore.priority[WalletType.polygon]!;
       return await polygon!.createTokenApproval(
-        wallet, requiredAmount, spender, erc20Token, priority,
+        wallet,
+        requiredAmount,
+        spender,
+        erc20Token,
+        priority,
       );
     } else if (walletType == WalletType.base) {
       final priority = _settingsStore.priority[WalletType.base]!;
       return await base!.createTokenApproval(
-        wallet, requiredAmount, spender, erc20Token, priority,
+        wallet,
+        requiredAmount,
+        spender,
+        erc20Token,
+        priority,
+      );
+    } else if (walletType == WalletType.arbitrum) {
+      final priority = _settingsStore.priority[WalletType.arbitrum]!;
+      return await arbitrum!.createTokenApproval(
+        wallet,
+        requiredAmount,
+        spender,
+        erc20Token,
+        priority,
       );
     }
 

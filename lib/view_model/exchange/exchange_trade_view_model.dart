@@ -110,14 +110,12 @@ abstract class ExchangeTradeViewModelBase with Store {
   @observable
   bool isSendable;
 
-
-  bool get isSwapsXyzSendingEVMTokenSwap => (_provider is SwapsXyzExchangeProvider) &&
-      (wallet.type == WalletType.ethereum &&
-          wallet.currency != trade.from ||
-          (wallet.type == WalletType.polygon &&
-              wallet.currency != trade.from) ||
-          (wallet.type == WalletType.base &&
-              wallet.currency != trade.from));
+  bool get isSwapsXyzSendingEVMTokenSwap =>
+      (_provider is SwapsXyzExchangeProvider) &&
+      (wallet.type == WalletType.ethereum && wallet.currency != trade.from ||
+          (wallet.type == WalletType.polygon && wallet.currency != trade.from) ||
+          (wallet.type == WalletType.base && wallet.currency != trade.from) ||
+          wallet.type == WalletType.arbitrum && wallet.currency != trade.from);
 
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
       ? '\n\n' + S.current.exchange_extra_info
@@ -204,7 +202,8 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     sendViewModel.selectedCryptoCurrency = selected;
 
-    final pendingTransaction = await sendViewModel.createTransaction(provider: _provider, trade: trade);
+    final pendingTransaction =
+        await sendViewModel.createTransaction(provider: _provider, trade: trade);
 
     if (_provider is SwapsXyzExchangeProvider) {
       final hash = pendingTransaction?.evmTxHashFromRawHex ?? pendingTransaction?.id ?? '';
@@ -338,7 +337,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         wallet.currency == CryptoCurrency.baseEth && tradeFrom?.tag == CryptoCurrency.baseEth.tag;
 
     bool _isArbitrumToken() =>
-        wallet.currency == CryptoCurrency.arbEth && tradeFrom?.tag == CryptoCurrency.arbEth.title;
+        wallet.currency == CryptoCurrency.arbEth && tradeFrom?.tag == CryptoCurrency.arbEth.tag;
 
     bool _isTronToken() =>
         wallet.currency == CryptoCurrency.trx && tradeFrom?.tag == CryptoCurrency.trx.title;
@@ -355,7 +354,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isBaseToken() ||
         _isArbitrumToken();
   }
-  
+
   Future<void> registerSwapsXyzTransaction() async {
     try {
       if (!(_provider is SwapsXyzExchangeProvider)) return;
@@ -371,7 +370,9 @@ abstract class ExchangeTradeViewModelBase with Store {
         return;
       }
 
-      final txHash = sendViewModel.pendingTransaction?.evmTxHashFromRawHex ?? sendViewModel.pendingTransaction?.id ?? '';
+      final txHash = sendViewModel.pendingTransaction?.evmTxHashFromRawHex ??
+          sendViewModel.pendingTransaction?.id ??
+          '';
 
       if (txHash.isEmpty) {
         printV('SwapsXyz: transaction register: skipped (txHash empty)');
@@ -384,7 +385,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         return;
       }
 
-      printV('SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
+      printV(
+          'SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
 
       final registered = await swaps.registerAltVmTx(
         txId: trade.id,

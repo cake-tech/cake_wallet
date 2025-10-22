@@ -238,4 +238,31 @@ class CWArbitrum extends Arbitrum {
       (element) => element.contractAddress.toLowerCase() == contractAddress.toLowerCase(),
     );
   }
+
+  @override
+  Future<PendingTransaction> createTokenApproval(
+    WalletBase wallet,
+    BigInt amount,
+    String spender,
+    CryptoCurrency token,
+    TransactionPriority priority,
+  ) =>
+      (wallet as EVMChainWallet).createApprovalTransaction(
+        amount,
+        spender,
+        token,
+        priority as EVMChainTransactionPriority,
+        "ARB",
+      );
+
+  @override
+  Future<bool> isApprovalRequired(
+          WalletBase wallet, String tokenContract, String spender, BigInt requiredAmount) =>
+      (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
+
+  @override
+  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to,
+          String dataHex, BigInt valueWei, TransactionPriority priority) =>
+      (wallet as EVMChainWallet).createCallDataTransaction(
+          to, dataHex, valueWei, priority as EVMChainTransactionPriority);
 }

@@ -1498,9 +1498,7 @@ abstract class DogeCoin {
   final output = '$dogecoinCommonHeaders\n' +
       (hasImplementation ? '$dogecoinCWHeaders\n' : '\n') +
       (hasImplementation ? '$dogecoinCwPart\n\n' : '\n') +
-      (hasImplementation
-          ? dogecoinCWDefinition
-          : dogecoinEmptyDefinition) +
+      (hasImplementation ? dogecoinCWDefinition : dogecoinEmptyDefinition) +
       '\n' +
       dogecoinContent;
 
@@ -1745,6 +1743,9 @@ abstract class Arbitrum {
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
   List<String> getDefaultTokenContractAddresses();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
+  Future<bool> isApprovalRequired(WalletBase wallet, String tokenContract, String spender, BigInt requiredAmount);
+  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to, String dataHex, BigInt valueWei, TransactionPriority priority);
+
 }
 
   """;

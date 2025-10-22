@@ -600,7 +600,7 @@ abstract class EVMChainWalletBase
       gasFee: estimatedFeesForTransaction,
       priority: _credentials.priority!,
       currency: transactionCurrency,
-      feeCurrency: switch (_client.chainId) { 1 => "ETH", 137 => "POL", 8453 => "ETH", _ => "ETH" },
+      feeCurrency: switch (_client.chainId) { 137 => "POL", _ => "ETH" },
       maxFeePerGas: maxFeePerGasForTransaction,
       exponent: exponent,
       contractAddress:
@@ -613,12 +613,11 @@ abstract class EVMChainWalletBase
   }
 
   Future<PendingTransaction> createCallDataTransaction(
-      String to,
-      String dataHex,
-      BigInt valueWei,
-      EVMChainTransactionPriority priority,
-      ) async {
-
+    String to,
+    String dataHex,
+    BigInt valueWei,
+    EVMChainTransactionPriority priority,
+  ) async {
     // Estimate gas with the SAME call (sender, to, value, data)
     final gas = await calculateActualEstimatedFeeForCreateTransaction(
       amount: valueWei, // native value (usually 0 for ERC20 transfer)
@@ -631,7 +630,8 @@ abstract class EVMChainWalletBase
     final nativeCurrency = switch (_client.chainId) {
       137 => CryptoCurrency.maticpoly,
       8453 => CryptoCurrency.baseEth,
-      _   => CryptoCurrency.eth,
+      42161 => CryptoCurrency.arbEth,
+      _ => CryptoCurrency.eth,
     };
 
     // Fallback for nodes that fail estimate (non-zero)
@@ -654,7 +654,6 @@ abstract class EVMChainWalletBase
       gasPrice: gas.gasPrice,
     );
   }
-
 
   Future<PendingTransaction> createApprovalTransaction(BigInt amount, String spender,
       CryptoCurrency token, EVMChainTransactionPriority priority, String feeCurrency) async {
@@ -839,10 +838,7 @@ abstract class EVMChainWalletBase
   }
 
   Future<bool> isApprovalRequired(
-      String tokenContract,
-      String spender,
-      BigInt requiredAmount) async {
-
+      String tokenContract, String spender, BigInt requiredAmount) async {
     const zero = '0x0000000000000000000000000000000000000000';
     const evmNative = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
@@ -858,9 +854,7 @@ abstract class EVMChainWalletBase
         chainId: _client.chainId,
       );
 
-      final allowance = await erc20.allowance(
-        owner,
-        EthereumAddress.fromHex(spender));
+      final allowance = await erc20.allowance(owner, EthereumAddress.fromHex(spender));
 
       return allowance < requiredAmount;
     } catch (e) {
@@ -994,7 +988,7 @@ abstract class EVMChainWalletBase
   /// PolygonScan for Polygon.
   ///
   /// BaseScan for Base.
-  /// 
+  ///
   /// ArbiScan for Arbitrum.
   void updateScanProviderUsageState(bool isEnabled) {
     if (isEnabled) {
