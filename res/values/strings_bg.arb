@@ -60,6 +60,7 @@
   "approve": "Одобряване",
   "approve_request": "Одобрете искане",
   "approve_tokens": "Одобрете жетоните",
+  "arbiscan_history": "Арбисканска история",
   "arrive_in_this_address": "${currency} ${tag}ще отидат на този адрес",
   "ascending": "Възходящ",
   "ask_each_time": "Питайте всеки път",

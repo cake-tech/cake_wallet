@@ -60,6 +60,7 @@
   "approve": "อนุมัติ",
   "approve_request": "อนุมัติคำขอ",
   "approve_tokens": "อนุมัติโทเค็น",
+  "arbiscan_history": "ประวัติ ArbiScan",
   "arrive_in_this_address": "${currency} ${tag}จะมาถึงที่อยู่นี้",
   "ascending": "จากน้อยไปมาก",
   "ask_each_time": "ถามทุกครั้ง",

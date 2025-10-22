@@ -28,6 +28,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 
 import 'package:cake_wallet/entities/contact_base.dart';
 
@@ -118,6 +119,9 @@ abstract class OutputBase with Store {
           case WalletType.base:
             _amount = base!.formatterBaseParseAmount(_cryptoAmount);
             break;
+          case WalletType.arbitrum:
+            _amount = arbitrum!.formatterArbitrumParseAmount(_cryptoAmount);
+            break;
           case WalletType.wownero:
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
@@ -202,6 +206,10 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.base) {
         return base!.formatterBaseAmountToDouble(amount: BigInt.from(fee));
+      }
+
+      if (_wallet.type == WalletType.arbitrum) {
+        return arbitrum!.formatterArbitrumAmountToDouble(amount: BigInt.from(fee));
       }
 
       if (_wallet.type == WalletType.zano) {
@@ -337,6 +345,7 @@ abstract class OutputBase with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.haven:
