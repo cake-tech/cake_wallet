@@ -705,7 +705,7 @@
   "restore_bitcoin_title_from_keys": "Khôi phục từ WIF",
   "restore_description_from_backup": "Bạn có thể khôi phục toàn bộ ứng dụng Cake Wallet từ tệp sao lưu của bạn",
   "restore_description_from_cupcake": "Liên kết với Ứng dụng Air Air của chúng tôi, được cài đặt trên điện thoại thứ hai.",
-  "restore_description_from_hardware_wallet": "Khôi phục từ ví phần cứng Ledger",
+  "restore_description_from_hardware_wallet": "Liên kết thiết bị ví phần cứng của bạn từ nhiều nhà sản xuất khác nhau.",
   "restore_description_from_keys": "Khôi phục ví của bạn từ các thao tác nhập được lưu từ khóa riêng của bạn",
   "restore_description_from_seed": "Khôi phục ví của bạn từ mã kết hợp 25 từ hoặc 13 từ",
   "restore_description_from_seed_keys": "Khôi phục ví của bạn từ hạt giống/khóa mà bạn đã lưu ở nơi an toàn",

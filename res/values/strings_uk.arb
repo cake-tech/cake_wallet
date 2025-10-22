@@ -708,7 +708,7 @@
   "restore_bitcoin_title_from_keys": "Відновити за допомогою WIF",
   "restore_description_from_backup": "Ви можете відновити Cake Wallet з вашого резервного файлу",
   "restore_description_from_cupcake": "Зв'язок з нашим супутничим додатком, встановленим на другому телефоні.",
-  "restore_description_from_hardware_wallet": "Відновлення з апаратного гаманця",
+  "restore_description_from_hardware_wallet": "Зв’яжіть пристрій свого апаратного гаманця від різних виробників.",
   "restore_description_from_keys": "Ви можете відновити гаманець за допомогою приватних ключів",
   "restore_description_from_seed": "Ви можете відновити гаманець використовуючи 25-ти слівну мнемонічну фразу",
   "restore_description_from_seed_keys": "Ви можете відновити гаманець з мнемонічної фрази/ключів, які ви зберегли раніше",

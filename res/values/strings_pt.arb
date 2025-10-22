@@ -709,7 +709,7 @@
   "restore_bitcoin_title_from_keys": "Restaurar de WIF",
   "restore_description_from_backup": "Você pode restaurar todo o aplicativo Cake Wallet de seu arquivo de backup",
   "restore_description_from_cupcake": "Link para nosso aplicativo Companion Air-Gapped, instalado em um segundo telefone.",
-  "restore_description_from_hardware_wallet": "Restaurar de uma carteira de hardware do Ledger",
+  "restore_description_from_hardware_wallet": "Vincule seu dispositivo de carteira de hardware de vários fabricantes.",
   "restore_description_from_keys": "Restaure sua carteira a partir de suas chaves privadas",
   "restore_description_from_seed": "Restaure sua carteira a partir de semente com 25 palavras ou 13 palavras",
   "restore_description_from_seed_keys": "Restaure a sua carteira a partir de sementes/chaves que você salvou em um local seguro",

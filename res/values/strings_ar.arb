@@ -707,7 +707,7 @@
   "restore_bitcoin_title_from_keys": "استعادة من WIF",
   "restore_description_from_backup": "يمكنك استعادة تطبيق Cake Wallet بالكامل من ملف النسخ الاحتياطي",
   "restore_description_from_cupcake": "ارتباط بتطبيقنا المصاحب للهواء ، مثبتًا على هاتف ثانٍ.",
-  "restore_description_from_hardware_wallet": "استعادة من محفظة أجهزة دفتر الأستاذ",
+  "restore_description_from_hardware_wallet": "قم بربط جهاز المحفظة الخاص بك من مجموعة متنوعة من الشركات المصنعة.",
   "restore_description_from_keys": "قم باستعادة محفظتك من ضغطات المفاتيح المولدة المحفوظة من مفاتيحك الخاصة",
   "restore_description_from_seed": "قم باستعادة محفظتك من الرمز المكون من 25 كلمة أو 13 كلمة",
   "restore_description_from_seed_keys": "استرجع محفظتك من السييد / المفاتيح التي قمت بحفظها في مكان آمن",

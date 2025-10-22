@@ -708,7 +708,7 @@
   "restore_bitcoin_title_from_keys": "Restaurar desde WIF",
   "restore_description_from_backup": "Puede restaurar toda la aplicación Cake Wallet desde ysu archivo de respaldo",
   "restore_description_from_cupcake": "Enlace con nuestra aplicación complementaria de Airpaped, instalada en un segundo teléfono.",
-  "restore_description_from_hardware_wallet": "Restaurar desde una billetera de hardware Ledger",
+  "restore_description_from_hardware_wallet": "Vincula tu dispositivo de billetera de hardware de una variedad de fabricantes.",
   "restore_description_from_keys": "Restaure su billetera de las pulsaciones de teclas generadas guardadas de sus claves privadas",
   "restore_description_from_seed": "Restaure su billetera desde el código de combinación de 25 palabras i de 13 palabras",
   "restore_description_from_seed_keys": "Recupere su billetera de las semillas/claves que ha guardado en un lugar seguro",

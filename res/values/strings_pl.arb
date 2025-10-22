@@ -707,7 +707,7 @@
   "restore_bitcoin_title_from_keys": "Przywróć z klucza prywatnego",
   "restore_description_from_backup": "Możesz przywrócić całą aplikację Cake Wallet z pliku kopii zapasowej",
   "restore_description_from_cupcake": "Połącz z naszą towarzyszącą aplikacją powietrzną, zainstalowaną na drugim telefonie.",
-  "restore_description_from_hardware_wallet": "Przywróć z portfela sprzętowego księgi",
+  "restore_description_from_hardware_wallet": "Połącz swój portfel sprzętowy różnych producentów.",
   "restore_description_from_keys": "Przywróć swój portfel z kluczy prywatnych",
   "restore_description_from_seed": "Przywróć swój portfel z 25 lub 13-słownej frazy seed",
   "restore_description_from_seed_keys": "Odzyskaj swój portfel z frazy seed / kluczy, które zapisałeś w bezpiecznym miejscu",

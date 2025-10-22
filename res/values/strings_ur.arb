@@ -709,7 +709,7 @@
   "restore_bitcoin_title_from_keys": "WIF سے بحال کریں۔",
   "restore_description_from_backup": "آپ اپنی بیک اپ فائل سے پوری کیک والیٹ ایپ کو بحال کر سکتے ہیں۔",
   "restore_description_from_cupcake": "دوسرے فون پر نصب ، ہمارے ساتھی ایئر گیپڈ ایپ کے ساتھ لنک کریں۔",
-  "restore_description_from_hardware_wallet": "لیجر ہارڈ ویئر پرس سے بحال کریں",
+  "restore_description_from_hardware_wallet": "اپنے ہارڈ ویئر پرس ڈیوائس کو متعدد مینوفیکچررز سے لنک کریں۔",
   "restore_description_from_keys": "اپنے بٹوے کو اپنی نجی کلیدوں سے محفوظ کردہ کی اسٹروکس سے بحال کریں۔",
   "restore_description_from_seed": "اپنے بٹوے کو 25 لفظ یا 13 الفاظ کے مجموعہ کوڈ سے بحال کریں۔",
   "restore_description_from_seed_keys": "اپنے بٹوے کو بیج / چابیاں سے واپس حاصل کریں جنہیں آپ نے محفوظ جگہ پر محفوظ کیا ہے۔",

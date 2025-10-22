@@ -1,3 +1,4 @@
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
@@ -173,6 +174,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               textColor: widget.exchangeTradeViewModel.isSendable
                   ? Theme.of(context).colorScheme.onSecondaryContainer
                   : Theme.of(context).colorScheme.onPrimary,
+              isDisabled: widget.exchangeTradeViewModel.isSwapsXyzSendingEVMTokenSwap,
             ),
             SizedBox(height: 16),
             Observer(
@@ -265,6 +267,14 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
         if (state is ExecutedSuccessfullyState) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
+            final trade = widget.exchangeTradeViewModel.trade;
+            final isSwapsXyz = trade.provider == ExchangeProviderDescription.swapsXyz;
+            final isEVMWallet = widget.exchangeTradeViewModel.sendViewModel.isEVMWallet;
+
+            final amountValue = isSwapsXyz && isEVMWallet
+                ? trade.amount
+                : widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted;
+
             if (context.mounted) {
               final result = await showModalBottomSheet<bool>(
                 context: context,
@@ -280,8 +290,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                     currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
                     amount: S.of(bottomSheetContext).send_amount,
-                    amountValue: widget
-                        .exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                    amountValue: amountValue,
                     fiatAmountValue: widget
                         .exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
                     fee:
@@ -298,6 +307,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         Navigator.of(bottomSheetContext).pop(true);
                       }
                       widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
+                      widget.exchangeTradeViewModel.registerSwapsXyzTransaction();
                     },
                   );
                 },

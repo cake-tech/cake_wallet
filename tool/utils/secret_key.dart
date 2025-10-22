@@ -84,6 +84,7 @@ class SecretKey {
     SecretKey('chainflipAffiliateFee', () => ''),
     SecretKey('kryptonimApiKey', () => ''),
     SecretKey('walletGroupSalt', () => hex.encode(encrypt.Key.fromSecureRandom(16).bytes)),
+    SecretKey('swapsXyzApiKey', () => ''),
   ];
 
   static final evmChainsSecrets = [

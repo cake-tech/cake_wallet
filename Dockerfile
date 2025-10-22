@@ -134,6 +134,7 @@ RUN ARCH=$(uname -m) && \
     "platforms;android-33" \
     "platforms;android-34" \
     "platforms;android-35" \
+    "platforms;android-36" \
     "build-tools;33.0.2" \
     "build-tools;33.0.1" \
     "build-tools;33.0.0" \

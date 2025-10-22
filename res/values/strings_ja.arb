@@ -708,7 +708,7 @@
   "restore_bitcoin_title_from_keys": "WIFから復元",
   "restore_description_from_backup": "Cake Walletアプリ全体を復元できますバックアップファイル",
   "restore_description_from_cupcake": "2番目の電話にインストールされたコンパニオンギャップアプリにリンクします。",
-  "restore_description_from_hardware_wallet": "元帳ハードウェアウォレットから復元します",
+  "restore_description_from_hardware_wallet": "さまざまなメーカーのハードウェア ウォレット デバイスをリンクします。",
   "restore_description_from_keys": "生成されたウォレットを復元します秘密鍵から保存されたキーストローク",
   "restore_description_from_seed": "25ワードからウォレットを復元しますまたは13ワードの組み合わせコード",
   "restore_description_from_seed_keys": "安全な場所に保存したシード/キーから財布を取り戻す",

@@ -707,7 +707,7 @@
   "restore_bitcoin_title_from_keys": "Restaurer à partir de WIF",
   "restore_description_from_backup": "Vous pouvez restaurer l'intégralité de l'application Cake Wallet depuis un fichier de sauvegarde",
   "restore_description_from_cupcake": "Liez votre appareil à notre application compagnon hors ligne (air‑gapped), installée sur un deuxième téléphone.",
-  "restore_description_from_hardware_wallet": "Restaurer depuis un portefeuille matériel Ledger",
+  "restore_description_from_hardware_wallet": "Associez votre périphérique de portefeuille matériel provenant de divers fabricants.",
   "restore_description_from_keys": "Restaurer votre portefeuille (wallet) d'après les séquences de touches générées d'après vos clefs privées",
   "restore_description_from_seed": "Restaurer votre portefeuille (wallet) depuis une phrase secrète (seed) de 25 ou 13 mots",
   "restore_description_from_seed_keys": "Restaurez votre portefeuille (wallet) depuis une phrase secrète (seed) ou des clefs que vous avez stockées en lieu sûr",
