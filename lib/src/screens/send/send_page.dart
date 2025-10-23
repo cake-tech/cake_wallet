@@ -436,18 +436,21 @@ class SendPage extends BasePage {
                               }
 
                               if (sendViewModel.wallet.isHardwareWallet) {
-                                if (!sendViewModel.ledgerViewModel!.isConnected) {
+                                if (!sendViewModel.hardwareWalletViewModel!.isConnected) {
                                   await Navigator.of(context).pushNamed(Routes.connectDevices,
                                       arguments: ConnectDevicePageParams(
                                         walletType: sendViewModel.walletType,
+                                        hardwareWalletType:
+                                            sendViewModel.wallet.walletInfo.hardwareWalletType!,
                                         onConnectDevice: (BuildContext context, _) {
-                                          sendViewModel.ledgerViewModel!
-                                              .setLedger(sendViewModel.wallet);
+                                          sendViewModel.hardwareWalletViewModel!
+                                              .initWallet(sendViewModel.wallet);
                                           Navigator.of(context).pop();
                                         },
                                       ));
                                 } else {
-                                  sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                                  sendViewModel.hardwareWalletViewModel!
+                                      .initWallet(sendViewModel.wallet);
                                 }
                               }
 
@@ -485,7 +488,7 @@ class SendPage extends BasePage {
                                 sendViewModel.state is TransactionCommitting ||
                                 sendViewModel.state is IsAwaitingDeviceResponseState ||
                                 sendViewModel.state is LoadingTemplateExecutingState,
-                            isDisabled: !sendViewModel.isReadyForSend,
+                            isDisabled: !sendViewModel.isReadyForSend || sendViewModel.state is ExecutedSuccessfullyState,
                           );
                         },
                       )
@@ -577,7 +580,6 @@ class SendPage extends BasePage {
                   key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   accessibleNavigationModeSlideActionButtonText: S.of(bottomSheetContext).send,
-                  currentTheme: currentTheme,
                   footerType: FooterType.slideActionButton,
                   walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
@@ -627,7 +629,6 @@ class SendPage extends BasePage {
             builder: (BuildContext bottomSheetContext) {
               return showContactSheet && sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
-                      currentTheme: currentTheme,
                       footerType: FooterType.doubleActionButton,
                       titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/contact.png',
@@ -681,7 +682,6 @@ class SendPage extends BasePage {
                       },
                     )
                   : InfoBottomSheet(
-                      currentTheme: currentTheme,
                       footerType: FooterType.singleActionButton,
                       titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/birthday_cake.png',
@@ -744,7 +744,6 @@ class SendPage extends BasePage {
               builder: (context) {
                 dialogContext = context;
                 return InfoBottomSheet(
-                  currentTheme: currentTheme,
                   footerType: FooterType.singleActionButton,
                   titleText: S.of(context).proceed_on_device,
                   contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',

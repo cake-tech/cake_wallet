@@ -20,7 +20,7 @@ class KryptonimBuyProvider extends BuyProvider {
       : super(
       wallet: wallet,
       isTestEnvironment: isTestEnvironment,
-      ledgerVM: null,
+      hardwareWalletVM: null,
       supportedCryptoList: supportedCryptoToFiatPairs(
           notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
       supportedFiatList: supportedFiatToCryptoPairs(
@@ -218,6 +218,7 @@ class KryptonimBuyProvider extends BuyProvider {
   String _normalizeBlockChain(CryptoCurrency cur) {
     String? blockchain = switch (cur.tag) {
       'ETH' => 'Ethereum',
+      'BASE' => 'Base',
       'POL' => 'Polygon',
       'AVAXC' => 'Avalanche',
       'SOL' => 'Solana',
@@ -229,6 +230,7 @@ class KryptonimBuyProvider extends BuyProvider {
         CryptoCurrency.btc => 'Bitcoin',
         CryptoCurrency.ltc => 'Litecoin',
         CryptoCurrency.eth => 'Ethereum',
+        CryptoCurrency.baseEth => 'Base',
         CryptoCurrency.maticpoly => 'Matic',
         _ => null,
       };

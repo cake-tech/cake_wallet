@@ -61,6 +61,7 @@ class AnimatedURPage extends BasePage {
           child: URQR(
             urqr: urQr,
             walletType: animatedURmodel.wallet.type,
+            hardwareWalletType: animatedURmodel.wallet.hardwareWalletType,
           ),
         ),
         if (["ur:xmr-txunsigned", "ur:xmr-output", "ur:psbt", BBQR.header]

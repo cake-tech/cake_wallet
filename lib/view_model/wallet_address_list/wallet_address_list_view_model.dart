@@ -1,8 +1,10 @@
 import 'dart:developer' as dev;
 import 'dart:core';
 
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/core/payment_uris.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -19,6 +21,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/qr_util.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
@@ -28,6 +31,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -35,229 +39,6 @@ import 'package:mobx/mobx.dart';
 part 'wallet_address_list_view_model.g.dart';
 
 class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletAddressListViewModel;
-
-abstract class PaymentURI {
-  PaymentURI({required this.amount, required this.address});
-
-  final String amount;
-  final String address;
-}
-
-class MoneroURI extends PaymentURI {
-  MoneroURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'monero:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?tx_amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class HavenURI extends PaymentURI {
-  HavenURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'haven:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?tx_amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class BitcoinURI extends PaymentURI {
-  BitcoinURI({required super.amount, required super.address, this.pjUri = ''});
-
-  final String pjUri;
-
-  @override
-  String toString() {
-    final qp = <String, String>{};
-
-    if (amount.isNotEmpty) qp['amount'] = amount.replaceAll(',', '.');
-    if (pjUri.isNotEmpty && !address.startsWith("sp")) {
-      qp['pjos'] = '0';
-      qp['pj'] = pjUri;
-    }
-
-    return Uri(scheme: 'bitcoin', path: address, queryParameters: qp).toString();
-  }
-}
-
-class LitecoinURI extends PaymentURI {
-  LitecoinURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'litecoin:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class EthereumURI extends PaymentURI {
-  EthereumURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'ethereum:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class BitcoinCashURI extends PaymentURI {
-  BitcoinCashURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = address;
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class NanoURI extends PaymentURI {
-  NanoURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'nano:$address';
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class PolygonURI extends PaymentURI {
-  PolygonURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'polygon:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class SolanaURI extends PaymentURI {
-  SolanaURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'solana:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class TronURI extends PaymentURI {
-  TronURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'tron:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class WowneroURI extends PaymentURI {
-  WowneroURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'wownero:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?tx_amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class ZanoURI extends PaymentURI {
-  ZanoURI({required String amount, required String address})
-      : super(amount: amount, address: address);
-
-  @override
-  String toString() {
-    var base = 'zano:' + address;
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class DecredURI extends PaymentURI {
-  DecredURI({required String amount, required String address})
-      : super(amount: amount, address: address);
-
-  @override
-  String toString() {
-    var base = 'decred:' + address;
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class DogeURI extends PaymentURI {
-  DogeURI({required String amount, required String address})
-      : super(amount: amount, address: address);
-
-  @override
-  String toString() {
-    var base = 'doge:' + address;
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
 
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
@@ -363,6 +144,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return DecredURI(amount: amount, address: address.address);
       case WalletType.dogecoin:
         return DogeURI(amount: amount, address: address.address);
+      case WalletType.base:
+        return BaseURI(amount: amount, address: address.address);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
@@ -479,6 +262,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (wallet.type == WalletType.polygon) {
       final primaryAddress = polygon!.getAddress(wallet);
+
+      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+    }
+
+    if (wallet.type == WalletType.base) {
+      final primaryAddress = base!.getAddress(wallet);
 
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
@@ -622,78 +411,70 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     switch (wallet.type) {
       case WalletType.ethereum:
         return [
-          'assets/images/eth_icon.png',
-          'assets/images/usdc_icon.png',
-          'assets/images/usdt_wallet_icon.png',
-          'assets/images/deuro_icon.png',
-          'assets/images/more_tokens.png',
+          'assets/images/eth_icon.svg',
+          'assets/images/usdc_icon.svg',
+          'assets/images/usdt_wallet_icon.svg',
+          'assets/images/deuro_icon.svg',
+          'assets/images/more_tokens.svg',
         ];
       case WalletType.solana:
         return [
-          'assets/images/sol_icon.png',
-          'assets/images/usdc_icon.png',
-          'assets/images/usdt_wallet_icon.png',
-          'assets/images/more_tokens.png',
+          'assets/images/sol_icon.svg',
+          'assets/images/usdc_icon.svg',
+          'assets/images/usdt_wallet_icon.svg',
+          'assets/images/more_tokens.svg',
         ];
       case WalletType.polygon:
         return [
-          'assets/images/pol_icon.png',
-          'assets/images/eth_pol_icon.png',
-          'assets/images/usdc_icon.png',
-          'assets/images/usdt_wallet_icon.png',
-          'assets/images/more_tokens.png',
+          'assets/images/pol_icon.svg',
+          'assets/images/eth_pol_icon.svg',
+          'assets/images/usdc_icon.svg',
+          'assets/images/usdt_wallet_icon.svg',
+          'assets/images/more_tokens.svg',
         ];
       case WalletType.tron:
         return [
-          'assets/images/trx_icon.png',
-          'assets/images/usdc_icon.png',
-          'assets/images/usdt_wallet_icon.png',
-          'assets/images/more_tokens.png',
+          'assets/images/trx_icon.svg',
+          'assets/images/usdc_icon.svg',
+          'assets/images/usdt_wallet_icon.svg',
+          'assets/images/more_tokens.svg',
         ];
       case WalletType.zano:
         return [
-          'assets/images/zano_bg_icon.png',
-          'assets/images/more_tokens.png',
+          'assets/images/zano_icon.svg',
+          'assets/images/more_tokens.svg',
         ];
-
+      case WalletType.base:
+        return [
+          'assets/images/eth_icon.svg',
+          'assets/images/usdc_icon.svg',
+          'assets/images/more_tokens.svg',
+        ];
       default:
         return [];
     }
   }
 
   @computed
-  String get qrImage {
-    switch (type) {
-      case WalletType.ethereum:
-        return 'assets/images/eth_chain_qr.png';
-      case WalletType.solana:
-        return 'assets/images/sol_chain_qr.png';
-      case WalletType.polygon:
-        return 'assets/images/pol_chain_qr.png';
-      case WalletType.tron:
-        return 'assets/images/trx_chain_qr.png';
-      case WalletType.zano:
-        return 'assets/images/zano_chain_qr.png';
-      default:
-        return 'assets/images/qr-cake.png';
-    }
-  }
+  String get qrImage => getQrImage(type);
 
   @computed
   String get monoImage {
     switch (type) {
       case WalletType.ethereum:
-        return 'assets/images/eth_chain_mono.png';
+        return 'assets/images/eth_chain_mono.svg';
       case WalletType.solana:
-        return 'assets/images/sol_chain_mono.png';
+        return 'assets/images/sol_chain_mono.svg';
       case WalletType.polygon:
-        return 'assets/images/pol_chain_mono.png';
+        return 'assets/images/pol_chain_mono.svg';
       case WalletType.tron:
-        return 'assets/images/trx_chain_mono.png';
+        return 'assets/images/trx_chain_mono.svg';
       case WalletType.zano:
-        return 'assets/images/zano_chain_mono.png';
+        return 'assets/images/zano_chain_mono.svg';
+      case WalletType.base:
+        return 'assets/images/base_chain_mono.svg';
       default:
-        return 'assets/images/eth_chain_mono.png';
+        return 'assets/images/eth_chain_mono.svg';
     }
   }
 
@@ -708,7 +489,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
 
   @computed
-  bool get isCupcake =>
+  bool get isBitcoinViewOnly =>
       wallet.type == WalletType.bitcoin &&
       (bitcoin!.getWalletKeys(wallet)["privateKey"] ?? "").isEmpty;
 

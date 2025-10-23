@@ -206,7 +206,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                 style: Theme.of(context).textTheme.titleLarge!.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               )
             ],
@@ -281,7 +281,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                     S.of(context).refund_address,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                 )

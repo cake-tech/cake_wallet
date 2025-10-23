@@ -83,15 +83,15 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
   @override
   set enabled(bool value) => _enabled = value;
 
-  SPLToken.copyWith(SPLToken other, String? icon, String? tag)
+  SPLToken.copyWith(SPLToken other, {String? icon, String? tag, bool? enabled})
       : name = other.name,
         symbol = other.symbol,
         mintAddress = other.mintAddress,
         decimal = other.decimal,
-        _enabled = other.enabled,
+        _enabled = enabled ?? other.enabled,
         mint = other.mint,
-        tag = other.tag,
-        iconPath = icon,
+        tag = tag ?? other.tag,
+        iconPath = icon ?? other.iconPath,
         isPotentialScam = other.isPotentialScam,
         super(
           title: other.symbol.toUpperCase(),

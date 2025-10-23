@@ -31,13 +31,15 @@ class EthereumWallet extends EVMChainWallet {
   }) : super(nativeCurrency: CryptoCurrency.eth);
 
   @override
-  void addInitialTokens([bool isMigration = false]) {
+  void addInitialTokens() {
     final initialErc20Tokens = DefaultEthereumErc20Tokens().initialErc20Tokens;
 
     for (final token in initialErc20Tokens) {
       if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
-        if (isMigration) token.enabled = false;
         evmChainErc20TokensBox.put(token.contractAddress, token);
+      } else { // update existing token
+        final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
+        evmChainErc20TokensBox.put(token.contractAddress, Erc20Token.copyWith(token, enabled: existingToken!.enabled));
       }
     }
   }
@@ -105,6 +107,7 @@ class EthereumWallet extends EVMChainWallet {
       to: transactionModel.to,
       from: transactionModel.from,
       evmSignatureName: transactionModel.evmSignatureName,
+      contractAddress: transactionModel.contractAddress,
     );
     return model;
   }

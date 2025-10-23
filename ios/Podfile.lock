@@ -1,4 +1,6 @@
 PODS:
+  - bitbox_flutter (0.0.1):
+    - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
   - CryptoSwift (1.8.4)
@@ -69,8 +71,6 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-  - image_picker_ios (0.0.1):
-    - Flutter
   - in_app_review (2.0.0):
     - Flutter
   - integration_test (0.0.1):
@@ -87,9 +87,9 @@ PODS:
   - reown_yttrium (0.0.1):
     - Flutter
     - YttriumWrapper (= 0.8.35)
-  - SDWebImage (5.20.0):
-    - SDWebImage/Core (= 5.20.0)
-  - SDWebImage/Core (5.20.0)
+  - SDWebImage (5.21.2):
+    - SDWebImage/Core (= 5.21.2)
+  - SDWebImage/Core (5.21.2)
   - sensitive_clipboard (0.0.1):
     - Flutter
   - share_plus (0.0.1):
@@ -114,6 +114,7 @@ PODS:
   - YttriumWrapper (0.8.35)
 
 DEPENDENCIES:
+  - bitbox_flutter (from `.symlinks/plugins/bitbox_flutter/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
   - cw_decred (from `.symlinks/plugins/cw_decred/ios`)
@@ -160,6 +161,8 @@ SPEC REPOS:
     - YttriumWrapper
 
 EXTERNAL SOURCES:
+  bitbox_flutter:
+    :path: ".symlinks/plugins/bitbox_flutter/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   cw_decred:
@@ -228,6 +231,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
+  bitbox_flutter: 9505732798041c413152669751beeaecc5fe400f
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
   cw_decred: a02cf30175a46971c1e2fa22c48407534541edc6
@@ -256,7 +260,7 @@ SPEC CHECKSUMS:
   payjoin_flutter: d9d4c8aa16bd5dfedb9b21d0edc8199e0187d96e
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   reown_yttrium: cee334ade64725b1d83f7b34c706a6aae2696d58
-  SDWebImage: 73c6079366fea25fa4bb9640d5fb58f0893facd8
+  SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a
   sensitive_clipboard: 161e9abc3d56b3131309d8a321eb4690a803c16b
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7

@@ -1,12 +1,12 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class PaymentConfirmationBottomSheet extends BaseBottomSheet {
@@ -15,7 +15,6 @@ class PaymentConfirmationBottomSheet extends BaseBottomSheet {
     required this.paymentFlowResult,
     required this.paymentViewModel,
     required this.walletSwitcherViewModel,
-    required this.currentTheme,
     required this.paymentRequest,
     required this.onSelectWallet,
     required this.onChangeWallet,
@@ -24,13 +23,11 @@ class PaymentConfirmationBottomSheet extends BaseBottomSheet {
           titleText: '',
           footerType: FooterType.none,
           maxHeight: 900,
-          currentTheme: currentTheme,
         );
 
   final PaymentFlowResult paymentFlowResult;
   final PaymentViewModel paymentViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
-  final MaterialThemeBase currentTheme;
   final PaymentRequest paymentRequest;
   final VoidCallback onSelectWallet;
   final VoidCallback onChangeWallet;
@@ -69,6 +66,21 @@ class _PaymentConfirmationContent extends StatelessWidget {
   final VoidCallback onChangeWallet;
   final VoidCallback onSwap;
 
+  /// Checks if the given address is a MWEB or SP (Silent Payment) address
+  bool _isMwebOrSpAddress(String address) {
+    if (address.isEmpty) return false;
+
+    final lowerAddress = address.toLowerCase();
+
+    // Check for MWEB addresses (Litecoin MWEB addresses start with "ltcmweb1")
+    if (lowerAddress.startsWith('ltcmweb1')) return true;
+
+    // Check for Silent Payment addresses (Bitcoin SP addresses start with "sp1", "tsp1")
+    if (lowerAddress.startsWith('sp1') || lowerAddress.startsWith('tsp1')) return true;
+
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Observer(
@@ -81,6 +93,9 @@ class _PaymentConfirmationContent extends StatelessWidget {
 
         final hasAtLeastOneWallet =
             paymentFlowResult.type == PaymentFlowType.singleWallet || hasMultipleWallets;
+
+        final isMwebOrSpAddress =
+            _isMwebOrSpAddress(paymentFlowResult.addressDetectionResult?.address ?? '');
 
         return Container(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -118,13 +133,15 @@ class _PaymentConfirmationContent extends StatelessWidget {
               ),
               const SizedBox(height: 72),
               if (hasAtLeastOneWallet) ...[
-                PrimaryButton(
-                  onPressed: onSwap,
-                  text: '${S.current.swap} $currentWalletName',
-                  color: Theme.of(context).colorScheme.surfaceContainer,
-                  textColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                ),
-                const SizedBox(height: 10),
+                if (!isMwebOrSpAddress) ...[
+                  PrimaryButton(
+                    onPressed: onSwap,
+                    text: '${S.current.swap} $currentWalletName',
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 PrimaryButton(
                   onPressed: hasMultipleWallets ? onSelectWallet : onChangeWallet,
                   text: S.current.switch_wallet,
@@ -140,16 +157,19 @@ class _PaymentConfirmationContent extends StatelessWidget {
                   textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                 ),
                 const SizedBox(height: 10),
-                PrimaryButton(
-                  onPressed: onSwap,
-                  text: '${S.current.swap} $currentWalletName',
-                  color: hasAtLeastOneWallet
-                      ? Theme.of(context).colorScheme.surfaceContainer
-                      : Theme.of(context).colorScheme.primary,
-                  textColor: hasAtLeastOneWallet
-                      ? Theme.of(context).colorScheme.onSecondaryContainer
-                      : Theme.of(context).colorScheme.onPrimary,
-                ),
+                if (!isMwebOrSpAddress) ...[
+                  PrimaryButton(
+                    onPressed: onSwap,
+                    text: '${S.current.swap} $currentWalletName',
+                    color: hasAtLeastOneWallet
+                        ? Theme.of(context).colorScheme.surfaceContainer
+                        : Theme.of(context).colorScheme.primary,
+                    textColor: hasAtLeastOneWallet
+                        ? Theme.of(context).colorScheme.onSecondaryContainer
+                        : Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 const SizedBox(height: 32),
               ],
             ],

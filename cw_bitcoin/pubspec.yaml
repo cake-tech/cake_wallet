@@ -16,7 +16,7 @@ dependencies:
   http: ^1.1.0
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
-  intl: ^0.19.0
+  intl: any
   shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
@@ -36,24 +36,30 @@ dependencies:
   sp_scanner:
     git:
       url: https://github.com/cake-tech/sp_scanner
-      ref: sp_v4.0.0
+      ref: sp_v4.0.1
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
   payjoin_flutter:
     git:
-      url: https://github.com/OmarHatem28/payjoin-flutter
-      ref: da83a23f3a011cb49eb3b6513cd485b3fb8867ff #cake-v2
+      url: https://github.com/konstantinullrich/payjoin-flutter
+      ref: cake-v3
   ledger_flutter_plus: ^1.4.1
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
       path: packages/ledger-bitcoin
-      ref: e8ab1a98493dfdd2277edde07a66b8d378ca70f6
+      ref: dc42621f55702d0732681afc2f90bc0047f26633
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
       path: packages/ledger-litecoin
+  trezor_connect:
+    git:
+      url: https://github.com/cake-tech/trezor_connect
+      ref: 59b3ceec158d3393b20d0c596cab2abcc62ac8e4
+  bitbox_flutter:
+    path: ../scripts/bitbox_flutter
   socks_socket:
     git:
       url: https://github.com/sneurlax/socks_socket
@@ -84,6 +90,7 @@ dependency_overrides:
       ref: cake-update-v11
   pointycastle: 3.7.4
   ffi: 2.1.0
+  intl: any
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

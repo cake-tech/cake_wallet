@@ -114,6 +114,7 @@ class AddressResolver {
     "podcast",
     "pog",
     "polygon",
+    "base",
     "press",
     "privacy",
     "pro",

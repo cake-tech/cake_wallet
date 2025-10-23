@@ -49,7 +49,6 @@ class TransactionsPage extends StatelessWidget {
               final status = dashboardViewModel.status;
               if (status is SyncingSyncStatus) {
                 return DashBoardRoundedCardWidget(
-                  isDarkTheme: dashboardViewModel.isDarkTheme,
                   key: ValueKey('transactions_page_syncing_alert_card_key'),
                   onTap: () {
                     try {
@@ -193,30 +192,31 @@ class TransactionsPage extends StatelessWidget {
                               final order = item.order;
                               return Observer(
                                 builder: (_) {
-
                                   // TODO: Refactor Amount Hiding Logic it is not working properly for Orders and Trades
-                                final hide = dashboardViewModel.balanceViewModel.displayMode ==
-                                    BalanceDisplayMode.hiddenBalance;
+                                  final hide = dashboardViewModel.balanceViewModel.displayMode ==
+                                      BalanceDisplayMode.hiddenBalance;
 
-                                final formattedAmount = hide ? '---' : order.amountFormatted();
-                                final formattedReceiveAmount = hide ? '---' : order.receiveAmount;
+                                  final formattedAmount = hide ? '---' : order.amountFormatted();
+                                  final formattedReceiveAmount = hide ? '---' : order.receiveAmount;
 
-                                return OrderRow(
-                                  key: item.key,
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.orderDetails, arguments: order),
-                                  providerTitle: order.providerTitle,
-                                  providerIconPath: order.providerIcon,
-                                  from: order.from ?? '',
-                                  to: order.to ?? '',
-                                  createdAtFormattedDate: DateFormat('HH:mm').format(order.createdAt),
-                                  formattedAmount: formattedAmount,
-                                  formattedReceiveAmount: dashboardViewModel.balanceViewModel.isFiatDisabled &&
-                                      order.source == OrderSourceDescription.order
-                                      ? ''
-                                      : formattedReceiveAmount,
-                                );
-                              }
+                                  return OrderRow(
+                                    key: item.key,
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed(Routes.orderDetails, arguments: order),
+                                    providerTitle: order.providerTitle,
+                                    providerIconPath: order.providerIcon,
+                                    from: order.from ?? '',
+                                    to: order.to ?? '',
+                                    createdAtFormattedDate:
+                                        DateFormat('HH:mm').format(order.createdAt),
+                                    formattedAmount: formattedAmount,
+                                    formattedReceiveAmount:
+                                        dashboardViewModel.balanceViewModel.isFiatDisabled &&
+                                                order.source == OrderSourceDescription.order
+                                            ? ''
+                                            : formattedReceiveAmount,
+                                  );
+                                },
                               );
                             }
                             return Container(color: Colors.transparent, height: 1);

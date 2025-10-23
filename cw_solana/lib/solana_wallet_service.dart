@@ -64,6 +64,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       );
 
       await wallet.init();
+      wallet.addInitialTokens();
       await wallet.save();
       saveBackup(name);
       return wallet;
@@ -78,6 +79,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       );
 
       await wallet.init();
+      wallet.addInitialTokens();
       await wallet.save();
       return wallet;
     }

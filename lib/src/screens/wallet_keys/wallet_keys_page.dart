@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/text_info_box.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -36,13 +35,11 @@ class WalletKeysPage extends BasePage {
             child: WarningBox(
               key: const ValueKey('wallet_keys_page_share_warning_text_key'),
               content: S.of(context).do_not_share_warning_text.toUpperCase(),
-              currentTheme: currentTheme,
             ),
           ),
           Expanded(
             child: WalletKeysPageBody(
               walletKeysViewModel: walletKeysViewModel,
-              currentTheme: currentTheme,
             ),
           ),
         ],
@@ -54,11 +51,9 @@ class WalletKeysPage extends BasePage {
 class WalletKeysPageBody extends StatefulWidget {
   WalletKeysPageBody({
     required this.walletKeysViewModel,
-    required this.currentTheme,
   });
 
   final WalletKeysViewModel walletKeysViewModel;
-  final MaterialThemeBase currentTheme;
 
   @override
   State<StatefulWidget> createState() => _WalletKeysPageBodyState();
@@ -161,7 +156,11 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                 if (showKeyTab)
                   Padding(
                     padding: const EdgeInsets.only(left: 22, right: 22),
-                    child: _buildKeysTab(context, showSilentPaymentsTab ? widget.walletKeysViewModel.items.sublist(0, 4) : widget.walletKeysViewModel.items),
+                    child: _buildKeysTab(
+                        context,
+                        showSilentPaymentsTab
+                            ? widget.walletKeysViewModel.items.sublist(0, 4)
+                            : widget.walletKeysViewModel.items),
                   ),
                 if (showSilentPaymentsTab)
                   Padding(

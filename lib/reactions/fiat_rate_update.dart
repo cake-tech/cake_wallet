@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -42,6 +43,11 @@ Future<void> startFiatRateUpdate(
       if (appStore.wallet!.type == WalletType.polygon) {
         currencies =
             polygon!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+      }
+
+      if (appStore.wallet!.type == WalletType.base) {
+        currencies =
+            base!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
       }
 
       if (appStore.wallet!.type == WalletType.solana) {

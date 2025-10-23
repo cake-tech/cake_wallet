@@ -1,4 +1,3 @@
-Better support for embedded Tor
-Improve sending and swapping flow
-Enhance payment scanning
+Enhance Trezor support
+Add Swaps.xyz Decentralized Exchange
 Bug fixes
