@@ -103,6 +103,10 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
       if (widget.privacySettingsViewModel.type == WalletType.nano) {
         widget.seedTypeViewModel.setNanoSeedType(NanoSeedType.bip39);
       }
+
+      if (widget.privacySettingsViewModel.type == WalletType.zano) {
+        widget.seedTypeViewModel.setZanoSeedType(ZanoSeedType.bip39);
+      }
     }
     super.initState();
   }
@@ -185,6 +189,19 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                       } else {
                         widget.seedTypeViewModel.setNanoSeedType(type);
                       }
+                    },
+                  ),
+                );
+              }),
+            if (widget.privacySettingsViewModel.isZanoSeedTypeOptionsEnabled)
+              Observer(builder: (_) {
+                return SettingsChoicesCell(
+                  ChoicesListItem<ZanoSeedType>(
+                    title: S.current.seedtype,
+                    items: ZanoSeedType.all,
+                    selectedItem: widget.seedTypeViewModel.zanoSeedType,
+                    onItemSelected: (type) {
+                      widget.seedTypeViewModel.setZanoSeedType(type);
                     },
                   ),
                 );
