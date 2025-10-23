@@ -43,9 +43,11 @@ const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
 const tronDefaultNodeUri = 'api.trongrid.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
-const zanoDefaultNodeUri = 'zano.cakewallet.com:11211';
+const zanoDefaultNodeUri = '37.27.100.59:10500';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
+const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
+const baseDefaultNodeUri = 'base.nownodes.io';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -347,8 +349,12 @@ Future<void> defaultSettingsMigration(
           break;
         case 36:
           await addWalletNodeList(nodes: nodes, type: WalletType.wownero);
-          await changeWowneroCurrentNodeToDefault(
-              sharedPreferences: sharedPreferences, nodes: nodes);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.wownero,
+            currentNodePreferenceKey: PreferencesKey.currentWowneroNodeIdKey,
+          );
           break;
         case 37:
           // removed as it would be replaced again anyway
@@ -510,7 +516,34 @@ Future<void> defaultSettingsMigration(
             providerName: "SwapTrade",
             enabled: true,
           );
-			    break;
+          break;
+        case 50:
+          migrateExistingNodesToUseAutoSwitching(nodes: nodes, powNodes: powNodes);
+          break;
+        case 51:
+          _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.zano,
+            currentNodePreferenceKey: PreferencesKey.currentZanoNodeIdKey,
+          );
+          await addWalletNodeList(nodes: nodes, type: WalletType.dogecoin);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.dogecoin,
+            currentNodePreferenceKey: PreferencesKey.currentDogecoinNodeIdKey,
+          );
+          break;
+        case 52:
+          await addWalletNodeList(nodes: nodes, type: WalletType.base);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.base,
+            currentNodePreferenceKey: PreferencesKey.currentBaseNodeIdKey,
+          );
+          break;
         default:
           break;
       }
@@ -617,6 +650,10 @@ String _getDefaultNodeUri(WalletType type) {
       return zanoDefaultNodeUri;
     case WalletType.decred:
       return decredDefaultUri;
+    case WalletType.dogecoin:
+      return dogecoinDefaultNodeUri;
+    case WalletType.base:
+      return baseDefaultNodeUri;
     case WalletType.banano:
     case WalletType.none:
       return '';
@@ -811,32 +848,6 @@ Node? getDefaultNode({required Box<Node> nodes, required WalletType type}) {
   final defaultUri = _getDefaultNodeUri(type);
   return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == defaultUri) ??
       nodes.values.firstWhereOrNull((node) => node.type == type);
-}
-
-Node getWowneroDefaultNode({required Box<Node> nodes}) {
-  final timeZone = DateTime.now().timeZoneOffset.inHours;
-  var nodeUri = '';
-
-  if (timeZone >= 1) {
-    // Eurasia
-    nodeUri = 'node2.monerodevs.org.lol:34568';
-  } else if (timeZone <= -4) {
-    // America
-    nodeUri = 'node3.monerodevs.org:34568';
-  }
-
-  if (nodeUri == '') {
-    return nodes.values.where((element) => element.type == WalletType.wownero).first;
-  }
-
-  try {
-    return nodes.values.firstWhere(
-      (Node node) => node.uriRaw == nodeUri,
-      orElse: () => nodes.values.where((element) => element.type == WalletType.wownero).first,
-    );
-  } catch (_) {
-    return nodes.values.where((element) => element.type == WalletType.wownero).first;
-  }
 }
 
 Future<void> insecureStorageMigration({
@@ -1042,11 +1053,14 @@ Future<void> checkCurrentNodes(
   final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
+  final currentBaseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
   final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
   final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentDecredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
   final currentBitcoinCashNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
+  final currentDogecoinNodeId =
+  sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
   final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
   final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
@@ -1063,6 +1077,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
   final currentPolygonNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentPolygonNodeId);
+  final currentBaseNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentBaseNodeId);
   final currentNanoNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
   final currentDecredNodeServer =
@@ -1071,6 +1087,8 @@ Future<void> checkCurrentNodes(
       powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
   final currentBitcoinCashNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
+  final currentDogecoinNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentDogecoinNodeId);
   final currentSolanaNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
   final currentTronNodeServer =
@@ -1088,7 +1106,7 @@ Future<void> checkCurrentNodes(
 
   if (currentBitcoinElectrumServer == null) {
     final cakeWalletElectrum =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
+        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
     await nodeSource.add(cakeWalletElectrum);
     final cakeWalletElectrumTestnet =
         Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
@@ -1140,10 +1158,22 @@ Future<void> checkCurrentNodes(
     await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
   }
 
+  if (currentDogecoinNodeServer == null) {
+    final node = Node(uri: dogecoinDefaultNodeUri, type: WalletType.dogecoin, useSSL: true);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.key as int);
+  }
+
   if (currentPolygonNodeServer == null) {
     final node = Node(uri: polygonDefaultNodeUri, type: WalletType.polygon);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
+  }
+
+  if (currentBaseNodeServer == null) {
+    final node = Node(uri: baseDefaultNodeUri, type: WalletType.base);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentBaseNodeIdKey, node.key as int);
   }
 
   if (currentSolanaNodeServer == null) {
@@ -1188,7 +1218,7 @@ Future<void> resetBitcoinElectrumServer(
 
   if (cakeWalletNode == null) {
     cakeWalletNode =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
+        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
     // final cakeWalletElectrumTestnet =
     //     Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
     // await nodeSource.add(cakeWalletElectrumTestnet);
@@ -1213,14 +1243,6 @@ Future<void> migrateExchangeStatus(SharedPreferences sharedPreferences) async {
       isExchangeDisabled ? ExchangeApiMode.disabled.raw : ExchangeApiMode.enabled.raw);
 
   await sharedPreferences.remove(PreferencesKey.disableExchangeKey);
-}
-
-Future<void> changeWowneroCurrentNodeToDefault(
-    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
-  final node = getWowneroDefaultNode(nodes: nodes);
-  final nodeId = node.key as int? ?? 0;
-
-  await sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, nodeId);
 }
 
 Future<void> addNanoPowNodeList({required Box<Node> nodes}) async {
@@ -1272,3 +1294,47 @@ Future<void> removeMoneroWorld(
     );
   }
 }
+
+Future<void> migrateExistingNodesToUseAutoSwitching(
+    {required Box<Node> nodes, required Box<Node> powNodes}) async {
+  final listOfDefaultNodesWithAutoSwitching = [
+    'bitcoincash.stackwallet.com:50002',
+    'bch.aftrek.org:50002',
+    'btc-electrum.cakewallet.com:50002',
+    'fulcrum.sethforprivacy.com:50002',
+    'default-spv-nodes',
+    'dcrd.sethforprivacy.com:9108',
+    'ethereum-rpc.publicnode.com',
+    'eth.nownodes.io',
+    'ltc-electrum.cakewallet.com:50002',
+    'litecoin.stackwallet.com:20063',
+    'nano.nownodes.io',
+    'rpc.nano.to',
+    'node.nautilus.io',
+    'rpc.nano.to',
+    'workers.perish.co',
+    'worker.nanoriver.cc',
+    'xmr-node.cakewallet.com:18081',
+    'node.sethforprivacy.com:443',
+    'nodes.hashvault.pro:18081',
+    'polygon-bor-rpc.publicnode.com',
+    'matic.nownodes.io',
+    'api.mainnet-beta.solana.com:443',
+    'solana-rpc.publicnode.com:443',
+    'solana-mainnet.core.chainstack.com',
+    'api.trongrid.io',
+    'trx.nownodes.io',
+    'node3.monerodevs.org:34568',
+    'node2.monerodevs.org:34568',
+    '37.27.100.59:10500',
+    'zano.cakewallet.com:11211',
+    'electrum.cakewallet.com:50002',
+  ];
+  for (var node in [...nodes.values.toList(), ...powNodes.values.toList()]) {
+    if (listOfDefaultNodesWithAutoSwitching.contains(node.uriRaw)) {
+      node.isEnabledForAutoSwitching = true;
+      await node.save();
+    }
+  }
+}
+

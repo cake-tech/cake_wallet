@@ -114,6 +114,7 @@ class AddressResolver {
     "podcast",
     "pog",
     "polygon",
+    "base",
     "press",
     "privacy",
     "pro",
@@ -313,12 +314,16 @@ class AddressResolver {
         }
       }
 
-      final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
-      if (thorChainAddress != null && thorChainAddress.isNotEmpty) {
-        String? address =
-            thorChainAddress[ticker] ?? (ticker == 'RUNE' ? thorChainAddress['THOR'] : null);
-        if (address != null) {
-          return ParsedAddress.thorChainAddress(address: address, name: text);
+      final isNormalAddress = extractAddressByType(raw: text, type: currency)?.isNotEmpty ?? false;
+
+      if (text.length <= 30 && !isNormalAddress) {
+        final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
+        if (thorChainAddress != null && thorChainAddress.isNotEmpty) {
+          String? address =
+              thorChainAddress[ticker] ?? (ticker == 'RUNE' ? thorChainAddress['THOR'] : null);
+          if (address != null) {
+            return ParsedAddress.thorChainAddress(address: address, name: text);
+          }
         }
       }
 
@@ -344,7 +349,13 @@ class AddressResolver {
       if (bip353AddressMap != null && bip353AddressMap.isNotEmpty) {
         final chosenAddress = await Bip353Record.pickBip353AddressChoice(context, text, bip353AddressMap);
         if (chosenAddress != null) {
-          return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
+          try {
+            final dnsProof = await Bip353Record.fetchDnsProof(text);
+            return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text, dnsProof: dnsProof);
+          } catch (e) {
+            printV('Bip353Record.fetchBip353AddressAddress error: $e');
+            return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
+          }
         }
       }
 

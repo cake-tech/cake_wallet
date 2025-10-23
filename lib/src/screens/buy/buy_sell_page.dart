@@ -78,11 +78,10 @@ class BuySellPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).colorScheme.onSurface,
+      color: Theme.of(context).colorScheme.primary,
       size: 16,
     );
-    final _closeButton =
-        buySellViewModel.isDarkTheme ? closeButtonImageDarkTheme : closeButtonImage;
+    final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -211,7 +210,7 @@ class BuySellPage extends BasePage {
           borderRadius: 30,
           padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           leadingIcon: Icons.arrow_forward_ios,
-          isDarkTheme: buySellViewModel.isDarkTheme);
+          isDarkTheme: currentTheme.isDark);
     }
     if (buySellViewModel.paymentMethodState is PaymentMethodFailed) {
       return OptionTilePlaceholder(errorText: 'No payment methods available', borderRadius: 30);
@@ -225,7 +224,7 @@ class BuySellPage extends BasePage {
         title: selectedPaymentMethod.title,
         onPressed: () => _pickPaymentMethod(context),
         leadingIcon: Icons.arrow_forward_ios,
-        isLightMode: !buySellViewModel.isDarkTheme,
+        isLightMode: !currentTheme.isDark,
         borderRadius: 30,
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -321,8 +320,8 @@ class BuySellPage extends BasePage {
     _cryptoAddressFocus.addListener(() async {
       if (!_cryptoAddressFocus.hasFocus && cryptoAddressController.text.isNotEmpty) {
         final domain = cryptoAddressController.text;
-        buySellViewModel.cryptoCurrencyAddress =
-            await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+        buySellViewModel.cryptoCurrencyAddress = await fetchParsedAddress(
+            context, domain, buySellViewModel.cryptoCurrency);
       }
     });
 
@@ -404,7 +403,7 @@ class BuySellPage extends BasePage {
         onCurrencySelected: (currency) => buySellViewModel.changeFiatCurrency(currency: currency),
         imageArrow: Image.asset(
           'assets/images/arrow_bottom_purple_icon.png',
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).colorScheme.primary,
           height: 8,
         ),
         currencyButtonColor: Colors.transparent,
@@ -441,7 +440,7 @@ class BuySellPage extends BasePage {
         onCurrencySelected: (currency) => buySellViewModel.changeCryptoCurrency(currency: currency),
         imageArrow: Image.asset(
           'assets/images/arrow_bottom_cake_green.png',
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).colorScheme.primary,
           height: 8,
         ),
         currencyButtonColor: Colors.transparent,
@@ -508,8 +507,12 @@ class BuySellPage extends BasePage {
   }
 
   Future<String> fetchParsedAddress(
-      BuildContext context, String domain, CryptoCurrency currency) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
+    BuildContext context,
+    String domain,
+    CryptoCurrency currency,
+  ) async {
+    final parsedAddress =
+        await getIt.get<AddressResolver>().resolve(context, domain, currency);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }

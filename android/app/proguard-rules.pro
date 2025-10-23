@@ -7,6 +7,7 @@
 -keep class io.flutter.plugins.**  { *; }
 -dontwarn io.flutter.embedding.**
 -dontwarn com.google.android.play.core.splitcompat.SplitCompatApplication
+-dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite
 
 # start reown
 -dontwarn com.github.luben.zstd.BufferPool

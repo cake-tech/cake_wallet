@@ -68,19 +68,16 @@ class WalletSeedPage extends BasePage {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(height: 16),
-                        WarningBox(
-                          content: S.current.cake_seeds_save_disclaimer,
-                          currentTheme: currentTheme,
-                        ),
+                        WarningBox(content: S.current.cake_seeds_save_disclaimer),
                         SizedBox(height: 36),
                         Text(
                           key: ValueKey('wallet_seed_page_wallet_name_text_key'),
                           walletSeedViewModel.name,
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                         ),
                         SizedBox(height: 24),
                         Expanded(

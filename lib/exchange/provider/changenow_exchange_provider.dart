@@ -16,6 +16,7 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ChangeNowExchangeProvider extends ExchangeProvider {
   ChangeNowExchangeProvider({required SettingsStore settingsStore})
@@ -90,12 +91,13 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -126,8 +128,43 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
       if (rateId.isNotEmpty) _lastUsedRateId = rateId;
 
-      return isReverse ? (amount / fromAmount) : (toAmount / amount);
-    } catch (e) {
+      final rate = isReverse ? (amount / fromAmount) : (toAmount / amount);
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'type': type,
+          'flow': _getFlow(isFixedRateMode),
+        },
+        responseData: {
+          'fromAmount': fromAmount,
+          'toAmount': toAmount,
+          'rateId': rateId,
+          'rate': rate,
+        },
+      );
+
+      return rate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       printV(e.toString());
       return 0.0;
     }
@@ -215,6 +252,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       receiveAmount: toAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       isSendAll: isSendAll,
     );
   }
@@ -240,9 +279,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['fromCurrency'] as String;
-    final from = CryptoCurrency.fromString(fromCurrency);
+    final fromNetwork = responseJSON['fromNetwork'] as String?;
+    final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
     final toCurrency = responseJSON['toCurrency'] as String;
-    final to = CryptoCurrency.fromString(toCurrency);
+    final toNetwork = responseJSON['toNetwork'] as String?;
+    final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
     final inputAddress = responseJSON['payinAddress'] as String;
     final expectedSendAmount = responseJSON['expectedAmountFrom'].toString();
     final status = responseJSON['status'] as String;
@@ -253,18 +294,24 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final payoutAddress = responseJSON['payoutAddress'] as String;
     final expiredAt = DateTime.tryParse(expiredAtRaw ?? '')?.toLocal();
 
+    final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
+    final _normalizedToNetwork = _normalizeNetworkType(toNetwork ?? '');
+
     return Trade(
-        id: id,
-        from: from,
-        to: to,
-        provider: description,
-        inputAddress: inputAddress,
-        amount: expectedSendAmount,
-        state: state,
-        extraId: extraId,
-        expiredAt: expiredAt,
-        outputTransaction: outputTransaction,
-        payoutAddress: payoutAddress);
+      id: id,
+      from: from,
+      to: to,
+      provider: description,
+      inputAddress: inputAddress,
+      amount: expectedSendAmount,
+      state: state,
+      extraId: extraId,
+      expiredAt: expiredAt,
+      outputTransaction: outputTransaction,
+      payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${_normalizedFromNetwork.toUpperCase()}',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${_normalizedToNetwork.toUpperCase()}',
+    );
   }
 
   String _getFlow(bool isFixedRate) => isFixedRate ? 'fixed-rate' : 'standard';
@@ -302,4 +349,14 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return tag.toLowerCase();
     }
   }
+
+  String _normalizeNetworkType(String network) {
+    return switch (network.toUpperCase()) {
+      'POLY' => 'MATIC',
+      'AVAXC' => 'CCHAIN',
+      _ => network,
+    };
+  }
+
+
 }

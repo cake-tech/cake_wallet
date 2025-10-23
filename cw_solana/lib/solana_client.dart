@@ -12,7 +12,7 @@ import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
-import 'package:cw_solana/spl_token.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:on_chain/solana/solana.dart';
 import 'package:on_chain/solana/src/instructions/associated_token_account/constant.dart';
 import 'package:on_chain/solana/src/models/pda/pda.dart';
@@ -51,7 +51,7 @@ class SolanaWalletClient {
     }
   }
 
-  Future<double> getBalance(String walletAddress) async {
+  Future<double> getBalance(String walletAddress, {bool throwOnError = false}) async {
     try {
       final balance = await _provider!.requestWithContext(
         SolanaRPCGetBalance(
@@ -65,6 +65,9 @@ class SolanaWalletClient {
 
       return solBalance;
     } catch (_) {
+      if (throwOnError) {
+        rethrow;
+      }
       return 0.0;
     }
   }
@@ -88,31 +91,38 @@ class SolanaWalletClient {
   }
 
   Future<SolanaBalance?> getSplTokenBalance(
-      String mintAddress, String walletAddress) async {
-    // Fetch the token accounts (a token can have multiple accounts for various uses)
-    final tokenAccounts = await getSPLTokenAccounts(mintAddress, walletAddress);
+      String mintAddress, String walletAddress, {bool throwOnError = false}) async {
+    try {
+      // Fetch the token accounts (a token can have multiple accounts for various uses)
+      final tokenAccounts = await getSPLTokenAccounts(mintAddress, walletAddress);
 
-    // Handle scenario where there is no token account
-    if (tokenAccounts == null || tokenAccounts.isEmpty) {
+      // Handle scenario where there is no token account
+      if (tokenAccounts == null || tokenAccounts.isEmpty) {
+        return null;
+      }
+
+      // Sum the balances of all accounts with the specified mint address
+      double totalBalance = 0.0;
+
+      for (var tokenAccount in tokenAccounts) {
+        final tokenAmountResult = await _provider!.request(
+          SolanaRPCGetTokenAccountBalance(account: tokenAccount.pubkey),
+        );
+
+        final balance = tokenAmountResult.uiAmountString;
+
+        final balanceAsDouble = double.tryParse(balance ?? '0.0') ?? 0.0;
+
+        totalBalance += balanceAsDouble;
+      }
+
+      return SolanaBalance(totalBalance);
+    } catch (_) {
+      if (throwOnError) {
+        rethrow;
+      }
       return null;
     }
-
-    // Sum the balances of all accounts with the specified mint address
-    double totalBalance = 0.0;
-
-    for (var tokenAccount in tokenAccounts) {
-      final tokenAmountResult = await _provider!.request(
-        SolanaRPCGetTokenAccountBalance(account: tokenAccount.pubkey),
-      );
-
-      final balance = tokenAmountResult.uiAmountString;
-
-      final balanceAsDouble = double.tryParse(balance ?? '0.0') ?? 0.0;
-
-      totalBalance += balanceAsDouble;
-    }
-
-    return SolanaBalance(totalBalance);
   }
 
   Future<double> getFeeForMessage(String message, Commitment commitment) async {

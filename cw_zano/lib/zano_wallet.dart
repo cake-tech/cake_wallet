@@ -59,9 +59,8 @@ abstract class ZanoWalletBase
   String get password => _password;
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) {
-    throw UnimplementedError();
-  }
+  Future<String> signMessage(String message, {String? address = null}) =>
+      super.signMessage(message, address: address);
 
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address = null}) {
@@ -410,6 +409,17 @@ abstract class ZanoWalletBase
 
   @override
   Future<void>? updateBalance() => null;
+
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      final status = await getWalletStatus();
+    
+      return status.isDaemonConnected;
+    } catch (_) {
+      return false;
+    }
+  }
 
   Future<void> updateTransactions() async {
     try {

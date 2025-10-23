@@ -39,13 +39,11 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   String textFieldValue;
 
   bool currencySearchBySubstring(Currency currency, String subString) {
-    return currency.name.toLowerCase().contains(subString.toLowerCase()) ||
-        (currency.tag != null
-            ? currency.tag!.toLowerCase().contains(subString.toLowerCase())
-            : false) ||
-        (currency.fullName != null
-            ? currency.fullName!.toLowerCase().contains(subString.toLowerCase())
-            : false);
+    final query = subString.toLowerCase();
+    return currency.name.toLowerCase().contains(query) ||
+        currency.toString().toLowerCase().contains(query) ||
+        (currency.tag != null ? currency.tag!.toLowerCase().contains(query) : false) ||
+        (currency.fullName != null ? currency.fullName!.toLowerCase().contains(query) : false);
   }
 
   @override

@@ -117,7 +117,7 @@ class CakePayWelcomePage extends BasePage {
     final verified = await Navigator.pushNamed<bool>(context, Routes.cakePayVerifyOtpPage,
         arguments: [authViewModel.email, true]);
 
-    if (verified == true) {
+    if (verified == true && Navigator.of(context).canPop()) {
       Navigator.pop(context, true);
     }
   }

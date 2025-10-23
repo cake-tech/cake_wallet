@@ -118,6 +118,14 @@ class PrivacyPage extends BasePage {
                     _privacySettingsViewModel.setUsePolygonScan(value);
                   },
                 ),
+              if (_privacySettingsViewModel.canUseBaseScan)
+                SettingsSwitcherCell(
+                  title: S.current.basescan_history,
+                  value: _privacySettingsViewModel.useBaseScan,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseBaseScan(value);
+                  },
+                ),
               if (_privacySettingsViewModel.canUseTronGrid)
                 SettingsSwitcherCell(
                   title: S.current.trongrid_history,

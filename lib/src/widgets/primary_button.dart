@@ -46,16 +46,15 @@ class PrimaryButton extends StatelessWidget {
                 borderRadius: borderRadius ?? BorderRadius.circular(12.0),
               ),
             ),
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
           ),
           child: Text(
             text,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: 15.0,
-              fontWeight: FontWeight.w600,
-              color: isDisabled ? textColor.withOpacity(0.5) : textColor,
-            ),
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w600,
+                  color: isDisabled ? textColor.withOpacity(0.5) : textColor,
+                ),
           ),
         ),
       ),
@@ -117,10 +116,10 @@ class LoadingPrimaryButton extends StatelessWidget {
               : Text(
                   text,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.w600,
-                    color: isDisabled ? textColor.withOpacity(0.5) : textColor,
-                  ),
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w600,
+                        color: isDisabled ? textColor.withOpacity(0.5) : textColor,
+                      ),
                 ),
         ),
       ),
@@ -228,7 +227,7 @@ class PrimaryImageButton extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         height: 52.0,
-        child: ElevatedButton(
+        child: TextButton(
           onPressed: onPressed,
           style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all(color),

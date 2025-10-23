@@ -24,7 +24,7 @@ import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
 import 'package:cw_tron/tron_client.dart';
 import 'package:cw_tron/tron_exception.dart';
-import 'package:cw_tron/tron_token.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:cw_tron/tron_transaction_credentials.dart';
 import 'package:cw_tron/tron_transaction_history.dart';
 import 'package:cw_tron/tron_transaction_info.dart';
@@ -178,7 +178,12 @@ abstract class TronWalletBase
     final initialTronTokens = DefaultTronTokens().initialTronTokens;
 
     for (var token in initialTronTokens) {
-      tronTokensBox.put(token.contractAddress, token);
+      if (!tronTokensBox.containsKey(token.contractAddress)) {
+        tronTokensBox.put(token.contractAddress, token);
+      } else { // update existing token
+        final existingToken = tronTokensBox.get(token.contractAddress);
+        tronTokensBox.put(token.contractAddress, TronToken.copyWith(token, enabled: existingToken!.enabled));
+      }
     }
   }
 
@@ -276,6 +281,13 @@ abstract class TronWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
+      
+      // Verify node health before attempting to sync
+      final isHealthy = await checkNodeHealth();
+      if (!isHealthy) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
       await _updateBalance();
       await fetchTransactions();
       fetchTrc20ExcludedTransactions();
@@ -504,6 +516,22 @@ abstract class TronWalletBase
 
   @override
   Future<void>? updateBalance() async => await _updateBalance();
+
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check native balance
+      await _client.getBalance(_tronPublicKey.toAddress(), throwOnError: true);
+      
+      // Check USDT token balance
+      const usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+      await _client.fetchTronTokenBalances(_tronAddress, usdtContractAddress, throwOnError: true);
+      
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   List<TronToken> get tronTokenCurrencies => tronTokensBox.values.toList();
 

@@ -1,8 +1,10 @@
+import 'calculate_fiat_amount.dart';
+
 String formatAmount(String amount) {
   if ((!amount.contains('.'))&&(!amount.contains(','))) {
-    return amount + '.00';
+    return formatWithCommas(amount + '.00');
   } else if ((amount.endsWith('.'))||(amount.endsWith(','))) {
-    return amount + '00';
+    return formatWithCommas(amount + '00');
   }
-  return amount;
+  return formatWithCommas(amount);
 }

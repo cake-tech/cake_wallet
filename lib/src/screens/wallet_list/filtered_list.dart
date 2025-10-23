@@ -29,6 +29,23 @@ class FilteredListState extends State<FilteredList> {
     if (widget.canReorder) {
       return Observer(
         builder: (_) => ReorderableListView.builder(
+          proxyDecorator: (child, index, animation) => Material(
+            child: Container(
+              //margin: EdgeInsets.symmetric(vertical: 5),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(20.0),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 5,
+                      offset: const Offset(0, 6),
+                      spreadRadius: 1)
+                ],
+              ),
+              child: child,
+            ),
+          ),
           shrinkWrap: widget.shrinkWrap,
           physics: widget.physics ?? const BouncingScrollPhysics(),
           itemBuilder: widget.itemBuilder,

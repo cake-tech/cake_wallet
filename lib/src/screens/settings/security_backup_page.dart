@@ -114,8 +114,8 @@ class SecurityBackupPage extends BasePage {
               key: ValueKey('security_backup_page_sign_and_verify'),
               title: S.current.sign_verify_title,
               handler: (_) => Navigator.of(context).pushNamed(Routes.signPage)
-            //_securitySettingsViewModel.pinCodeRequiredDuration,
-          ),
+              //_securitySettingsViewModel.pinCodeRequiredDuration,
+              ),
           Observer(
             builder: (context) {
               return SettingsCellWithArrow(

@@ -11,6 +11,7 @@ class Routes {
   static const restoreWalletFromHardwareWallet = '/restore/hardware_wallet';
   static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
   static const restoreWalletChooseDerivation = '/restore_wallet_choose_derivation';
+  static const connectHardwareWallet = '/restore/hardware_wallet/devices';
   static const chooseHardwareWalletAccount = '/restore/hardware_wallet/accounts';
   static const dashboard = '/dashboard';
   static const send = '/send';
@@ -79,6 +80,7 @@ class Routes {
   static const cakePayAccountPage = '/cake_pay_account_page';
   static const webViewPage = '/web_view_page';
   static const silentPaymentsSettings = '/silent_payments_settings';
+  static const silentPaymentsLogs = '/silent_payments_logs';
   static const mwebSettings = '/mweb_settings';
   static const mwebLogs = '/mweb_logs';
   static const mwebNode = '/mweb_node';
@@ -115,18 +117,23 @@ class Routes {
 
   static const devMoneroBackgroundSync = '/dev/monero_background_sync';
   static const devMoneroCallProfiler = '/dev/monero_call_profiler';
+  static const devMoneroWalletCacheDebug = '/dev/monero_wallet_cache_debug';
 
   static const devSharedPreferences = '/dev/shared_preferences';
   static const devSecurePreferences = '/dev/secure_preferences';
   static const devBackgroundSyncLogs = '/dev/background_sync_logs';
+  static const devSocketHealthLogs = '/dev/socket_health_logs';
   static const devNetworkRequests = '/dev/network_requests';
+  static const devQRTools = '/dev/qr_tools';
+  static const devExchangeProviderLogs = '/dev/exchange_provider_logs';
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
   static const urqrAnimatedPage = '/urqr/animated_page';
   static const walletGroupsDisplayPage = '/wallet_groups_display_page';
   static const walletGroupDescription = '/wallet_group_description';
-  static const walletGroupExistingSeedDescriptionPage = '/wallet_group_existing_seed_description_page';
+  static const walletGroupExistingSeedDescriptionPage =
+      '/wallet_group_existing_seed_description_page';
   static const walletSeedVerificationPage = '/wallet_seed_verification_page';
   static const exchangeTradeExternalSendPage = '/exchange_trade_external_send_page';
 

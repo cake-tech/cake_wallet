@@ -55,7 +55,6 @@ class DEuroSavingsPage extends BasePage {
                 children: <Widget>[
                   Observer(
                     builder: (_) => SavingsCard(
-                      isDarkTheme: currentTheme.isDark,
                       interestRate: "${_dEuroViewModel.interestRateFormated}%",
                       savingsBalance: _dEuroViewModel.savingsBalanceFormated,
                       fiatSavingsBalance: _dEuroViewModel.fiatSavingsBalanceFormated,
@@ -71,7 +70,6 @@ class DEuroSavingsPage extends BasePage {
                   ),
                   Observer(
                     builder: (_) => InterestCardWidget(
-                      isDarkTheme: currentTheme.isDark,
                       title: S.of(context).deuro_savings_collect_interest,
                       fiatAccruedInterest: _dEuroViewModel.fiatAccruedInterestFormated,
                       fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
@@ -178,7 +176,6 @@ class DEuroSavingsPage extends BasePage {
           key: ValueKey('savings_page_confirm_sending_dialog_key'),
           footerType: FooterType.slideActionButton,
           titleText: title,
-          currentTheme: currentTheme,
           walletType: WalletType.ethereum,
           titleIconPath: CryptoCurrency.deuro.iconPath,
           currency: CryptoCurrency.deuro,
@@ -214,7 +211,6 @@ class DEuroSavingsPage extends BasePage {
           key: ValueKey('savings_page_confirm_approval_dialog_key'),
           footerType: FooterType.slideActionButton,
           titleText: S.of(bottomSheetContext).approve_tokens,
-          currentTheme: currentTheme,
           walletType: WalletType.ethereum,
           titleIconPath: CryptoCurrency.deuro.iconPath,
           currency: CryptoCurrency.deuro,
@@ -247,7 +243,6 @@ class DEuroSavingsPage extends BasePage {
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
               footerType: FooterType.singleActionButton,
-              currentTheme: currentTheme,
               titleText: S.of(bottomSheetContext).transaction_sent,
               contentImage: 'assets/images/birthday_cake.png',
               content: S.of(bottomSheetContext).deuro_tx_commited_content,
@@ -311,7 +306,6 @@ class DEuroSavingsPage extends BasePage {
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext bottomSheetContext) => TooltipSheet(
-        currentTheme: currentTheme,
         titleText: title,
         titleIconPath: CryptoCurrency.deuro.iconPath,
         tooltip: content,
@@ -333,7 +327,6 @@ class DEuroSavingsPage extends BasePage {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
-        currentTheme: currentTheme,
         height: 350,
         titleText: "dEURO",
         titleIconPath: CryptoCurrency.deuro.iconPath,
@@ -360,7 +353,6 @@ class DEuroSavingsPage extends BasePage {
     return showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
-        currentTheme: currentTheme,
         titleText: title,
         titleIconPath: CryptoCurrency.deuro.iconPath,
         contentImage: 'assets/images/deuro_not_enough_eth.png',

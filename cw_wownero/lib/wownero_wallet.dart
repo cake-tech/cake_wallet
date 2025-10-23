@@ -175,6 +175,24 @@ abstract class WowneroWalletBase
   Future<void>? updateBalance() => null;
 
   @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check if the wallet is currently connected to the daemon
+      final isConnected = wownero_wallet.isConnectedSync();
+
+      if (!isConnected) {
+        return false; // It's not connected to daemon
+      }
+
+      // Check to get current node height to ensure daemon is responsive
+      final nodeHeight = await wownero_wallet.getNodeHeight();
+      return nodeHeight > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
   Future<void> close({bool shouldCleanup = false}) async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
@@ -185,12 +203,12 @@ abstract class WowneroWalletBase
   @override
   Future<void> connectToNode({required Node node}) async {
     String socksProxy = node.socksProxyAddress ?? '';
-    printV("bootstrapped: ${CakeTor.instance.bootstrapped}");
-    printV("     enabled: ${CakeTor.instance.enabled}");
-    printV("        port: ${CakeTor.instance.port}");
-    printV("     started: ${CakeTor.instance.started}");
-    if (CakeTor.instance.enabled) {
-      socksProxy = "127.0.0.1:${CakeTor.instance.port}";
+    printV("bootstrapped: ${CakeTor.instance!.bootstrapped}");
+    printV("     enabled: ${CakeTor.instance!.enabled}");
+    printV("        port: ${CakeTor.instance!.port}");
+    printV("     started: ${CakeTor.instance!.started}");
+    if (CakeTor.instance!.enabled) {
+      socksProxy = "127.0.0.1:${CakeTor.instance!.port}";
     }
     try {
       syncStatus = ConnectingSyncStatus();

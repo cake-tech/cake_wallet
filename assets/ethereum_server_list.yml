@@ -2,6 +2,7 @@
   uri: ethereum-rpc.publicnode.com
   useSSL: true
   isDefault: true
+  isEnabledForAutoSwitching: true
 -
   uri: eth.llamarpc.com
 -
@@ -10,5 +11,6 @@
   uri: eth-mainnet.public.blastapi.io
 -
   uri: eth.nownodes.io
+  isEnabledForAutoSwitching: true
 -
   uri: ethereum.publicnode.com

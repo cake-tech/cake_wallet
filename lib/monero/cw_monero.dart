@@ -399,9 +399,9 @@ class CWMonero extends Monero {
   }
 
   @override
-  String exportOutputsUR(Object wallet, bool all) {
+  Map<String, String> exportOutputsUR(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
-    return moneroWallet.exportOutputsUR(all);
+    return moneroWallet.exportOutputsUR();
   }
 
   @override
@@ -441,5 +441,10 @@ class CWMonero extends Monero {
   @override
   Map<String, List<int>> debugCallLength() {
     return monero_wallet_api.debugCallLength();
+  }
+
+  @override
+  Map<String, dynamic> getWalletCacheDebug() {
+    return monero_wallet_api.getWalletCacheDebug();
   }
 }

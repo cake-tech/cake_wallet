@@ -4,20 +4,20 @@ import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 
 class SettingsPriorityPickerCell<ItemType> extends StandardListRow {
-  SettingsPriorityPickerCell(
-      {required String title,
-      required this.selectedItem,
-      required this.items,
-      this.displayItem,
-      this.images,
-      this.searchHintText,
-      this.isGridView = false,
-      this.matchingCriteria,
-      this.customValue,
-      this.maxValue,
-      this.customItemIndex,
-      this.onItemSelected})
-      : super(
+  SettingsPriorityPickerCell({
+    required String title,
+    required this.selectedItem,
+    required this.items,
+    this.displayItem,
+    this.images,
+    this.searchHintText,
+    this.isGridView = false,
+    this.matchingCriteria,
+    this.customValue,
+    this.maxValue,
+    this.customItemIndex,
+    this.onItemSelected,
+  }) : super(
             title: title,
             isSelected: false,
             onTap: (BuildContext context) async {

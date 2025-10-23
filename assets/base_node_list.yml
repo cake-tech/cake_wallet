@@ -1,0 +1,15 @@
+-
+  uri: base.nownodes.io
+  is_default: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: base.llamarpc.com
+  useSSL: true
+-
+  uri: base-rpc.publicnode.com
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: 1rpc.io/base
+  useSSL: true

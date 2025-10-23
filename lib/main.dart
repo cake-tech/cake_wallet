@@ -3,9 +3,10 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/background_sync.dart';
+import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
@@ -35,14 +36,18 @@ import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
+import 'package:cw_core/spl_token.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -57,6 +62,7 @@ import 'package:cw_core/window_size.dart';
 import 'package:logging/logging.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/core/reset_service.dart';
+import 'package:trezor_connect/trezor_connect.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -81,6 +87,11 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       return true;
     };
     await FlutterDaemon().unmarkBackgroundSync();
+    try {
+      CakeTor.instance = await CakeTorInstance.getInstance();
+    } catch (e) {
+      printV("Failed to initialize tor: $e");
+    }
     await initializeAppAtRoot();
 
     if (kDebugMode) {
@@ -205,6 +216,18 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(PayjoinSessionAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(Erc20Token.typeId)) {
+    CakeHive.registerAdapter(Erc20TokenAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(SPLToken.typeId)) {
+    CakeHive.registerAdapter(SPLTokenAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
+    CakeHive.registerAdapter(TronTokenAdapter());
+  }
+
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
@@ -249,7 +272,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 49,
+    initialMigrationVersion: 52,
   );
 }
 
@@ -327,6 +350,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         final authService = getIt.get<AuthService>();
         final linkViewModel = getIt.get<LinkViewModel>();
         final tradeMonitor = getIt.get<TradeMonitor>();
+        final nodeSwitchingService = getIt.get<NodeSwitchingService>();
         final settingsStore = appStore.settingsStore;
         final statusBarColor = Colors.transparent;
         final authenticationStore = getIt.get<AuthenticationStore>();
@@ -351,6 +375,8 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authService: authService,
           linkViewModel: linkViewModel,
           tradeMonitor: tradeMonitor,
+          nodeSwitchingService: nodeSwitchingService,
+          trezorConnect: getIt<TrezorConnect>(),
           child: ThemeProvider(
             themeStore: appStore.themeStore,
             materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(

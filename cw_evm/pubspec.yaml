@@ -31,6 +31,12 @@ dependencies:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
       path: packages/ledger-ethereum
       ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
+  bitbox_flutter:
+    path: ../scripts/bitbox_flutter
+  trezor_connect:
+    git:
+      url: https://github.com/cake-tech/trezor_connect
+      ref: 59b3ceec158d3393b20d0c596cab2abcc62ac8e4
 
 dependency_overrides:
   web3dart:

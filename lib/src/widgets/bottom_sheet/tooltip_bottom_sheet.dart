@@ -6,7 +6,6 @@ class TooltipSheet extends BaseBottomSheet {
   final String tooltip;
 
   const TooltipSheet({
-    required super.currentTheme,
     required super.titleText,
     super.titleIconPath,
     required this.tooltip,
@@ -25,22 +24,22 @@ class TooltipSheet extends BaseBottomSheet {
 
   @override
   Widget contentWidget(BuildContext context) => Container(
-    decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).colorScheme.surfaceContainer),
-    margin: const EdgeInsets.all(12),
-    padding: const EdgeInsets.all(12),
-    child: AutoSizeText(
-      tooltip,
-      textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-        decoration: TextDecoration.none,
-      ),
-    ),
-  );
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Theme.of(context).colorScheme.surfaceContainer),
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
+        child: AutoSizeText(
+          tooltip,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                decoration: TextDecoration.none,
+              ),
+        ),
+      );
 
   Widget footerWidget(BuildContext context) => SizedBox.shrink();
 }

@@ -6,7 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -71,22 +71,20 @@ class BalanceRowWidget extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15.0),
             gradient: LinearGradient(
-          colors: [
-            dashboardViewModel.isDarkTheme
-                ? CustomThemeColors.cardGradientColorPrimaryDark
-                : CustomThemeColors.cardGradientColorPrimaryLight,
-                    dashboardViewModel.isDarkTheme
-                ? CustomThemeColors.cardGradientColorSecondaryDark
-                : CustomThemeColors.cardGradientColorSecondaryLight,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
+              colors: [
+                context.customColors.cardGradientColorPrimary,
+                context.customColors.cardGradientColorSecondary,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
           child: TextButton(
             onPressed: _showToast,
             onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
             style: TextButton.styleFrom(
+              side: BorderSide(
+                  width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             ),
             child: Container(
@@ -328,12 +326,8 @@ class BalanceRowWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(15),
               gradient: LinearGradient(
                 colors: [
-                  dashboardViewModel.isDarkTheme
-                      ? CustomThemeColors.cardGradientColorPrimaryDark
-                      : CustomThemeColors.cardGradientColorPrimaryLight,
-                  dashboardViewModel.isDarkTheme
-                      ? CustomThemeColors.cardGradientColorSecondaryDark
-                      : CustomThemeColors.cardGradientColorSecondaryLight,
+                  context.customColors.cardGradientColorPrimary,
+                  context.customColors.cardGradientColorSecondary,
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -531,7 +525,8 @@ class BalanceRowWidget extends StatelessWidget {
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: Theme.of(context).colorScheme.primary,
                                   side: BorderSide(
-                                    color: Theme.of(context).colorScheme.outlineVariant.withAlpha(0),
+                                    color:
+                                        Theme.of(context).colorScheme.outlineVariant.withAlpha(0),
                                     width: 0,
                                   ),
                                   shape: RoundedRectangleBorder(
@@ -588,7 +583,8 @@ class BalanceRowWidget extends StatelessWidget {
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: Theme.of(context).colorScheme.surface,
                                   side: BorderSide(
-                                    color: Theme.of(context).colorScheme.outlineVariant.withAlpha(0),
+                                    color:
+                                        Theme.of(context).colorScheme.outlineVariant.withAlpha(0),
                                     width: 0,
                                   ),
                                   shape: RoundedRectangleBorder(

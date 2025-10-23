@@ -1,5 +1,3 @@
-Silent Payment sync bug fixes
-New Cake Pay mobile UI
-Monero enhancements
-dEURO savings module improvements
-Integrated exchange bug fixes
+Enhance Trezor support
+Add Swaps.xyz Decentralized Exchange
+Bug fixes

@@ -1,6 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'base_bottom_sheet_widget.dart';
@@ -13,15 +13,17 @@ class InfoStep {
 }
 
 class InfoStepsBottomSheet extends BaseBottomSheet {
-  final MaterialThemeBase currentTheme;
   final List<InfoStep> steps;
 
   InfoStepsBottomSheet({
     required String titleText,
     required this.steps,
     String? titleIconPath,
-    required this.currentTheme,
-  }) : super(titleText: titleText, titleIconPath: titleIconPath, footerType: FooterType.none, maxHeight: 900);
+  }) : super(
+            titleText: titleText,
+            titleIconPath: titleIconPath,
+            footerType: FooterType.none,
+            maxHeight: 900);
 
   @override
   Widget contentWidget(BuildContext context) => SizedBox(
@@ -33,8 +35,7 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
                 child: Column(
                   children: steps
                       .map((step) => Container(
-                            margin: EdgeInsets.only(
-                                bottom: 15, left: 20, right: 20),
+                            margin: EdgeInsets.only(bottom: 15, left: 20, right: 20),
                             padding: EdgeInsets.all(10),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
@@ -51,35 +52,24 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
                                     padding: EdgeInsets.only(left: 16),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: <Widget>[
                                         Text(
                                           step.title,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium!
-                                              .copyWith(
+                                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.w500,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface,
+                                                color: context.currentTheme.colorScheme.onSurface,
                                               ),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(top: 5),
                                           child: Text(
                                             step.description,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium!
-                                                .copyWith(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant,
+                                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                                  color: context
+                                                      .currentTheme.colorScheme.onSurfaceVariant,
                                                 ),
                                           ),
                                         )
@@ -98,10 +88,10 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
               padding: const EdgeInsets.all(16),
               child: PrimaryButton(
                 text: S.of(context).close,
-                color: Theme.of(context).colorScheme.primary,
-                textColor: currentTheme.isDark
-                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                    : Theme.of(context).colorScheme.onPrimary,
+                color: context.currentTheme.colorScheme.primary,
+                textColor: context.currentTheme.isDark
+                    ? context.currentTheme.colorScheme.onSurfaceVariant
+                    : context.currentTheme.colorScheme.onPrimary,
                 onPressed: () => Navigator.of(context).pop(),
               ),
             )

@@ -12,11 +12,12 @@ mixin PendingTransaction {
   String get feeFormattedValue;
   String? feeRate;
   String get hex;
+  String? get evmTxHashFromRawHex => null;
   int? get outputCount => null;
   PendingChange? change;
 
   bool shouldCommitUR() => false;
 
   Future<void> commit();
-  Future<String?> commitUR();
+  Future<Map<String, String>> commitUR();
 }

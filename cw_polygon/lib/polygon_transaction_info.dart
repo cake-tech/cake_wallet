@@ -14,6 +14,7 @@ class PolygonTransactionInfo extends EVMChainTransactionInfo {
     required super.confirmations,
     required super.to,
     required super.from,
+    super.contractAddress,
     super.exponent,
   });
 
@@ -31,6 +32,7 @@ class PolygonTransactionInfo extends EVMChainTransactionInfo {
       tokenSymbol: data['tokenSymbol'] as String,
       to: data['to'],
       from: data['from'],
+      contractAddress: data['contractAddress'],
     );
   }
 

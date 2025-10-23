@@ -1,8 +1,8 @@
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 
 class NodeIndicator extends StatelessWidget {
-  NodeIndicator({this.isLive = false});
+  const NodeIndicator({this.isLive = false});
 
   final bool isLive;
 

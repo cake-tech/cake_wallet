@@ -25,7 +25,7 @@ import 'package:cw_solana/solana_transaction_history.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/solana_wallet_addresses.dart';
-import 'package:cw_solana/spl_token.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -377,6 +377,13 @@ abstract class SolanaWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
 
+      // Verify node health before attempting to sync
+      final isHealthy = await checkNodeHealth();
+      if (!isHealthy) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
+
       await Future.wait([
         _updateBalance(),
         _updateNativeSOLTransactions(),
@@ -477,13 +484,34 @@ abstract class SolanaWalletBase
   @override
   Future<void>? updateBalance() async => await _updateBalance();
 
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check native balance
+      await _client.getBalance(solanaAddress, throwOnError: true);
+      
+      // Check USDC token balance
+      const usdcMintAddress = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+      await _client.getSplTokenBalance(usdcMintAddress, solanaAddress, throwOnError: true);
+      
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   List<SPLToken> get splTokenCurrencies => splTokensBox.values.toList();
 
   void addInitialTokens() {
     final initialSPLTokens = DefaultSPLTokens().initialSPLTokens;
 
     for (var token in initialSPLTokens) {
-      splTokensBox.put(token.mintAddress, token);
+      if (!splTokensBox.containsKey(token.mintAddress)) {
+        splTokensBox.put(token.mintAddress, token);
+      } else { // update existing token
+        final existingToken = splTokensBox.get(token.mintAddress);
+        splTokensBox.put(token.mintAddress, SPLToken.copyWith(token, enabled: existingToken!.enabled));
+      }
     }
   }
 
@@ -554,6 +582,7 @@ abstract class SolanaWalletBase
       _updateBalance();
       _updateNativeSOLTransactions();
       _updateSPLTokenTransactions();
+      _getEstimatedFees();
     });
   }
 
@@ -564,7 +593,7 @@ abstract class SolanaWalletBase
 
     // Sign the message bytes with the wallet's private key
     final signature = (_solanaPrivateKey.sign(messageBytes));
-    
+
     return Base58Encoder.encode(signature);
   }
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 import 'dart:math';
@@ -6,6 +7,7 @@ import 'dart:math';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
+import 'package:cw_monero/api/get_all_unspent.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
 import 'package:polyseed/polyseed.dart';
@@ -144,8 +146,9 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
   return addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex]!;
 }
 
-int getFullBalance({int accountIndex = 0}) =>
-    currentWallet?.balance(accountIndex: accountIndex) ?? 0;
+int getFullBalance({int accountIndex = 0}) {
+  return currentWallet?.balance(accountIndex: accountIndex) ?? 0;
+}
 
 int getUnlockedBalance({int accountIndex = 0}) =>
     currentWallet?.unlockedBalance(accountIndex: accountIndex) ?? 0;
@@ -175,7 +178,10 @@ int getNodeHeightSync() {
   return cachedNodeHeight;
 }
 
-bool isConnectedSync() => currentWallet?.connected() != 0;
+Future<bool> isConnected() async {
+  final wptrAddress = currentWallet!.ffiAddress();
+  return await Isolate.run(() => monero.Wallet_connected(Pointer.fromAddress(wptrAddress))) == 1;
+}
 
 Future<bool> setupNodeSync(
     {required String address,
@@ -396,8 +402,6 @@ void startRefresh() => startRefreshSync();
 
 Future<void> store() async => _storeSync(0);
 
-Future<bool> isConnected() async => isConnectedSync();
-
 Future<int> getNodeHeight() async => getNodeHeightSync();
 
 void rescanBlockchainAsync() => currentWallet!.rescanBlockchainAsync();
@@ -421,3 +425,16 @@ bool verifyMessage(String message, String address, String signature) {
 }
 
 Map<String, List<int>> debugCallLength() => monero.debugCallLength;
+
+Map<String, dynamic> getWalletCacheDebug() {
+  try {
+    final jsonString = monero.MONERO_Wallet_serializeCacheToJson(Pointer.fromAddress(currentWallet!.ffiAddress()));
+    final blob = json.decode(jsonString);
+    blob['cake:unspent'] = getAllUnspent();
+    return blob;
+  } catch (e) {
+    return {
+      "error": e.toString(),
+    };
+  }
+}

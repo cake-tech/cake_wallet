@@ -1,3 +1,4 @@
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -21,6 +22,10 @@ class EnsRecord {
       _client = polygon!.getWeb3Client(wallet);
     }
 
+    if (wallet != null && wallet.type == WalletType.base) {
+      _client = base!.getWeb3Client(wallet);
+    }
+
     if (_client == null) {
       late final client = ProxyWrapper().getHttpIOClient();
 
@@ -42,6 +47,7 @@ class EnsRecord {
             return await ens.withName(name).getCoinAddress(CoinType.XHV);
           case WalletType.ethereum:
           case WalletType.polygon:
+          case WalletType.base:
           default:
             return (await ens.withName(name).getAddress()).hex;
         }

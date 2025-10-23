@@ -51,9 +51,17 @@ class PendingEVMChainTransaction with PendingTransaction {
 
     return '0x${Hex.HEX.encode(txid)}';
   }
-  
+
   @override
-  Future<String?> commitUR() {
+  String? get evmTxHashFromRawHex {
+    final no0x = hex.startsWith('0x') ? hex.substring(2) : hex;
+    final bytes = Uint8List.fromList(Hex.HEX.decode(no0x));
+    final digest = keccak256(bytes);
+    return '0x${Hex.HEX.encode(digest)}';
+  }
+
+  @override
+  Future<Map<String, String>> commitUR() {
     throw UnimplementedError();
   }
 }

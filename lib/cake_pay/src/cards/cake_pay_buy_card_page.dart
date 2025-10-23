@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
-import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/denominations_amount_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/enter_amount_widget.dart';
@@ -24,23 +23,25 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_shee
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
 class CakePayBuyCardPage extends BasePage {
-  CakePayBuyCardPage(
-    this.cakePayBuyCardViewModel,
-    this.cakePayService,
-  )   : _amountFieldFocus = FocusNode(),
+  CakePayBuyCardPage(this.cakePayBuyCardViewModel)
+      : _sendViewModel = cakePayBuyCardViewModel.sendViewModel,
+        _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController(),
         _quantityFieldFocus = FocusNode(),
         _quantityController =
@@ -51,7 +52,7 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   final CakePayBuyCardViewModel cakePayBuyCardViewModel;
-  final CakePayService cakePayService;
+  final SendViewModel _sendViewModel;
 
   bool _effectsInstalled = false;
   late final BuildContext _overlayCtx;
@@ -155,10 +156,10 @@ class CakePayBuyCardPage extends BasePage {
                 ),
                 bottomCardChild: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: card.denominations.isNotEmpty
+                    child: card.denominationItems.isNotEmpty
                         ? DenominationsAmountWidget(
                             fiatCurrency: card.fiatCurrency.title,
-                            denominations: card.denominations,
+                            denominations: card.denominationItems,
                             amountFieldFocus: _amountFieldFocus,
                             amountController: _amountController,
                             quantityFieldFocus: _quantityFieldFocus,
@@ -301,7 +302,39 @@ class CakePayBuyCardPage extends BasePage {
                   methods.length <= 1 || selected == null
                       ? const SizedBox.shrink()
                       : _buildPaymentMethodWidget(methods, selected),
-                  if (FeatureFlag.hasDevOptions)
+                  if (_sendViewModel.walletType == WalletType.litecoin &&
+                      _sendViewModel.isMwebEnabled)
+                    Observer(
+                      builder: (_) => Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
+                        child: GestureDetector(
+                          key: ValueKey('cake_pay_buy_page_unspent_coin_button_key'),
+                          onTap: () {
+                            bool value = _sendViewModel.coinTypeToSpendFrom == UnspentCoinType.any;
+                            _sendViewModel.setAllowMwebCoins(!value);
+                          },
+                          child: Container(
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                StandardCheckbox(
+                                  caption: S.of(context).litecoin_mweb_allow_coins,
+                                  captionColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  borderColor: Theme.of(context).colorScheme.primary,
+                                  iconColor: Theme.of(context).colorScheme.primary,
+                                  value: _sendViewModel.coinTypeToSpendFrom == UnspentCoinType.any,
+                                  onChanged: (bool? value) {
+                                    _sendViewModel.setAllowMwebCoins(value ?? false);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (FeatureFlag.hasDevOptions && FeatureFlag.isCakePayPurchaseSimulationEnabled)
                     Padding(
                       padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
                       child: LoadingPrimaryButton(
@@ -317,9 +350,8 @@ class CakePayBuyCardPage extends BasePage {
                         text: '(Dev) Simulate Purchasing Gift Card',
                         isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
                             cakePayBuyCardViewModel.isPurchasing,
-                        isLoading:
-                            cakePayBuyCardViewModel.sendViewModel.state is IsExecutingState ||
-                                cakePayBuyCardViewModel.isPurchasing,
+                        isLoading: _sendViewModel.state is IsExecutingState ||
+                            cakePayBuyCardViewModel.isPurchasing,
                         color: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
@@ -337,8 +369,8 @@ class CakePayBuyCardPage extends BasePage {
                       },
                       text: S.of(context).purchase_gift_card,
                       isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
-                          cakePayBuyCardViewModel.isPurchasing,
-                      isLoading: cakePayBuyCardViewModel.sendViewModel.state is IsExecutingState ||
+                          cakePayBuyCardViewModel.isPurchasing || _sendViewModel.state is ExecutedSuccessfullyState,
+                      isLoading: _sendViewModel.state is IsExecutingState ||
                           cakePayBuyCardViewModel.isPurchasing,
                       color: Theme.of(context).colorScheme.primary,
                       textColor: Theme.of(context).colorScheme.onPrimary,
@@ -411,7 +443,7 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   Future<void> confirmPurchaseFirst(BuildContext context) async {
-    bool isLogged = await cakePayBuyCardViewModel.cakePayService.isLogged();
+    bool isLogged = await cakePayBuyCardViewModel.isUserLogged;
     if (!isLogged) {
       cakePayBuyCardViewModel.isSimulatingFlow = false;
       Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
@@ -458,7 +490,7 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   Future<void> purchaseCard(BuildContext context) async {
-    bool isLogged = await cakePayBuyCardViewModel.cakePayService.isLogged();
+    bool isLogged = await cakePayBuyCardViewModel.isUserLogged;
     if (!isLogged) {
       cakePayBuyCardViewModel.isSimulatingFlow = false;
       Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
@@ -467,7 +499,7 @@ class CakePayBuyCardPage extends BasePage {
         await cakePayBuyCardViewModel.createOrder();
       } catch (_) {
         cakePayBuyCardViewModel.isSimulatingFlow = false;
-        await cakePayBuyCardViewModel.cakePayService.logout();
+        await cakePayBuyCardViewModel.logout();
       }
     }
     cakePayBuyCardViewModel.isPurchasing = false;
@@ -484,11 +516,11 @@ class CakePayBuyCardPage extends BasePage {
 
     _overlayCtx = Navigator.of(context).context;
 
-    if (cakePayBuyCardViewModel.sendViewModel.isElectrumWallet) {
-      bitcoin!.updateFeeRates(cakePayBuyCardViewModel.sendViewModel.wallet);
+    if (_sendViewModel.isElectrumWallet) {
+      bitcoin!.updateFeeRates(_sendViewModel.wallet);
     }
 
-    reaction((_) => cakePayBuyCardViewModel.sendViewModel.state, (ExecutionState state) async {
+    reaction((_) => _sendViewModel.state, (ExecutionState state) async {
       if (dialogContext != null && dialogContext!.mounted) Navigator.of(dialogContext!).pop();
 
       if (confirmBottomSheetContext != null && confirmBottomSheetContext!.mounted) {
@@ -521,7 +553,7 @@ class CakePayBuyCardPage extends BasePage {
       if (state is IsExecutingState) {
         // wait a bit to avoid showing the loading dialog if transaction is failed
         await Future.delayed(const Duration(milliseconds: 300));
-        final currentState = cakePayBuyCardViewModel.sendViewModel.state;
+        final currentState = _sendViewModel.state;
         if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
           return;
         }
@@ -549,7 +581,7 @@ class CakePayBuyCardPage extends BasePage {
 
         disposer = reaction((_) => cakePayBuyCardViewModel.isOrderExpired, (bool isExpired) {
           if (isExpired) {
-            cakePayBuyCardViewModel.sendViewModel.state = FailureState('Order expired');
+            _sendViewModel.state = FailureState('Order expired');
             disposer?.call();
           }
         });
@@ -558,7 +590,7 @@ class CakePayBuyCardPage extends BasePage {
           if (context.mounted) {
             final order = cakePayBuyCardViewModel.order;
 
-            final displayingOutputs = cakePayBuyCardViewModel.sendViewModel.outputs
+            final displayingOutputs = _sendViewModel.outputs
                 .map((o) => o.OutputCopyWithParsedAddress(
                       parsedAddress: ParsedAddress(
                         addresses: [o.address],
@@ -566,7 +598,7 @@ class CakePayBuyCardPage extends BasePage {
                         profileName: order?.cards.first.cardName ?? 'Cake Pay',
                         profileImageUrl: order?.cards.first.cardImagePath ?? '',
                       ),
-                      fiatAmount: '${order?.amountUsd.toString()} USD',
+                      fiatAmount: '${order?.totalReceiveAmount}',
                     ))
                 .toList();
 
@@ -579,25 +611,20 @@ class CakePayBuyCardPage extends BasePage {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('cake_pay_buy_page_confirm_sending_dialog_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
-                  currentTheme: currentTheme,
                   cakePayBuyCardViewModel: cakePayBuyCardViewModel,
                   paymentId: S.of(bottomSheetContext).payment_id,
                   paymentIdValue: cakePayBuyCardViewModel.order?.orderId,
                   expirationTime: cakePayBuyCardViewModel.formattedRemainingTime,
-                  walletType: cakePayBuyCardViewModel.sendViewModel.walletType,
-                  titleIconPath:
-                      cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
-                  currency: cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency,
+                  walletType: _sendViewModel.walletType,
+                  titleIconPath: _sendViewModel.selectedCryptoCurrency.iconPath,
+                  currency: _sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue:
-                      cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                  amountValue: _sendViewModel.pendingTransaction!.amountFormatted,
                   quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
-                  fiatAmountValue:
-                      cakePayBuyCardViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                  fiatAmountValue: _sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: S.of(bottomSheetContext).send_fee,
-                  feeValue: cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                  feeFiatAmount: cakePayBuyCardViewModel
-                      .sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  feeValue: _sendViewModel.pendingTransaction!.feeFormatted,
+                  feeFiatAmount: _sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: displayingOutputs,
                   footerType: FooterType.slideActionButton,
                   slideActionButtonText:
@@ -608,10 +635,10 @@ class CakePayBuyCardPage extends BasePage {
                     Navigator.of(bottomSheetContext).pop(true);
                     cakePayBuyCardViewModel.isSimulating
                         ? cakePayBuyCardViewModel.simulatePayment()
-                        : cakePayBuyCardViewModel.sendViewModel.commitTransaction(context);
+                        : _sendViewModel.commitTransaction(context);
                   },
-                  change: cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.change,
-                  isOpenCryptoPay: cakePayBuyCardViewModel.sendViewModel.ocpRequest != null,
+                  change: _sendViewModel.pendingTransaction!.change,
+                  isOpenCryptoPay: _sendViewModel.ocpRequest != null,
                 );
               },
             );
@@ -619,14 +646,14 @@ class CakePayBuyCardPage extends BasePage {
             confirmBottomSheetContext = null;
             cakePayBuyCardViewModel.isSimulatingFlow = false;
             _handleDispose(disposer);
-            if (result == null) cakePayBuyCardViewModel.sendViewModel.dismissTransaction();
+            if (result == null) _sendViewModel.dismissTransaction();
           }
         });
       }
 
       if (state is TransactionCommitted) {
         final order = cakePayBuyCardViewModel.order;
-        final outputsCopy = List<Output>.from(cakePayBuyCardViewModel.sendViewModel.outputs);
+        final outputsCopy = List<Output>.from(_sendViewModel.outputs);
 
         final displayingOutputs = outputsCopy
             .map((o) => o.OutputCopyWithParsedAddress(
@@ -636,11 +663,11 @@ class CakePayBuyCardPage extends BasePage {
                     profileName: order?.cards.first.cardName ?? 'Cake Pay',
                     profileImageUrl: order?.cards.first.cardImagePath ?? '',
                   ),
-                  fiatAmount: '${order?.amountUsd ?? 0} USD',
+                  fiatAmount: '${order?.totalReceiveAmount}',
                 ))
             .toList();
 
-        cakePayBuyCardViewModel.sendViewModel.clearOutputs();
+        _sendViewModel.clearOutputs();
 
         final bool usePageContextLater = context.mounted;
 
@@ -651,6 +678,10 @@ class CakePayBuyCardPage extends BasePage {
           }
 
           final BuildContext sheetParentCtx = usePageContextLater ? context : _overlayCtx;
+
+          if (!sheetParentCtx.mounted) {
+            return;
+          }
 
           await showModalBottomSheet<void>(
             context: sheetParentCtx,
@@ -668,17 +699,14 @@ class CakePayBuyCardPage extends BasePage {
                   child: Icon(Icons.check, size: 16, color: Colors.white),
                 ),
                 output: displayingOutputs.first,
-                currency: cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency,
+                currency: _sendViewModel.selectedCryptoCurrency,
                 amount: S.of(sheetCtx).send_amount,
-                amountValue:
-                    cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                amountValue: _sendViewModel.pendingTransaction!.amountFormatted,
                 quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
-                fiatAmountValue:
-                    cakePayBuyCardViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                fiatAmountValue: _sendViewModel.pendingTransactionFiatAmountFormatted,
                 fee: S.of(sheetCtx).send_fee,
-                feeValue: cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                feeFiatAmount:
-                    cakePayBuyCardViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                feeValue: _sendViewModel.pendingTransaction!.feeFormatted,
+                feeFiatAmount: _sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                 paymentId: 'Order ID',
                 paymentIdValue: order?.orderId ?? '',
                 onClose: () {
@@ -701,7 +729,6 @@ class CakePayBuyCardPage extends BasePage {
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
-              currentTheme: currentTheme,
               footerType: FooterType.singleActionButton,
               titleText: S.of(bottomSheetContext).proceed_on_device,
               contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
@@ -709,7 +736,7 @@ class CakePayBuyCardPage extends BasePage {
               content: S.of(bottomSheetContext).proceed_on_device_description,
               singleActionButtonText: S.of(context).cancel,
               onSingleActionButtonPressed: () {
-                cakePayBuyCardViewModel.sendViewModel.state = InitialExecutionState();
+                _sendViewModel.state = InitialExecutionState();
                 Navigator.of(bottomSheetContext).pop();
               },
             ),

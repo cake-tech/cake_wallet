@@ -185,6 +185,24 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Future<void>? updateBalance() => null;
 
   @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check if the wallet is currently connected to the daemon
+      final isConnected = await monero_wallet.isConnected();
+      
+      if (!isConnected) {
+        return false; // It's not connected to daemon
+      }
+      
+      // Check to get current node height to ensure daemon is responsive
+      final nodeHeight = await monero_wallet.getNodeHeight();
+      return nodeHeight > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
   Future<void> close({bool shouldCleanup = false}) async {
     if (isHardwareWallet) {
       disableLedgerExchange();
@@ -211,12 +229,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   Future<void> connectToNode({required Node node}) async {
     String socksProxy = node.socksProxyAddress ?? '';
-    printV("bootstrapped: ${CakeTor.instance.bootstrapped}");
-    printV("     enabled: ${CakeTor.instance.enabled}");
-    printV("        port: ${CakeTor.instance.port}");
-    printV("     started: ${CakeTor.instance.started}");
-    if (CakeTor.instance.enabled) {
-      socksProxy = "127.0.0.1:${CakeTor.instance.port}";
+    printV("bootstrapped: ${CakeTor.instance!.bootstrapped}");
+    printV("     enabled: ${CakeTor.instance!.enabled}");
+    printV("        port: ${CakeTor.instance!.port}");
+    printV("     started: ${CakeTor.instance!.started}");
+    if (CakeTor.instance!.enabled) {
+      socksProxy = "127.0.0.1:${CakeTor.instance!.port}";
     }
     try {
       syncStatus = ConnectingSyncStatus();
@@ -336,14 +354,23 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return retStatus;
   }
 
-  String exportOutputsUR(bool all) {
-    final str = currentWallet!.exportOutputsUR(all: all);
-    final status = currentWallet!.status();
+  Map<String, String> exportOutputsUR() {
+    final str = currentWallet!.exportOutputsUR(all: false);
+    int status = currentWallet!.status();
     if (status != 0) {
       final err = currentWallet!.errorString();
-      throw MoneroTransactionCreationException("unable to export UR: $err");
+      throw MoneroTransactionCreationException("unable to export outputs: $err");
     }
-    return str;
+    final strAll = currentWallet!.exportOutputsUR(all: true);
+    status = currentWallet!.status();
+    if (status != 0) {
+      final err = currentWallet!.errorString();
+      throw MoneroTransactionCreationException("unable to export outputs: $err");
+    }
+    return {
+      "Outputs (partial)": str,
+      "Outputs (all)": strAll,
+    };
   }
 
   bool needExportOutputs(int amount) {
@@ -616,12 +643,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         final coinSpent = coin.spent();
         if (coinSpent == false && coin.subaddrAccount() == walletAddresses.account!.id) {
           final unspent = await MoneroUnspent.fromUnspent(
-            coin.address(),
-            coin.hash(),
-            coin.keyImage(),
-            coin.amount(),
-            coin.frozen(),
-            coin.unlocked(),
+            address: coin.address(),
+            hash: coin.hash(),
+            keyImage: coin.keyImage(),
+            value: coin.amount(),
+            isFrozen: coin.frozen(),
+            isUnlocked: coin.unlocked(),
+            isSpent: coinSpent,
           );
           // TODO: double-check the logic here
           if (unspent.hash.isNotEmpty) {
@@ -852,12 +880,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   void _askForUpdateBalance() {
-    final _ub = _getUnlockedBalance();
-    final _fb =_getFrozenBalance();
-    final unlockedBalance = _ub - _fb;
+    final unlockedBalance = _getUnlockedBalance();
     final fullBalance = monero_wallet.getFullBalance(
-      accountIndex: walletAddresses.account!.id) - _fb;
-    final frozenBalance = _fb;
+      accountIndex: walletAddresses.account!.id);
+    final frozenBalance = _getFrozenBalance();
     if (balance[currency]!.fullBalance != fullBalance ||
         balance[currency]!.unlockedBalance != unlockedBalance ||
         balance[currency]!.frozenBalance != frozenBalance) {

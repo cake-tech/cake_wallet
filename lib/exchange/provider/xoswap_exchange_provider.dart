@@ -11,6 +11,7 @@ import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 class XOSwapExchangeProvider extends ExchangeProvider {
   XOSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
@@ -76,21 +77,25 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch assets for ${currency.title} on ${currency.tag}');
       }
-      final assets = json.decode(response.body) as List<dynamic>;
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! List) throw const FormatException('Unexpected response format');
+      final assets = decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+
 
       final asset = assets.firstWhere(
-        (asset) {
-          final assetSymbol = (asset['symbol'] as String).toUpperCase();
-          return assetSymbol == currency.title.toUpperCase();
-        },
-        orElse: () => null,
+        (asset) => removeNonAlphanumeric((asset['symbol'] ?? '').toString()) == currency.title,
+        orElse: () => const {},
       );
-      return asset != null ? asset['id'] as String : null;
+
+      return asset.isEmpty ? null : asset['id'] as String;
     } catch (e) {
       printV(e.toString());
       return null;
     }
   }
+
+  String removeNonAlphanumeric(String str) => str.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
 
   Future<List<dynamic>> getRatesForPair({
     required CryptoCurrency from,
@@ -117,32 +122,54 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    final rates = await getRatesForPair(from: from, to: to);
-    if (rates.isEmpty) return Limits(min: 0, max: 0);
+    try {
+      final rates = await getRatesForPair(from: from, to: to);
+      if (rates.isEmpty) throw Exception('No rates found for $from to $to');
 
     double minLimit = double.infinity;
     double maxLimit = 0;
 
-    for (var rate in rates) {
-      final double currentMin = double.parse(rate['min']['value'].toString());
-      final double currentMax = double.parse(rate['max']['value'].toString());
-      if (currentMin < minLimit) minLimit = currentMin;
-      if (currentMax > maxLimit) maxLimit = currentMax;
+      for (var rate in rates) {
+        final double currentMin = double.parse(rate['min']['value'].toString());
+        final double currentMax = double.parse(rate['max']['value'].toString());
+        if (currentMin < minLimit) minLimit = currentMin;
+        if (currentMax > maxLimit) maxLimit = currentMax;
+      }
+      return Limits(min: minLimit, max: maxLimit);
+    } catch (e) {
+      printV(e.toString());
+      throw Exception('StealthEx failed to fetch limits');
     }
-    return Limits(min: minLimit, max: maxLimit);
   }
 
+  @override
   Future<double> fetchRate({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required double amount,
     required bool isFixedRateMode,
-    required bool isReceiveAmount,
+    required bool isReceiveAmount
   }) async {
     try {
       final rates = await getRatesForPair(from: from, to: to);
-      if (rates.isEmpty) return 0;
+      if (rates.isEmpty) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception('No rates found for $from to $to'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+          },
+        );
+        return 0;
+      }
 
+      double result;
       if (!isFixedRateMode) {
         double bestOutput = 0.0;
         for (var rate in rates) {
@@ -157,7 +184,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
             }
           }
         }
-        return bestOutput > 0 ? (bestOutput / amount) : 0;
+        result = bestOutput > 0 ? (bestOutput / amount) : 0;
       } else {
         double bestInput = double.infinity;
         for (var rate in rates) {
@@ -172,9 +199,41 @@ class XOSwapExchangeProvider extends ExchangeProvider {
             }
           }
         }
-        return bestInput < double.infinity ? amount / bestInput : 0;
+        result = bestInput < double.infinity ? amount / bestInput : 0;
       }
-    } catch (e) {
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+        responseData: {
+          'result': result,
+          'ratesCount': rates.length,
+          'rates': rates,
+        },
+      );
+
+      return result;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       printV(e.toString());
       return 0;
     }
@@ -193,6 +252,24 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final curTo = await _getAssets(request.toCurrency);
 
       if (curFrom == null || curTo == null) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: TradeNotCreatedException(description),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'curFrom': curFrom,
+            'curTo': curTo,
+          },
+        );
         throw TradeNotCreatedException(description);
       }
 
@@ -216,6 +293,26 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error'] ?? 'Unknown error';
         final message = responseJSON['message'] ?? '';
+        
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: Exception('$error\n$message'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'payload': payload,
+            'url': uri.toString(),
+          },
+        );
+        
         throw Exception('$error\n$message');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -236,6 +333,36 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       final createdAt = DateTime.parse(createdAtString).toLocal();
 
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'createTrade',
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'payload': payload,
+          'url': uri.toString(),
+        },
+        responseData: {
+          'orderId': orderId,
+          'depositAddress': depositAddress,
+          'payoutAddress': payoutAddress,
+          'refundAddress': refundAddress,
+          'depositAmount': depositAmount,
+          'receiveAmount': receiveAmount,
+          'status': status,
+          'createdAt': createdAtString,
+          'extraId': extraId,
+          'statusCode': response.statusCode,
+          'responseJSON': responseJSON,
+        },
+      );
+
       return Trade(
         id: orderId,
         from: from,
@@ -249,8 +376,27 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount.toString(),
         payoutAddress: payoutAddress,
         extraId: extraId,
+        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
+        isSendAll: isSendAll,
       );
-    } catch (e) {
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+        },
+      );
       printV(e.toString());
       throw TradeNotCreatedException(description);
     }
@@ -275,10 +421,10 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       final pairId = responseJSON['pairId'] as String;
       final pairParts = pairId.split('_');
-      final CryptoCurrency fromCurrency =
-          CryptoCurrency.fromString(pairParts.isNotEmpty ? pairParts[0] : "");
-      final CryptoCurrency toCurrency =
-          CryptoCurrency.fromString(pairParts.length > 1 ? pairParts[1] : "");
+      final fromAsset = pairParts.isNotEmpty ? pairParts[0] : '';
+      final toAsset = pairParts.length > 1 ? pairParts[1] : '';
+      final fromCurrency = CryptoCurrency.safeParseCurrencyFromString(fromAsset);
+      final toCurrency = CryptoCurrency.safeParseCurrencyFromString(toAsset);
 
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;
@@ -306,6 +452,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount,
         payoutAddress: payoutAddress,
         extraId: extraId,
+        userCurrencyFromRaw: '$fromAsset' + '_',
+        userCurrencyToRaw: '$toAsset' + '_',
       );
     } catch (e) {
       printV(e.toString());

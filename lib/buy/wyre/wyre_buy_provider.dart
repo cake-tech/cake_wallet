@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'package:cake_wallet/buy/buy_exception.dart';
+import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
@@ -19,7 +21,7 @@ class WyreBuyProvider extends BuyProvider {
         super(
           wallet: wallet,
           isTestEnvironment: isTestEnvironment,
-          ledgerVM: null,
+          hardwareWalletVM: null,
           supportedCryptoList: supportedCryptoToFiatPairs(
               notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
           supportedFiatList: supportedFiatToCryptoPairs(
@@ -157,7 +159,8 @@ class WyreBuyProvider extends BuyProvider {
 
     return Order(
         id: id,
-        provider: BuyProviderDescription.wyre,
+        source: OrderSourceDescription.buy,
+        buyProvider: BuyProviderDescription.wyre,
         transferId: transferId,
         from: from,
         to: to,

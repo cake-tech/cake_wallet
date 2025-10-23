@@ -107,7 +107,13 @@ abstract class SupportViewModelBase with Store {
                 lightIcon: 'assets/images/robinhood_light.png',
                 linkTitle: S.current.submit_request,
                 link: 'https://robinhood.com/contact')
-          ]
+          ],
+          LinkListItem(
+              title: 'Kryptonim',
+              icon: 'assets/images/kryptonim_dark.png',
+              lightIcon: 'assets/images/kryptonim_light.png',
+              linkTitle: 'contact@support.kryptonim.com',
+              link: 'mailto:contact@support.kryptonim.com'),
         ];
 
   final docsUrl = 'https://docs.cakewallet.com';

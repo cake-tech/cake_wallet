@@ -31,7 +31,9 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -48,10 +50,14 @@ class SendPage extends BasePage {
   SendPage({
     required this.sendViewModel,
     required this.authService,
+    required this.paymentViewModel,
+    required this.walletSwitcherViewModel,
     this.initialPaymentRequest,
   }) : _formKey = GlobalKey<FormState>();
 
   final SendViewModel sendViewModel;
+  final PaymentViewModel paymentViewModel;
+  final WalletSwitcherViewModel walletSwitcherViewModel;
   final AuthService authService;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
@@ -179,6 +185,8 @@ class SendPage extends BasePage {
             key: output.key,
             output: output,
             sendViewModel: sendViewModel,
+            paymentViewModel: paymentViewModel,
+            walletSwitcherViewModel: walletSwitcherViewModel,
             initialPaymentRequest: initialPaymentRequest,
             cryptoAmountFocus: cryptoAmountFocus,
             fiatAmountFocus: fiatAmountFocus,
@@ -428,18 +436,21 @@ class SendPage extends BasePage {
                               }
 
                               if (sendViewModel.wallet.isHardwareWallet) {
-                                if (!sendViewModel.ledgerViewModel!.isConnected) {
+                                if (!sendViewModel.hardwareWalletViewModel!.isConnected) {
                                   await Navigator.of(context).pushNamed(Routes.connectDevices,
                                       arguments: ConnectDevicePageParams(
                                         walletType: sendViewModel.walletType,
+                                        hardwareWalletType:
+                                            sendViewModel.wallet.walletInfo.hardwareWalletType!,
                                         onConnectDevice: (BuildContext context, _) {
-                                          sendViewModel.ledgerViewModel!
-                                              .setLedger(sendViewModel.wallet);
+                                          sendViewModel.hardwareWalletViewModel!
+                                              .initWallet(sendViewModel.wallet);
                                           Navigator.of(context).pop();
                                         },
                                       ));
                                 } else {
-                                  sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                                  sendViewModel.hardwareWalletViewModel!
+                                      .initWallet(sendViewModel.wallet);
                                 }
                               }
 
@@ -450,7 +461,7 @@ class SendPage extends BasePage {
                                 }
                                 if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
                                   await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
-                                      arguments: 'export-outputs');
+                                      arguments: monero!.exportOutputsUR(sendViewModel.wallet));
                                   await Future.delayed(
                                       Duration(seconds: 1)); // wait for monero to refresh the state
                                 }
@@ -470,16 +481,14 @@ class SendPage extends BasePage {
                                 },
                               );
                             },
-                            text: sendViewModel.payjoinUri != null
-                                ? S.of(context).send_payjoin
-                                : S.of(context).send,
+                            text: _sendButtonText(context),
                             color: Theme.of(context).colorScheme.primary,
                             textColor: Theme.of(context).colorScheme.onPrimary,
                             isLoading: sendViewModel.state is IsExecutingState ||
                                 sendViewModel.state is TransactionCommitting ||
                                 sendViewModel.state is IsAwaitingDeviceResponseState ||
                                 sendViewModel.state is LoadingTemplateExecutingState,
-                            isDisabled: !sendViewModel.isReadyForSend,
+                            isDisabled: !sendViewModel.isReadyForSend || sendViewModel.state is ExecutedSuccessfullyState,
                           );
                         },
                       )
@@ -571,7 +580,6 @@ class SendPage extends BasePage {
                   key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   accessibleNavigationModeSlideActionButtonText: S.of(bottomSheetContext).send,
-                  currentTheme: currentTheme,
                   footerType: FooterType.slideActionButton,
                   walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
@@ -621,7 +629,6 @@ class SendPage extends BasePage {
             builder: (BuildContext bottomSheetContext) {
               return showContactSheet && sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
-                      currentTheme: currentTheme,
                       footerType: FooterType.doubleActionButton,
                       titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/contact.png',
@@ -675,7 +682,6 @@ class SendPage extends BasePage {
                       },
                     )
                   : InfoBottomSheet(
-                      currentTheme: currentTheme,
                       footerType: FooterType.singleActionButton,
                       titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/birthday_cake.png',
@@ -738,7 +744,6 @@ class SendPage extends BasePage {
               builder: (context) {
                 dialogContext = context;
                 return InfoBottomSheet(
-                  currentTheme: currentTheme,
                   footerType: FooterType.singleActionButton,
                   titleText: S.of(context).proceed_on_device,
                   contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
@@ -840,5 +845,16 @@ class SendPage extends BasePage {
     }
 
     return isValid;
+  }
+
+  String _sendButtonText(BuildContext context) {
+    if (!sendViewModel.isReadyForSend) {
+      return S.of(context).synchronizing;
+    }
+    if (sendViewModel.payjoinUri != null) {
+      return S.of(context).send_payjoin;
+    } else {
+      return S.of(context).send;
+    }
   }
 }

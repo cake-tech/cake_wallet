@@ -102,10 +102,9 @@ class ReceivePage extends BasePage {
                   heroTag: _heroTag,
                   amountTextFieldFocusNode: _cryptoAmountFocus,
                   amountController: _amountController,
-                  currentTheme: currentTheme,
                 ),
               ),
-              AddressList(addressListViewModel: addressListViewModel, currentTheme: currentTheme),
+              AddressList(addressListViewModel: addressListViewModel),
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
                 child: Text(

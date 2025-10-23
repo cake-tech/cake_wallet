@@ -20,27 +20,17 @@ class EditWalletButtonWidget extends StatelessWidget {
       width: width,
       child: Row(
         children: [
-          GestureDetector(
-            onTap: onTap,
-            child: Center(
-              child: Container(
-                height: 40,
-                width: 44,
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).colorScheme.surface,
-                ),
-                child: Icon(
-                  Icons.edit,
-                  size: 14,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
+          TextButton(
+            onPressed: onTap,
+            style: TextButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.surface, shape: CircleBorder()),
+            child: Icon(
+              Icons.edit,
+              size: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           if (isGroup) ...{
-            SizedBox(width: 6),
             Icon(
               isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
               size: 24,

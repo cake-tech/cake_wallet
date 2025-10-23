@@ -14,6 +14,8 @@ import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
@@ -60,8 +62,10 @@ void startAuthenticationStateChange(
           (route) => false,
           arguments: ConnectDevicePageParams(
             walletType: WalletType.monero,
+            hardwareWalletType: HardwareWalletType.ledger,
             onConnectDevice: (context, ledgerVM) async {
-              monero!.setGlobalLedgerConnection(ledgerVM.connection);
+              if (ledgerVM is LedgerViewModel)
+                monero!.setGlobalLedgerConnection(ledgerVM.connection);
               showPopUp<void>(
                 context: context,
                 builder: (context) => AlertWithOneAction(
@@ -78,18 +82,13 @@ void startAuthenticationStateChange(
                   await loadCurrentWallet();
                   tryOpening = false;
                 } on Exception catch (e) {
-                  final errorCode = RegExp(r'0x\S*?(?= )').firstMatch(
-                      e.toString());
-
-                  final errorMessage = ledgerVM.interpretErrorCode(
-                      errorCode?.group(0).toString().replaceAll("0x", "") ??
-                          "");
-                  if (errorMessage != null) {
+                  final ledgerErrorMessage = ledgerVM.interpretErrorCode(e.toString());
+                  if (ledgerErrorMessage != null) {
                     await showPopUp<void>(
                       context: context,
                       builder: (context) => AlertWithTwoActions(
                         alertTitle: "Ledger Error",
-                        alertContent: errorMessage,
+                        alertContent: ledgerErrorMessage,
                         leftButtonText: S.of(context).try_again,
                         alertBarrierDismissible: false,
                         actionLeftButton: () => Navigator.of(context).pop(),

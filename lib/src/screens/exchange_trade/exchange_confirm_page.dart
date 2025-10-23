@@ -65,15 +65,16 @@ class ExchangeConfirmPage extends BasePage {
                                       fontWeight: FontWeight.w500,
                                     ),
                               ),
-                              Text(
-                                trade.id,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                    ),
+                              Expanded(
+                                child: Text(
+                                  trade.id,
+                                  overflow: TextOverflow.visible,
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                ),
                               ),
                             ],
                           ),

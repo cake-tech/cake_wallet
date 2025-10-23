@@ -24,7 +24,7 @@ class PolygonClient extends EVMChainClient {
       // If we have EIP-1559 parameters but no legacy gasPrice, then use maxFeePerGas as gasPrice
       finalGasPrice = maxFeePerGas;
     }
-    
+
     return Transaction(
       from: from,
       to: to,
@@ -59,7 +59,11 @@ class PolygonClient extends EVMChainClient {
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
-        return (jsonResponse['result'] as List)
+        final res = (jsonResponse['result'] as List);
+
+        res.removeWhere((e) => e['value'] == '0');
+
+        return res
             .map(
               (e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'MATIC'),
             )

@@ -41,6 +41,11 @@ class SilentPaymentsSettingsPage extends BasePage {
                 title: S.current.silent_payments_scanning,
                 handler: (BuildContext context) => Navigator.of(context).pushNamed(Routes.rescan),
               ),
+              SettingsCellWithArrow(
+                title: S.current.silent_payments_logs,
+                handler: (BuildContext context) =>
+                    Navigator.of(context).pushNamed(Routes.silentPaymentsLogs),
+              ),
             ],
           ),
         );

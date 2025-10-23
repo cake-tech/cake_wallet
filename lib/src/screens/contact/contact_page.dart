@@ -144,13 +144,14 @@ class ContactPage extends BasePage {
   void _presentCurrencyPicker(BuildContext context) {
     showPopUp<void>(
       builder: (_) => CurrencyPicker(
-          selectedAtIndex: contactViewModel.currency != null
-              ? contactViewModel.currencies.indexOf(contactViewModel.currency!)
-              : -1,
-          items: contactViewModel.currencies,
-          title: S.of(context).please_select,
-          hintText: S.of(context).search_currency,
-          onItemSelected: (Currency item) => contactViewModel.currency = item as CryptoCurrency),
+        selectedAtIndex: contactViewModel.currency != null
+            ? contactViewModel.currencies.indexOf(contactViewModel.currency!)
+            : -1,
+        items: contactViewModel.currencies,
+        title: S.of(context).please_select,
+        hintText: S.of(context).search_currency,
+        onItemSelected: (Currency item) => contactViewModel.currency = item as CryptoCurrency,
+      ),
       context: context,
     );
   }

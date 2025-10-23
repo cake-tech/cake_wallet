@@ -6,7 +6,8 @@ import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
+import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -16,6 +17,7 @@ import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -35,7 +37,7 @@ class MoonPayProvider extends BuyProvider {
         super(
           wallet: wallet,
           isTestEnvironment: isTestEnvironment,
-          ledgerVM: null,
+          hardwareWalletVM: null,
           supportedCryptoList: supportedCryptoToFiatPairs(
               notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
           supportedFiatList: supportedFiatToCryptoPairs(
@@ -329,7 +331,8 @@ class MoonPayProvider extends BuyProvider {
 
     return Order(
         id: id,
-        provider: BuyProviderDescription.moonPay,
+        source: OrderSourceDescription.buy,
+        buyProvider: BuyProviderDescription.moonPay,
         transferId: id,
         state: state,
         createdAt: createdAt,

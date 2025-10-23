@@ -18,6 +18,8 @@ const walletTypes = [
   WalletType.tron,
   WalletType.zano,
   WalletType.decred,
+  WalletType.dogecoin,
+  WalletType.base,
 ];
 
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -65,7 +67,13 @@ enum WalletType {
   zano,
 
   @HiveField(14)
-  decred
+  decred,
+
+  @HiveField(15)
+  dogecoin,
+
+  @HiveField(16)
+  base,
 }
 
 int serializeToInt(WalletType type) {
@@ -98,6 +106,10 @@ int serializeToInt(WalletType type) {
       return 12;
     case WalletType.decred:
       return 13;
+    case WalletType.dogecoin:
+      return 14;
+    case WalletType.base:
+      return 15;
     case WalletType.none:
       return -1;
   }
@@ -133,9 +145,12 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.zano;
     case 13:
       return WalletType.decred;
+    case 14:
+      return WalletType.dogecoin;
+    case 15:
+      return WalletType.base;
     default:
-      throw Exception(
-          'Unexpected token: $raw for WalletType deserializeFromInt');
+      throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
 }
 
@@ -169,6 +184,10 @@ String walletTypeToString(WalletType type) {
       return 'Zano';
     case WalletType.decred:
       return 'Decred';
+    case WalletType.dogecoin:
+      return 'Dogecoin';
+    case WalletType.base:
+      return 'Base';
     case WalletType.none:
       return '';
   }
@@ -204,47 +223,12 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Zano (ZANO)';
     case WalletType.decred:
       return 'Decred (DCR)';
+    case WalletType.dogecoin:
+      return 'Dogecoin (DOGE)';
+    case WalletType.base:
+      return 'Base (BASE)';
     case WalletType.none:
       return '';
-  }
-}
-
-CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false}) {
-  switch (type) {
-    case WalletType.monero:
-      return CryptoCurrency.xmr;
-    case WalletType.bitcoin:
-      if (isTestnet) {
-        return CryptoCurrency.tbtc;
-      }
-      return CryptoCurrency.btc;
-    case WalletType.litecoin:
-      return CryptoCurrency.ltc;
-    case WalletType.haven:
-      return CryptoCurrency.xhv;
-    case WalletType.ethereum:
-      return CryptoCurrency.eth;
-    case WalletType.bitcoinCash:
-      return CryptoCurrency.bch;
-    case WalletType.nano:
-      return CryptoCurrency.nano;
-    case WalletType.banano:
-      return CryptoCurrency.banano;
-    case WalletType.polygon:
-      return CryptoCurrency.maticpoly;
-    case WalletType.solana:
-      return CryptoCurrency.sol;
-    case WalletType.tron:
-      return CryptoCurrency.trx;
-    case WalletType.wownero:
-      return CryptoCurrency.wow;
-    case WalletType.zano:
-      return CryptoCurrency.zano;
-    case WalletType.decred:
-      return CryptoCurrency.dcr;
-    case WalletType.none:
-      throw Exception(
-          'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }
 }
 
@@ -278,6 +262,10 @@ WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
       return WalletType.zano;
     case CryptoCurrency.dcr:
       return WalletType.decred;
+    case CryptoCurrency.doge:
+      return WalletType.dogecoin;
+    case CryptoCurrency.baseEth:
+      return WalletType.base;
     default:
       return null;
   }

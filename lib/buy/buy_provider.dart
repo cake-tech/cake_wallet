@@ -1,10 +1,10 @@
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -13,14 +13,14 @@ abstract class BuyProvider {
   BuyProvider({
     required this.wallet,
     required this.isTestEnvironment,
-    required this.ledgerVM,
+    required this.hardwareWalletVM,
     required this.supportedCryptoList,
     required this.supportedFiatList
   });
 
   final WalletBase wallet;
   final bool isTestEnvironment;
-  final LedgerViewModel? ledgerVM;
+  final HardwareWalletViewModel? hardwareWalletVM;
   final List<TradePair<dynamic, dynamic>> supportedCryptoList;
   final List<TradePair<dynamic, dynamic>> supportedFiatList;
 

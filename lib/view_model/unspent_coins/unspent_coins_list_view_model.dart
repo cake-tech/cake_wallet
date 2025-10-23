@@ -4,6 +4,9 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
@@ -28,7 +31,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
         items = ObservableList<UnspentCoinsItem>(),
         _originalState = {};
 
-  final WalletBase wallet;
+  @observable
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
   final UnspentCoinType coinTypeToSpendFrom;
 
@@ -91,7 +95,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       return monero!.formatterMoneroAmountToString(amount: fullBalance);
     if (wallet.type == WalletType.wownero)
       return wownero!.formatterWowneroAmountToString(amount: fullBalance);
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type))
       return bitcoin!.formatterBitcoinAmountToString(amount: fullBalance);
     if (wallet.type == WalletType.decred)
       return decred!.formatterDecredAmountToString(amount: fullBalance);
@@ -105,7 +109,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
     if (wallet.type == WalletType.wownero) {
       await wownero!.updateUnspents(wallet);
     }
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type)) {
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type)) {
       await bitcoin!.updateUnspents(wallet);
     }
     if (wallet.type == WalletType.decred) {
@@ -123,6 +127,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
         return bitcoin!.getUnspents(wallet, coinTypeToSpendFrom: coinTypeToSpendFrom);
       case WalletType.decred:
         return decred!.getUnspents(wallet);
@@ -140,6 +145,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
         return bitcoin!.getUnspents(wallet, coinTypeToSpendFrom: overrideCoinTypeToSpendFrom);
       case WalletType.decred:
         return decred!.getUnspents(wallet);
@@ -225,6 +231,11 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   @action
   void setIsDisposing(bool value) => isDisposing = value;
+
+  @action
+  void updateWallet(WalletBase newWallet) {
+    wallet = newWallet;
+  }
 
   @action
   Future<void> dispose() async {

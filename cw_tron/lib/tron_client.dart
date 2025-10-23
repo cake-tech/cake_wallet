@@ -10,7 +10,7 @@ import 'package:cw_tron/pending_tron_transaction.dart';
 import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
 import 'package:cw_tron/tron_http_provider.dart';
-import 'package:cw_tron/tron_token.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:cw_tron/tron_transaction_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -102,12 +102,15 @@ class TronClient {
     }
   }
 
-  Future<BigInt> getBalance(TronAddress address) async {
+  Future<BigInt> getBalance(TronAddress address, {bool throwOnError = false}) async {
     try {
       final accountDetails = await _provider!.request(TronRequestGetAccount(address: address));
 
       return accountDetails?.balance ?? BigInt.zero;
     } catch (_) {
+      if (throwOnError) {
+        rethrow;
+      }
       return BigInt.zero;
     }
   }
@@ -476,7 +479,7 @@ class TronClient {
     }
   }
 
-  Future<TronBalance> fetchTronTokenBalances(String userAddress, String contractAddress) async {
+  Future<TronBalance> fetchTronTokenBalances(String userAddress, String contractAddress, {bool throwOnError = false}) async {
     try {
       final ownerAddress = TronAddress(userAddress);
 
@@ -499,6 +502,9 @@ class TronClient {
 
       return TronBalance(outputResult);
     } catch (_) {
+      if (throwOnError) {
+        rethrow;
+      }
       return TronBalance(BigInt.zero);
     }
   }

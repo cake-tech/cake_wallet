@@ -2,8 +2,6 @@ import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/flip_card_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +11,6 @@ import 'base_bottom_sheet_widget.dart';
 class CakePayCardInfoBottomSheet extends BaseBottomSheet {
   CakePayCardInfoBottomSheet({
     required String titleText,
-    required MaterialThemeBase currentTheme,
     required FooterType footerType,
     String? titleIconPath,
     String? singleActionButtonText,
@@ -32,12 +29,10 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
     this.howToUse,
     this.applyBoxShadow = false,
     Key? key,
-  })  : _currentTheme = currentTheme,
-        super(
+  }) : super(
             titleText: titleText,
             maxHeight: 900,
             titleIconPath: titleIconPath,
-            currentTheme: currentTheme,
             footerType: footerType,
             singleActionButtonText: singleActionButtonText,
             onSingleActionButtonPressed: onSingleActionButtonPressed,
@@ -51,7 +46,6 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
             key: key);
 
   final VoidCallback onUpdateBalancePressed;
-  final MaterialThemeBase _currentTheme;
   final String? contentImage;
   final String? howToUse;
   final bool isReloadable;
@@ -63,15 +57,15 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
   @override
   Widget contentWidget(BuildContext context) {
     final itemTitleTextStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      decoration: TextDecoration.none,
-    );
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          decoration: TextDecoration.none,
+        );
     final itemSubTitleTextStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
-      fontWeight: FontWeight.w600,
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
-      decoration: TextDecoration.none,
-    );
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          decoration: TextDecoration.none,
+        );
 
     final tileBackgroundColor = Theme.of(context).colorScheme.surfaceContainer;
 
@@ -165,9 +159,7 @@ class _HowToUseTile extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                S.of(context).how_to_use_card,
-                style: Theme.of(context).textTheme.bodyLarge),
+              Text(S.of(context).how_to_use_card, style: Theme.of(context).textTheme.bodyLarge),
               Icon(
                 Icons.chevron_right_rounded,
                 color: Theme.of(context).textTheme.titleLarge!.color!,
@@ -261,11 +253,9 @@ Widget _buildCardImage(BuildContext ctx, String path, bool addShadow) {
   return Container(
     decoration: addShadow
         ? BoxDecoration(
-      borderRadius: border,
-      boxShadow: [
-        BoxShadow(color: Colors.black.withAlpha(150), blurRadius: 5)
-      ],
-    )
+            borderRadius: border,
+            boxShadow: [BoxShadow(color: Colors.black.withAlpha(150), blurRadius: 5)],
+          )
         : null,
     child: ClipRRect(
       borderRadius: border,
@@ -290,9 +280,7 @@ Widget _buildBarcodeSide(BuildContext context, {required String cardNumber, requ
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor.withAlpha(200),
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withAlpha(150), blurRadius: 5)
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withAlpha(150), blurRadius: 5)],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -300,7 +288,6 @@ Widget _buildBarcodeSide(BuildContext context, {required String cardNumber, requ
             Expanded(
               child: Container(
                 color: Theme.of(context).textTheme.titleLarge!.color!.withOpacity(.1),
-              
               ),
             ),
             const SizedBox(height: 12),
@@ -345,7 +332,6 @@ Widget _buildBarcodeSide(BuildContext context, {required String cardNumber, requ
                 ),
               ],
             ),
-
           ],
         ),
       ),

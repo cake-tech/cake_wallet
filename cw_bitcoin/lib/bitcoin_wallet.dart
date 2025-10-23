@@ -12,6 +12,7 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
+import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -21,9 +22,11 @@ import 'package:cw_bitcoin/psbt/v0_deserialize.dart';
 import 'package:cw_bitcoin/psbt/v0_finalizer.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
@@ -32,6 +35,9 @@ import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
+import 'package:ur/cbor_lite.dart';
+import 'package:ur/ur.dart';
+import 'package:ur/ur_decoder.dart';
 
 part 'bitcoin_wallet.g.dart';
 
@@ -236,7 +242,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     return BitcoinWallet(
         mnemonic: mnemonic,
-        xpub: keysData.xPub,
+        xpub: keysData.xPub != null ? convertZpubToXpub(keysData.xPub!) : null,
         password: password,
         passphrase: passphrase,
         walletInfo: walletInfo,
@@ -255,16 +261,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         payjoinBox: payjoinBox);
   }
 
-  LedgerConnection? _ledgerConnection;
-  BitcoinLedgerApp? _bitcoinLedgerApp;
-
-  @override
-  void setLedgerConnection(LedgerConnection connection) {
-    _ledgerConnection = connection;
-    _bitcoinLedgerApp = BitcoinLedgerApp(_ledgerConnection!,
-        derivationPath: walletInfo.derivationInfo!.derivationPath!);
-  }
-
   @override
   Future<void> close({bool shouldCleanup = false}) async {
     payjoinManager.cleanupSessions();
@@ -280,6 +276,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   Future<PsbtV2> buildPsbt({
     required List<BitcoinBaseOutput> outputs,
+    required List<OutputInfo> cwOutputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
@@ -308,7 +305,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     return PSBTTransactionBuild(
-            inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF)
+            inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF, cwOutputs: cwOutputs)
         .psbt;
   }
 
@@ -318,19 +315,22 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
+    required List<OutputInfo> cwOutputs,
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
     String? memo,
     bool enableRBF = false,
     BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
   }) async {
-    final masterFingerprint = await _bitcoinLedgerApp!.getMasterFingerprint();
+    final masterFingerprint =
+        await (hardwareWalletService as BitcoinHardwareWalletService).getMasterFingerprint();
 
     final psbt = await buildPsbt(
       outputs: outputs,
       fee: fee,
       network: network,
       utxos: utxos,
+      cwOutputs: cwOutputs,
       publicKeys: publicKeys,
       masterFingerprint: masterFingerprint,
       memo: memo,
@@ -339,7 +339,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       outputOrdering: outputOrdering,
     );
 
-    final rawHex = await _bitcoinLedgerApp!.signPsbt(psbt: psbt);
+    final psbtStr = base64Encode(psbt.serialize());
+    final rawHex = await hardwareWalletService!.signTransaction(transaction: psbtStr);
     return BtcTransaction.fromRaw(BytesUtils.toHexString(rawHex));
   }
 
@@ -351,7 +352,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         as PendingBitcoinTransaction;
 
     final payjoinUri = credentials.payjoinUri;
-    if (payjoinUri == null) return tx;
+    if (payjoinUri == null && !tx.shouldCommitUR()) return tx;
 
     final transaction = await buildPsbt(
         utxos: tx.utxos,
@@ -363,20 +364,26 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
                   isChange: e.isChange,
                 ))
             .toList(),
+        cwOutputs: credentials.outputs,
         fee: BigInt.from(tx.fee),
         network: network,
         memo: credentials.outputs.first.memo,
         outputOrdering: BitcoinOrdering.none,
         enableRBF: true,
         publicKeys: tx.publicKeys!,
-        masterFingerprint: Uint8List(0));
+        masterFingerprint: Uint8List.fromList([0, 0, 0, 0]));
 
-    final originalPsbt = await signPsbt(
-        base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
+    if (tx.shouldCommitUR()) {
+     tx.unsignedPsbt = transaction.asPsbtV0();
+     return tx;
+    }
+
+    final originalPsbt =
+        await signPsbt(base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
 
     tx.commitOverride = () async {
-      final sender = await payjoinManager.initSender(
-          payjoinUri, originalPsbt, int.parse(tx.feeRate));
+      final sender =
+          await payjoinManager.initSender(payjoinUri!, originalPsbt, int.parse(tx.feeRate));
       payjoinManager.spawnNewSender(
           sender: sender, pjUrl: payjoinUri, amount: BigInt.from(tx.amount));
     };
@@ -404,6 +411,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       feeRate: "",
       network: network,
       hasChange: true,
+      isViewOnly: false,
     ).commit();
   }
 
@@ -429,6 +437,44 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return base64Encode(psbt.asPsbtV0());
   }
 
+  Future<void> commitPsbtUR(List<String> urCodes) async {
+    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    bool isUr = urCodes.any((str) {
+      return str.startsWith("ur:psbt/");
+    });
+    if (isUr) {
+      final ur = URDecoder();
+      for (final inp in urCodes) {
+        ur.receivePart(inp);
+      }
+      final result = (ur.result as UR);
+      final cbor = result.cbor;
+      final cborDecoder = CBORDecoder(cbor);
+      final out = cborDecoder.decodeBytes();
+      final bytes = out.$1;
+      final base64psbt = base64Encode(bytes);
+      final psbt = PsbtV2()..deserializeV0(base64Decode(base64psbt));
+
+      // psbt.finalize();
+      final finalized = base64Encode(psbt.serialize());
+      await commitPsbt(finalized);
+    } else {
+      final btcTx = BtcTransaction.fromRaw(urCodes.first);
+
+      return PendingBitcoinTransaction(
+        btcTx,
+        type,
+        electrumClient: electrumClient,
+        amount: 0,
+        fee: 0,
+        feeRate: "",
+        network: network,
+        hasChange: true,
+        isViewOnly: false,
+      ).commit();
+    }
+  }
+
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
     if (walletInfo.isHardwareWallet) {
@@ -442,8 +488,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       final derivationPath =
           accountPath != null ? "$accountPath/$isChange/$index" : null;
 
-      final signature = await _bitcoinLedgerApp!.signMessage(
-          message: ascii.encode(message), signDerivationPath: derivationPath);
+      final signature = await hardwareWalletService!
+          .signMessage(message: ascii.encode(message), derivationPath: derivationPath);
       return base64Encode(signature);
     }
 

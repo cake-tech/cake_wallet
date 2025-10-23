@@ -40,7 +40,6 @@ class CakeFeaturesPage extends StatelessWidget {
               children: <Widget>[
                 SizedBox(height: 2),
                 DashBoardRoundedCardWidget(
-                  isDarkTheme: dashboardViewModel.isDarkTheme,
                   shadowBlur: dashboardViewModel.getShadowBlur(),
                   shadowSpread: dashboardViewModel.getShadowSpread(),
                   onTap: () {
@@ -53,16 +52,15 @@ class CakeFeaturesPage extends StatelessWidget {
                   title: 'Cake Pay',
                   subTitle: S.of(context).cake_pay_subtitle,
                   image: Image.asset(
-                    'assets/images/cards.png',
-                    height: 100,
-                    width: 115,
+                    'assets/images/cakepay.png',
+                    height: 74,
+                    width: 70,
                     fit: BoxFit.cover,
                   ),
                 ),
                 Observer(builder: (_) {
                   if (dashboardViewModel.type == WalletType.ethereum) {
                     return DashBoardRoundedCardWidget(
-                      isDarkTheme: dashboardViewModel.isDarkTheme,
                       shadowBlur: dashboardViewModel.getShadowBlur(),
                       shadowSpread: dashboardViewModel.getShadowSpread(),
                       onTap: () => Navigator.of(context).pushNamed(Routes.dEuroSavings),
@@ -80,7 +78,6 @@ class CakeFeaturesPage extends StatelessWidget {
                   return const SizedBox();
                 }),
                 DashBoardRoundedCardWidget(
-                  isDarkTheme: dashboardViewModel.isDarkTheme,
                   shadowBlur: dashboardViewModel.getShadowBlur(),
                   shadowSpread: dashboardViewModel.getShadowSpread(),
                   onTap: () => _launchUrl("cake.nano-gpt.com"),

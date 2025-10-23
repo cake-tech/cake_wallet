@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/material.dart';
@@ -77,7 +77,6 @@ class _PickerState<Item> extends State<Picker<Item>> {
   List<Image> images;
   List<Item> filteredItems = [];
   List<Image> filteredImages = [];
-
   final TextEditingController searchController = TextEditingController();
 
   ScrollController controller = ScrollController();
@@ -519,16 +518,13 @@ class _PickerState<Item> extends State<Picker<Item>> {
   }
 
   Widget buildSlider({required int index, required bool isActivated}) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: <Widget>[
         Expanded(
           child: Slider(
             activeColor: Theme.of(context).colorScheme.primary,
-            inactiveColor: isDarkMode
-                ? CustomThemeColors.toggleColorOffStateDark
-                : CustomThemeColors.toggleColorOffStateLight,
-            thumbColor: CustomThemeColors.toggleKnobStateColorLight,
+            inactiveColor: context.customColors.toggleColorOffState,
+            thumbColor: context.customColors.toggleKnobStateColor,
             value: widget.sliderValue == null || widget.sliderValue! < 1 ? 1 : widget.sliderValue!,
             onChanged: isActivated ? widget.onSliderChanged : null,
             min: widget.minValue ?? 1,
