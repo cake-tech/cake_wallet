@@ -25,4 +25,15 @@ abstract class DEuroBorrowingViewModelBase with Store {
     positions.clear();
     positions.addAll(response);
   }
+
+  @observable
+  String collateralAmount = '';
+
+  @observable
+  String liquidationPrice = '';
+
+  @observable
+  String expiryDate = '';
+
+  
 }

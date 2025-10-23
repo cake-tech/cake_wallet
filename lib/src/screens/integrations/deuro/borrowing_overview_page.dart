@@ -18,8 +18,6 @@ class DEuroBorrowingOverviewPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    // WidgetsBinding.instance.addPostFrameCallback((_) => _setReactions(context, _dEuroViewModel));
-
     return RefreshIndicator(
       displacement: responsiveLayoutUtil.screenHeight * 0.1,
       onRefresh: _dEuroViewModel.loadPosition,

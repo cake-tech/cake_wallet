@@ -29,7 +29,8 @@ class DEuroBorrowing extends DEuroBase {
           .allowance(walletAddress, _mintingGateway.self.address);
 
   Future<List<Map<String, dynamic>>> getPositionsOfAddress() async {
-    final address = walletAddress.hex.toLowerCase();
+    final address = "0x54E6db6ccC5EB807aA2A11a7665a29f3b4c825e2"
+        .toLowerCase(); // walletAddress.hex.toLowerCase()
     final result = await ProxyWrapper().get(clearnetUri: Uri.parse(_positionOwnersEndpoint));
 
     if (result.statusCode != 200) throw Exception("Unable to load dEuro Positions");
