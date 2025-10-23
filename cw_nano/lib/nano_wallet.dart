@@ -433,7 +433,7 @@ abstract class NanoWalletBase
     }
 
     final derivationInfo = await walletInfo.getDerivationInfo();
-    derivationInfo.derivationType = derivationType;
+    derivationInfo.derivationType ??= derivationType;
     derivationInfo.save();
 
     return NanoWallet(

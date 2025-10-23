@@ -1094,44 +1094,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   // Adding user's Erc20 tokens to the list of currencies
 
-  Future<Box<Erc20Token>> _openEvmTokensBoxFor(WalletInfo walletInfo) async {
-    final walletKey = walletInfo.name.replaceAll(" ", "_");
-
-    final boxName = switch (walletInfo.type) {
-      WalletType.ethereum => '${walletKey}_${Erc20Token.ethereumBoxName}',
-      WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
-      _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
-    };
-
-    if (CakeHive.isBoxOpen(boxName)) {
-      return CakeHive.box<Erc20Token>(boxName);
-    }
-    return CakeHive.openBox<Erc20Token>(boxName);
-  }
-
-  Future<List<Erc20Token>> _loadAllUniqueEvmTokens() async {
-    final evmWallets = (await WalletInfo.getAll()).where(
-      (w) => w.type == WalletType.ethereum || w.type == WalletType.polygon,
-    );
-
-    final seen = <String>{};
-    final unique = <Erc20Token>[];
-
-    for (final wallet in evmWallets) {
-      final chain = wallet.type == WalletType.ethereum ? 'ETH' : 'POL';
-      final box = await _openEvmTokensBoxFor(wallet);
-
-      for (final t in box.values.where((t) => t.enabled)) {
-        final key = '$chain|${t.contractAddress.toLowerCase()}';
-        if (seen.add(key)) {
-          unique.add(t);
-        }
-      }
-    }
-
-    return unique;
-  }
-
   @action
   Future<void> _injectUserEthTokensIntoCurrencyLists() async {
     final userTokens = await TokenUtilities.loadAllUniqueEvmTokens();
@@ -1160,35 +1122,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   // Adding user's Solana tokens to the list of currencies
 
-  Future<Box<SPLToken>> _openSolTokensBoxFor(WalletInfo wallet) async {
-    final boxName = '${wallet.name.replaceAll(" ", "_")}_${SPLToken.boxName}';
-    if (CakeHive.isBoxOpen(boxName)) {
-      return CakeHive.box<SPLToken>(boxName);
-    }
-    return CakeHive.openBox<SPLToken>(boxName);
-  }
-
-  Future<List<SPLToken>> _loadAllUniqueSolTokens() async {
-    final solWallets = (await WalletInfo.getAll()).where((wallet) => wallet.type == WalletType.solana);
-    final tokens = <SPLToken>[];
-
-    for (final wallet in solWallets) {
-      final box = await _openSolTokensBoxFor(wallet);
-      tokens.addAll(box.values.where((t) => t.enabled));
-    }
-
-    final seen = <String>{};
-    final unique = <SPLToken>[];
-    for (final token in tokens) {
-      final key = token.mintAddress.toLowerCase();
-      if (!seen.contains(key)) {
-        seen.add(key);
-        unique.add(token);
-      }
-    }
-    return unique;
-  }
-
   bool _listContainsSplToken(List<CryptoCurrency> list, SPLToken token) {
     return list.any((item) {
       if (item is SPLToken) {
@@ -1216,31 +1149,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   // Adding user's Tron tokens to the list of currencies
-
-  Future<Box<TronToken>> _openTronTokensBoxFor(WalletInfo walletInfo) async {
-    final boxName = '${walletInfo.name.replaceAll(" ", "_")}_${TronToken.boxName}';
-    if (CakeHive.isBoxOpen(boxName)) {
-      return CakeHive.box<TronToken>(boxName);
-    }
-    return CakeHive.openBox<TronToken>(boxName);
-  }
-
-  Future<List<TronToken>> _loadAllUniqueTronTokens() async {
-    final tronWallets = (await WalletInfo.getAll()).where((w) => w.type == WalletType.tron);
-
-    final seen = <String>{};
-    final unique = <TronToken>[];
-
-    for (final wallet in tronWallets) {
-      final box = await _openTronTokensBoxFor(wallet);
-      for (final t in box.values.where((t) => t.enabled)) {
-        final key = t.contractAddress.toLowerCase();
-        if (seen.add(key)) unique.add(t);
-      }
-    }
-
-    return unique;
-  }
 
   bool _listContainsTronToken(List<CryptoCurrency> list, TronToken token) {
     return list.any((item) {

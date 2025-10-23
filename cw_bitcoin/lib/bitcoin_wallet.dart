@@ -224,6 +224,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         snp?.derivationPath ?? electrum_path;
     derivationInfo.derivationType ??=
         snp?.derivationType ?? DerivationType.electrum;
+    await derivationInfo.save();
 
     Uint8List? seedBytes = null;
     final mnemonic = keysData.mnemonic;

@@ -9,7 +9,11 @@ abstract class WalletAddresses {
         addressInfos = {},
         usedAddresses = {},
         hiddenAddresses = {},
-        manualAddresses = {};
+        manualAddresses = {} {
+    walletInfo.getUsedAddresses().then((value) => usedAddresses = value);
+    walletInfo.getHiddenAddresses().then((value) => hiddenAddresses = value);
+    walletInfo.getManualAddresses().then((value) => manualAddresses = value);
+  }
 
   final WalletInfo walletInfo;
 
