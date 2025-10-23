@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -71,13 +72,11 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final srcToken = _getTokenAddress(currency: from, chain: srcChain);
       final dstToken = _getTokenAddress(currency: to, chain: dstChain);
 
-      // parameters to and from are swapped in this endpoint
-      // i.e. to get limits for FROM -> TO, we request paths for TO -> FROM
       final params = {
-        'srcChainId': '${dstChain.chainId}',
-        'srcToken': dstToken,
-        'dstChainId': '${srcChain.chainId}',
-        'dstToken': srcToken,
+        'srcChainId':  '${srcChain.chainId}',
+        'srcToken': srcToken,
+        'dstChainId':'${dstChain.chainId}',
+        'dstToken': dstToken,
       };
 
       final uri = Uri.https(_baseUrl, _getPaths, params);
@@ -94,30 +93,13 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       }
 
       final path0 = paths.first as Map<String, dynamic>;
-      final tokens = path0['tokens'];
+      final amountLimits = path0['amountLimits'] as Map<String, dynamic>?;
 
-      // If tokens == "all", use path-level amountLimits
-      if (tokens is String && tokens == 'all') {
-        final amountLimits = path0['amountLimits'] as Map<String, dynamic>?;
+      double? _parsedToDouble(dynamic v) =>
+          (v == null || v.toString().isEmpty) ? null : double.tryParse(v.toString());
 
-        final min =
-            double.tryParse(amountLimits?['minAmount']?.toString() ?? '');
-        final max =
-            double.tryParse(amountLimits?['maxAmount']?.toString() ?? '');
-
-        return Limits(min: min, max: max);
-      }
-
-      // Otherwise tokens is a list -> find the specific token entry
-      final tokenList = (tokens as List?) ?? const [];
-      final token = findTokenBySymbol(title: from.title, tokens: tokenList);
-
-      if (token == null) {
-        throw Exception('Token info not found for ${from.title}');
-      }
-
-      final min = double.tryParse(token['minAmount']?.toString() ?? '');
-      final max = double.tryParse(token['maxAmount']?.toString() ?? '');
+      final min = _parsedToDouble(amountLimits?['minAmount']);
+      final max = _parsedToDouble(amountLimits?['maxAmount']);
 
       return Limits(min: min, max: max);
     } catch (e) {
@@ -539,57 +521,36 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     }
   }
 
-  // Ensure tokens for this pair are cached (fills both src & dst chain entries)
-  // Replace your _ensureTokensCached with this one
   Future<void> _ensureTokensCached({
     required Chain fromChain,
     required Chain toChain,
     required CryptoCurrency from,
     required CryptoCurrency to,
   }) async {
-    bool needSrc = !_tokensCache.containsKey(fromChain.chainId) ||
+    final needSrc = !_tokensCache.containsKey(fromChain.chainId) ||
         (_tokensCache[fromChain.chainId]?.isEmpty ?? true);
-    bool needDst = !_tokensCache.containsKey(toChain.chainId) ||
+
+    final needDst = !_tokensCache.containsKey(toChain.chainId) ||
         (_tokensCache[toChain.chainId]?.isEmpty ?? true);
 
     if (!needSrc && !needDst) return;
 
-    // First try: from -> to
-    await _fetchAndCacheTokens(
-      srcChainId: fromChain.chainId,
-      srcToken: from.title.toUpperCase(),
-      dstChainId: toChain.chainId,
-      dstToken: to.title.toUpperCase(),
-    );
-
-    // Re-check after first call
-    needSrc = !_tokensCache.containsKey(fromChain.chainId) ||
-        (_tokensCache[fromChain.chainId]?.isEmpty ?? true);
-    needDst = !_tokensCache.containsKey(toChain.chainId) ||
-        (_tokensCache[toChain.chainId]?.isEmpty ?? true);
-
-    // If any still missing, try swapped: to -> from
-    if (needSrc || needDst) {
-      await _fetchAndCacheTokens(
-        srcChainId: toChain.chainId,
-        srcToken: to.title.toUpperCase(),
-        dstChainId: fromChain.chainId,
-        dstToken: from.title.toUpperCase(),
-      );
+    if (needSrc) {
+      await _fetchAndCacheTokens(srcChainId: fromChain.chainId);
+    }
+    if (needDst) {
+      await _fetchAndCacheTokens(srcChainId: toChain.chainId);
     }
   }
 
   // call getPaths and merge tokens into cache keyed by the chainId
   Future<void> _fetchAndCacheTokens({
     required int srcChainId,
-    required String srcToken,
-    required int dstChainId,
-    required String dstToken,
   }) async {
     final params = <String, String>{
       'srcChainId': '$srcChainId',
-      'srcToken': srcToken,
-      'dstChainId': '$dstChainId',
+      'srcToken': '0x0000000000000000000000000000000000000000',
+      // Native placeholder
     };
 
     final uri = Uri.https(_baseUrl, _getPaths, params);
@@ -599,21 +560,50 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       return;
     }
 
-    final body = json.decode(res.body) as Map<String, dynamic>;
+    Map<String, dynamic> body;
+    try {
+      body = json.decode(res.body) as Map<String, dynamic>;
+    } catch (e) {
+      printV('getPaths JSON decode error: $e');
+      return;
+    }
+
     final paths = (body['paths'] as List?) ?? const [];
     if (paths.isEmpty) return;
 
-    final path0 = paths.first as Map<String, dynamic>;
-    final pathChainId = (path0['chainId'] as num?)?.toInt();
-    final tokens = (path0['tokens'] as List?) ?? const [];
+    for (final path in paths) {
+      final map = path as Map<String, dynamic>;
+      final pathChainId = (map['chainId'] as num?)?.toInt();
+      if (pathChainId == null) continue;
 
-    if (pathChainId == null || tokens.isEmpty) return;
+      final tokensField = map['tokens'];
 
-    final parsed = tokens
-        .map((t) => TokenPathInfo.fromJson(t as Map<String, dynamic>))
-        .toList();
+      // Case 1: String "all" -> cache empty list to indicate all tokens supported
+      if (tokensField is String) {
+        if (tokensField.toLowerCase() == 'all') {
+          _tokensCache[pathChainId] =
+              _tokensCache[pathChainId] ?? <TokenPathInfo>[];
+        }
+        continue;
+      }
 
-    _mergeCache(pathChainId, parsed);
+      // Case 2: List -> parse and merge
+      if (tokensField is List) {
+        final parsed = <TokenPathInfo>[];
+        for (final token in tokensField) {
+          if (token is Map<String, dynamic>) {
+            try {
+              parsed.add(TokenPathInfo.fromJson(token));
+            } catch (e) {
+              printV('Token parse error on chain $pathChainId: $e : $token');
+            }
+          }
+        }
+        if (parsed.isNotEmpty) {
+          _mergeCache(pathChainId, parsed);
+        }
+      }
+    }
   }
 
 // Merge by symbol, prefer entries that have a non-empty address/decimals
@@ -641,52 +631,19 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     _tokensCache[chainId] = bySymbol.values.toList();
   }
 
-  String _nativeSymbolForChain(Chain chain) {
-    final network = chain.name.toUpperCase();
-    switch (network) {
-      case 'BTC':
-      case 'BITCOIN':
-        return 'BTC';
-      case 'XMR':
-      case 'MONERO':
-        return 'XMR';
-      case 'TRX':
-      case 'TRON':
-        return 'TRX';
-      case 'ETH':
-      case 'ETHEREUM':
-        return 'ETH';
-      case 'LTC':
-      case 'LITECOIN':
-        return 'LTC';
-      case 'DOGE':
-      case 'DOGECOIN':
-        return 'DOGE';
-      case 'XRP':
-      case 'RIPPLE':
-        return 'XRP';
-      case 'XLM':
-      case 'STELLAR':
-        return 'XLM';
-      case 'SOL':
-      case 'SOLANA':
-        return 'SOL';
-      case 'CARDANO':
-        return 'ADA';
-      case 'Bitcoin Cash':
-        return 'BCH';
-      case 'POLYGON':
-        return 'POL';
-      default:
-        return network;
-    }
+  String _normalizeCakeNativeTokenName(String title) {
+    final name = title.toUpperCase();
+    return switch (name) {
+      'ZZEC' => 'ZEC',
+      _ => name,
+    };
   }
 
   String _getTokenAddress({
     required CryptoCurrency currency,
     required Chain chain,
   }) {
-    final symbol = currency.title.toUpperCase();
+    final symbol = _normalizeCakeNativeTokenName(currency.title);
     final list = _tokensCache[chain.chainId];
 
     // Try cache hit
@@ -694,29 +651,15 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       for (final t in list) {
         if (t.symbol == symbol && t.address != null && t.address!.isNotEmpty) {
           return t.address!;
+        } else if (t.symbol == symbol && (t.address == null)) {
+          // Native token on this chain
+          return '0x0000000000000000000000000000000000000000';
         }
       }
     }
 
-    // If it's the native coin for this chain, return native placeholder
-    final nativeSym = _nativeSymbolForChain(chain);
-    if (nativeSym == symbol) {
-      return _nativePlaceholderForVm(chain.vmId);
-    }
-
     // May fail for non-native Alt-VM assets
     return symbol;
-  }
-
-  String _nativePlaceholderForVm(String vmId) {
-    switch (vmId.toLowerCase()) {
-      case 'evm':
-        return '0x0000000000000000000000000000000000000000';
-      case 'alt-vm':
-        return '0x0000000000000000000000000000000000000000';
-      default:
-        return '0x0000000000000000000000000000000000000000';
-    }
   }
 
   Map<String, dynamic>? findTokenBySymbol(
