@@ -177,12 +177,16 @@ class $BackupService {
     String currentWalletName = data[PreferencesKey.currentWalletName] as String;
     int currentWalletType = data[PreferencesKey.currentWalletType] as int;
 
-    final isCorrentCurrentWallet = correctWallets
+    final isCorrectCurrentWallet = correctWallets
         .any((info) => info.name == currentWalletName && info.type.index == currentWalletType);
 
-    if (!isCorrentCurrentWallet) {
-      currentWalletName = correctWallets.first.name;
-      currentWalletType = serializeToInt(correctWallets.first.type);
+    try {
+      if (!isCorrectCurrentWallet) {
+        currentWalletName = correctWallets.first.name;
+        currentWalletType = serializeToInt(correctWallets.first.type);
+      }
+    } catch (e) {
+
     }
 
     if (DeviceInfo.instance.isDesktop) {
