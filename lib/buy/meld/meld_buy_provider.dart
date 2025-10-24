@@ -22,7 +22,7 @@ class MeldBuyProvider extends BuyProvider {
       : super(
       wallet: wallet,
       isTestEnvironment: isTestEnvironment,
-      ledgerVM: null,
+      hardwareWalletVM: null,
       supportedCryptoList: supportedCryptoToFiatPairs(
           notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
       supportedFiatList: supportedFiatToCryptoPairs(

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
@@ -33,7 +34,7 @@ class WalletRestoreViewModel = WalletRestoreViewModelBase with _$WalletRestoreVi
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource, SeedSettingsViewModel seedSettingsViewModel,
-      {required WalletType type, this.restoredWallet})
+      {required WalletType type, this.restoredWallet, this.hardwareWalletType})
       : isButtonEnabled = restoredWallet != null,
         hasPassphrase = false,
         mode = restoredWallet?.restoreMode ?? WalletRestoreMode.seed,
@@ -51,6 +52,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
       case WalletType.decred:
       case WalletType.bitcoin:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
@@ -90,6 +92,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   late final bool hasRestoreFromPrivateKey = [
     WalletType.ethereum,
     WalletType.polygon,
+    WalletType.base,
     WalletType.nano,
     WalletType.banano,
     WalletType.solana,
@@ -102,6 +105,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   ].contains(type);
 
   final RestoredWallet? restoredWallet;
+  final HardwareWalletType? hardwareWalletType;
 
   @observable
   WalletRestoreMode mode;
@@ -173,6 +177,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             password: password,
             passphrase: passphrase,
           );
+        case WalletType.base:
+          return base!.createBaseRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase,
+          );
         case WalletType.solana:
           return solana!.createSolanaRestoreWalletFromSeedCredentials(
             name: name,
@@ -226,6 +237,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             password: password,
             xpub: viewKey!,
+            hardwareWalletType: hardwareWalletType,
           );
 
         case WalletType.monero:
@@ -255,6 +267,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.polygon:
           return polygon!.createPolygonRestoreWalletFromPrivateKey(
+            name: name,
+            password: password,
+            privateKey: options['private_key'] as String,
+          );
+        case WalletType.base:
+          return base!.createBaseRestoreWalletFromPrivateKey(
             name: name,
             password: password,
             privateKey: options['private_key'] as String,

@@ -6,6 +6,7 @@ import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
@@ -77,6 +78,9 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.xoSwap:
         _provider = XOSwapExchangeProvider();
         break;
+      case ExchangeProviderDescription.swapsXyz:
+        _provider = SwapsXyzExchangeProvider();
+        break;
     }
 
     _updateItems();
@@ -134,8 +138,13 @@ abstract class TradeDetailsViewModelBase with Store {
     try {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
-      if (updatedTrade.createdAt == null && trade.createdAt != null)
+      if (updatedTrade.createdAt == null && trade.createdAt != null) {
         updatedTrade.createdAt = trade.createdAt;
+      }
+
+      if (updatedTrade.toRaw == -1 && trade.toRaw != -1) {
+        updatedTrade.toRaw = trade.toRaw;
+      }
 
       Trade? foundElement = trades.values.firstWhereOrNull((element) => element.id == trade.id);
       if (foundElement != null) {
@@ -204,6 +213,11 @@ abstract class TradeDetailsViewModelBase with Store {
         items.add(StandartListItem(
             title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
       }
+    }
+
+    if (trade.provider == ExchangeProviderDescription.swapsXyz && trade.txId != null && trade.txId!.isNotEmpty) {
+      items.add(StandartListItem(
+          title: 'Transaction ID', value: trade.txId!));
     }
   }
 

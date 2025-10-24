@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/custom_theme_colors/dark_theme_custom_colors.dart';
 
 class DarkTheme extends MaterialThemeBase {
   @override
@@ -47,8 +49,8 @@ class DarkTheme extends MaterialThemeBase {
         surfaceContainerLowest: Color(0xFF171C30),
         surfaceContainerLow: Color(0xFF2D385C),
         surfaceContainer: Color(0xFF24335B),
-        surfaceContainerHigh: Color(0xFF212C47),
-        surfaceContainerHighest: Color(0xFF2A3B67),
+        surfaceContainerHigh: Color(0xFF2A3E73),
+        surfaceContainerHighest: Color(0xFF334C8C),
         outline: const Color(0xFF9EACC1),
         outlineVariant: const Color(0xFF3E5579),
       );
@@ -159,7 +161,7 @@ class DarkTheme extends MaterialThemeBase {
           foregroundColor: colorScheme.onSurface,
           elevation: 0,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: colorScheme.surface,
           elevation: 1,
           shape: RoundedRectangleBorder(
@@ -231,4 +233,16 @@ class DarkTheme extends MaterialThemeBase {
 
   @override
   int get raw => 1;
+
+  @override
+  CustomThemeColors get customColors => DarkThemeCustomColors();
+
+  @override
+  String? get themeFamily => null;
+
+  @override
+  String? get accentColorId => null;
+
+  @override
+  String? get accentColorName => null;
 }

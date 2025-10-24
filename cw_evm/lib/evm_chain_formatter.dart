@@ -21,6 +21,16 @@ class EVMChainFormatter {
     }
   }
 
+  static String truncateDecimals(String amount, int decimals) {
+    final parts = amount.split(".");
+
+    if (parts.length == 2) {
+      parts[1] = parts[1].substring(0, parts[1].length > decimals ? decimals : parts[1].length);
+    }
+
+    return parts.join(".");
+  }
+
   static int _getDividerForInput(String amount) {
     final result = amount.split('.');
     if (result.length > 1) {

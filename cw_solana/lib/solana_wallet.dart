@@ -506,7 +506,12 @@ abstract class SolanaWalletBase
     final initialSPLTokens = DefaultSPLTokens().initialSPLTokens;
 
     for (var token in initialSPLTokens) {
-      splTokensBox.put(token.mintAddress, token);
+      if (!splTokensBox.containsKey(token.mintAddress)) {
+        splTokensBox.put(token.mintAddress, token);
+      } else { // update existing token
+        final existingToken = splTokensBox.get(token.mintAddress);
+        splTokensBox.put(token.mintAddress, SPLToken.copyWith(token, enabled: existingToken!.enabled));
+      }
     }
   }
 

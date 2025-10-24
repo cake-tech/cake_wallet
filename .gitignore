@@ -141,6 +141,7 @@ lib/wownero/wownero.dart
 lib/zano/zano.dart
 lib/decred/decred.dart
 lib/dogecoin/dogecoin.dart
+lib/base/base.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x~ipad.png
@@ -205,6 +206,7 @@ ios/MoneroWallet.framework/MoneroWallet
 ios/WowneroWallet.framework/WowneroWallet
 ios/ZanoWallet.framework/ZanoWallet
 *_libwallet2_api_c.dylib
+libuniffi_yttrium.so
 
 .flatpak-builder
 cake_wallet.flatpak

@@ -65,9 +65,8 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
     this.toggleUseTestnet,
     this.privacySettingsViewModel,
     this.nodeViewModel,
-    this.seedTypeViewModel, {
-    Key? key,
-  }) : super(key: key);
+    this.seedTypeViewModel,
+  );
 
   final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;

@@ -166,6 +166,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
       case WalletType.solana:
       case WalletType.tron:
         return S.current.xmr_full_balance;

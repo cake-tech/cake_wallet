@@ -181,6 +181,11 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.swapTrade.title,
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
+            FilterItem(
+                value: () => tradeFilterStore.displaySwapXyz,
+                caption: ExchangeProviderDescription.swapsXyz.title,
+                onChanged: () =>
+                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
           ]
         },
         subname = '',
@@ -877,6 +882,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.bitcoinCash:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
       case WalletType.solana:
       case WalletType.nano:
       case WalletType.banano:

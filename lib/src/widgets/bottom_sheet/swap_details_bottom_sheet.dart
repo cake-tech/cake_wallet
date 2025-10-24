@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.da
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
@@ -22,11 +21,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 class SwapDetailsBottomSheet extends StatefulWidget {
   SwapDetailsBottomSheet({
     Key? key,
-    required this.currentTheme,
     required this.exchangeTradeViewModel,
   }) : super(key: key);
 
-  final MaterialThemeBase currentTheme;
   final ExchangeTradeViewModel exchangeTradeViewModel;
 
   @override
@@ -124,7 +121,6 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
                 isScrollControlled: true,
                 builder: (BuildContext bottomSheetContext) {
                   return InfoBottomSheet(
-                    currentTheme: widget.currentTheme,
                     footerType: FooterType.singleActionButton,
                     titleText: S.of(bottomSheetContext).transaction_sent,
                     contentImage: 'assets/images/birthday_cake.png',
@@ -155,7 +151,6 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
       titleText: 'Confirm Swap',
       footerType: FooterType.none,
       maxHeight: 900,
-      currentTheme: widget.currentTheme,
       exchangeTradeViewModel: widget.exchangeTradeViewModel,
       onExecuteSwap: _executeSwap,
     );
@@ -192,14 +187,12 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
     required String titleText,
     required FooterType footerType,
     required double maxHeight,
-    MaterialThemeBase? currentTheme,
     required this.exchangeTradeViewModel,
     required this.onExecuteSwap,
   }) : super(
           titleText: titleText,
           footerType: footerType,
           maxHeight: maxHeight,
-          currentTheme: currentTheme,
         );
 
   final ExchangeTradeViewModel exchangeTradeViewModel;
@@ -250,7 +243,6 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
                 knobColor: Theme.of(context).colorScheme.primary,
                 buttonText: 'Swipe to swap',
                 onSlideComplete: onExecuteSwap,
-                currentTheme: currentTheme!,
                 accessibleNavigationModeButtonText: 'Complete swap',
               );
             },

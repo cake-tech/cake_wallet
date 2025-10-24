@@ -33,6 +33,15 @@ class Trade extends HiveObject {
     this.router,
     this.userCurrencyFromRaw,
     this.userCurrencyToRaw,
+    // The following fields are used for SwapXyz trades only
+    this.needToRegisterInSwapXyz,
+    this.sourceTokenAddress,
+    this.sourceTokenDecimals,
+    this.routerData,
+    this.routerValue,
+    this.routerChainId,
+    this.sourceTokenAmountRaw,
+    this.requiresTokenApproval
   }) {
     if (provider != null) providerRaw = provider.raw;
 
@@ -132,6 +141,31 @@ class Trade extends HiveObject {
 
   @HiveField(25, defaultValue: '')
   String? userCurrencyToRaw;
+
+  // The following fields are used for SwapXyz trades only
+  @HiveField(26)
+  bool? needToRegisterInSwapXyz;
+
+  @HiveField(27)
+  String? sourceTokenAddress;
+
+  @HiveField(28)
+  int? sourceTokenDecimals;
+
+  @HiveField(29)
+  String? routerData;
+
+  @HiveField(30)
+  String? routerValue;
+
+  @HiveField(31)
+  int? routerChainId;
+
+  @HiveField(32)
+  String? sourceTokenAmountRaw;
+
+  @HiveField(33, defaultValue: false)
+  bool? requiresTokenApproval;
 
   CryptoCurrency? get userCurrencyFrom {
     if (userCurrencyFromRaw == null || userCurrencyFromRaw!.isEmpty) {
@@ -249,6 +283,14 @@ class TradeAdapter extends TypeAdapter<Trade> {
       router: fields[22] as String?,
       userCurrencyFromRaw: fields[24] as String?,
       userCurrencyToRaw: fields[25] as String?,
+      needToRegisterInSwapXyz: fields[26] as bool?,
+      sourceTokenAddress: fields[27] as String?,
+      sourceTokenDecimals: fields[28] as int?,
+      routerData: fields[29] as String?,
+      routerValue: fields[30] as String?,
+      routerChainId: fields[31] as int?,
+      sourceTokenAmountRaw: fields[32] as String?,
+      requiresTokenApproval: fields[33] as bool?,
     )
       ..providerRaw = fields[1] == null ? 0 : fields[1] as int
       ..fromRaw = (fields[2] as int?) ?? -1
@@ -311,7 +353,23 @@ class TradeAdapter extends TypeAdapter<Trade> {
       ..writeByte(24)
       ..write(obj.userCurrencyFromRaw)
       ..writeByte(25)
-      ..write(obj.userCurrencyToRaw);
+      ..write(obj.userCurrencyToRaw)
+      ..writeByte(26)
+      ..write(obj.needToRegisterInSwapXyz)
+      ..writeByte(27)
+      ..write(obj.sourceTokenAddress)
+      ..writeByte(28)
+      ..write(obj.sourceTokenDecimals)
+      ..writeByte(29)
+      ..write(obj.routerData)
+      ..writeByte(30)
+      ..write(obj.routerValue)
+      ..writeByte(31)
+      ..write(obj.routerChainId)
+      ..writeByte(32)
+      ..write(obj.sourceTokenAmountRaw)
+      ..writeByte(33)
+      ..write(obj.requiresTokenApproval);
   }
 
   @override

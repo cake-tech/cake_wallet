@@ -7,9 +7,9 @@ defaults:
     shell: bash
 jobs:
   PR_test_build:
-    runs-on: linux-amd64
+    runs-on: [Linux, amd64, android]
     container:
-      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.29.3-ndkr28-go1.24.1-ruststablenightly
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
@@ -157,6 +157,7 @@ jobs:
           echo "const litecoinTestWalletSeeds =  '${{ secrets.LITECOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const bitcoinCashTestWalletSeeds =  '${{ secrets.BITCOIN_CASH_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const polygonTestWalletSeeds = '${{ secrets.POLYGON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const baseTestWalletSeeds = '${{ secrets.BASE_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const solanaTestWalletSeeds = '${{ secrets.SOLANA_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const tronTestWalletSeeds = '${{ secrets.TRON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const nanoTestWalletSeeds =  '${{ secrets.NANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
@@ -168,6 +169,7 @@ jobs:
           echo "const litecoinTestWalletReceiveAddress =  '${{ secrets.LITECOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const bitcoinCashTestWalletReceiveAddress = '${{ secrets.BITCOIN_CASH_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const polygonTestWalletReceiveAddress =  '${{ secrets.POLYGON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const baseTestWalletReceiveAddress =  '${{ secrets.BASE_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const solanaTestWalletReceiveAddress =  '${{ secrets.SOLANA_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const tronTestWalletReceiveAddress =  '${{ secrets.TRON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
@@ -178,34 +180,7 @@ jobs:
           echo "const chainflipAffiliateFee = '${{ secrets.CHAINFLIP_AFFILIATE_FEE }}';" >> lib/.secrets.g.dart
           echo "const kryptonimApiKey = '${{ secrets.KRYPTONIM_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const walletGroupSalt = '${{ secrets.WALLET_GROUP_SALT }}';" >> lib/.secrets.g.dart
-
-      - name: prepare monero_c and cache
-        run: |
-          export MONEROC_HASH=$(cat scripts/prepare_moneroc.sh | grep 'git checkout' | xargs | awk '{ print $3 }')
-          echo MONEROC_HASH=$MONEROC_HASH >> /etc/environment
-          mkdir -p "$MONEROC_CACHE_DIR_ROOT/moneroc-$MONEROC_HASH/monero_c"
-          pushd scripts
-            ln -s "$MONEROC_CACHE_DIR_ROOT/moneroc-$MONEROC_HASH/monero_c"
-            ./prepare_moneroc.sh
-          popd
-          pushd scripts/monero_c
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/built" || true
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/built" || true
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/built" || true
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/sources" || true
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/sources" || true
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/sources" || true
-
-            rm -rf "$PWD/contrib/depends/built" "$PWD/monero/contrib/depends/built" "$PWD/wownero/contrib/depends/built"
-            rm -rf "$PWD/contrib/depends/sources" "$PWD/monero/contrib/depends/sources" "$PWD/wownero/contrib/depends/sources"
-            mkdir -p contrib/depends || true
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/built" "$PWD/contrib/depends/built"
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/built" "$PWD/monero/contrib/depends/built"
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/built" "$PWD/wownero/contrib/depends/built"
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/sources" "$PWD/contrib/depends/sources"
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/sources" "$PWD/monero/contrib/depends/sources"
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/sources" "$PWD/wownero/contrib/depends/sources"
-          popd
+          echo "const swapsXyzApiKey = '${{ secrets.SWAPSXYZ_API_KEY }}';" >> lib/.secrets.g.dart
 
       - name: Generate KeyStore
         run: |
@@ -228,6 +203,19 @@ jobs:
             pushd torch_dart
               tar -xzf ../torch_dart.tar.gz
             popd
+            rm ./torch_dart.tar.gz
+          popd
+
+      - name: Fetch prebuilt Reown
+        run: |
+          set -x -e
+          pushd scripts
+            wget https://github.com/cake-tech/reown_flutter/releases/download/v0.0.4/reown_flutter-v0.0.4.tar.gz -O reown_flutter.tar.gz
+            mkdir reown_flutter
+            pushd reown_flutter
+              tar -xzf ../reown_flutter.tar.gz
+            popd
+            rm ./reown_flutter.tar.gz
           popd
 
       - name: Execute Build and Setup Commands
@@ -239,9 +227,19 @@ jobs:
 
       - name: Build monero_c
         run: |
-          pushd scripts/android/
-            source ./app_env.sh cakewallet
-            ./build_monero_all.sh
+          mkdir -p scripts/monero_c
+          pushd scripts/monero_c
+            wget https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.0-RC9/release-bundle.zip
+            unzip release-bundle.zip
+            rm release-bundle.zip
+            unxz -fv release/*/*.xz 
+          popd
+
+      - name: Build Bitbox Flutter
+        run: |
+          set -x -e
+          pushd scripts
+            ./build_bitbox_flutter.sh
           popd
 
       - name: Install Flutter dependencies
@@ -254,7 +252,7 @@ jobs:
           export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
           echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
           pushd scripts/android
-            ./build_mwebd.sh --dont-install
+            ./build_mwebd.sh
           popd
 
       - name: Build Decred
@@ -326,3 +324,10 @@ jobs:
         with:
           path: ${{ github.workspace }}/build/app/outputs/flutter-apk
           name: "android apk"
+      
+      - name: 16KB align
+        run: |
+          cd build/app/outputs/flutter-apk
+          for i in arm64-v8a x86_64; do
+            ../../../../scripts/android/check_16kb_align.sh app-$i-release.apk
+          done

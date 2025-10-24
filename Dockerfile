@@ -1,4 +1,4 @@
-# docker buildx build --push --pull --platform linux/amd64,linux/arm64 . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-ndkr28-go1.24.1-ruststablenightly
+# docker buildx build --push --pull --platform linux/amd64,linux/arm64 . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
 
 # Heavily inspired by cirrusci images
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/tools/Dockerfile
@@ -6,7 +6,7 @@
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/34-ndk/Dockerfile
 # https://github.com/cirruslabs/docker-images-flutter/blob/master/sdk/Dockerfile
 
-FROM docker.io/debian:12
+FROM docker.io/debian:13
 
 LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
 
@@ -15,7 +15,7 @@ LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
 ENV GOLANG_VERSION=1.24.1
 
 # Pin Flutter version to latest known-working version
-ENV FLUTTER_VERSION=3.27.4
+ENV FLUTTER_VERSION=3.32.0
 
 # Pin Android Studio, platform, and build tools versions to latest known-working version
 # Comes from https://developer.android.com/studio/#command-tools
@@ -46,17 +46,19 @@ RUN set -o xtrace \
     && cd /opt \
     && apt-get install -y --no-install-recommends --no-install-suggests \
     # Core dependencies
-    bc build-essential curl default-jdk git jq lcov libglu1-mesa libpulse0 libsqlite3-dev libstdc++6 locales openssh-client ruby-bundler ruby-full software-properties-common sudo unzip wget zip \
+    bc build-essential curl default-jdk git jq lcov libglu1-mesa libpulse0 libsqlite3-dev libstdc++6 locales openssh-client ruby-bundler ruby-full sudo unzip wget zip \
     # for x86 emulators
-    libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libnspr4 libnss3-dev libsqlite3-dev libxtst6 libxss1 lftp sqlite3 xxd \
+    libatk-bridge2.0-0 libgdk-pixbuf-xlib-2.0-0 libgtk-3-0 libnspr4 libnss3-dev libsqlite3-dev libxtst6 libxss1 lftp sqlite3 xxd \
     # Linux desktop dependencies
-    clang cmake libgtk-3-dev ninja-build pkg-config \
+    clang cmake libgtk-3-dev ninja-build pkg-config libsecret-1-0 libsecret-1-dev gir1.2-secret-1 \
     # monero_c dependencies
     autoconf automake build-essential ccache gperf libtool llvm \
     # extra stuff for KVM
     bridge-utils libvirt-clients libvirt-daemon-system qemu-kvm udev \
     # Linux test dependencies
     ffmpeg network-manager x11-utils xvfb psmisc \
+    # extra linux dependencies so flutter doesn't complain
+    mesa-utils \
     # aarch64-linux-gnu dependencies
     g++-aarch64-linux-gnu gcc-aarch64-linux-gnu \
     # x86_64-linux-gnu dependencies
@@ -115,7 +117,7 @@ RUN ARCH=$(uname -m) && \
     && chmod +x /usr/bin/android-wait-for-emulator \
     && sdkmanager platform-tools \
     && mkdir -p ${HOME}/.android \
-    && touch ${HOME}/.android/repositories.cfg \
+    && touch ${HOME}/.android/repositories.cfg
 
 
 # Handle emulator not being available on linux/arm64 (https://issuetracker.google.com/issues/227219818)
@@ -132,6 +134,7 @@ RUN ARCH=$(uname -m) && \
     "platforms;android-33" \
     "platforms;android-34" \
     "platforms;android-35" \
+    "platforms;android-36" \
     "build-tools;33.0.2" \
     "build-tools;33.0.1" \
     "build-tools;33.0.0" \
@@ -141,9 +144,7 @@ RUN ARCH=$(uname -m) && \
 ENV ANDROID_NDK_VERSION=28.2.13676358
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" != "x86_64" ]; then exit 0; fi \
-    && yes | sdkmanager "ndk;$ANDROID_NDK_VERSION" \
-    "ndk;27.0.12077973" \
-    "ndk;27.2.12479018"
+    && yes | sdkmanager "ndk;$ANDROID_NDK_VERSION"
 
 # Install dependencies for tests
 # Comes from https://github.com/ReactiveCircus/android-emulator-runner

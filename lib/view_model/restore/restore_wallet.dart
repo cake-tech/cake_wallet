@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
+import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class RestoredWallet {
@@ -8,6 +9,7 @@ class RestoredWallet {
       {required this.restoreMode,
       required this.type,
       required this.address,
+      this.name,
       this.txId,
       this.spendKey,
       this.viewKey,
@@ -21,6 +23,7 @@ class RestoredWallet {
 
   final WalletRestoreMode restoreMode;
   final WalletType type;
+  final String? name;
   final String? address;
   final String? txId;
   final String? spendKey;
@@ -40,13 +43,18 @@ class RestoredWallet {
         json['address'] = codeParsed["primaryAddress"];
         json['view_key'] = codeParsed["privateViewKey"];
         json['height'] = codeParsed["restoreHeight"].toString();
+        json['label'] = codeParsed["label"];
       }
     } catch (e) {
       // fine, we don't care, it is only for monero anyway
     }
+    if (json['zpub'] != null) {
+      json['xpub'] = convertZpubToXpub(json['zpub'] as String);
+    }
     json['view_key'] ??= json['xpub'];
     final height = json['height'] as String?;
     return RestoredWallet(
+      name: json['label'] as String?,
       restoreMode: json['mode'] as WalletRestoreMode,
       type: json['type'] as WalletType,
       address: json['address'] as String?,

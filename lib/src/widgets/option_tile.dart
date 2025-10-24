@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class OptionTile extends StatelessWidget {
@@ -12,7 +13,7 @@ class OptionTile extends StatelessWidget {
   }) : assert(image != null || icon != null);
 
   final VoidCallback onPressed;
-  final Image? image;
+  final Widget? image;
   final Icon? icon;
   final String title;
   final String description;
@@ -23,10 +24,22 @@ class OptionTile extends StatelessWidget {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
-      child: ElevatedButton(
+      decoration: ShapeDecoration(
+        gradient: LinearGradient(
+          colors: [
+            context.customColors.cardGradientColorPrimary,
+            context.customColors.cardGradientColorSecondary,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+      child: TextButton(
         style: TextButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: BorderSide(width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
+          backgroundColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           padding: EdgeInsets.all(24),
         ),
         onPressed: onPressed,
@@ -50,15 +63,20 @@ class OptionTile extends StatelessWidget {
                           constraints: BoxConstraints(maxWidth: 220),
                           child: Text(title, style: Theme.of(context).textTheme.titleMedium),
                         ),
-                        if (tag != null) Container(
+                        if (tag != null)
+                          Container(
                             decoration: BoxDecoration(
-                              border: Border.all(),
+                              border: Border.all(style: BorderStyle.none),
                               borderRadius: BorderRadius.circular(20),
-                              color: Theme.of(context).colorScheme.onSurfaceVariant
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             padding: EdgeInsets.symmetric(horizontal: 5),
                             margin: EdgeInsets.only(left: 5),
-                            child: Text(tag!))
+                            child: Text(
+                              tag!,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                            ),
+                          )
                       ],
                     ),
                     Padding(

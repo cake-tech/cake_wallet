@@ -11,6 +11,7 @@ import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 class XOSwapExchangeProvider extends ExchangeProvider {
   XOSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
@@ -141,17 +142,34 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     }
   }
 
+  @override
   Future<double> fetchRate({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required double amount,
     required bool isFixedRateMode,
-    required bool isReceiveAmount,
+    required bool isReceiveAmount
   }) async {
     try {
       final rates = await getRatesForPair(from: from, to: to);
-      if (rates.isEmpty) return 0;
+      if (rates.isEmpty) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception('No rates found for $from to $to'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+          },
+        );
+        return 0;
+      }
 
+      double result;
       if (!isFixedRateMode) {
         double bestOutput = 0.0;
         for (var rate in rates) {
@@ -166,7 +184,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
             }
           }
         }
-        return bestOutput > 0 ? (bestOutput / amount) : 0;
+        result = bestOutput > 0 ? (bestOutput / amount) : 0;
       } else {
         double bestInput = double.infinity;
         for (var rate in rates) {
@@ -181,9 +199,41 @@ class XOSwapExchangeProvider extends ExchangeProvider {
             }
           }
         }
-        return bestInput < double.infinity ? amount / bestInput : 0;
+        result = bestInput < double.infinity ? amount / bestInput : 0;
       }
-    } catch (e) {
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+        responseData: {
+          'result': result,
+          'ratesCount': rates.length,
+          'rates': rates,
+        },
+      );
+
+      return result;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       printV(e.toString());
       return 0;
     }
@@ -202,6 +252,24 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final curTo = await _getAssets(request.toCurrency);
 
       if (curFrom == null || curTo == null) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: TradeNotCreatedException(description),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'curFrom': curFrom,
+            'curTo': curTo,
+          },
+        );
         throw TradeNotCreatedException(description);
       }
 
@@ -225,6 +293,26 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error'] ?? 'Unknown error';
         final message = responseJSON['message'] ?? '';
+        
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: Exception('$error\n$message'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'payload': payload,
+            'url': uri.toString(),
+          },
+        );
+        
         throw Exception('$error\n$message');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -245,6 +333,36 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       final createdAt = DateTime.parse(createdAtString).toLocal();
 
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'createTrade',
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'payload': payload,
+          'url': uri.toString(),
+        },
+        responseData: {
+          'orderId': orderId,
+          'depositAddress': depositAddress,
+          'payoutAddress': payoutAddress,
+          'refundAddress': refundAddress,
+          'depositAmount': depositAmount,
+          'receiveAmount': receiveAmount,
+          'status': status,
+          'createdAt': createdAtString,
+          'extraId': extraId,
+          'statusCode': response.statusCode,
+          'responseJSON': responseJSON,
+        },
+      );
+
       return Trade(
         id: orderId,
         from: from,
@@ -262,7 +380,23 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
         isSendAll: isSendAll,
       );
-    } catch (e) {
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+        },
+      );
       printV(e.toString());
       throw TradeNotCreatedException(description);
     }
