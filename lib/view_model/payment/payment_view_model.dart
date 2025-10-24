@@ -40,7 +40,9 @@ abstract class PaymentViewModelBase with Store {
       // Detect address type
       final detectionResult = UniversalAddressDetector.detectAddress(addressData);
 
-      if (!detectionResult.isValid || detectionResult.detectedWalletType == null) {
+      detectedWalletType = detectionResult.detectedWalletType;
+
+      if (!detectionResult.isValid || detectedWalletType == null) {
         return PaymentFlowResult.incompatible('Unable to detect address type');
       }
 
