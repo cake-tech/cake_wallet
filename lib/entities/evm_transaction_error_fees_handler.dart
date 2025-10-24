@@ -32,7 +32,7 @@ class EVMTransactionErrorFeesHandler {
     String errorMessage,
     double assetPriceUsd,
   ) {
-    // Pattern: "insufficient funds for gas * price + value: have 4728796358953246 want 4728796842182575"
+    // Pattern 1: "insufficient funds for gas * price + value: have 4728796358953246 want 4728796842182575"
     RegExp insufficientFundsRegExp = RegExp(r'have (\d+) want (\d+)');
     Match? insufficientFundsMatch = insufficientFundsRegExp.firstMatch(errorMessage);
 
@@ -76,7 +76,47 @@ class EVMTransactionErrorFeesHandler {
       } catch (e) {}
     }
 
-    // Define Regular Expressions to extract the numerical values
+    // Pattern 2: "insufficient funds for gas * price + value: balance 0, tx cost 733549007678518, overshot 733549007678518"
+    RegExp balanceTxCostOvershotRegExp = RegExp(r'balance (\d+), tx cost (\d+), overshot (\d+)');
+    Match? balanceTxCostOvershotMatch = balanceTxCostOvershotRegExp.firstMatch(errorMessage);
+
+    if (balanceTxCostOvershotMatch != null) {
+      try {
+        // Extract the numerical strings
+        String balanceStr = balanceTxCostOvershotMatch.group(1)!;
+        String txCostStr = balanceTxCostOvershotMatch.group(2)!;
+        String overshotStr = balanceTxCostOvershotMatch.group(3)!;
+
+        // Parse the numerical strings to BigInt
+        BigInt balanceWei = BigInt.parse(balanceStr);
+        BigInt txCostWei = BigInt.parse(txCostStr);
+        BigInt overshotWei = BigInt.parse(overshotStr);
+
+        // Convert wei to ETH (1 ETH = 1e18 wei)
+        double balanceEth = balanceWei.toDouble() / 1e18;
+        double txCostEth = txCostWei.toDouble() / 1e18;
+        double overshotEth = overshotWei.toDouble() / 1e18;
+
+        // Calculate the USD values
+        double balanceUsd = balanceEth * assetPriceUsd;
+        double txCostUsd = txCostEth * assetPriceUsd;
+        double overshotUsd = overshotEth * assetPriceUsd;
+
+        return EVMTransactionErrorFeesHandler(
+          balanceWei: balanceWei.toString(),
+          balanceEth: balanceEth.toString().safeSubString(0, 12),
+          balanceUsd: balanceUsd.toString().safeSubString(0, 4),
+          txCostWei: txCostWei.toString(),
+          txCostEth: txCostEth.toString().safeSubString(0, 12),
+          txCostUsd: txCostUsd.toString().safeSubString(0, 4),
+          overshotWei: overshotWei.toString(),
+          overshotEth: overshotEth.toString().safeSubString(0, 12),
+          overshotUsd: overshotUsd.toString().safeSubString(0, 4),
+        );
+      } catch (e) {}
+    }
+
+    // Pattern 3: Legacy format "balance (\d+) tx cost (\d+) overshot (\d+)"
     RegExp balanceRegExp = RegExp(r'balance (\d+)');
     RegExp txCostRegExp = RegExp(r'tx cost (\d+)');
     RegExp overshotRegExp = RegExp(r'overshot (\d+)');
@@ -125,7 +165,7 @@ class EVMTransactionErrorFeesHandler {
       }
     }
 
-    // If both parsing attempts fail, return an error message
+    // If all parsing attempts fail, return an error message
     return EVMTransactionErrorFeesHandler(error: 'Could not parse the error message.');
   }
 }
