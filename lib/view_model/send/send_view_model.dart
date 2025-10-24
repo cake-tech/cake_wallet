@@ -139,8 +139,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
 
-  bool get isEVMWallet => walletType == WalletType.ethereum || walletType == WalletType.polygon ||
-      walletType == WalletType.base;
+  bool get isEVMWallet => isEVMCompatibleChain(walletType);
 
   @action
   void setShowAddressBookPopup(bool value) {
@@ -772,30 +771,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return; // skip the regular flow below
     }
 
-    // Regular flow (non-Swaps)
-    if (pendingTransaction!.shouldCommitUR()) {
-      final urstr = await pendingTransaction!.commitUR();
-      final result = await Navigator.of(context).pushNamed(
-        Routes.urqrAnimatedPage,
-        arguments: urstr,
-      );
-      if (result == null) {
-        state = FailureState("Canceled by user");
-        return;
-      }
-    } else {
-      await pendingTransaction!.commit();
-    }
-
     String address = outputs.fold('', (acc, value) {
       return value.isParsedAddress
           ? '$acc${value.address}\n${value.extractedAddress}\n\n'
           : '$acc${value.address}\n\n';
     });
 
-    address = address.trim();
+      address = address.trim();
 
-    String note = outputs.fold('', (acc, value) => '$acc${value.note}\n');
+      String note = outputs.fold('', (acc, value) => '$acc${value.note}\n');
 
     note = note.trim();
 
@@ -816,6 +800,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (walletType == WalletType.nano) {
         nano!.updateTransactions(wallet);
+      }
+
+      // Immediate transaction update for EVM chains, Solana, and Tron
+      if (isEVMWallet ||
+          walletType == WalletType.solana ||
+          walletType == WalletType.tron) {
+        Future.delayed(Duration(seconds: 2), () async {
+          try {
+            await wallet.fetchTransactions();
+          } catch (e) {
+            printV('Failed to update transactions after send: $e');
+          }
+        });
       }
 
       if (pendingTransaction!.id.isNotEmpty) {
