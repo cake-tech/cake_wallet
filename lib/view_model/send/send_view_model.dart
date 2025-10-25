@@ -1031,10 +1031,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           _fiatConversationStore.prices[currency] ?? 0.0,
         );
 
+        // Handle generic insufficient funds error (no specific values available)
+        if (parsedErrorMessageResult.error == 'generic_insufficient_funds') {
+          return S.current.insufficient_funds_for_tx;
+        }
+
+        // Handle parsing errors (couldn't parse the error message)
         if (parsedErrorMessageResult.error != null) {
           return S.current.insufficient_funds_for_tx;
         }
 
+        // Handle successfully parsed errors with specific values
         return '''${S.current.insufficient_funds_for_tx} \n\n'''
             '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
             '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
