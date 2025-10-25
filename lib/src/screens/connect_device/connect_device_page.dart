@@ -165,6 +165,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     switch (deviceType) {
       case HardwareWalletDeviceType.ledgerNanoX:
         return 'assets/images/hardware_wallet/ledger_nano_x.png';
+      case HardwareWalletDeviceType.ledgerNanoGen5:
+        return 'assets/images/hardware_wallet/device_ledger_nano_gen_5.svg';
       case HardwareWalletDeviceType.ledgerStax:
         return 'assets/images/hardware_wallet/ledger_stax.png';
       case HardwareWalletDeviceType.ledgerFlex:
