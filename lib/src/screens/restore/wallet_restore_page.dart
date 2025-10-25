@@ -258,7 +258,7 @@ class WalletRestorePage extends BasePage {
         return;
       }
 
-      if (walletRestoreViewModel.nameExists(name)) {
+      if (await walletRestoreViewModel.nameExists(name)) {
         showNameExistsAlert(formContext!);
         _formProcessing = false;
         return;

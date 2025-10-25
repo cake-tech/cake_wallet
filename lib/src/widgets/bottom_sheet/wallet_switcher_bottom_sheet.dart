@@ -52,76 +52,79 @@ class _WalletSwitcherContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (_) {
-        final wallets = viewModel.getWallets(filterWalletType);
-
-        if (viewModel.isProcessing) {
-          return Container(
-            height: 200,
-            child: Center(
-              child: CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-          );
-        }
-
-        return Container(
-          height: 400,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: StandardList(
-                  itemCount: wallets.length,
-                  itemBuilder: (context, index) {
-                    final wallet = wallets[index];
-
-                    return InkWell(
-                      onTap: () {
-                        viewModel.selectWallet(wallet);
-                        Navigator.of(context).pop();
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainer,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        height: 60,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              walletTypeToCryptoCurrency(wallet.type).iconPath!,
-                              width: 32,
-                              height: 32,
-                            ),
-                            const SizedBox(width: 16),
-                            Text(
-                              wallet.name,
-                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    letterSpacing: 0.0,
-                                  ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+    return FutureBuilder(
+      future: viewModel.getWallets(filterWalletType),
+      builder: (context, snapshot) => Observer(
+        builder: (_) {
+          final List<WalletInfo> wallets = (snapshot.data ?? []);
+      
+          if (viewModel.isProcessing) {
+            return Container(
+              height: 200,
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
-            ],
-          ),
-        );
-      },
+            );
+          }
+      
+          return Container(
+            height: 400,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: StandardList(
+                    itemCount: wallets.length,
+                    itemBuilder: (context, index) {
+                      final wallet = wallets[index];
+      
+                      return InkWell(
+                        onTap: () {
+                          viewModel.selectWallet(wallet);
+                          Navigator.of(context).pop();
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          height: 60,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                walletTypeToCryptoCurrency(wallet.type).iconPath!,
+                                width: 32,
+                                height: 32,
+                              ),
+                              const SizedBox(width: 16),
+                              Text(
+                                wallet.name,
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                      letterSpacing: 0.0,
+                                    ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

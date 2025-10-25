@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
@@ -6,7 +8,6 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -23,11 +24,9 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     this._walletManager,
     this.walletListViewModel, {
     required this.type,
-  })  : isFetchingMnemonic = false,
-        multiWalletGroups = ObservableList<WalletGroup>(),
-        singleWalletsList = ObservableList<WalletInfo>() {
-    reaction((_) => _appStore.wallet, (_) => updateWalletInfoSourceList());
-    updateWalletInfoSourceList();
+  })  : isFetchingMnemonic = false {
+    reaction((_) => _appStore.wallet, (_) => unawaited(updateWalletInfoSourceList()));
+    unawaited(updateWalletInfoSourceList());
   }
 
   final WalletType type;
@@ -37,10 +36,10 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   final WalletListViewModel walletListViewModel;
 
   @observable
-  ObservableList<WalletGroup> multiWalletGroups;
+  ObservableList<WalletGroup> multiWalletGroups = ObservableList<WalletGroup>();
 
   @observable
-  ObservableList<WalletInfo> singleWalletsList;
+  ObservableList<WalletInfo> singleWalletsList = ObservableList<WalletInfo>();
 
   @observable
   WalletGroup? selectedWalletGroup;
@@ -97,31 +96,33 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   }
 
   @action
-  void updateWalletInfoSourceList() {
+  Future<void> updateWalletInfoSourceList() async {
     List<WalletGroup> wallets = [];
 
     multiWalletGroups.clear();
     singleWalletsList.clear();
 
-    _walletManager.updateWalletGroups();
+    await _walletManager.updateWalletGroups();
 
     final walletGroups = _walletManager.walletGroups;
 
     // Iterate through the wallet groups to filter and categorize wallets
     for (var group in walletGroups) {
       // Handle group wallet filtering
-      bool shouldExcludeGroup = group.wallets.any((wallet) {
+      bool shouldExcludeGroup = false;
+      for (final wallet in group.wallets) {
         // Check for non-BIP39 wallet types
         bool isNonBIP39Wallet = !isBIP39Wallet(wallet.type);
 
         // Check for nano derivation type
+        final di = await wallet.getDerivationInfo();
         bool isNanoDerivationType = wallet.type == WalletType.nano &&
-            wallet.derivationInfo?.derivationType == DerivationType.nano;
+            di.derivationType == DerivationType.nano;
 
         // Check for electrum derivation type
         bool isElectrumDerivationType =
             (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) &&
-                wallet.derivationInfo?.derivationType == DerivationType.electrum;
+                di.derivationType == DerivationType.electrum;
 
         // Check that selected wallet type is not present already in group
         bool isSameTypeAsSelectedWallet = wallet.type == type;
@@ -129,16 +130,17 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
         bool isNonSeedWallet = wallet.isNonSeedWallet;
 
         bool isNotMoneroBip39Wallet = wallet.type == WalletType.monero &&
-            wallet.derivationInfo?.derivationType != DerivationType.bip39;
+            di.derivationType != DerivationType.bip39;
 
         // Exclude if any of these conditions are true
-        return isNonBIP39Wallet ||
-            isNanoDerivationType ||
-            isElectrumDerivationType ||
-            isSameTypeAsSelectedWallet ||
-            isNonSeedWallet ||
-            isNotMoneroBip39Wallet;
-      });
+        shouldExcludeGroup = shouldExcludeGroup ||
+          isNonBIP39Wallet ||
+          isNanoDerivationType ||
+          isElectrumDerivationType ||
+          isSameTypeAsSelectedWallet ||
+          isNonSeedWallet ||
+          isNotMoneroBip39Wallet;
+      }
 
       if (shouldExcludeGroup) continue;
 
@@ -159,7 +161,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     return WalletListItem(
       name: info.name,
       type: info.type,
-      key: info.key,
+      key: info.id,
       isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,

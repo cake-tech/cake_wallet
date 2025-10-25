@@ -43,6 +43,7 @@ abstract class SolanaWalletBase
     with Store, WalletKeysFile {
   SolanaWalletBase({
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     String? mnemonic,
     String? privateKey,
     required String password,
@@ -57,7 +58,7 @@ abstract class SolanaWalletBase
         walletAddresses = SolanaWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, SolanaBalance>.of(
             {CryptoCurrency.sol: initialBalance ?? SolanaBalance(BigInt.zero.toDouble())}),
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = SolanaTransactionHistory(
       walletInfo: walletInfo,
@@ -449,8 +450,11 @@ abstract class SolanaWalletBase
       );
     }
 
+    final derivationInfo = await walletInfo.getDerivationInfo();
+
     return SolanaWallet(
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       password: password,
       passphrase: keysData.passphrase,
       mnemonic: keysData.mnemonic,

@@ -18,9 +18,8 @@ class DecredWalletService extends WalletService<
     DecredRestoreWalletFromSeedCredentials,
     DecredRestoreWalletFromPubkeyCredentials,
     DecredRestoreWalletFromHardwareCredentials> {
-  DecredWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
+  DecredWalletService(this.unspentCoinsInfoSource);
 
-  final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final seedRestorePath = "m/44'/42'";
   static final seedRestorePathTestnet = "m/44'/1'";
@@ -68,9 +67,10 @@ class DecredWalletService extends WalletService<
       "unsyncedaddrs": true,
     };
     await libwallet!.createWallet(jsonEncode(config));
-    final di = DerivationInfo(
-        derivationPath: isTestnet == true ? seedRestorePathTestnet : seedRestorePath);
-    credentials.walletInfo!.derivationInfo = di;
+    final di = await credentials.walletInfo!.getDerivationInfo();
+    di.derivationPath = isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
+    await di.save();
+    credentials.walletInfo!.save();
     credentials.walletInfo!.network = network;
     // ios will move our wallet directory when updating. Since we must
     // recalculate the new path every time we open the wallet, ensure this path
@@ -79,7 +79,7 @@ class DecredWalletService extends WalletService<
     // going forward.
     credentials.walletInfo!.dirPath = "";
     credentials.walletInfo!.path = "";
-    final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
+    final wallet = DecredWallet(credentials.walletInfo!, di, credentials.password!,
         this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
     await wallet.init();
     return wallet;
@@ -113,13 +113,17 @@ class DecredWalletService extends WalletService<
 
   @override
   Future<DecredWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    final di = await walletInfo.getDerivationInfo();
     if (walletInfo.network == null || walletInfo.network == "") {
-      walletInfo.network = walletInfo.derivationInfo?.derivationPath == seedRestorePathTestnet ||
-              walletInfo.derivationInfo?.derivationPath == pubkeyRestorePathTestnet
+      walletInfo.network = di.derivationPath == seedRestorePathTestnet ||
+              di.derivationPath == pubkeyRestorePathTestnet
           ? testnet
           : mainnet;
+      walletInfo.save();
     }
 
     await this.init();
@@ -149,7 +153,7 @@ class DecredWalletService extends WalletService<
     };
     await libwallet!.loadWallet(jsonEncode(config));
     final wallet =
-        DecredWallet(walletInfo, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
+        DecredWallet(walletInfo, di, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
     await wallet.init();
     return wallet;
   }
@@ -157,25 +161,32 @@ class DecredWalletService extends WalletService<
   @override
   Future<void> remove(String wallet) async {
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
-    final network = currentWalletInfo.derivationInfo?.derivationPath == seedRestorePathTestnet ||
-            currentWalletInfo.derivationInfo?.derivationPath == pubkeyRestorePathTestnet
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    final di = await currentWalletInfo.getDerivationInfo();
+    final network = di.derivationPath == seedRestorePathTestnet ||
+            di.derivationPath == pubkeyRestorePathTestnet
         ? testnet
         : mainnet;
+    currentWalletInfo.network = network;
+    currentWalletInfo.save();
     if (libwallet == null) {
       libwallet = await Libwallet.spawn();
       libwallet!.initLibdcrwallet("", "err");
     }
     final currentWallet = DecredWallet(
-        currentWalletInfo, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
+        currentWalletInfo, di, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -185,7 +196,7 @@ class DecredWalletService extends WalletService<
     newWalletInfo.dirPath = "";
     newWalletInfo.path = "";
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    await newWalletInfo.save();
   }
 
   @override
@@ -203,13 +214,13 @@ class DecredWalletService extends WalletService<
       "unsyncedaddrs": true,
     };
     await libwallet!.createWallet(jsonEncode(config));
-    final di = DerivationInfo(
-        derivationPath: isTestnet == true ? seedRestorePathTestnet : seedRestorePath);
-    credentials.walletInfo!.derivationInfo = di;
+    final di = await credentials.walletInfo!.getDerivationInfo();
+    di.derivationPath = isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
+    await di.save();
     credentials.walletInfo!.network = network;
     credentials.walletInfo!.dirPath = "";
     credentials.walletInfo!.path = "";
-    final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
+    final wallet = DecredWallet(credentials.walletInfo!, di, credentials.password!,
         this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
     await wallet.init();
     return wallet;
@@ -231,13 +242,13 @@ class DecredWalletService extends WalletService<
       "unsyncedaddrs": true,
     };
     await libwallet!.createWatchOnlyWallet(jsonEncode(config));
-    final di = DerivationInfo(
-        derivationPath: isTestnet == true ? pubkeyRestorePathTestnet : pubkeyRestorePath);
-    credentials.walletInfo!.derivationInfo = di;
+    final di = await credentials.walletInfo!.getDerivationInfo();
+    di.derivationPath = isTestnet == true ? pubkeyRestorePathTestnet : pubkeyRestorePath;
+    await di.save();
     credentials.walletInfo!.network = network;
     credentials.walletInfo!.dirPath = "";
     credentials.walletInfo!.path = "";
-    final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
+    final wallet = DecredWallet(credentials.walletInfo!, di, credentials.password!,
         this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
     await wallet.init();
     return wallet;

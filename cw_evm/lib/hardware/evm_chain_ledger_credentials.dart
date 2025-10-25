@@ -19,8 +19,8 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   @override
   EthereumAddress get address => EthereumAddress.fromHex(_address);
 
-  void setLedgerConnection(LedgerConnection connection,
-      [String? derivationPath]) {
+  Future<void> setLedgerConnection(LedgerConnection connection,
+      [String? derivationPath]) async {
     ethereumLedgerApp = EthereumLedgerApp(connection,
         derivationPath: derivationPath ?? "m/44'/60'/0'/0/0");
   }

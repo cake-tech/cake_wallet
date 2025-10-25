@@ -4,8 +4,8 @@ class CWEthereum extends Ethereum {
   @override
   List<String> getEthereumWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      EthereumWalletService(walletInfoSource, isDirect, client: EthereumClient());
+  WalletService createEthereumWalletService(bool isDirect) =>
+      EthereumWalletService(isDirect, client: EthereumClient());
 
   @override
   WalletCredentials createEthereumNewWalletCredentials({
@@ -181,18 +181,19 @@ class CWEthereum extends Ethereum {
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
     if (service is EVMChainLedgerService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedgerConnection(
-          service.ledgerConnection, wallet.walletInfo.derivationInfo?.derivationPath);
+          service.ledgerConnection, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     } else if (service is EVMChainBitboxService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
-          .setBitbox(service.manager, wallet.walletInfo.derivationInfo?.derivationPath);
+          .setBitbox(service.manager, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     } else if (service is EVMChainTrezorService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials)
-          .setTrezorConnect(service.connect, wallet.walletInfo.derivationInfo?.derivationPath);
+          .setTrezorConnect(service.connect, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     }
   }
+
   @override
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
       EVMChainLedgerService(connection);

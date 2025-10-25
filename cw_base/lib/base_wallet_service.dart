@@ -11,7 +11,6 @@ import 'package:cw_base/base_mnemonics_exception.dart';
 
 class BaseWalletService extends EVMChainWalletService<BaseWallet> {
   BaseWalletService(
-    super.walletInfoSource,
     super.isDirect, {
     required this.client,
   });
@@ -29,6 +28,7 @@ class BaseWalletService extends EVMChainWalletService<BaseWallet> {
 
     final wallet = BaseWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       mnemonic: mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -44,8 +44,10 @@ class BaseWalletService extends EVMChainWalletService<BaseWallet> {
 
   @override
   Future<BaseWallet> openWallet(String name, String password) async {
-    final walletInfo =
-        walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
 
     try {
       final wallet = await BaseWallet.open(
@@ -84,6 +86,7 @@ class BaseWalletService extends EVMChainWalletService<BaseWallet> {
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -97,14 +100,17 @@ class BaseWalletService extends EVMChainWalletService<BaseWallet> {
   @override
   Future<BaseWallet> restoreFromHardwareWallet(
       EVMChainRestoreWalletFromHardware credentials) async {
-    credentials.walletInfo!.derivationInfo = DerivationInfo(
-        derivationType: DerivationType.bip39,
-        derivationPath: "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0");
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    derivationInfo.derivationType = DerivationType.bip39;
+    derivationInfo.derivationPath = "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0";
+    await derivationInfo.save();
     credentials.walletInfo!.hardwareWalletType = credentials.hardwareWalletType;
     credentials.walletInfo!.address = credentials.hwAccountData.address;
+    await credentials.walletInfo!.save();
 
     final wallet = BaseWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: derivationInfo,
       password: credentials.password!,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -128,6 +134,7 @@ class BaseWalletService extends EVMChainWalletService<BaseWallet> {
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       passphrase: credentials.passphrase,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -142,8 +149,10 @@ class BaseWalletService extends EVMChainWalletService<BaseWallet> {
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
     final currentWallet = await BaseWallet.open(
       password: password,
       name: currentName,
@@ -158,6 +167,6 @@ class BaseWalletService extends EVMChainWalletService<BaseWallet> {
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    newWalletInfo.save();
   }
 }
