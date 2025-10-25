@@ -40,7 +40,7 @@ class LanguageService {
     'de': 'deu',
     'es': 'esp',
     'fr': 'fra',
-    'gn': 'Guarani (Guarani)',
+    'gn': 'grn',
     'hi': 'ind',
     'ja': 'jpn',
     'ko': 'kor',
