@@ -137,7 +137,9 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
   @override
   Widget build(BuildContext context) {
-    final detectedCurrency = walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!);
+    final detectedCurrency = widget.paymentFlowResult.type == PaymentFlowType.evmNetworkSelection
+        ? widget.paymentFlowResult.addressDetectionResult!.detectedCurrency!
+        : walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!);
 
     return Form(
       key: _formKey,
@@ -159,8 +161,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                 Icon(Icons.arrow_forward, size: 24),
                 const SizedBox(width: 12),
                 CakeImageWidget(
-                  imageUrl:
-                      detectedCurrency.iconPath!,
+                  imageUrl: detectedCurrency.iconPath!,
                   width: 32,
                   height: 32,
                 ),
@@ -414,7 +415,11 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
       }
     });
 
-    exchangeViewModel.receiveCurrency = walletTypeToCryptoCurrency(paymentFlowResult.walletType!);
+    exchangeViewModel.receiveCurrency =
+        paymentFlowResult.type == PaymentFlowType.evmNetworkSelection
+            ? paymentFlowResult.addressDetectionResult!.detectedCurrency!
+            : walletTypeToCryptoCurrency(paymentFlowResult.walletType!);
+
     await exchangeViewModel.fetchFiatPrice(exchangeViewModel.receiveCurrency);
 
     exchangeViewModel.receiveAddress = _addressController.text;

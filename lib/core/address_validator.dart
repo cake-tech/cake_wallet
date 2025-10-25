@@ -332,6 +332,7 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)((ltc|t)mweb1q[ac-hj-np-z02-9]{90,120})([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.eth:
       case CryptoCurrency.maticpoly:
+      case CryptoCurrency.baseEth:
         pattern = '0x[0-9a-zA-Z]+';
       case CryptoCurrency.nano:
         pattern = 'nano_[0-9a-zA-Z]{60}';

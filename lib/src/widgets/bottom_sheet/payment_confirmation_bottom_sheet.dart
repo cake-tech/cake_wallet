@@ -88,11 +88,16 @@ class _PaymentConfirmationContent extends StatelessWidget {
         final currencyName = walletTypeToString(paymentViewModel.detectedWalletType!);
         final currentWalletName = walletTypeToString(paymentViewModel.currentWalletType);
 
-        final hasMultipleWallets = paymentFlowResult.type == PaymentFlowType.multipleWallets;
-        final noAvailableWallets = paymentFlowResult.type == PaymentFlowType.noWallets;
+        final hasSingleWallet = paymentFlowResult.type == PaymentFlowType.singleWallet ||
+            paymentFlowResult.wallets.length == 1;
 
-        final hasAtLeastOneWallet =
-            paymentFlowResult.type == PaymentFlowType.singleWallet || hasMultipleWallets;
+        final hasMultipleWallets = paymentFlowResult.type == PaymentFlowType.multipleWallets ||
+            paymentFlowResult.wallets.length > 1;
+
+        final noAvailableWallets = paymentFlowResult.type == PaymentFlowType.noWallets ||
+            paymentFlowResult.wallets.isEmpty;
+
+        final hasAtLeastOneWallet = hasSingleWallet || hasMultipleWallets;
 
         final isMwebOrSpAddress =
             _isMwebOrSpAddress(paymentFlowResult.addressDetectionResult?.address ?? '');
@@ -103,34 +108,78 @@ class _PaymentConfirmationContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Image.asset(
-                walletTypeToCryptoCurrency(paymentViewModel.detectedWalletType!).iconPath!,
-                width: 118,
-                height: 118,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                '$currencyName ${S.current.address_detected.toLowerCase()}',
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      letterSpacing: 0.0,
+              if (paymentFlowResult.type == PaymentFlowType.evmNetworkSelection) ...[
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Image.asset(
+                      paymentFlowResult.addressDetectionResult!.detectedCurrency!.iconPath!,
+                      width: 70,
+                      height: 70,
                     ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                '''Looks like you scanned a $currencyName address.\n\n'''
-                '''Would you like to ${!noAvailableWallets ? 'switch to a $currencyName wallet or' : ''} swap $currentWalletName for $currencyName for this payment?''',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      letterSpacing: 0.0,
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Image.asset(
+                        walletTypeToCryptoCurrency(paymentViewModel.detectedWalletType!).iconPath!,
+                        width: 32,
+                        height: 32,
+                      ),
                     ),
-              ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  '${paymentFlowResult.addressDetectionResult?.detectedCurrency} (${walletTypeToString(paymentFlowResult.walletType!)})',
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        letterSpacing: 0.0,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  '''Would you like to ${!noAvailableWallets ? 'switch to a $currencyName wallet or' : ''} swap $currentWalletName for ${paymentFlowResult.addressDetectionResult?.detectedCurrency} (${walletTypeToString(paymentFlowResult.walletType!)}) for this payment?''',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        letterSpacing: 0.0,
+                      ),
+                ),
+              ] else ...[
+                Image.asset(
+                  walletTypeToCryptoCurrency(paymentViewModel.detectedWalletType!).iconPath!,
+                  width: 118,
+                  height: 118,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  '$currencyName ${S.current.address_detected.toLowerCase()}',
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        letterSpacing: 0.0,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  '''Looks like you scanned a $currencyName address.\n\n'''
+                  '''Would you like to ${!noAvailableWallets ? 'switch to a $currencyName wallet or' : ''} swap $currentWalletName for $currencyName for this payment?''',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        letterSpacing: 0.0,
+                      ),
+                ),
+              ],
               const SizedBox(height: 72),
               if (hasAtLeastOneWallet) ...[
                 if (!isMwebOrSpAddress) ...[

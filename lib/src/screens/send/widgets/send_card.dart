@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dar
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/evm_payment_flow_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
@@ -166,6 +167,13 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             result,
           );
           break;
+        case PaymentFlowType.evmNetworkSelection:
+          await _showEVMPaymentFlow(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
+          );
+          break;
         case PaymentFlowType.currentWalletCompatible:
         case PaymentFlowType.error:
         case PaymentFlowType.incompatible:
@@ -206,6 +214,30 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             result,
           ),
           onSwap: () => _handleSwapFlow(paymentViewModel, result),
+        );
+      },
+    );
+  }
+
+  Future<void> _showEVMPaymentFlow(
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isDismissible: true,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return EVMPaymentFlowBottomSheet(
+          paymentViewModel: paymentViewModel,
+          paymentRequest: paymentRequest,
+          onNext: (PaymentFlowResult newResult) => _showPaymentConfirmation(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
+            newResult,
+          ),
         );
       },
     );
@@ -797,9 +829,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           }
         }
 
-        final parsedAddress = output.isParsedAddress
-            ? output.extractedAddress
-            : output.address;
+        final parsedAddress = output.isParsedAddress ? output.extractedAddress : output.address;
 
         _lastHandledAddress = current;
         await _handlePaymentFlow(
