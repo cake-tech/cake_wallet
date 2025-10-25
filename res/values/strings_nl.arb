@@ -706,7 +706,7 @@
   "restore_bitcoin_title_from_keys": "Herstel van WIF",
   "restore_description_from_backup": "Je kunt de hele Cake Wallet-app herstellen van uw back-upbestand",
   "restore_description_from_cupcake": "Link met onze bijbehorende air-happed-app, geïnstalleerd op een tweede telefoon.",
-  "restore_description_from_hardware_wallet": "Herstel van een grootboekhardware -portemonnee",
+  "restore_description_from_hardware_wallet": "Koppel uw hardware wallet-apparaat van verschillende fabrikanten.",
   "restore_description_from_keys": "Herstel uw portemonnee van gegenereerd toetsaanslagen opgeslagen van uw privésleutels",
   "restore_description_from_seed": "Herstel uw portemonnee van het 25 woord of 13 woord combinatiecode",
   "restore_description_from_seed_keys": "Ontvang uw portemonnee terug uit seed / keys die u hebt opgeslagen op een veilige plaats",
