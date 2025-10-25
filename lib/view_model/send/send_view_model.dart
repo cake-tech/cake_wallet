@@ -803,7 +803,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       // Immediate transaction update for EVM chains, Solana, and Tron
       if (isEVMWallet || walletType == WalletType.solana || walletType == WalletType.tron) {
-        Future.delayed(Duration(seconds: 2), () async {
+        Future.delayed(Duration(seconds: 4), () async {
           try {
             await wallet.updateTransactionsHistory();
           } catch (e) {
