@@ -139,10 +139,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
 
-  bool get isEVMWallet =>
-      walletType == WalletType.ethereum ||
-      walletType == WalletType.polygon ||
-      walletType == WalletType.base;
+  bool get isEVMWallet => isEVMCompatibleChain(walletType);
 
   @action
   void setShowAddressBookPopup(bool value) {
@@ -802,6 +799,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (walletType == WalletType.nano) {
         nano!.updateTransactions(wallet);
+      }
+
+      // Immediate transaction update for EVM chains, Solana, and Tron
+      if (isEVMWallet || walletType == WalletType.solana || walletType == WalletType.tron) {
+        Future.delayed(Duration(seconds: 4), () async {
+          try {
+            await wallet.updateTransactionsHistory();
+          } catch (e) {
+            printV('Failed to update transactions after send: $e');
+          }
+        });
       }
 
       if (pendingTransaction!.id.isNotEmpty) {
