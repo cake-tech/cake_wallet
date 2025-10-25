@@ -231,6 +231,18 @@ class HardwareWalletTypeAdapter extends TypeAdapter<newWi.HardwareWalletType> {
     switch (reader.readByte()) {
       case 0:
         return newWi.HardwareWalletType.ledger;
+      case 1:
+        return newWi.HardwareWalletType.bitbox;
+      case 2:
+        return newWi.HardwareWalletType.cupcake;
+      case 3:
+        return newWi.HardwareWalletType.coldcard;
+      case 4:
+        return newWi.HardwareWalletType.seedsigner;
+      case 5:
+        return newWi.HardwareWalletType.keystone;
+      case 6:
+        return newWi.HardwareWalletType.trezor;
       default:
         return newWi.HardwareWalletType.ledger;
     }
@@ -241,6 +253,24 @@ class HardwareWalletTypeAdapter extends TypeAdapter<newWi.HardwareWalletType> {
     switch (obj) {
       case newWi.HardwareWalletType.ledger:
         writer.writeByte(0);
+        break;
+      case newWi.HardwareWalletType.bitbox:
+        writer.writeByte(1);
+        break;
+      case newWi.HardwareWalletType.cupcake:
+        writer.writeByte(2);
+        break;
+      case newWi.HardwareWalletType.coldcard:
+        writer.writeByte(3);
+        break;
+      case newWi.HardwareWalletType.seedsigner:
+        writer.writeByte(4);
+        break;
+      case newWi.HardwareWalletType.keystone:
+        writer.writeByte(5);
+        break;
+      case newWi.HardwareWalletType.trezor:
+        writer.writeByte(6);
         break;
     }
   }
