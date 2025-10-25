@@ -20,7 +20,7 @@ class NodeSwitchingService {
   static const int _maxNodeSwitchingAttempts = 5;
 
   // Cooldown period between node switching attempts (in seconds)
-  static const int _nodeSwitchingCooldownSeconds = 60;
+  static const int _nodeSwitchingCooldownSeconds = 15;
 
   // State to manage switching attempts and cooldown
   int _switchingAttempts = 0;
@@ -168,10 +168,6 @@ class NodeSwitchingService {
         }
       }
 
-      // Increment switching attempts counter
-      _switchingAttempts++;
-      _lastSwitchingAttempt = DateTime.now();
-
       // Add the next node to used list
       _usedNodeKeys[walletType]!.add(nextNode.key);
 
@@ -190,11 +186,10 @@ class NodeSwitchingService {
       printV('Successfully switched to node: ${nextNode.uriRaw}');
     } catch (e) {
       printV('Error switching to next trusted node: $e');
-
-      // Increment attempts even on error to prevent infinite retries
+    } finally {
+      // Increment switching attempts counter on every attempt
       _switchingAttempts++;
       _lastSwitchingAttempt = DateTime.now();
-    } finally {
       _isSwitching = false;
     }
   }
