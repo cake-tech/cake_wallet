@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_button_widget.da
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -276,8 +277,8 @@ class WalletListBodyState extends State<WalletListBody> {
                                             ),
                                           )
                                         : SizedBox(width: 6),
-                                    Image.asset(
-                                      walletTypeToCryptoCurrency(wallet.type).iconPath!,
+                                    CakeImageWidget(
+                                      imageUrl: walletTypeToCryptoCurrency(wallet.type).iconPath!,
                                       width: 32,
                                       height: 32,
                                     ),
