@@ -31,6 +31,13 @@ abstract class SeedSettingsViewModelBase with Store {
       _appStore.settingsStore.nanoSeedType = derivationType;
 
   @computed
+  ZanoSeedType get zanoSeedType => _appStore.settingsStore.zanoSeedType;
+
+  @action
+  void setZanoSeedType(ZanoSeedType derivationType) =>
+      _appStore.settingsStore.zanoSeedType = derivationType;
+
+  @computed
   String? get passphrase => this._seedSettingsStore.passphrase;
 
   @action

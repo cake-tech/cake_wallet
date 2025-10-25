@@ -84,3 +84,28 @@ class NanoSeedType extends EnumerableItem<int> with Serializable<int> {
     }
   }
 }
+
+class ZanoSeedType extends EnumerableItem<int> with Serializable<int> {
+  const ZanoSeedType(this.type, {required String title, required int raw})
+      : super(title: title, raw: raw);
+
+  final DerivationType type;
+
+  static const all = [ZanoSeedType.nanoStandard, ZanoSeedType.bip39];
+
+  static const defaultDerivationType = bip39;
+
+  static const nanoStandard = ZanoSeedType(DerivationType.nano, raw: 0, title: 'Zano');
+  static const bip39 = ZanoSeedType(DerivationType.bip39, raw: 1, title: 'BIP39');
+
+  static ZanoSeedType deserialize({required int raw}) {
+    switch (raw) {
+      case 0:
+        return nanoStandard;
+      case 1:
+        return bip39;
+      default:
+        throw Exception('Unexpected token: $raw for SeedType deserialize');
+    }
+  }
+}

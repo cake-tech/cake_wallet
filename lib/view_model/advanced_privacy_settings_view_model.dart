@@ -52,11 +52,13 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.banano:
         return _settingsStore.nanoSeedType == NanoSeedType.bip39;
 
+     case WalletType.zano:
+        return _settingsStore.zanoSeedType == ZanoSeedType.bip39;
+
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
       case WalletType.haven:
-      case WalletType.zano:
       case WalletType.decred:
         return false;
     }
@@ -73,6 +75,8 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       ].contains(type);
 
   bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
+
+  bool get isZanoSeedTypeOptionsEnabled => [WalletType.zano].contains(type);
 
   bool get hasPassphraseOption => [
         WalletType.bitcoin,

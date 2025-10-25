@@ -9,16 +9,25 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zano/zano_wallet.dart';
-import 'package:cw_zano/zano_wallet_api.dart';
 import 'package:hive/hive.dart';
 import 'package:monero/zano.dart' as zano;
+import 'package:bip39/bip39.dart' as bip39;
 
 class ZanoNewWalletCredentials extends WalletCredentials {
-  ZanoNewWalletCredentials({required String name, String? password, required String? passphrase}) : super(name: name, password: password, passphrase: passphrase);
+  ZanoNewWalletCredentials({
+    required String name,
+    String? password,
+    required String? passphrase,
+    required this.isBip39,
+    required this.mnemonic,
+  }) : super(name: name, password: password, passphrase: passphrase);
+
+  final bool isBip39;
+  final String? mnemonic;
 }
 
 class ZanoRestoreWalletFromSeedCredentials extends WalletCredentials {
-  ZanoRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required this.mnemonic})
+  ZanoRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required this.mnemonic, super.walletInfo})
       : super(name: name, password: password, passphrase: passphrase, height: height);
 
   final String mnemonic;
@@ -55,8 +64,21 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
   WalletType getType() => WalletType.zano;
 
   @override
-  Future<ZanoWallet> create(WalletCredentials credentials, {bool? isTestnet}) async {
+  Future<ZanoWallet> create(ZanoNewWalletCredentials credentials, {bool? isTestnet}) async {
     printV('zanowallet service create isTestnet $isTestnet');
+    if (credentials.isBip39) {
+      final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+      final mnemonic = credentials.mnemonic ?? (await bip39.generateMnemonic(strength: strength));
+      return await restoreFromKeys(ZanoRestoreWalletFromKeysCredentials(
+        name: credentials.name,
+        password: credentials.password!,
+        height: credentials.height??0,
+        language: '',
+        address: '',
+        viewKey: '',
+        spendKey: '',
+      ));
+    }
     return await ZanoWalletBase.create(credentials: credentials);
   }
 

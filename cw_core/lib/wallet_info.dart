@@ -19,6 +19,10 @@ enum DerivationType {
   bip39,
   @HiveField(4)
   electrum,
+  @HiveField(5)
+  decred,
+  @HiveField(6)
+  zano,
 }
 
 @HiveType(typeId: HARDWARE_WALLET_TYPE_TYPE_ID)
