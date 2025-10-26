@@ -73,9 +73,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final dstToken = _getTokenAddress(currency: to, chain: dstChain);
 
       final params = {
-        'srcChainId':  '${srcChain.chainId}',
+        'srcChainId': '${srcChain.chainId}',
         'srcToken': srcToken,
-        'dstChainId':'${dstChain.chainId}',
+        'dstChainId': '${dstChain.chainId}',
         'dstToken': dstToken,
       };
 
@@ -95,8 +95,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final path0 = paths.first as Map<String, dynamic>;
       final amountLimits = path0['amountLimits'] as Map<String, dynamic>?;
 
-      double? _parsedToDouble(dynamic v) =>
-          (v == null || v.toString().isEmpty) ? null : double.tryParse(v.toString());
+      double? _parsedToDouble(dynamic v) => (v == null || v.toString().isEmpty)
+          ? null
+          : double.tryParse(v.toString());
 
       final min = _parsedToDouble(amountLimits?['minAmount']);
       final max = _parsedToDouble(amountLimits?['maxAmount']);

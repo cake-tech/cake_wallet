@@ -48,6 +48,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     required this.fiatConversionStore,
   })  : trade = tradesStore.trade!,
         isSendable = _checkIfCanSend(tradesStore, wallet),
+        isSendableForSwapsXYZFromExternal = _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
         items = ObservableList<ExchangeTradeItem>() {
     setUpOutput();
     switch (trade.provider) {
@@ -109,14 +110,8 @@ abstract class ExchangeTradeViewModelBase with Store {
   @observable
   bool isSendable;
 
-
-  bool get isSwapsXyzSendingEVMTokenSwap => (_provider is SwapsXyzExchangeProvider) &&
-      (wallet.type == WalletType.ethereum &&
-          wallet.currency != trade.from ||
-          (wallet.type == WalletType.polygon &&
-              wallet.currency != trade.from) ||
-          (wallet.type == WalletType.base &&
-              wallet.currency != trade.from));
+  @observable
+  bool isSendableForSwapsXYZFromExternal;
 
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
       ? '\n\n' + S.current.exchange_extra_info
@@ -282,14 +277,24 @@ abstract class ExchangeTradeViewModelBase with Store {
           isReceiveDetail: true,
           isExternalSendDetail: false,
         ),
-        ExchangeTradeItem(
-          title: S.current.send_to_this_address('${tradeFrom}', tagFrom) + ':',
-          data: trade.inputAddress ?? '',
-          isCopied: false,
-          isReceiveDetail: false,
-          isExternalSendDetail: true,
-        ),
       ]);
+
+      items.add(
+        isSendableForSwapsXYZFromExternal
+            ? ExchangeTradeItem(
+            title: S.current.send_to_this_address('${tradeFrom}', tagFrom) +
+                ':',
+            data: trade.inputAddress ?? '',
+            isCopied: false,
+            isReceiveDetail: false,
+            isExternalSendDetail: true)
+            : ExchangeTradeItem(
+            title: 'Smart contract call (no address required)',
+            data: 'Wallet will execute a contract call. On-chain transaction',
+            isCopied: false,
+            isReceiveDetail: false,
+            isExternalSendDetail: true),
+      );
     }
 
     final isExtraIdExist = trade.extraId != null && trade.extraId!.isNotEmpty;
@@ -350,7 +355,19 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isTronToken() ||
         _isBaseToken();
   }
-  
+
+  static bool _checkIfSwapsXYZCanSendFromExternal(Trade trade, WalletBase wallet) {
+    final provider = trade.provider;
+
+    if (provider == ExchangeProviderDescription.swapsXyz) {
+      final isNativeSupportedToken =
+      walletTypes.contains(cryptoCurrencyToWalletType(trade.from!));
+
+      return isNativeSupportedToken;
+    }
+    return true;
+  }
+
   Future<void> registerSwapsXyzTransaction() async {
     try {
       if (!(_provider is SwapsXyzExchangeProvider)) return;

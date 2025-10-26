@@ -162,19 +162,21 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
         bottomSection: Column(
           children: [
-            PrimaryButton(
-              key: ValueKey('exchange_trade_page_send_from_external_button_key'),
-              text: S.current.send_from_external_wallet,
-              onPressed: () async {
-                Navigator.of(context).pushNamed(Routes.exchangeTradeExternalSendPage);
-              },
-              color: widget.exchangeTradeViewModel.isSendable
-                  ? Theme.of(context).colorScheme.surfaceContainer
-                  : Theme.of(context).colorScheme.primary,
-              textColor: widget.exchangeTradeViewModel.isSendable
-                  ? Theme.of(context).colorScheme.onSecondaryContainer
-                  : Theme.of(context).colorScheme.onPrimary,
-              isDisabled: widget.exchangeTradeViewModel.isSwapsXyzSendingEVMTokenSwap,
+            Offstage(
+              offstage: !widget.exchangeTradeViewModel.isSendableForSwapsXYZFromExternal,
+              child: PrimaryButton(
+                key: ValueKey('exchange_trade_page_send_from_external_button_key'),
+                text: S.current.send_from_external_wallet,
+                onPressed: () async {
+                  Navigator.of(context).pushNamed(Routes.exchangeTradeExternalSendPage);
+                },
+                color: widget.exchangeTradeViewModel.isSendable
+                    ? Theme.of(context).colorScheme.surfaceContainer
+                    : Theme.of(context).colorScheme.primary,
+                textColor: widget.exchangeTradeViewModel.isSendable
+                    ? Theme.of(context).colorScheme.onSecondaryContainer
+                    : Theme.of(context).colorScheme.onPrimary,
+              ),
             ),
             SizedBox(height: 16),
             Observer(

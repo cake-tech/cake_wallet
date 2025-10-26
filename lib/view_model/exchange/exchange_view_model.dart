@@ -993,6 +993,48 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   int get receiveMaxDigits => receiveCurrency.decimals;
 
   Future<CreateTradeResult> isCanCreateTrade(Trade trade) async {
+
+    if (trade.provider == ExchangeProviderDescription.swapsXyz) {
+
+      if (trade.from == null) {
+        return CreateTradeResult(
+          result: false,
+          errorMessage: 'From currency is null',
+        );
+      }
+
+      final isNativeSupportedToken = walletTypes.contains(cryptoCurrencyToWalletType(trade.from!));
+
+      if (!isNativeSupportedToken) {
+
+        final tradeFrom = trade.from!;
+
+        bool _isEthToken() =>
+            wallet.currency == CryptoCurrency.eth && tradeFrom.tag == CryptoCurrency.eth.title;
+
+        bool _isPolygonToken() =>
+            wallet.currency == CryptoCurrency.maticpoly &&
+                tradeFrom.tag == CryptoCurrency.maticpoly.tag;
+
+        bool _isBaseToken() =>
+            wallet.currency == CryptoCurrency.baseEth && tradeFrom.tag == CryptoCurrency.baseEth.tag;
+
+        bool _isTronToken() =>
+            wallet.currency == CryptoCurrency.trx && tradeFrom.tag == CryptoCurrency.trx.title;
+
+        bool _isSplToken() =>
+            wallet.currency == CryptoCurrency.sol && tradeFrom.tag == CryptoCurrency.sol.title;
+
+        if(!(_isEthToken() || _isPolygonToken() || _isBaseToken() || _isTronToken() || _isSplToken())) {
+          return CreateTradeResult(
+            result: false,
+            errorMessage: 'This token isn’t supported on the current wallet/network for Swaps.xyz. Switch to a supported wallet or asset',
+          );
+        }
+      }
+
+    }
+
     if (trade.provider == ExchangeProviderDescription.thorChain) {
       final payoutAddress = trade.payoutAddress ?? '';
       final fromWalletAddress = trade.fromWalletAddress ?? '';
