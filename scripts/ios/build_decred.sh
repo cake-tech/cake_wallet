@@ -3,7 +3,7 @@ set -e
 . ./config.sh
 LIBWALLET_PATH="${EXTERNAL_IOS_SOURCE_DIR}/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
-LIBWALLET_VERSION="05f8d7374999400fe4d525eb365c39b77d307b14"
+LIBWALLET_VERSION="29c832efedd48514db9552a0c95ef02ce9cd5dc8"
 
 if [[ -e $LIBWALLET_PATH ]]; then
     rm -fr $LIBWALLET_PATH
