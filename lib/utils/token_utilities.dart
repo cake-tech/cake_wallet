@@ -153,7 +153,7 @@ class TokenUtilities {
 
     // More of a fallback for us
     for (final balanceCurrency in wallet.balance.keys) {
-      if (balanceCurrency is Erc20Token && _matchesToken(balanceCurrency, currency)) {
+      if (balanceCurrency is Erc20Token && _matchesCurrency(balanceCurrency, currency)) {
         return balanceCurrency;
       }
     }
@@ -221,44 +221,65 @@ class TokenUtilities {
     return 1;
   }
 
-  /// Checks if two currencies match (by title and tag)
-  static bool _matchesToken(Erc20Token token, CryptoCurrency currency) {
-    return token.title.toLowerCase() == currency.title.toLowerCase() &&
-        (token.tag?.toLowerCase() == currency.tag?.toLowerCase() ||
-            (token.tag == null && currency.tag == null));
-  }
-
   static Future<List<CryptoCurrency>> getAvailableTokensForNetwork(
     WalletType network,
     Box<WalletInfo> walletInfoSource,
   ) async {
     final baseCurrency = walletTypeToCryptoCurrency(network);
-
-    final userTokens = await _getUserTokensForNetwork(baseCurrency, walletInfoSource);
-
     final allTokens = <CryptoCurrency>[];
     final addedAddresses = <String>{};
 
     allTokens.add(baseCurrency);
 
-    for (final token in userTokens) {
-      if (token is Erc20Token) {
-        final address = token.contractAddress.toLowerCase();
-        if (!addedAddresses.contains(address)) {
-          allTokens.add(token);
-          addedAddresses.add(address);
+    for (final currency in CryptoCurrency.all) {
+      final matches = baseCurrency == CryptoCurrency.eth
+          ? baseCurrency.title == currency.tag
+          : currency.tag == baseCurrency.tag;
+
+      if (matches && _shouldAddToken(allTokens, currency, addedAddresses)) {
+        allTokens.add(currency);
+        if (currency is Erc20Token) {
+          addedAddresses.add(currency.contractAddress.toLowerCase());
         }
-      } else {
-        final exists = allTokens.any((existing) =>
-            existing.title.toUpperCase() == token.title.toUpperCase() &&
-            (existing.tag?.toUpperCase() == token.tag?.toUpperCase() || existing.tag == null));
-        if (!exists) {
-          allTokens.add(token);
+      }
+    }
+
+    // Add user tokens that don't already exist
+    final userTokens = await _getUserTokensForNetwork(baseCurrency, walletInfoSource);
+    for (final token in userTokens) {
+      if (_shouldAddToken(allTokens, token, addedAddresses)) {
+        allTokens.add(token);
+        if (token is Erc20Token) {
+          addedAddresses.add(token.contractAddress.toLowerCase());
         }
       }
     }
 
     return allTokens;
+  }
+
+  static bool _shouldAddToken(
+    List<CryptoCurrency> existingTokens,
+    CryptoCurrency token,
+    Set<String> addedAddresses,
+  ) {
+    if (token is Erc20Token) {
+      final address = token.contractAddress.toLowerCase();
+      if (addedAddresses.contains(address)) {
+        return false;
+      }
+      if (existingTokens.any((existing) => _matchesCurrency(existing, token))) {
+        return false;
+      }
+      return true;
+    }
+    
+    return !existingTokens.any((existing) => _matchesCurrency(existing, token));
+  }
+
+  static bool _matchesCurrency(CryptoCurrency a, CryptoCurrency b) {
+    return a.title.toUpperCase() == b.title.toUpperCase() &&
+        (a.tag?.toUpperCase() == b.tag?.toUpperCase() || (a.tag == null && b.tag == null));
   }
 
   static Future<List<CryptoCurrency>> _getUserTokensForNetwork(
