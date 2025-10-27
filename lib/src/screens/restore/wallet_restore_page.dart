@@ -605,7 +605,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
     }
 
     if ((walletRestoreViewModel.type == WalletType.decred) &&
-        seedWords.length != WalletRestoreViewModelBase.decredSeedMnemonicLength) {
+        !WalletRestoreViewModelBase.decredSeedMnemonicLengths.contains(seedWords.length)) {
       return false;
     }
 
