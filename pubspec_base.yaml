@@ -191,7 +191,7 @@ dependency_overrides:
   ledger_flutter_plus:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus
-      ref: 2e01999df96a572752c7355907821d4c561112de
+      ref: 5237e5b3d5f07696eefd0aaee9c32478ed399d20
   ledger_usb_plus:
     git:
       url: https://github.com/konstantinullrich/ledger-usb-plus
