@@ -1,3 +1,1 @@
-Enhance Trezor support
-Add Swaps.xyz Decentralized Exchange
 Bug fixes
