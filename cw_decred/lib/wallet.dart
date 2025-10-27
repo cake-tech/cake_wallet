@@ -412,10 +412,11 @@ abstract class DecredWalletBase
       "feerate": creds.feeRate ?? defaultFeeRate,
       "password": _password,
       "sendall": sendAll,
+      "sign": true,
     };
-    final res = await _libwallet.createSignedTransaction(walletInfo.name, jsonEncode(signReq));
+    final res = await _libwallet.createTransaction(walletInfo.name, jsonEncode(signReq));
     final decoded = json.decode(res);
-    final signedHex = decoded["signedhex"];
+    final signedHex = decoded["hex"];
     final send = () async {
       await _libwallet.sendRawTransaction(walletInfo.name, signedHex);
       await updateBalance();
