@@ -74,7 +74,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   }
 
   static const moneroSeedMnemonicLength = 25;
-  static const decredSeedMnemonicLength = 15;
+  static const decredSeedMnemonicLengths = [12, 15, 24];
 
   late List<WalletRestoreMode> availableModes;
   late final bool hasSeedLanguageSelector = [
