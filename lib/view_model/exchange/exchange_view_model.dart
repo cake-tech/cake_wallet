@@ -647,11 +647,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
-    if (depositCurrency == receiveCurrency) {
-      tradeState = TradeIsCreatedFailure(
-          title: S.current.trade_not_created, error: 'Can\'t exchange the same currency');
-      return;
-    }
     if (isSendAllEnabled) {
       await calculateDepositAllAmount();
       final amount = double.tryParse(depositAmount);
