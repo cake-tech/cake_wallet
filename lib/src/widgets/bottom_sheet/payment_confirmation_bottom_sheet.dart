@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -103,8 +104,8 @@ class _PaymentConfirmationContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Image.asset(
-                walletTypeToCryptoCurrency(paymentViewModel.detectedWalletType!).iconPath!,
+              CakeImageWidget(
+                imageUrl: walletTypeToCryptoCurrency(paymentViewModel.detectedWalletType!).iconPath!,
                 width: 118,
                 height: 118,
               ),

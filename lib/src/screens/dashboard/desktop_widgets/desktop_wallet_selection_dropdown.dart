@@ -17,6 +17,7 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 
 class DesktopWalletSelectionDropDown extends StatefulWidget {
   final WalletListViewModel walletListViewModel;
@@ -30,24 +31,24 @@ class DesktopWalletSelectionDropDown extends StatefulWidget {
 }
 
 class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionDropDown> {
-  final moneroIcon = Image.asset('assets/images/crypto/monero.webp', height: 24, width: 24);
-  final bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.webp', height: 24, width: 24);
+  final moneroIcon = Image.asset('assets/images/crypto/monero.svg', height: 24, width: 24);
+  final bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.svg', height: 24, width: 24);
   final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
-  final litecoinIcon = Image.asset('assets/images/crypto/litecoin.webp', height: 24, width: 24);
-  final havenIcon = Image.asset('assets/images/haven_logo.webp', height: 24, width: 24);
-  final ethereumIcon = Image.asset('assets/images/crypto/ethereum.webp', height: 24, width: 24);
-  final polygonIcon = Image.asset('assets/images/crypto/polygon.webp', height: 24, width: 24);
-  final bitcoinCashIcon = Image.asset('assets/images/crypto/bitcoin-cash.webp', height: 24, width: 24);
-  final baseIcon = Image.asset('assets/images/crypto/base_icon.webp', height: 24, width: 24);
-  final nanoIcon = Image.asset('assets/images/crypto/nano.webp', height: 24, width: 24);
-  final bananoIcon = Image.asset('assets/images/crypto/nano.webp', height: 24, width: 24);
-  final solanaIcon = Image.asset('assets/images/crypto/solana.webp', height: 24, width: 24);
-  final tronIcon = Image.asset('assets/images/crypto/tron.webp', height: 24, width: 24);
-  final wowneroIcon = Image.asset('assets/images/crypto/wownero.webp', height: 24, width: 24);
-  final zanoIcon = Image.asset('assets/images/crypto/zano.webp', height: 24, width: 24);
-  final decredIcon = Image.asset('assets/images/crypto/decred.webp', height: 24, width: 24);
-  final dogeIcon = Image.asset('assets/images/crypto/dogecoin.webp', height: 24, width: 24);
-  final nonWalletTypeIcon = Image.asset('assets/images/close.webp', height: 24, width: 24);
+  final litecoinIcon = Image.asset('assets/images/crypto/litecoin.svg', height: 24, width: 24);
+  final havenIcon = Image.asset('assets/images/haven_logo.svg', height: 24, width: 24);
+  final ethereumIcon = Image.asset('assets/images/crypto/ethereum.svg', height: 24, width: 24);
+  final polygonIcon = Image.asset('assets/images/crypto/polygon.svg', height: 24, width: 24);
+  final bitcoinCashIcon = Image.asset('assets/images/crypto/bitcoin-cash.svg', height: 24, width: 24);
+  final baseIcon = Image.asset('assets/images/crypto/base.svg', height: 24, width: 24);
+  final nanoIcon = Image.asset('assets/images/crypto/nano.svg', height: 24, width: 24);
+  final bananoIcon = Image.asset('assets/images/crypto/nano.svg', height: 24, width: 24);
+  final solanaIcon = Image.asset('assets/images/crypto/solana.svg', height: 24, width: 24);
+  final tronIcon = Image.asset('assets/images/crypto/tron.svg', height: 24, width: 24);
+  final wowneroIcon = Image.asset('assets/images/crypto/wownero.svg', height: 24, width: 24);
+  final zanoIcon = Image.asset('assets/images/crypto/zano.svg', height: 24, width: 24);
+  final decredIcon = Image.asset('assets/images/crypto/decred.svg', height: 24, width: 24);
+  final dogeIcon = Image.asset('assets/images/crypto/dogecoin.svg', height: 24, width: 24);
+  final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
         'assets/images/new_wallet.png',
