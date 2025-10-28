@@ -232,12 +232,19 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         return EVMPaymentFlowBottomSheet(
           paymentViewModel: paymentViewModel,
           paymentRequest: paymentRequest,
-          onNext: (PaymentFlowResult newResult) => _showPaymentConfirmation(
-            paymentViewModel,
-            walletSwitcherViewModel,
-            paymentRequest,
-            newResult,
-          ),
+          onNext: (PaymentFlowResult newResult) {
+            if (newResult.addressDetectionResult!.detectedWalletType ==
+                paymentViewModel.currentWalletType) {
+              sendViewModel.setSelectedCryptoCurrency(
+                  newResult.addressDetectionResult!.detectedCurrency!.title);
+            }
+            _showPaymentConfirmation(
+              paymentViewModel,
+              walletSwitcherViewModel,
+              paymentRequest,
+              newResult,
+            );
+          },
         );
       },
     );
