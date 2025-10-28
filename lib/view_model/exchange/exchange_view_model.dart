@@ -732,6 +732,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
               /// return after the first successful trade
               return;
+            } on SwapXyzProviderException catch (e) {
+              tradeState = TradeIsCreatedFailure(
+                title: S.current.trade_not_created,
+                error: e.message);
+              return;
             } catch (e) {
               continue;
             }
@@ -996,18 +1001,20 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     if (trade.provider == ExchangeProviderDescription.swapsXyz) {
 
-      if (trade.from == null) {
+      final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+
+      if (tradeFrom == null) {
         return CreateTradeResult(
           result: false,
           errorMessage: 'From currency is null',
         );
       }
 
-      final isNativeSupportedToken = walletTypes.contains(cryptoCurrencyToWalletType(trade.from!));
+      final isNativeSupportedToken = walletTypes.contains(cryptoCurrencyToWalletType(tradeFrom));
 
       if (!isNativeSupportedToken) {
 
-        final tradeFrom = trade.from!;
+
 
         bool _isEthToken() =>
             wallet.currency == CryptoCurrency.eth && tradeFrom.tag == CryptoCurrency.eth.title;

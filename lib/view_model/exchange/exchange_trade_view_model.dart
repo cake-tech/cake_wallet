@@ -48,7 +48,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     required this.fiatConversionStore,
   })  : trade = tradesStore.trade!,
         isSendable = _checkIfCanSend(tradesStore, wallet),
-        isSendableForSwapsXYZFromExternal = _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
+        isSwapsXYZContractCall = _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
         items = ObservableList<ExchangeTradeItem>() {
     setUpOutput();
     switch (trade.provider) {
@@ -111,7 +111,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   bool isSendable;
 
   @observable
-  bool isSendableForSwapsXYZFromExternal;
+  bool isSwapsXYZContractCall;
 
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
       ? '\n\n' + S.current.exchange_extra_info
@@ -280,7 +280,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       ]);
 
       items.add(
-        isSendableForSwapsXYZFromExternal
+        isSwapsXYZContractCall
             ? ExchangeTradeItem(
             title: S.current.send_to_this_address('${tradeFrom}', tagFrom) +
                 ':',
@@ -360,8 +360,13 @@ abstract class ExchangeTradeViewModelBase with Store {
     final provider = trade.provider;
 
     if (provider == ExchangeProviderDescription.swapsXyz) {
+
+      final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+
+      if (tradeFrom == null) return false;
+
       final isNativeSupportedToken =
-      walletTypes.contains(cryptoCurrencyToWalletType(trade.from!));
+      walletTypes.contains(cryptoCurrencyToWalletType(tradeFrom));
 
       return isNativeSupportedToken;
     }

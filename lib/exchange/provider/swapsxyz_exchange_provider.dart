@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -63,14 +62,17 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final chains = await _geSupportedChain();
       if (chains.isEmpty) throw Exception('Failed to fetch supported chains');
 
-      final srcChain = _findChainByCurrency(from, chains);
-      final dstChain = _findChainByCurrency(to, chains);
+      final fromToUse = isFixedRateMode ? to : from;
+      final toToUse = isFixedRateMode ? from : to;
+
+      final srcChain = _findChainByCurrency(fromToUse, chains);
+      final dstChain = _findChainByCurrency(toToUse, chains);
 
       await _ensureTokensCached(
-          fromChain: srcChain, toChain: dstChain, from: from, to: to);
+          fromChain: srcChain, toChain: dstChain, from: fromToUse, to: toToUse);
 
-      final srcToken = _getTokenAddress(currency: from, chain: srcChain);
-      final dstToken = _getTokenAddress(currency: to, chain: dstChain);
+      final srcToken = _getTokenAddress(currency: fromToUse, chain: srcChain);
+      final dstToken = _getTokenAddress(currency: toToUse, chain: dstChain);
 
       final params = {
         'srcChainId': '${srcChain.chainId}',
@@ -87,21 +89,75 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
       final body = json.decode(res.body) as Map<String, dynamic>;
 
-      final paths = (body['paths'] as List?) ?? const [];
+      final paths =
+          (body['paths'] as List? ?? const []).cast<Map<String, dynamic>>();
       if (paths.isEmpty) {
-        throw Exception('No paths for ${from.title} -> ${to.title}');
+        throw Exception('No paths for ${fromToUse.title} -> ${toToUse.title}');
       }
 
-      final path0 = paths.first as Map<String, dynamic>;
-      final amountLimits = path0['amountLimits'] as Map<String, dynamic>?;
+      final int requestedDstId = dstChain.chainId;
 
-      double? _parsedToDouble(dynamic v) => (v == null || v.toString().isEmpty)
-          ? null
-          : double.tryParse(v.toString());
+      Map<String, dynamic> path = paths.firstWhere(
+        (p) => p['chainId'] == requestedDstId,
+        orElse: () => <String, dynamic>{},
+      );
 
-      final min = _parsedToDouble(amountLimits?['minAmount']);
-      final max = _parsedToDouble(amountLimits?['maxAmount']);
+      if (path.isEmpty) {
+        path = paths.firstWhere(
+          (p) => (p['tokens'] is List) || p['amountLimits'] != null,
+          orElse: () => paths.first,
+        );
+      }
 
+      final supportsExactAmountIn =
+          path['supportsExactAmountIn'] as bool? ?? false;
+      final supportsExactAmountOut =
+          path['supportsExactAmountOut'] as bool? ?? false;
+
+      if (isFixedRateMode && !supportsExactAmountOut) {
+        throw Exception(
+            'This route does not support fixed receive (exact-amount-out)');
+      }
+      if (!isFixedRateMode && !supportsExactAmountIn) {
+        throw Exception(
+            'This route does not support exact send (exact-amount-in)');
+      }
+
+      Map<String, dynamic>? useLimits;
+
+      if (isFixedRateMode) {
+        final tokensField = path['tokens'];
+        useLimits = null;
+
+        if (tokensField is List && tokensField.isNotEmpty) {
+          final tokens = tokensField.cast<Map<String, dynamic>>();
+          String norm(String s) => s.toUpperCase();
+          final wantSym = norm(_normalizeCakeNativeTokenName(toToUse.title));
+          final wantAddr = (dstToken).toLowerCase();
+
+          final match = tokens.firstWhere(
+            (t) {
+              final sym = norm(t['symbol']?.toString() ?? '');
+              final addr = (t['address']?.toString() ?? '').toLowerCase();
+              return sym == wantSym || (addr.isNotEmpty && addr == wantAddr);
+            },
+            orElse: () => const <String, dynamic>{},
+          );
+
+          if (match.isNotEmpty) {
+            useLimits = {
+              'minAmount': match['minAmount'],
+              'maxAmount': match['maxAmount'],
+            };
+          }
+        }
+      } else {
+        // Floating/Exact-in: use the route-level limits
+        useLimits = path['amountLimits'] as Map<String, dynamic>?;
+      }
+
+      final min = double.tryParse((useLimits?['minAmount'])?.toString() ?? '');
+      final max = double.tryParse((useLimits?['maxAmount'])?.toString() ?? '');
       return Limits(min: min, max: max);
     } catch (e) {
       printV('fetchLimits error: $e');
@@ -233,20 +289,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final dstToken =
           _getTokenAddress(currency: request.toCurrency, chain: dstChain);
 
-      // Optional: ensure path supports exact-out before attempting fixed rate.
-      if (isFixedRateMode) {
-        final path = await _pickPath(
-          srcChainId: srcChain.chainId,
-          srcToken: srcToken,
-          dstChainId: dstChain.chainId,
-          dstToken: dstToken,
-        );
-        if (path == null || !path.supportsExactOut) {
-          throw Exception(
-              'This route does not support fixed receive (exact-amount-out)');
-        }
-      }
-
       final amountStr = isFixedRateMode ? request.toAmount : request.fromAmount;
       final rawAmount = double.tryParse(amountStr) ?? 0.0;
       if (rawAmount <= 0) throw Exception('Invalid amount');
@@ -282,6 +324,31 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final data = json.decode(res.body) as Map<String, dynamic>;
 
       final txId = data['txId'] as String? ?? '';
+
+      final requestedOut = isFixedRateMode
+          ? BigInt.tryParse(formattedAmount.replaceAll('n', '')) ?? BigInt.zero
+          : BigInt.zero;
+
+      if (isFixedRateMode) {
+        final amountOut = data['amountOut'] as Map<String, dynamic>?;
+
+        if (amountOut == null ||
+            (amountOut['symbol'] as String?)?.toUpperCase() !=
+                _normalizeCakeNativeTokenName(request.toCurrency.title)) {
+          throw Exception(
+              'No amountOut info in getAction response for fixed rate');
+        }
+
+        final amountOutStr = amountOut['amount']?.toString() ?? '0';
+        final amountOutBigInt =
+            BigInt.tryParse(amountOutStr.replaceAll('n', '')) ?? BigInt.zero;
+
+        if (amountOutBigInt != requestedOut) {
+          throw SwapXyzProviderException(
+              'Requested fixed receive amount unavailable for Swaps.XYZ. Try adjusting the amount or using floating rate.');
+        }
+      }
+
       final vmId = data['vmId'] as String? ?? '';
       final txObj = (data['tx'] as Map?) ?? const {};
 
@@ -338,6 +405,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       );
 
       return trade;
+    } on SwapXyzProviderException {
+      rethrow;
     } catch (e) {
       printV('createTrade error: $e');
       throw TradeNotCreatedException(description, description: e.toString());
@@ -764,4 +833,13 @@ class _PathInfo {
   final String minToAmountHuman;
 
   _PathInfo({required this.supportsExactOut, required this.minToAmountHuman});
+}
+
+class SwapXyzProviderException implements Exception {
+  final String message;
+
+  const SwapXyzProviderException([this.message = '']);
+
+  @override
+  String toString() => 'SwapXyzFixedAmountNotAvailable: $message';
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
@@ -9,6 +10,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_shee
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -163,7 +165,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         bottomSection: Column(
           children: [
             Offstage(
-              offstage: !widget.exchangeTradeViewModel.isSendableForSwapsXYZFromExternal,
+              offstage: !widget.exchangeTradeViewModel.isSwapsXYZContractCall,
               child: PrimaryButton(
                 key: ValueKey('exchange_trade_page_send_from_external_button_key'),
                 text: S.current.send_from_external_wallet,
@@ -270,10 +272,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         if (state is ExecutedSuccessfullyState) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             final trade = widget.exchangeTradeViewModel.trade;
-            final isSwapsXyz = trade.provider == ExchangeProviderDescription.swapsXyz;
-            final isEVMWallet = widget.exchangeTradeViewModel.sendViewModel.isEVMWallet;
 
-            final amountValue = isSwapsXyz && isEVMWallet
+            final isSwapsXYZContractCall = !widget.exchangeTradeViewModel.isSwapsXYZContractCall;
+
+            final amountValue = isSwapsXYZContractCall
                 ? trade.amount
                 : widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted;
 
@@ -304,6 +306,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
                         .pendingTransactionFeeFiatAmountFormatted,
                     outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
+                    hideAddresses: isSwapsXYZContractCall,
                     onSlideActionComplete: () async {
                       if (bottomSheetContext.mounted) {
                         Navigator.of(bottomSheetContext).pop(true);
