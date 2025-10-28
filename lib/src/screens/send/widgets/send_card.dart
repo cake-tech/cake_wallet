@@ -275,7 +275,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     PaymentRequest paymentRequest,
     PaymentFlowResult result,
   ) async {
-    Navigator.of(context).pop();
+    if (context.mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
 
     if (result.wallet != null) {
       walletSwitcherViewModel.selectWallet(result.wallet!);
