@@ -231,46 +231,46 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
-  bitbox_flutter: 9505732798041c413152669751beeaecc5fe400f
-  connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
+  bitbox_flutter: 506f80b961ddf646b0d80cef9f6eadaab96d91b0
+  connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
-  cw_decred: a02cf30175a46971c1e2fa22c48407534541edc6
-  cw_mweb: 3aea2fb35b2bd04d8b2d21b83216f3b8fb768d85
-  device_display_brightness: 04374ebd653619292c1d996f00f42877ea19f17f
-  device_info_plus: 335f3ce08d2e174b9fdc3db3db0f4e3b1f66bd89
-  devicelocale: bd64aa714485a8afdaded0892c1e7d5b7f680cf8
+  cw_decred: 9c0e1df74745b51a1289ec5e91fb9e24b68fa14a
+  cw_mweb: 22cd01dfb8ad2d39b15332006f22046aaa8352a3
+  device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
+  device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
+  devicelocale: 35ba84dc7f45f527c3001535d8c8d104edd5d926
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
   dnssec_proof: d461cac7bd3301eb7447f87936745a0c1ae0a67e
-  fast_scanner: 2cb1ad3e69e645e9980fb4961396ce5804caa3e3
-  file_picker: 9b3292d7c8bc68c8a7bf8eb78f730e49c8efc517
+  fast_scanner: 44c00940355a51258cd6c2085734193cd23d95bc
+  file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
-  flutter_local_authentication: 989278c681612f1ee0e36019e149137f114b9d7f
-  flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
-  flutter_mailer: 3a8cd4f36c960fb04528d5471097270c19fec1c4
-  flutter_secure_storage: 2c2ff13db9e0a5647389bff88b0ecac56e3f3418
-  fluttertoast: 2c67e14dce98bbdb200df9e1acf610d7a6264ea1
-  image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
-  in_app_review: 7dd1ea365263f834b8464673f9df72c80c17c937
-  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+  flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
+  flutter_local_authentication: 1172a4dd88f6306dadce067454e2c4caf07977bb
+  flutter_local_notifications: ff50f8405aaa0ccdc7dcfb9022ca192e8ad9688f
+  flutter_mailer: 2ef5a67087bc8c6c4cefd04a178bf1ae2c94cd83
+  flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
+  fluttertoast: 21eecd6935e7064cc1fcb733a4c5a428f3f24f0f
+  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
+  in_app_review: 436034b18594851a7328d7f1c2ed5ec235b79cfc
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
-  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
-  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   payjoin_flutter: d9d4c8aa16bd5dfedb9b21d0edc8199e0187d96e
-  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
-  reown_yttrium: cee334ade64725b1d83f7b34c706a6aae2696d58
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  reown_yttrium: c0e87e5965fa60a3559564cc35cffbba22976089
   SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a
-  sensitive_clipboard: 161e9abc3d56b3131309d8a321eb4690a803c16b
-  share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
-  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
-  sp_scanner: b1bc9321690980bdb44bba7ec85d5543e716d1b5
+  sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
+  share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
+  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  sp_scanner: eaa617fa827396b967116b7f1f43549ca62e9a12
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
-  torch_dart: f4620705d10f05492fab047f2fa1c3a600e7d17d
-  uni_links: ed8c961e47ed9ce42b6d91e1de8049e38a4b3152
-  universal_ble: ff19787898040d721109c6324472e5dd4bc86adc
-  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
-  wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
+  torch_dart: d2cf778332cc6e6a3b362dcf45e4dde52bc34e35
+  uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
+  universal_ble: cf52a7b3fd2e7c14d6d7262e9fdadb72ab6b88a6
+  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
+  wakelock_plus: 76957ab028e12bfa4e66813c99e46637f367fc7e
   YttriumWrapper: 31e937fe9fbe0f1314d2ca6be9ce9b379a059966
 
 PODFILE CHECKSUM: 5296465b1c6d14d506230356756826012f65d97a

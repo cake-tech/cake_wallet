@@ -150,12 +150,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     });
 
-    isDepositAddressEnabled = !(depositCurrency == wallet.currency);
+    isDepositAddressEnabled = !(isDepositSameCurrency);
     depositAmount = '';
     receiveAmount = '';
     receiveAddress = '';
-    depositAddress =
-        depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
+    depositAddress = isDepositSameCurrency ? wallet.walletAddresses.addressForExchange : '';
 
     provider = providerList.firstOrNull;
     final initialProvider = provider;
@@ -189,6 +188,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       bitcoin!.updateFeeRates(wallet);
     }
   }
+
+  bool get isDepositSameCurrency =>
+      depositCurrency == wallet.currency ||
+      depositCurrency.tag == wallet.currency.tag ||
+      depositCurrency.tag == wallet.currency.title;
 
   bool get isElectrumWallet => [
         WalletType.bitcoin,
@@ -412,10 +416,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void changeDepositCurrency({required CryptoCurrency currency}) {
+    print("@@@@@@@@");
+    print(currency);
+    print(currency.tag);
+    print(currency.title);
+    print(wallet.currency.tag);
+    print(wallet.currency.title);
     depositCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();
-    isDepositAddressEnabled = !(depositCurrency == wallet.currency);
+    isDepositAddressEnabled = !(isDepositSameCurrency);
   }
 
   @action
@@ -423,7 +433,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     receiveCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();
-    isDepositAddressEnabled = !(depositCurrency == wallet.currency);
+    isDepositAddressEnabled = !(isDepositSameCurrency);
   }
 
   @action
@@ -534,12 +544,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       _providers.map(
         (element) => element
             .fetchRate(
-              from: depositCurrency,
-              to: receiveCurrency,
-              amount: amount,
-              isFixedRateMode: isFixedRateMode,
-              isReceiveAmount: isFixedRateMode
-            )
+                from: depositCurrency,
+                to: receiveCurrency,
+                amount: amount,
+                isFixedRateMode: isFixedRateMode,
+                isReceiveAmount: isFixedRateMode)
             .timeout(
               Duration(seconds: 7),
               onTimeout: () => 0.0,
@@ -638,11 +647,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
-    if (depositCurrency == receiveCurrency) {
-      tradeState = TradeIsCreatedFailure(
-          title: S.current.trade_not_created, error: 'Can\'t exchange the same currency');
-      return;
-    }
     if (isSendAllEnabled) {
       await calculateDepositAllAmount();
       final amount = double.tryParse(depositAmount);
