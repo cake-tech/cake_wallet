@@ -130,6 +130,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  breez_sdk_spark_flutter:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "5bc8fb5f3a5c84e2e3dd55f5d48b01152f425765"
+      url: "https://github.com/breez/breez-sdk-spark-flutter"
+    source: git
+    version: "0.3.2"
   bs58check:
     dependency: transitive
     description:
