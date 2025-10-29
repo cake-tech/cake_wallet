@@ -547,7 +547,7 @@ Future<void> setup({
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
       settingsStore: getIt.get<SettingsStore>(),
-      fiatConvertationStore: getIt.get<FiatConversionStore>()));
+      fiatConversionStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(
     () => ExchangeViewModel(
