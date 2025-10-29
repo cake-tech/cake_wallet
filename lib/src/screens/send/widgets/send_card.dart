@@ -206,6 +206,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             paymentViewModel,
             walletSwitcherViewModel,
             paymentRequest,
+            result,
           ),
           onChangeWallet: () => _handleChangeWallet(
             paymentViewModel,
@@ -254,6 +255,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     PaymentViewModel paymentViewModel,
     WalletSwitcherViewModel walletSwitcherViewModel,
     PaymentRequest paymentRequest,
+    PaymentFlowResult result,
   ) async {
     Navigator.of(context).pop();
 
@@ -272,6 +274,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     final success = await walletSwitcherViewModel.switchToSelectedWallet();
 
     if (success) {
+      await sendViewModel.wallet.updateBalance();
+      sendViewModel
+          .setSelectedCryptoCurrency(result.addressDetectionResult!.detectedCurrency!.title);
       _applyPaymentRequest(paymentRequest);
     }
   }
@@ -308,6 +313,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         if (loadingBottomSheetContext != null && loadingBottomSheetContext!.mounted) {
           Navigator.of(loadingBottomSheetContext!).pop();
         }
+
+        await sendViewModel.wallet.updateBalance();
+        sendViewModel
+            .setSelectedCryptoCurrency(result.addressDetectionResult!.detectedCurrency!.title);
         _applyPaymentRequest(paymentRequest);
       }
     }
