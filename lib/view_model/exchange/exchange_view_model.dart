@@ -416,12 +416,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void changeDepositCurrency({required CryptoCurrency currency}) {
-    print("@@@@@@@@");
-    print(currency);
-    print(currency.tag);
-    print(currency.title);
-    print(wallet.currency.tag);
-    print(wallet.currency.title);
     depositCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();
