@@ -1,27 +1,26 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/entities/sort_balance_types.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/balance.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/sort_balance_types.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
 part 'balance_view_model.g.dart';
 
 class BalanceRecord {
   const BalanceRecord(
-      {
-        required this.availableBalance,
+      {required this.availableBalance,
       required this.additionalBalance,
       required this.secondAvailableBalance,
       required this.secondAdditionalBalance,
@@ -150,18 +149,15 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get availableBalanceLabel {
-
     if (displayMode == BalanceDisplayMode.hiddenBalance) {
       return S.current.show_balance;
-    }
-    else {
+    } else {
       return S.current.xmr_available_balance;
     }
   }
 
   @computed
   String get additionalBalanceLabel {
-
     switch (wallet.type) {
       case WalletType.haven:
       case WalletType.ethereum:
@@ -225,8 +221,10 @@ abstract class BalanceViewModelBase with Store {
                 fiatAdditionalBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 fiatAvailableBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 fiatFrozenBalance: isFiatDisabled ? '' : '',
-                fiatSecondAvailableBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
-                fiatSecondAdditionalBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
+                fiatSecondAvailableBalance:
+                    isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
+                fiatSecondAdditionalBalance:
+                    isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 asset: key,
                 formattedAssetTitle: _formatterAsset(key)));
       }
@@ -300,8 +298,16 @@ abstract class BalanceViewModelBase with Store {
       mwebEnabled && _hasSecondAdditionalBalanceForWalletType(wallet.type);
 
   @computed
-  bool get hasSecondAvailableBalance =>
-      mwebEnabled && _hasSecondAvailableBalanceForWalletType(wallet.type);
+  bool get hasSecondAvailableBalance {
+    switch (wallet.type) {
+      case WalletType.bitcoin:
+        return true;
+      case WalletType.litecoin:
+        return mwebEnabled;
+      default:
+        return false;
+    }
+  }
 
   bool _hasAdditionalBalanceForWalletType(WalletType type) {
     switch (type) {
@@ -317,16 +323,9 @@ abstract class BalanceViewModelBase with Store {
 
   bool _hasSecondAdditionalBalanceForWalletType(WalletType type) {
     if (wallet.type == WalletType.litecoin) {
-      if ((wallet.balance[CryptoCurrency.ltc]?.secondAdditional ?? 0) != 0) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  bool _hasSecondAvailableBalanceForWalletType(WalletType type) {
-    if (wallet.type == WalletType.litecoin) {
-      return true;
+      return (wallet.balance[CryptoCurrency.ltc]?.secondAdditional ?? 0) != 0;
+    } else if (wallet.type == WalletType.bitcoin) {
+      return (wallet.balance[CryptoCurrency.btc]?.secondAdditional ?? 0) != 0;
     }
     return false;
   }
@@ -394,7 +393,6 @@ abstract class BalanceViewModelBase with Store {
 
     return balance;
   }
-
 
   @observable
   bool isShowCard;
