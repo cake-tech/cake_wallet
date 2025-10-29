@@ -25,7 +25,7 @@ import 'package:cw_solana/solana_transaction_history.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/solana_wallet_addresses.dart';
-import 'package:cw_solana/spl_token.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -292,6 +292,14 @@ abstract class SolanaWalletBase
   @override
   Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async => {};
 
+  @override
+  Future<void> updateTransactionsHistory() async {
+    await Future.wait([
+      _updateNativeSOLTransactions(),
+      _updateSPLTokenTransactions(),
+    ]);
+  }
+
   void updateTransactions(List<SolanaTransactionModel> updatedTx) {
     _addTransactionsToTransactionHistory(updatedTx);
   }
@@ -506,7 +514,12 @@ abstract class SolanaWalletBase
     final initialSPLTokens = DefaultSPLTokens().initialSPLTokens;
 
     for (var token in initialSPLTokens) {
-      splTokensBox.put(token.mintAddress, token);
+      if (!splTokensBox.containsKey(token.mintAddress)) {
+        splTokensBox.put(token.mintAddress, token);
+      } else { // update existing token
+        final existingToken = splTokensBox.get(token.mintAddress);
+        splTokensBox.put(token.mintAddress, SPLToken.copyWith(token, enabled: existingToken!.enabled));
+      }
     }
   }
 

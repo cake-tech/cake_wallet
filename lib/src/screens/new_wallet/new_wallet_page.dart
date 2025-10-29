@@ -44,7 +44,7 @@ class NewWalletPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   String get title => S.current.new_wallet;
@@ -228,11 +228,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                   color: Theme.of(context).colorScheme.onSurface,
                                 ),
                             placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    height: 1.4,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  height: 1.4,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
                             hintText: S.of(context).password,
                           ),
                           BaseTextFormField(
@@ -247,11 +247,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                   color: Theme.of(context).colorScheme.onSurface,
                                 ),
                             placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    height: 1.4,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  height: 1.4,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
                             hintText: S.of(context).repeat_wallet_password,
                           ),
                         ],
@@ -359,7 +359,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   alertTitle: '',
                   alertContent: S.of(context).wallet_name_exists,
                   buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
+                  buttonAction: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
+                  });
             });
       } else {
         await _walletNewVM.create(

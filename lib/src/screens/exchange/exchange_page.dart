@@ -10,6 +10,7 @@ import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
@@ -129,8 +130,7 @@ class ExchangePage extends BasePage {
       color: Theme.of(context).colorScheme.primary,
       size: 16,
     );
-    final _closeButton =
-        currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
+    final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -368,8 +368,15 @@ class ExchangePage extends BasePage {
 
   void applyTemplate(
       BuildContext context, ExchangeViewModel exchangeViewModel, ExchangeTemplate template) async {
-    final depositCryptoCurrency = CryptoCurrency.fromString(template.depositCurrency);
-    final receiveCryptoCurrency = CryptoCurrency.fromString(template.receiveCurrency);
+    final depositCryptoCurrency =
+        CryptoCurrency.safeParseCurrencyFromString(template.depositCurrency);
+    final receiveCryptoCurrency =
+        CryptoCurrency.safeParseCurrencyFromString(template.receiveCurrency);
+
+    if (depositCryptoCurrency == null || receiveCryptoCurrency == null) {
+      ///TO DO: add support for user tokens
+      return;
+    }
 
     exchangeViewModel.changeDepositCurrency(currency: depositCryptoCurrency);
     exchangeViewModel.changeReceiveCurrency(currency: receiveCryptoCurrency);
@@ -606,9 +613,15 @@ class ExchangePage extends BasePage {
     });
 
     if (initialPaymentRequest != null) {
-      exchangeViewModel.receiveCurrency = CryptoCurrency.fromString(initialPaymentRequest!.scheme);
-      exchangeViewModel.depositAmount = initialPaymentRequest!.amount;
-      exchangeViewModel.receiveAddress = initialPaymentRequest!.address;
+      try {
+        exchangeViewModel.receiveCurrency =
+            CryptoCurrency.fromString(initialPaymentRequest!.scheme);
+        exchangeViewModel.receiveAmount = initialPaymentRequest!.amount;
+        exchangeViewModel.receiveAddress = initialPaymentRequest!.address;
+      } catch (e) {
+        printV('error: ${e.toString()}');
+        // TODO
+      }
     }
 
     _isReactionsSet = true;
@@ -616,7 +629,7 @@ class ExchangePage extends BasePage {
 
   void _onCurrencyChange(CryptoCurrency currency, ExchangeViewModel exchangeViewModel,
       GlobalKey<ExchangeCardState> key) {
-    final isCurrentTypeWallet = currency == exchangeViewModel.wallet.currency;
+    final isCurrentTypeWallet = exchangeViewModel.isDepositSameCurrency;
 
     key.currentState!.changeSelectedCurrency(currency);
     key.currentState!.changeWalletName(isCurrentTypeWallet ? exchangeViewModel.wallet.name : '');
@@ -695,22 +708,6 @@ class ExchangePage extends BasePage {
         isMoneroWallet: exchangeViewModel.isMoneroWallet,
         currencies: exchangeViewModel.depositCurrencies,
         onCurrencySelected: (currency) {
-          // FIXME: need to move it into view model
-          if (currency == CryptoCurrency.xmr &&
-              exchangeViewModel.wallet.type != WalletType.monero) {
-            showPopUp<void>(
-                context: context,
-                builder: (dialogContext) {
-                  return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
-                    alertContent: S.of(context).exchange_incorrect_current_wallet_for_xmr,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(dialogContext).pop(),
-                  );
-                });
-            return;
-          }
-
           exchangeViewModel.changeDepositCurrency(currency: currency);
         },
         currencyButtonColor: Colors.transparent,

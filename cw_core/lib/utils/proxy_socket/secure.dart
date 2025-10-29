@@ -2,23 +2,55 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 
 class ProxySocketSecure implements ProxySocket {
   final SecureSocket socket;
+
+  bool _isClosed = false;
 
   ProxySocketSecure(this.socket);
   
   ProxyAddress get address => ProxyAddress(host: socket.remoteAddress.host, port: socket.remotePort);
   
   @override
-  Future<void> close() => socket.close();
+  Future<void> close() async {
+    try {
+      if (_isClosed) return;
+      _isClosed = true;
+      return socket.close();
+    } catch (e) {
+      printV("ProxySocketSecure: close: $e");
+      return;
+    }
+  }
   
   @override
-  void destroy() => socket.destroy();
+  void destroy() async {
+    try {
+    if (_isClosed) return;
+      _isClosed = true;
+      socket.destroy();
+    } catch (e) {
+      printV("ProxySocketSecure: destroy: $e");
+      return;
+    }
+  }
   
   @override
-  void write(String data) => socket.write(data);
+  void write(String data) {
+    try {
+      if (_isClosed) {
+        printV("ProxySocketSecure: write: socket is closed");
+        return;
+      }
+      socket.write(data);
+    } catch (e) {
+      printV("ProxySocketSecure: write: $e");
+      return;
+    }
+  }
   
   @override
   StreamSubscription<List<int>> listen(Function(Uint8List event) onData, {Function(Object error)? onError, Function()? onDone, bool cancelOnError = true}) {

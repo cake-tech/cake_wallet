@@ -19,15 +19,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class AddressList extends StatefulWidget {
-  const AddressList({
-    super.key,
-    required this.addressListViewModel,
-    required this.currentTheme,
-    this.onSelect,
-  });
+  const AddressList({super.key, required this.addressListViewModel, this.onSelect});
 
   final WalletAddressListViewModel addressListViewModel;
-  final MaterialThemeBase currentTheme;
   final Function(String)? onSelect;
 
   @override
@@ -167,7 +161,6 @@ class _AddressListState extends State<AddressList> {
                 return AddressCell.fromItem(
                   item,
                   isCurrent: isCurrent,
-                  currentTheme: widget.currentTheme,
                   walletType: widget.addressListViewModel.type,
                   hasBalance: widget.addressListViewModel.isBalanceAvailable,
                   hasReceived: widget.addressListViewModel.isReceivedAvailable,

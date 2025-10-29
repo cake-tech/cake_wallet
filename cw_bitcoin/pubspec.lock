@@ -42,16 +42,16 @@ packages:
     dependency: transitive
     description:
       name: async
-      sha256: "947bfcf187f74dbc5e146c9eb9c0f10c9f8b30743e341481c1e2ed3ecc18c20c"
+      sha256: "758e6d74e971c3e5aceb4110bfd6698efc7f501675bcfe0c775459a8140750eb"
       url: "https://pub.dev"
     source: hosted
-    version: "2.11.0"
+    version: "2.13.0"
   bbqrdart:
     dependency: "direct main"
     description:
       path: "."
-      ref: b0f3f72911221bafed0ab77359fccd64bc79d524
-      resolved-ref: b0f3f72911221bafed0ab77359fccd64bc79d524
+      ref: e867e3d0156d0b29858100f30adc2625b9dae586
+      resolved-ref: e867e3d0156d0b29858100f30adc2625b9dae586
       url: "https://github.com/mrcyjanek/bbqrdart"
     source: git
     version: "1.0.0"
@@ -89,12 +89,19 @@ packages:
       url: "https://github.com/cake-tech/bitbox-flutter.git"
     source: git
     version: "1.0.1"
+  bitbox_flutter:
+    dependency: "direct main"
+    description:
+      path: "../scripts/bitbox_flutter"
+      relative: true
+    source: path
+    version: "0.0.1"
   bitcoin_base:
     dependency: "direct overridden"
     description:
       path: "."
       ref: cake-update-v11
-      resolved-ref: "46e5a2d8a5438cb523a6104b70f5e5125a5663b3"
+      resolved-ref: bda0e2904effa799ec835b4578cc3fc5d31caa78
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.7.0"
@@ -119,10 +126,10 @@ packages:
     dependency: transitive
     description:
       name: boolean_selector
-      sha256: "6cfb5af12253eaf2b368f07bacc5a80d1301a071c73360d746b7f2e32d762c66"
+      sha256: "8aab1771e1243a5063b8b0ff68042d67334e3feab9e95b9490f9a6ebf73b42ea"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   bs58check:
     dependency: transitive
     description:
@@ -216,10 +223,10 @@ packages:
     dependency: transitive
     description:
       name: characters
-      sha256: "04a925763edad70e8443c99234dc3328f442e811f1d8fd1a72f1c8ad0f69a605"
+      sha256: f71061c654a3380576a52b451dd5532377954cf9dbd272a78fc8479606670803
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.0"
+    version: "1.4.0"
   checked_yaml:
     dependency: transitive
     description:
@@ -240,10 +247,10 @@ packages:
     dependency: transitive
     description:
       name: clock
-      sha256: cb6d7f03e1de671e34607e909a7213e31d7752be4fb66a86d29fe1eb14bfb5cf
+      sha256: fddb70d9b5277016c77a80201021d40a2247104d9f4aa7bab7157b7e3f05b84b
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.1"
+    version: "1.1.2"
   code_builder:
     dependency: transitive
     description:
@@ -256,10 +263,10 @@ packages:
     dependency: transitive
     description:
       name: collection
-      sha256: a1ace0a119f20aabc852d165077c036cd864315bd99b7eaa10a60100341941bf
+      sha256: "2f5709ae4d3d59dd8f7cd309b4e023046b57d8a6c82130785d2b0e5868084e76"
       url: "https://pub.dev"
     source: hosted
-    version: "1.19.0"
+    version: "1.19.1"
   convert:
     dependency: transitive
     description:
@@ -350,10 +357,10 @@ packages:
     dependency: transitive
     description:
       name: fake_async
-      sha256: "511392330127add0b769b75a987850d136345d9227c6b94c96a04cf4a391bf78"
+      sha256: "5368f224a74523e8d2e7399ea1638b37aecfca824a3cc4dfdf77bf1fa905ac44"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.1"
+    version: "1.3.3"
   ffi:
     dependency: "direct overridden"
     description:
@@ -573,18 +580,18 @@ packages:
     dependency: transitive
     description:
       name: leak_tracker
-      sha256: "7bb2830ebd849694d1ec25bf1f44582d6ac531a57a365a803a6034ff751d2d06"
+      sha256: "6bb818ecbdffe216e81182c2f0714a2e62b593f4a4f13098713ff1685dfb6ab0"
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.7"
+    version: "10.0.9"
   leak_tracker_flutter_testing:
     dependency: transitive
     description:
       name: leak_tracker_flutter_testing
-      sha256: "9491a714cca3667b60b5c420da8217e6de0d1ba7a5ec322fab01758f6998f379"
+      sha256: f8b613e7e6a13ec79cfdc0e97638fddb3ab848452eff057653abd3edba760573
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.8"
+    version: "3.0.9"
   leak_tracker_testing:
     dependency: transitive
     description:
@@ -597,8 +604,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/ledger-bitcoin"
-      ref: e8ab1a98493dfdd2277edde07a66b8d378ca70f6
-      resolved-ref: e8ab1a98493dfdd2277edde07a66b8d378ca70f6
+      ref: dc42621f55702d0732681afc2f90bc0047f26633
+      resolved-ref: dc42621f55702d0732681afc2f90bc0047f26633
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.3"
@@ -647,10 +654,10 @@ packages:
     dependency: transitive
     description:
       name: matcher
-      sha256: d2323aa2060500f906aa31a895b4030b6da3ebdcc5619d14ce1aada65cd161cb
+      sha256: dc58c723c3c24bf8d3e2d3ad3f2f9d7bd9cf43ec6feaa64181775e60190153f2
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.16+1"
+    version: "0.12.17"
   material_color_utilities:
     dependency: transitive
     description:
@@ -663,10 +670,10 @@ packages:
     dependency: transitive
     description:
       name: meta
-      sha256: bdb68674043280c3428e9ec998512fb681678676b3c54e773629ffe74419f8c7
+      sha256: e3641ec5d63ebf0d9b41bd43201a66e3fc79a65db5f61fc181f04cd27aab950c
       url: "https://pub.dev"
     source: hosted
-    version: "1.15.0"
+    version: "1.16.0"
   mime:
     dependency: transitive
     description:
@@ -691,6 +698,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.7.1"
+  mockito:
+    dependency: transitive
+    description:
+      name: mockito
+      sha256: f99d8d072e249f719a5531735d146d8cf04c580d93920b04de75bef6dfb2daf6
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.4.5"
   nested:
     dependency: transitive
     description:
@@ -720,10 +735,10 @@ packages:
     dependency: transitive
     description:
       name: path
-      sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"
+      sha256: "75cca69d1490965be98c73ceaea117e8a04dd21217b37b292c9ddbec0d955bc5"
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.0"
+    version: "1.9.1"
   path_provider:
     dependency: "direct main"
     description:
@@ -776,9 +791,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: da83a23f3a011cb49eb3b6513cd485b3fb8867ff
-      resolved-ref: da83a23f3a011cb49eb3b6513cd485b3fb8867ff
-      url: "https://github.com/OmarHatem28/payjoin-flutter"
+      ref: cake-v3
+      resolved-ref: "15d64407dd17a63258cd0fdada1e39a16041dd74"
+      url: "https://github.com/konstantinullrich/payjoin-flutter"
     source: git
     version: "0.23.0"
   petitparser:
@@ -992,35 +1007,43 @@ packages:
     dependency: transitive
     description:
       name: source_span
-      sha256: "53e943d4206a5e30df338fd4c6e7a077e02254531b138a15aec3bd143c1a8b3c"
+      sha256: "254ee5351d6cb365c859e20ee823c3bb479bf4a293c22d17a9f1bf144ce86f7c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.10.0"
+    version: "1.10.1"
   sp_scanner:
     dependency: "direct main"
     description:
       path: "."
-      ref: "sp_v4.0.0"
-      resolved-ref: "2554cb8bd3ee1d026bc63e76a30d1226960c7cb4"
+      ref: "sp_v4.0.1"
+      resolved-ref: "40ed3ce8319744907bef3b25bc6e0af8428c8724"
       url: "https://github.com/cake-tech/sp_scanner"
     source: git
     version: "0.0.1"
+  sprintf:
+    dependency: transitive
+    description:
+      name: sprintf
+      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   stack_trace:
     dependency: transitive
     description:
       name: stack_trace
-      sha256: "9f47fd3630d76be3ab26f0ee06d213679aa425996925ff3feffdec504931c377"
+      sha256: "8b27215b45d22309b5cddda1aa2b19bdfec9df0e765f2de506401c071d38d1b1"
       url: "https://pub.dev"
     source: hosted
-    version: "1.12.0"
+    version: "1.12.1"
   stream_channel:
     dependency: transitive
     description:
       name: stream_channel
-      sha256: ba2aa5d8cc609d96bbb2899c28934f9e1af5cddbd60a827822ea467161eb54e7
+      sha256: "969e04c80b8bcdf826f8f16579c7b14d780458bd97f56d107d3950fdbeef059d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.2"
+    version: "2.1.4"
   stream_transform:
     dependency: transitive
     description:
@@ -1033,26 +1056,26 @@ packages:
     dependency: transitive
     description:
       name: string_scanner
-      sha256: "688af5ed3402a4bde5b3a6c15fd768dbf2621a614950b17f04626c431ab3c4c3"
+      sha256: "921cd31725b72fe181906c6a94d987c78e3b98c2e205b397ea399d4054872b43"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.0"
+    version: "1.4.1"
   term_glyph:
     dependency: transitive
     description:
       name: term_glyph
-      sha256: a29248a84fbb7c79282b40b8c72a1209db169a2e0542bce341da992fe1bc7e84
+      sha256: "7f554798625ea768a7518313e58f83891c7f5024f88e46e7182a4558850a4b8e"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "1.2.2"
   test_api:
     dependency: transitive
     description:
       name: test_api
-      sha256: "664d3a9a64782fcdeb83ce9c6b39e78fd2971d4e37827b9b06c3aa1edc5e760c"
+      sha256: fb31f383e2ee25fbbfe06b40fe21e1e458d14080e3c67e7ba0acfde4df4e0bbd
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.3"
+    version: "0.7.4"
   timing:
     dependency: transitive
     description:
@@ -1061,15 +1084,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
-  tor_binary:
+  torch_dart:
     dependency: transitive
     description:
+      path: "../scripts/torch_dart"
+      relative: true
+    source: path
+    version: "0.0.1"
+  trezor_connect:
+    dependency: "direct main"
+    description:
       path: "."
-      ref: cb811c610871a9517d47134b87c2f590c15c96c5
-      resolved-ref: cb811c610871a9517d47134b87c2f590c15c96c5
-      url: "https://github.com/MrCyjaneK/flutter-tor_binary"
+      ref: "59b3ceec158d3393b20d0c596cab2abcc62ac8e4"
+      resolved-ref: "59b3ceec158d3393b20d0c596cab2abcc62ac8e4"
+      url: "https://github.com/cake-tech/trezor_connect"
     source: git
-    version: "4.7.14"
+    version: "0.0.1"
   tuple:
     dependency: transitive
     description:
@@ -1119,6 +1149,78 @@ packages:
       url: "https://github.com/bukata-sa/bc-ur-dart"
     source: git
     version: "0.1.0"
+  url_launcher:
+    dependency: transitive
+    description:
+      name: url_launcher
+      sha256: f6a7e5c4835bb4e3026a04793a4199ca2d14c739ec378fdfe23fc8075d0439f8
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.3.2"
+  url_launcher_android:
+    dependency: transitive
+    description:
+      name: url_launcher_android
+      sha256: "81777b08c498a292d93ff2feead633174c386291e35612f8da438d6e92c4447e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.3.20"
+  url_launcher_ios:
+    dependency: transitive
+    description:
+      name: url_launcher_ios
+      sha256: d80b3f567a617cb923546034cc94bfe44eb15f989fe670b37f26abdb9d939cb7
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.3.4"
+  url_launcher_linux:
+    dependency: transitive
+    description:
+      name: url_launcher_linux
+      sha256: "4e9ba368772369e3e08f231d2301b4ef72b9ff87c31192ef471b380ef29a4935"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.1"
+  url_launcher_macos:
+    dependency: transitive
+    description:
+      name: url_launcher_macos
+      sha256: c043a77d6600ac9c38300567f33ef12b0ef4f4783a2c1f00231d2b1941fea13f
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.3"
+  url_launcher_platform_interface:
+    dependency: transitive
+    description:
+      name: url_launcher_platform_interface
+      sha256: "552f8a1e663569be95a8190206a38187b531910283c3e982193e4f2733f01029"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.2"
+  url_launcher_web:
+    dependency: transitive
+    description:
+      name: url_launcher_web
+      sha256: "4bd2b7b4dc4d4d0b94e5babfffbca8eac1a126c7f3d6ecbc1a11013faa3abba2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.1"
+  url_launcher_windows:
+    dependency: transitive
+    description:
+      name: url_launcher_windows
+      sha256: "3284b6d2ac454cf34f114e1d3319866fdd1e19cdc329999057e44ffe936cfa77"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.4"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: a5be9ef6618a7ac1e964353ef476418026db906c4facdedaa299b7a2e71690ff
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.5.1"
   vector_math:
     dependency: transitive
     description:
@@ -1131,10 +1233,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: f6be3ed8bd01289b34d679c2b62226f63c0e69f9fd2e50a6b3c1c729a961041b
+      sha256: ddfa8d30d89985b96407efce8acbdd124701f96741f2d981ca860662f1c0dc02
       url: "https://pub.dev"
     source: hosted
-    version: "14.3.0"
+    version: "15.0.0"
   watcher:
     dependency: "direct overridden"
     description:
@@ -1200,5 +1302,5 @@ packages:
     source: hosted
     version: "2.2.2"
 sdks:
-  dart: ">=3.6.2 <4.0.0"
-  flutter: ">=3.27.0"
+  dart: ">=3.8.0 <4.0.0"
+  flutter: ">=3.29.0"

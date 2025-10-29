@@ -385,18 +385,20 @@ class TransactionsPageRobot {
 
   Future<void> _verifyTradeListItemDisplay(TradeListItem item) async {
     final keyId = 'trade_list_item_${item.trade.id}_key';
+    final from = item.trade.from?.toString() ?? item.trade.userCurrencyFrom.toString();
+    final to = item.trade.to?.toString() ?? item.trade.userCurrencyTo.toString();
 
     //* ==============Confirm it has the right key for this item ========
     commonTestCases.hasValueKey(keyId);
 
     //* ==============Confirm it displays the correct provider =========================
-    final conversionFlow = '${item.trade.from.toString()} → ${item.trade.to.toString()}';
+    final conversionFlow = '$from → $to';
 
     commonTestCases.hasText(conversionFlow);
 
     //* ===========Confirm it displays the properly formatted amount with its crypto tag ========
 
-    final amountCryptoText = item.tradeFormattedAmount + ' ' + item.trade.from.toString();
+    final amountCryptoText = item.tradeFormattedAmount + ' ' + from;
 
     commonTestCases.hasText(amountCryptoText);
 

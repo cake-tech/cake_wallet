@@ -4,6 +4,7 @@ bool isBIP39Wallet(WalletType walletType) {
   switch (walletType) {
     case WalletType.ethereum:
     case WalletType.polygon:
+    case WalletType.base:
     case WalletType.solana:
     case WalletType.tron:
     case WalletType.bitcoin:
@@ -28,6 +29,20 @@ bool isElectrumWallet(WalletType walletType) {
     case WalletType.bitcoin:
     case WalletType.litecoin:
     case WalletType.bitcoinCash:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool hasTokens(WalletType walletType) {
+  switch (walletType) {
+    case WalletType.ethereum:
+    case WalletType.polygon:
+    case WalletType.solana:
+    case WalletType.tron:
+    case WalletType.zano:
+    case WalletType.base:
       return true;
     default:
       return false;

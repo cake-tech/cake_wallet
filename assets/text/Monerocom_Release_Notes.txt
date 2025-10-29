@@ -1,6 +1,3 @@
-Enable Ledger for Desktop
-Monero enhancements
-Allow automatic node switching between trusted nodes
-Enhance node connectivity
-UI enhancements
+Enhance Trezor support
+Add Swaps.xyz Decentralized Exchange
 Bug fixes

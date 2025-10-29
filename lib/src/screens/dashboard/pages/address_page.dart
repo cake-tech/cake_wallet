@@ -4,6 +4,8 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -58,11 +60,10 @@ class AddressPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor(context),
+      color: Theme.of(context).colorScheme.primary,
       size: 16,
     );
-    final _closeButton =
-        currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
+    final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -113,7 +114,7 @@ class AddressPage extends BasePage {
               context: context,
             );
           },
-          icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
+          icon: Icon(Icons.share, size: 20, color: Theme.of(context).colorScheme.primary),
         ),
       ),
     );
@@ -149,7 +150,6 @@ class AddressPage extends BasePage {
                   addressListViewModel: addressListViewModel,
                   amountTextFieldFocusNode: _cryptoAmountFocus,
                   amountController: _amountController,
-                  currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                 ),
               ),
             ),
@@ -171,6 +171,84 @@ class AddressPage extends BasePage {
                 }
               },
             ),
+            if (addressListViewModel.hasTokensList) ...[
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).colorScheme.surfaceContainer),
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CakeImageWidget(
+                          imageUrl: addressListViewModel.monoImage,
+                          height: 16,
+                          width: 16,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          '${S.current.your} ${addressListViewModel.walletTypeName} ${S.current.address}',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      '${S.current.qr_instruction} ${addressListViewModel.walletTypeName}',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    SizedBox(height: 20),
+                    Center(
+                      child: SizedBox(
+                        height: 40,
+                        width: addressListViewModel.walletImages.length * 32.0,
+                        child: Stack(
+                          children: [
+                            for (int i = addressListViewModel.walletImages.length - 1; i >= 0; i--)
+                              Positioned(
+                                left: i * 25.0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Theme.of(context).colorScheme.surfaceContainer,
+                                      width: 3,
+                                    ),
+                                    color: Theme.of(context).colorScheme.surfaceContainer,
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
+                                  child: ClipOval(
+                                    child: CakeImageWidget(
+                                      height: 35,
+                                      width: 35,
+                                      imageUrl: addressListViewModel.walletImages[i],
+                                      color: addressListViewModel.walletImages.last ==
+                                              addressListViewModel.walletImages[i]
+                                          ? Theme.of(context).colorScheme.onSurfaceVariant
+                                          : null,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 48),
+            ],
           ],
         ),
       ),
@@ -210,10 +288,13 @@ class AddressPage extends BasePage {
             Navigator.pushNamed(
               context,
               Routes.anonPayReceivePage,
-              arguments: AnonpayDonationLinkInfo(
-                clearnetUrl: clearnetUrl,
-                onionUrl: onionUrl,
-                address: addressListViewModel.address.address,
+              arguments: AnonPayReceivePageArgs(
+                invoiceInfo: AnonpayDonationLinkInfo(
+                  clearnetUrl: clearnetUrl,
+                  onionUrl: onionUrl,
+                  address: addressListViewModel.address.address,
+                ),
+                qrImage: addressListViewModel.qrImage,
               ),
             );
           } else {

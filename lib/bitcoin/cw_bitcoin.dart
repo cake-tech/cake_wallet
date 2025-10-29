@@ -23,8 +23,10 @@ class CWBitcoin extends Bitcoin {
     required String name,
     required String password,
     required String xpub,
+    HardwareWalletType? hardwareWalletType,
   }) =>
-      BitcoinWalletFromKeysCredentials(name: name, password: password, xpub: xpub);
+      BitcoinWalletFromKeysCredentials(
+          name: name, password: password, xpub: xpub, hardwareWalletType: hardwareWalletType);
 
   @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
@@ -315,8 +317,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<ReceivePageOption> getLitecoinReceivePageOptions() {
-    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+  List<ReceivePageOption> getLitecoinReceivePageOptions(Object wallet) {
+    final litecoinWallet = wallet as ElectrumWallet;
+    if (Platform.isLinux ||
+        Platform.isMacOS ||
+        Platform.isWindows ||
+        litecoinWallet.isHardwareWallet) {
       return BitcoinReceivePageOption.allLitecoin
           .where((element) => element != BitcoinReceivePageOption.mweb)
           .toList();
@@ -531,32 +537,29 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) {
-    (wallet as ElectrumWallet).setLedgerConnection(connection);
+  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
+    (wallet as ElectrumWallet).hardwareWalletService = service;
   }
 
   @override
-  Future<List<HardwareAccountData>> getHardwareWalletBitcoinAccounts(LedgerViewModel ledgerVM,
-      {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.connection);
-    try {
-      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } catch (err) {
-      printV(err);
-      throw err;
-    }
+  HardwareWalletService getLedgerHardwareWalletService(
+      ledger.LedgerConnection connection, bool isBitcoin) {
+    if (isBitcoin) return BitcoinLedgerService(connection);
+    return LitecoinLedgerService(connection);
   }
 
   @override
-  Future<List<HardwareAccountData>> getHardwareWalletLitecoinAccounts(LedgerViewModel ledgerVM,
-      {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = LitecoinHardwareWalletService(ledgerVM.connection);
-    try {
-      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } catch (err) {
-      printV(err);
-      throw err;
-    }
+  HardwareWalletService getBitboxHardwareWalletService(
+      bitbox.BitboxManager manager, bool isBitcoin) {
+    if (isBitcoin) return BitcoinBitboxService(manager);
+    return LitecoinBitboxService(manager);
+  }
+
+  @override
+  HardwareWalletService getTrezorHardwareWalletService(
+      trezor.TrezorConnect connect, bool isBitcoin) {
+    if (isBitcoin) return BitcoinTrezorService(connect);
+    return LitecoinTrezorService(connect);
   }
 
   @override
@@ -802,7 +805,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  String? getTransactionAddress(Object wallet, TransactionInfo tx) {
+  List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx) {
     final bitcoinWallet = wallet as BitcoinWallet;
     final bitcoinTx = tx as ElectrumTransactionInfo;
 
@@ -810,10 +813,16 @@ class CWBitcoin extends Bitcoin {
       return null;
     }
 
-    // final bitcoinSPAddrs =
-    //     bitcoinTx.unspents!.first.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
-    final bitcoinSPAddrs = wallet.walletAddresses as BitcoinWalletAddresses;
-    final bitcoinSPAddr = bitcoinSPAddrs.silentAddresses.first;
-    return bitcoinSPAddr.address;
+    final addresses = <String>[];
+    final labels = <String>[];
+    try {
+          bitcoinTx.unspents!.forEach((unspent) {
+            addresses.add(bitcoinWallet.walletAddresses.silentAddresses
+                .firstWhere((address) => address.silentPaymentTweak == unspent.silentPaymentLabel)
+                .address);
+          });
+     } catch (e) {}
+
+    return addresses;
   }
 }

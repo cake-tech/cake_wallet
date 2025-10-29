@@ -3,25 +3,24 @@ import 'dart:convert';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cake_wallet/entities/country.dart';
 
 class CakePayApi {
-  static const testBaseUri = false;
+  static const testBaseUri = FeatureFlag.hasDevOptions;
 
-  static const baseTestCakePayUri = 'test.cakepay.com';
-  static const baseProdCakePayUri = 'buy.cakepay.com';
+  static const baseTestCakePayUri = 'api-stg.cakepay.com';
+  static const baseProdCakePayUri = 'api-prod.cakepay.com';
 
   static const baseCakePayUri = testBaseUri ? baseTestCakePayUri : baseProdCakePayUri;
 
-  static const vendorsPath = '/api/vendors';
-  static const countriesPath = '/api/countries';
-  static const authPath = '/api/auth';
-  static final verifyEmailPath = '/api/verify';
-  static final logoutPath = '/api/logout';
-  static final createOrderPath = '/api/order';
-  static final simulatePaymentPath = '/api/simulate_payment';
+  static const vendorsPath = '/api/marketplace/vendors';
+  static const authPath = '/api/accounts/auth';
+  static final verifyEmailPath = '/api/accounts/auth/verify';
+  static final logoutPath = '/api/accounts/logout';
+  static final orderPath = '/api/orders/order';
+  static final simulatePaymentPath = '/api/orders/simulate-payment';
 
   /// AuthenticateUser
   Future<String> authenticateUser({required String email, required String apiKey}) async {
@@ -105,12 +104,12 @@ class CakePayApi {
     required bool confirmsVoidedRefund,
     required bool confirmsTermsAgreed,
   }) async {
-    final uri = Uri.https(baseCakePayUri, createOrderPath);
+    final uri = Uri.https(baseCakePayUri, orderPath);
 
     final headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': 'Api-Key $apiKey',
+      'Authorization': 'Token $token',
     };
 
     final body = json.encode({
@@ -118,7 +117,6 @@ class CakePayApi {
       'price': price,
       'quantity': quantity,
       'user_email': userEmail,
-      'token': token,
       'send_email': true,
       'confirms_no_vpn': confirmsNoVpn,
       'confirms_voided_refund': confirmsVoidedRefund,
@@ -157,18 +155,51 @@ class CakePayApi {
     throw Exception(message);
   }
 
+  /// Get Order by ID
+  Future<CakePayOrder> getOrderById({required String orderId, required String token}) async {
+    final uri = Uri.https(baseCakePayUri, '$orderPath/$orderId');
+    final headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Token $token',
+    };
+    final response = await ProxyWrapper().get(
+      clearnetUri: uri,
+      headers: headers,
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Unexpected http status: ${response.statusCode}');
+    }
+
+    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+
+    return CakePayOrder.fromMap(bodyJson);
+  }
+
   ///Simulate Payment
   Future<String> simulatePayment(
-      {required String CSRFToken, required String authorization, required String orderId}) async {
-    final uri = Uri.https(baseCakePayUri, simulatePaymentPath + '/$orderId');
+      {required String CSRFToken,
+      required String authorization,
+      required String orderId,
+      required String token}) async {
+    final uri = Uri.https(baseCakePayUri, simulatePaymentPath);
 
     final headers = {
-      'accept': 'application/json',
-      'authorization': authorization,
-      'X-CSRFToken': CSRFToken,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Token $token',
     };
 
-    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    final body = json.encode({
+      'order_id': orderId,
+    });
+
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: body,
+    );
 
     printV('Response: ${response.statusCode}');
 
@@ -205,53 +236,30 @@ class CakePayApi {
     }
   }
 
-  /// Get Countries
-  Future<List<Country>> getCountries({required String apiKey}) async {
-    final uri = Uri.https(baseCakePayUri, countriesPath);
-
-    final headers = {
-      'accept': 'application/json',
-      'Authorization': 'Api-Key $apiKey',
-    };
-
-    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
-
-    if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
-    }
-
-    final bodyJson = json.decode(response.body) as List;
-    return bodyJson
-        .map<String>((country) => country['name'] as String)
-        .map((name) => Country.fromCakePayName(name))
-        .whereType<Country>()
-        .toList();
-  }
-
   /// Get Vendors
   Future<List<CakePayVendor>> getVendors({
     required String apiKey,
-    required String country,
-    int? page,
-    String? countryCode,
+    required int page,
+    required String countryCode,
+    String? country,
     String? search,
     List<String>? vendorIds,
-    bool? giftCards,
-    bool? prepaidCards,
+    bool? giftCards = true,
+    bool? prepaidCards = true,
     bool? onDemand,
     bool? custom,
   }) async {
     var queryParams = {
-      'page': page?.toString(),
-      'country': country,
+      'page': page.toString(),
       'country_code': countryCode,
-      'search': search,
-      'vendor_ids': vendorIds?.join(','),
-      'gift_cards': giftCards?.toString(),
-      'prepaid_cards': prepaidCards?.toString(),
-      'on_demand': onDemand?.toString(),
-      'custom': custom?.toString(),
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (vendorIds != null && vendorIds.isNotEmpty) 'vendor_ids': vendorIds.join(','),
     };
+
+    if (giftCards == false || prepaidCards == false) {
+      queryParams['gift_cards'] = giftCards.toString();
+      queryParams['prepaid_cards'] = prepaidCards.toString();
+    }
 
     final uri = Uri.https(baseCakePayUri, vendorsPath, queryParams);
 
@@ -275,7 +283,7 @@ class CakePayApi {
     }
 
     return (bodyJson['results'] as List)
-        .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>, country))
+        .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 }

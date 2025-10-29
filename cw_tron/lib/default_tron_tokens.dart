@@ -1,5 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_tron/tron_token.dart';
+import 'package:cw_core/tron_token.dart';
 
 class DefaultTronTokens {
   final List<TronToken> _defaultTokens = [
@@ -91,13 +91,17 @@ class DefaultTronTokens {
 
   List<TronToken> get initialTronTokens => _defaultTokens.map((token) {
         String? iconPath;
-        try {
-          iconPath = CryptoCurrency.all
-              .firstWhere((element) =>
-                  element.title.toUpperCase() == token.symbol.split(".").first.toUpperCase())
-              .iconPath;
-        } catch (_) {}
+        if (token.iconPath?.isEmpty ?? true) {
+          try {
+            iconPath = CryptoCurrency.all
+                .firstWhere((element) =>
+                    element.title.toUpperCase() == token.symbol.split(".").first.toUpperCase())
+                .iconPath;
+          } catch (_) {}
+        } else {
+          iconPath = token.iconPath;
+        }
 
-        return TronToken.copyWith(token, iconPath, 'TRX');
+        return TronToken.copyWith(token, icon: iconPath, tag: 'TRX');
       }).toList();
 }

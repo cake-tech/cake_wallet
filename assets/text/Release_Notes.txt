@@ -1,7 +1,1 @@
-Enable Ledger for Desktop
-Enable Bitcoin view-only wallets
-Monero, Bitcoin, and Ethereum enhancements
-Allow automatic node switching between trusted nodes
-Enhance node connectivity
-UI enhancements
 Bug fixes

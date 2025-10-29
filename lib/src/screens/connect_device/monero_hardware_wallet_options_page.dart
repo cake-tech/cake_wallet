@@ -31,7 +31,7 @@ class _MoneroHardwareWalletOptionsForm extends StatefulWidget {
   const _MoneroHardwareWalletOptionsForm(this._walletHardwareRestoreVM);
 
   final WalletHardwareRestoreViewModel _walletHardwareRestoreVM;
-
+  
   @override
   _MoneroHardwareWalletOptionsFormState createState() =>
       _MoneroHardwareWalletOptionsFormState(_walletHardwareRestoreVM);

@@ -42,7 +42,6 @@ class WalletRestorePage extends BasePage {
               : S.current.restore_title_from_keys,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontSize: 18,
-                 
                 fontWeight: FontWeight.w600,
               ),
         ),
@@ -147,7 +146,6 @@ class WalletRestorePage extends BasePage {
                                       bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom,
                                     ),
                                     child: AddPassphraseBottomSheet(
-                                      currentTheme: currentTheme,
                                       titleText: S.of(context).add_passphrase,
                                       onRestoreButtonPressed: (passphrase) async {
                                         await _onPassphraseBottomSheetRestoreButtonPressed(

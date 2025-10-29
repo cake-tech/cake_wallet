@@ -1,3 +1,4 @@
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -5,6 +6,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -75,6 +77,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get usePolygonScan => _settingsStore.usePolygonScan;
 
   @computed
+  bool get useBaseScan => _settingsStore.useBaseScan;
+
+  @computed
   bool get useTronGrid => _settingsStore.useTronGrid;
 
   @computed
@@ -111,11 +116,13 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
 
+  bool get canUseBaseScan => _wallet.type == WalletType.base;
+
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
   bool get canUseMempoolFeeAPI => _wallet.type == WalletType.bitcoin;
 
-  bool get canUsePayjoin => _wallet.type == WalletType.bitcoin;
+  bool get canUsePayjoin => _wallet.type == WalletType.bitcoin && DeviceInfo.instance.isMobile;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>
@@ -174,6 +181,12 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setUsePolygonScan(bool value) {
     _settingsStore.usePolygonScan = value;
     polygon!.updatePolygonScanUsageState(_wallet, value);
+  }
+
+  @action
+  void setUseBaseScan(bool value) {
+    _settingsStore.useBaseScan = value;
+    base!.updateBaseScanUsageState(_wallet, value);
   }
 
   @action

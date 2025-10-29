@@ -24,7 +24,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   WalletType get type => walletInfo.type;
 
-  CryptoCurrency get currency => currencyForWalletType(type, isTestnet: isTestnet);
+  CryptoCurrency get currency => walletTypeToCryptoCurrency(type, isTestnet: isTestnet);
 
   String get id => walletInfo.id;
 
@@ -61,6 +61,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   bool get isEnabledAutoGenerateSubaddress => false;
 
   bool get isHardwareWallet => walletInfo.isHardwareWallet;
+
+  HardwareWalletType? get hardwareWalletType => walletInfo.hardwareWalletType;
 
   bool get hasRescan => false;
 
@@ -100,6 +102,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   String get password;
 
   Future<void>? updateBalance();
+  Future<void> updateTransactionsHistory() async {}
 
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
 
@@ -117,7 +120,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   /// Returns true if the connection is alive, false otherwise.
   /// Default implementation returns true (no-op for wallets without socket connections).
   Future<bool> checkSocketHealth() async => true;
-  
+
   /// This is used to check if the current node is healthy by making a lightweight RPC call
   /// Each wallet implementation should override this to make a single, efficient call
   /// Returns true if the node is healthy, false otherwise

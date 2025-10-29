@@ -1,9 +1,9 @@
+import 'package:cake_wallet/core/payment_uris.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
@@ -23,7 +23,6 @@ import 'package:url_launcher/url_launcher.dart';
 class QRWidget extends StatelessWidget {
   QRWidget({
     required this.addressListViewModel,
-    required this.currentTheme,
     this.qrVersion,
     this.heroTag,
     required this.amountController,
@@ -35,7 +34,6 @@ class QRWidget extends StatelessWidget {
   final TextEditingController amountController;
   final FocusNode? amountTextFieldFocusNode;
   final GlobalKey<FormState> formKey;
-  final MaterialThemeBase currentTheme;
   final int? qrVersion;
   final String? heroTag;
 
@@ -63,21 +61,12 @@ class QRWidget extends StatelessWidget {
           children: <Widget>[
             Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    S.of(context).qr_fullscreen,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
                 Row(
                   children: <Widget>[
                     Spacer(flex: 3),
                     Observer(
                       builder: (_) => Flexible(
-                        flex: 5,
+                        flex: 9,
                         child: GestureDetector(
                           onTap: () {
                             BrightnessUtil.changeBrightnessForFunction(
@@ -86,6 +75,7 @@ class QRWidget extends StatelessWidget {
                                   context,
                                   Routes.fullscreenQR,
                                   arguments: QrViewData(
+                                    embeddedImagePath: addressListViewModel.qrImage,
                                     data: addressUri.toString(),
                                     heroTag: heroTag,
                                   ),
@@ -105,18 +95,20 @@ class QRWidget extends StatelessWidget {
                                 ),
                                 child: Column(
                                   children: [
-                                    Container(
-                                      padding: EdgeInsets.all(3),
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(12.5),
                                       child: AspectRatio(
                                         aspectRatio: 1.0,
                                         child: QrImage(
+                                          embeddedImagePath: addressListViewModel.qrImage,
                                           data: addressUri.toString(),
+                                          size: 230,
                                         ),
                                       ),
                                     ),
                                     if (addressListViewModel.isPayjoinUnavailable &&
                                         !addressListViewModel.isSilentPayments &&
-                                        !addressListViewModel.isCupcake) ...[
+                                        !addressListViewModel.isBitcoinViewOnly) ...[
                                       GestureDetector(
                                         onTap: () => _onPayjoinInactivePressed(context),
                                         child: Row(
@@ -202,32 +194,28 @@ class QRWidget extends StatelessWidget {
               ],
             ),
             Observer(
-                builder: (_) => Padding(
-                      padding: EdgeInsets.only(top: 10),
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Form(
-                              key: formKey,
-                              child: CurrencyAmountTextField(
-                                hasUnderlineBorder: true,
-                                borderWidth: 0.0,
-                                selectedCurrency: _currencyName,
-                                selectedCurrencyDecimals:
-                                    addressListViewModel.selectedCurrency.decimals,
-                                amountFocusNode: amountTextFieldFocusNode,
-                                amountController: amountController,
-                                padding: EdgeInsets.only(top: 20, left: _width / 4),
-                                currentThemeType: currentTheme.type,
-                                isAmountEditable: true,
-                                tag: addressListViewModel.selectedCurrency.tag,
-                                onTapPicker: () => _presentPicker(context),
-                                isPickerEnable: true,
-                              ),
+                builder: (_) => Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Form(
+                            key: formKey,
+                            child: CurrencyAmountTextField(
+                              hasUnderlineBorder: true,
+                              borderWidth: 0.0,
+                              selectedCurrency: _currencyName,
+                              selectedCurrencyDecimals:
+                                  addressListViewModel.selectedCurrency.decimals,
+                              amountFocusNode: amountTextFieldFocusNode,
+                              amountController: amountController,
+                              padding: EdgeInsets.only(top: 20, left: _width / 4),
+                              isAmountEditable: true,
+                              tag: addressListViewModel.selectedCurrency.tag,
+                              onTapPicker: () => _presentPicker(context),
+                              isPickerEnable: true,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     )),
             Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
             Padding(
@@ -320,7 +308,6 @@ class QRWidget extends StatelessWidget {
       builder: (context) => InfoBottomSheet(
         titleText: S.of(context).payjoin_unavailable_sheet_title,
         content: S.of(context).payjoin_unavailable_sheet_content,
-        currentTheme: currentTheme,
         footerType: FooterType.doubleActionButton,
         doubleActionLeftButtonText: S.of(context).learn_more,
         onLeftActionButtonPressed: () => launchUrl(

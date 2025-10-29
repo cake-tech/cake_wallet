@@ -39,15 +39,14 @@ abstract class EVMChainClient {
       Uri? rpcUri;
       bool isModifiedNodeUri = false;
 
-      if (node.uriRaw == 'eth.nownodes.io' || node.uriRaw == 'matic.nownodes.io') {
+      if (node.uriRaw.contains('nownodes.io')) {
         isModifiedNodeUri = true;
         String nowNodeApiKey = secrets.nowNodesApiKey;
 
         rpcUri = Uri.https(node.uriRaw, '/$nowNodeApiKey');
       }
 
-      _client =
-          Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), client);
+      _client = Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), client);
 
       return true;
     } catch (e) {
@@ -112,6 +111,7 @@ abstract class EVMChainClient {
           sender: senderAddress,
           to: toAddress,
           value: value,
+          data: data,
         );
 
         return estimatedGas.toInt();
@@ -127,10 +127,11 @@ abstract class EVMChainClient {
         final gasEstimate = await _client!.estimateGas(
           sender: senderAddress,
           to: EthereumAddress.fromHex(contractAddress),
-          data: data ?? transfer.encodeCall([
-            toAddress,
-            value.getInWei,
-          ]),
+          data: data ??
+              transfer.encodeCall([
+                toAddress,
+                value.getInWei,
+              ]),
         );
 
         return gasEstimate.toInt();
@@ -171,10 +172,10 @@ abstract class EVMChainClient {
     int? gasPrice,
   }) async {
     assert(currency == CryptoCurrency.eth ||
-        currency == CryptoCurrency.maticpoly ||
+        currency == CryptoCurrency.maticpoly || currency == CryptoCurrency.baseEth ||
         contractAddress != null);
 
-    bool isNativeToken = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
+    bool isNativeToken = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly || currency == CryptoCurrency.baseEth;
 
     final Transaction transaction = createTransaction(
       from: privateKey.address,
@@ -233,7 +234,6 @@ abstract class EVMChainClient {
     required String contractAddress,
     int? gasPrice,
   }) async {
-
     final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(contractAddress),
@@ -264,7 +264,8 @@ abstract class EVMChainClient {
       feeCurrency: feeCurrency,
       sendTransaction: () => sendTransaction(signedTransaction),
       exponent: exponent,
-      isInfiniteApproval: amount.toRadixString(16) == 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+      isInfiniteApproval: amount.toRadixString(16) ==
+          'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
     );
   }
 
@@ -342,7 +343,7 @@ abstract class EVMChainClient {
       final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
       final balance = await erc20.balanceOf(userAddress);
 
-    int exponent = (await erc20.decimals()).toInt();
+      int exponent = (await erc20.decimals()).toInt();
 
       return EVMChainERC20Balance(balance, exponent: exponent);
     } on RangeError catch (_) {

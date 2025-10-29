@@ -72,7 +72,7 @@ abstract class BasePage extends StatelessWidget {
 
   Widget backButton(BuildContext context) => Icon(
         Icons.arrow_back_ios,
-        color: pageIconColor(context),
+        color: Theme.of(context).colorScheme.primary,
         size: 16,
       );
 
@@ -194,16 +194,23 @@ abstract class BasePage extends StatelessWidget {
               // color: Colors.grey[200],
             ),
             child: Scaffold(
-                key: _scaffoldKey,
-                backgroundColor: pageBackgroundColor(context),
-                resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-                extendBodyBehindAppBar: extendBodyBehindAppBar,
-                endDrawer: endDrawer,
-                appBar: appBar(context),
-                body: body(context),
-                floatingActionButton: floatingActionButton(context)),
+              key: _scaffoldKey,
+              backgroundColor: pageBackgroundColor(context),
+              resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+              extendBodyBehindAppBar: extendBodyBehindAppBar,
+              endDrawer: endDrawer,
+              appBar: appBar(context),
+              body: SafeArea(
+                left: false,
+                right: false,
+                top: false,
+                bottom: Platform.isAndroid,
+                child: body(context),
+              ),
+              floatingActionButton: floatingActionButton(context),
+            ),
           );
-        }
+        },
       ),
       pushToWidget: (context) => pushToWidget?.call(context),
       pushToNextWidget: (context) => pushToNextWidget?.call(context),

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -85,6 +86,13 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          mnemonic: newWalletArguments!.mnemonic,
+          passphrase: passphrase,
+        );
+      case WalletType.base:
+        return base!.createBaseNewWalletCredentials(
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,

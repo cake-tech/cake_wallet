@@ -1,15 +1,19 @@
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -30,6 +34,7 @@ class DisplaySettingsPage extends BasePage {
         return Container(
           padding: EdgeInsets.only(top: 10),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SettingsSwitcherCell(
                 title: S.of(context).show_market_place,
@@ -44,6 +49,15 @@ class DisplaySettingsPage extends BasePage {
                 onValueChange: (_, bool value) {
                   _displaySettingsViewModel.setShowAddressBookPopup(value);
                 },
+              ),
+              SettingsPickerCell<SyncStatusDisplayMode>(
+                title: S.current.sync_status_display_mode,
+                items: SyncStatusDisplayMode.values.toList(),
+                selectedItem: _displaySettingsViewModel.syncStatusDisplayMode,
+                onItemSelected: (SyncStatusDisplayMode mode) =>
+                    _displaySettingsViewModel.setSyncStatusDisplayMode(mode),
+                displayItem: (SyncStatusDisplayMode mode) => mode.title,
+                isGridView: false,
               ),
               //if (!isHaven) it does not work correctly
               if (!_displaySettingsViewModel.disabledFiatApiMode)
@@ -81,24 +95,67 @@ class DisplaySettingsPage extends BasePage {
                 },
               ),
 
-              StandardListRow(
-                title: "Custom background",
-                isSelected: false,
-                onTap: (_) => _pickImage(context),
-              ),
+              if (FeatureFlag.customBackgroundEnabled)
+                StandardListRow(
+                  title: "Custom background",
+                  isSelected: false,
+                  onTap: (_) => _pickImage(context),
+                ),
 
               if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile) ...[
-                SettingsSwitcherCell(
-                  title: S.of(context).use_device_theme,
-                  value: _displaySettingsViewModel.themeMode == ThemeMode.system,
-                  onValueChange: (_, bool value) {
-                    _displaySettingsViewModel
-                        .setThemeMode(value ? ThemeMode.system : ThemeMode.dark);
-                  },
+                SizedBox(height: 24),
+                Padding(
+                  padding: const EdgeInsets.only(left: 24),
+                  child: Text(
+                    S.current.appearance,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
+                          height: 22 / 14,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                  ),
                 ),
-                Semantics(
-                  label: S.of(context).color_theme,
-                  child: SettingsThemeChoicesCell(_displaySettingsViewModel),
+                SizedBox(height: 12),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      SettingsChoicesCell(
+                        ChoicesListItem<ThemeMode>(
+                          title: "",
+                          items: ThemeMode.values,
+                          selectedItem: _displaySettingsViewModel.themeMode,
+                          onItemSelected: (ThemeMode themeMode) =>
+                              _displaySettingsViewModel.setThemeMode(themeMode),
+                          displayItem: (ThemeMode themeMode) {
+                            return themeMode.name[0].toUpperCase() +
+                                themeMode.name.substring(1).toLowerCase();
+                          },
+                        ),
+                        useGenericColor: false,
+                        padding: EdgeInsets.all(12),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            Semantics(
+                              label: S.of(context).color_theme,
+                              child: SettingsThemeChoicesCell(_displaySettingsViewModel),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ],

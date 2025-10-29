@@ -35,7 +35,7 @@ if (appPropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion 35
+    compileSdkVersion 36
     buildToolsVersion "35.0.0"
 
     packagingOptions {

@@ -3,8 +3,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  intl: ^0.19.0
-  url_launcher: 6.3.1
+  intl: any
+  url_launcher: 6.3.2
   qr_flutter:
     git:
       url: https://github.com/cake-tech/qr.flutter.git
@@ -42,8 +42,8 @@ dependencies:
   flutter_spinkit: ^5.1.0
   uni_links:
     git:
-      url: https://github.com/MrCyjaneK/uni_links
-      ref: 8e9efa4d9beb19e4ac44009576337f1ce51c22e2
+      url: https://github.com/cake-tech/uni_links
+      ref: 1989db3f5d625e2fffbad7b85a3b1b8c78c6dfa1
       path: uni_links
   lottie: ^3.3.1
   animate_do: ^2.1.0
@@ -89,12 +89,12 @@ dependencies:
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
   sensitive_clipboard:
     git:
-      url: https://github.com/MrCyjaneK/sensitive_clipboard
+      url: https://github.com/cake-tech/sensitive_clipboard
       ref: 288c7ee2d63b459bc735f7dc89321b29a1f12fae
   eth_sig_util: ^0.0.9
   ens_dart:
     git:
-      url: https://github.com/MrCyjaneK/ens_dart.git
+      url: https://github.com/cake-tech/ens_dart.git
       ref: 9fa09b9db69b8645d5d50a844652aa570451d101
   fluttertoast: 8.2.12
 #  tor:
@@ -105,23 +105,30 @@ dependencies:
     git:
       url: https://github.com/LacticWhale/socks_dart
       ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
-  flutter_svg: ^2.0.9
+  flutter_svg: ^2.2.0
   polyseed: ^0.0.7
   nostr_tools:
     git:
-      url: https://github.com/MrCyjaneK/nostr_tools.git
+      url: https://github.com/cake-tech/nostr_tools.git
       ref: 089d5a2dd751429a040ba10fb24fcbae564053e5
   solana: ^0.31.0+1
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: 60817d4b20144f9da9029f5034790272795b9d38
+  trezor_connect:
+    git:
+      url: https://github.com/cake-tech/trezor_connect
+      ref: 59b3ceec158d3393b20d0c596cab2abcc62ac8e4
+  bitbox_flutter:
+    path: ./scripts/bitbox_flutter
   hashlib: 1.19.2
   on_chain:
     git:
       url: https://github.com/cake-tech/on_chain.git
       ref: cake-update-v2
-  reown_walletkit: ^1.1.5+1
+  reown_walletkit:
+    path: ./scripts/reown_flutter/packages/reown_walletkit
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
@@ -138,11 +145,13 @@ dependencies:
   bbqrdart:
     git:
       url: https://github.com/mrcyjanek/bbqrdart
-      ref: b0f3f72911221bafed0ab77359fccd64bc79d524
+      ref: e867e3d0156d0b29858100f30adc2625b9dae586
   dnssec_proof:
     git:
       url: https://github.com/MrCyjaneK/dnssec_proof.git
-      ref: a2b0bdac343afc14fc38dfb81f28147eab50be05
+      ref: b48a9defddce036048bae02e2069ebcbd6824afc
+  torch_dart:
+    path: ./scripts/torch_dart
 
 dev_dependencies:
   flutter_test:
@@ -173,7 +182,6 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
-  flutter_secure_storage_platform_interface: 1.0.2
   protobuf: ^3.1.0
   bitcoin_base:
     git:
@@ -182,18 +190,19 @@ dependency_overrides:
   ffi: 2.1.0
   ledger_flutter_plus:
     git:
-      url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: 60817d4b20144f9da9029f5034790272795b9d38
+      url: https://github.com/cake-tech/ledger-flutter-plus
+      ref: 5237e5b3d5f07696eefd0aaee9c32478ed399d20
+  ledger_usb_plus:
+    git:
+      url: https://github.com/konstantinullrich/ledger-usb-plus
+      ref: dad482c847c0d0eedceabbb40d3478e64b65e630
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart.git
       ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
-  tor_binary:
-    git:
-      url: https://github.com/MrCyjaneK/flutter-tor_binary
-      ref: cb811c610871a9517d47134b87c2f590c15c96c5
   web_socket_channel: ^3.0.2
   freezed_annotation: 2.4.4
+  intl: 0.20.2
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
@@ -210,6 +219,8 @@ flutter:
     - assets/images/
     - assets/images/flags/
     - assets/images/hardware_wallet/
+    - assets/images/crypto/
+    - assets/images/stocks/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
@@ -225,6 +236,7 @@ flutter:
     - assets/zano_node_list.yml
     - assets/decred_node_list.yml
     - assets/dogecoin_electrum_server_list.yml
+    - assets/base_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

@@ -11,6 +11,7 @@ class Routes {
   static const restoreWalletFromHardwareWallet = '/restore/hardware_wallet';
   static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
   static const restoreWalletChooseDerivation = '/restore_wallet_choose_derivation';
+  static const connectHardwareWallet = '/restore/hardware_wallet/devices';
   static const chooseHardwareWalletAccount = '/restore/hardware_wallet/accounts';
   static const dashboard = '/dashboard';
   static const send = '/send';
@@ -116,12 +117,15 @@ class Routes {
 
   static const devMoneroBackgroundSync = '/dev/monero_background_sync';
   static const devMoneroCallProfiler = '/dev/monero_call_profiler';
+  static const devMoneroWalletCacheDebug = '/dev/monero_wallet_cache_debug';
 
   static const devSharedPreferences = '/dev/shared_preferences';
   static const devSecurePreferences = '/dev/secure_preferences';
   static const devBackgroundSyncLogs = '/dev/background_sync_logs';
   static const devSocketHealthLogs = '/dev/socket_health_logs';
   static const devNetworkRequests = '/dev/network_requests';
+  static const devQRTools = '/dev/qr_tools';
+  static const devExchangeProviderLogs = '/dev/exchange_provider_logs';
 
   static const devFileExplorer = '/dev/file_explorer';
   static const devWalletFuzzer = '/dev/wallet_fuzzer';

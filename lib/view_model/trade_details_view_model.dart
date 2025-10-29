@@ -6,6 +6,7 @@ import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
@@ -24,6 +25,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -75,6 +77,9 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case ExchangeProviderDescription.xoSwap:
         _provider = XOSwapExchangeProvider();
+        break;
+      case ExchangeProviderDescription.swapsXyz:
+        _provider = SwapsXyzExchangeProvider();
         break;
     }
 
@@ -133,8 +138,13 @@ abstract class TradeDetailsViewModelBase with Store {
     try {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
-      if (updatedTrade.createdAt == null && trade.createdAt != null)
+      if (updatedTrade.createdAt == null && trade.createdAt != null) {
         updatedTrade.createdAt = trade.createdAt;
+      }
+
+      if (updatedTrade.toRaw == -1 && trade.toRaw != -1) {
+        updatedTrade.toRaw = trade.toRaw;
+      }
 
       Trade? foundElement = trades.values.firstWhereOrNull((element) => element.id == trade.id);
       if (foundElement != null) {
@@ -163,17 +173,22 @@ abstract class TradeDetailsViewModelBase with Store {
     items.add(
         DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));
 
-    items.add(TradeDetailsListCardItem.tradeDetails(
-      id: trade.id,
-      extraId: trade.extraId,
-      createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
-      from: trade.from,
-      to: trade.to,
-      onTap: (BuildContext context) {
-        Clipboard.setData(ClipboardData(text: '${trade.id}'));
-        showBar<void>(context, S.of(context).copied_to_clipboard);
-      },
-    ));
+    final tradeFrom = _safeFrom(trade);
+    final tradeTo   = _safeTo(trade);
+
+    if (tradeFrom != null && tradeTo != null) {
+      items.add(TradeDetailsListCardItem.tradeDetails(
+        id: trade.id,
+        extraId: trade.extraId,
+        createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
+        from: tradeFrom,
+        to: tradeTo,
+        onTap: (context) {
+          Clipboard.setData(ClipboardData(text: trade.id));
+          showBar<void>(context, S.of(context).copied_to_clipboard);
+        },
+      ));
+    }
 
     items.add(StandartListItem(
         title: S.current.trade_details_provider, value: trade.provider.toString()));
@@ -199,6 +214,11 @@ abstract class TradeDetailsViewModelBase with Store {
             title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
       }
     }
+
+    if (trade.provider == ExchangeProviderDescription.swapsXyz && trade.txId != null && trade.txId!.isNotEmpty) {
+      items.add(StandartListItem(
+          title: 'Transaction ID', value: trade.txId!));
+    }
   }
 
   void _launchUrl(String url) {
@@ -206,5 +226,23 @@ abstract class TradeDetailsViewModelBase with Store {
     try {
       launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {}
+  }
+
+  CryptoCurrency? _safeFrom(Trade trade) {
+    try {
+      final raw = trade.fromRaw;
+      return raw >= 0 ? trade.from : trade.userCurrencyFrom;
+    } catch (_) {
+      return trade.userCurrencyFrom;
+    }
+  }
+
+  CryptoCurrency? _safeTo(Trade trade) {
+    try {
+      final raw = trade.toRaw;
+      return raw >= 0 ? trade.to : trade.userCurrencyTo;
+    } catch (_) {
+      return trade.userCurrencyTo;
+    }
   }
 }
