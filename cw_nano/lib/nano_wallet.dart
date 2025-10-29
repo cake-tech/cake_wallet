@@ -262,6 +262,8 @@ abstract class NanoWalletBase
     }
   }
 
+  Future<void> updateTransactionsHistory() async => await updateTransactions();
+
   Future<bool> updateTransactions() async {
     try {
       if (_isTransactionUpdating) {

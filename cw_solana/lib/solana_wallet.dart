@@ -293,6 +293,14 @@ abstract class SolanaWalletBase
   @override
   Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async => {};
 
+  @override
+  Future<void> updateTransactionsHistory() async {
+    await Future.wait([
+      _updateNativeSOLTransactions(),
+      _updateSPLTokenTransactions(),
+    ]);
+  }
+
   void updateTransactions(List<SolanaTransactionModel> updatedTx) {
     _addTransactionsToTransactionHistory(updatedTx);
   }
