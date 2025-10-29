@@ -127,7 +127,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
 
     if (_connectionChangeSubscription == null) {
       _connectionChangeSubscription = ledger
-          .deviceStateChanges(device.device.id)
+          .deviceStateChanges
           .listen(_connectionChangeListener);
     }
 
