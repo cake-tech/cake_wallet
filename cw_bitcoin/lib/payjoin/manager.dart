@@ -165,25 +165,33 @@ class PayjoinManager {
     return initReceiver(address);
   }
 
-  Future<Receiver> initReceiver(String address, [bool isTestnet = false]) async {
-    final ohttpKeys = await PayjoinUri.fetchOhttpKeys(
-      ohttpRelay: await randomOhttpRelayUrl(),
-      payjoinDirectory: payjoinDirectoryUrl,
-    );
+  Future<Receiver> initReceiver(String address, [bool isTestnet = false, int retryCount = 0]) async {
+    try {
+      final ohttpKeys = await PayjoinUri.fetchOhttpKeys(
+        ohttpRelay: await randomOhttpRelayUrl(),
+        payjoinDirectory: payjoinDirectoryUrl,
+      );
 
-    final newReceiver = await NewReceiver.create(
-      address: address,
-      network: isTestnet ? Network.testnet : Network.bitcoin,
-      directory: payjoinDirectoryUrl,
-      ohttpKeys: ohttpKeys,
-    );
-    final persister = PayjoinReceiverPersister.impl();
-    final receiverToken = await newReceiver.persist(persister: persister);
-    final receiver = await Receiver.load(persister: persister, token: receiverToken);
+      final newReceiver = await NewReceiver.create(
+        address: address,
+        network: isTestnet ? Network.testnet : Network.bitcoin,
+        directory: payjoinDirectoryUrl,
+        ohttpKeys: ohttpKeys,
+      );
+      final persister = PayjoinReceiverPersister.impl();
+      final receiverToken = await newReceiver.persist(persister: persister);
+      final receiver = await Receiver.load(persister: persister, token: receiverToken);
 
-    await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
+      await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
 
-    return receiver;
+      return receiver;
+    } catch (e) {
+      if (e.toString().contains("error sending request for url") && retryCount < 5) {
+        return initReceiver(address, isTestnet, ++retryCount);
+      } else {
+        rethrow;
+      }
+    }
   }
 
   Future<void> spawnReceiver({
