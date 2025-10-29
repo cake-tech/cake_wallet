@@ -160,10 +160,25 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                 const SizedBox(width: 12),
                 Icon(Icons.arrow_forward, size: 24),
                 const SizedBox(width: 12),
-                CakeImageWidget(
-                  imageUrl: detectedCurrency.iconPath!,
-                  width: 32,
-                  height: 32,
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    CakeImageWidget(
+                      imageUrl: detectedCurrency.iconPath!,
+                      width: 32,
+                      height: 32,
+                    ),
+                    Positioned(
+                      bottom: -4,
+                      right: -4,
+                      child: CakeImageWidget(
+                        imageUrl: walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!)
+                            .iconPath!,
+                        width: 16,
+                        height: 16,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
