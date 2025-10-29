@@ -279,7 +279,7 @@
   "exchange": "Me'ẽjovái",
   "exchange_incorrect_current_wallet_for_xmr": "Reipota ramo me’ẽjovái  XMR nde saldo Cake Wallet Monero-pe guive, rembohasa raẽ nde billetera Monero-pe.",
   "exchange_new_template": "Plantilla pyahú",
-  "exchange_provider_unsupported": "¡${providerName ndaikatúi ojeipuruve!",
+  "exchange_provider_unsupported": "¡${providerName} ndaikatúi ojeipuruve!",
   "exchange_result_confirm": "jejopyvo ñemoañeteha, oñemondota${etiqueta jehupyty}${rehegua} nde billetera guive hérava${billetera rera} pe dirección ohechaukava upe rire. Térã ikatu remondo nde billetera  okápeguá guive ambué dirección / código  QR mboyvegua-pe Emboguapyvo ‘ñemoañete’ reike hag̃ua térã eju jey remoambue hag̃ua pe monto.",
   "exchange_result_description": "Tekotevẽ remondo peteĩ mba’e michĩvéva ${etiqueta jehupy} ${Rehegua}  pe dirección ojehechaukáva kuatiápe upe rire. Remondóramo michĩve ${etiqueta jehupyty} ${rehegua}-gui, ikatu ndoñembohasai ha ndojehepyme’ẽjeymo’ãi.",
   "exchange_result_write_down_ID": "Ekopiáke térã rehaí nde ID ojehechaukáva yvate.",
