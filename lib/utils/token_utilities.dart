@@ -232,9 +232,10 @@ class TokenUtilities {
     allTokens.add(baseCurrency);
 
     for (final currency in CryptoCurrency.all) {
-      final matches = baseCurrency == CryptoCurrency.eth
-          ? baseCurrency.title == currency.tag
-          : currency.tag == baseCurrency.tag;
+      // For EVM networks: ETH has no tag, POL/BASE have tags
+      // Match by tag for POL/BASE, match by title==tag for ETH
+      final matches = (baseCurrency.tag == null && baseCurrency.title == currency.tag) ||
+          (baseCurrency.tag != null && currency.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase());
 
       if (matches && _shouldAddToken(allTokens, currency, addedAddresses)) {
         allTokens.add(currency);
@@ -289,7 +290,8 @@ class TokenUtilities {
     final tokens = await TokenUtilities.loadAllUniqueEvmTokens(walletInfoSource);
 
     return tokens.where((token) {
-      if (baseCurrency == CryptoCurrency.eth) return token.tag == baseCurrency.title;
+      // Match by tag, except for ETH which has no tag - match by title instead
+      if (baseCurrency.tag == null) return token.tag == baseCurrency.title;
 
       return token.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase();
     }).toList();
