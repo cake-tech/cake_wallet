@@ -14,5 +14,5 @@ jobs:
           for i in res/values/strings_*.arb;
           do
             echo "tr: $i"
-            cat #i | jq || exit 1
+            cat $i | jq || exit 1
           done
