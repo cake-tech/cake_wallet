@@ -706,7 +706,7 @@
   "restore_bitcoin_title_from_keys": "Oporavi pomoću formata uvoza novčanika (WIF)",
   "restore_description_from_backup": "Možete oporaviti cijelu Cake Wallet aplikaciju pomoću vlastite datoteke sa sigurnosnom kopijom",
   "restore_description_from_cupcake": "Link s našom pratećom aplikacijom koja se bavi zrakom, instaliranom na drugi telefon.",
-  "restore_description_from_hardware_wallet": "Vratite se iz novčanice od knjige",
+  "restore_description_from_hardware_wallet": "Povežite svoj hardverski uređaj za novčanik od raznih proizvođača.",
   "restore_description_from_keys": "Oporavi novčanik pomoću generiranih pritisaka na tipke spremljenih od vlastitih privatnih ključeva (keys)",
   "restore_description_from_seed": "Oporavi novčanik pomoću koda koji sadrži kombinaciju od 25 ili 13 riječi",
   "restore_description_from_seed_keys": "Oporavi novčanik pomoću pristupnog izraza/ključa spremljenog na sigurno mjesto",

@@ -180,9 +180,11 @@ abstract class TronWalletBase
     for (var token in initialTronTokens) {
       if (!tronTokensBox.containsKey(token.contractAddress)) {
         tronTokensBox.put(token.contractAddress, token);
-      } else { // update existing token
+      } else {
+        // update existing token
         final existingToken = tronTokensBox.get(token.contractAddress);
-        tronTokensBox.put(token.contractAddress, TronToken.copyWith(token, enabled: existingToken!.enabled));
+        tronTokensBox.put(
+            token.contractAddress, TronToken.copyWith(token, enabled: existingToken!.enabled));
       }
     }
   }
@@ -281,7 +283,7 @@ abstract class TronWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
-      
+
       // Verify node health before attempting to sync
       final isHealthy = await checkNodeHealth();
       if (!isHealthy) {
@@ -357,6 +359,14 @@ abstract class TronWalletBase
     );
 
     return pendingTransaction;
+  }
+
+  @override
+  Future<void> updateTransactionsHistory() async {
+    await Future.wait([
+      fetchTransactions(),
+      fetchTrc20ExcludedTransactions(),
+    ]);
   }
 
   @override
@@ -522,11 +532,11 @@ abstract class TronWalletBase
     try {
       // Check native balance
       await _client.getBalance(_tronPublicKey.toAddress(), throwOnError: true);
-      
+
       // Check USDT token balance
       const usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
       await _client.fetchTronTokenBalances(_tronAddress, usdtContractAddress, throwOnError: true);
-      
+
       return true;
     } catch (e) {
       return false;
