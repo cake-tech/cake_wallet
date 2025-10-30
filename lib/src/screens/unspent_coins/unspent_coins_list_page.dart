@@ -178,29 +178,32 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                             itemBuilder: (_, int index) {
                               final item = unspentCoinsListViewModel.items[index];
                               return Observer(
-                                builder: (_) => GestureDetector(
-                                  onTap: () => Navigator.of(context).pushNamed(
-                                    Routes.unspentCoinsDetails,
-                                    arguments: [item, unspentCoinsListViewModel],
-                                  ),
-                                  child: UnspentCoinsListItem(
-                                    note: item.note,
-                                    amount: item.amount,
-                                    fiatAmount: item.fiatAmount,
-                                    address: item.address,
-                                    isSending: item.isSending,
-                                    isFrozen: item.isFrozen,
-                                    isChange: item.isChange,
-                                    isSilentPayment: item.isSilentPayment,
-                                    onCheckBoxTap: item.isFrozen
-                                        ? null
-                                        : () async {
-                                            item.isSending = !item.isSending;
-                                            await unspentCoinsListViewModel
-                                                .saveUnspentCoinInfo(item);
-                                          },
-                                  ),
-                                ),
+                                builder: (_) {
+                                  final fiatAmount = unspentCoinsListViewModel.fiatAmounts[item.hash] ?? '';
+                                  return GestureDetector(
+                                    onTap: () => Navigator.of(context).pushNamed(
+                                      Routes.unspentCoinsDetails,
+                                      arguments: [item, unspentCoinsListViewModel],
+                                    ),
+                                    child: UnspentCoinsListItem(
+                                      note: item.note,
+                                      amount: item.amount,
+                                      fiatAmount: fiatAmount,
+                                      address: item.address,
+                                      isSending: item.isSending,
+                                      isFrozen: item.isFrozen,
+                                      isChange: item.isChange,
+                                      isSilentPayment: item.isSilentPayment,
+                                      onCheckBoxTap: item.isFrozen
+                                          ? null
+                                          : () async {
+                                        item.isSending = !item.isSending;
+                                        await unspentCoinsListViewModel
+                                            .saveUnspentCoinInfo(item);
+                                      },
+                                    ),
+                                  );
+                                }
                               );
                             },
                           ),

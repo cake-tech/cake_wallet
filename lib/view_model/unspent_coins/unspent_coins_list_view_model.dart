@@ -64,22 +64,22 @@ abstract class UnspentCoinsListViewModelBase with Store {
   @computed
   bool get isFiatDisabled => _settingsStore.fiatApiMode == FiatApiMode.disabled;
 
-  @action
-  String estimatedFiatAmount (int cryptoAmount) {
+  @computed
+  Map<String, String> get fiatAmounts {
 
-    // forces mobx to rebuild the computed value
-    final _ = wallet.syncStatus;
     final currency = wallet.currency;
+    final price = _fiatConversationStore.prices[currency];
+    if (price == null || price == 0.0) return {};
 
-    try {
-      final formatedCryptoAmount = formatAmountToString(cryptoAmount);
-      final cryptoAmountDouble = double.tryParse(formatedCryptoAmount.replaceAll(',', '')) ?? 0.0;
-      final fiat = calculateFiatAmountRaw(
-          price: _fiatConversationStore.prices[currency]!, cryptoAmount: cryptoAmountDouble);
-      return fiat;
-    } catch (_) {
-      return '0.00';
+    final result = <String, String>{};
+    for (final item in items) {
+      final formatted = formatAmountToString(item.value);
+      final cryptoAmount = double.tryParse(formatted.replaceAll(',', '')) ?? 0.0;
+      final fiatValue = price * cryptoAmount;
+      result[item.hash] = fiatCurrency.title + ' ' + fiatValue.toStringAsFixed(2);
     }
+
+    return isFiatDisabled ? {} : result;
   }
 
   Future<void> initialSetup() async {
@@ -211,8 +211,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
         .map((elem) {
           try {
             final existingItem = _unspentCoinsInfo.values
-                .firstWhereOrNull((item) => item.walletId == wallet.id && item == elem);
-            final fiatAmount = isFiatDisabled ? '' : fiatCurrency.title + ' ' + estimatedFiatAmount(elem.value);
+                .firstWhereOrNull((item) => item.walletId == wallet.id && item == elem);;
 
             if (existingItem == null) return null;
 
@@ -224,7 +223,6 @@ abstract class UnspentCoinsListViewModelBase with Store {
               note: existingItem.note,
               isSending: existingItem.isSending,
               value: elem.value,
-              fiatAmount: fiatAmount,
               vout: elem.vout,
               keyImage: elem.keyImage,
               isChange: elem.isChange,
