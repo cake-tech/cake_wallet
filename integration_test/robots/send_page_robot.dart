@@ -104,7 +104,7 @@ class SendPageRobot {
       commonTestCases.hasValueKey('send_page_unspent_coin_button_key');
     }
 
-    if (sendViewModel.hasCurrecyChanger) {
+    if (sendViewModel.hasCurrencyChanger) {
       commonTestCases.hasValueKey('send_page_change_asset_button_key');
     }
 

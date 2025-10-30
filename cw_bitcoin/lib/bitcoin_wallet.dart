@@ -368,9 +368,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<PendingTransaction> createTransaction(Object credentials) async {
     credentials = credentials as BitcoinTransactionCredentials;
 
-    if (lightningWallet?.isCompatible(credentials.outputs.first.address) == true) {
+    if ((await lightningWallet?.isCompatible(credentials.outputs.first.address)) == true) {
+      final amount = parseFixed(credentials.outputs.first.cryptoAmount ?? "0", 9);
+
       return lightningWallet!.createTransaction(credentials.outputs.first.address,
-          parseFixed(credentials.outputs.first.cryptoAmount ?? "0", 9));
+          amount > BigInt.zero ? amount : null);
     }
 
     final tx = (await super.createTransaction(credentials)) as PendingBitcoinTransaction;

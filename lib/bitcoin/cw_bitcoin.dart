@@ -690,6 +690,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
+    if (pendingTransaction is PendingLightningTransaction) return outputs;
+
     final pendingTx = pendingTransaction as PendingBitcoinTransaction;
 
     if (!pendingTx.hasSilentPayment) {
