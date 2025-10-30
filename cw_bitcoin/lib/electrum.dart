@@ -35,7 +35,6 @@ class SocketTask {
 class ElectrumClient {
   ElectrumClient()
       : _id = 0,
-        _isConnected = false,
         _tasks = {},
         _errors = {},
         unterminatedString = '';
@@ -43,7 +42,7 @@ class ElectrumClient {
   static const connectionTimeout = Duration(seconds: 5);
   static const aliveTimerDuration = Duration(seconds: 4);
 
-  bool get isConnected => _isConnected && socket != null;
+  bool get isConnected => socket != null && socket?.isClosed == false;
   ProxySocket? socket;
   void Function(ConnectionStatus)? onConnectionStatusChange;
   int _id;
@@ -51,7 +50,6 @@ class ElectrumClient {
   Map<String, SocketTask> get tasks => _tasks;
   final Map<String, String> _errors;
   ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
-  bool _isConnected;
   Timer? _aliveTimer;
   String unterminatedString;
 
@@ -451,7 +449,7 @@ class ElectrumClient {
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
-    if (!_isConnected || socket == null) return null;
+    if (!isConnected) return null;
 
     final completer = Completer<dynamic>();
     _id += 1;
@@ -466,7 +464,7 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
-      if (!_isConnected || socket == null) return null;
+      if (!isConnected) return null;
 
       final completer = Completer<dynamic>();
       _id += 1;
@@ -564,8 +562,7 @@ class ElectrumClient {
   void _setConnectionStatus(ConnectionStatus status) {
     onConnectionStatusChange?.call(status);
     _connectionStatus = status;
-    _isConnected = status == ConnectionStatus.connected;
-    if (!_isConnected) {
+    if (!isConnected) {
       try {
         socket?.destroy();
       } catch (_) {}
