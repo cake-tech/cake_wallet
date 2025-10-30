@@ -139,8 +139,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
 
-  bool get isEVMWallet => walletType == WalletType.ethereum || walletType == WalletType.polygon ||
-      walletType == WalletType.base;
+  bool get isEVMWallet => isEVMCompatibleChain(walletType);
 
   @action
   void setShowAddressBookPopup(bool value) {
@@ -514,7 +513,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           });
       }
 
-
       // Swaps.xyz (EVM) path
 
       if (isEVMWallet && trade != null && provider is SwapsXyzExchangeProvider) {
@@ -524,7 +522,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             BigInt.tryParse((trade.routerValue ?? '0').toString()) ?? BigInt.zero;
 
         if (routerTo?.isNotEmpty == true && routerData?.isNotEmpty == true) {
-
           // detect prepared ERC-20 transfer(...) (alt-vm deposit pattern)
           String _selector(String s) =>
               (s.startsWith('0x') && s.length >= 10) ? s.substring(0, 10) : '';
@@ -538,11 +535,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // Optionally prebuild approval (SKIP for prepared transfer)
           final tokenContract = trade.sourceTokenAddress ?? '';
           final requiredAmount = BigInt.tryParse(
-            (trade.sourceTokenAmountRaw ?? '0').replaceAll('n', ''),
-          ) ?? BigInt.zero;
+                (trade.sourceTokenAmountRaw ?? '0').replaceAll('n', ''),
+              ) ??
+              BigInt.zero;
 
           // Only do approval when NOT a prepared transfer, and only if the API hinted we might need it
-          final requiresTokenApproval = (trade.requiresTokenApproval ?? false) && !_isPreparedTransfer;
+          final requiresTokenApproval =
+              (trade.requiresTokenApproval ?? false) && !_isPreparedTransfer;
 
           if (requiresTokenApproval && tokenContract.isNotEmpty && requiredAmount > BigInt.zero) {
             if (walletType == WalletType.ethereum) {
@@ -656,7 +655,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
-
       // Regular flow
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
@@ -732,61 +730,85 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
+  Future<void> _handleOcpRequest() async {
+    if (OpenCryptoPayService.requiresClientCommit(selectedCryptoCurrency)) {
+      await pendingTransaction!.commit();
+    }
+
+    await _ocpService.commitOpenCryptoPayRequest(
+      pendingTransaction!.hex,
+      txId: pendingTransaction!.id,
+      request: ocpRequest!,
+      asset: selectedCryptoCurrency,
+    );
+  }
+
+  Future<void> _commitApprovalTransaction() async {
+    if (_pendingApprovalTx != null) {
+      await _pendingApprovalTx!.commit();
+      _pendingApprovalTx = null;
+      // Small pause to ensure allowance is indexed
+      await Future.delayed(const Duration(milliseconds: 300));
+    }
+
+    await pendingTransaction!.commit();
+    _isSwapsXYZCallDataTx = false;
+  }
+
+  Future<void> _commitUR(BuildContext context) async {
+    final urstr = await pendingTransaction!.commitUR();
+    final result = await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
+    if (result == null) {
+      throw "Canceled by user";
+    }
+  }
+
   @action
   Future<void> commitTransaction(BuildContext context) async {
     if (pendingTransaction == null) {
       throw Exception("Pending transaction doesn't exist. It should not be happened.");
     }
 
-    if (ocpRequest != null) {
+    try {
       state = TransactionCommitting();
-      if (OpenCryptoPayService.requiresClientCommit(selectedCryptoCurrency)) {
+
+      if (ocpRequest != null) {
+        await _handleOcpRequest();
+      } else if (_isSwapsXYZCallDataTx) {
+        // Swaps.xyz approval (if any), then commit the prebuilt router tx
+        await _commitApprovalTransaction();
+      } else if (pendingTransaction!.shouldCommitUR()) {
+        await _commitUR(context);
+      } else {
         await pendingTransaction!.commit();
       }
 
-      await _ocpService.commitOpenCryptoPayRequest(
-        pendingTransaction!.hex,
-        txId: pendingTransaction!.id,
-        request: ocpRequest!,
-        asset: selectedCryptoCurrency,
-      );
-
       state = TransactionCommitted();
 
-      return;
-    }
-
-    // Swaps.xyz approval (if any), then commit the prebuilt router tx
-    if (_isSwapsXYZCallDataTx) {
-      if (_pendingApprovalTx != null) {
-        await _pendingApprovalTx!.commit();
-        _pendingApprovalTx = null;
-        // Small pause to ensure allowance is indexed
-        await Future.delayed(const Duration(milliseconds: 300));
+      // Immediate transaction update for EVM chains, Solana, Tron, and Nano
+      if (isEVMWallet ||
+          [WalletType.solana, WalletType.tron, WalletType.nano].contains(walletType)) {
+        Future.delayed(Duration(seconds: 4), () async {
+          try {
+            await wallet.updateTransactionsHistory();
+          } catch (e) {
+            printV('Failed to update transactions after send: $e');
+          }
+        });
       }
 
-      await pendingTransaction!.commit();
-      _isSwapsXYZCallDataTx = false;
-
-      state = TransactionCommitted();
-      return; // skip the regular flow below
-    }
-
-    // Regular flow (non-Swaps)
-    if (pendingTransaction!.shouldCommitUR()) {
-      final urstr = await pendingTransaction!.commitUR();
-      final result = await Navigator.of(context).pushNamed(
-        Routes.urqrAnimatedPage,
-        arguments: urstr,
-      );
-      if (result == null) {
-        state = FailureState("Canceled by user");
-        return;
+      if (pendingTransaction!.id.isNotEmpty) {
+        _addTransactionDescription();
       }
-    } else {
-      await pendingTransaction!.commit();
+      final sharedPreferences = await SharedPreferences.getInstance();
+      await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
+          DateTime.now().add(Duration(minutes: 1)).toIso8601String());
+    } catch (e) {
+      state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
     }
+  }
 
+  Future<void> _addTransactionDescription() async {
     String address = outputs.fold('', (acc, value) {
       return value.isParsedAddress
           ? '$acc${value.address}\n${value.extractedAddress}\n\n'
@@ -799,54 +821,26 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     note = note.trim();
 
-    try {
-      state = TransactionCommitting();
-
-      if (pendingTransaction!.shouldCommitUR()) {
-        final urstr = await pendingTransaction!.commitUR();
-        final result =
-            await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
-        if (result == null) {
-          state = FailureState("Canceled by user");
-          return;
-        }
-      } else {
-        await pendingTransaction!.commit();
-      }
-
-      if (walletType == WalletType.nano) {
-        nano!.updateTransactions(wallet);
-      }
-
-      if (pendingTransaction!.id.isNotEmpty) {
-        TransactionInfo? tx;
-        if (walletType == WalletType.monero) {
-          await Future.delayed(Duration(milliseconds: 450));
-          await wallet.fetchTransactions();
-          final txhistory = monero!.getTransactionHistory(wallet);
-          tx = txhistory.transactions.values.last;
-        }
-        final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
-        _settingsStore.shouldSaveRecipientAddress
-            ? await transactionDescriptionBox.add(TransactionDescription(
-                id: descriptionKey,
-                recipientAddress: address,
-                transactionNote: note,
-                transactionKey: tx?.additionalInfo["key"] as String?,
-              ))
-            : await transactionDescriptionBox.add(TransactionDescription(
-                id: descriptionKey,
-                transactionNote: note,
-                transactionKey: tx?.additionalInfo["key"] as String?,
-              ));
-      }
-      final sharedPreferences = await SharedPreferences.getInstance();
-      await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
-          DateTime.now().add(Duration(minutes: 1)).toIso8601String());
-      state = TransactionCommitted();
-    } catch (e) {
-      state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
+    TransactionInfo? tx;
+    if (walletType == WalletType.monero) {
+      await Future.delayed(Duration(milliseconds: 450));
+      await wallet.fetchTransactions();
+      final txhistory = monero!.getTransactionHistory(wallet);
+      tx = txhistory.transactions.values.last;
     }
+    final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
+    _settingsStore.shouldSaveRecipientAddress
+        ? await transactionDescriptionBox.add(TransactionDescription(
+            id: descriptionKey,
+            recipientAddress: address,
+            transactionNote: note,
+            transactionKey: tx?.additionalInfo["key"] as String?,
+          ))
+        : await transactionDescriptionBox.add(TransactionDescription(
+            id: descriptionKey,
+            transactionNote: note,
+            transactionKey: tx?.additionalInfo["key"] as String?,
+          ));
   }
 
   Object _credentials([ExchangeProvider? provider]) {
@@ -1037,10 +1031,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           _fiatConversationStore.prices[currency] ?? 0.0,
         );
 
+        // Handle generic insufficient funds error (no specific values available)
+        if (parsedErrorMessageResult.error == 'generic_insufficient_funds') {
+          return S.current.insufficient_funds_for_tx;
+        }
+
+        // Handle parsing errors (couldn't parse the error message)
         if (parsedErrorMessageResult.error != null) {
           return S.current.insufficient_funds_for_tx;
         }
 
+        // Handle successfully parsed errors with specific values
         return '''${S.current.insufficient_funds_for_tx} \n\n'''
             '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
             '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
@@ -1124,7 +1125,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     required BigInt requiredAmount,
     int? sourceTokenDecimals,
   }) async {
-
     // Only EVM chains support ERC20 approvals
     if (!isEVMWallet) return null;
 
@@ -1138,15 +1138,24 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     bool needsApproval = false;
     if (walletType == WalletType.ethereum) {
       needsApproval = await ethereum!.isApprovalRequired(
-        wallet, tokenContract, spender, requiredAmount,
+        wallet,
+        tokenContract,
+        spender,
+        requiredAmount,
       );
     } else if (walletType == WalletType.polygon) {
       needsApproval = await polygon!.isApprovalRequired(
-        wallet, tokenContract, spender, requiredAmount,
+        wallet,
+        tokenContract,
+        spender,
+        requiredAmount,
       );
     } else if (walletType == WalletType.base) {
       needsApproval = await base!.isApprovalRequired(
-        wallet, tokenContract, spender, requiredAmount,
+        wallet,
+        tokenContract,
+        spender,
+        requiredAmount,
       );
     }
 
@@ -1154,29 +1163,41 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     final erc20Token = wallet.balance.keys.whereType<Erc20Token>().firstWhere(
           (t) => t.contractAddress.toLowerCase() == tokenLc,
-      orElse: () => Erc20Token(
-        name: '',
-        symbol: '',
-        contractAddress: tokenContract,
-        decimal: sourceTokenDecimals ?? 18,
-        enabled: true,
-      ),
-    );
+          orElse: () => Erc20Token(
+            name: '',
+            symbol: '',
+            contractAddress: tokenContract,
+            decimal: sourceTokenDecimals ?? 18,
+            enabled: true,
+          ),
+        );
 
     if (walletType == WalletType.ethereum) {
       final priority = _settingsStore.priority[WalletType.ethereum]!;
       return await ethereum!.createTokenApproval(
-        wallet, requiredAmount, spender, erc20Token, priority,
+        wallet,
+        requiredAmount,
+        spender,
+        erc20Token,
+        priority,
       );
     } else if (walletType == WalletType.polygon) {
       final priority = _settingsStore.priority[WalletType.polygon]!;
       return await polygon!.createTokenApproval(
-        wallet, requiredAmount, spender, erc20Token, priority,
+        wallet,
+        requiredAmount,
+        spender,
+        erc20Token,
+        priority,
       );
     } else if (walletType == WalletType.base) {
       final priority = _settingsStore.priority[WalletType.base]!;
       return await base!.createTokenApproval(
-        wallet, requiredAmount, spender, erc20Token, priority,
+        wallet,
+        requiredAmount,
+        spender,
+        erc20Token,
+        priority,
       );
     }
 
