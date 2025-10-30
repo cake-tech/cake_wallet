@@ -890,7 +890,7 @@
   "silent_payments_scan_from_date": "Scan from date",
   "silent_payments_scan_from_date_or_blockheight": "Please enter the block height you want to start scanning for incoming Silent Payments or use the date instead. You can choose if the wallet continues scanning every block, or checks only the specified height.",
   "silent_payments_scan_from_height": "Scan from block height",
-  "silent_payments_scanned_tip": "SCANNED TO TIP! (${tip})",
+  "silent_payments_scanned_tip": "Scanned to chain tip! (${tip})",
   "silent_payments_scanning": "Silent Payments Scanning",
   "silent_payments_settings": "Silent Payments settings",
   "single_seed_wallets_group": "Single Seed Wallets",

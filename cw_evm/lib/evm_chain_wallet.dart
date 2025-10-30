@@ -888,6 +888,9 @@ abstract class EVMChainWalletBase
 
   @override
   Future<void>? updateBalance() async => await _updateBalance();
+  @override
+  Future<void> updateTransactionsHistory() async => await _updateTransactions();
+
 
   List<Erc20Token> get erc20Currencies => evmChainErc20TokensBox.values.toList();
 
