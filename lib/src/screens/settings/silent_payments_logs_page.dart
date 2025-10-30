@@ -7,9 +7,11 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/silent_payments_settings_view_model.dart';
+import 'package:cw_core/encryption_log_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 class SilentPaymentsLogPage extends BasePage {
   SilentPaymentsLogPage(this.silentPaymentsSettingsViewModelBase);
@@ -99,7 +101,15 @@ class SilentPaymentsLogPage extends BasePage {
 
   Future<void> share(BuildContext context) async {
     final inAppPath = "${(await getApplicationSupportDirectory()).path}/logs/debug.log";
-    await ShareUtil.shareFile(filePath: inAppPath, fileName: "debug.log", context: context);
+    final tmp = await getTemporaryDirectory();
+    final tmpPath = p.join(tmp.path, "plain_logs");
+    final decryptedFile = File(p.join(tmpPath, p.basename(inAppPath)));
+    final str = await EncryptionLogUtil.read(
+      path: inAppPath
+    );
+    decryptedFile.writeAsStringSync(str);
+    await ShareUtil.shareFile(filePath: decryptedFile.path, fileName: "debug.log", context: context);
+    decryptedFile.writeAsStringSync("");
   }
 
   Future<void> _saveFile() async {

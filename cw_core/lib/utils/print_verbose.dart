@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:cw_core/encryption_log_utils.dart';
 import 'package:flutter/foundation.dart';
 
 enum LogLevel { info, debug, warn, error }
@@ -21,7 +23,10 @@ void printV(
     if (!logFile.existsSync()) {
       logFile.createSync(recursive: true);
     }
-    logFile.writeAsStringSync("$logLine\n", mode: FileMode.append, flush: true);
+    unawaited(EncryptionLogUtil.write(
+      path: logFile.path,
+      data: "$logLine\n",
+    ));
   }
 }
 
