@@ -26,6 +26,8 @@ void startWalletSyncStatusChangeReaction(
       }
       if (status is SyncedSyncStatus || status is FailedSyncStatus) {
         await WakelockPlus.disable();
+        // Reset sync start time when sync completes or fails
+        SyncingSyncStatus.resetSyncStartTime();
       }
 
       if (status is SyncedSyncStatus &&
