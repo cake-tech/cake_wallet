@@ -66,7 +66,7 @@ abstract class WalletCreationVMBase with Store {
 
   bool typeExists(WalletType type) => walletCreationService.typeExists(type);
 
-  Future<void> create({dynamic options}) async {
+  Future<void> create({Map<String, dynamic>? options}) async {
     final type = this.type;
     try {
       state = IsExecutingState();
@@ -128,12 +128,20 @@ abstract class WalletCreationVMBase with Store {
   DerivationInfo? getDefaultCreateDerivation() {
     final useBip39ForBitcoin = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.bip39;
     final useBip39ForNano = seedSettingsViewModel.nanoSeedType.type == DerivationType.bip39;
+    final useBip39ForZano = seedSettingsViewModel.zanoSeedType.type == DerivationType.bip39;
+
     switch (type) {
       case WalletType.nano:
         if (useBip39ForNano) {
           return DerivationInfo(derivationType: DerivationType.bip39);
         }
         return DerivationInfo(derivationType: DerivationType.nano);
+      case WalletType.zano:
+        if (useBip39ForZano) {
+          return DerivationInfo(derivationType: DerivationType.bip39);
+        }
+        return DerivationInfo(derivationType: DerivationType.zano);  
+
       case WalletType.bitcoin:
         if (useBip39ForBitcoin) {
           return DerivationInfo(
@@ -162,12 +170,19 @@ abstract class WalletCreationVMBase with Store {
   DerivationInfo? getCommonRestoreDerivation() {
     final useElectrum = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.electrum;
     final useNanoStandard = seedSettingsViewModel.nanoSeedType.type == DerivationType.nano;
+    final useZanoStandard = seedSettingsViewModel.zanoSeedType.type == DerivationType.zano;
     switch (this.type) {
       case WalletType.nano:
         if (useNanoStandard) {
           return DerivationInfo(derivationType: DerivationType.nano);
         }
         return DerivationInfo(derivationType: DerivationType.bip39);
+      case WalletType.zano:
+        if (useZanoStandard) {
+          return DerivationInfo(derivationType: DerivationType.zano);
+        }
+        return DerivationInfo(derivationType: DerivationType.bip39);
+
       case WalletType.bitcoin:
         if (useElectrum) {
           return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
@@ -224,7 +239,7 @@ abstract class WalletCreationVMBase with Store {
     return list;
   }
 
-  WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
+  WalletCredentials getCredentials(Map<String, dynamic>? options) => throw UnimplementedError();
 
   Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
 
