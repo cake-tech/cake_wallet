@@ -305,6 +305,8 @@ abstract class EVMChainWalletBase
     }
   }
 
+  int getTotalPriorityFee(EVMChainTransactionPriority priority);
+
   /// Allows more customization to the fetch estimatedFees flow.
   ///
   /// We are able to pass in:
@@ -323,56 +325,12 @@ abstract class EVMChainWalletBase
         int maxFeePerGas;
         int adjustedGasPrice;
 
-        bool isPolygon = _client.chainId == 137;
-        bool isBase = _client.chainId == 8453;
+        final totalPriorityFee = getTotalPriorityFee(priority);
 
-        final priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
-        maxFeePerGas = gasBaseFee != null ? (gasBaseFee! + priorityFee) : (gasPrice + priorityFee);
+        maxFeePerGas =
+            gasBaseFee != null ? (gasBaseFee! + totalPriorityFee) : (gasPrice + totalPriorityFee);
 
         adjustedGasPrice = maxFeePerGas;
-
-        // Polygon has a minimum priority fee of 25 gwei
-        if (isPolygon) {
-          int minPriorityFee = 25;
-          int minPriorityFeeWei =
-              EtherAmount.fromInt(EtherUnit.gwei, minPriorityFee).getInWei.toInt();
-
-          // Calculate  user selected priority-based additional fee on top of minimum
-          int additionalPriorityFee = 0;
-          switch (priority) {
-            case EVMChainTransactionPriority.slow:
-              // We use minimum priority fee only
-              additionalPriorityFee = 0;
-              break;
-            case EVMChainTransactionPriority.medium:
-              // We add 15 gwei on top of minimum
-              additionalPriorityFee = EtherAmount.fromInt(EtherUnit.gwei, 15).getInWei.toInt();
-              break;
-            case EVMChainTransactionPriority.fast:
-              // We add 35 gwei on top of minimum
-              additionalPriorityFee = EtherAmount.fromInt(EtherUnit.gwei, 35).getInWei.toInt();
-              break;
-          }
-
-          int totalPriorityFee = minPriorityFeeWei + additionalPriorityFee;
-          adjustedGasPrice = gasPrice + totalPriorityFee;
-          maxFeePerGas = gasPrice + totalPriorityFee;
-        }
-
-        if (isBase) {
-          int priorityFee = switch (priority) {
-            EVMChainTransactionPriority.fast =>
-              EtherAmount.fromInt(EtherUnit.mwei, 5).getInWei.toInt(),
-            EVMChainTransactionPriority.medium =>
-              EtherAmount.fromInt(EtherUnit.mwei, 3).getInWei.toInt(),
-            EVMChainTransactionPriority.slow =>
-              EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
-            _ => EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
-          };
-
-          adjustedGasPrice = gasBaseFee! + priorityFee;
-          maxFeePerGas = gasPrice + priorityFee;
-        }
 
         final estimatedGas = await _client.getEstimatedGasUnitsForTransaction(
           contractAddress: contractAddress,

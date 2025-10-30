@@ -11,12 +11,14 @@ import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_polygon/default_polygon_erc20_tokens.dart';
 import 'package:cw_polygon/polygon_client.dart';
 import 'package:cw_polygon/polygon_transaction_history.dart';
 import 'package:cw_polygon/polygon_transaction_info.dart';
+import 'package:web3dart/web3dart.dart';
 
 class PolygonWallet extends EVMChainWallet {
   PolygonWallet({
@@ -29,6 +31,30 @@ class PolygonWallet extends EVMChainWallet {
     required super.encryptionFileUtils,
     super.passphrase,
   }) : super(nativeCurrency: CryptoCurrency.maticpoly);
+
+  @override
+  int getTotalPriorityFee(EVMChainTransactionPriority priority) {
+    // Polygon has a minimum priority fee of 25 gwei
+
+    int minPriorityFee = 25;
+    int minPriorityFeeWei = EtherAmount.fromInt(EtherUnit.gwei, minPriorityFee).getInWei.toInt();
+
+    // Calculate  user selected priority-based additional fee on top of minimum
+    int additionalPriorityFee = 0;
+    switch (priority) {
+      case EVMChainTransactionPriority.slow:
+        additionalPriorityFee = 0;
+        break;
+      case EVMChainTransactionPriority.medium:
+        additionalPriorityFee = EtherAmount.fromInt(EtherUnit.gwei, 15).getInWei.toInt();
+        break;
+      case EVMChainTransactionPriority.fast:
+        additionalPriorityFee = EtherAmount.fromInt(EtherUnit.gwei, 35).getInWei.toInt();
+        break;
+    }
+
+    return (minPriorityFeeWei + additionalPriorityFee);
+  }
 
   @override
   Future<void> initErc20TokensBox() async {
@@ -47,9 +73,11 @@ class PolygonWallet extends EVMChainWallet {
     for (final token in initialErc20Tokens) {
       if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
         evmChainErc20TokensBox.put(token.contractAddress, token);
-      } else { // update existing token
+      } else {
+        // update existing token
         final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
-        evmChainErc20TokensBox.put(token.contractAddress, Erc20Token.copyWith(token, enabled: existingToken!.enabled));
+        evmChainErc20TokensBox.put(
+            token.contractAddress, Erc20Token.copyWith(token, enabled: existingToken!.enabled));
       }
     }
   }
