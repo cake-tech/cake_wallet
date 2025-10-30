@@ -231,4 +231,5 @@ flatpak-build/
 **/linux/flutter/generated_plugin_registrant.h
 **/linux/flutter/generated_plugins.cmake
 
+wallet_fuzzer_data/
 scripts/torch_dart/

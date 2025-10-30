@@ -34,6 +34,7 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/dev/file_explorer.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -77,6 +78,9 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    if (FeatureFlag.hasDevOptions) {
+      await checkAndStartFileMonitoring();
+    }
     FlutterError.onError = ExceptionHandler.onError;
 
     /// A callback that is invoked when an unhandled error occurs in the root
@@ -243,6 +247,11 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+  if (walletInfoSource.length == 0) {
+    printV("WalletInfo corrupted: length == 0");
+  } else {
+    printV("WalletInfo normal: ${walletInfoSource.length}");
+  }
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
@@ -504,5 +513,17 @@ Future<void> backgroundSync() async {
     } else {
       printV("Not unmarking background sync");
     }
+  }
+}
+
+Future<void> checkAndStartFileMonitoring() async {
+  try {
+    final shouldMonitor = await FileExplorerViewModelBase.checkDevMonitorFileExists();
+    if (shouldMonitor) {
+      printV('Dev file monitoring enabled, starting file system watcher...');
+      await FileExplorerViewModelBase.startMonitoring();
+    }
+  } catch (e) {
+    printV('Failed to initialize file monitoring: $e');
   }
 }

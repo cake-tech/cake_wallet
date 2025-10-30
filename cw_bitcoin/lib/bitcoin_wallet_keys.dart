@@ -6,6 +6,11 @@ class BitcoinWalletKeys {
   final String publicKey;
   final String xpub;
 
+  @override
+  String toString() {
+    return 'BitcoinWalletKeys(wif: $wif, privateKey: $privateKey, publicKey: $publicKey, xpub: $xpub)';
+  }
+
   Map<String, String> toJson() => {
     'wif': wif,
     'privateKey': privateKey,

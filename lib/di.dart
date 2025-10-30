@@ -41,6 +41,10 @@ import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/exchange_provider_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
+import 'package:cake_wallet/src/screens/dev/file_explorer.dart';
+import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
+import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/wallet_fuzzer.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
@@ -1602,6 +1606,10 @@ Future<void> setup({
   
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
   
+  getIt.registerFactory(() => FileExplorerPage());
+
+  getIt.registerFactory(() => WalletFuzzerPage());
+
   getIt.registerFactory(() => SocketHealthLogsViewModel());
 
   getIt.registerFactory(() => DevSocketHealthLogsPage(getIt.get<SocketHealthLogsViewModel>()));

@@ -127,6 +127,8 @@ class Routes {
   static const devQRTools = '/dev/qr_tools';
   static const devExchangeProviderLogs = '/dev/exchange_provider_logs';
 
+  static const devFileExplorer = '/dev/file_explorer';
+  static const devWalletFuzzer = '/dev/wallet_fuzzer';
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
   static const urqrAnimatedPage = '/urqr/animated_page';
