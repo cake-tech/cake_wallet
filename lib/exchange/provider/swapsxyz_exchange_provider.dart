@@ -43,7 +43,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   bool get isEnabled => true;
 
   @override
-  bool get supportsFixedRate => true;
+  bool get supportsFixedRate => false;
 
   @override
   ExchangeProviderDescription get description =>
