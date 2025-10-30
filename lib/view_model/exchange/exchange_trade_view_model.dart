@@ -112,10 +112,8 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   bool get isSwapsXyzSendingEVMTokenSwap =>
       (_provider is SwapsXyzExchangeProvider) &&
-      (wallet.type == WalletType.ethereum && wallet.currency != trade.from ||
-          (wallet.type == WalletType.polygon && wallet.currency != trade.from) ||
-          (wallet.type == WalletType.base && wallet.currency != trade.from) ||
-          wallet.type == WalletType.arbitrum && wallet.currency != trade.from);
+      isEVMCompatibleChain(wallet.type) &&
+      wallet.currency != trade.from;
 
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
       ? '\n\n' + S.current.exchange_extra_info
