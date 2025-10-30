@@ -119,7 +119,7 @@ dependencies:
   trezor_connect:
     git:
       url: https://github.com/cake-tech/trezor_connect
-      ref: 59b3ceec158d3393b20d0c596cab2abcc62ac8e4
+      ref: d1242cea90f84b00200e7bcab914a5af750e23fb
   bitbox_flutter:
     path: ./scripts/bitbox_flutter
   hashlib: 1.19.2
