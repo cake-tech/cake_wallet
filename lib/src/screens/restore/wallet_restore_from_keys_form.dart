@@ -56,6 +56,12 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
         spendKeyController = restoredWallet != null
             ? TextEditingController(text: restoredWallet.spendKey)
             : TextEditingController(),
+        scanSecretController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.scanSecret)
+            : TextEditingController(),
+        spendPubkeyController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.spendPubkey)
+            : TextEditingController(),
         privateKeyController = restoredWallet != null
             ? TextEditingController(text: restoredWallet.privateKey)
             : TextEditingController(),
@@ -72,6 +78,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
   final TextEditingController addressController;
   final TextEditingController viewKeyController;
   final TextEditingController spendKeyController;
+  final TextEditingController scanSecretController;
+  final TextEditingController spendPubkeyController;
   final TextEditingController nameTextEditingController;
   final TextEditingController privateKeyController;
   final TextEditingController? passwordTextEditingController;
@@ -119,6 +127,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
     viewKeyController.dispose();
     privateKeyController.dispose();
     spendKeyController.dispose();
+    scanSecretController.dispose();
+    spendPubkeyController.dispose();
     passwordTextEditingController?.dispose();
     if (passwordListener != null) {
       passwordTextEditingController?.removeListener(passwordListener!);
@@ -254,6 +264,22 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
           child: BaseTextFormField(
             controller: spendKeyController,
             hintText: S.of(context).restore_spend_key_private,
+            maxLines: null,
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.only(top: 20.0),
+          child: BaseTextFormField(
+            controller: scanSecretController,
+            hintText: "Scan secret",
+            maxLines: null,
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.only(top: 20.0),
+          child: BaseTextFormField(
+            controller: spendPubkeyController,
+            hintText: "Spend public key",
             maxLines: null,
           ),
         ),
