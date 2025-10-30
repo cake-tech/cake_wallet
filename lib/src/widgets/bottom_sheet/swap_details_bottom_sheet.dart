@@ -272,13 +272,13 @@ class _SwapDetailsContent extends StatelessWidget {
             children: [
               _SwapDetailsTile(
                 label: 'You Send',
-                value: '${trade.amount} ${trade.from?.title ?? ''}',
+                value: '${trade.amount} ${trade.from?.title ?? trade.userCurrencyFrom?.title ?? ''}',
                 valueFiatFormatted: exchangeTradeViewModel.sendAmountFiatFormatted,
               ),
               const SizedBox(height: 8),
               _SwapDetailsTile(
                 label: 'You Get',
-                value: '${trade.receiveAmount ?? '0'} ${trade.to?.title ?? ''}',
+                value: '${trade.receiveAmount ?? '0'} ${trade.to?.title ?? trade.userCurrencyTo?.title ?? ''}',
                 valueFiatFormatted: exchangeTradeViewModel
                     .getReceiveAmountFiatFormatted(trade.receiveAmount ?? '0.0'),
               ),

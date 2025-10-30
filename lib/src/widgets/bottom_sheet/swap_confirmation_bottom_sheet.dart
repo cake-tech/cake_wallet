@@ -137,7 +137,9 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
   @override
   Widget build(BuildContext context) {
-    final detectedCurrency = walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!);
+    final detectedCurrency = widget.paymentFlowResult.type == PaymentFlowType.evmNetworkSelection
+        ? widget.paymentFlowResult.addressDetectionResult!.detectedCurrency!
+        : walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!);
 
     return Form(
       key: _formKey,
@@ -158,11 +160,25 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                 const SizedBox(width: 12),
                 Icon(Icons.arrow_forward, size: 24),
                 const SizedBox(width: 12),
-                CakeImageWidget(
-                  imageUrl:
-                      detectedCurrency.iconPath!,
-                  width: 32,
-                  height: 32,
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    CakeImageWidget(
+                      imageUrl: detectedCurrency.iconPath!,
+                      width: 32,
+                      height: 32,
+                    ),
+                    Positioned(
+                      bottom: -4,
+                      right: -4,
+                      child: CakeImageWidget(
+                        imageUrl: walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!)
+                            .iconPath!,
+                        width: 16,
+                        height: 16,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -414,7 +430,11 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
       }
     });
 
-    exchangeViewModel.receiveCurrency = walletTypeToCryptoCurrency(paymentFlowResult.walletType!);
+    exchangeViewModel.receiveCurrency =
+        paymentFlowResult.type == PaymentFlowType.evmNetworkSelection
+            ? paymentFlowResult.addressDetectionResult!.detectedCurrency!
+            : walletTypeToCryptoCurrency(paymentFlowResult.walletType!);
+
     await exchangeViewModel.fetchFiatPrice(exchangeViewModel.receiveCurrency);
 
     exchangeViewModel.receiveAddress = _addressController.text;

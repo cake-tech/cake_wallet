@@ -282,6 +282,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     'wrappedether': weth,
     'shibainu': shib,
     'zcash': zec,
+    'base': baseEth,
   };
 
   static CryptoCurrency deserialize({required int raw}) {
