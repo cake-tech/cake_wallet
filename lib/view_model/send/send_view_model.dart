@@ -57,6 +57,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -100,7 +101,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.transactionDescriptionBox,
     this.hardwareWalletViewModel,
     this.unspentCoinsListViewModel,
-    this.feesViewModel, {
+    this.feesViewModel,
+    this.walletInfoSource, {
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
@@ -138,21 +140,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get isEVMWallet => isEVMCompatibleChain(walletType);
   @action
-  void setShowAddressBookPopup(bool value) {
-    _settingsStore.showAddressBookPopupEnabled = value;
-  }
+  void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
 
   @action
-  void addOutput() {
-    outputs
-        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
-  }
+  void addOutput() => outputs
+      .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
 
   @action
   void removeOutput(Output output) {
-    if (isBatchSending) {
-      outputs.remove(output);
-    }
+    if (isBatchSending) outputs.remove(output);
   }
 
   @action
@@ -185,9 +181,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get pendingTransactionFiatAmount {
-    if (pendingTransaction == null) {
-      return '0.00';
-    }
+    if (pendingTransaction == null) return '0.00';
 
     try {
       final fiat = calculateFiatAmount(
@@ -310,11 +304,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get pendingTransactionFiatAmountFormatted =>
-      isFiatDisabled ? '' : pendingTransactionFiatAmount + ' ' + fiat.title;
+      isFiatDisabled ? '' : '$pendingTransactionFiatAmount ${fiat.title}';
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
-      isFiatDisabled ? '' : pendingTransactionFeeFiatAmount + ' ' + fiat.title;
+      isFiatDisabled ? '' : '$pendingTransactionFeeFiatAmount ${fiat.title}';
 
   @computed
   bool get isReadyForSend =>
@@ -360,12 +354,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   List<CryptoCurrency> currencies;
 
-  bool get hasYat => outputs
-      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
-
   WalletType get walletType => wallet.type;
 
   String? get walletCurrencyName => wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
+
+  bool get hasCurrencyChanger => walletType == WalletType.haven;
 
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
@@ -393,19 +386,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       .toList();
 
   @action
-  bool checkIfAddressIsAContact(String address) {
-    final contactList = contactsToShow.where((element) => element.address == address).toList();
-
-    return contactList.isNotEmpty;
-  }
+  bool checkIfAddressIsAContact(String address) =>
+      contactsToShow.where((element) => element.address == address).toList().isNotEmpty;
 
   @action
-  bool checkIfWalletIsAnInternalWallet(String address) {
-    final walletContactList =
-        walletContactsToShow.where((element) => element.address == address).toList();
-
-    return walletContactList.isNotEmpty;
-  }
+  bool checkIfWalletIsAnInternalWallet(String address) =>
+      walletContactsToShow.where((element) => element.address == address).toList().isNotEmpty;
 
   @computed
   bool get shouldDisplayTOTP2FAForContact => _settingsStore.shouldRequireTOTP2FAForSendsToContact;
@@ -499,13 +485,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (wallet.isHardwareWallet) {
         state = IsAwaitingDeviceResponseState();
-        if (walletType == WalletType.monero)
+        if (walletType == WalletType.monero) {
           _ledgerTxStateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
             if (monero!.getLastLedgerCommand() == "INS_CLSAG") {
               timer.cancel();
               state = IsDeviceSigningResponseState();
             }
           });
+        }
       }
 
       // Swaps.xyz (EVM) path
@@ -873,11 +860,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     final priority = _settingsStore.priority[wallet.type];
 
     if (priority == null &&
-        wallet.type != WalletType.nano &&
-        wallet.type != WalletType.banano &&
-        wallet.type != WalletType.solana &&
-        wallet.type != WalletType.tron &&
-        wallet.type != WalletType.arbitrum) {
+        [
+          WalletType.nano,
+          WalletType.banano,
+          WalletType.solana,
+          WalletType.tron,
+          WalletType.arbitrium
+        ].contains(wallet.type)) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
 
@@ -962,24 +951,21 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         Set.from(contactListViewModel.contacts.map((contact) => contact.address))
           ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
 
-    for (var output in outputs) {
-      String address;
-      if (output.isParsedAddress) {
-        address = output.parsedAddress.addresses.first;
-      } else {
-        address = output.address;
-      }
+    for (final output in outputs) {
+      final address =
+          output.isParsedAddress ? output.parsedAddress.addresses.first : output.address;
 
       if (address.isNotEmpty &&
           !contactAddresses.contains(address) &&
           selectedCryptoCurrency.raw != -1) {
         return ContactRecord(
-            contactListViewModel.contactSource,
-            Contact(
-              name: '',
-              address: address,
-              type: selectedCryptoCurrency,
-            ));
+          contactListViewModel.contactSource,
+          Contact(
+            name: '',
+            address: address,
+            type: selectedCryptoCurrency,
+          ),
+        );
       }
     }
     return null;
@@ -1054,11 +1040,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       return errorMessage;
     }
-    if (walletType == WalletType.ethereum ||
-        walletType == WalletType.polygon ||
-        walletType == WalletType.base ||
-        walletType == WalletType.arbitrum ||
-        walletType == WalletType.haven) {
+    if ([
+      WalletType.ethereum,
+      WalletType.polygon,
+      WalletType.base,
+      WalletType.haven,
+      WalletType.arbitrium
+    ].contains(walletType)) {
       if (errorMessage.contains('gas required exceeds allowance')) {
         return S.current.gas_exceeds_allowance;
       }

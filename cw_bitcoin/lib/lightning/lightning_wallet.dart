@@ -2,6 +2,8 @@ import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_core/pending_transaction.dart';
 
+bool _breezSdkSparkLibUninitialized = true;
+
 class LightningWallet {
   final String mnemonic;
   final String apiKey;
@@ -17,7 +19,10 @@ class LightningWallet {
   });
 
   Future<void> init(String appPath) async {
-    await BreezSdkSparkLib.init();
+    if(_breezSdkSparkLibUninitialized) {
+      await BreezSdkSparkLib.init();
+      _breezSdkSparkLibUninitialized = false;
+    }
 
     final seed = Seed.mnemonic(mnemonic: mnemonic, passphrase: null);
     final config = defaultConfig(network: Network.mainnet).copyWith(
@@ -39,9 +44,11 @@ class LightningWallet {
   Future<BigInt> getBalance() async =>
       (await sdk.getInfo(request: GetInfoRequest(ensureSynced: true))).balanceSats;
 
-  Future<String> registerAddress(String username) async => (await sdk.registerLightningAddress(
-          request: RegisterLightningAddressRequest(username: username)))
-      .lightningAddress;
+  Future<String> registerAddress(String username) async {
+    return (await sdk.registerLightningAddress(
+            request: RegisterLightningAddressRequest(username: username)))
+        .lightningAddress;
+  }
 
   Future<bool> isCompatible(String input) async {
     try {

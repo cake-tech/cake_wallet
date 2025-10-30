@@ -120,8 +120,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
+
   // TODO: add this variable in `bitcoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinSilentPaymentAddressRecord> silentAddresses;
+
   // TODO: add this variable in `litecoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinAddressRecord> mwebAddresses;
   final BasedUtxoNetwork network;
@@ -755,7 +757,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     final path = await pathForWalletDir(name: walletName, type: WalletType.bitcoin);
     await lightningWallet!.init(path);
-    lightningAddress = await lightningWallet!.registerAddress(walletName.replaceAll(" ", ""));
 
+    lightningAddress = await lightningWallet!.getAddress();
+
+    if (lightningAddress == null) {
+      lightningAddress =
+          await lightningWallet!.registerAddress(walletName.replaceAll(" ", "").toLowerCase());
+    }
   }
 }
