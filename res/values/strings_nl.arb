@@ -60,6 +60,7 @@
   "approve": "Goedkeuren",
   "approve_request": "Het verzoek goedkeuren",
   "approve_tokens": "Tokens goedkeuren",
+  "arbiscan_history": "ArbiScan-geschiedenis",
   "arrive_in_this_address": "${currency} ${tag}komt aan op dit adres",
   "ascending": "Stijgend",
   "ask_each_time": "Vraag het elke keer",

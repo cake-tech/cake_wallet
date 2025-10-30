@@ -48,6 +48,7 @@ const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base.nownodes.io';
+const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -544,6 +545,16 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentBaseNodeIdKey,
           );
           break;
+         case 53:
+          await addWalletNodeList(nodes: nodes, type: WalletType.arbitrum);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.arbitrum,
+            currentNodePreferenceKey: PreferencesKey.currentArbitrumNodeIdKey,
+          );
+          break;
+
         default:
           break;
       }
@@ -654,6 +665,8 @@ String _getDefaultNodeUri(WalletType type) {
       return dogecoinDefaultNodeUri;
     case WalletType.base:
       return baseDefaultNodeUri;
+    case WalletType.arbitrum:
+      return arbitrumDefaultNodeUri;
     case WalletType.banano:
     case WalletType.none:
       return '';
@@ -1054,6 +1067,7 @@ Future<void> checkCurrentNodes(
   final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
   final currentBaseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
+  final currentArbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
   final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
   final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentDecredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
@@ -1079,6 +1093,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentPolygonNodeId);
   final currentBaseNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBaseNodeId);
+  final currentArbitrumNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentArbitrumNodeId);
   final currentNanoNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
   final currentDecredNodeServer =
@@ -1174,6 +1190,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: baseDefaultNodeUri, type: WalletType.base);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentBaseNodeIdKey, node.key as int);
+  }
+
+  if (currentArbitrumNodeServer == null) {
+    final node = Node(uri: arbitrumDefaultNodeUri, type: WalletType.arbitrum);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentArbitrumNodeIdKey, node.key as int);
   }
 
   if (currentSolanaNodeServer == null) {

@@ -60,6 +60,7 @@
   "approve": "Approvare",
   "approve_request": "Approvare la richiesta",
   "approve_tokens": "Approvare i token",
+  "arbiscan_history": "Storia dell'ArbiScan",
   "arrive_in_this_address": "${currency} ${tag}arriverà a questo indirizzo",
   "ascending": "Ascendente",
   "ask_each_time": "Chiedi ogni volta",

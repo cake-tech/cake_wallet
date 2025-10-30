@@ -356,6 +356,8 @@ class CommonTestFlows {
         return secrets.solanaTestWalletSeeds;
       case WalletType.base:
         return secrets.baseTestWalletSeeds;
+      case WalletType.arbitrum:
+        return secrets.arbitrumTestWalletSeeds;
       case WalletType.tron:
         return secrets.tronTestWalletSeeds;
       case WalletType.nano:
@@ -392,6 +394,8 @@ class CommonTestFlows {
         return secrets.polygonTestWalletReceiveAddress;
       case WalletType.base:
         return secrets.baseTestWalletReceiveAddress;
+      case WalletType.arbitrum:
+        return secrets.arbitrumTestWalletReceiveAddress;
       case WalletType.solana:
         return secrets.solanaTestWalletReceiveAddress;
       case WalletType.tron:

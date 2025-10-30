@@ -60,6 +60,7 @@
   "approve": "Onaylamak",
   "approve_request": "Talebi Onaylama",
   "approve_tokens": "Jetonları onaylayın",
+  "arbiscan_history": "ArbiScan Geçmişi",
   "arrive_in_this_address": "${currency} ${tag}bu adrese ulaşacak",
   "ascending": "Yükselen",
   "ask_each_time": "Her seferinde sor",
