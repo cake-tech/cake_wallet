@@ -83,6 +83,8 @@ class SecretKey {
     SecretKey('kryptonimApiKey', () => ''),
     SecretKey('walletGroupSalt', () => hex.encode(encrypt.Key.fromSecureRandom(16).bytes)),
     SecretKey('swapsXyzApiKey', () => ''),
+    SecretKey('logPassword', () => ''),
+    SecretKey('logSalt', () => ''),
   ];
 
   static final evmChainsSecrets = [
@@ -96,6 +98,11 @@ class SecretKey {
     SecretKey('ankrApiKey', () => ''),
     SecretKey('nowNodesApiKey', () => ''),
     SecretKey('chainStackApiKey', () => ''),
+  ];
+  
+  static final coreSecrets = [
+    SecretKey('logPassword', () => ''),
+    SecretKey('logSalt', () => ''),
   ];
 
   static final nanoSecrets = [

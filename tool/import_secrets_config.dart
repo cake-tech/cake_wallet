@@ -5,6 +5,9 @@ import 'utils/utils.dart';
 const configPath = 'tool/.secrets-config.json';
 const outputPath = 'lib/.secrets.g.dart';
 
+const coreConfigPath = 'tool/.core-secrets-config.json';
+const coreOutputPath = 'cw_core/lib/.secrets.g.dart';
+
 const evmChainsConfigPath = 'tool/.evm-secrets-config.json';
 const evmChainsOutputPath = 'cw_evm/lib/.secrets.g.dart';
 
@@ -23,6 +26,12 @@ Future<void> importSecretsConfig() async {
   final outputFile = File(outputPath);
   final input = json.decode(File(configPath).readAsStringSync()) as Map<String, dynamic>;
   final output = input.keys.fold('', (String acc, String val) => acc + generateConst(val, input));
+
+  final coreOutputFile = File(coreOutputPath);
+  final coreInput =
+      json.decode(File(coreConfigPath).readAsStringSync()) as Map<String, dynamic>;
+  final coreOutput =
+      coreInput.keys.fold('', (String acc, String val) => acc + generateConst(val, coreInput));
 
   final evmChainsOutputFile = File(evmChainsOutputPath);
   final evmChainsInput =
@@ -51,28 +60,9 @@ Future<void> importSecretsConfig() async {
   }
 
   await outputFile.writeAsString(output);
-
-  if (evmChainsOutputFile.existsSync()) {
-    await evmChainsOutputFile.delete();
-  }
-
+  await coreOutputFile.writeAsString(coreOutput);
   await evmChainsOutputFile.writeAsString(evmChainsOutput);
-
-  if (solanaOutputFile.existsSync()) {
-    await solanaOutputFile.delete();
-  }
-
   await solanaOutputFile.writeAsString(solanaOutput);
-
-  if (tronOutputFile.existsSync()) {
-    await tronOutputFile.delete();
-  }
-
   await tronOutputFile.writeAsString(tronOutput);
-
-  if (nanoOutputFile.existsSync()) {
-    await nanoOutputFile.delete();
-  }
-
   await nanoOutputFile.writeAsString(nanoOutput);
 }
