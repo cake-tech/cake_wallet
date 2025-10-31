@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -26,6 +27,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -160,6 +162,16 @@ class WalletListBodyState extends State<WalletListBody> {
                           updateFunction: widget.walletListViewModel.reorderAccordingToWalletList,
                           itemBuilder: (context, index) {
                             final group = widget.walletListViewModel.multiWalletGroups[index];
+                            final existingTypes = widget.walletListViewModel.getTypesInGroup(group);
+
+                            bool isBip39TypesLeft = false;
+                            for (var type in availableWalletTypes) {
+                              if (isBIP39Wallet(type) && !existingTypes.contains(type)) {
+                                isBip39TypesLeft = true;
+                                break;
+                              }
+                            }
+
                             final groupName =
                                 group.groupName ?? '${S.current.wallet_group} ${index + 1}';
 
@@ -184,9 +196,9 @@ class WalletListBodyState extends State<WalletListBody> {
                             trailingWidget: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                if (isBip39TypesLeft)
                                 AddWalletButtonWidget(
                                   onTap: () {
-                                    final existingTypes = widget.walletListViewModel.getTypesInGroup(group);
                                     final arguments = NewWalletTypeArguments(
                                       onTypeSelected: null,
                                       isCreate: true,
@@ -196,7 +208,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                       walletGroupKey: group.groupKey,
                                     );
                                     Navigator.of(context)
-                                        .pushNamed(Routes.newWalletType, arguments: arguments);
+                                        .popAndPushNamed(Routes.newWalletType, arguments: arguments);
                                   },
                                 ),
                                 SizedBox(width: 6),
