@@ -1,4 +1,3 @@
-import 'package:cw_core/address_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -9,8 +8,12 @@ abstract class WalletAddresses {
         allAddressesMap = {},
         addressInfos = {},
         usedAddresses = {},
-        hiddenAddresses = walletInfo.hiddenAddresses?.toSet() ?? {},
-        manualAddresses = walletInfo.manualAddresses?.toSet() ?? {};
+        hiddenAddresses = {},
+        manualAddresses = {} {
+    walletInfo.getUsedAddresses().then((value) => usedAddresses = value);
+    walletInfo.getHiddenAddresses().then((value) => hiddenAddresses = value);
+    walletInfo.getManualAddresses().then((value) => manualAddresses = value);
+  }
 
   final WalletInfo walletInfo;
 
@@ -47,7 +50,7 @@ abstract class WalletAddresses {
     return tmp;
   }
 
-  Map<int, List<AddressInfo>> addressInfos;
+  Map<int, List<WalletInfoAddressInfo>> addressInfos;
 
   Set<String> usedAddresses;
 
@@ -62,15 +65,13 @@ abstract class WalletAddresses {
   Future<void> saveAddressesInBox() async {
     try {
       walletInfo.address = address;
-      walletInfo.addresses = addressesMap;
-      walletInfo.addressInfos = addressInfos;
-      walletInfo.usedAddresses = usedAddresses.toList();
-      walletInfo.hiddenAddresses = hiddenAddresses.toList();
-      walletInfo.manualAddresses = manualAddresses.toList();
+      walletInfo.setAddresses(addressesMap);
+      walletInfo.setAddressInfos(addressInfos);
+      walletInfo.setUsedAddresses(usedAddresses.toList());
+      walletInfo.setHiddenAddresses(hiddenAddresses.toList());
+      walletInfo.setManualAddresses(manualAddresses.toList());
 
-      if (walletInfo.isInBox) {
-        await walletInfo.save();
-      }
+      await walletInfo.save();
     } catch (e) {
       printV(e.toString());
     }
