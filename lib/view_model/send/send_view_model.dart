@@ -1014,6 +1014,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
+      if (errorMessage.contains('found no record of a prior credit')) {
+        return S.current.insufficient_funds_for_tx;
+      }
+
       return errorMessage;
     }
     if (walletType == WalletType.ethereum ||

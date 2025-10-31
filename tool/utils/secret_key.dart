@@ -96,6 +96,7 @@ class SecretKey {
     SecretKey('ankrApiKey', () => ''),
     SecretKey('nowNodesApiKey', () => ''),
     SecretKey('chainStackApiKey', () => ''),
+    SecretKey('moralisApiKey', () => ''),
   ];
 
   static final nanoSecrets = [
