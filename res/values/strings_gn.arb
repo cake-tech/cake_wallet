@@ -779,7 +779,7 @@
   "trade_state_unpaid": "Ndojehepyme’ẽi",
   "trades": "Ñemoambue",
   "transaction_details_amount": "Mboypa",
-  "transaction_details_copied": "Ojekopia portapapel-pe",
+  "transaction_details_copied": "${title} Ojekopia portapapel-pe",
   "transaction_details_date": "Ára",
   "transaction_details_fee": "cuota",
   "transaction_details_height": "yvate",
