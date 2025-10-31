@@ -1425,6 +1425,8 @@ Future<void> setup({
     return UnspentCoinsListViewModel(
       wallet: wallet!,
       unspentCoinsInfo: _unspentCoinsInfoSource,
+      fiatConversationStore: getIt.get<FiatConversionStore>(),
+      settingsStore: getIt.get<SettingsStore>(),
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
     );
   });
