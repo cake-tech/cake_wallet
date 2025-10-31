@@ -131,7 +131,11 @@ class WalletLoadingService {
               alertContent: S.of(context).corrupted_seed_notice,
               leftButtonText: S.of(context).cancel,
               rightButtonText: S.of(context).show_seed,
-              actionLeftButton: () => Navigator.of(context).pop(),
+              actionLeftButton: () {
+                if (context.mounted && Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
               actionRightButton: () => showSeedsPopup(context, msg),
             );
         });
