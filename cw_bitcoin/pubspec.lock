@@ -134,11 +134,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: "5bc8fb5f3a5c84e2e3dd55f5d48b01152f425765"
+      ref: "92f62dc2037cf08003e418aadda58f451c021f42"
+      resolved-ref: "92f62dc2037cf08003e418aadda58f451c021f42"
       url: "https://github.com/breez/breez-sdk-spark-flutter"
     source: git
-    version: "0.3.2"
+    version: "0.3.4"
   bs58check:
     dependency: transitive
     description:
