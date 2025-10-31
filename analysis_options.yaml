@@ -4,6 +4,7 @@ include: package:lints/recommended.yaml
 analyzer:
   exclude: [
     build/**,
+    scripts/**,
     lib/**.g.dart,
     cw_core/lib/**.g.dart,
     cw_haven/lib/**.g.dart,

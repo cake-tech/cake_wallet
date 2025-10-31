@@ -8,7 +8,7 @@ import 'package:cw_core/utils/proxy_socket/abstract.dart';
 class ProxySocketSecure implements ProxySocket {
   final SecureSocket socket;
 
-  bool _isClosed = false;
+  bool isClosed = false;
 
   ProxySocketSecure(this.socket);
   
@@ -17,8 +17,8 @@ class ProxySocketSecure implements ProxySocket {
   @override
   Future<void> close() async {
     try {
-      if (_isClosed) return;
-      _isClosed = true;
+      if (isClosed) return;
+      isClosed = true;
       return socket.close();
     } catch (e) {
       printV("ProxySocketSecure: close: $e");
@@ -29,8 +29,8 @@ class ProxySocketSecure implements ProxySocket {
   @override
   void destroy() async {
     try {
-    if (_isClosed) return;
-      _isClosed = true;
+    if (isClosed) return;
+      isClosed = true;
       socket.destroy();
     } catch (e) {
       printV("ProxySocketSecure: destroy: $e");
@@ -41,7 +41,7 @@ class ProxySocketSecure implements ProxySocket {
   @override
   void write(String data) {
     try {
-      if (_isClosed) {
+      if (isClosed) {
         printV("ProxySocketSecure: write: socket is closed");
         return;
       }

@@ -326,7 +326,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                     child: InfoCard(
                       title: S.of(context).synchronizing,
                       description: S.of(context).decred_info_card_details,
-                      image: 'assets/images/dcr_icon.png',
+                      image: 'assets/images/crypto/decred.webp',
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).learn_more,
                       leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),

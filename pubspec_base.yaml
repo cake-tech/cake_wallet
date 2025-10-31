@@ -119,7 +119,7 @@ dependencies:
   trezor_connect:
     git:
       url: https://github.com/cake-tech/trezor_connect
-      ref: 59b3ceec158d3393b20d0c596cab2abcc62ac8e4
+      ref: d1242cea90f84b00200e7bcab914a5af750e23fb
   bitbox_flutter:
     path: ./scripts/bitbox_flutter
   hashlib: 1.19.2
@@ -127,7 +127,8 @@ dependencies:
     git:
       url: https://github.com/cake-tech/on_chain.git
       ref: cake-update-v2
-  reown_walletkit: 1.1.5+1
+  reown_walletkit:
+    path: ./scripts/reown_flutter/packages/reown_walletkit
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
@@ -181,7 +182,6 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
-  flutter_secure_storage_platform_interface: 1.0.2
   protobuf: ^3.1.0
   bitcoin_base:
     git:
@@ -190,8 +190,8 @@ dependency_overrides:
   ffi: 2.1.0
   ledger_flutter_plus:
     git:
-      url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: 60817d4b20144f9da9029f5034790272795b9d38
+      url: https://github.com/cake-tech/ledger-flutter-plus
+      ref: 5237e5b3d5f07696eefd0aaee9c32478ed399d20
   ledger_usb_plus:
     git:
       url: https://github.com/konstantinullrich/ledger-usb-plus
@@ -220,6 +220,7 @@ flutter:
     - assets/images/flags/
     - assets/images/hardware_wallet/
     - assets/images/crypto/
+    - assets/images/stocks/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
