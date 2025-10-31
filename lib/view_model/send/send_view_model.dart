@@ -98,8 +98,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.transactionDescriptionBox,
     this.hardwareWalletViewModel,
     this.unspentCoinsListViewModel,
-    this.feesViewModel,
-    this.walletInfoSource, {
+    this.feesViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
@@ -125,8 +124,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   ExecutionState state;
 
   ObservableList<Output> outputs;
-
-  final Box<WalletInfo> walletInfoSource;
 
   @observable
   UnspentCoinType coinTypeToSpendFrom;
@@ -1201,7 +1198,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Future<void> fetchTokenForContractAddress(String contractAddress) async {
     final token = await TokenUtilities.findTokenByAddress(
       walletType: wallet.type,
-      walletInfoSource: walletInfoSource,
       address: contractAddress,
     );
 

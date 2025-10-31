@@ -63,6 +63,7 @@ abstract class ElectrumWalletBase
   ElectrumWalletBase({
     required String password,
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required this.network,
     required this.encryptionFileUtils,
@@ -75,9 +76,8 @@ abstract class ElectrumWalletBase
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
     bool? alwaysScan,
-  })
-      : accountHD = getAccountHDWallet(currency, network, seedBytes, xpub,
-            walletInfo.derivationInfo, walletInfo.hardwareWalletType),
+  })  : accountHD =
+            getAccountHDWallet(currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -100,9 +100,10 @@ abstract class ElectrumWalletBase
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.isTestnet = !network.isMainnet,
         this._mnemonic = mnemonic,
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     this.electrumClient = electrumClient ?? electrum.ElectrumClient();
     this.walletInfo = walletInfo;
+    this.derivationInfo = derivationInfo;
     transactionHistory = ElectrumTransactionHistory(
       walletInfo: walletInfo,
       password: password,
@@ -772,8 +773,9 @@ abstract class ElectrumWalletBase
         pubKeyHex = hd.childKey(Bip32KeyIndex(utx.bitcoinAddressRecord.index)).publicKey.toHex();
       }
 
+
       final derivationPath =
-          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrum_path)}"
+          "${_hardenedDerivationPath(derivationInfo.derivationPath ?? electrum_path)}"
           "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
           "/${utx.bitcoinAddressRecord.index}";
       publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
@@ -982,7 +984,7 @@ abstract class ElectrumWalletBase
 
     // Get Derivation path for change Address since it is needed in Litecoin and BitcoinCash hardware Wallets
     final changeDerivationPath =
-        "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+        "${_hardenedDerivationPath(derivationInfo.derivationPath ?? "m/0'")}"
         "/${changeAddress.isHidden ? "1" : "0"}"
         "/${changeAddress.index}";
     utxoDetails.publicKeys[address.pubKeyHash()] =
@@ -1448,8 +1450,8 @@ abstract class ElectrumWalletBase
             ? SegwitAddresType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
-        'derivationTypeIndex': walletInfo.derivationInfo?.derivationType?.index,
-        'derivationPath': walletInfo.derivationInfo?.derivationPath,
+        'derivationTypeIndex': derivationInfo.derivationType?.index,
+        'derivationPath': derivationInfo.derivationPath,
         'silent_addresses': walletAddresses.silentAddresses.map((addr) => addr.toJSON()).toList(),
         'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
         'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
