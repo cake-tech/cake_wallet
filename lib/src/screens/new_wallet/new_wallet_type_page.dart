@@ -157,6 +157,27 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     });
   }
 
+  bool allowMultiSelectionForType(WalletType type) =>
+      (widget.allowMultiSelect || widget.isCreate) && isBIP39Wallet(type);
+
+  bool isSelected(WalletType type) => allowMultiSelectionForType(type)
+      ? false
+      : (widget.newWalletTypeViewModel.itemSelection[type] ?? false);
+
+  void onTypeTap(WalletType type) {
+    if (allowMultiSelectionForType(type)) {
+      widget.newWalletTypeViewModel.deselectAllNonBIP39();
+      widget.newWalletTypeViewModel.toggleSelection(type);
+    } else {
+      widget.newWalletTypeViewModel.deselectAll();
+      for (var item in types) {
+        if (item == type) {
+          widget.newWalletTypeViewModel.itemSelection[item] = true;
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = widget.newWalletTypeViewModel;
@@ -231,7 +252,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                               key: ValueKey(
                                   'new_wallet_type_${type.name}_button_key'),
                               padding: EdgeInsets.only(left: 12, right: 30),
-                              leading: widget.allowMultiSelect || widget.isCreate
+                              leading: allowMultiSelectionForType(type)
                                   ? Padding(
                                       padding: const EdgeInsets.only(right: 12),
                                       child: StandardCheckbox(
@@ -251,22 +272,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                               text: walletTypeToDisplayName(type),
                               showTrailingIcon: false,
                               height: 54,
-                              isSelected: widget.allowMultiSelect || widget.isCreate
-                                  ? false
-                                  : (viewModel.itemSelection[type] ?? false),
-                              onTap: () {
-                                if (widget.allowMultiSelect || widget.isCreate) {
-                                  viewModel.toggleSelection(type);
-                                } else {
-                                  for (var item in types) {
-                                    if (item == type) {
-                                      viewModel.itemSelection[item] = true;
-                                    } else {
-                                      viewModel.itemSelection[item] = false;
-                                    }
-                                  }
-                                }
-                              },
+                              isSelected: isSelected(type),
+                              onTap: () => onTypeTap(type),
                               deviceConnectionTypes: widget.isHardwareWallet
                                   ? DeviceConnectionType
                                       .supportedConnectionTypes(
@@ -396,32 +403,39 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         // Multi-wallet creation flow
         if (mergedTypes.length > 1) {
           if (!onlyBIP39Selected(mergedTypes)) {
-            throw Exception('Multi-wallet creation supports only BIP39 wallet types.');
+            throw Exception(
+                'Multi-wallet creation supports only BIP39 wallet types.');
           }
 
           // ----- Add-to-existing GROUP if walletGroupKey is provided -----
-          if (widget.walletGroupKey != null && widget.walletGroupKey!.isNotEmpty) {
-            if (mergedTypes.length < 1) throw Exception('Select at least one type.');
+          if (widget.walletGroupKey != null &&
+              widget.walletGroupKey!.isNotEmpty) {
+            if (mergedTypes.length < 1)
+              throw Exception('Select at least one type.');
 
             final groupKey = widget.walletGroupKey!;
             final appStore = getIt.get<AppStore>();
             final current = appStore.wallet;
 
             // Ensure current wallet belongs to the same group so we can reuse its seed
-            final sameGroup = current?.walletInfo.hashedWalletIdentifier == groupKey;
+            final sameGroup =
+                current?.walletInfo.hashedWalletIdentifier == groupKey;
             if (sameGroup != true) {
-              throw Exception('Please open a wallet from this group first so we can reuse its seed.');
+              throw Exception(
+                  'Please open a wallet from this group first so we can reuse its seed.');
             }
 
             final sharedMnemonic = current?.seed ?? '';
             if (sharedMnemonic.isEmpty) {
-              throw Exception('Shared mnemonic is unavailable from the current wallet.');
+              throw Exception(
+                  'Shared mnemonic is unavailable from the current wallet.');
             }
 
             // If we were launched with preselectedTypes (existing ones in the group),
             // only create the *new* selections
             final existing = widget.preselectedTypes ?? const <WalletType>{};
-            final toAdd = mergedTypes.where((t) => !existing.contains(t)).toList();
+            final toAdd =
+                mergedTypes.where((t) => !existing.contains(t)).toList();
             if (toAdd.isEmpty) {
               if (mounted) setState(() => _isProcessing = false);
               if (context.mounted) Navigator.of(context).pop();
@@ -429,13 +443,15 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             }
 
             // Pick an "existingType" to satisfy VM args
-            final existingType = existing.isNotEmpty ? existing.first : mergedTypes.first;
+            final existingType =
+                existing.isNotEmpty ? existing.first : mergedTypes.first;
 
             final allTypes = <WalletType>{...existing, ...mergedTypes}.toList();
             final args = WalletGroupArguments(
               types: allTypes,
               currentType: existingType,
-              mnemonic: sharedMnemonic, // reused from current wallet; not from credentials
+              mnemonic:
+                  sharedMnemonic, // reused from current wallet; not from credentials
             );
 
             final groupVM = getIt<WalletGroupNewVM>(param1: args);
@@ -455,7 +471,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
           }
 
           // If there are preselected types, it means we’re adding to an existing group (no explicit key)
-          if (widget.preselectedTypes != null && widget.preselectedTypes!.isNotEmpty) {
+          if (widget.preselectedTypes != null &&
+              widget.preselectedTypes!.isNotEmpty) {
             // 1) Figure out which type is already existing (pick the first preselected)
             final existingType = widget.preselectedTypes!.first;
 
@@ -474,11 +491,15 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             // 4) Get the current wallet’s group key (existing wallet must be current)
             final groupKey = current?.walletInfo.hashedWalletIdentifier ?? '';
             if (groupKey.isEmpty) {
-              throw Exception('Could not resolve group key from the current wallet.');
+              throw Exception(
+                  'Could not resolve group key from the current wallet.');
             }
 
             // 5) Build a temporary VM and call createRestWallets
-            final allTypes = <WalletType>{...widget.preselectedTypes!, ...mergedTypes}.toList();
+            final allTypes = <WalletType>{
+              ...widget.preselectedTypes!,
+              ...mergedTypes
+            }.toList();
             final args = WalletGroupArguments(
               types: allTypes,
               currentType: existingType,
@@ -497,7 +518,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             );
 
             if (context.mounted) {
-              Navigator.of(context).pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
             }
             return;
           }
@@ -507,7 +529,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             types: mergedTypes,
             currentType: mergedTypes.first,
           );
-          Navigator.of(context).pushNamed(Routes.newWalletGroup, arguments: arguments);
+          Navigator.of(context)
+              .pushNamed(Routes.newWalletGroup, arguments: arguments);
           return;
         }
 
@@ -524,7 +547,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
         // Multi-wallet BIP39 restoration flow
         if (mergedTypes.length > 1 && onlyBIP39Selected(mergedTypes)) {
-          if (widget.preselectedTypes == null || widget.preselectedTypes!.isEmpty) {
+          if (widget.preselectedTypes == null ||
+              widget.preselectedTypes!.isEmpty) {
             throw Exception('Original wallet type is not provided.');
           }
           final originalType = widget.preselectedTypes!.first;
@@ -535,18 +559,24 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             final dynCreds = (widget as dynamic).credentials;
             if (dynCreds is Map<String, dynamic>) creds = dynCreds;
           } catch (_) {}
-          final originalVM = getIt.get<WalletRestoreViewModel>(param1: originalType, param2: null);
+          final originalVM = getIt.get<WalletRestoreViewModel>(
+              param1: originalType, param2: null);
           await originalVM.create(options: creds);
           widget.seedSettingsViewModel.setPassphrase(null);
 
           // 2) After restore, the new wallet is current. Reuse its seed + groupKey (no seed in credentials).
           final appStore = getIt.get<AppStore>();
           final current = appStore.wallet;
-          if (current == null) throw Exception('Failed to open the restored wallet.');
+          if (current == null)
+            throw Exception('Failed to open the restored wallet.');
           final groupKey = current.walletInfo.hashedWalletIdentifier ?? '';
-          if (groupKey.isEmpty) throw Exception('Could not resolve group key from the restored wallet.');
+          if (groupKey.isEmpty)
+            throw Exception(
+                'Could not resolve group key from the restored wallet.');
           final sharedMnemonic = current.seed ?? '';
-          if (sharedMnemonic.isEmpty) throw Exception('Shared mnemonic is unavailable from the restored wallet.');
+          if (sharedMnemonic.isEmpty)
+            throw Exception(
+                'Shared mnemonic is unavailable from the restored wallet.');
 
           // 3) Restore the rest of selected BIP39 chains in the same group
           final toAdd = mergedTypes.where((t) => t != originalType).toList();
@@ -569,7 +599,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
           }
 
           if (context.mounted) {
-            Navigator.of(context).pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
           }
           return;
         }

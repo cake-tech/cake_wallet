@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
+import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -30,6 +32,8 @@ abstract class WalletGroupNewVMBase with Store {
   final WalletCreationService walletCreationService;
   final WalletNewVM Function(NewWalletArguments) walletNewVMBuilder;
   final WalletGroupArguments args;
+
+  static const defaultMoneroOptions = [defaultSeedLanguage, MoneroSeedType.bip39];
 
   @observable
   String name;
@@ -102,6 +106,14 @@ abstract class WalletGroupNewVMBase with Store {
         throw 'Provided mnemonic is empty.';
       }
 
+      dynamic options;
+
+      // default options for monero
+      if (currentType == WalletType.monero) {
+        options = defaultMoneroOptions;
+      }
+
+
 
       final currentWalletName = _uniquePerTypeName(currentType);
       await _createSingleWallet(
@@ -109,7 +121,7 @@ abstract class WalletGroupNewVMBase with Store {
         finalName: currentWalletName,
         isChildWallet: false,
         mnemonic: providedMnemonic,
-        options: null,
+        options: options,
         makeCurrent: true,
       );
       done = [...done, currentType];
@@ -150,12 +162,19 @@ abstract class WalletGroupNewVMBase with Store {
 
     for (final type in params.restTypes) {
       final walletName = _uniquePerTypeName(type);
+      dynamic options;
+
+      // default options for monero
+      if (type == WalletType.monero) {
+        options = defaultMoneroOptions;
+      }
+
       await _createSingleWallet(
         type: type,
         finalName: walletName,
         isChildWallet: params.isChildWallet,
         mnemonic: params.sharedMnemonic,
-        options: null,
+        options: options,
         makeCurrent: false,
       );
       done = [...done, type];

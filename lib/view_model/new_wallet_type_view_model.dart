@@ -42,6 +42,22 @@ abstract class NewWalletTypeViewModelBase with Store {
       itemSelection.entries.where((e) => e.value).map((e) => e.key).toList();
 
   @action
+  void deselectAllNonBIP39 () {
+    for (var type in itemSelection.keys) {
+      if (!isBIP39Wallet(type)) {
+        itemSelection[type] = false;
+      }
+    }
+  }
+
+  @action
+  void deselectAll () {
+    for (var type in itemSelection.keys) {
+      itemSelection[type] = false;
+    }
+  }
+
+  @action
   void toggleSelection(WalletType type) {
     final newValue = !(itemSelection[type] ?? false);
     itemSelection[type] = newValue;
