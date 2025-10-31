@@ -176,13 +176,13 @@ class Libwallet {
               ptrsToFree: [cName, cNumBlocks],
             );
             break;
-          case "createsignedtransaction":
+          case "createtransaction":
             final name = args["name"] ?? "";
             final signReq = args["signreq"] ?? "";
             final cName = name.toCString();
             final cSignReq = signReq.toCString();
             res = executePayloadFn(
-              fn: () => dcrwalletApi.createSignedTransaction(cName, cSignReq),
+              fn: () => dcrwalletApi.createTransaction(cName, cSignReq),
               ptrsToFree: [cName, cSignReq],
             );
             break;
@@ -490,16 +490,16 @@ class Libwallet {
     return res.payload;
   }
 
-  Future<String> createSignedTransaction(
-      String walletName, String createSignedTransactionReq) async {
+  Future<String> createTransaction(
+      String walletName, String createTransactionReq) async {
     if (_closed) throw StateError('Closed');
     final completer = Completer<Object?>.sync();
     final id = _idCounter++;
     _activeRequests[id] = completer;
     final req = {
-      "method": "createsignedtransaction",
+      "method": "createtransaction",
       "name": walletName,
-      "signreq": createSignedTransactionReq,
+      "signreq": createTransactionReq,
     };
     _commands.send((id, req));
     final res = await completer.future as PayloadResult;
