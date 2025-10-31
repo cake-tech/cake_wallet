@@ -767,6 +767,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       if (output.address != address) {
         output.resetParsedAddress();
         output.address = address;
+
+        if (sendViewModel.isLightningInvoice(address)) {
+          sendViewModel.createTransaction();
+        }
       }
     });
 

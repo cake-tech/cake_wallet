@@ -713,6 +713,7 @@ abstract class ElectrumWalletBase
         case UnspentCoinType.nonMweb:
           return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
         case UnspentCoinType.any:
+        case UnspentCoinType.lightning:
           return true;
       }
     }).toList();

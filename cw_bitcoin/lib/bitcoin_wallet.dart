@@ -27,6 +27,7 @@ import 'package:cw_core/output_info.dart';
 import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -368,11 +369,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<PendingTransaction> createTransaction(Object credentials) async {
     credentials = credentials as BitcoinTransactionCredentials;
 
-    if ((await lightningWallet?.isCompatible(credentials.outputs.first.address)) == true) {
-      final amount = parseFixed(credentials.outputs.first.cryptoAmount ?? "0", 9);
+    if ((credentials.coinTypeToSpendFrom == UnspentCoinType.lightning && lightningWallet != null) ||
+        (await lightningWallet?.isCompatible(credentials.outputs.first.address)) == true) {
+      final amount = parseFixed(credentials.outputs.first.cryptoAmount?.isNotEmpty == true ? credentials.outputs.first.cryptoAmount! : "0", 9);
 
       return lightningWallet!.createTransaction(credentials.outputs.first.address,
-          amount > BigInt.zero ? amount : null);
+          amount > BigInt.zero ? amount : null, credentials.priority);
     }
 
     final tx = (await super.createTransaction(credentials)) as PendingBitcoinTransaction;
