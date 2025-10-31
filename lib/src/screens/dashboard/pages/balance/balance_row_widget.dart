@@ -12,6 +12,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -505,23 +506,7 @@ class BalanceRowWidget extends StatelessWidget {
                             child: Semantics(
                               label: S.of(context).litecoin_mweb_pegin,
                               child: OutlinedButton(
-                                onPressed: () {
-                                  final mwebAddress =
-                                      bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
-                                  PaymentRequest? paymentRequest = null;
-                                  if ((mwebAddress?.isNotEmpty ?? false)) {
-                                    paymentRequest = PaymentRequest.fromUri(
-                                        Uri.parse("litecoin:${mwebAddress}"));
-                                  }
-                                  Navigator.pushNamed(
-                                    context,
-                                    Routes.send,
-                                    arguments: {
-                                      'paymentRequest': paymentRequest,
-                                      'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
-                                    },
-                                  );
-                                },
+                                onPressed: () => depositToL2(context),
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: Theme.of(context).colorScheme.primary,
                                   side: BorderSide(
@@ -563,23 +548,7 @@ class BalanceRowWidget extends StatelessWidget {
                             child: Semantics(
                               label: S.of(context).litecoin_mweb_pegout,
                               child: OutlinedButton(
-                                onPressed: () {
-                                  final litecoinAddress =
-                                      bitcoin!.getUnusedSegwitAddress(dashboardViewModel.wallet);
-                                  PaymentRequest? paymentRequest = null;
-                                  if ((litecoinAddress?.isNotEmpty ?? false)) {
-                                    paymentRequest = PaymentRequest.fromUri(
-                                        Uri.parse("litecoin:${litecoinAddress}"));
-                                  }
-                                  Navigator.pushNamed(
-                                    context,
-                                    Routes.send,
-                                    arguments: {
-                                      'paymentRequest': paymentRequest,
-                                      'coinTypeToSpendFrom': UnspentCoinType.mweb,
-                                    },
-                                  );
-                                },
+                                onPressed: () => withdrawFromL2(context),
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: Theme.of(context).colorScheme.surface,
                                   side: BorderSide(
@@ -632,20 +601,57 @@ class BalanceRowWidget extends StatelessWidget {
     );
   }
 
-  //  double getShadowSpread(){
-  //   double spread = 3;
-  //   else if (!dashboardViewModel.settingsStore.currentTheme.isDark) spread = 3;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.isDark) spread = 1;
-  //   return spread;
-  // }
-  //
-  //
-  // double getShadowBlur(){
-  //   double blur = 7;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.isDark) blur = 7;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.isDark) blur = 3;
-  //   return blur;
-  // }
+  Future<void> depositToL2(BuildContext context) async {
+    PaymentRequest? paymentRequest = null;
+
+    if (dashboardViewModel.type == WalletType.litecoin) {
+      final depositAddress = bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
+      if ((depositAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$depositAddress"));
+      }
+    } else if (dashboardViewModel.type == WalletType.bitcoin) {
+      final depositAddress = await bitcoin!.getUnusedSpakDepositAddress(dashboardViewModel.wallet);
+      if ((depositAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$depositAddress"));
+      }
+    }
+
+    Navigator.pushNamed(
+      context,
+      Routes.send,
+      arguments: {
+        'paymentRequest': paymentRequest,
+        'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
+      },
+    );
+  }
+
+  Future<void> withdrawFromL2(BuildContext context) async {
+    PaymentRequest? paymentRequest = null;
+    UnspentCoinType unspentCoinType = UnspentCoinType.any;
+    final withdrawAddress = bitcoin!.getUnusedSegwitAddress(dashboardViewModel.wallet);
+
+    if (dashboardViewModel.type == WalletType.litecoin) {
+      if ((withdrawAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$withdrawAddress"));
+      }
+      unspentCoinType = UnspentCoinType.mweb;
+    } else if (dashboardViewModel.type == WalletType.bitcoin) {
+      if ((withdrawAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$withdrawAddress"));
+      }
+      unspentCoinType = UnspentCoinType.lightning;
+    }
+
+    Navigator.pushNamed(
+      context,
+      Routes.send,
+      arguments: {
+        'paymentRequest': paymentRequest,
+        'coinTypeToSpendFrom': unspentCoinType,
+      },
+    );
+  }
 
   void _showBalanceDescription(BuildContext context, String content) {
     showPopUp<void>(context: context, builder: (_) => InformationPage(information: content));
