@@ -10,15 +10,15 @@ class ProxySocketInsecure implements ProxySocket {
 
   ProxySocketInsecure(this.socket);
   
-  bool _isClosed = false;
+  bool isClosed = false;
 
   ProxyAddress get address => ProxyAddress(host: socket.remoteAddress.host, port: socket.remotePort);
   
   @override
   Future<void> close() async {
     try {
-    if (_isClosed) return;
-      _isClosed = true;
+    if (isClosed) return;
+      isClosed = true;
       return socket.close();
     } catch (e) {
       printV("ProxySocketInsecure: close: $e");
@@ -29,8 +29,8 @@ class ProxySocketInsecure implements ProxySocket {
   @override
   void destroy() async {
     try {
-      if (_isClosed) return;
-      _isClosed = true;
+      if (isClosed) return;
+      isClosed = true;
       socket.destroy();
     } catch (e) {
       printV("ProxySocketInsecure: destroy: $e");
@@ -41,7 +41,7 @@ class ProxySocketInsecure implements ProxySocket {
   @override
   void write(String data) {
     try {
-      if (_isClosed) {
+      if (isClosed) {
         printV("ProxySocketInsecure: write: socket is closed");
         return;
       }
