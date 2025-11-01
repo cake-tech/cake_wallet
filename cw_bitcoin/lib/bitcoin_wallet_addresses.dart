@@ -27,6 +27,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.initialSilentAddresses,
     super.initialSilentAddressIndex = 0,
     super.masterHd,
+    super.lightningWallet,
   }) : super(walletInfo);
 
   final PayjoinManager payjoinManager;

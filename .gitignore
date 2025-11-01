@@ -97,6 +97,7 @@ android/app/key.jks
 **/tool/.solana-secrets-config.json
 **/tool/.nano-secrets-config.json
 **/tool/.tron-secrets-config.json
+**/tool/.bitcoin-secrets-config.json
 **/lib/.secrets.g.dart
 **/cw_evm/lib/.secrets.g.dart
 **/cw_solana/lib/.secrets.g.dart

@@ -248,6 +248,7 @@ class CWBitcoin extends Bitcoin {
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
         case UnspentCoinType.nonMweb:
           return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.lightning:
         case UnspentCoinType.any:
           return true;
       }
@@ -687,6 +688,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
+    if (pendingTransaction is PendingLightningTransaction) return outputs;
+
     final pendingTx = pendingTransaction as PendingBitcoinTransaction;
 
     if (!pendingTx.hasSilentPayment) {
@@ -759,6 +762,15 @@ class CWBitcoin extends Bitcoin {
       final segwitAddress = electrumWallet.walletAddresses.allAddresses
           .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
       return segwitAddress.address;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<String?> getUnusedSpakDepositAddress(Object wallet) async {
+    try {
+      final bitcoinWallet = wallet as BitcoinWallet;
+      return wallet.lightningWallet?.getDepositAddress();
     } catch (_) {
       return null;
     }
