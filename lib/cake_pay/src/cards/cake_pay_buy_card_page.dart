@@ -627,6 +627,7 @@ class CakePayBuyCardPage extends BasePage {
                   feeFiatAmount: _sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: displayingOutputs,
                   footerType: FooterType.slideActionButton,
+                  isSlideActionEnabled: _sendViewModel.isReadyForSend,
                   slideActionButtonText:
                       cakePayBuyCardViewModel.isSimulating ? 'Swipe to simulate' : 'Swipe to send',
                   accessibleNavigationModeSlideActionButtonText:

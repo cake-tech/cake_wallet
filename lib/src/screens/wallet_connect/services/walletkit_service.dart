@@ -202,6 +202,13 @@ abstract class WalletKitServiceBase with Store {
                 ),
               );
             }
+          } on ReownSignError catch (e) {
+            if (e.code == 6) {
+              try {
+                await deletePairing(topic: session.pairingTopic);
+              } catch (_) {}
+              _refreshPairings();
+            }
           } catch (_) {}
         }
       }
