@@ -61,7 +61,7 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
   @override
   String feeFormatted() {
     final amount = (ethFee / BigInt.from(10).pow(18)).toString();
-    return '${amount.substring(0, min(10, amount.length))} $feeCurrency';
+    return '${amount.substring(0, min(18, amount.length))} $feeCurrency';
   }
 
   Map<String, dynamic> toJson() => {
