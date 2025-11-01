@@ -108,6 +108,10 @@ class SecretKey {
     SecretKey('tronNowNodesApiKey', () => ''),
   ];
 
+  static final bitcoinSecrets = [
+    SecretKey('breezApiKey', () => ''),
+  ];
+
   final String name;
   final String Function() generate;
 }
