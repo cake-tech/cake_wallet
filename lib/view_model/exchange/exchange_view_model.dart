@@ -25,7 +25,6 @@ import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dar
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
@@ -44,7 +43,6 @@ import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -55,7 +53,6 @@ import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
@@ -150,11 +147,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     });
 
-    isDepositAddressEnabled = !(isDepositSameCurrency);
+    isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
     depositAmount = '';
     receiveAmount = '';
     receiveAddress = '';
-    depositAddress = isDepositSameCurrency ? wallet.walletAddresses.addressForExchange : '';
+    depositAddress =
+        useSameWalletAddress(depositCurrency) ? wallet.walletAddresses.addressForExchange : '';
 
     provider = providerList.firstOrNull;
     final initialProvider = provider;
@@ -189,10 +187,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
   }
 
-  bool get isDepositSameCurrency =>
-      depositCurrency == wallet.currency ||
-      depositCurrency.tag == wallet.currency.tag ||
-      depositCurrency.tag == wallet.currency.title;
+  bool useSameWalletAddress(CryptoCurrency currency) =>
+      currency == wallet.currency ||
+      (currency.tag != null && currency.tag == wallet.currency.tag) ||
+      currency.tag == wallet.currency.title;
 
   bool get isElectrumWallet => [
         WalletType.bitcoin,
@@ -417,7 +415,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     depositCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();
-    isDepositAddressEnabled = !(isDepositSameCurrency);
+    isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
   }
 
   @action
@@ -425,7 +423,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     receiveCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();
-    isDepositAddressEnabled = !(isDepositSameCurrency);
+    isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
   }
 
   @action
