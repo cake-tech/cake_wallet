@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
@@ -62,6 +63,8 @@ class TradeMonitor {
         return ChainflipExchangeProvider(tradesStore: trades);
       case ExchangeProviderDescription.xoSwap:
         return XOSwapExchangeProvider();
+      case ExchangeProviderDescription.swapsXyz:
+        return SwapsXyzExchangeProvider();
     }
     return null;
   }

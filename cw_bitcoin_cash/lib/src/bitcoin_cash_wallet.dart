@@ -28,6 +28,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required String mnemonic,
     required String password,
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
@@ -41,6 +42,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             mnemonic: mnemonic,
             password: password,
             walletInfo: walletInfo,
+            derivationInfo: derivationInfo,
             unspentCoinsInfo: unspentCoinsInfo,
             network: BitcoinCashNetwork.mainnet,
             initialAddresses: initialAddresses,
@@ -81,6 +83,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       mnemonic: mnemonic,
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: await walletInfo.getDerivationInfo(),
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
@@ -134,6 +137,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       mnemonic: keysData.mnemonic!,
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: await walletInfo.getDerivationInfo(),
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses.map((addr) {
         try {

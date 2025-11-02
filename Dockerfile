@@ -59,6 +59,8 @@ RUN set -o xtrace \
     ffmpeg network-manager x11-utils xvfb psmisc \
     # extra linux dependencies so flutter doesn't complain
     mesa-utils \
+    # database
+    libsqlite3-0 libsqlite3-dev \
     # aarch64-linux-gnu dependencies
     g++-aarch64-linux-gnu gcc-aarch64-linux-gnu \
     # x86_64-linux-gnu dependencies
@@ -134,6 +136,7 @@ RUN ARCH=$(uname -m) && \
     "platforms;android-33" \
     "platforms;android-34" \
     "platforms;android-35" \
+    "platforms;android-36" \
     "build-tools;33.0.2" \
     "build-tools;33.0.1" \
     "build-tools;33.0.0" \

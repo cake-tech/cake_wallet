@@ -4,8 +4,8 @@ class CWPolygon extends Polygon {
   @override
   List<String> getPolygonWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      PolygonWalletService(walletInfoSource, isDirect, client: PolygonClient());
+  WalletService createPolygonWalletService(bool isDirect) =>
+      PolygonWalletService(isDirect, client: PolygonClient());
 
   @override
   WalletCredentials createPolygonNewWalletCredentials({
@@ -183,6 +183,13 @@ class CWPolygon extends Polygon {
   @override
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
+  Future<bool> isApprovalRequired(WalletBase wallet, String tokenContract,String spender, BigInt requiredAmount) =>
+      (wallet as PolygonWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
+
+  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to, String dataHex, BigInt valueWei,
+      TransactionPriority priority) =>
+      (wallet as EVMChainWallet).createCallDataTransaction(to, dataHex, valueWei, priority as EVMChainTransactionPriority);
+
   @override
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
@@ -199,16 +206,16 @@ class CWPolygon extends Polygon {
   );
 
   @override
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
     if (service is EVMChainLedgerService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedgerConnection(
-          service.ledgerConnection, wallet.walletInfo.derivationInfo?.derivationPath);
+          service.ledgerConnection, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     } else if (service is EVMChainBitboxService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
-          .setBitbox(service.manager, wallet.walletInfo.derivationInfo?.derivationPath);
+          .setBitbox(service.manager, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     } else if (service is EVMChainTrezorService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials)
-          .setTrezorConnect(service.connect, wallet.walletInfo.derivationInfo?.derivationPath);
+          .setTrezorConnect(service.connect, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     }
   }
 

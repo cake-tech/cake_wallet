@@ -40,6 +40,7 @@ import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 
+import 'contract/erc20.dart';
 import 'evm_chain_transaction_info.dart';
 import 'evm_erc20_balance.dart';
 
@@ -66,6 +67,7 @@ abstract class EVMChainWalletBase
     with Store, WalletKeysFile {
   EVMChainWalletBase({
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required EVMChainClient client,
     required CryptoCurrency nativeCurrency,
     String? mnemonic,
@@ -87,7 +89,7 @@ abstract class EVMChainWalletBase
             nativeCurrency: initialBalance ?? EVMChainERC20Balance(BigInt.zero),
           },
         ),
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = setUpTransactionHistory(walletInfo, password, encryptionFileUtils);
 
@@ -611,6 +613,50 @@ abstract class EVMChainWalletBase
     return pendingEVMChainTransaction;
   }
 
+  Future<PendingTransaction> createCallDataTransaction(
+      String to,
+      String dataHex,
+      BigInt valueWei,
+      EVMChainTransactionPriority priority,
+      ) async {
+
+    // Estimate gas with the SAME call (sender, to, value, data)
+    final gas = await calculateActualEstimatedFeeForCreateTransaction(
+      amount: valueWei, // native value (usually 0 for ERC20 transfer)
+      receivingAddressHex: to,
+      priority: priority,
+      contractAddress: null,
+      data: _client.hexToBytes(dataHex),
+    );
+
+    final nativeCurrency = switch (_client.chainId) {
+      137 => CryptoCurrency.maticpoly,
+      8453 => CryptoCurrency.baseEth,
+      _   => CryptoCurrency.eth,
+    };
+
+    // Fallback for nodes that fail estimate (non-zero)
+    final gasUnits = gas.estimatedGasUnits == 0 ? 65000 : gas.estimatedGasUnits;
+
+    // Sign raw (native) tx with callData
+    return _client.signTransaction(
+      privateKey: _evmChainPrivateKey,
+      toAddress: to,
+      amount: valueWei,
+      gasFee: BigInt.from(gas.estimatedGasFee),
+      estimatedGasUnits: gasUnits,
+      maxFeePerGas: gas.maxFeePerGas,
+      priority: priority,
+      currency: nativeCurrency,
+      feeCurrency: nativeCurrency.title,
+      exponent: 18,
+      contractAddress: null,
+      data: dataHex,
+      gasPrice: gas.gasPrice,
+    );
+  }
+
+
   Future<PendingTransaction> createApprovalTransaction(BigInt amount, String spender,
       CryptoCurrency token, EVMChainTransactionPriority priority, String feeCurrency) async {
     final CryptoCurrency transactionCurrency =
@@ -793,6 +839,37 @@ abstract class EVMChainWalletBase
     }
   }
 
+  Future<bool> isApprovalRequired(
+      String tokenContract,
+      String spender,
+      BigInt requiredAmount) async {
+
+    const zero = '0x0000000000000000000000000000000000000000';
+    const evmNative = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+
+    final token = tokenContract.toLowerCase();
+    if (token == zero || token == evmNative.toLowerCase()) return false;
+    if (requiredAmount <= BigInt.zero) return false;
+
+    try {
+      final owner = _evmChainPrivateKey.address;
+      final erc20 = ERC20(
+        client: _client.getWeb3Client()!,
+        address: EthereumAddress.fromHex(tokenContract),
+        chainId: _client.chainId,
+      );
+
+      final allowance = await erc20.allowance(
+        owner,
+        EthereumAddress.fromHex(spender));
+
+      return allowance < requiredAmount;
+    } catch (e) {
+      printV('approval-check error: $e');
+      return true;
+    }
+  }
+
   Future<EthPrivateKey> getPrivateKey({
     String? mnemonic,
     String? privateKey,
@@ -818,6 +895,9 @@ abstract class EVMChainWalletBase
 
   @override
   Future<void>? updateBalance() async => await _updateBalance();
+  @override
+  Future<void> updateTransactionsHistory() async => await _updateTransactions();
+
 
   List<Erc20Token> get erc20Currencies => evmChainErc20TokensBox.values.toList();
 
