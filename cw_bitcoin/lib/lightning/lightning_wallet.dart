@@ -1,7 +1,11 @@
 import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_type.dart';
 
 bool _breezSdkSparkLibUninitialized = true;
 
@@ -42,17 +46,16 @@ class LightningWallet {
 
   Future<String?> getAddress() async => (await sdk.getLightningAddress())?.lightningAddress;
 
-  Future<String> getDepositAddress() async =>
-      (await sdk.receivePayment(
+  Future<String> getDepositAddress() async => (await sdk.receivePayment(
           request: ReceivePaymentRequest(paymentMethod: ReceivePaymentMethod.bitcoinAddress())))
-          .paymentRequest;
+      .paymentRequest;
 
   Future<BigInt> getBalance() async =>
       (await sdk.getInfo(request: GetInfoRequest(ensureSynced: true))).balanceSats;
 
   Future<String> registerAddress(String username) async {
     return (await sdk.registerLightningAddress(
-        request: RegisterLightningAddressRequest(username: username)))
+            request: RegisterLightningAddressRequest(username: username)))
         .lightningAddress;
   }
 
@@ -65,8 +68,8 @@ class LightningWallet {
     }
   }
 
-  Future<PendingTransaction> createTransaction(String address, BigInt? amountSats,
-      BitcoinTransactionPriority? priority) async {
+  Future<PendingTransaction> createTransaction(
+      String address, BigInt? amountSats, BitcoinTransactionPriority? priority) async {
     final inputType = await sdk.parse(input: address);
 
     if (inputType is InputType_Bolt11Invoice) {
@@ -76,17 +79,18 @@ class LightningWallet {
 
       final paymentMethod = prepareResponse.paymentMethod;
       if (paymentMethod is SendPaymentMethod_Bolt11Invoice) {
-        // Fees to pay via Lightning
         final lightningFeeSats = paymentMethod.lightningFeeSats;
-        // Or fees to pay (if available) via a Spark transfer
         final sparkTransferFeeSats = paymentMethod.sparkTransferFeeSats;
 
         return PendingLightningTransaction(
           id: paymentMethod.invoiceDetails.paymentHash,
           amount: ((paymentMethod.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
           fee: lightningFeeSats.toInt() + (sparkTransferFeeSats?.toInt() ?? 0),
-          commitOverride: () =>
-              sdk.sendPayment(request: SendPaymentRequest(prepareResponse: prepareResponse)),
+          commitOverride: () async {
+            final res = await sdk.sendPayment(
+                request: SendPaymentRequest(prepareResponse: prepareResponse));
+            printV(res.payment.status.name);
+          },
         );
       }
     } else if (inputType is InputType_LightningAddress) {
@@ -105,20 +109,21 @@ class LightningWallet {
         id: prepareResponse.invoiceDetails.paymentHash,
         amount: prepareResponse.invoiceDetails.amountMsat?.toInt() ?? 0,
         fee: feeSats.toInt(),
-        commitOverride: () =>
-            sdk.lnurlPay(request: LnurlPayRequest(prepareResponse: prepareResponse)),
+        commitOverride: () async {
+          await sdk.lnurlPay(request: LnurlPayRequest(prepareResponse: prepareResponse));
+        },
       );
     } else if (inputType is InputType_BitcoinAddress) {
-      final request = PrepareSendPaymentRequest(
-          paymentRequest: inputType.field0.address, amount: amountSats);
+      final request =
+          PrepareSendPaymentRequest(paymentRequest: inputType.field0.address, amount: amountSats);
       final prepareResponse = await sdk.prepareSendPayment(request: request);
 
       final paymentMethod = prepareResponse.paymentMethod;
       if (paymentMethod is SendPaymentMethod_BitcoinAddress) {
         final feeQuote = paymentMethod.feeQuote;
+
         OnchainConfirmationSpeed onchainConfirmationSpeed;
         int fee;
-
         switch (priority) {
           case BitcoinTransactionPriority.fast:
             fee = (feeQuote.speedFast.userFeeSat + feeQuote.speedFast.l1BroadcastFeeSat).toInt();
@@ -152,6 +157,41 @@ class LightningWallet {
     // If not returned earlier
     throw UnimplementedError();
   }
+
+  Future<Map<String, ElectrumTransactionInfo>> getTransactionHistory() async {
+    final request = ListPaymentsRequest(
+      typeFilter: [PaymentType.send, PaymentType.receive],
+      // statusFilter: [PaymentStatus.completed],
+      assetFilter: AssetFilter.bitcoin(),
+      offset: 0,
+      limit: 50,
+      sortAscending: false, // Sort order (true = oldest first, false = newest first)
+    );
+    final response = await sdk.listPayments(request: request);
+    final payments = response.payments;
+
+    Map<String, ElectrumTransactionInfo> txHistory = {};
+    for (final payment in payments) {
+      TransactionDirection direction = TransactionDirection.outgoing;
+
+      if (payment.method == PaymentMethod.deposit) {
+        direction = TransactionDirection.incoming;
+      }
+
+      txHistory[payment.id] = ElectrumTransactionInfo(
+        WalletType.bitcoin,
+        id: payment.id,
+        amount: payment.amount.toInt(),
+        direction: direction,
+        isPending: payment.status == PaymentStatus.pending,
+        date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
+        confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
+
+      );
+    }
+
+    return txHistory;
+  }
 }
 
 extension _ConfigCopyWith on Config {
@@ -172,6 +212,6 @@ extension _ConfigCopyWith on Config {
         maxDepositClaimFee: maxDepositClaimFee ?? this.maxDepositClaimFee,
         preferSparkOverLightning: preferSparkOverLightning ?? this.preferSparkOverLightning,
         useDefaultExternalInputParsers:
-        useDefaultExternalInputParsers ?? this.useDefaultExternalInputParsers,
+            useDefaultExternalInputParsers ?? this.useDefaultExternalInputParsers,
       );
 }
