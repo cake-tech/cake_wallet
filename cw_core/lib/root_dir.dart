@@ -5,7 +5,7 @@ import 'package:path/path.dart' as p;
 
 String? _rootDirPath;
 
-const String _tailsData = '/live/persistence/TailsData_unlocked/TailsData';
+const String _tailsData = '/live/persistence/TailsData_unlocked/TailsData/Persistent';
 
 bool get isNonAmnesticTails {
   try {
@@ -58,8 +58,11 @@ Future<void> linuxSymlinkSharedPreferences() async {
       oldDir.deleteSync(recursive: true);
     }
   }
-  if (!oldLink.existsSync()) { 
-      oldLink.create(newPath, recursive: true);
+  if (!oldLink.existsSync()) {
+    oldLink.create(newPath, recursive: true);
+  }
+  if (!newDir.existsSync()) {
+    newDir.createSync(recursive: true);
   }
 }
 
@@ -97,6 +100,7 @@ Future<Directory> getAppDir({String appName = 'cake_wallet'}) async {
       
       preferredLoop:
       for (String notSoPreferredPath in linuxAppPath) {
+        if (notSoPreferredPath == linuxAppPath.last) continue;
         bool useThisOne = Directory(notSoPreferredPath).existsSync();
         if (useThisOne) {
           if (showNotice) {
