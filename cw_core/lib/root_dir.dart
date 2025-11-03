@@ -5,7 +5,7 @@ import 'package:path/path.dart' as p;
 
 String? _rootDirPath;
 
-const String _tailsData = '/live/persistence/TailsData_unlocked/TailsData/Persistent';
+const String _tailsData = '/live/persistence/TailsData_unlocked/Persistent';
 
 bool get isNonAmnesticTails {
   try {
@@ -42,31 +42,35 @@ void copyDirectory(Directory source, Directory destination) {
 Future<void> linuxSymlinkSharedPreferences() async {
   if (!Platform.isLinux) return; // nuh-uh
   final dataHome = Platform.environment["XDG_DATA_HOME"] ?? p.join(Platform.environment["HOME"] ?? "", ".local", "share");
-  final oldPath = p.join(dataHome, "com.example.cake_wallet");
-  final newPath = p.join((await getAppDir()).path, "_local_share");
-  final oldDir = Directory(oldPath);
-  final oldLink = Link(oldPath);
-  final newDir = Directory(newPath);
-  if (oldDir.existsSync()) {
-    if (oldLink.existsSync()) {
-      printV("not creating, link exists");
-    } else {
-      if (newDir.existsSync()) { 
-        newDir.renameSync("${newPath}_${DateTime.now().millisecondsSinceEpoch~/1000}");
+  var cakeNames = ['com.example.cake_wallet', 'cake_wallet'];
+  for (String name in cakeNames) {
+    final oldPath = p.join(dataHome, name);
+    final newPath = p.join((await getAppDir()).path, "_local_share");
+    final oldDir = Directory(oldPath);
+    final oldLink = Link(oldPath);
+    final newDir = Directory(newPath);
+    if (oldDir.existsSync()) {
+      if (oldLink.existsSync()) {
+        printV("not creating, link exists");
+      } else {
+        if (newDir.existsSync()) { 
+          newDir.renameSync("${newPath}_${DateTime.now().millisecondsSinceEpoch~/1000}");
+        }
+        copyDirectory(oldDir, newDir);
+        oldDir.deleteSync(recursive: true);
       }
-      copyDirectory(oldDir, newDir);
-      oldDir.deleteSync(recursive: true);
     }
-  }
-  if (!oldLink.existsSync()) {
-    oldLink.create(newPath, recursive: true);
-  }
-  if (!newDir.existsSync()) {
-    newDir.createSync(recursive: true);
+    if (!oldLink.existsSync()) {
+      oldLink.create(newPath, recursive: true);
+    }
+    if (!newDir.existsSync()) {
+      newDir.createSync(recursive: true);
+    }
   }
 }
 
-Future<Directory> getAppDir({String appName = 'cake_wallet'}) async {
+Future<Directory> getAppDir() async {
+  const String appName = 'cake_wallet';
   Directory dir;
 
   if (_rootDirPath != null && _rootDirPath!.isNotEmpty) {
