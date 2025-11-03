@@ -21,7 +21,6 @@ Future<void> main() async {
     late File moneroCBinary;
 
     setUpAll(() async {
-      databaseFactory = databaseFactoryFfi;
       await initDb(pathOverride: './test/data/db');
       Hive.init('./test/data/db');
       PathProviderPlatform.instance = MockPathProviderPlatform();

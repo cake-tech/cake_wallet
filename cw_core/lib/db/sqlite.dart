@@ -1,9 +1,14 @@
 
-import 'package:sqflite/sqflite.dart';
+import 'dart:io';
+
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 late Database db; 
 
 Future<void> initDb({String? pathOverride}) async {
+  if (Platform.isLinux) { 
+    databaseFactory = databaseFactoryFfi;
+  }
   db = await openDatabase(
     pathOverride ?? "cake.db",
     version: 1,
