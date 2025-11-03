@@ -31,16 +31,17 @@ abstract class CakeTorInstance {
           final uri = Uri.tryParse(socksServer);
           if (uri != null) {
             return CakeTorSocks(uri.port);
+          } else {
+            final uri = Uri.tryParse("socks5://$socksServer");
+            if (uri != null) {
+              return CakeTorSocks(uri.port);
+            }
           }
         }
-        final os = File("/etc/os-release").readAsLinesSync();
-        for (var line in os) {
-          if (!line.startsWith("ID=")) continue;
-          if (!line.contains("tails")) continue;
-          return CakeTorSocks(9150);
-        }
       } catch (e) {
-        printV("Failed to identify linux version - /etc/os-release missing");
+        printV(
+          "Failed to identify linux version - no SOCKS_SERVER variable found or malformed",
+        );
       }
     }
     try {

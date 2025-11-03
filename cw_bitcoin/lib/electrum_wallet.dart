@@ -5,6 +5,7 @@ import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -374,7 +375,7 @@ abstract class ElectrumWalletBase
       runningIsolate.kill(priority: Isolate.immediate);
     }
 
-    final appDir = await getApplicationSupportDirectory();
+    final appDir = await getAppDir();
     String debugLogPath = "${appDir.path}/logs/debug.log";
 
     final receivePort = ReceivePort();
