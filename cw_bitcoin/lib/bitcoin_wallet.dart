@@ -11,6 +11,7 @@ import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
@@ -117,7 +118,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       payjoinManager: payjoinManager,
       lightningWallet: lightningWallet,
     );
-
 
     if (lightningWallet != null) {
       walletAddresses.setLightningAddress(walletInfo.name);
@@ -293,7 +293,23 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     final lBalance = await lightningWallet!.getBalance();
 
-    return ElectrumBalance(confirmed: balance.confirmed, unconfirmed: balance.unconfirmed, frozen: balance.frozen, secondConfirmed: lBalance.toInt());
+    return ElectrumBalance(
+      confirmed: balance.confirmed,
+      unconfirmed: balance.unconfirmed,
+      frozen: balance.frozen,
+      secondConfirmed: lBalance.toInt(),
+    );
+  }
+
+  @override
+  Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
+    if (lightningWallet != null) {
+      final lnHistory = await lightningWallet!.getTransactionHistory();
+      transactionHistory.addMany(lnHistory);
+      await transactionHistory.save();
+    }
+
+    return super.fetchTransactions();
   }
 
   late final LightningWallet? lightningWallet;
@@ -376,9 +392,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<PendingTransaction> createTransaction(Object credentials) async {
     credentials = credentials as BitcoinTransactionCredentials;
 
+    final isLNCompatible = await lightningWallet?.isCompatible(credentials.outputs.first.address);
     if ((credentials.coinTypeToSpendFrom == UnspentCoinType.lightning && lightningWallet != null) ||
-        (await lightningWallet?.isCompatible(credentials.outputs.first.address)) == true) {
-      final amount = parseFixed(credentials.outputs.first.cryptoAmount?.isNotEmpty == true ? credentials.outputs.first.cryptoAmount! : "0", 9);
+        isLNCompatible == true) {
+      final amount = parseFixed(
+          credentials.outputs.first.cryptoAmount?.isNotEmpty == true
+              ? credentials.outputs.first.cryptoAmount!
+              : "0",
+          9);
 
       return lightningWallet!.createTransaction(credentials.outputs.first.address,
           amount > BigInt.zero ? amount : null, credentials.priority);
