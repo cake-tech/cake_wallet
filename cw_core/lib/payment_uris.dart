@@ -19,18 +19,6 @@ class MoneroURI extends PaymentURI {
   }
 }
 
-class HavenURI extends PaymentURI {
-  HavenURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'haven:$address';
-    if (amount.isNotEmpty) base += '?tx_amount=${amount.replaceAll(',', '.')}';
-
-    return base;
-  }
-}
-
 class BitcoinURI extends PaymentURI {
   BitcoinURI({required super.amount, required super.address, this.pjUri = ''});
 

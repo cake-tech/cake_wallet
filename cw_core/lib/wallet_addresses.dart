@@ -1,3 +1,4 @@
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -23,8 +24,8 @@ abstract class WalletAddresses {
   String get address;
 
   String get latestAddress {
-    if (walletInfo.type == WalletType.monero || walletInfo.type == WalletType.wownero) {
-      if (addressesMap.keys.length == 0) return address;
+    if ([WalletType.monero, WalletType.wownero].contains(walletInfo.type)) {
+      if (addressesMap.keys.isEmpty) return address;
       return addressesMap[addressesMap.keys.last] ?? address;
     }
     return _localAddress ?? address;
@@ -85,4 +86,5 @@ abstract class WalletAddresses {
 
   List<ReceivePageOption> get receivePageOptions => ReceivePageOptions;
 
+  PaymentURI getPaymentUri(String amount);
 }

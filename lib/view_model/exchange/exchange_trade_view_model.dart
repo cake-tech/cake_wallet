@@ -435,8 +435,6 @@ abstract class ExchangeTradeViewModelBase with Store {
         return ZanoURI(amount: amount, address: inputAddress);
       case WalletType.decred:
         return DecredURI(amount: amount, address: inputAddress);
-      case WalletType.haven:
-        return HavenURI(amount: amount, address: inputAddress);
       case WalletType.nano:
         return NanoURI(amount: amount, address: inputAddress);
       default:
