@@ -13,10 +13,7 @@ class MoneroURI extends PaymentURI {
   @override
   String toString() {
     var base = 'monero:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?tx_amount=${amount.replaceAll(',', '.')}';
-    }
+    if (amount.isNotEmpty) base += '?tx_amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -28,10 +25,7 @@ class HavenURI extends PaymentURI {
   @override
   String toString() {
     var base = 'haven:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?tx_amount=${amount.replaceAll(',', '.')}';
-    }
+    if (amount.isNotEmpty) base += '?tx_amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -62,10 +56,7 @@ class LitecoinURI extends PaymentURI {
   @override
   String toString() {
     var base = 'litecoin:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -77,10 +68,7 @@ class EthereumURI extends PaymentURI {
   @override
   String toString() {
     var base = 'ethereum:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -92,10 +80,7 @@ class BaseURI extends PaymentURI {
   @override
   String toString() {
     var base = 'base:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -107,10 +92,7 @@ class BitcoinCashURI extends PaymentURI {
   @override
   String toString() {
     var base = address;
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -136,10 +118,7 @@ class PolygonURI extends PaymentURI {
   @override
   String toString() {
     var base = 'polygon:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -151,10 +130,7 @@ class SolanaURI extends PaymentURI {
   @override
   String toString() {
     var base = 'solana:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -166,10 +142,7 @@ class TronURI extends PaymentURI {
   @override
   String toString() {
     var base = 'tron:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -181,10 +154,7 @@ class WowneroURI extends PaymentURI {
   @override
   String toString() {
     var base = 'wownero:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?tx_amount=${amount.replaceAll(',', '.')}';
-    }
+    if (amount.isNotEmpty) base += '?tx_amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -196,11 +166,8 @@ class ZanoURI extends PaymentURI {
 
   @override
   String toString() {
-    var base = 'zano:' + address;
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
+    var base = 'zano:$address';
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -212,11 +179,8 @@ class DecredURI extends PaymentURI {
 
   @override
   String toString() {
-    var base = 'decred:' + address;
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
+    var base = 'decred:$address';
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -228,11 +192,8 @@ class DogeURI extends PaymentURI {
 
   @override
   String toString() {
-    var base = 'doge:' + address;
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
+    var base = 'doge:$address';
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
 
     return base;
   }
@@ -256,13 +217,9 @@ class ERC681URI extends PaymentURI {
     final targetAddress = contractAddress ?? address;
     uri += targetAddress;
 
-    if (chainId != 1) {
-      uri += '@$chainId';
-    }
+    if (chainId != 1) uri += '@$chainId';
 
-    if (contractAddress != null) {
-      uri += '/transfer';
-    }
+    if (contractAddress != null) uri += '/transfer';
 
     final params = <String, String>{};
 
