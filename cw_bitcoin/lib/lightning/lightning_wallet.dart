@@ -59,6 +59,19 @@ class LightningWallet {
         .lightningAddress;
   }
 
+  Future<String> getBolt11Invoice(BigInt? amount, String description) async {
+    final response = await sdk.receivePayment(
+      request: ReceivePaymentRequest(
+        paymentMethod: ReceivePaymentMethod.bolt11Invoice(
+          description: description,
+          amountSats: amount,
+        ),
+      ),
+    );
+
+    return response.paymentRequest;
+  }
+
   Future<bool> isCompatible(String input) async {
     try {
       final inputType = await sdk.parse(input: input);
@@ -186,7 +199,6 @@ class LightningWallet {
         isPending: payment.status == PaymentStatus.pending,
         date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
         confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
-
       );
     }
 
