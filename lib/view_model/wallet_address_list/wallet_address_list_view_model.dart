@@ -114,9 +114,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   Future<void> refreshUri() async {
-    print(amount);
     uri = await wallet.walletAddresses.getPaymentRequestUri(amount);
-    print(uri);
   }
 
   @computed

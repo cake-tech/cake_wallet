@@ -62,7 +62,7 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   WowneroSubaddressList subaddressList;
 
   WowneroAccountList accountList;
-  
+
   @override
   Set<String> usedAddresses = Set();
 
@@ -152,5 +152,6 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
       addressInfos[account?.id ?? 0]?.any((it) => it.address == address) ?? false;
 
   @override
-  PaymentURI getPaymentUri(String amount) => WowneroURI(amount: amount, address: address);
+  PaymentURI getPaymentUri(String amount) =>
+      MoneroURI(scheme: "wownero", address: address, amount: amount);
 }

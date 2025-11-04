@@ -88,10 +88,13 @@ abstract class WalletAddresses {
 
   /// Get a [PaymentURI] for the current [address]
   /// e.g. ethereum:0x0
-  PaymentURI getPaymentUri(String amount);
-
+  PaymentURI getPaymentUri(String amount) => PaymentURI(
+        scheme: walletTypeToString(walletInfo.type).toLowerCase(),
+        address: address,
+        amount: amount,
+      );
 
   /// Get a [PaymentURI] for the current [address] asynchronously
   /// this can be used if a payment requires a api call beforehand
-  Future<PaymentURI> getPaymentRequestUri(String amount) async => getPaymentRequestUri(amount);
+  Future<PaymentURI> getPaymentRequestUri(String amount) async => getPaymentUri(amount);
 }

@@ -31,5 +31,5 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
       generateP2PKHAddress(hd: hd, index: index, network: network);
 
   @override
-  PaymentURI getPaymentUri(String amount) => BitcoinCashURI(amount: amount, address: address);
+  PaymentURI getPaymentUri(String amount) => BitcoinCashURI(address: address, amount: amount);
 }

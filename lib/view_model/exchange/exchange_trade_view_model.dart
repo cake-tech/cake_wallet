@@ -409,36 +409,26 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     switch (wallet.type) {
       case WalletType.bitcoin:
-        return BitcoinURI(amount: amount, address: inputAddress);
-      case WalletType.litecoin:
-        return LitecoinURI(amount: amount, address: inputAddress);
+        return BitcoinURI(address: inputAddress, amount: amount);
       case WalletType.bitcoinCash:
-        return BitcoinCashURI(amount: amount, address: inputAddress);
+        return BitcoinCashURI(address: inputAddress, amount: amount);
       case WalletType.dogecoin:
-        return DogeURI(amount: amount, address: inputAddress);
+        return PaymentURI(scheme: "doge", address: inputAddress, amount: amount);
       case WalletType.ethereum:
         return _createERC681URI(fromCurrency, inputAddress, amount);
       // TODO: Expand ERC681URI support to Polygon(modify decoding flow for QRs, pay anything, and deep link handling)
-      case WalletType.polygon:
-        return PolygonURI(amount: amount, address: inputAddress);
-      case WalletType.base:
-        return BaseURI(amount: amount, address: inputAddress);
-      case WalletType.solana:
-        return SolanaURI(amount: amount, address: inputAddress);
-      case WalletType.tron:
-        return TronURI(amount: amount, address: inputAddress);
       case WalletType.monero:
-        return MoneroURI(amount: amount, address: inputAddress);
+        return MoneroURI(address: inputAddress, amount: amount);
       case WalletType.wownero:
-        return WowneroURI(amount: amount, address: inputAddress);
-      case WalletType.zano:
-        return ZanoURI(amount: amount, address: inputAddress);
-      case WalletType.decred:
-        return DecredURI(amount: amount, address: inputAddress);
-      case WalletType.nano:
-        return NanoURI(amount: amount, address: inputAddress);
+        return MoneroURI(
+            scheme: walletTypeToString(wallet.type).toLowerCase(),
+            address: inputAddress,
+            amount: amount);
       default:
-        return null;
+        return PaymentURI(
+            scheme: walletTypeToString(wallet.type).toLowerCase(),
+            address: inputAddress,
+            amount: amount);
     }
   }
 
