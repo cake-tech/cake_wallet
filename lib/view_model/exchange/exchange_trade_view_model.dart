@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cake_wallet/core/payment_uris.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
