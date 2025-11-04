@@ -9,7 +9,6 @@ import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -242,7 +241,4 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
     ];
   }
-
-  @override
-  PaymentURI getPaymentUri(String amount) => LitecoinURI(amount: amount, address: address);
 }
