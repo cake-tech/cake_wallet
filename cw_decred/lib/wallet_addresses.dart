@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 
-import 'package:cw_core/address_info.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_decred/api/libdcrwallet.dart';
@@ -12,9 +12,8 @@ part 'wallet_addresses.g.dart';
 class DecredWalletAddresses = DecredWalletAddressesBase with _$DecredWalletAddresses;
 
 abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
-  DecredWalletAddressesBase(WalletInfo walletInfo, Libwallet libwallet)
-      : _libwallet = libwallet,
-        super(walletInfo);
+  DecredWalletAddressesBase(super.walletInfo, Libwallet libwallet, super.isTestnet)
+      : _libwallet = libwallet;
   final Libwallet _libwallet;
   String currentAddr = '';
 
@@ -26,14 +25,10 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   @computed
-  String get address {
-    return selectedAddr;
-  }
+  String get address => selectedAddr;
 
   @override
-  set address(value) {
-    selectedAddr = value;
-  }
+  set address(value) => selectedAddr = value;
 
   @override
   Future<void> init() async {
@@ -144,6 +139,16 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     }
     selectedAddr = addr;
     await saveAddressesInBox();
+  }
+
+  @override
+  List<ReceivePageOption> get receivePageOptions {
+    return isTestnet
+        ? [
+            ReceivePageOption.testnet,
+            ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+          ]
+        : ReceivePageOptions;
   }
 }
 

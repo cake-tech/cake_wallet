@@ -1,9 +1,10 @@
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletAddresses {
-  WalletAddresses(this.walletInfo)
+  WalletAddresses(this.walletInfo, [this.isTestnet = false])
       : addressesMap = {},
         allAddressesMap = {},
         addressInfos = {},
@@ -16,6 +17,8 @@ abstract class WalletAddresses {
   }
 
   final WalletInfo walletInfo;
+
+  final bool isTestnet;
 
   String get address;
 
@@ -79,4 +82,7 @@ abstract class WalletAddresses {
 
   bool containsAddress(String address) =>
       addressesMap.containsKey(address) || allAddressesMap.containsKey(address);
+
+  List<ReceivePageOption> get receivePageOptions => ReceivePageOptions;
+
 }
