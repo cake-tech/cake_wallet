@@ -157,5 +157,5 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
       addressInfos[account?.id ?? 0]?.any((it) => it.address == address) ?? false;
 
   @override
-  PaymentURI getPaymentUri(String amount) => MoneroURI(amount: amount, address: address);
+  PaymentURI getPaymentUri(String amount) => MoneroURI(address: address, amount: amount);
 }
