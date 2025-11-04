@@ -2,6 +2,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
 
@@ -26,4 +27,7 @@ abstract class DogeCoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType}) =>
       generateP2PKHAddress(hd: hd, index: index, network: network);
+
+  @override
+  PaymentURI getPaymentUri(String amount) => DogeURI(amount: amount, address: address);
 }
