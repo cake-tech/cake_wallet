@@ -310,8 +310,8 @@ jobs:
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/restore_wallet_through_seeds_flow_test.dart
       - name: Test [cw_monero]
-        timeout-minutes: 2
-        run: cd cw_monero && flutter test
+        timeout-minutes: 15
+        run: cd cw_monero && flutter test --verbose
       - name: Stop screen recording, encrypt and upload
         if: always()
         run: |

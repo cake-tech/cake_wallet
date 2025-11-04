@@ -32,7 +32,7 @@ dependencies:
       ref: cake-update-v2
   cw_mweb:
     path: ../cw_mweb
-  grpc: ^4.0.1
+  grpc: 4.0.1
   sp_scanner:
     git:
       url: https://github.com/cake-tech/sp_scanner

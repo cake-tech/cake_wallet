@@ -25,7 +25,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'wallet_restore_view_model.g.dart';
@@ -34,12 +33,12 @@ class WalletRestoreViewModel = WalletRestoreViewModelBase with _$WalletRestoreVi
 
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource, SeedSettingsViewModel seedSettingsViewModel,
+      SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type, this.restoredWallet, this.hardwareWalletType})
       : isButtonEnabled = restoredWallet != null,
         hasPassphrase = false,
         mode = restoredWallet?.restoreMode ?? WalletRestoreMode.seed,
-        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+        super(appStore, walletCreationService, seedSettingsViewModel,
             type: type, isRecovery: true) {
     switch (type) {
       case WalletType.monero:

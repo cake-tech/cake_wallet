@@ -213,8 +213,8 @@ abstract class Bitcoin {
   List<Unspent> getUnspents(Object wallet, {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, Box<PayjoinSession> payjoinSessionSource, bool isDirect);
-  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+      Box<UnspentCoinsInfo> unspentCoinSource, Box<PayjoinSession> payjoinSessionSource, bool isDirect);
+  WalletService createLitecoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
@@ -257,7 +257,7 @@ abstract class Bitcoin {
   void deleteSilentPaymentAddress(Object wallet, String address);
   Future<void> updateFeeRates(Object wallet);
   int getMaxCustomFeeRate(Object wallet);
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection, bool isBitcoin);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager, bool isBitcoin);
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect, bool isBitcoin);
@@ -456,9 +456,9 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
-  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletService createMoneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
-  void setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
+  Future<void> setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
   void resetLedgerConnection();
   void setGlobalLedgerConnection(ledger.LedgerConnection connection);
   String? getLastLedgerCommand();
@@ -646,7 +646,7 @@ abstract class Wownero {
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
-  WalletService createWowneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletService createWowneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
   String getLegacySeed(Object wallet, String langName);
   Map<String, List<int>> debugCallLength();
@@ -741,7 +741,7 @@ import 'package:eth_sig_util/util/utils.dart';
   const ethereumContent = """
 abstract class Ethereum {
   List<String> getEthereumWordList(String language);
-  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletService createEthereumWalletService(bool isDirect);
   WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? passphrase});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
@@ -794,7 +794,7 @@ abstract class Ethereum {
   Future<PendingTransaction> reinvestDEuroInterest(WalletBase wallet, TransactionPriority priority);
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority);
   
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
@@ -871,7 +871,7 @@ import 'package:eth_sig_util/util/utils.dart';
   const polygonContent = """
 abstract class Polygon {
   List<String> getPolygonWordList(String language);
-  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletService createPolygonWalletService(bool isDirect);
   WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? passphrase});
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createPolygonRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
@@ -915,7 +915,7 @@ abstract class Polygon {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
   
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
@@ -964,7 +964,7 @@ abstract class BitcoinCash {
   String getCashAddrFormat(String address);
 
   WalletService createBitcoinCashWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
 
   WalletCredentials createBitcoinCashNewWalletCredentials(
       {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
@@ -1045,7 +1045,7 @@ abstract class Nano {
 
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
 
-  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletService createNanoWalletService(bool isDirect);
 
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
@@ -1167,7 +1167,7 @@ import 'package:cw_solana/default_spl_tokens.dart';
   const solanaContent = """
 abstract class Solana {
   List<String> getSolanaWordList(String language);
-  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletService createSolanaWalletService(bool isDirect);
   WalletCredentials createSolanaNewWalletCredentials(
       {required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? passphrase});
   WalletCredentials createSolanaRestoreWalletFromSeedCredentials(
@@ -1256,7 +1256,7 @@ import 'package:cw_tron/default_tron_tokens.dart';
   const tronContent = """
 abstract class Tron {
   List<String> getTronWordList(String language);
-  WalletService createTronWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletService createTronWalletService(bool isDirect);
   WalletCredentials createTronNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? passphrase});
   WalletCredentials createTronRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createTronRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
@@ -1346,7 +1346,7 @@ abstract class Zano {
   Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency});
   double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency, required bool forFee});
   int formatterParseAmount({required String amount, required CryptoCurrency currency});
-  WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource);
+  WalletService createZanoWalletService();
   CryptoCurrency? assetOfTransaction(WalletBase wallet, TransactionInfo tx);
   List<ZanoAsset> getZanoAssets(WalletBase wallet);
   String getZanoAssetAddress(CryptoCurrency asset);
@@ -1410,8 +1410,7 @@ abstract class Decred {
       {required String name, required String mnemonic, required String password});
   WalletCredentials createDecredRestoreWalletFromPubkeyCredentials(
       {required String name, required String pubkey, required String password});
-  WalletService createDecredWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
 
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority getDecredTransactionPriorityMedium();
@@ -1420,7 +1419,7 @@ abstract class Decred {
 
   Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority);
 
-  List<AddressInfo> getAddressInfos(Object wallet);
+  List<WalletInfoAddressInfo> getAddressInfos(Object wallet);
   Future<void> updateAddress(Object wallet, String address, String label);
   Future<void> generateNewAddress(Object wallet, String label);
 
@@ -1473,8 +1472,7 @@ import 'package:cw_dogecoin/cw_dogecoin.dart';
   const dogecoinContent = """
 abstract class DogeCoin {
 
-  WalletService createDogeCoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+  WalletService createDogeCoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
 
   WalletCredentials createDogeCoinNewWalletCredentials(
       {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
@@ -1555,7 +1553,7 @@ import 'package:eth_sig_util/util/utils.dart';
   const baseContent = """
 abstract class Base {
   List<String> getBaseWordList(String language);
-  WalletService createBaseWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletService createBaseWalletService(bool isDirect);
   WalletCredentials createBaseNewWalletCredentials(
       {required String name,
       WalletInfo? walletInfo,
@@ -1612,7 +1610,7 @@ abstract class Base {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
 
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
   List<String> getDefaultTokenContractAddresses();

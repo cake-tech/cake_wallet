@@ -35,12 +35,11 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   WalletNewVMBase(
     AppStore appStore,
     WalletCreationService walletCreationService,
-    Box<WalletInfo> walletInfoSource,
     this.advancedPrivacySettingsViewModel,
     SeedSettingsViewModel seedSettingsViewModel, {
     required this.newWalletArguments,
   })  : selectedMnemonicLanguage = '',
-        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+        super(appStore, walletCreationService, seedSettingsViewModel,
             type: newWalletArguments!.type, isRecovery: false);
 
   final NewWalletArguments? newWalletArguments;

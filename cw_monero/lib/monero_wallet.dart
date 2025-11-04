@@ -55,6 +55,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     MoneroTransactionHistory, MoneroTransactionInfo> with Store {
   MoneroWalletBase(
       {required WalletInfo walletInfo,
+      required DerivationInfo derivationInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required String password})
       : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
@@ -70,7 +71,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
         this.unspentCoinsInfo = unspentCoinsInfo,
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     transactionHistory = MoneroTransactionHistory();
     walletAddresses = MoneroWalletAddresses(walletInfo, transactionHistory);
 
@@ -976,8 +977,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return monero_wallet.verifyMessage(message, address, signature);
   }
 
-  void setLedgerConnection(LedgerConnection connection) {
-    enableLedgerExchange(connection);
+  Future<void> setLedgerConnection(LedgerConnection connection) async {
+    await enableLedgerExchange(connection);
   }
 
   @override

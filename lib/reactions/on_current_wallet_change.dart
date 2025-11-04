@@ -100,9 +100,7 @@ void startCurrentWalletChangeReaction(
       if (wallet.walletInfo.address.isEmpty) {
         wallet.walletInfo.address = wallet.walletAddresses.address;
 
-        if (wallet.walletInfo.isInBox) {
-          await wallet.walletInfo.save();
-        }
+        await wallet.walletInfo.save();
       }
     } catch (e) {
       printV(e.toString());
