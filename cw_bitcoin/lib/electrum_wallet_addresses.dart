@@ -7,7 +7,6 @@ import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
@@ -766,7 +765,4 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           await lightningWallet!.registerAddress(walletName.replaceAll(" ", "").toLowerCase());
     }
   }
-
-  @override
-  PaymentURI getPaymentUri(String amount) => BitcoinURI(amount: amount, address: address);
 }
