@@ -1,3 +1,4 @@
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -37,4 +38,7 @@ abstract class ZanoWalletAddressesBase extends WalletAddresses with Store {
       printV(e.toString());
     }
   }
+
+  @override
+  PaymentURI getPaymentUri(String amount) => ZanoURI(amount: amount, address: address);
 }
