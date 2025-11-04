@@ -86,5 +86,12 @@ abstract class WalletAddresses {
 
   List<ReceivePageOption> get receivePageOptions => ReceivePageOptions;
 
+  /// Get a [PaymentURI] for the current [address]
+  /// e.g. ethereum:0x0
   PaymentURI getPaymentUri(String amount);
+
+
+  /// Get a [PaymentURI] for the current [address] asynchronously
+  /// this can be used if a payment requires a api call beforehand
+  Future<PaymentURI> getPaymentRequestUri(String amount) async => getPaymentRequestUri(amount);
 }
