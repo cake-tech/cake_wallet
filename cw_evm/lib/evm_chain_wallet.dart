@@ -82,7 +82,7 @@ abstract class EVMChainWalletBase
         _hexPrivateKey = privateKey,
         _isTransactionUpdating = false,
         _client = client,
-        walletAddresses = EVMChainWalletAddresses(walletInfo),
+        walletAddresses = EVMChainWalletAddresses(walletInfo, client.chainId),
         balance = ObservableMap<CryptoCurrency, EVMChainERC20Balance>.of(
           {
             // Not sure of this yet, will it work? will it not?
