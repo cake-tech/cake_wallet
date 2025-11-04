@@ -34,8 +34,22 @@ class BitcoinURI extends PaymentURI {
       qp['pj'] = pjUri;
     }
 
+    print(qp);
     return Uri(scheme: 'bitcoin', path: address, queryParameters: qp).toString();
   }
+}
+
+class LightningPaymentRequest extends PaymentURI {
+  LightningPaymentRequest({
+    required super.amount,
+    required super.address,
+    required this.bolt11Invoice,
+  });
+
+  final String bolt11Invoice;
+
+  @override
+  String toString() => bolt11Invoice;
 }
 
 class LitecoinURI extends PaymentURI {
