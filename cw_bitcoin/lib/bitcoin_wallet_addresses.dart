@@ -119,7 +119,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       final invoice = await lightningWallet!.getBolt11Invoice(amountSats, "Send to Cake Wallet");
       return LightningPaymentRequest(address: address, amount: amount, bolt11Invoice: invoice);
     }
-    print(amount);
     return getPaymentUri(amount);
   }
 }
