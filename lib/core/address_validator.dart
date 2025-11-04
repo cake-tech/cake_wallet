@@ -19,6 +19,7 @@ class AddressValidator extends TextValidator {
                       r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt)[a-z0-9]+$',
                       caseSensitive: false);
                   if (lightningInvoiceRegex.hasMatch(txt)) return true;
+                  if (txt.contains("@")) return true;
 
                   return BitcoinAddressUtils.validateAddress(
                     address: txt,
