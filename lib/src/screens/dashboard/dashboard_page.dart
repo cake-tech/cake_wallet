@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/new_page_indicator.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_listener_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -243,18 +244,7 @@ class _DashboardPageView extends BasePage {
                         label: 'Page Indicator',
                         hint: 'Swipe to change page',
                         excludeSemantics: true,
-                        child: SmoothPageIndicator(
-                          controller: controller,
-                          count: pages.length,
-                          effect: ColorTransitionEffect(
-                            spacing: 6.0,
-                            radius: 6.0,
-                            dotWidth: 6.0,
-                            dotHeight: 6.0,
-                            dotColor: Theme.of(context).colorScheme.primary.withOpacity(0.4),
-                            activeDotColor: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
+                        child: PageIndicator(controller: controller, dashboardViewModel: dashboardViewModel),
                       );
                     },
                   ),
