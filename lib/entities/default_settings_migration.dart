@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/root_dir.dart';
@@ -21,6 +22,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_info_legacy.dart' as wiLegacy;
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:collection/collection.dart';
@@ -55,12 +57,11 @@ Future<void> defaultSettingsMigration(
     required SecureStorage secureStorage,
     required Box<Node> nodes,
     required Box<Node> powNodes,
-    required Box<WalletInfo> walletInfoSource,
     required Box<Trade> tradeSource,
     required Box<Contact> contactSource,
     required Box<HavenSeedStore> havenSeedStore}) async {
   if (Platform.isIOS) {
-    await ios_migrate_v1(walletInfoSource, tradeSource, contactSource);
+    await ios_migrate_v1(tradeSource, contactSource);
   }
 
   // check current nodes for nullability regardless of the version
@@ -69,7 +70,7 @@ Future<void> defaultSettingsMigration(
   final isNewInstall =
       sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) == null;
 
-  await _validateWalletInfoBoxData(walletInfoSource);
+  await _validateWalletInfoBoxData();
 
   await sharedPreferences.setBool(PreferencesKey.isNewInstall, isNewInstall);
 
@@ -162,7 +163,7 @@ Future<void> defaultSettingsMigration(
           break;
 
         case 5:
-          await addAddressesForMoneroWallets(walletInfoSource);
+          await addAddressesForMoneroWallets();
           break;
 
         case 6:
@@ -323,7 +324,7 @@ Future<void> defaultSettingsMigration(
           await updateNanoNodeList(nodes: nodes);
           break;
         case 32:
-          await updateBtcNanoWalletInfos(walletInfoSource);
+          await updateBtcNanoWalletInfos();
           break;
         case 33:
           await addWalletNodeList(nodes: nodes, type: WalletType.tron);
@@ -361,7 +362,7 @@ Future<void> defaultSettingsMigration(
           // await replaceTronDefaultNode(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 38:
-          await fixBtcDerivationPaths(walletInfoSource);
+          await fixBtcDerivationPaths();
           break;
         case 39:
           _fixNodesUseSSLFlag(nodes);
@@ -738,7 +739,7 @@ Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
   }
 }
 
-Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async {
+Future<void> _validateWalletInfoBoxData() async {
   try {
     final root = await getAppDir();
 
@@ -780,7 +781,7 @@ Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async 
         }
 
         final id = prefix + '_' + name;
-        final exist = walletInfoSource.values.any((el) => el.id == id);
+        final exist = (await WalletInfo.getAll()).any((el) => el.id == id);
 
         if (exist) {
           continue;
@@ -799,7 +800,7 @@ Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async 
           showIntroCakePayCard: false,
         );
 
-        walletInfoSource.add(walletInfo);
+        await walletInfo.save();
       }
     }
   } catch (_) {}
@@ -967,8 +968,8 @@ Future<void> updateNodeTypes({required Box<Node> nodes}) async {
   });
 }
 
-Future<void> addAddressesForMoneroWallets(Box<WalletInfo> walletInfoSource) async {
-  final moneroWalletsInfo = walletInfoSource.values.where((info) => info.type == WalletType.monero);
+Future<void> addAddressesForMoneroWallets() async {
+  final moneroWalletsInfo = (await WalletInfo.getAll()).where((info) => info.type == WalletType.monero);
   moneroWalletsInfo.forEach((info) async {
     try {
       final walletPath = await pathForWallet(name: info.name, type: WalletType.monero);
@@ -1016,32 +1017,34 @@ Future<void> changeTransactionPriorityAndFeeRateKeys(SharedPreferences sharedPre
       bitcoin!.getMediumTransactionPriority().serialize());
 }
 
-Future<void> fixBtcDerivationPaths(Box<WalletInfo> walletsInfoSource) async {
-  for (WalletInfo walletInfo in walletsInfoSource.values) {
+Future<void> fixBtcDerivationPaths() async {
+  for (WalletInfo walletInfo in await WalletInfo.getAll()) {
     if (walletInfo.type == WalletType.bitcoin ||
         walletInfo.type == WalletType.bitcoinCash ||
         walletInfo.type == WalletType.litecoin) {
-      if (walletInfo.derivationInfo?.derivationPath == "m/0'/0") {
-        walletInfo.derivationInfo!.derivationPath = "m/0'";
+      final derivationInfo = await walletInfo.getDerivationInfo();
+      if (derivationInfo?.derivationPath == "m/0'/0") {
+        derivationInfo!.derivationPath = "m/0'";
         await walletInfo.save();
       }
     }
   }
 }
-
-Future<void> updateBtcNanoWalletInfos(Box<WalletInfo> walletsInfoSource) async {
-  for (WalletInfo walletInfo in walletsInfoSource.values) {
-    if (walletInfo.type == WalletType.nano || walletInfo.type == WalletType.bitcoin) {
-      walletInfo.derivationInfo = DerivationInfo(
-        derivationPath: walletInfo.derivationPath,
-        derivationType: walletInfo.derivationType,
-        address: walletInfo.address,
-        transactionsCount: walletInfo.restoreHeight,
-      );
-      await walletInfo.save();
-    }
-  }
-}
+Future<void> updateBtcNanoWalletInfos() async {}
+// Future<void> updateBtcNanoWalletInfos() async {
+//   for (WalletInfo walletInfo in await WalletInfo.getAll()) {
+//     if (walletInfo.type == WalletType.nano || walletInfo.type == WalletType.bitcoin) {
+//       final derivationInfo = await walletInfo.getDerivationInfo();
+//       derivationInfo = DerivationInfo(
+//         derivationPath: derivationInfo?.derivationPath,
+//         derivationType: derivationInfo?.derivationType,
+//         address: walletInfo.address,
+//         transactionsCount: walletInfo.restoreHeight,
+//       );
+//       await walletInfo.save();
+//     }
+//   }
+// }
 
 Future<void> checkCurrentNodes(
     Box<Node> nodeSource, Box<Node> powNodeSource, SharedPreferences sharedPreferences) async {

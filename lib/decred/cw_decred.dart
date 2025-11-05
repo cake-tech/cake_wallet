@@ -19,9 +19,8 @@ class CWDecred extends Decred {
       DecredRestoreWalletFromPubkeyCredentials(name: name, pubkey: pubkey, password: password);
 
   @override
-  WalletService createDecredWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return DecredWalletService(walletInfoSource, unspentCoinSource);
+  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource) {
+    return DecredWalletService(unspentCoinSource);
   }
 
   @override
@@ -53,7 +52,7 @@ class CWDecred extends Decred {
               .toList(),
           priority: priority as DecredTransactionPriority);
 
-  List<AddressInfo> getAddressInfos(Object wallet) {
+  List<WalletInfoAddressInfo> getAddressInfos(Object wallet) {
     final decredWallet = wallet as DecredWallet;
     return decredWallet.walletAddresses.getAddressInfos();
   }
