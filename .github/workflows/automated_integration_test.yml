@@ -1,12 +1,11 @@
-
 name: Automated Integration Tests
 
 # Temporarily disabled - uncomment to re-enable
-on: 
+on:
   # push:
   # pull_request:
   #   branches: [main]
-  workflow_dispatch:  # This is to manually trigger if needed
+  workflow_dispatch: # This is to manually trigger if needed
 defaults:
   run:
     shell: bash
@@ -38,7 +37,7 @@ jobs:
 
     steps:
       - name: Fix github actions messing up $HOME...
-        run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -140,6 +139,8 @@ jobs:
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const logPassword = '${{ secrets.LOG_PASSWORD }}';" >> cw_core/lib/.secrets.g.dart
+          echo "const logSalt = '${{ secrets.LOG_SALT }}';" >> cw_core/lib/.secrets.g.dart
           echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
@@ -294,7 +295,7 @@ jobs:
           sanitized_branch_name=$(echo "$sanitized_branch_name" | sed 's/[^a-z0-9]//g')  # Remove all special characters
 
           echo -e "id=com.cakewallet.test_${sanitized_branch_name}\nname=${BRANCH_NAME}" > android/app.properties
-  
+
       - name: Build
         run: |
           flutter build apk --dart-define=hasDevOptions=true --release --split-per-abi
@@ -304,7 +305,7 @@ jobs:
           sanitized_branch_name=$(grep '^id=' android/app.properties | cut -d'=' -f2 | sed 's/com\.cakewallet\.test_//')
           cd build/app/outputs/flutter-apk
           mkdir test-apk
-          
+
           cp app-arm64-v8a-release.apk test-apk/${sanitized_branch_name}.apk
           cp app-x86_64-release.apk test-apk/${sanitized_branch_name}_x86.apk
           echo "APK files created: test-apk/${sanitized_branch_name}.apk and test-apk/${sanitized_branch_name}_x86.apk"
@@ -315,7 +316,7 @@ jobs:
           set -x
           # Read the sanitized branch name from the app.properties file
           sanitized_branch_name=$(grep '^id=' android/app.properties | cut -d'=' -f2 | sed 's/com\.cakewallet\.test_//')
-          
+
           echo "Looking for APK file: build/app/outputs/flutter-apk/test-apk/${sanitized_branch_name}.apk"
           ls -la build/app/outputs/flutter-apk/test-apk/ || echo "test-apk directory not found"
           apk_file=$(ls build/app/outputs/flutter-apk/test-apk/${sanitized_branch_name}.apk || exit 1)
@@ -358,91 +359,91 @@ jobs:
       - name: 🔍 Verify AVD Configuration
         run: |
           echo "=== AVD Configuration Check ==="
-          
+
           # Check if AVD directory exists
           echo "Checking AVD directory..."
           ls -la ~/.android/avd/ || echo "AVD directory not found"
-          
+
           # List available AVDs
           echo "Available AVDs:"
           emulator -list-avds || echo "Failed to list AVDs"
-          
+
           # Check Android SDK location
           echo "Android SDK location:"
           echo $ANDROID_HOME
           echo $ANDROID_SDK_ROOT
-          
+
           # Check emulator binary
           echo "Emulator binary:"
           which emulator || echo "Emulator not found in PATH"
           emulator -version || echo "Failed to get emulator version"
-          
+
           echo "=== AVD Check Complete ==="
 
       - name: 🦾 Enable KVM
         run: |
-            echo "=== KVM Setup and Verification ==="
-            
-            # Check if KVM device exists
-            if [ -e /dev/kvm ]; then
-                echo "✅ KVM device found at /dev/kvm"
-                
-                # Check current permissions
-                echo "Current KVM permissions:"
-                ls -la /dev/kvm
-                
-                # Set proper permissions
-                sudo chmod 666 /dev/kvm || echo "⚠️ Failed to set KVM permissions"
-                
-                # Verify permissions were set
-                if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
-                    echo "✅ KVM is readable and writable"
-                else
-                    echo "⚠️ KVM permissions may not be optimal"
-                fi
-                
-                # Test KVM functionality
-                echo "Testing KVM functionality..."
-                if command -v kvm-ok >/dev/null 2>&1; then
-                    if kvm-ok 2>/dev/null; then
-                        echo "✅ KVM is working properly"
-                    else
-                        echo "⚠️ KVM check failed, but continuing..."
-                    fi
-                else
-                    echo "ℹ️ kvm-ok command not available, testing manually..."
-                    # Manual KVM test
-                    if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
-                        echo "✅ KVM device is accessible"
-                    fi
-                fi
-                
-                # Try to create udev rules (may fail in container, that's OK)
-                echo "Setting up udev rules..."
-                sudo mkdir -p /etc/udev/rules.d || echo "⚠️ Could not create udev directory"
-                echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules || echo "⚠️ Could not create udev rule"
-                
-                # Try to reload udev rules (will likely fail in container, that's OK)
-                sudo udevadm control --reload-rules || echo "ℹ️ udevadm control failed (expected in container)"
-                sudo udevadm trigger --name-match=kvm || echo "ℹ️ udevadm trigger failed (expected in container)"
-                
-            else
-                echo "❌ KVM device not found at /dev/kvm"
-                echo "This will cause the emulator to run in software mode (slower)"
-            fi
-            
-            # Check system resources
-            echo "=== System Resources ==="
-            echo "Memory:"
-            free -h
-            echo "Disk space:"
-            df -h
-            echo "CPU cores:"
-            nproc
-            echo "KVM module loaded:"
-            lsmod | grep kvm || echo "KVM module not loaded (may be built-in)"
-            
-            echo "=== KVM Setup Complete ==="
+          echo "=== KVM Setup and Verification ==="
+
+          # Check if KVM device exists
+          if [ -e /dev/kvm ]; then
+              echo "✅ KVM device found at /dev/kvm"
+
+              # Check current permissions
+              echo "Current KVM permissions:"
+              ls -la /dev/kvm
+
+              # Set proper permissions
+              sudo chmod 666 /dev/kvm || echo "⚠️ Failed to set KVM permissions"
+
+              # Verify permissions were set
+              if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+                  echo "✅ KVM is readable and writable"
+              else
+                  echo "⚠️ KVM permissions may not be optimal"
+              fi
+
+              # Test KVM functionality
+              echo "Testing KVM functionality..."
+              if command -v kvm-ok >/dev/null 2>&1; then
+                  if kvm-ok 2>/dev/null; then
+                      echo "✅ KVM is working properly"
+                  else
+                      echo "⚠️ KVM check failed, but continuing..."
+                  fi
+              else
+                  echo "ℹ️ kvm-ok command not available, testing manually..."
+                  # Manual KVM test
+                  if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+                      echo "✅ KVM device is accessible"
+                  fi
+              fi
+
+              # Try to create udev rules (may fail in container, that's OK)
+              echo "Setting up udev rules..."
+              sudo mkdir -p /etc/udev/rules.d || echo "⚠️ Could not create udev directory"
+              echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules || echo "⚠️ Could not create udev rule"
+
+              # Try to reload udev rules (will likely fail in container, that's OK)
+              sudo udevadm control --reload-rules || echo "ℹ️ udevadm control failed (expected in container)"
+              sudo udevadm trigger --name-match=kvm || echo "ℹ️ udevadm trigger failed (expected in container)"
+
+          else
+              echo "❌ KVM device not found at /dev/kvm"
+              echo "This will cause the emulator to run in software mode (slower)"
+          fi
+
+          # Check system resources
+          echo "=== System Resources ==="
+          echo "Memory:"
+          free -h
+          echo "Disk space:"
+          df -h
+          echo "CPU cores:"
+          nproc
+          echo "KVM module loaded:"
+          lsmod | grep kvm || echo "KVM module not loaded (may be built-in)"
+
+          echo "=== KVM Setup Complete ==="
 
       - name: 🦾 Cache gradle
         uses: gradle/actions/setup-gradle@v3
@@ -451,19 +452,19 @@ jobs:
         uses: actions/cache@v4
         id: avd-cache
         with:
-            path: |
-                ~/.android/avd/*
-                ~/.android/adb*
-            key: avd-${{ matrix.api-level }}
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
 
       - name: 🔧 Prepare emulator utilities
         run: |
           # Create a helper script for emulator readiness checks
           cat > /tmp/emulator_ready.sh << 'EOF'
           #!/bin/bash
-          
+
           echo "=== Emulator Readiness Check ==="
-          
+
           # Wait for boot completion
           echo "1. Checking boot completion..."
           timeout 300 bash -c 'until adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do sleep 5; echo "  Waiting for boot completion..."; done'
@@ -473,7 +474,7 @@ jobs:
               echo "❌ Boot completion timeout"
               echo "⚠️ Continuing anyway..."
           fi
-          
+
           # Wait for input service
           echo "2. Checking input service..."
           timeout 60 bash -c 'until adb shell service list 2>/dev/null | grep -q "input"; do sleep 2; echo "  Waiting for input service..."; done'
@@ -483,7 +484,7 @@ jobs:
               echo "❌ Input service timeout"
               echo "⚠️ Continuing anyway..."
           fi
-          
+
           # Wait for package manager
           echo "3. Checking package manager..."
           timeout 60 bash -c 'until adb shell pm list packages 2>/dev/null >/dev/null; do sleep 2; echo "  Waiting for package manager..."; done'
@@ -493,7 +494,7 @@ jobs:
               echo "❌ Package manager timeout"
               echo "⚠️ Continuing anyway..."
           fi
-          
+
           # Wait for settings service
           echo "4. Checking settings service..."
           timeout 60 bash -c 'until adb shell settings get global window_animation_scale 2>/dev/null >/dev/null; do sleep 2; echo "  Waiting for settings service..."; done'
@@ -503,101 +504,101 @@ jobs:
               echo "❌ Settings service timeout"
               echo "⚠️ Continuing anyway..."
           fi
-          
+
           echo "✅ Emulator readiness check completed"
           EOF
-          
+
           chmod +x /tmp/emulator_ready.sh
 
       - name: 🦾 Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
-            api-level: ${{ matrix.api-level }}
-            force-avd-creation: false
-            # arch: ${{ matrix.arch }}
-            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024 -no-snapshot-save
-            working-directory: ${{ github.workspace }}
-            disable-animations: false
-            script: |
-                echo "=== AVD Snapshot Generation ==="
-                
-                # Use the helper script to ensure emulator is fully ready
-                /tmp/emulator_ready.sh
-                
-                # Manually disable animations with error handling
-                echo "Disabling animations manually..."
-                adb shell settings put global window_animation_scale 0.0 || echo "Failed to disable window animations"
-                adb shell settings put global transition_animation_scale 0.0 || echo "Failed to disable transition animations"
-                adb shell settings put global animator_duration_scale 0.0 || echo "Failed to disable animator duration"
-                
-                echo "=== Checking emulator status before termination ==="
-                adb devices || echo "ADB devices check failed"
-                echo "=== AVD snapshot generation complete ==="
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          # arch: ${{ matrix.arch }}
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024 -no-snapshot-save
+          working-directory: ${{ github.workspace }}
+          disable-animations: false
+          script: |
+            echo "=== AVD Snapshot Generation ==="
+
+            # Use the helper script to ensure emulator is fully ready
+            /tmp/emulator_ready.sh
+
+            # Manually disable animations with error handling
+            echo "Disabling animations manually..."
+            adb shell settings put global window_animation_scale 0.0 || echo "Failed to disable window animations"
+            adb shell settings put global transition_animation_scale 0.0 || echo "Failed to disable transition animations"
+            adb shell settings put global animator_duration_scale 0.0 || echo "Failed to disable animator duration"
+
+            echo "=== Checking emulator status before termination ==="
+            adb devices || echo "ADB devices check failed"
+            echo "=== AVD snapshot generation complete ==="
 
       - name: 🚀 Integration tests on Android Emulator
         timeout-minutes: 60
         uses: reactivecircus/android-emulator-runner@v2
         with:
-            api-level: ${{ matrix.api-level }}
-            force-avd-creation: false
-            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024 -no-snapshot-save
-            disable-animations: false
-            working-directory: ${{ github.workspace }}
-            script: |
-                echo "=== Pre-test Environment Check ==="
-                pwd
-                ls -la integration_test_runner.sh || echo "integration_test_runner.sh not found"
-                
-                echo "=== Emulator Status Check ==="
-                adb devices
-                
-                echo "=== Emulator Info ==="
-                adb shell getprop ro.build.version.release || echo "Failed to get Android version"
-                adb shell getprop ro.product.model || echo "Failed to get device model"
-                
-                echo "=== Checking Emulator Performance ==="
-                adb shell cat /proc/cpuinfo | grep -i "model name" | head -1 || echo "Could not check CPU info"
-                adb shell cat /proc/meminfo | grep -i "memtotal" || echo "Could not check memory info"
-                
-                echo "=== Checking Emulator Process ==="
-                ps aux | grep emulator | grep -v grep || echo "Emulator process not found in ps output"
-                
-                echo "=== Making script executable ==="
-                chmod a+rx integration_test_runner.sh
-                
-                echo "=== Running integration tests ==="
-                
-                echo "Final emulator readiness check..."
-                /tmp/emulator_ready.sh || echo "Emulator readiness check failed, but continuing..."
-                
-                echo "Disabling animations for test performance..."
-                adb shell settings put global window_animation_scale 0.0 || echo "Failed to disable window animations"
-                adb shell settings put global transition_animation_scale 0.0 || echo "Failed to disable transition animations"
-                adb shell settings put global animator_duration_scale 0.0 || echo "Failed to disable animator duration"
-                
-                echo "Starting integration test runner..."
-                ./integration_test_runner.sh
-                TEST_EXIT_CODE=$?
-                
-                if [ $TEST_EXIT_CODE -eq 0 ]; then
-                    echo "Integration tests completed successfully"
-                else
-                    echo "Integration tests failed with exit code $TEST_EXIT_CODE"
-                fi
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024 -no-snapshot-save
+          disable-animations: false
+          working-directory: ${{ github.workspace }}
+          script: |
+            echo "=== Pre-test Environment Check ==="
+            pwd
+            ls -la integration_test_runner.sh || echo "integration_test_runner.sh not found"
+
+            echo "=== Emulator Status Check ==="
+            adb devices
+
+            echo "=== Emulator Info ==="
+            adb shell getprop ro.build.version.release || echo "Failed to get Android version"
+            adb shell getprop ro.product.model || echo "Failed to get device model"
+
+            echo "=== Checking Emulator Performance ==="
+            adb shell cat /proc/cpuinfo | grep -i "model name" | head -1 || echo "Could not check CPU info"
+            adb shell cat /proc/meminfo | grep -i "memtotal" || echo "Could not check memory info"
+
+            echo "=== Checking Emulator Process ==="
+            ps aux | grep emulator | grep -v grep || echo "Emulator process not found in ps output"
+
+            echo "=== Making script executable ==="
+            chmod a+rx integration_test_runner.sh
+
+            echo "=== Running integration tests ==="
+
+            echo "Final emulator readiness check..."
+            /tmp/emulator_ready.sh || echo "Emulator readiness check failed, but continuing..."
+
+            echo "Disabling animations for test performance..."
+            adb shell settings put global window_animation_scale 0.0 || echo "Failed to disable window animations"
+            adb shell settings put global transition_animation_scale 0.0 || echo "Failed to disable transition animations"
+            adb shell settings put global animator_duration_scale 0.0 || echo "Failed to disable animator duration"
+
+            echo "Starting integration test runner..."
+            ./integration_test_runner.sh
+            TEST_EXIT_CODE=$?
+
+            if [ $TEST_EXIT_CODE -eq 0 ]; then
+                echo "Integration tests completed successfully"
+            else
+                echo "Integration tests failed with exit code $TEST_EXIT_CODE"
+            fi
 
       - name: 🧹 Post-test cleanup
         if: always()
         run: |
-            echo "=== Post-test cleanup ==="
-            # Kill any remaining emulator processes
-            pkill -f emulator || echo "No emulator processes to kill"
-            # Kill any remaining adb processes
-            pkill -f adb || echo "No adb processes to kill"
-            # Wait for processes to terminate
-            sleep 2
-            # Check for any remaining processes
-            ps aux | grep -E "(emulator|adb)" | grep -v grep || echo "No remaining emulator/adb processes"
-            echo "=== Cleanup complete ==="
+          echo "=== Post-test cleanup ==="
+          # Kill any remaining emulator processes
+          pkill -f emulator || echo "No emulator processes to kill"
+          # Kill any remaining adb processes
+          pkill -f adb || echo "No adb processes to kill"
+          # Wait for processes to terminate
+          sleep 2
+          # Check for any remaining processes
+          ps aux | grep -E "(emulator|adb)" | grep -v grep || echo "No remaining emulator/adb processes"
+          echo "=== Cleanup complete ==="
       - name: cleanup
         run: rm -rf build/app/outputs/flutter-apk/test-apk/

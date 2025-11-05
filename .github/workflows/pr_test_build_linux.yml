@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Fix github actions messing up $HOME...
-        run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -127,6 +127,8 @@ jobs:
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const logPassword = '${{ secrets.LOG_PASSWORD }}';" >> cw_core/lib/.secrets.g.dart
+          echo "const logSalt = '${{ secrets.LOG_SALT }}';" >> cw_core/lib/.secrets.g.dart
           echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
@@ -218,7 +220,7 @@ jobs:
             wget https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.0-RC9/release-bundle.zip
             unzip release-bundle.zip
             rm release-bundle.zip
-            unxz -fv release/*/*.xz 
+            unxz -fv release/*/*.xz
           popd
 
       - name: Build Bitbox Flutter
@@ -268,11 +270,11 @@ jobs:
       - name: Prepare virtual desktop
         if: ${{ contains(env.message, 'run tests') }}
         run: |
-            nohup Xvfb :99 -screen 0 720x1280x16 &
-            echo DISPLAY=:99 | sudo tee -a $GITHUB_ENV
-            dbus-daemon --system --fork
-            nohup NetworkManager &
-            nohup ffmpeg -framerate 60 -video_size 720x1280 -f x11grab -i :99 -c:v libx264 -c:a aac /opt/screen_grab.mkv &
+          nohup Xvfb :99 -screen 0 720x1280x16 &
+          echo DISPLAY=:99 | sudo tee -a $GITHUB_ENV
+          dbus-daemon --system --fork
+          nohup NetworkManager &
+          nohup ffmpeg -framerate 60 -video_size 720x1280 -f x11grab -i :99 -c:v libx264 -c:a aac /opt/screen_grab.mkv &
 
       # Note for people adding tests:
       # - Tests are ran on Linux, with some things being mocked out.

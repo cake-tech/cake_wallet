@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/encryption_log_utils.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:mobx/mobx.dart';
 import 'package:path_provider/path_provider.dart';
@@ -36,12 +37,12 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
 
   Future<String> getAbbreviatedLogs() async {
     final appSupportPath = (await getApplicationSupportDirectory()).path;
-    final logsFile = File("$appSupportPath/logs/debug.log");
+    final fpath = "$appSupportPath/logs/debug.log";
+    final logsFile = File(fpath);
     if (!logsFile.existsSync()) {
       return "";
     }
-    final logs = logsFile.readAsStringSync();
-
+    final logs = await EncryptionLogUtil.read(path: fpath);
     // return last 10000 characters:
     return logs.substring(logs.length > 10000 ? logs.length - 10000 : 0);
   }

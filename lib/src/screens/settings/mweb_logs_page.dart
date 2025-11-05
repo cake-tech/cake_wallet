@@ -7,7 +7,8 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/mweb_settings_view_model.dart';
-import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/encryption_log_utils.dart';
+import 'package:path/path.dart' as p;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -30,7 +31,9 @@ class MwebLogsPage extends BasePage {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+            } else if (snapshot.hasError ||
+                !snapshot.hasData ||
+                snapshot.data!.isEmpty) {
               return Center(child: Text('No logs found'));
             } else {
               return SingleChildScrollView(
@@ -38,7 +41,10 @@ class MwebLogsPage extends BasePage {
                   padding: EdgeInsets.all(16.0),
                   child: Text(
                     snapshot.data!,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontFamily: 'Monospace'),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(fontFamily: 'Monospace'),
                   ),
                 ),
               );
@@ -98,16 +104,30 @@ class MwebLogsPage extends BasePage {
   }
 
   Future<void> share(BuildContext context) async {
-    final inAppPath = "${(await getApplicationSupportDirectory()).path}/logs/debug.log";
-    await ShareUtil.shareFile(filePath: inAppPath, fileName: "debug.log", context: context);
+    final inAppPath =
+        "${(await getApplicationSupportDirectory()).path}/logs/debug.log";
+    final tmp = await getTemporaryDirectory();
+    final tmpPath = p.join(tmp.path, "plain_logs");
+    final tmpDir = Directory(tmpPath);
+    if (!tmpDir.existsSync()) {
+      tmpDir.createSync(recursive: true);
+    }
+    final decryptedFile = File(p.join(tmpPath, p.basename(inAppPath)));
+    final str = await EncryptionLogUtil.read(path: inAppPath);
+    decryptedFile.writeAsStringSync(str);
+    await ShareUtil.shareFile(
+        filePath: decryptedFile.path, fileName: "debug.log", context: context);
+    decryptedFile.writeAsStringSync("");
   }
 
   Future<void> _saveFile() async {
-    String? outputFile = await FilePicker.platform
-        .saveFile(dialogTitle: 'Save Your File to desired location', fileName: "debug.log");
+    String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Your File to desired location',
+        fileName: "debug.log");
 
     try {
-      final filePath = (await getApplicationSupportDirectory()).path + "/debug.log";
+      final filePath =
+          (await getApplicationSupportDirectory()).path + "/debug.log";
       File debugLogFile = File(filePath);
       await debugLogFile.copy(outputFile!);
     } catch (exception, stackTrace) {
