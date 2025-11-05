@@ -95,6 +95,8 @@
   "biometric_auth_reason": "Pindai sidik jari Anda untuk mengautentikasi",
   "bitcoin_dark_theme": "Tema Gelap Bitcoin",
   "bitcoin_light_theme": "Tema Cahaya Bitcoin",
+  "bitcoin_lightning_deposit": "Deposito",
+  "bitcoin_lightning_withdraw": "Menarik",
   "bitcoin_payments_require_1_confirmation": "Pembayaran Bitcoin memerlukan 1 konfirmasi, yang bisa memakan waktu 20 menit atau lebih. Terima kasih atas kesabaran Anda! Anda akan diemail saat pembayaran dikonfirmasi.",
   "block_height": "Tinggi blok",
   "block_remaining": "1 blok tersisa",

@@ -95,6 +95,8 @@
   "biometric_auth_reason": "Digitalize sua impressão digital para autenticar",
   "bitcoin_dark_theme": "Tema escuro Bitcoin",
   "bitcoin_light_theme": "Tema claro de bitcoin",
+  "bitcoin_lightning_deposit": "Depósito",
+  "bitcoin_lightning_withdraw": "Retirar",
   "bitcoin_payments_require_1_confirmation": "Os pagamentos em Bitcoin exigem 1 confirmação, o que pode levar 20 minutos ou mais. Obrigado pela sua paciência! Você receberá um e-mail quando o pagamento for confirmado.",
   "block_height": "Altura do bloco",
   "block_remaining": "1 bloco restante",

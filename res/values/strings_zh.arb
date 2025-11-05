@@ -95,6 +95,8 @@
   "biometric_auth_reason": "扫描指纹进行身份认证",
   "bitcoin_dark_theme": "比特币黑暗主题",
   "bitcoin_light_theme": "比特币浅色主题",
+  "bitcoin_lightning_deposit": "订金",
+  "bitcoin_lightning_withdraw": "提取",
   "bitcoin_payments_require_1_confirmation": "比特币支付需要 1 次确认，这可能需要 20 分钟或更长时间。谢谢你的耐心！确认付款后，您将收到电子邮件。",
   "block_height": "块高度",
   "block_remaining": "剩下1个块",

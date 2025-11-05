@@ -95,6 +95,8 @@
   "biometric_auth_reason": "စစ်မှန်ကြောင်းအထောက်အထားပြရန် သင့်လက်ဗွေကို စကန်ဖတ်ပါ။",
   "bitcoin_dark_theme": "Bitcoin Dark Theme",
   "bitcoin_light_theme": "Bitcoin Light အပြင်အဆင်",
+  "bitcoin_lightning_deposit": "အပ်ငေှ",
+  "bitcoin_lightning_withdraw": "ဆုတ်ခွာ",
   "bitcoin_payments_require_1_confirmation": "Bitcoin ငွေပေးချေမှုများသည် မိနစ် 20 သို့မဟုတ် ထို့ထက်ပိုကြာနိုင်သည် 1 အတည်ပြုချက် လိုအပ်သည်။ မင်းရဲ့စိတ်ရှည်မှုအတွက် ကျေးဇူးတင်ပါတယ်။ ငွေပေးချေမှုကို အတည်ပြုပြီးသောအခါ သင့်ထံ အီးမေးလ်ပို့ပါမည်။",
   "block_height": "ပိတ်ပင်တားဆီးမှုအမြင့်",
   "block_remaining": "ကျန်ရှိနေသေးသော block",

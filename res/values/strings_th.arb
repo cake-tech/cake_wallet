@@ -95,6 +95,8 @@
   "biometric_auth_reason": "สแกนลายนิ้วมือของคุณเพื่อยืนยันตัวตน",
   "bitcoin_dark_theme": "ธีมมืด Bitcoin",
   "bitcoin_light_theme": "ธีมแสง Bitcoin",
+  "bitcoin_lightning_deposit": "เงินฝาก",
+  "bitcoin_lightning_withdraw": "ถอน",
   "bitcoin_payments_require_1_confirmation": "การชำระเงินด้วย Bitcoin ต้องการการยืนยัน 1 ครั้ง ซึ่งอาจใช้เวลา 20 นาทีหรือนานกว่านั้น ขอบคุณสำหรับความอดทนของคุณ! คุณจะได้รับอีเมลเมื่อการชำระเงินได้รับการยืนยัน",
   "block_height": "ความสูงของบล็อก",
   "block_remaining": "เหลือ 1 บล็อก",
