@@ -6,6 +6,7 @@ import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -111,6 +112,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   @observable
   WalletRestoreMode mode;
+
+  @computed 
+  bool get walletHasPassphrase {
+    return !(type == WalletType.decred && seedSettingsViewModel.decredSeedType == DecredSeedType.decred) && 
+    mode == WalletRestoreMode.seed;
+  }
 
   @observable
   bool hasPassphrase;
