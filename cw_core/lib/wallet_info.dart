@@ -35,7 +35,6 @@ enum DerivationType {
   nano,
   bip39,
   electrum,
-  @HiveField(5)
   decred,
 }
 
