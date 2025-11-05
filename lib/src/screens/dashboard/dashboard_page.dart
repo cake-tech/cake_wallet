@@ -3,7 +3,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/new_page_indicator.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/page_indicator.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_listener_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -221,18 +221,13 @@ class _DashboardPageView extends BasePage {
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: <Widget>[
-              //new Expanded(
-              Observer(
-                builder: (context) {
-                  return PageView.builder(
-                    key: ValueKey('dashboard_page_view_key'),
-                    controller: controller,
-                    itemCount: pages.length,
-                    itemBuilder: (context, index) => pages[index],
-                  );
-                },
+              PageView.builder(
+                key: const ValueKey('dashboard_page_view_key'),
+                controller: controller,
+                physics: const BouncingScrollPhysics(),
+                itemCount: pages.length,
+                itemBuilder: (context, index) => pages[index],
               ),
-              //),
               Positioned(
                 child: Container(
                   alignment: Alignment.bottomCenter,

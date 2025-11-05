@@ -10,12 +10,10 @@ class PageIndicator extends StatefulWidget {
     super.key,
     required this.controller,
     required this.dashboardViewModel,
-    this.initialIndex = 1,
   });
 
   final PageController controller;
   final DashboardViewModel dashboardViewModel;
-  final int initialIndex;
 
   @override
   State<PageIndicator> createState() => _PageIndicatorState();
@@ -43,26 +41,59 @@ class _PageIndicatorState extends State<PageIndicator> {
   );
 
   late int selectedIndex;
+  late final VoidCallback _pageListener;
+
   bool _fadeSelected = true;
   bool _firstFrame = true;
 
   @override
   void initState() {
     super.initState();
-    selectedIndex = widget.initialIndex;
+
+    selectedIndex = widget.controller.initialPage;
+
+    _pageListener = () {
+      final page = widget.controller.page;
+      if (page == null) return;
+
+      final rounded = page.round();
+      if (rounded != selectedIndex && mounted) {
+        setState(() {
+          selectedIndex = rounded;
+          _fadeSelected = true;
+        });
+      }
+    };
+
+    widget.controller.addListener(_pageListener);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       setState(() => _firstFrame = false);
     });
   }
 
+  @override
+  void dispose() {
+    widget.controller.removeListener(_pageListener);
+    super.dispose();
+  }
+
   void _onItemTap(int index) {
     if (index == selectedIndex) return;
+
     setState(() {
       selectedIndex = index;
       _fadeSelected = false;
     });
-    Future.delayed(const Duration(milliseconds: 50), () {
+
+    widget.controller.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+
+    Future.delayed(const Duration(milliseconds: 300), () {
       if (!mounted) return;
       if (index == selectedIndex) {
         setState(() => _fadeSelected = true);
@@ -113,7 +144,7 @@ class _PageIndicatorState extends State<PageIndicator> {
     final minRequiredWidth =
         maxPillWidth + (visibleActions.length - 1) * (maxPillWidth * 0.7);
     final barWidth =
-    math.min(screenWidth * 0.9, math.max(baseWidth, minRequiredWidth));
+        math.min(screenWidth * 0.9, math.max(baseWidth, minRequiredWidth));
 
     const double edgePadding = 5.0;
     final double firstItemLeft = edgePadding;
@@ -134,7 +165,7 @@ class _PageIndicatorState extends State<PageIndicator> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
-        padding: EdgeInsets.only(bottom: 24, top: 10),
+        padding: EdgeInsets.only(top: 10),
         child: AnimatedContainer(
           duration: barResizeDuration,
           curve: Curves.easeOutCubic,
@@ -185,21 +216,20 @@ class _PageIndicatorState extends State<PageIndicator> {
                                     width: i == selectedIndex
                                         ? pillWidth
                                         : _estimatePillWidthForAction(
-                                        context, visibleActions[i]),
+                                            context, visibleActions[i]),
                                     alignment: Alignment.center,
                                     child: AnimatedOpacity(
                                       duration: inactiveIconFadeDuration,
                                       curve: Curves.easeOutCubic,
                                       opacity:
-                                      (i == selectedIndex && _fadeSelected)
-                                          ? 0.0
-                                          : 1.0,
+                                          (i == selectedIndex && _fadeSelected)
+                                              ? 0.0
+                                              : 1.0,
                                       child: AnimatedScale(
                                         duration: inactiveIconAppearDuration,
                                         curve: Curves.easeOutCubic,
-                                        scale: (i == selectedIndex)
-                                            ? 0.95
-                                            : 1.0,
+                                        scale:
+                                            (i == selectedIndex) ? 0.95 : 1.0,
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
@@ -214,8 +244,7 @@ class _PageIndicatorState extends State<PageIndicator> {
                                             ),
                                             SizedBox(width: pillIconSpacing),
                                             Text(
-                                              visibleActions[i]
-                                                  .name(context),
+                                              visibleActions[i].name(context),
                                               style: pillTextStyle.copyWith(
                                                   color: inactiveColor),
                                               overflow: TextOverflow.fade,
@@ -317,8 +346,7 @@ class AnimatedPill extends StatelessWidget {
                     SizedBox(width: pillIconSpacing),
                     Text(
                       currentAction.name(context),
-                      style:
-                      pillTextStyle.copyWith(color: contentColor),
+                      style: pillTextStyle.copyWith(color: contentColor),
                       overflow: TextOverflow.fade,
                       softWrap: false,
                     ),

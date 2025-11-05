@@ -19,7 +19,7 @@ class NavigationDock extends StatelessWidget {
       child: Observer(
         builder: (_) {
           return Container(
-            height: 150,
+            height: 84,
             alignment: Alignment.bottomCenter,
             decoration: dashboardViewModel.settingsStore.backgroundImage.isEmpty
                 ? BoxDecoration(

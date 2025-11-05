@@ -26,7 +26,7 @@ class PageIndicatorActions {
 
   static PageIndicatorActions AppsAction = PageIndicatorActions._(
     name: (context) => 'Apps', // TODO localization
-    image: 'assets/images/main_actions/apps.png',
+    image: 'assets/images/main_actions/apps.svg',
     key: ValueKey('dashboard_page_apps_action_button_key'),
   );
 
