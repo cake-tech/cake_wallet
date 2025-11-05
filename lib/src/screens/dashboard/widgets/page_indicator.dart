@@ -270,7 +270,7 @@ class _PageIndicatorState extends State<PageIndicator> {
   }
 }
 
-class AnimatedPill extends StatelessWidget {
+class AnimatedPill extends StatefulWidget {
   const AnimatedPill({
     super.key,
     required this.left,
@@ -301,61 +301,91 @@ class AnimatedPill extends StatelessWidget {
   final Duration pillResizeDuration;
 
   @override
+  State<AnimatedPill> createState() => _AnimatedPillState();
+}
+
+class _AnimatedPillState extends State<AnimatedPill> {
+  late PageIndicatorActions _visibleAction;
+  bool _isFading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _visibleAction = widget.currentAction;
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimatedPill oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.currentAction != oldWidget.currentAction) {
+      setState(() => _isFading = true);
+
+      Future.delayed(const Duration(milliseconds: 80), () {
+        if (!mounted) return;
+        setState(() => _visibleAction = widget.currentAction);
+      });
+
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (!mounted) return;
+        setState(() => _isFading = false);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnimatedPositioned(
-      duration: pillMoveDuration,
+      duration: widget.pillMoveDuration,
       curve: Curves.easeOutCubic,
-      left: left,
+      left: widget.left,
       top: 4,
       bottom: 4,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(
-          begin: estimateWidthForAction,
-          end: estimateWidthForAction,
-        ),
-        duration: pillResizeDuration,
+      child: AnimatedContainer(
+        duration: widget.pillResizeDuration,
         curve: Curves.easeOutCubic,
-        builder: (context, width, child) {
-          return AnimatedContainer(
-            duration: pillResizeDuration,
-            curve: Curves.easeOutCubic,
-            width: width,
-            decoration: BoxDecoration(
-              color: pillColor,
-              borderRadius: BorderRadius.circular(pillBorderRadius),
-            ),
-            clipBehavior: Clip.hardEdge,
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      currentAction.image,
-                      width: pillIconWidth,
-                      height: pillIconHeight,
-                      colorFilter: ColorFilter.mode(
-                        contentColor,
-                        BlendMode.srcIn,
-                      ),
+        width: widget.estimateWidthForAction,
+        decoration: BoxDecoration(
+          color: widget.pillColor,
+          borderRadius: BorderRadius.circular(widget.pillBorderRadius),
+        ),
+        clipBehavior: Clip.hardEdge,
+        alignment: Alignment.center,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          opacity: _isFading ? 0.9 : 1.0,
+          curve: Curves.easeInOutCubic,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    _visibleAction.image,
+                    width: widget.pillIconWidth,
+                    height: widget.pillIconHeight,
+                    colorFilter: ColorFilter.mode(
+                      widget.contentColor,
+                      BlendMode.srcIn,
                     ),
-                    SizedBox(width: pillIconSpacing),
-                    Text(
-                      currentAction.name(context),
-                      style: pillTextStyle.copyWith(color: contentColor),
-                      overflow: TextOverflow.fade,
-                      softWrap: false,
+                  ),
+                  SizedBox(width: widget.pillIconSpacing),
+                  Text(
+                    _visibleAction.name(context),
+                    style: widget.pillTextStyle.copyWith(
+                      color: widget.contentColor,
                     ),
-                  ],
-                ),
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                  ),
+                ],
               ),
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
