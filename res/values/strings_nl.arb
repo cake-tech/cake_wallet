@@ -94,6 +94,8 @@
   "biometric_auth_reason": "Scan uw vingerafdruk om te verifiëren",
   "bitcoin_dark_theme": "Bitcoin donker thema",
   "bitcoin_light_theme": "Bitcoin Light-thema",
+  "bitcoin_lightning_deposit": "Borg",
+  "bitcoin_lightning_withdraw": "Terugtrekken",
   "bitcoin_payments_require_1_confirmation": "Bitcoin-betalingen vereisen 1 bevestiging, wat 20 minuten of langer kan duren. Dank voor uw geduld! U ontvangt een e-mail wanneer de betaling is bevestigd.",
   "block_height": "Blokhoogte",
   "block_remaining": "1 blok resterend",

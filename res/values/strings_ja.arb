@@ -94,6 +94,8 @@
   "biometric_auth_reason": "प指紋をスキャンして認証する",
   "bitcoin_dark_theme": "ビットコインダークテーマ",
   "bitcoin_light_theme": "ビットコインライトテーマ",
+  "bitcoin_lightning_deposit": "デポジット",
+  "bitcoin_lightning_withdraw": "撤回する",
   "bitcoin_payments_require_1_confirmation": "ビットコインの支払いには 1 回の確認が必要で、これには 20 分以上かかる場合があります。お待ち頂きまして、ありがとうございます！支払いが確認されると、メールが送信されます。",
   "block_height": "ブロックの高さ",
   "block_remaining": "残り1ブロック",

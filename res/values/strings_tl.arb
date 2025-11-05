@@ -94,6 +94,8 @@
   "biometric_auth_reason": "I-scan ang iyong fingerprint para ma-authenticate",
   "bitcoin_dark_theme": "Bitcoin Dark Theme",
   "bitcoin_light_theme": "Bitcoin Light Theme",
+  "bitcoin_lightning_deposit": "Deposito",
+  "bitcoin_lightning_withdraw": "Umatras",
   "bitcoin_payments_require_1_confirmation": "Ang mga pagbabayad sa Bitcoin ay nangangailangan ng 1 kumpirmasyon, na maaaring tumagal ng 20 minuto o mas mahaba. Salamat sa iyong pasensya! Mag-email ka kapag nakumpirma ang pagbabayad.",
   "block_height": "I -block ang taas",
   "block_remaining": "1 Bloke ang Natitira",
