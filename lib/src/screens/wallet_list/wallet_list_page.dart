@@ -332,11 +332,8 @@ class WalletListBodyState extends State<WalletListBody> {
               children: [
                 IgnorePointer(
                   child: Container(
-                    //padding: EdgeInsets.only(top: 100),
                     alignment: Alignment.bottomCenter,
                     height: 185,
-                    //width: 600,
-                    //padding: EdgeInsets.only(top: 50),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
@@ -351,11 +348,9 @@ class WalletListBodyState extends State<WalletListBody> {
                     ),
                   ),
                 ),
-                //Positioned(
                 Container(
                   height: 120,
                   width: MediaQuery.of(context).size.width,
-                  //alignment: Alignment.bottomCenter,
                   margin: EdgeInsets.only(bottom: 24),
                   padding: EdgeInsets.only(left: 16, right: 16),
                   child: Column(
@@ -442,7 +437,6 @@ class WalletListBodyState extends State<WalletListBody> {
                     ],
                   ),
                 ),
-                //),
               ],
             ),
           ),
