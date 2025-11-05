@@ -251,4 +251,11 @@ class CWArbitrum extends Arbitrum {
       (wallet as EVMChainWallet).createCallDataTransaction(
           to, dataHex, valueWei, priority as EVMChainTransactionPriority);
 
+  @override
+  String? getArbitrumNativeEstimatedFee(WalletBase wallet) =>
+      (wallet as EVMChainWallet).nativeTxEstimatedFee;
+
+  @override
+  String? getArbitrumERC20EstimatedFee(WalletBase wallet) =>
+      (wallet as EVMChainWallet).erc20TxEstimatedFee;
 }

@@ -800,6 +800,8 @@ abstract class Ethereum {
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
   List<String> getDefaultTokenContractAddresses();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
+  String? getEthereumNativeEstimatedFee(WalletBase wallet);
+  String? getEthereumERC20EstimatedFee(WalletBase wallet);
 }
   """;
 
@@ -921,6 +923,8 @@ abstract class Polygon {
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
   List<String> getDefaultTokenContractAddresses();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
+  String? getPolygonNativeEstimatedFee(WalletBase wallet);
+  String? getPolygonERC20EstimatedFee(WalletBase wallet);
 }
   """;
 
@@ -1615,6 +1619,8 @@ abstract class Base {
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
   List<String> getDefaultTokenContractAddresses();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
+  String? getBaseNativeEstimatedFee(WalletBase wallet);
+  String? getBaseERC20EstimatedFee(WalletBase wallet);
 }
   """;
 
@@ -1743,6 +1749,8 @@ abstract class Arbitrum {
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
   Future<bool> isApprovalRequired(WalletBase wallet, String tokenContract, String spender, BigInt requiredAmount);
   Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to, String dataHex, BigInt valueWei, TransactionPriority priority);
+  String? getArbitrumNativeEstimatedFee(WalletBase wallet);
+  String? getArbitrumERC20EstimatedFee(WalletBase wallet);
 }
 
   """;

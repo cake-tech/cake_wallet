@@ -32,6 +32,9 @@ class ArbitrumWallet extends EVMChainWallet {
   }) : super(nativeCurrency: CryptoCurrency.arbEth);
 
   @override
+  bool get hasPriorityFee => false;
+
+  @override
   Future<void> initErc20TokensBox() async {
     final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.arbitrumBoxName}";
 
