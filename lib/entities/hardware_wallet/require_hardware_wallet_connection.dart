@@ -4,7 +4,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-bool requireHardwareWalletConnection() {
+Future<bool> requireHardwareWalletConnection() async {
   final name = getIt
       .get<SharedPreferences>()
       .getString(PreferencesKey.currentWalletName);
@@ -21,5 +21,5 @@ bool requireHardwareWalletConnection() {
 
   final type = deserializeFromInt(typeRaw);
   final walletLoadingService = getIt.get<WalletLoadingService>();
-  return walletLoadingService.requireHardwareWalletConnection(type, name);
+  return await walletLoadingService.requireHardwareWalletConnection(type, name);
 }

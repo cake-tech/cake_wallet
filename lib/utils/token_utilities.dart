@@ -11,10 +11,9 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 
 class TokenUtilities {
-  static Future<List<Erc20Token>> loadAllUniqueEvmTokens(
-    Box<WalletInfo> walletInfoSource,
-  ) async {
-    final evmWallets = walletInfoSource.values.where(
+  static Future<List<Erc20Token>> loadAllUniqueEvmTokens() async {
+    final allWi = await WalletInfo.getAll();
+    final evmWallets = allWi.where(
       (w) => isEVMCompatibleChain(w.type),
     );
 
@@ -36,10 +35,9 @@ class TokenUtilities {
     return unique;
   }
 
-  static Future<List<SPLToken>> loadAllUniqueSolTokens(
-    Box<WalletInfo> walletInfoSource,
-  ) async {
-    final solWallets = walletInfoSource.values.where(
+  static Future<List<SPLToken>> loadAllUniqueSolTokens() async {
+    final allWi = await WalletInfo.getAll();
+    final solWallets = allWi.where(
       (w) => w.type == WalletType.solana,
     );
 
@@ -58,10 +56,9 @@ class TokenUtilities {
     return unique;
   }
 
-  static Future<List<TronToken>> loadAllUniqueTronTokens(
-    Box<WalletInfo> walletInfoSource,
-  ) async {
-    final tronWallets = walletInfoSource.values.where(
+  static Future<List<TronToken>> loadAllUniqueTronTokens() async {
+    final allWi = await WalletInfo.getAll();
+    final tronWallets = allWi.where(
       (w) => w.type == WalletType.tron,
     );
 
@@ -83,7 +80,6 @@ class TokenUtilities {
   /// - Tron: match by contractAddress
   static Future<CryptoCurrency?> findTokenByAddress({
     required WalletType walletType,
-    required Box<WalletInfo> walletInfoSource,
     required String address,
   }) async {
     final lower = address.toLowerCase();
@@ -91,19 +87,19 @@ class TokenUtilities {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
-        final tokens = await loadAllUniqueEvmTokens(walletInfoSource);
+        final tokens = await loadAllUniqueEvmTokens();
         for (final t in tokens) {
           if (t.contractAddress.toLowerCase() == lower) return t;
         }
         return null;
       case WalletType.solana:
-        final solTokens = await loadAllUniqueSolTokens(walletInfoSource);
+        final solTokens = await loadAllUniqueSolTokens();
         for (final t in solTokens) {
           if (t.mintAddress.toLowerCase() == lower) return t;
         }
         return null;
       case WalletType.tron:
-        final tronTokens = await loadAllUniqueTronTokens(walletInfoSource);
+        final tronTokens = await loadAllUniqueTronTokens();
         for (final t in tronTokens) {
           if (t.contractAddress.toLowerCase() == lower) return t;
         }

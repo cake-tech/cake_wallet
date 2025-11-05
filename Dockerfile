@@ -59,6 +59,8 @@ RUN set -o xtrace \
     ffmpeg network-manager x11-utils xvfb psmisc \
     # extra linux dependencies so flutter doesn't complain
     mesa-utils \
+    # database
+    libsqlite3-0 libsqlite3-dev \
     # aarch64-linux-gnu dependencies
     g++-aarch64-linux-gnu gcc-aarch64-linux-gnu \
     # x86_64-linux-gnu dependencies
