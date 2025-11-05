@@ -238,13 +238,14 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 paymentViewModel.currentWalletType) {
               sendViewModel.setSelectedCryptoCurrency(
                   newResult.addressDetectionResult!.detectedCurrency!.title);
+            } else {
+              _showPaymentConfirmation(
+                paymentViewModel,
+                walletSwitcherViewModel,
+                paymentRequest,
+                newResult,
+              );
             }
-            _showPaymentConfirmation(
-              paymentViewModel,
-              walletSwitcherViewModel,
-              paymentRequest,
-              newResult,
-            );
           },
         );
       },

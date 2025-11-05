@@ -219,7 +219,6 @@ class TokenUtilities {
 
   static Future<List<CryptoCurrency>> getAvailableTokensForNetwork(
     WalletType network,
-    Box<WalletInfo> walletInfoSource,
   ) async {
     final baseCurrency = walletTypeToCryptoCurrency(network);
     final allTokens = <CryptoCurrency>[];
@@ -231,7 +230,8 @@ class TokenUtilities {
       // For EVM networks: ETH has no tag, POL/BASE have tags
       // Match by tag for POL/BASE, match by title==tag for ETH
       final matches = (baseCurrency.tag == null && baseCurrency.title == currency.tag) ||
-          (baseCurrency.tag != null && currency.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase());
+          (baseCurrency.tag != null &&
+              currency.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase());
 
       if (matches && _shouldAddToken(allTokens, currency, addedAddresses)) {
         allTokens.add(currency);
@@ -242,7 +242,7 @@ class TokenUtilities {
     }
 
     // Add user tokens that don't already exist
-    final userTokens = await _getUserTokensForNetwork(baseCurrency, walletInfoSource);
+    final userTokens = await _getUserTokensForNetwork(baseCurrency);
     for (final token in userTokens) {
       if (_shouldAddToken(allTokens, token, addedAddresses)) {
         allTokens.add(token);
@@ -270,7 +270,7 @@ class TokenUtilities {
       }
       return true;
     }
-    
+
     return !existingTokens.any((existing) => _matchesCurrency(existing, token));
   }
 
@@ -279,11 +279,8 @@ class TokenUtilities {
         (a.tag?.toUpperCase() == b.tag?.toUpperCase() || (a.tag == null && b.tag == null));
   }
 
-  static Future<List<CryptoCurrency>> _getUserTokensForNetwork(
-    CryptoCurrency baseCurrency,
-    Box<WalletInfo> walletInfoSource,
-  ) async {
-    final tokens = await TokenUtilities.loadAllUniqueEvmTokens(walletInfoSource);
+  static Future<List<CryptoCurrency>> _getUserTokensForNetwork(CryptoCurrency baseCurrency) async {
+    final tokens = await TokenUtilities.loadAllUniqueEvmTokens();
 
     return tokens.where((token) {
       // Match by tag, except for ETH which has no tag - match by title instead

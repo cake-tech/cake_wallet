@@ -74,10 +74,7 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
     if (selectedNetwork == null) return;
 
     try {
-      final tokens = await TokenUtilities.getAvailableTokensForNetwork(
-        selectedNetwork!,
-        widget.paymentViewModel.walletInfoSource,
-      );
+      final tokens = await TokenUtilities.getAvailableTokensForNetwork(selectedNetwork!);
       if (tokens.isNotEmpty) {
         setState(() {
           selectedToken = tokens.first;
@@ -149,7 +146,7 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
             color: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.onPrimary,
             onPressed: selectedNetwork != null && selectedToken != null
-                ? () => _handleNext(context)
+                ? () async => await _handleNext(context)
                 : null,
           ),
           const SizedBox(height: 48),
@@ -196,10 +193,7 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
     if (selectedNetwork == null) return;
 
     try {
-      final availableTokens = await TokenUtilities.getAvailableTokensForNetwork(
-        selectedNetwork!,
-        widget.paymentViewModel.walletInfoSource,
-      );
+      final availableTokens = await TokenUtilities.getAvailableTokensForNetwork(selectedNetwork!);
 
       if (availableTokens.isEmpty) return;
 
@@ -225,12 +219,12 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
     }
   }
 
-  void _handleNext(BuildContext context) {
+  Future<void> _handleNext(BuildContext context) async {
     if (selectedNetwork == null || selectedToken == null) return;
 
     Navigator.of(context).pop();
 
-    final compatibleWallets = widget.paymentViewModel.getWalletsByType(selectedNetwork!);
+    final compatibleWallets = await widget.paymentViewModel.getWalletsByType(selectedNetwork!);
 
     final newResult = PaymentFlowResult.evmNetworkSelection(
       AddressDetectionResult(
