@@ -99,7 +99,7 @@ class WalletRestorePage extends BasePage {
                   children: [
                     Observer(
                       builder: (context) {
-                        return walletRestoreViewModel.mode == WalletRestoreMode.seed
+                        return walletRestoreViewModel.walletHasPassphrase 
                             ? StandardCheckbox(
                                 captionColor: Theme.of(context).colorScheme.onSecondaryContainer,
                                 value: walletRestoreViewModel.hasPassphrase,

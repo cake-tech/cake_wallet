@@ -91,17 +91,17 @@ class DecredSeedType extends EnumerableItem<int> with Serializable<int> {
 
   final DerivationType type;
 
-  static const all = [DecredSeedType.nanoStandard, DecredSeedType.bip39];
+  static const all = [DecredSeedType.decred, DecredSeedType.bip39];
 
   static const defaultDerivationType = bip39;
 
-  static const nanoStandard = DecredSeedType(DerivationType.nano, raw: 0, title: 'Decred');
+  static const decred = DecredSeedType(DerivationType.decred, raw: 0, title: 'Decred');
   static const bip39 = DecredSeedType(DerivationType.bip39, raw: 1, title: 'BIP39');
 
   static DecredSeedType deserialize({required int raw}) {
     switch (raw) {
       case 0:
-        return nanoStandard;
+        return decred;
       case 1:
         return bip39;
       default:
