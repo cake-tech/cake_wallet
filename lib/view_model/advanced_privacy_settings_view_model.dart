@@ -91,7 +91,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.wownero,
         WalletType.zano,
         WalletType.dogecoin,
-      ].contains(type);
+      ].contains(type) || (type == WalletType.decred && _settingsStore.decredSeedType != DecredSeedType.decred);
 
   @computed
   bool get addCustomNode => _addCustomNode;
