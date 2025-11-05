@@ -96,6 +96,8 @@
   "biometric_auth_reason": "Ya ìka ọwọ́ yín láti ṣe ìfẹ̀rílàdí",
   "bitcoin_dark_theme": "Bitcoin Dark Akori",
   "bitcoin_light_theme": "Bitcoin Light Akori",
+  "bitcoin_lightning_deposit": "Owo ifipamọ",
+  "bitcoin_lightning_withdraw": "Yọkuro",
   "bitcoin_payments_require_1_confirmation": "Àwọn àránṣẹ́ Bitcoin nílò ìjẹ́rìísí kan. Ó lè lo ìṣéjú ogun tàbí ìṣéjú jù. A dúpẹ́ fún sùúrù yín! Ẹ máa gba ímeèlì t'ó bá jẹ́rìísí àránṣẹ́ náà.",
   "block_height": "Dènà giga",
   "block_remaining": "1 bulọọki to ku",

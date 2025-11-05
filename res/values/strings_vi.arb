@@ -96,6 +96,8 @@
   "biometric_auth_reason": "Quét vân tay để xác thực",
   "bitcoin_dark_theme": "Chủ đề Bitcoin tối",
   "bitcoin_light_theme": "Chủ đề Bitcoin sáng",
+  "bitcoin_lightning_deposit": "Tiền gửi",
+  "bitcoin_lightning_withdraw": "Rút",
   "bitcoin_payments_require_1_confirmation": "Các khoản thanh toán Bitcoin yêu cầu 1 xác nhận, có thể mất 20 phút hoặc lâu hơn. Cảm ơn bạn đã kiên nhẫn! Bạn sẽ nhận được email khi thanh toán được xác nhận.",
   "block_height": "Chiều cao khối",
   "block_remaining": "1 khối còn lại",

@@ -96,6 +96,8 @@
   "biometric_auth_reason": "प्रमाणित करने के लिए अपने फ़िंगरप्रिंट को स्कैन करें",
   "bitcoin_dark_theme": "बिटकॉइन डार्क थीम",
   "bitcoin_light_theme": "बिटकॉइन लाइट थीम",
+  "bitcoin_lightning_deposit": "जमा",
+  "bitcoin_lightning_withdraw": "निकालना",
   "bitcoin_payments_require_1_confirmation": "बिटकॉइन भुगतान के लिए 1 पुष्टिकरण की आवश्यकता होती है, जिसमें 20 मिनट या अधिक समय लग सकता है। आपके धैर्य के लिए धन्यवाद! भुगतान की पुष्टि होने पर आपको ईमेल किया जाएगा।",
   "block_height": "ब्लॉक ऊंचाई",
   "block_remaining": "1 ब्लॉक शेष",
