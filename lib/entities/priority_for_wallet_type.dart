@@ -33,8 +33,6 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.base:
       return base!.getTransactionPriorities();
     case WalletType.arbitrum:
-      return arbitrum!.getTransactionPriorities();
-    // no such thing for nano/banano/solana/tron:
     case WalletType.nano:
     case WalletType.banano:
     case WalletType.solana:

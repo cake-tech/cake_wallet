@@ -609,7 +609,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               return pendingTransaction; // do NOT fall back to regular flow
             }
             if (walletType == WalletType.arbitrum) {
-              final priority = _settingsStore.priority[WalletType.arbitrum]!;
               _pendingApprovalTx = await buildApprovalIfNeeded(
                 spender: routerTo!,
                 tokenContract: tokenContract,
@@ -623,7 +622,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 routerTo,
                 routerData,
                 routerValueWei,
-                priority,
               );
 
               _isSwapsXYZCallDataTx = true;
@@ -673,13 +671,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             return pendingTransaction;
           }
           if (walletType == WalletType.arbitrum) {
-            final priority = _settingsStore.priority[WalletType.arbitrum]!;
             pendingTransaction = await arbitrum!.createRawCallDataTransaction(
               wallet,
               routerTo!,
               routerData,
               routerValueWei,
-              priority,
             );
             _isSwapsXYZCallDataTx = true;
             state = ExecutedSuccessfullyState();
@@ -883,7 +879,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type != WalletType.nano &&
         wallet.type != WalletType.banano &&
         wallet.type != WalletType.solana &&
-        wallet.type != WalletType.tron) {
+        wallet.type != WalletType.tron &&
+        wallet.type != WalletType.arbitrum) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
 
@@ -927,8 +924,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return base!.createBaseTransactionCredentials(outputs,
             priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.arbitrum:
-        return arbitrum!.createArbitrumTransactionCredentials(outputs,
-            priority: priority!, currency: selectedCryptoCurrency);
+        return arbitrum!
+            .createArbitrumTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       case WalletType.solana:
         return solana!
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
@@ -1244,13 +1241,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         priority,
       );
     } else if (walletType == WalletType.arbitrum) {
-      final priority = _settingsStore.priority[WalletType.arbitrum]!;
       return await arbitrum!.createTokenApproval(
         wallet,
         requiredAmount,
         spender,
         erc20Token,
-        priority,
       );
     }
 

@@ -94,8 +94,6 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         return transactionPriority == polygon!.getPolygonTransactionPrioritySlow();
       case WalletType.base:
         return transactionPriority == base!.getBaseTransactionPrioritySlow();
-      case WalletType.arbitrum:
-        return transactionPriority == arbitrum!.getArbitrumTransactionPrioritySlow();
       case WalletType.decred:
         return transactionPriority == decred!.getDecredTransactionPrioritySlow();
       case WalletType.dogecoin:
@@ -105,6 +103,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.banano:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.arbitrum:
         return false;
     }
   }
@@ -122,7 +121,8 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type != WalletType.nano &&
       wallet.type != WalletType.banano &&
       wallet.type != WalletType.solana &&
-      wallet.type != WalletType.tron;
+      wallet.type != WalletType.tron &&
+      wallet.type != WalletType.arbitrum;
 
   @computed
   bool get isElectrumWallet =>
@@ -206,9 +206,6 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         break;
       case WalletType.base:
         _settingsStore.priority[wallet.type] = base!.getDefaultTransactionPriority();
-        break;
-      case WalletType.arbitrum:
-        _settingsStore.priority[wallet.type] = arbitrum!.getDefaultTransactionPriority();
         break;
       default:
         break;

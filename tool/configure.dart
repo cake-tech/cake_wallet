@@ -1706,21 +1706,15 @@ abstract class Arbitrum {
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
-  TransactionPriority getDefaultTransactionPriority();
-  TransactionPriority getArbitrumTransactionPrioritySlow();
-  List<TransactionPriority> getTransactionPriorities();
-  TransactionPriority deserializeArbitrumTransactionPriority(int raw);
 
   Object createArbitrumTransactionCredentials(
     List<Output> outputs, {
-    required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
   });
 
   Object createArbitrumTransactionCredentialsRaw(
     List<OutputInfo> outputs, {
-    TransactionPriority? priority,
     required CryptoCurrency currency,
     required int feeRate,
   });
@@ -1735,7 +1729,7 @@ abstract class Arbitrum {
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
 
   Future<PendingTransaction> createTokenApproval(WalletBase wallet, BigInt amount, String spender,
-      CryptoCurrency token, TransactionPriority priority);
+      CryptoCurrency token);
 
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updateArbitrumScanUsageState(WalletBase wallet, bool isEnabled);
@@ -1748,7 +1742,7 @@ abstract class Arbitrum {
   List<String> getDefaultTokenContractAddresses();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
   Future<bool> isApprovalRequired(WalletBase wallet, String tokenContract, String spender, BigInt requiredAmount);
-  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to, String dataHex, BigInt valueWei, TransactionPriority priority);
+  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to, String dataHex, BigInt valueWei);
   String? getArbitrumNativeEstimatedFee(WalletBase wallet);
   String? getArbitrumERC20EstimatedFee(WalletBase wallet);
 }

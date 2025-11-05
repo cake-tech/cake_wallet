@@ -276,6 +276,10 @@ abstract class EVMChainWalletBase
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
 
+  @override
+  Future<void> updateEstimatedFeesParams(TransactionPriority priority) async =>
+      await _getEstimatedFees(priority);
+
   Future<void> _getEstimatedFees(TransactionPriority? priority) async {
     final nativeFee = await _getNativeTxFee(priority);
     nativeTxEstimatedFee = nativeFee.toString();
@@ -354,16 +358,14 @@ abstract class EVMChainWalletBase
     required amount,
     required String? contractAddress,
     required String receivingAddressHex,
-    required TransactionPriority priority,
+    required TransactionPriority? priority,
     Uint8List? data,
   }) async {
     try {
       int priorityFee = 0;
-      if (hasPriorityFee) {
+      if (hasPriorityFee && priority != null) {
         if (priority is EVMChainTransactionPriority) {
           priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
-        } else {
-          return GasParamsHandler.zero();
         }
       }
 
@@ -541,7 +543,7 @@ abstract class EVMChainWalletBase
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
         receivingAddressHex: toAddress,
-        priority: _credentials.priority!,
+        priority: _credentials.priority,
         contractAddress: contractAddress,
       );
 
@@ -569,7 +571,7 @@ abstract class EVMChainWalletBase
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
         receivingAddressHex: toAddress,
-        priority: _credentials.priority!,
+        priority: _credentials.priority,
         contractAddress: contractAddress,
       );
 
@@ -592,7 +594,7 @@ abstract class EVMChainWalletBase
           final refinedGasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
             amount: totalAmount,
             receivingAddressHex: toAddress,
-            priority: _credentials.priority!,
+            priority: _credentials.priority,
             contractAddress: contractAddress,
           );
 
@@ -629,7 +631,7 @@ abstract class EVMChainWalletBase
       toAddress: toAddress,
       amount: totalAmount,
       gasFee: estimatedFeesForTransaction,
-      priority: _credentials.priority!,
+      priority: _credentials.priority,
       currency: transactionCurrency,
       feeCurrency: switch (_client.chainId) { 137 => "POL", _ => "ETH" },
       maxFeePerGas: maxFeePerGasForTransaction,
@@ -647,7 +649,7 @@ abstract class EVMChainWalletBase
     String to,
     String dataHex,
     BigInt valueWei,
-    EVMChainTransactionPriority priority,
+    EVMChainTransactionPriority? priority,
   ) async {
     // Estimate gas with the SAME call (sender, to, value, data)
     final gas = await calculateActualEstimatedFeeForCreateTransaction(
@@ -686,8 +688,13 @@ abstract class EVMChainWalletBase
     );
   }
 
-  Future<PendingTransaction> createApprovalTransaction(BigInt amount, String spender,
-      CryptoCurrency token, EVMChainTransactionPriority priority, String feeCurrency) async {
+  Future<PendingTransaction> createApprovalTransaction(
+    BigInt amount,
+    String spender,
+    CryptoCurrency token,
+    EVMChainTransactionPriority? priority,
+    String feeCurrency,
+  ) async {
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == token.title);
     assert(transactionCurrency is Erc20Token);

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/utilities.dart';
@@ -144,7 +143,6 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialEthereumTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
       TransactionPriority? initialBaseTransactionPriority,
-      TransactionPriority? initialArbitrumTransactionPriority,
       TransactionPriority? initialBitcoinCashTransactionPriority,
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
@@ -234,10 +232,6 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.base] = initialBaseTransactionPriority;
     }
 
-    if (initialArbitrumTransactionPriority != null) {
-      priority[WalletType.arbitrum] = initialArbitrumTransactionPriority;
-    }
-
     if (initialBitcoinCashTransactionPriority != null) {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
@@ -307,9 +301,6 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.base:
           key = PreferencesKey.baseTransactionPriority;
-          break;
-        case WalletType.arbitrum:
-          key = PreferencesKey.arbitrumTransactionPriority;
           break;
         case WalletType.zano:
           key = PreferencesKey.zanoTransactionPriority;
@@ -986,7 +977,6 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? ethereumTransactionPriority;
     TransactionPriority? polygonTransactionPriority;
     TransactionPriority? baseTransactionPriority;
-    TransactionPriority? arbitrumTransactionPriority;
     TransactionPriority? bitcoinCashTransactionPriority;
     TransactionPriority? wowneroTransactionPriority;
     TransactionPriority? zanoTransactionPriority;
@@ -1011,10 +1001,6 @@ abstract class SettingsStoreBase with Store {
     if (sharedPreferences.getInt(PreferencesKey.baseTransactionPriority) != null) {
       baseTransactionPriority = base?.deserializeBaseTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
-    }
-    if (sharedPreferences.getInt(PreferencesKey.arbitrumTransactionPriority) != null) {
-      arbitrumTransactionPriority = arbitrum?.deserializeArbitrumTransactionPriority(
-          sharedPreferences.getInt(PreferencesKey.arbitrumTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       bitcoinCashTransactionPriority = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
@@ -1043,7 +1029,6 @@ abstract class SettingsStoreBase with Store {
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
     baseTransactionPriority ??= base?.getDefaultTransactionPriority();
-    arbitrumTransactionPriority ??= arbitrum?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
@@ -1471,7 +1456,6 @@ abstract class SettingsStoreBase with Store {
       initialEthereumTransactionPriority: ethereumTransactionPriority,
       initialPolygonTransactionPriority: polygonTransactionPriority,
       initialBaseTransactionPriority: baseTransactionPriority,
-      initialArbitrumTransactionPriority: arbitrumTransactionPriority,
       initialSyncMode: savedSyncMode,
       initialSyncAll: savedSyncAll,
       shouldShowYatPopup: shouldShowYatPopup,
@@ -1527,11 +1511,6 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.baseTransactionPriority) != null) {
       priority[WalletType.base] = base!.deserializeBaseTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
-    }
-    if (arbitrum != null &&
-        sharedPreferences.getInt(PreferencesKey.arbitrumTransactionPriority) != null) {
-      priority[WalletType.arbitrum] = arbitrum!.deserializeArbitrumTransactionPriority(
-          sharedPreferences.getInt(PreferencesKey.arbitrumTransactionPriority)!);
     }
     if (bitcoinCash != null &&
         sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {

@@ -73,22 +73,8 @@ class CWArbitrum extends Arbitrum {
     return privateKeyInUnitInt.address.hex;
   }
 
-  @override
-  TransactionPriority getDefaultTransactionPriority() => EVMChainTransactionPriority.medium;
-
-  @override
-  TransactionPriority getArbitrumTransactionPrioritySlow() => EVMChainTransactionPriority.slow;
-
-  @override
-  List<TransactionPriority> getTransactionPriorities() => EVMChainTransactionPriority.all;
-
-  @override
-  TransactionPriority deserializeArbitrumTransactionPriority(int raw) =>
-      EVMChainTransactionPriority.deserialize(raw: raw);
-
   Object createArbitrumTransactionCredentials(
     List<Output> outputs, {
-    required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
   }) =>
@@ -107,20 +93,19 @@ class CWArbitrum extends Arbitrum {
               ),
             )
             .toList(),
-        priority: priority as EVMChainTransactionPriority,
+        priority: null,
         currency: currency,
         feeRate: feeRate,
       );
 
   Object createArbitrumTransactionCredentialsRaw(
     List<OutputInfo> outputs, {
-    TransactionPriority? priority,
     required CryptoCurrency currency,
     required int feeRate,
   }) =>
       EVMChainTransactionCredentials(
         outputs,
-        priority: priority as EVMChainTransactionPriority?,
+        priority: null,
         currency: currency,
         feeRate: feeRate,
       );
@@ -196,13 +181,12 @@ class CWArbitrum extends Arbitrum {
     BigInt amount,
     String spender,
     CryptoCurrency token,
-    TransactionPriority priority,
   ) =>
       (wallet as EVMChainWallet).createApprovalTransaction(
         amount,
         spender,
         token,
-        priority as EVMChainTransactionPriority,
+        null,
         "ARB",
       );
 
@@ -246,10 +230,9 @@ class CWArbitrum extends Arbitrum {
       (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
 
   @override
-  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to,
-          String dataHex, BigInt valueWei, TransactionPriority priority) =>
-      (wallet as EVMChainWallet).createCallDataTransaction(
-          to, dataHex, valueWei, priority as EVMChainTransactionPriority);
+  Future<PendingTransaction> createRawCallDataTransaction(
+          WalletBase wallet, String to, String dataHex, BigInt valueWei) =>
+      (wallet as EVMChainWallet).createCallDataTransaction(to, dataHex, valueWei, null);
 
   @override
   String? getArbitrumNativeEstimatedFee(WalletBase wallet) =>
