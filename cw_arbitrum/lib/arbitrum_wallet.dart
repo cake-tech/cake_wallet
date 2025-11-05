@@ -22,6 +22,7 @@ class ArbitrumWallet extends EVMChainWallet {
   ArbitrumWallet({
     required super.walletInfo,
     required super.password,
+    required super.derivationInfo,
     super.mnemonic,
     super.initialBalance,
     super.privateKey,
@@ -162,6 +163,7 @@ class ArbitrumWallet extends EVMChainWallet {
 
     return ArbitrumWallet(
       walletInfo: walletInfo,
+      derivationInfo: await walletInfo.getDerivationInfo(),
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,

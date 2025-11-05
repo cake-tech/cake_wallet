@@ -4,8 +4,8 @@ class CWArbitrum extends Arbitrum {
   @override
   List<String> getArbitrumWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createArbitrumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      ArbitrumWalletService(walletInfoSource, isDirect, client: ArbitrumClient());
+  WalletService createArbitrumWalletService(bool isDirect) =>
+      ArbitrumWalletService(isDirect, client: ArbitrumClient());
 
   @override
   WalletCredentials createArbitrumNewWalletCredentials({
@@ -207,14 +207,15 @@ class CWArbitrum extends Arbitrum {
       );
 
   @override
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
     if (service is EVMChainLedgerService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedgerConnection(
-          service.ledgerConnection, wallet.walletInfo.derivationInfo?.derivationPath);
+          service.ledgerConnection, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     } else if (service is EVMChainBitboxService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
-          .setBitbox(service.manager, wallet.walletInfo.derivationInfo?.derivationPath);
+          .setBitbox(service.manager, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     }
+    return Future.value();
   }
 
   @override
@@ -249,4 +250,5 @@ class CWArbitrum extends Arbitrum {
           String dataHex, BigInt valueWei, TransactionPriority priority) =>
       (wallet as EVMChainWallet).createCallDataTransaction(
           to, dataHex, valueWei, priority as EVMChainTransactionPriority);
+
 }

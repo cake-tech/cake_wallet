@@ -1681,7 +1681,7 @@ import 'package:eth_sig_util/util/utils.dart';
   const arbitrumContent = """
 abstract class Arbitrum {
   List<String> getArbitrumWordList(String language);
-  WalletService createArbitrumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletService createArbitrumWalletService(bool isDirect);
   WalletCredentials createArbitrumNewWalletCredentials(
       {required String name,
       WalletInfo? walletInfo,
@@ -1736,14 +1736,13 @@ abstract class Arbitrum {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
 
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
   List<String> getDefaultTokenContractAddresses();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
   Future<bool> isApprovalRequired(WalletBase wallet, String tokenContract, String spender, BigInt requiredAmount);
   Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to, String dataHex, BigInt valueWei, TransactionPriority priority);
-
 }
 
   """;

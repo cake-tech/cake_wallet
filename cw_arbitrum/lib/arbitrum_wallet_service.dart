@@ -10,7 +10,7 @@ import 'package:cw_arbitrum/arbitrum_wallet.dart';
 import 'package:cw_arbitrum/arbitrum_client.dart';
 
 class ArbitrumWalletService extends EVMChainWalletService<ArbitrumWallet> {
-  ArbitrumWalletService(super.walletInfoSource, super.isDirect, {required this.client});
+  ArbitrumWalletService(super.isDirect, {required this.client});
 
   late ArbitrumClient client;
 
@@ -25,6 +25,7 @@ class ArbitrumWalletService extends EVMChainWalletService<ArbitrumWallet> {
 
     final wallet = ArbitrumWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       mnemonic: mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -40,9 +41,10 @@ class ArbitrumWalletService extends EVMChainWalletService<ArbitrumWallet> {
 
   @override
   Future<ArbitrumWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values.firstWhere(
-      (info) => info.id == WalletBase.idFor(name, getType()),
-    );
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
 
     try {
       final wallet = await ArbitrumWallet.open(
@@ -83,6 +85,7 @@ class ArbitrumWalletService extends EVMChainWalletService<ArbitrumWallet> {
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -97,15 +100,17 @@ class ArbitrumWalletService extends EVMChainWalletService<ArbitrumWallet> {
   Future<ArbitrumWallet> restoreFromHardwareWallet(
     EVMChainRestoreWalletFromHardware credentials,
   ) async {
-    credentials.walletInfo!.derivationInfo = DerivationInfo(
-      derivationType: DerivationType.bip39,
-      derivationPath: "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0",
-    );
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    derivationInfo.derivationType = DerivationType.bip39;
+    derivationInfo.derivationPath = "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0";
+    await derivationInfo.save();
     credentials.walletInfo!.hardwareWalletType = credentials.hardwareWalletType;
     credentials.walletInfo!.address = credentials.hwAccountData.address;
+    await credentials.walletInfo!.save();
 
     final wallet = ArbitrumWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: derivationInfo,
       password: credentials.password!,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -131,6 +136,7 @@ class ArbitrumWalletService extends EVMChainWalletService<ArbitrumWallet> {
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       passphrase: credentials.passphrase,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -145,9 +151,10 @@ class ArbitrumWalletService extends EVMChainWalletService<ArbitrumWallet> {
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values.firstWhere(
-      (info) => info.id == WalletBase.idFor(currentName, getType()),
-    );
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
     final currentWallet = await ArbitrumWallet.open(
       password: password,
       name: currentName,
@@ -162,6 +169,6 @@ class ArbitrumWalletService extends EVMChainWalletService<ArbitrumWallet> {
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    newWalletInfo.save();
   }
 }
