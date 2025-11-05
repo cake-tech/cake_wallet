@@ -305,30 +305,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<ReceivePageOption> getBitcoinReceivePageOptions(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    final keys = bitcoinWallet.keys;
-    if (keys.privateKey.isEmpty) {
-      return BitcoinReceivePageOption.allViewOnly;
-    }
-    return BitcoinReceivePageOption.all;
-  }
-
-  @override
-  List<ReceivePageOption> getLitecoinReceivePageOptions(Object wallet) {
-    final litecoinWallet = wallet as ElectrumWallet;
-    if (Platform.isLinux ||
-        Platform.isMacOS ||
-        Platform.isWindows ||
-        litecoinWallet.isHardwareWallet) {
-      return BitcoinReceivePageOption.allLitecoin
-          .where((element) => element != BitcoinReceivePageOption.mweb)
-          .toList();
-    }
-    return BitcoinReceivePageOption.allLitecoin;
-  }
-
-  @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
     switch (option) {
       case BitcoinReceivePageOption.p2pkh:

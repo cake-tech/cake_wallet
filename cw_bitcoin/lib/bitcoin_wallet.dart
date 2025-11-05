@@ -100,6 +100,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         apiKey: secrets.breezApiKey,
         lnurlDomain: "breez.tips",
       );
+    } else {
+      lightningWallet = null;
     }
 
     payjoinManager = PayjoinManager(PayjoinStorage(payjoinBox), this);

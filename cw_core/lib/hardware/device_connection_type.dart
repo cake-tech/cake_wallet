@@ -36,6 +36,12 @@ enum DeviceConnectionType {
           WalletType.polygon,
         ].contains(walletType);
         break;
+      case HardwareWalletType.cupcake:
+      case HardwareWalletType.coldcard:
+      case HardwareWalletType.seedsigner:
+      case HardwareWalletType.keystone:
+        // This should not be thrown since it should never reach this code for these HardwareWalletTypes
+        throw UnimplementedError();
     }
 
     return isSupported

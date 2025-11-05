@@ -223,8 +223,6 @@ abstract class Bitcoin {
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
-  List<ReceivePageOption> getBitcoinReceivePageOptions(Object wallet);
-  List<ReceivePageOption> getLitecoinReceivePageOptions(Object wallet);
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
   bool isPayjoinAvailable(Object wallet);
   bool hasSelectedSilentPayments(Object wallet);

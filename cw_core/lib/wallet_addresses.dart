@@ -1,9 +1,11 @@
+import 'package:cw_core/payment_uris.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletAddresses {
-  WalletAddresses(this.walletInfo)
+  WalletAddresses(this.walletInfo, [this.isTestnet = false])
       : addressesMap = {},
         allAddressesMap = {},
         addressInfos = {},
@@ -17,11 +19,13 @@ abstract class WalletAddresses {
 
   final WalletInfo walletInfo;
 
+  final bool isTestnet;
+
   String get address;
 
   String get latestAddress {
-    if (walletInfo.type == WalletType.monero || walletInfo.type == WalletType.wownero) {
-      if (addressesMap.keys.length == 0) return address;
+    if ([WalletType.monero, WalletType.wownero].contains(walletInfo.type)) {
+      if (addressesMap.keys.isEmpty) return address;
       return addressesMap[addressesMap.keys.last] ?? address;
     }
     return _localAddress ?? address;
@@ -79,4 +83,18 @@ abstract class WalletAddresses {
 
   bool containsAddress(String address) =>
       addressesMap.containsKey(address) || allAddressesMap.containsKey(address);
+
+  List<ReceivePageOption> get receivePageOptions => ReceivePageOptions;
+
+  /// Get a [PaymentURI] for the current [address]
+  /// e.g. ethereum:0x0
+  PaymentURI getPaymentUri(String amount) => PaymentURI(
+        scheme: walletTypeToString(walletInfo.type).toLowerCase(),
+        address: address,
+        amount: amount,
+      );
+
+  /// Get a [PaymentURI] for the current [address] asynchronously
+  /// this can be used if a payment requires a api call beforehand
+  Future<PaymentURI> getPaymentRequestUri(String amount) async => getPaymentUri(amount);
 }
