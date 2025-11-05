@@ -28,6 +28,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 
 import 'package:cake_wallet/entities/contact_base.dart';
 
@@ -49,8 +50,15 @@ abstract class OutputBase with Store {
         address = '',
         note = '',
         extractedAddress = '',
+        estimatedFee = 0.0,
         parsedAddress = ParsedAddress(addresses: []) {
     _setCryptoNumMaximumFractionDigits();
+    autorun((_) {
+      final status = _wallet.syncStatus;
+      printV("Sync status changed to $status. Recalculating fees");
+
+      calculateEstimatedFee();
+    });
   }
 
   Key key;
@@ -118,6 +126,9 @@ abstract class OutputBase with Store {
           case WalletType.base:
             _amount = base!.formatterBaseParseAmount(_cryptoAmount);
             break;
+          case WalletType.arbitrum:
+            _amount = arbitrum!.formatterArbitrumParseAmount(_cryptoAmount);
+            break;
           case WalletType.wownero:
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
@@ -145,28 +156,74 @@ abstract class OutputBase with Store {
     return amount;
   }
 
-  @computed
-  double get estimatedFee {
-    try {
-      // forces mobx to rebuild the computed value
-      final _ = _wallet.syncStatus;
+  @observable
+  double estimatedFee;
 
+  @action
+  Future<void> calculateEstimatedFee() async {
+    try {
       if (_wallet.type == WalletType.tron) {
         if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
-          final nativeEstimatedFee = tron!.getTronNativeEstimatedFee(_wallet) ?? 0;
-          return double.parse(nativeEstimatedFee.toString());
+          final nativeEstimatedFee = tron!.getTronNativeEstimatedFee(_wallet) ?? '0';
+          estimatedFee = double.parse(nativeEstimatedFee);
         } else {
-          final trc20EstimatedFee = tron!.getTronTRC20EstimatedFee(_wallet) ?? 0;
-          return double.parse(trc20EstimatedFee.toString());
+          final trc20EstimatedFee = tron!.getTronTRC20EstimatedFee(_wallet) ?? '0';
+          estimatedFee = double.parse(trc20EstimatedFee);
         }
       }
 
+      if (isEVMCompatibleChain(_wallet.type)) {
+        if (_wallet.type == WalletType.arbitrum) {
+          String? fee = cryptoCurrencyHandler() == CryptoCurrency.arbEth
+              ? arbitrum!.getArbitrumNativeEstimatedFee(_wallet)
+              : arbitrum!.getArbitrumERC20EstimatedFee(_wallet);
+
+          estimatedFee = arbitrum!
+              .formatterArbitrumAmountToDouble(amount: BigInt.from(double.parse(fee ?? '0.0')));
+          return;
+        }
+
+        await _wallet.updateEstimatedFeesParams(_settingsStore.priority[_wallet.type]!);
+
+        double calculatedFee = 0.0;
+
+        if (_wallet.type == WalletType.ethereum) {
+          String? fee = cryptoCurrencyHandler() == CryptoCurrency.eth
+              ? ethereum!.getEthereumNativeEstimatedFee(_wallet)
+              : ethereum!.getEthereumERC20EstimatedFee(_wallet);
+
+          calculatedFee = ethereum!
+              .formatterEthereumAmountToDouble(amount: BigInt.from(double.parse(fee ?? '0.0')));
+        }
+
+        if (_wallet.type == WalletType.polygon) {
+          String? fee = cryptoCurrencyHandler() == CryptoCurrency.maticpoly
+              ? polygon!.getPolygonNativeEstimatedFee(_wallet)
+              : polygon!.getPolygonERC20EstimatedFee(_wallet);
+
+          calculatedFee = polygon!
+              .formatterPolygonAmountToDouble(amount: BigInt.from(double.parse(fee ?? '0.0')));
+        }
+
+        if (_wallet.type == WalletType.base) {
+          String? fee = cryptoCurrencyHandler() == CryptoCurrency.baseEth
+              ? base!.getBaseNativeEstimatedFee(_wallet)
+              : base!.getBaseERC20EstimatedFee(_wallet);
+          calculatedFee =
+              base!.formatterBaseAmountToDouble(amount: BigInt.from(double.parse(fee ?? '0.0')));
+        }
+
+        estimatedFee = calculatedFee;
+      }
+
       if (_wallet.type == WalletType.solana) {
-        return solana!.getEstimateFees(_wallet) ?? 0.0;
+        estimatedFee = solana!.getEstimateFees(_wallet) ?? 0.0;
       }
 
       int? fee = _wallet.calculateEstimatedFee(
-          _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
+        _settingsStore.priority[_wallet.type]!,
+        formattedCryptoAmount,
+      );
 
       if (_wallet.type == WalletType.bitcoin) {
         if (_settingsStore.priority[_wallet.type] ==
@@ -175,48 +232,34 @@ abstract class OutputBase with Store {
               _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
         }
 
-        return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
+        estimatedFee = bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
       if (_wallet.type == WalletType.litecoin ||
           _wallet.type == WalletType.bitcoinCash ||
           _wallet.type == WalletType.dogecoin) {
-        return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
+        estimatedFee = bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
       if (_wallet.type == WalletType.monero) {
-        return monero!.formatterMoneroAmountToDouble(amount: fee);
+        estimatedFee = monero!.formatterMoneroAmountToDouble(amount: fee);
       }
 
       if (_wallet.type == WalletType.wownero) {
-        return wownero!.formatterWowneroAmountToDouble(amount: fee);
-      }
-
-      if (_wallet.type == WalletType.ethereum) {
-        return ethereum!.formatterEthereumAmountToDouble(amount: BigInt.from(fee));
-      }
-
-      if (_wallet.type == WalletType.polygon) {
-        return polygon!.formatterPolygonAmountToDouble(amount: BigInt.from(fee));
-      }
-
-      if (_wallet.type == WalletType.base) {
-        return base!.formatterBaseAmountToDouble(amount: BigInt.from(fee));
+        estimatedFee = wownero!.formatterWowneroAmountToDouble(amount: fee);
       }
 
       if (_wallet.type == WalletType.zano) {
-        return zano!.formatterIntAmountToDouble(
+        estimatedFee = zano!.formatterIntAmountToDouble(
             amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
       }
 
       if (_wallet.type == WalletType.decred) {
-        return decred!.formatterDecredAmountToDouble(amount: fee);
+        estimatedFee = decred!.formatterDecredAmountToDouble(amount: fee);
       }
     } catch (e) {
       printV(e.toString());
     }
-
-    return 0;
   }
 
   @computed
@@ -337,6 +380,7 @@ abstract class OutputBase with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.haven:

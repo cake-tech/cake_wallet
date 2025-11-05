@@ -109,6 +109,9 @@
                 <data android:scheme="base" />
                 <data android:scheme="base-wallet" />
                 <data android:scheme="base_wallet" />
+                <data android:scheme="arbitrum" />
+                <data android:scheme="arbitrum-wallet" />
+                <data android:scheme="arbitrum_wallet" />
             </intent-filter>
             <!-- nano-gpt link scheme -->
             <intent-filter android:autoVerify="true">
