@@ -116,7 +116,7 @@ abstract class OtherSettingsViewModelBase with Store {
   @action
   Future<void> onHardwareWalletTypeChanged(HardwareWalletType hwType) async {
     _wallet.walletInfo.hardwareWalletType = hwType;
-    return _wallet.walletInfo.save();
+    await _wallet.walletInfo.save();
   }
 
   @computed

@@ -124,11 +124,11 @@ class OrderCard {
 }
 
 class PaymentData {
-  final CryptoPaymentData btc;
-  final CryptoPaymentData btc_ln;
-  final CryptoPaymentData xmr;
-  final CryptoPaymentData ltc;
-  final CryptoPaymentData ltc_mweb;
+  final CryptoPaymentData? btc;
+  final CryptoPaymentData? btc_ln;
+  final CryptoPaymentData? xmr;
+  final CryptoPaymentData? ltc;
+  final CryptoPaymentData? ltc_mweb;
   final DateTime invoiceTime;
   final DateTime expirationTime;
   final int? commission;
@@ -146,11 +146,11 @@ class PaymentData {
 
   factory PaymentData.fromMap(Map<String, dynamic> map) {
     return PaymentData(
-      btc: CryptoPaymentData.fromMap(map['BTC'] as Map<String, dynamic>),
-      btc_ln: CryptoPaymentData.fromMap(map['BTC_LN'] as Map<String, dynamic>),
-      xmr: CryptoPaymentData.fromMap(map['XMR'] as Map<String, dynamic>),
-      ltc: CryptoPaymentData.fromMap(map['LTC'] as Map<String, dynamic>),
-      ltc_mweb: CryptoPaymentData.fromMap(map['LTC_MWEB'] as Map<String, dynamic>),
+      btc: map['BTC'] != null ? CryptoPaymentData.fromMap(map['BTC'] as Map<String, dynamic>) : null,
+      btc_ln: map['BTC_LN'] != null ? CryptoPaymentData.fromMap(map['BTC_LN'] as Map<String, dynamic>) : null,
+      xmr: map['XMR'] != null ? CryptoPaymentData.fromMap(map['XMR'] as Map<String, dynamic>) : null,
+      ltc: map['LTC'] != null ? CryptoPaymentData.fromMap(map['LTC'] as Map<String, dynamic>) : null,
+      ltc_mweb: map['LTC_MWEB'] != null ? CryptoPaymentData.fromMap(map['LTC_MWEB'] as Map<String, dynamic>) : null,
       invoiceTime: DateTime.fromMillisecondsSinceEpoch(map['invoice_time'] as int),
       expirationTime: DateTime.fromMillisecondsSinceEpoch(map['expiration_time'] as int),
       commission: map['commission'] as int?,

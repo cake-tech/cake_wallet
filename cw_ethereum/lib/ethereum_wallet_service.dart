@@ -10,7 +10,7 @@ import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:cw_evm/evm_chain_wallet_service.dart';
 
 class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
-  EthereumWalletService(super.walletInfoSource, super.isDirect, {required this.client});
+  EthereumWalletService(super.isDirect, {required this.client});
 
   late EthereumClient client;
 
@@ -25,6 +25,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
 
     final wallet = EthereumWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       mnemonic: mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -41,8 +42,10 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
 
   @override
   Future<EthereumWallet> openWallet(String name, String password) async {
-    final walletInfo =
-        walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
 
     try {
       final wallet = await EthereumWallet.open(
@@ -75,8 +78,10 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
     final currentWallet = await EthereumWallet.open(
       password: password,
       name: currentName,
@@ -91,21 +96,23 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    await newWalletInfo.save();
   }
 
   @override
   Future<EthereumWallet> restoreFromHardwareWallet(
       EVMChainRestoreWalletFromHardware credentials) async {
-    credentials.walletInfo!.derivationInfo = DerivationInfo(
-      derivationType: DerivationType.bip39,
-      derivationPath: "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0"
-    );
+    final di = await credentials.walletInfo!.getDerivationInfo();
+    di.derivationType = DerivationType.bip39;
+    di.derivationPath = "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0";
+    await di.save();
     credentials.walletInfo!.hardwareWalletType = credentials.hardwareWalletType;
     credentials.walletInfo!.address = credentials.hwAccountData.address;
+    credentials.walletInfo!.save();
 
     final wallet = EthereumWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: di,
       password: credentials.password!,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -125,6 +132,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -147,6 +155,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       passphrase: credentials.passphrase,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
