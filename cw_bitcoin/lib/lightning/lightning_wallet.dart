@@ -2,7 +2,6 @@ import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
-import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -81,7 +80,7 @@ class LightningWallet {
     }
   }
 
-  Future<PendingTransaction> createTransaction(
+  Future<PendingLightningTransaction> createTransaction(
       String address, BigInt? amountSats, BitcoinTransactionPriority? priority) async {
     final inputType = await sdk.parse(input: address);
 
@@ -120,10 +119,11 @@ class LightningWallet {
 
       return PendingLightningTransaction(
         id: prepareResponse.invoiceDetails.paymentHash,
-        amount: prepareResponse.invoiceDetails.amountMsat?.toInt() ?? 0,
+        amount: ((prepareResponse.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
         fee: feeSats.toInt(),
         commitOverride: () async {
-          await sdk.lnurlPay(request: LnurlPayRequest(prepareResponse: prepareResponse));
+          final res = await sdk.lnurlPay(request: LnurlPayRequest(prepareResponse: prepareResponse));
+          printV(res.payment.status.name);
         },
       );
     } else if (inputType is InputType_BitcoinAddress) {

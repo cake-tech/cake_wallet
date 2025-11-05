@@ -57,7 +57,6 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -807,9 +806,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       // Immediate transaction update for EVM chains, Solana, Tron, and Nano
       if (isEVMWallet ||
-          [WalletType.solana, WalletType.tron, WalletType.nano].contains(walletType)) {
+          [WalletType.bitcoin, WalletType.solana, WalletType.tron, WalletType.nano]
+              .contains(walletType)) {
         Future.delayed(Duration(seconds: 4), () async {
           try {
+            await wallet.updateBalance();
             await wallet.updateTransactionsHistory();
           } catch (e) {
             printV('Failed to update transactions after send: $e');

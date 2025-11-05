@@ -14,6 +14,7 @@ class PendingLightningTransaction with PendingTransaction {
   final int fee;
   final bool isSendAll;
   Future<void> Function() commitOverride;
+  final List<void Function()> _listeners =[];
 
   @override
   final String id;
@@ -34,11 +35,16 @@ class PendingLightningTransaction with PendingTransaction {
   int? get outputCount => 1;
 
   @override
-  Future<void> commit() => commitOverride.call();
+  Future<void> commit() async {
+    await commitOverride.call();
+    _listeners.forEach((e) => e.call());
+  }
 
   @override
   bool shouldCommitUR() => false;
 
   @override
   Future<Map<String, String>> commitUR() => throw UnimplementedError();
+
+  void addListener(void Function() listener) => _listeners.add(listener);
 }
