@@ -60,6 +60,7 @@
   "approve": "承認する",
   "approve_request": "リクエストを承認します",
   "approve_tokens": "トークンを承認します",
+  "arbiscan_history": "ArbiScan の歴史",
   "arrive_in_this_address": "${currency} ${tag}はこの住所に到着します",
   "ascending": "上昇",
   "ask_each_time": "毎回尋ねてください",

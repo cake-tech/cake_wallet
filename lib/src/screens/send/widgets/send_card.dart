@@ -542,7 +542,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   builder: (_) => GestureDetector(
                     key: ValueKey('send_page_select_fee_priority_button_key'),
                     onTap: sendViewModel.feesViewModel.hasFeesPriority
-                        ? () => pickTransactionPriority(context)
+                        ? () => pickTransactionPriority(context, output)
                         : () {},
                     child: Container(
                       padding: EdgeInsets.only(top: 24),
@@ -803,9 +803,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           }
         }
 
-        final parsedAddress = output.isParsedAddress
-            ? output.extractedAddress
-            : output.address;
+        final parsedAddress = output.isParsedAddress ? output.extractedAddress : output.address;
 
         _lastHandledAddress = current;
         await _handlePaymentFlow(
@@ -841,7 +839,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     _effectsInstalled = true;
   }
 
-  Future<void> pickTransactionPriority(BuildContext context) async {
+  Future<void> pickTransactionPriority(BuildContext context, Output output) async {
     final items = priorityForWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.feesViewModel.transactionPriority);
     final customItemIndex = sendViewModel.feesViewModel.getCustomPriorityIndex(items);
@@ -871,9 +869,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
               mainAxisAlignment: MainAxisAlignment.center,
               sliderValue: customFeeRate,
               onSliderChanged: (double newValue) => setState(() => customFeeRate = newValue),
-              onItemSelected: (TransactionPriority priority) {
+              onItemSelected: (TransactionPriority priority) async {
                 sendViewModel.feesViewModel.setTransactionPriority(priority);
                 setState(() => selectedIdx = items.indexOf(priority));
+                await output.calculateEstimatedFee();
               },
             );
           },

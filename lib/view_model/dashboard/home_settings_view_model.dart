@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -111,6 +112,17 @@ abstract class HomeSettingsViewModelBase with Store {
         );
         await base!.addErc20Token(_balanceViewModel.wallet, baseToken);
       }
+      if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
+        final arbitrumToken = Erc20Token(
+          name: token.name,
+          symbol: token.title,
+          decimal: token.decimals,
+          contractAddress: contractAddress.toLowerCase(),
+          iconPath: token.iconPath,
+          isPotentialScam: token.isPotentialScam,
+        );
+        await arbitrum!.addErc20Token(_balanceViewModel.wallet, arbitrumToken);
+      }
 
       if (_balanceViewModel.wallet.type == WalletType.solana) {
         final splToken = token.copyWith(enabled: true);
@@ -153,6 +165,10 @@ abstract class HomeSettingsViewModelBase with Store {
       return base!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
+      return arbitrum!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    }
+
     if (_balanceViewModel.wallet.type == WalletType.solana) {
       return solana!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
     }
@@ -182,6 +198,10 @@ abstract class HomeSettingsViewModelBase with Store {
 
       if (_balanceViewModel.wallet.type == WalletType.base) {
         await base!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
+      }
+
+      if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
+        await arbitrum!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
       }
 
       if (_balanceViewModel.wallet.type == WalletType.solana) {
@@ -240,6 +260,8 @@ abstract class HomeSettingsViewModelBase with Store {
         break;
       case WalletType.base:
         defaultTokenAddresses = base!.getDefaultTokenContractAddresses();
+      case WalletType.arbitrum:
+        defaultTokenAddresses = arbitrum!.getDefaultTokenContractAddresses();
         break;
       case WalletType.solana:
         defaultTokenAddresses = solana!.getDefaultTokenContractAddresses();
@@ -380,6 +402,10 @@ abstract class HomeSettingsViewModelBase with Store {
       return await base!.getErc20Token(_balanceViewModel.wallet, contractAddress);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
+      return await arbitrum!.getErc20Token(_balanceViewModel.wallet, contractAddress);
+    }
+
     if (_balanceViewModel.wallet.type == WalletType.solana) {
       return await solana!.getSPLToken(_balanceViewModel.wallet, contractAddress);
     }
@@ -424,6 +450,11 @@ abstract class HomeSettingsViewModelBase with Store {
     if (_balanceViewModel.wallet.type == WalletType.base) {
       base!.addErc20Token(_balanceViewModel.wallet, token as Erc20Token);
       if (!value) base!.removeTokenTransactionsInHistory(_balanceViewModel.wallet, token);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
+      arbitrum!.addErc20Token(_balanceViewModel.wallet, token as Erc20Token);
+      if (!value) arbitrum!.removeTokenTransactionsInHistory(_balanceViewModel.wallet, token);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.solana) {
@@ -487,6 +518,14 @@ abstract class HomeSettingsViewModelBase with Store {
         ..sort(_sortFunc));
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
+      tokens.addAll(arbitrum!
+          .getERC20Currencies(_balanceViewModel.wallet)
+          .where((element) => _matchesSearchText(element))
+          .toList()
+        ..sort(_sortFunc));
+    }
+
     if (_balanceViewModel.wallet.type == WalletType.solana) {
       tokens.addAll(solana!
           .getSPLTokenCurrencies(_balanceViewModel.wallet)
@@ -528,7 +567,7 @@ abstract class HomeSettingsViewModelBase with Store {
   bool _matchesSearchText(CryptoCurrency asset) {
     final address = getTokenAddressBasedOnWallet(asset);
 
-    // The homes settings would only be displayed for either of Tron, Ethereum, Polygon, Base or Solana Wallets.
+    // The homes settings would only be displayed for either of Tron, EVM or Solana Wallets.
     if (address == null) return false;
 
     return searchText.isEmpty ||
@@ -558,11 +597,15 @@ abstract class HomeSettingsViewModelBase with Store {
       return base!.getTokenAddress(asset);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
+      return arbitrum!.getTokenAddress(asset);
+    }
+
     if (_balanceViewModel.wallet.type == WalletType.zano) {
       return zano!.getZanoAssetAddress(asset);
     }
 
-    // We return null if it's neither Tron, Polygon, Base, Ethereum or Solana wallet (which is actually impossible because we only display home settings for either of these four wallets).
+    // We return null if it's neither Tron, EVM or Solana wallet (which is actually impossible because we only display home settings for either of these four wallets).
     return null;
   }
 }

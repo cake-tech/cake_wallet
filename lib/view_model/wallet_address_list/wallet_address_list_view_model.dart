@@ -13,6 +13,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -238,6 +239,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
+    if (wallet.type == WalletType.arbitrum) {
+      final primaryAddress = arbitrum!.getAddress(wallet);
+
+      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+    }
+
     if (wallet.type == WalletType.solana) {
       final primaryAddress = solana!.getAddress(wallet);
 
@@ -416,6 +423,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           'assets/images/usdc_icon.svg',
           'assets/images/more_tokens.svg',
         ];
+      case WalletType.arbitrum:
+        return [
+          'assets/images/crypto/arbitrum.webp',
+          'assets/images/usdc_icon.svg',
+          'assets/images/more_tokens.svg',
+        ];
       default:
         return [];
     }
@@ -442,6 +455,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return 'assets/images/zano_chain_mono.svg';
       case WalletType.base:
         return 'assets/images/base_chain_mono.svg';
+      case WalletType.arbitrum:
+        return 'assets/images/arbitrum_chain_mono.svg';
       default:
         return 'assets/images/eth_chain_mono.svg';
     }

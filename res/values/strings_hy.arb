@@ -60,6 +60,7 @@
   "approve": "Հաստատել",
   "approve_request": "Հաստատում է հայցը",
   "approve_tokens": "Հաստատում է նշանները",
+  "arbiscan_history": "Արբիսկանի պատմություն",
   "arrive_in_this_address": "${currency} ${tag}կժամանի այս հասցեում",
   "ascending": "Աճող",
   "ask_each_time": "Հարցնել ամեն անգամ",

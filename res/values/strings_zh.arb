@@ -60,6 +60,7 @@
   "approve": "批准",
   "approve_request": "批准请求",
   "approve_tokens": "批准令牌",
+  "arbiscan_history": "ArbiScan 历史",
   "arrive_in_this_address": "${currency} ${tag}将到达此地址",
   "ascending": "上升",
   "ask_each_time": "每次问",

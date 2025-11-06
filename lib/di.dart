@@ -4,6 +4,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
@@ -1226,6 +1227,8 @@ Future<void> setup({
         return decred!.createDecredWalletService(_unspentCoinsInfoSource);
       case WalletType.base:
         return base!.createBaseWalletService(SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.arbitrum:
+        return arbitrum!.createArbitrumWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.haven:
         return HavenWalletService();
       case WalletType.none:
