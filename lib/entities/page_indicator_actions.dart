@@ -25,19 +25,19 @@ class PageIndicatorActions {
   ];
 
   static PageIndicatorActions AppsAction = PageIndicatorActions._(
-    name: (context) => 'Apps', // TODO localization
+    name: (context) => S.of(context).apps,
     image: 'assets/images/main_actions/apps.svg',
     key: ValueKey('dashboard_page_apps_action_button_key'),
   );
 
   static PageIndicatorActions homeAction = PageIndicatorActions._(
-    name: (context) => 'Home', // TODO localization
+    name: (context) => S.of(context).home,
     image: 'assets/images/main_actions/home.svg',
     key: ValueKey('dashboard_page_home_action_button_key'),
   );
 
   static PageIndicatorActions historyAction = PageIndicatorActions._(
-    name: (context) => 'History', // TODO localization
+    name: (context) => S.of(context).history,
     image: 'assets/images/main_actions/history.svg',
     key: ValueKey('dashboard_page_history_action_button_key'),
     isEnabled: (viewModel) => viewModel.isEnabledSwapAction,
