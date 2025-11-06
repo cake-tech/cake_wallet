@@ -1032,7 +1032,7 @@ class YoCupertinoLocalizations extends GlobalCupertinoLocalizations {
   @override
   // TODO: implement backButtonLabel
   String get backButtonLabel => "backButtonLabel";
-  
+
   @override
   // TODO: implement cancelButtonLabel
   String get cancelButtonLabel => "cancelButtonLabel";

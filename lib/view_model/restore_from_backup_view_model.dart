@@ -45,11 +45,11 @@ abstract class RestoreFromBackupViewModelBase with Store {
 
       try {
         await backupService.importBackupFile(file, password);
-      } catch (e) {
+      } catch (e, s) {
         if (e.toString().contains("unknown_backup_version")) {
           state = FailureState('This is not a valid backup file, please make sure you have selected the correct one');
         } else {
-          state = FailureState(e.toString());
+          state = FailureState(e.toString() + "\n" + s.toString());
         }
       }
 

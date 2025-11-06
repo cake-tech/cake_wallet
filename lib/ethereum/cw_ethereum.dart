@@ -4,8 +4,8 @@ class CWEthereum extends Ethereum {
   @override
   List<String> getEthereumWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      EthereumWalletService(walletInfoSource, isDirect, client: EthereumClient());
+  WalletService createEthereumWalletService(bool isDirect) =>
+      EthereumWalletService(isDirect, client: EthereumClient());
 
   @override
   WalletCredentials createEthereumNewWalletCredentials({
@@ -181,16 +181,16 @@ class CWEthereum extends Ethereum {
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
     if (service is EVMChainLedgerService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedgerConnection(
-          service.ledgerConnection, wallet.walletInfo.derivationInfo?.derivationPath);
+          service.ledgerConnection, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     } else if (service is EVMChainBitboxService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
-          .setBitbox(service.manager, wallet.walletInfo.derivationInfo?.derivationPath);
+          .setBitbox(service.manager, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     } else if (service is EVMChainTrezorService) {
-      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials)
-          .setTrezorConnect(service.connect, wallet.walletInfo.derivationInfo?.derivationPath);
+      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials).setTrezorConnect(
+          service.connect, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     }
   }
 
@@ -218,10 +218,22 @@ class CWEthereum extends Ethereum {
         .any((element) => element.contractAddress.toLowerCase() == contractAddress.toLowerCase());
   }
 
+  @override
+  Future<bool> isApprovalRequired(
+          WalletBase wallet, String tokenContract, String spender, BigInt requiredAmount) =>
+      (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
+
+  @override
   Future<PendingTransaction> createTokenApproval(WalletBase wallet, BigInt amount, String spender,
           CryptoCurrency token, TransactionPriority priority) =>
       (wallet as EVMChainWallet).createApprovalTransaction(
           amount, spender, token, priority as EVMChainTransactionPriority, "ETH");
+
+  @override
+  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to,
+          String dataHex, BigInt valueWei, TransactionPriority priority) =>
+      (wallet as EVMChainWallet).createCallDataTransaction(
+          to, dataHex, valueWei, priority as EVMChainTransactionPriority);
 
   // Integrations
   @override
@@ -269,4 +281,12 @@ class CWEthereum extends Ethereum {
   @override
   Future<List<Map<String, dynamic>>> getCloneablePositions(WalletBase wallet) =>
       DEuroBorrowing(wallet as EthereumWallet).getCloneablePositions();
+
+  @override
+  String? getEthereumNativeEstimatedFee(WalletBase wallet) =>
+      (wallet as EVMChainWallet).nativeTxEstimatedFee;
+
+  @override
+  String? getEthereumERC20EstimatedFee(WalletBase wallet) =>
+      (wallet as EVMChainWallet).erc20TxEstimatedFee;
 }

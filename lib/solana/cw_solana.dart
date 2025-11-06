@@ -4,8 +4,8 @@ class CWSolana extends Solana {
   @override
   List<String> getSolanaWordList(String language) => SolanaMnemonics.englishWordlist;
 
-  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      SolanaWalletService(walletInfoSource, isDirect);
+  WalletService createSolanaWalletService(bool isDirect) =>
+      SolanaWalletService(isDirect);
 
   @override
   WalletCredentials createSolanaNewWalletCredentials({

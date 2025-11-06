@@ -181,6 +181,11 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.swapTrade.title,
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
+            FilterItem(
+                value: () => tradeFilterStore.displaySwapXyz,
+                caption: ExchangeProviderDescription.swapsXyz.title,
+                onChanged: () =>
+                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
           ]
         },
         subname = '',
@@ -874,6 +879,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.nano:
       case WalletType.banano:
@@ -1093,8 +1099,8 @@ abstract class DashboardViewModelBase with Store {
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
   Future<List<String>> checkForHavenWallets() async {
-    final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
-    return walletInfoSource.values
+    final walletInfos = await WalletInfo.getAll();
+    return walletInfos
         .where((element) => element.type == WalletType.haven)
         .map((e) => e.name)
         .toList();
@@ -1107,10 +1113,9 @@ abstract class DashboardViewModelBase with Store {
           .loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
       final vulnerableSeeds = vulnerableSeedsString.split("\n");
 
-      final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
-
       List<String> affectedWallets = [];
-      for (var walletInfo in walletInfoSource.values) {
+      final walletInfos = await WalletInfo.getAll();
+      for (var walletInfo in walletInfos) {
         if (walletInfo.type == WalletType.bitcoin) {
           final password = await keyService.getWalletPassword(walletName: walletInfo.name);
           final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);

@@ -148,7 +148,7 @@ class BuySellPage extends BasePage {
             bottomSection: Observer(
               builder: (_) => Column(
                 children: [
-                  if (buySellViewModel.isBuySellQuotFailed)
+                  if (buySellViewModel.isBuySellQuoteFailed)
                     Padding(
                       padding: EdgeInsets.only(bottom: 15),
                       child: Row(
@@ -166,7 +166,8 @@ class BuySellPage extends BasePage {
                           Expanded(
                             flex: 8,
                             child: Text(
-                              S.of(context).buy_sell_pair_is_not_supported_warning,
+                              buySellViewModel.buySellQuoteFailedError ??
+                                  S.of(context).buy_sell_pair_is_not_supported_warning,
                               textAlign: TextAlign.center,
                               softWrap: true,
                               overflow: TextOverflow.ellipsis,
@@ -188,9 +189,9 @@ class BuySellPage extends BasePage {
                     },
                     color: Theme.of(context).colorScheme.primary,
                     textColor: Theme.of(context).colorScheme.onPrimary,
-                    isDisabled: buySellViewModel.isBuySellQuotFailed,
+                    isDisabled: buySellViewModel.isBuySellQuoteFailed,
                     isLoading:
-                        !buySellViewModel.isReadyToTrade && !buySellViewModel.isBuySellQuotFailed,
+                        !buySellViewModel.isReadyToTrade && !buySellViewModel.isBuySellQuoteFailed,
                   ),
                 ],
               ),

@@ -7,7 +7,7 @@ defaults:
     shell: bash
 jobs:
   PR_test_build:
-    runs-on: linux-amd64
+    runs-on: [Linux, amd64, forlinux]
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
       env:
@@ -151,6 +151,7 @@ jobs:
           echo "const bitcoinCashTestWalletSeeds =  '${{ secrets.BITCOIN_CASH_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const polygonTestWalletSeeds = '${{ secrets.POLYGON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const baseTestWalletSeeds = '${{ secrets.BASE_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const arbitrumTestWalletSeeds = '${{ secrets.ARBITRUM_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const solanaTestWalletSeeds = '${{ secrets.SOLANA_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const tronTestWalletSeeds = '${{ secrets.TRON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const nanoTestWalletSeeds =  '${{ secrets.NANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
@@ -164,6 +165,7 @@ jobs:
           echo "const bitcoinCashTestWalletReceiveAddress = '${{ secrets.BITCOIN_CASH_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const polygonTestWalletReceiveAddress =  '${{ secrets.POLYGON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const baseTestWalletReceiveAddress =  '${{ secrets.BASE_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const arbitrumTestWalletReceiveAddress =  '${{ secrets.ARBITRUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const solanaTestWalletReceiveAddress =  '${{ secrets.SOLANA_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const tronTestWalletReceiveAddress =  '${{ secrets.TRON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
@@ -176,6 +178,7 @@ jobs:
           echo "const chainflipAffiliateFee = '${{ secrets.CHAINFLIP_AFFILIATE_FEE }}';" >> lib/.secrets.g.dart
           echo "const kryptonimApiKey = '${{ secrets.KRYPTONIM_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const walletGroupSalt = '${{ secrets.WALLET_GROUP_SALT }}';" >> lib/.secrets.g.dart
+          echo "const swapsXyzApiKey = '${{ secrets.SWAPSXYZ_API_KEY }}';" >> lib/.secrets.g.dart
 
       - name: Fetch prebuilt Torch
         run: |
@@ -186,6 +189,19 @@ jobs:
             pushd torch_dart
               tar -xzf ../torch_dart.tar.gz
             popd
+            rm ./torch_dart.tar.gz
+          popd
+
+      - name: Fetch prebuilt Reown
+        run: |
+          set -x -e
+          pushd scripts
+            wget https://github.com/cake-tech/reown_flutter/releases/download/v0.0.4/reown_flutter-v0.0.4.tar.gz -O reown_flutter.tar.gz
+            mkdir reown_flutter
+            pushd reown_flutter
+              tar -xzf ../reown_flutter.tar.gz
+            popd
+            rm ./reown_flutter.tar.gz
           popd
 
       - name: Execute Build and Setup Commands
@@ -209,7 +225,7 @@ jobs:
         run: |
           set -x -e
           pushd scripts
-            ./build_bitbox_flutter.sh --dont-install
+            ./build_bitbox_flutter.sh
           popd
 
       - name: Install Flutter dependencies
@@ -222,7 +238,7 @@ jobs:
           export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
           echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
           pushd scripts/android
-            ./build_mwebd.sh --dont-install
+            ./build_mwebd.sh
           popd
 
       - name: Build generated code
@@ -294,8 +310,8 @@ jobs:
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/restore_wallet_through_seeds_flow_test.dart
       - name: Test [cw_monero]
-        timeout-minutes: 2
-        run: cd cw_monero && flutter test
+        timeout-minutes: 15
+        run: cd cw_monero && flutter test --verbose
       - name: Stop screen recording, encrypt and upload
         if: always()
         run: |

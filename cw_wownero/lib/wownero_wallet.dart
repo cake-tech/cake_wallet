@@ -53,7 +53,7 @@ abstract class WowneroWalletBase
     extends WalletBase<WowneroBalance, WowneroTransactionHistory, WowneroTransactionInfo>
     with Store {
   WowneroWalletBase(
-      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
+      {required WalletInfo walletInfo, required DerivationInfo derivationInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
           CryptoCurrency.wow: WowneroBalance(
               fullBalance: wownero_wallet.getFullBalance(accountIndex: 0),
@@ -66,7 +66,7 @@ abstract class WowneroWalletBase
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
         this.unspentCoinsInfo = unspentCoinsInfo,
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     transactionHistory = WowneroTransactionHistory();
     walletAddresses = WowneroWalletAddresses(walletInfo, transactionHistory);
 
