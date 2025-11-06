@@ -296,7 +296,7 @@ abstract class EVMChainWalletBase
       int priorityFee = 0;
       if (hasPriorityFee) {
         if (priority is EVMChainTransactionPriority) {
-          priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
+          priorityFee = getTotalPriorityFee(priority);
         }
       }
 
@@ -324,7 +324,7 @@ abstract class EVMChainWalletBase
       int priorityFee = 0;
       if (hasPriorityFee) {
         if (priority is EVMChainTransactionPriority) {
-          priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
+          priorityFee = getTotalPriorityFee(priority);
         }
       }
 
