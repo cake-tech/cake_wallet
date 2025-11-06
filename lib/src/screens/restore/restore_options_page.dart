@@ -137,10 +137,13 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
   }
 
   void _showQRScanError(BuildContext context, String error) {
-    setState(() => isRestoring = false);
+    if (mounted) {
+      setState(() => isRestoring = false);
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      showPopUp<void>(
+      if (mounted) {
+        showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
             return AlertWithOneAction(
@@ -149,6 +152,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                 buttonText: S.of(context).ok,
                 buttonAction: () => Navigator.of(context).pop());
           });
+      }
     });
   }
 

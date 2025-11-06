@@ -25,6 +25,7 @@ class EthereumWallet extends EVMChainWallet {
     required super.client,
     required super.password,
     required super.walletInfo,
+    required super.derivationInfo,
     super.mnemonic,
     super.initialBalance,
     super.privateKey,
@@ -185,6 +186,7 @@ class EthereumWallet extends EVMChainWallet {
 
     return EthereumWallet(
       walletInfo: walletInfo,
+      derivationInfo: await walletInfo.getDerivationInfo(),
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,

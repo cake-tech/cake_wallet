@@ -23,6 +23,7 @@ import 'package:web3dart/web3dart.dart';
 class PolygonWallet extends EVMChainWallet {
   PolygonWallet({
     required super.walletInfo,
+    required super.derivationInfo,
     required super.password,
     super.mnemonic,
     super.initialBalance,
@@ -180,8 +181,11 @@ class PolygonWallet extends EVMChainWallet {
       );
     }
 
+    final derivationInfo = await walletInfo.getDerivationInfo();
+
     return PolygonWallet(
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,

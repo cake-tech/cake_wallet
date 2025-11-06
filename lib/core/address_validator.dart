@@ -347,10 +347,10 @@ class AddressValidator extends TextValidator {
         pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
-          pattern = '0x[0-9a-zA-Z]{42}';
+          pattern = '0x[0-9a-zA-Z]+';
         }
         if (type.tag == CryptoCurrency.maticpoly.tag) {
-          pattern = '0x[0-9a-zA-Z]{42}';
+          pattern = '0x[0-9a-zA-Z]+';
         }
         if (type.tag == CryptoCurrency.sol.title) {
           pattern = '[1-9A-HJ-NP-Za-km-z]{43,44}';

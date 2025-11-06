@@ -1,3 +1,4 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
@@ -99,9 +100,7 @@ void startCurrentWalletChangeReaction(
       if (wallet.walletInfo.address.isEmpty) {
         wallet.walletInfo.address = wallet.walletAddresses.address;
 
-        if (wallet.walletInfo.isInBox) {
-          await wallet.walletInfo.save();
-        }
+        await wallet.walletInfo.save();
       }
     } catch (e) {
       printV(e.toString());
@@ -134,6 +133,10 @@ void startCurrentWalletChangeReaction(
       if (wallet.type == WalletType.base) {
         currencies =
             base!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+      }
+      if (wallet.type == WalletType.arbitrum) {
+        currencies =
+            arbitrum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
       }
       if (wallet.type == WalletType.solana) {
         currencies =

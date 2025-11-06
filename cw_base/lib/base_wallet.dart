@@ -24,6 +24,7 @@ class BaseWallet extends EVMChainWallet {
   BaseWallet({
     required super.walletInfo,
     required super.password,
+    required super.derivationInfo,
     super.mnemonic,
     super.initialBalance,
     super.privateKey,
@@ -60,7 +61,9 @@ class BaseWallet extends EVMChainWallet {
         // update existing token
         final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
         evmChainErc20TokensBox.put(
-            token.contractAddress, Erc20Token.copyWith(token, enabled: existingToken!.enabled));
+          token.contractAddress,
+          Erc20Token.copyWith(token, enabled: existingToken!.enabled),
+        );
       }
     }
   }
@@ -164,6 +167,7 @@ class BaseWallet extends EVMChainWallet {
 
     return BaseWallet(
       walletInfo: walletInfo,
+      derivationInfo: await walletInfo.getDerivationInfo(),
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,

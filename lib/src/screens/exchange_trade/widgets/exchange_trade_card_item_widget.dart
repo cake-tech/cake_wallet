@@ -60,7 +60,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
               FeeSelectionWidget(
                 feesViewModel: feesViewModel,
                 output: output,
-                onTap: () => pickTransactionPriority(context),
+                onTap: () => pickTransactionPriority(context, output),
               ),
             if (exchangeTradeViewModel.sendViewModel.hasCoinControl)
               CoinControlWidget(
@@ -75,7 +75,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
     );
   }
 
-  Future<void> pickTransactionPriority(BuildContext context) async {
+  Future<void> pickTransactionPriority(BuildContext context, Output output) async {
     final items = priorityForWalletType(feesViewModel.walletType);
     final selectedItem = items.indexOf(feesViewModel.transactionPriority);
     final customItemIndex = feesViewModel.getCustomPriorityIndex(items);
@@ -102,10 +102,10 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               sliderValue: customFeeRate,
               onSliderChanged: (double newValue) => setState(() => customFeeRate = newValue),
-              onItemSelected: (TransactionPriority priority) {
+              onItemSelected: (TransactionPriority priority) async {
                 feesViewModel.setTransactionPriority(priority);
                 setState(() => selectedIdx = items.indexOf(priority));
-
+                await output.calculateEstimatedFee();
                 if (feesViewModel.isLowFee) {
                   _showFeeAlert(context);
                 }
