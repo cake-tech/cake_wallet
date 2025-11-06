@@ -238,6 +238,7 @@ flutter:
     - assets/decred_node_list.yml
     - assets/dogecoin_electrum_server_list.yml
     - assets/base_node_list.yml
+    - assets/arbitrum_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/
