@@ -206,7 +206,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.arbitrum:
         final asset = arbitrum!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
             cryptoAmount: arbitrum!.formatterArbitrumAmountToDouble(transaction: transaction),
             price: price);
