@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'dart:math';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -761,8 +762,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     lightningAddress = await lightningWallet!.getAddress();
 
     if (lightningAddress == null) {
-      lightningAddress =
-          await lightningWallet!.registerAddress(walletName.replaceAll(" ", "").toLowerCase());
+      final randomNumber = Random.secure().nextInt(9999);
+      final username = "${walletName.replaceAll(" ", "")}$randomNumber".toLowerCase();
+      try {
+        lightningAddress = await lightningWallet!.registerAddress(username);
+      } catch (e) {
+        printV(e);
+        printV(username);
+        rethrow;
+      }
     }
   }
 }

@@ -435,7 +435,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
-  String get qrImage => getQrImage(type);
+  String get qrImage {
+    if (uri is LightningPaymentRequest) return 'assets/images/btc_chain_qr_lightning.svg';
+    return getQrImage(type);
+  }
 
   @computed
   String get monoImage => getChainMonoImage(type);
