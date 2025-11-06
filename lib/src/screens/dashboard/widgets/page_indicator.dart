@@ -156,10 +156,12 @@ class _PageIndicatorState extends State<PageIndicator> {
     final double halfPill = pillWidth / 2;
     final double centerItemLeft = centerOfBar - halfPill;
 
+    final double centerCorrection = -barWidth * 0.02;
+
     final List<double> positions = [
       firstItemLeft,
-      centerItemLeft,
-      lastItemLeft
+      centerItemLeft + centerCorrection,
+      lastItemLeft,
     ];
 
     final double left = positions[selectedIndex];
@@ -206,54 +208,67 @@ class _PageIndicatorState extends State<PageIndicator> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             for (int i = 0; i < visibleActions.length; i++)
-                              GestureDetector(
-                                behavior: HitTestBehavior.translucent,
+                              Semantics(
+                                button: true,
+                                label: visibleActions[i].name(context),
+                                value: i == selectedIndex ? 'Selected' : null,
+                                hint:
+                                    'Double tap to open ${visibleActions[i].name(context)} page',
+                                enabled: (visibleActions[i]
+                                        .isEnabled
+                                        ?.call(widget.dashboardViewModel) ??
+                                    true),
                                 onTap: () => _onItemTap(i),
-                                child: SizedBox(
-                                  height: barHeight,
-                                  child: AnimatedContainer(
-                                    duration: _firstFrame
-                                        ? Duration.zero
-                                        : inactiveIconMoveDuration,
-                                    curve: Curves.easeOutCubic,
-                                    width: i == selectedIndex
-                                        ? pillWidth
-                                        : _estimatePillWidthForAction(
-                                            context, visibleActions[i]),
-                                    alignment: Alignment.center,
-                                    child: AnimatedOpacity(
-                                      duration: inactiveIconFadeDuration,
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.translucent,
+                                  onTap: () => _onItemTap(i),
+                                  child: SizedBox(
+                                    height: barHeight,
+                                    child: AnimatedContainer(
+                                      duration: _firstFrame
+                                          ? Duration.zero
+                                          : inactiveIconMoveDuration,
                                       curve: Curves.easeOutCubic,
-                                      opacity:
-                                          (i == selectedIndex && _fadeSelected)
-                                              ? 0.0
-                                              : 1.0,
-                                      child: AnimatedScale(
-                                        duration: inactiveIconAppearDuration,
+                                      width: i == selectedIndex
+                                          ? pillWidth
+                                          : _estimatePillWidthForAction(
+                                              context, visibleActions[i]),
+                                      alignment: Alignment.center,
+                                      child: AnimatedOpacity(
+                                        duration: inactiveIconFadeDuration,
                                         curve: Curves.easeOutCubic,
-                                        scale:
-                                            (i == selectedIndex) ? 0.95 : 1.0,
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            SvgPicture.asset(
-                                              visibleActions[i].image,
-                                              width: iconWidth,
-                                              height: iconHeight,
-                                              colorFilter: ColorFilter.mode(
-                                                inactiveColor,
-                                                BlendMode.srcIn,
+                                        opacity: (i == selectedIndex &&
+                                                _fadeSelected)
+                                            ? 0.0
+                                            : 1.0,
+                                        child: AnimatedScale(
+                                          duration: inactiveIconAppearDuration,
+                                          curve: Curves.easeOutCubic,
+                                          scale:
+                                              (i == selectedIndex) ? 0.95 : 1.0,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              SvgPicture.asset(
+                                                visibleActions[i].image,
+                                                width: iconWidth,
+                                                height: iconHeight,
+                                                colorFilter: ColorFilter.mode(
+                                                  inactiveColor,
+                                                  BlendMode.srcIn,
+                                                ),
                                               ),
-                                            ),
-                                            SizedBox(width: pillIconSpacing),
-                                            Text(
-                                              visibleActions[i].name(context),
-                                              style: pillTextStyle.copyWith(
-                                                  color: inactiveColor),
-                                              overflow: TextOverflow.fade,
-                                              softWrap: false,
-                                            ),
-                                          ],
+                                              SizedBox(width: pillIconSpacing),
+                                              Text(
+                                                visibleActions[i].name(context),
+                                                style: pillTextStyle.copyWith(
+                                                  color: inactiveColor,
+                                                ),
+                                                overflow: TextOverflow.fade,
+                                                softWrap: false,
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),

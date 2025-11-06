@@ -232,17 +232,18 @@ class _DashboardPageView extends BasePage {
                 child: Container(
                   alignment: Alignment.bottomCenter,
                   margin: EdgeInsets.only(bottom: 110),
-                  child: Observer(
-                    builder: (context) {
-                      return Semantics(
-                        button: false,
-                        label: 'Page Indicator',
-                        hint: 'Swipe to change page',
-                        excludeSemantics: true,
-                        child: PageIndicator(controller: controller, dashboardViewModel: dashboardViewModel),
-                      );
-                    },
+                  child: Semantics(
+                  container: true,
+                  label: 'Page indicator',
+                  hint: 'Swipe left or right to change page, or double tap buttons below to navigate directly.',
+                  child: ExcludeSemantics(
+                    excluding: false,
+                    child: PageIndicator(
+                      controller: controller,
+                      dashboardViewModel: dashboardViewModel,
+                    ),
                   ),
+                ),
                 ),
               ),
               NavigationDock(
