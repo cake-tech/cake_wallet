@@ -219,6 +219,7 @@ class KryptonimBuyProvider extends BuyProvider {
     String? blockchain = switch (cur.tag) {
       'ETH' => 'Ethereum',
       'BASE' => 'Base',
+      'ARB' => 'Arbitrum',
       'POL' => 'Polygon',
       'AVAXC' => 'Avalanche',
       'SOL' => 'Solana',
@@ -231,6 +232,7 @@ class KryptonimBuyProvider extends BuyProvider {
         CryptoCurrency.ltc => 'Litecoin',
         CryptoCurrency.eth => 'Ethereum',
         CryptoCurrency.baseEth => 'Base',
+        CryptoCurrency.arbEth => 'Arbitrum',
         CryptoCurrency.maticpoly => 'Matic',
         _ => null,
       };

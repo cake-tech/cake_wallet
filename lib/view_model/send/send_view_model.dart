@@ -29,6 +29,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -56,7 +57,6 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -137,7 +137,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
 
   bool get isEVMWallet => isEVMCompatibleChain(walletType);
-
   @action
   void setShowAddressBookPopup(bool value) {
     _settingsStore.showAddressBookPopupEnabled = value;
@@ -223,6 +222,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.tron:
       case WalletType.solana:
         return wallet.currency;
@@ -366,8 +366,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   WalletType get walletType => wallet.type;
 
   String? get walletCurrencyName => wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
-
-  bool get hasCurrecyChanger => walletType == WalletType.haven;
 
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
@@ -607,6 +605,26 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               state = ExecutedSuccessfullyState();
               return pendingTransaction; // do NOT fall back to regular flow
             }
+            if (walletType == WalletType.arbitrum) {
+              _pendingApprovalTx = await buildApprovalIfNeeded(
+                spender: routerTo!,
+                tokenContract: tokenContract,
+                requiredAmount: requiredAmount,
+                sourceTokenDecimals: trade.sourceTokenDecimals,
+              );
+
+              // Build the callData tx
+              pendingTransaction = await arbitrum!.createRawCallDataTransaction(
+                wallet,
+                routerTo,
+                routerData,
+                routerValueWei,
+              );
+
+              _isSwapsXYZCallDataTx = true;
+              state = ExecutedSuccessfullyState();
+              return pendingTransaction; // do NOT fall back to regular flow
+            }
           }
 
           // No approval needed (or prepared transfer): send exactly what backend prepared
@@ -637,13 +655,24 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             return pendingTransaction;
           }
           if (walletType == WalletType.base) {
-            final priority = _settingsStore.priority[WalletType.polygon]!;
+            final priority = _settingsStore.priority[WalletType.base]!;
             pendingTransaction = await base!.createRawCallDataTransaction(
               wallet,
               routerTo!,
               routerData,
               routerValueWei,
               priority,
+            );
+            _isSwapsXYZCallDataTx = true;
+            state = ExecutedSuccessfullyState();
+            return pendingTransaction;
+          }
+          if (walletType == WalletType.arbitrum) {
+            pendingTransaction = await arbitrum!.createRawCallDataTransaction(
+              wallet,
+              routerTo!,
+              routerData,
+              routerValueWei,
             );
             _isSwapsXYZCallDataTx = true;
             state = ExecutedSuccessfullyState();
@@ -847,7 +876,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type != WalletType.nano &&
         wallet.type != WalletType.banano &&
         wallet.type != WalletType.solana &&
-        wallet.type != WalletType.tron) {
+        wallet.type != WalletType.tron &&
+        wallet.type != WalletType.arbitrum) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
 
@@ -890,6 +920,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.base:
         return base!.createBaseTransactionCredentials(outputs,
             priority: priority!, currency: selectedCryptoCurrency);
+      case WalletType.arbitrum:
+        return arbitrum!
+            .createArbitrumTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       case WalletType.solana:
         return solana!
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
@@ -1016,6 +1049,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
         walletType == WalletType.base ||
+        walletType == WalletType.arbitrum ||
         walletType == WalletType.haven) {
       if (errorMessage.contains('gas required exceeds allowance')) {
         return S.current.gas_exceeds_allowance;
@@ -1154,6 +1188,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         spender,
         requiredAmount,
       );
+    } else if (walletType == WalletType.arbitrum) {
+      needsApproval = await arbitrum!.isApprovalRequired(
+        wallet,
+        tokenContract,
+        spender,
+        requiredAmount,
+      );
     }
 
     if (!needsApproval) return null;
@@ -1195,6 +1236,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         spender,
         erc20Token,
         priority,
+      );
+    } else if (walletType == WalletType.arbitrum) {
+      return await arbitrum!.createTokenApproval(
+        wallet,
+        requiredAmount,
+        spender,
+        erc20Token,
       );
     }
 

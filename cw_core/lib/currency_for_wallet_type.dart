@@ -18,6 +18,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.eth;
     case WalletType.base:
       return CryptoCurrency.baseEth;
+    case WalletType.arbitrum:
+      return CryptoCurrency.arbEth;
     case WalletType.bitcoinCash:
       return CryptoCurrency.bch;
     case WalletType.nano:

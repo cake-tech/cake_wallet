@@ -40,6 +40,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.dogecoin:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
         return true;
@@ -85,6 +86,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.ethereum,
         WalletType.polygon,
         WalletType.base,
+        WalletType.arbitrum,
         WalletType.tron,
         WalletType.solana,
         WalletType.monero,

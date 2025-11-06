@@ -45,9 +45,13 @@ class BaseWallet extends EVMChainWallet {
     for (final token in initialErc20Tokens) {
       if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
         evmChainErc20TokensBox.put(token.contractAddress, token);
-      } else { // update existing token
+      } else {
+        // update existing token
         final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
-        evmChainErc20TokensBox.put(token.contractAddress, Erc20Token.copyWith(token, enabled: existingToken!.enabled));
+        evmChainErc20TokensBox.put(
+          token.contractAddress,
+          Erc20Token.copyWith(token, enabled: existingToken!.enabled),
+        );
       }
     }
   }
@@ -58,7 +62,7 @@ class BaseWallet extends EVMChainWallet {
 
   @override
   Future<bool> checkIfScanProviderIsEnabled() async {
-   return (await sharedPrefs.future).getBool("use_basescan") ?? true;
+    return (await sharedPrefs.future).getBool("use_basescan") ?? true;
   }
 
   @override
