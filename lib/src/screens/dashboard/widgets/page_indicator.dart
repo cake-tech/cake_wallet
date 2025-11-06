@@ -125,8 +125,8 @@ class _PageIndicatorState extends State<PageIndicator> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final backgroundColor = Colors.black.withAlpha(20);
-    final pillColor = theme.colorScheme.surfaceContainer;
+    final backgroundColor = theme.colorScheme.surfaceContainer.withAlpha(122);
+    final pillColor = theme.colorScheme.onSurface.withAlpha(30);
     final activeColor = theme.colorScheme.onSurface;
     final inactiveColor = theme.colorScheme.primary;
 
@@ -178,7 +178,7 @@ class _PageIndicatorState extends State<PageIndicator> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(barBorderRadius),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
               child: Container(
                   height: barHeight,
                   decoration: BoxDecoration(
