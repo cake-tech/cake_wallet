@@ -235,6 +235,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               name: name,
               mnemonic: seed,
               password: password,
+              passphrase: passphrase??'',
           );
         case WalletType.none:
         case WalletType.haven:
@@ -297,7 +298,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           return arbitrum!.createArbitrumRestoreWalletFromPrivateKey(
             name: name,
             password: password,
-            privateKey: options['private_key'] as String,
+            privateKey: options?['private_key'] as String,
           );
         case WalletType.solana:
           return solana!.createSolanaRestoreWalletFromPrivateKey(
