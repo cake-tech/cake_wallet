@@ -57,7 +57,6 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -367,8 +366,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   WalletType get walletType => wallet.type;
 
   String? get walletCurrencyName => wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
-
-  bool get hasCurrecyChanger => walletType == WalletType.haven;
 
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
