@@ -277,7 +277,7 @@ abstract class EVMChainWalletBase
   int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
 
   @override
-  Future<void> updateEstimatedFeesParams(TransactionPriority priority) async =>
+  Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async =>
       await _getEstimatedFees(priority);
 
   Future<void> _getEstimatedFees(TransactionPriority? priority) async {
