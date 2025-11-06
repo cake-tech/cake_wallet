@@ -82,16 +82,19 @@ class _PageIndicatorState extends State<PageIndicator> {
   void _onItemTap(int index) {
     if (index == selectedIndex) return;
 
-    setState(() {
-      selectedIndex = index;
-      _fadeSelected = false;
-    });
-
     widget.controller.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
     );
+
+    Future.delayed(const Duration(milliseconds: 20), () {
+      if (!mounted) return;
+      setState(() {
+        selectedIndex = index;
+        _fadeSelected = false;
+      });
+    });
 
     Future.delayed(const Duration(milliseconds: 300), () {
       if (!mounted) return;
