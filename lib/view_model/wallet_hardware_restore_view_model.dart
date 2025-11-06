@@ -33,10 +33,9 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
       this.hardwareWalletVM,
       AppStore appStore,
       WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource,
       SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type})
-      : super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+      : super(appStore, walletCreationService, seedSettingsViewModel,
             type: type, isRecovery: true);
 
   @observable
@@ -57,8 +56,8 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   @action
   Future<void> getNextAvailableAccounts(int limit) async {
     try {
-      List<HardwareAccountData> accounts = await hardwareWalletVM
-          .getHardwareWalletService(type)
+      final service = await hardwareWalletVM.getHardwareWalletService(type);
+      List<HardwareAccountData> accounts = await service
           .getAvailableAccounts(index: _nextIndex, limit: limit);
 
       availableAccounts.addAll(accounts);

@@ -22,6 +22,7 @@ class BaseWallet extends EVMChainWallet {
   BaseWallet({
     required super.walletInfo,
     required super.password,
+    required super.derivationInfo,
     super.mnemonic,
     super.initialBalance,
     super.privateKey,
@@ -44,9 +45,13 @@ class BaseWallet extends EVMChainWallet {
     for (final token in initialErc20Tokens) {
       if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
         evmChainErc20TokensBox.put(token.contractAddress, token);
-      } else { // update existing token
+      } else {
+        // update existing token
         final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
-        evmChainErc20TokensBox.put(token.contractAddress, Erc20Token.copyWith(token, enabled: existingToken!.enabled));
+        evmChainErc20TokensBox.put(
+          token.contractAddress,
+          Erc20Token.copyWith(token, enabled: existingToken!.enabled),
+        );
       }
     }
   }
@@ -57,7 +62,7 @@ class BaseWallet extends EVMChainWallet {
 
   @override
   Future<bool> checkIfScanProviderIsEnabled() async {
-   return (await sharedPrefs.future).getBool("use_basescan") ?? true;
+    return (await sharedPrefs.future).getBool("use_basescan") ?? true;
   }
 
   @override
@@ -150,6 +155,7 @@ class BaseWallet extends EVMChainWallet {
 
     return BaseWallet(
       walletInfo: walletInfo,
+      derivationInfo: await walletInfo.getDerivationInfo(),
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,

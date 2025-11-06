@@ -12,16 +12,15 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 
 class HavenWalletService extends WalletService {
-  final Box<WalletInfo> walletInfoSource;
 
-  HavenWalletService(this.walletInfoSource);
+  HavenWalletService();
 
   @override
   WalletType getType() => WalletType.haven;
 
   @override
   Future<void> remove(String wallet) async {
-    final path = await pathForWalletDir(name: wallet, type: WalletType.haven);
+    final path = await pathForWalletDir(name: wallet, type: getType());
 
     final file = Directory(path);
     final isExist = file.existsSync();
@@ -30,9 +29,11 @@ class HavenWalletService extends WalletService {
       await file.delete(recursive: true);
     }
 
-    final walletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(wallet, getType()));
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
   }
 
   @override

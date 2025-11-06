@@ -446,35 +446,34 @@ class NanoClient {
     required String destinationAddress,
     required String privateKey,
   }) async {
-    final receivableResponse = await ProxyWrapper().post(
-      clearnetUri: _node!.uri,
-      headers: getHeaders(_node!.uri.host),
-      body: jsonEncode({
-        "action": "receivable",
-        "account": destinationAddress,
-        "count": "-1",
-        "source": true,
-      }),
-    );
-    final receivableData = jsonDecode(receivableResponse.body) as Map<String, dynamic>;
-    if (receivableData["blocks"] == "" || receivableData["blocks"] == null) {
-      return 0;
-    }
-
-    dynamic blocks;
-    if (receivableData["blocks"] is List<dynamic>) {
-      var listBlocks = receivableData["blocks"] as List<dynamic>;
-      if (listBlocks.isEmpty) {
+    try {
+      final receivableResponse = await ProxyWrapper().post(
+        clearnetUri: _node!.uri,
+        headers: getHeaders(_node!.uri.host),
+        body: jsonEncode({
+          "action": "receivable",
+          "account": destinationAddress,
+          "count": "-1",
+          "source": true,
+        }),
+      );
+      final receivableData = jsonDecode(receivableResponse.body) as Map<String, dynamic>;
+      if (receivableData["blocks"] == "" || receivableData["blocks"] == null) {
         return 0;
       }
-      blocks = {for (var block in listBlocks) block['hash']: block};
-    } else {
-      blocks = receivableData["blocks"] as Map<String, dynamic>;
-    }
 
-    blocks = blocks as Map<String, dynamic>;
+      dynamic blocks;
+      if (receivableData["blocks"] is List<dynamic>) {
+        var listBlocks = receivableData["blocks"] as List<dynamic>;
+        if (listBlocks.isEmpty) {
+          return 0;
+        }
+        blocks = {for (var block in listBlocks) block['hash']: block};
+      } else {
+        blocks = receivableData["blocks"] as Map<String, dynamic>;
+      }
 
-    try {
+      blocks = blocks as Map<String, dynamic>;
       // confirm all receivable blocks:
       for (final blockHash in blocks.keys) {
         final block = blocks[blockHash];

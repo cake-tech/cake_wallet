@@ -11,7 +11,6 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
@@ -629,7 +628,7 @@ class ExchangePage extends BasePage {
 
   void _onCurrencyChange(CryptoCurrency currency, ExchangeViewModel exchangeViewModel,
       GlobalKey<ExchangeCardState> key) {
-    final isCurrentTypeWallet = exchangeViewModel.isDepositSameCurrency;
+    final isCurrentTypeWallet = exchangeViewModel.useSameWalletAddress(currency);
 
     key.currentState!.changeSelectedCurrency(currency);
     key.currentState!.changeWalletName(isCurrentTypeWallet ? exchangeViewModel.wallet.name : '');
