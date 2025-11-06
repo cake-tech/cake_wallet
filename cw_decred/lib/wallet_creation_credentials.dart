@@ -15,9 +15,11 @@ class DecredRestoreWalletFromSeedCredentials extends WalletCredentials {
       {required String name,
       required String password,
       required this.mnemonic,
+      required this.passphrase,
       WalletInfo? walletInfo})
       : super(name: name, password: password, walletInfo: walletInfo);
 
+  final String? passphrase;
   final String mnemonic;
 }
 

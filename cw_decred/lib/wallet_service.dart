@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cw_decred/api/libdcrwallet.dart';
+import 'package:cw_decred/mnemonic.dart';
 import 'package:cw_decred/wallet_creation_credentials.dart';
 import 'package:cw_decred/wallet.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -10,7 +11,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:path/path.dart';
 import 'package:hive/hive.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:bip39/bip39.dart' as bip39;
 
@@ -61,7 +61,13 @@ class DecredWalletService extends WalletService<
     if (credentials.isBip39) {
       final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
       final mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
-      return restoreFromSeed(DecredRestoreWalletFromSeedCredentials(name: credentials.name, password: credentials.password!, mnemonic: mnemonic, walletInfo: credentials.walletInfo));
+      return restoreFromSeed(DecredRestoreWalletFromSeedCredentials(
+        name: credentials.name,
+        password: credentials.password!,
+        mnemonic: mnemonic,
+        walletInfo: credentials.walletInfo,
+        passphrase: credentials.passphrase??''
+      ));
     }
     final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
     final network = isTestnet == true ? testnet : mainnet;
@@ -211,6 +217,14 @@ class DecredWalletService extends WalletService<
     await this.init();
     final network = isTestnet == true ? testnet : mainnet;
     final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
+    
+    if ([12,24].contains(credentials.seedPhraseLength!)) {
+      // bip39 stuff - converting from non-english to english.
+      final entropy = bip39.mnemonicToEntropy(credentials.mnemonic);
+      bip39.entropyToMnemonic(entropy);
+      
+    }
+    
     final config = {
       "name": credentials.walletInfo!.name,
       "datadir": dirPath,
