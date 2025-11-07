@@ -81,22 +81,26 @@ class StandardSlideButtonState extends State<StandardSlideButton> {
                       left: sideMargin + _dragPosition,
                       child: GestureDetector(
                         key: ValueKey('standard_slide_button_widget_slider_key'),
-                        onHorizontalDragUpdate: (details) {
-                          setState(() {
-                            _dragPosition += details.delta.dx;
-                            if (_dragPosition < 0) _dragPosition = 0;
-                            if (_dragPosition > effectiveMaxWidth - sliderWidth) {
-                              _dragPosition = effectiveMaxWidth - sliderWidth;
-                            }
-                          });
-                        },
-                        onHorizontalDragEnd: (details) {
-                          if (_dragPosition >= effectiveMaxWidth - sliderWidth - 10) {
-                            widget.onSlideComplete();
-                          } else {
-                            setState(() => _dragPosition = 0);
-                          }
-                        },
+                        onHorizontalDragUpdate: widget.isDisabled
+                            ? null
+                            : (details) {
+                                setState(() {
+                                  _dragPosition += details.delta.dx;
+                                  if (_dragPosition < 0) _dragPosition = 0;
+                                  if (_dragPosition > effectiveMaxWidth - sliderWidth) {
+                                    _dragPosition = effectiveMaxWidth - sliderWidth;
+                                  }
+                                });
+                              },
+                        onHorizontalDragEnd: widget.isDisabled
+                            ? null
+                            : (details) {
+                                if (_dragPosition >= effectiveMaxWidth - sliderWidth - 10) {
+                                  widget.onSlideComplete();
+                                } else {
+                                  setState(() => _dragPosition = 0);
+                                }
+                              },
                         child: Container(
                           key: ValueKey('standard_slide_button_widget_slider_container_key'),
                           width: sliderWidth,
