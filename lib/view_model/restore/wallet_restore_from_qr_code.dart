@@ -32,6 +32,7 @@ class WalletRestoreFromQRCode {
     'ethereum-wallet': WalletType.ethereum,
     'polygon-wallet': WalletType.polygon,
     'base-wallet': WalletType.base,
+    'arbitrum-wallet': WalletType.arbitrum,
     'nano-wallet': WalletType.nano,
     'nano_wallet': WalletType.nano,
     'bitcoincash': WalletType.bitcoinCash,

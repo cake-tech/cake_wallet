@@ -26,6 +26,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Bitcoin Cash (BCH)
 * Polygon (POL)
 * Base (BASE)
+* Arbitrum (ARB)
 * Solana (SOL)
 * Tron (TRX)
 * Nano (XNO)
