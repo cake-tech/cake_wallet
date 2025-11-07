@@ -18,6 +18,7 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -48,7 +49,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     required this.fiatConversionStore,
   })  : trade = tradesStore.trade!,
         isSendable = _checkIfCanSend(tradesStore, wallet),
-        isSwapsXYZContractCall = _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
+        isSwapsXyzSendingEVMTokenSwap = _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
         items = ObservableList<ExchangeTradeItem>() {
     setUpOutput();
     switch (trade.provider) {
@@ -110,8 +111,11 @@ abstract class ExchangeTradeViewModelBase with Store {
   @observable
   bool isSendable;
 
-  @observable
-  bool isSwapsXYZContractCall;
+
+  bool get isSwapsXyzSendingEVMTokenSwap =>
+      (_provider is SwapsXyzExchangeProvider) &&
+      isEVMCompatibleChain(wallet.type) &&
+      wallet.currency != trade.from;
 
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
       ? '\n\n' + S.current.exchange_extra_info
@@ -198,7 +202,8 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     sendViewModel.selectedCryptoCurrency = selected;
 
-    final pendingTransaction = await sendViewModel.createTransaction(provider: _provider, trade: trade);
+    final pendingTransaction =
+        await sendViewModel.createTransaction(provider: _provider, trade: trade);
 
     if (_provider is SwapsXyzExchangeProvider) {
       final hash = pendingTransaction?.evmTxHashFromRawHex ?? pendingTransaction?.id ?? '';
@@ -280,7 +285,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       ]);
 
       items.add(
-        isSwapsXYZContractCall
+        isSwapsXyzSendingEVMTokenSwap
             ? ExchangeTradeItem(
             title: S.current.send_to_this_address('${tradeFrom}', tagFrom) +
                 ':',
@@ -341,6 +346,9 @@ abstract class ExchangeTradeViewModelBase with Store {
     bool _isBaseToken() =>
         wallet.currency == CryptoCurrency.baseEth && tradeFrom?.tag == CryptoCurrency.baseEth.tag;
 
+    bool _isArbitrumToken() =>
+        wallet.currency == CryptoCurrency.arbEth && tradeFrom?.tag == CryptoCurrency.arbEth.tag;
+
     bool _isTronToken() =>
         wallet.currency == CryptoCurrency.trx && tradeFrom?.tag == CryptoCurrency.trx.title;
 
@@ -353,7 +361,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isPolygonToken() ||
         _isSplToken() ||
         _isTronToken() ||
-        _isBaseToken();
+        _isBaseToken() ||
+        _isArbitrumToken();
   }
 
   static bool _checkIfSwapsXYZCanSendFromExternal(Trade trade, WalletBase wallet) {
@@ -388,7 +397,9 @@ abstract class ExchangeTradeViewModelBase with Store {
         return;
       }
 
-      final txHash = sendViewModel.pendingTransaction?.evmTxHashFromRawHex ?? sendViewModel.pendingTransaction?.id ?? '';
+      final txHash = sendViewModel.pendingTransaction?.evmTxHashFromRawHex ??
+          sendViewModel.pendingTransaction?.id ??
+          '';
 
       if (txHash.isEmpty) {
         printV('SwapsXyz: transaction register: skipped (txHash empty)');
@@ -401,7 +412,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         return;
       }
 
-      printV('SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
+      printV(
+          'SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
 
       final registered = await swaps.registerAltVmTx(
         txId: trade.id,
@@ -445,6 +457,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         return PolygonURI(amount: amount, address: inputAddress);
       case WalletType.base:
         return BaseURI(amount: amount, address: inputAddress);
+      case WalletType.arbitrum:
+        return ArbitrumURI(amount: amount, address: inputAddress);
       case WalletType.solana:
         return SolanaURI(amount: amount, address: inputAddress);
       case WalletType.tron:

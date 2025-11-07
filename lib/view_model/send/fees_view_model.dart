@@ -1,3 +1,4 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -102,6 +103,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.banano:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.arbitrum:
         return false;
     }
   }
@@ -119,7 +121,8 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type != WalletType.nano &&
       wallet.type != WalletType.banano &&
       wallet.type != WalletType.solana &&
-      wallet.type != WalletType.tron;
+      wallet.type != WalletType.tron &&
+      wallet.type != WalletType.arbitrum;
 
   @computed
   bool get isElectrumWallet =>

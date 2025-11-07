@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -48,6 +49,10 @@ Future<void> startFiatRateUpdate(
       if (appStore.wallet!.type == WalletType.base) {
         currencies =
             base!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+      }
+      if (appStore.wallet!.type == WalletType.arbitrum) {
+        currencies =
+            arbitrum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
       }
 
       if (appStore.wallet!.type == WalletType.solana) {

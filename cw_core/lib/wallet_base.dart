@@ -15,12 +15,13 @@ import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
     TransactionType extends TransactionInfo> {
-  WalletBase(this.walletInfo);
+  WalletBase(this.walletInfo, this.derivationInfo);
 
   static String idFor(String name, WalletType type) =>
       walletTypeToString(type).toLowerCase() + '_' + name;
 
   WalletInfo walletInfo;
+  DerivationInfo derivationInfo;
 
   WalletType get type => walletInfo.type;
 
@@ -84,6 +85,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   Future<PendingTransaction> createTransaction(Object credentials);
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
+
+  Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async {}
 
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,

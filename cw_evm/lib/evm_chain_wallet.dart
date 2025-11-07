@@ -67,6 +67,7 @@ abstract class EVMChainWalletBase
     with Store, WalletKeysFile {
   EVMChainWalletBase({
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required EVMChainClient client,
     required CryptoCurrency nativeCurrency,
     String? mnemonic,
@@ -88,7 +89,7 @@ abstract class EVMChainWalletBase
             nativeCurrency: initialBalance ?? EVMChainERC20Balance(BigInt.zero),
           },
         ),
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = setUpTransactionHistory(walletInfo, password, encryptionFileUtils);
 
@@ -114,11 +115,13 @@ abstract class EVMChainWalletBase
 
   late final EVMChainClient _client;
 
-  int gasPrice = 0;
-  int? gasBaseFee = 0;
-  int estimatedGasUnits = 0;
+  bool hasPriorityFee = true;
 
-  Timer? _updateFeesTimer;
+  @observable
+  String? nativeTxEstimatedFee;
+
+  @observable
+  String? erc20TxEstimatedFee;
 
   bool _isTransactionUpdating;
 
@@ -167,6 +170,16 @@ abstract class EVMChainWalletBase
     EncryptionFileUtils encryptionFileUtils,
   );
 
+  String _getUSDCContractAddress() {
+    return switch (_client.chainId) {
+      1 => "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      137 => "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+      8453 => "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      42161 => "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+      _ => throw Exception("Unsupported chain ID: ${_client.chainId}"),
+    };
+  }
+
   @override
   Future<bool> checkNodeHealth() async {
     try {
@@ -174,26 +187,9 @@ abstract class EVMChainWalletBase
       await _client.getBalance(_evmChainPrivateKey.address, throwOnError: true);
 
       // Check USDC token balance
-      String usdcContractAddress;
+      String usdcContractAddress = _getUSDCContractAddress();
 
-      switch (_client.chainId) {
-        case 1:
-          usdcContractAddress = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
-          break;
-        case 137:
-          usdcContractAddress = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174";
-          break;
-        case 8453:
-          usdcContractAddress = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
-          break;
-        default:
-          return true;
-      }
-
-      await _client.fetchERC20Balances(
-        _evmChainPrivateKey.address,
-        usdcContractAddress,
-      );
+      await _client.fetchERC20Balances(_evmChainPrivateKey.address, usdcContractAddress);
 
       return true;
     } catch (e) {
@@ -278,32 +274,81 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    {
-      try {
+  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
+
+  @override
+  Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async =>
+      await _getEstimatedFees(priority);
+
+  Future<void> _getEstimatedFees(TransactionPriority? priority) async {
+    final nativeFee = await _getNativeTxFee(priority);
+    nativeTxEstimatedFee = nativeFee.toString();
+
+    final erc20Fee = await _getErc20TxFee(priority);
+    erc20TxEstimatedFee = erc20Fee.toString();
+
+    printV('Native Estimated Fee: $nativeTxEstimatedFee');
+    printV('ERC20 Estimated Fee: $erc20TxEstimatedFee');
+  }
+
+  Future<int> _getNativeTxFee(TransactionPriority? priority) async {
+    try {
+      int priorityFee = 0;
+      if (hasPriorityFee) {
         if (priority is EVMChainTransactionPriority) {
-          final priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
-
-          int maxFeePerGas;
-          if (gasBaseFee != null) {
-            // MaxFeePerGas with EIP1559;
-            maxFeePerGas = gasBaseFee! + priorityFee;
-          } else {
-            // MaxFeePerGas with gasPrice;
-            maxFeePerGas = gasPrice;
-            printV('MaxFeePerGas with gasPrice: $maxFeePerGas');
-          }
-
-          final totalGasFee = estimatedGasUnits * maxFeePerGas;
-          return totalGasFee;
+          priorityFee = getTotalPriorityFee(priority);
         }
-
-        return 0;
-      } catch (e) {
-        return 0;
       }
+
+      final gasPrice = await _client.getGasUnitPrice();
+      final gasBaseFee = await _client.getGasBaseFee();
+
+      final gasUnits = await _client.getEstimatedGasUnitsForTransaction(
+        senderAddress: evmChainPrivateKey.address,
+        toAddress: evmChainPrivateKey.address,
+        gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasPrice),
+        value: EtherAmount.fromBigInt(EtherUnit.wei, BigInt.from(0.0000000001)),
+      );
+
+      int maxFeePerGas = gasBaseFee != null ? (gasBaseFee + priorityFee) : (gasPrice + priorityFee);
+      final totalGasFee = gasUnits * maxFeePerGas;
+      return totalGasFee;
+    } catch (e) {
+      printV(e.toString());
+      return 0;
     }
   }
+
+  Future<int> _getErc20TxFee(TransactionPriority? priority) async {
+    try {
+      int priorityFee = 0;
+      if (hasPriorityFee) {
+        if (priority is EVMChainTransactionPriority) {
+          priorityFee = getTotalPriorityFee(priority);
+        }
+      }
+
+      final gasPrice = await _client.getGasUnitPrice();
+      final gasBaseFee = await _client.getGasBaseFee();
+
+      final gasUnits = await _client.getEstimatedGasUnitsForTransaction(
+        senderAddress: evmChainPrivateKey.address,
+        toAddress: evmChainPrivateKey.address,
+        contractAddress: _getUSDCContractAddress(), // Using USDC for default estimation
+        gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasPrice),
+        value: EtherAmount.fromBigInt(EtherUnit.wei, BigInt.from(0.0000000001)),
+      );
+
+      int maxFeePerGas = gasBaseFee != null ? (gasBaseFee + priorityFee) : (gasPrice + priorityFee);
+      final totalGasFee = gasUnits * maxFeePerGas;
+      return totalGasFee;
+    } catch (e) {
+      printV(e.toString());
+      return 0;
+    }
+  }
+
+  int getTotalPriorityFee(EVMChainTransactionPriority priority);
 
   /// Allows more customization to the fetch estimatedFees flow.
   ///
@@ -315,76 +360,45 @@ abstract class EVMChainWalletBase
     required amount,
     required String? contractAddress,
     required String receivingAddressHex,
-    required TransactionPriority priority,
+    required TransactionPriority? priority,
     Uint8List? data,
   }) async {
     try {
-      if (priority is EVMChainTransactionPriority) {
-        final priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
-
-        int maxFeePerGas;
-        int adjustedGasPrice;
-
-        bool isPolygon = _client.chainId == 137;
-
-        if (gasBaseFee != null) {
-          // MaxFeePerGas with EIP1559;
-          maxFeePerGas = gasBaseFee! + priorityFee;
-        } else {
-          // MaxFeePerGas with gasPrice
-          maxFeePerGas = gasPrice + priorityFee;
+      int priorityFee = 0;
+      if (hasPriorityFee && priority != null) {
+        if (priority is EVMChainTransactionPriority) {
+          priorityFee = getTotalPriorityFee(priority);
         }
-
-        adjustedGasPrice = maxFeePerGas;
-
-        // Polygon has a minimum priority fee of 25 gwei
-        if (isPolygon) {
-          int minPriorityFee = 25;
-          int minPriorityFeeWei =
-              EtherAmount.fromInt(EtherUnit.gwei, minPriorityFee).getInWei.toInt();
-
-          // Calculate  user selected priority-based additional fee on top of minimum
-          int additionalPriorityFee = 0;
-          switch (priority) {
-            case EVMChainTransactionPriority.slow:
-              // We use minimum priority fee only
-              additionalPriorityFee = 0;
-              break;
-            case EVMChainTransactionPriority.medium:
-              // We add 15 gwei on top of minimum
-              additionalPriorityFee = EtherAmount.fromInt(EtherUnit.gwei, 15).getInWei.toInt();
-              break;
-            case EVMChainTransactionPriority.fast:
-              // We add 35 gwei on top of minimum
-              additionalPriorityFee = EtherAmount.fromInt(EtherUnit.gwei, 35).getInWei.toInt();
-              break;
-          }
-
-          int totalPriorityFee = minPriorityFeeWei + additionalPriorityFee;
-          adjustedGasPrice = gasPrice + totalPriorityFee;
-          maxFeePerGas = gasPrice + totalPriorityFee;
-        }
-
-        final estimatedGas = await _client.getEstimatedGasUnitsForTransaction(
-          contractAddress: contractAddress,
-          senderAddress: _evmChainPrivateKey.address,
-          value: EtherAmount.fromBigInt(EtherUnit.wei, amount!),
-          gasPrice: EtherAmount.fromInt(EtherUnit.wei, adjustedGasPrice),
-          toAddress: EthereumAddress.fromHex(receivingAddressHex),
-          maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
-          data: data,
-        );
-
-        final totalGasFee = estimatedGas * adjustedGasPrice;
-
-        return GasParamsHandler(
-          estimatedGasUnits: estimatedGas,
-          estimatedGasFee: totalGasFee,
-          maxFeePerGas: maxFeePerGas,
-          gasPrice: adjustedGasPrice,
-        );
       }
-      return GasParamsHandler.zero();
+
+      final gasBaseFee = await _client.getGasBaseFee();
+      final gasPrice = await _client.getGasUnitPrice();
+
+      int maxFeePerGas;
+      int adjustedGasPrice;
+
+      maxFeePerGas = gasBaseFee != null ? (gasBaseFee + priorityFee) : (gasPrice + priorityFee);
+
+      adjustedGasPrice = maxFeePerGas;
+
+      final estimatedGas = await _client.getEstimatedGasUnitsForTransaction(
+        contractAddress: contractAddress,
+        senderAddress: _evmChainPrivateKey.address,
+        value: EtherAmount.fromBigInt(EtherUnit.wei, amount!),
+        gasPrice: EtherAmount.fromInt(EtherUnit.wei, adjustedGasPrice),
+        toAddress: EthereumAddress.fromHex(receivingAddressHex),
+        maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
+        data: data,
+      );
+
+      final totalGasFee = estimatedGas * adjustedGasPrice;
+
+      return GasParamsHandler(
+        estimatedGasUnits: estimatedGas,
+        estimatedGasFee: totalGasFee,
+        maxFeePerGas: maxFeePerGas,
+        gasPrice: adjustedGasPrice,
+      );
     } catch (e) {
       return GasParamsHandler.zero();
     }
@@ -399,7 +413,6 @@ abstract class EVMChainWalletBase
   Future<void> close({bool shouldCleanup = false}) async {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
-    _updateFeesTimer?.cancel();
   }
 
   @action
@@ -439,28 +452,14 @@ abstract class EVMChainWalletBase
 
       await _updateBalance();
       await _updateTransactions();
-      await _updateEstimatedGasFeeParams();
+      await _getEstimatedFees(
+        hasPriorityFee ? EVMChainTransactionPriority.medium : null,
+      ); // We're using medium priority for default estimation
 
-      _updateFeesTimer ??= Timer.periodic(const Duration(seconds: 30), (timer) async {
-        await _updateEstimatedGasFeeParams();
-      });
       syncStatus = SyncedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
     }
-  }
-
-  Future<void> _updateEstimatedGasFeeParams() async {
-    gasBaseFee = await _client.getGasBaseFee();
-
-    gasPrice = await _client.getGasUnitPrice();
-
-    estimatedGasUnits = await _client.getEstimatedGasUnitsForTransaction(
-      senderAddress: _evmChainPrivateKey.address,
-      toAddress: _evmChainPrivateKey.address,
-      gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasPrice),
-      value: EtherAmount.fromBigInt(EtherUnit.wei, BigInt.one),
-    );
   }
 
   @override
@@ -510,7 +509,7 @@ abstract class EVMChainWalletBase
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
         receivingAddressHex: toAddress,
-        priority: _credentials.priority!,
+        priority: _credentials.priority,
         contractAddress: contractAddress,
       );
 
@@ -528,7 +527,9 @@ abstract class EVMChainWalletBase
             EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
 
         totalAmount = parseFixed(
-            EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent), exponent);
+          EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent),
+          exponent,
+        );
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {
@@ -538,7 +539,7 @@ abstract class EVMChainWalletBase
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
         receivingAddressHex: toAddress,
-        priority: _credentials.priority!,
+        priority: _credentials.priority,
         contractAddress: contractAddress,
       );
 
@@ -548,35 +549,23 @@ abstract class EVMChainWalletBase
 
       if (output.sendAll && transactionCurrency is! Erc20Token) {
         if (_client.chainId == 8453) {
-          // Add a safety buffer for Base chain to account for gas price fluctuations
-          // Use 1% buffer or minimum 1000 wei (0.000001 ETH), whichever is higher
-          final gasBufferPercent =
-              estimatedFeesForTransaction * BigInt.from(101) ~/ BigInt.from(100);
-          final gasBufferMin = estimatedFeesForTransaction + BigInt.from(1000);
+          // Applying a small buffer to account for gas price fluctuations
+          // 10% or minimum 10,000 wei, whichever is higher
+          final refinedGasFee = estimatedFeesForTransaction;
+          final gasBufferPercent = refinedGasFee * BigInt.from(110) ~/ BigInt.from(100);
+          final gasBufferMin = refinedGasFee + BigInt.from(10000);
           final gasBuffer = gasBufferPercent > gasBufferMin ? gasBufferPercent : gasBufferMin;
 
+          // Using the buffered fee for the final amount
           totalAmount = (currencyBalance.balance - gasBuffer);
-
-          // Re-estimate gas with the correct amount to get more accurate gas estimation
-          final refinedGasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
-            amount: totalAmount,
-            receivingAddressHex: toAddress,
-            priority: _credentials.priority!,
-            contractAddress: contractAddress,
-          );
-
-          // Use the higher of the two gas estimations to be safe
-          final refinedGasFee = BigInt.from(refinedGasFeesModel.estimatedGasFee);
-          estimatedFeesForTransaction = refinedGasFee > gasBuffer ? refinedGasFee : gasBuffer;
-          estimatedGasUnitsForTransaction = refinedGasFeesModel.estimatedGasUnits;
-          maxFeePerGasForTransaction = refinedGasFeesModel.maxFeePerGas;
+          estimatedFeesForTransaction = gasBuffer;
+        } else {
+          // Calculating the final amount with the estimated gas fee
+          totalAmount = (currencyBalance.balance - estimatedFeesForTransaction);
         }
-
-        // Final amount calculation with the higher gas estimation
-        totalAmount = (currencyBalance.balance - estimatedFeesForTransaction);
       }
 
-      // check the fees on the base currency (Eth/Polygon)
+      // check the fees on the base currency
       if (estimatedFeesForTransaction > balance[currency]!.balance) {
         throw EVMChainTransactionFeesException(currency.title);
       }
@@ -598,9 +587,9 @@ abstract class EVMChainWalletBase
       toAddress: toAddress,
       amount: totalAmount,
       gasFee: estimatedFeesForTransaction,
-      priority: _credentials.priority!,
+      priority: _credentials.priority,
       currency: transactionCurrency,
-      feeCurrency: switch (_client.chainId) { 1 => "ETH", 137 => "POL", 8453 => "ETH", _ => "ETH" },
+      feeCurrency: switch (_client.chainId) { 137 => "POL", _ => "ETH" },
       maxFeePerGas: maxFeePerGasForTransaction,
       exponent: exponent,
       contractAddress:
@@ -613,12 +602,11 @@ abstract class EVMChainWalletBase
   }
 
   Future<PendingTransaction> createCallDataTransaction(
-      String to,
-      String dataHex,
-      BigInt valueWei,
-      EVMChainTransactionPriority priority,
-      ) async {
-
+    String to,
+    String dataHex,
+    BigInt valueWei,
+    EVMChainTransactionPriority? priority,
+  ) async {
     // Estimate gas with the SAME call (sender, to, value, data)
     final gas = await calculateActualEstimatedFeeForCreateTransaction(
       amount: valueWei, // native value (usually 0 for ERC20 transfer)
@@ -631,7 +619,8 @@ abstract class EVMChainWalletBase
     final nativeCurrency = switch (_client.chainId) {
       137 => CryptoCurrency.maticpoly,
       8453 => CryptoCurrency.baseEth,
-      _   => CryptoCurrency.eth,
+      42161 => CryptoCurrency.arbEth,
+      _ => CryptoCurrency.eth,
     };
     final nativeBal = balance[nativeCurrency]?.balance ?? BigInt.zero;
     final requiredNative = valueWei + BigInt.from(gas.estimatedGasFee);
@@ -687,9 +676,13 @@ abstract class EVMChainWalletBase
     );
   }
 
-
-  Future<PendingTransaction> createApprovalTransaction(BigInt amount, String spender,
-      CryptoCurrency token, EVMChainTransactionPriority priority, String feeCurrency) async {
+  Future<PendingTransaction> createApprovalTransaction(
+    BigInt amount,
+    String spender,
+    CryptoCurrency token,
+    EVMChainTransactionPriority? priority,
+    String feeCurrency,
+  ) async {
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == token.title);
     assert(transactionCurrency is Erc20Token);
@@ -871,10 +864,7 @@ abstract class EVMChainWalletBase
   }
 
   Future<bool> isApprovalRequired(
-      String tokenContract,
-      String spender,
-      BigInt requiredAmount) async {
-
+      String tokenContract, String spender, BigInt requiredAmount) async {
     const zero = '0x0000000000000000000000000000000000000000';
     const evmNative = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
@@ -890,9 +880,7 @@ abstract class EVMChainWalletBase
         chainId: _client.chainId,
       );
 
-      final allowance = await erc20.allowance(
-        owner,
-        EthereumAddress.fromHex(spender));
+      final allowance = await erc20.allowance(owner, EthereumAddress.fromHex(spender));
 
       return allowance < requiredAmount;
     } catch (e) {
@@ -928,7 +916,6 @@ abstract class EVMChainWalletBase
   Future<void>? updateBalance() async => await _updateBalance();
   @override
   Future<void> updateTransactionsHistory() async => await _updateTransactions();
-
 
   List<Erc20Token> get erc20Currencies => evmChainErc20TokensBox.values.toList();
 
@@ -1029,6 +1016,8 @@ abstract class EVMChainWalletBase
   /// PolygonScan for Polygon.
   ///
   /// BaseScan for Base.
+  ///
+  /// ArbiScan for Arbitrum.
   void updateScanProviderUsageState(bool isEnabled) {
     if (isEnabled) {
       _updateTransactions();
