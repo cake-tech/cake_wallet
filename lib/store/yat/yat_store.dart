@@ -243,9 +243,7 @@ abstract class YatStoreBase with Store {
 
       walletInfo!.yatEid = emoji;
 
-      if (walletInfo!.isInBox) {
-        walletInfo!.save();
-      }
+      walletInfo!.save();
     } catch (e) {
       printV(e.toString());
     }

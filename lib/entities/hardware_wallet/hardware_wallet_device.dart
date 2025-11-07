@@ -46,6 +46,7 @@ enum HardwareWalletDeviceType {
   ledgerNanoS,
   ledgerNanoX,
   ledgerNanoSPlus,
+  ledgerNanoGen5,
   ledgerStax,
   ledgerFlex,
   BitBox02,
@@ -70,6 +71,8 @@ extension ToGenericHardwareWalletDeviceType on ledger.LedgerDeviceType {
         return HardwareWalletDeviceType.ledgerNanoSPlus;
       case ledger.LedgerDeviceType.nanoX:
         return HardwareWalletDeviceType.ledgerNanoX;
+      case ledger.LedgerDeviceType.nanoGen5:
+        return HardwareWalletDeviceType.ledgerNanoGen5;
       case ledger.LedgerDeviceType.stax:
         return HardwareWalletDeviceType.ledgerStax;
       case ledger.LedgerDeviceType.flex:

@@ -15,13 +15,16 @@ import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
+import 'package:web3dart/web3dart.dart';
 
 class BaseWallet extends EVMChainWallet {
   BaseWallet({
     required super.walletInfo,
     required super.password,
+    required super.derivationInfo,
     super.mnemonic,
     super.initialBalance,
     super.privateKey,
@@ -29,6 +32,16 @@ class BaseWallet extends EVMChainWallet {
     required super.encryptionFileUtils,
     super.passphrase,
   }) : super(nativeCurrency: CryptoCurrency.baseEth);
+
+  @override
+  int getTotalPriorityFee(EVMChainTransactionPriority priority) {
+    return switch (priority) {
+      EVMChainTransactionPriority.fast => EtherAmount.fromInt(EtherUnit.mwei, 5).getInWei.toInt(),
+      EVMChainTransactionPriority.medium => EtherAmount.fromInt(EtherUnit.mwei, 3).getInWei.toInt(),
+      EVMChainTransactionPriority.slow => EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
+      _ => EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
+    };
+  }
 
   @override
   Future<void> initErc20TokensBox() async {
@@ -44,9 +57,13 @@ class BaseWallet extends EVMChainWallet {
     for (final token in initialErc20Tokens) {
       if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
         evmChainErc20TokensBox.put(token.contractAddress, token);
-      } else { // update existing token
+      } else {
+        // update existing token
         final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
-        evmChainErc20TokensBox.put(token.contractAddress, Erc20Token.copyWith(token, enabled: existingToken!.enabled));
+        evmChainErc20TokensBox.put(
+          token.contractAddress,
+          Erc20Token.copyWith(token, enabled: existingToken!.enabled),
+        );
       }
     }
   }
@@ -57,7 +74,7 @@ class BaseWallet extends EVMChainWallet {
 
   @override
   Future<bool> checkIfScanProviderIsEnabled() async {
-   return (await sharedPrefs.future).getBool("use_basescan") ?? true;
+    return (await sharedPrefs.future).getBool("use_basescan") ?? true;
   }
 
   @override
@@ -150,6 +167,7 @@ class BaseWallet extends EVMChainWallet {
 
     return BaseWallet(
       walletInfo: walletInfo,
+      derivationInfo: await walletInfo.getDerivationInfo(),
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,

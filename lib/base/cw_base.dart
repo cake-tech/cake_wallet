@@ -4,8 +4,8 @@ class CWBase extends Base {
   @override
   List<String> getBaseWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createBaseWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      BaseWalletService(walletInfoSource, isDirect, client: BaseClient());
+  WalletService createBaseWalletService(bool isDirect) =>
+      BaseWalletService(isDirect, client: BaseClient());
 
   @override
   WalletCredentials createBaseNewWalletCredentials({
@@ -190,7 +190,8 @@ class CWBase extends Base {
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
-  Future<bool> isApprovalRequired(WalletBase wallet, String tokenContract,String spender, BigInt requiredAmount) =>
+  Future<bool> isApprovalRequired(
+          WalletBase wallet, String tokenContract, String spender, BigInt requiredAmount) =>
       (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
 
   @override
@@ -210,20 +211,21 @@ class CWBase extends Base {
       );
 
   @override
-  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to, String dataHex, BigInt valueWei,
-      TransactionPriority priority) =>
-      (wallet as EVMChainWallet).createCallDataTransaction(to, dataHex, valueWei, priority as EVMChainTransactionPriority);
-
+  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to,
+          String dataHex, BigInt valueWei, TransactionPriority priority) =>
+      (wallet as EVMChainWallet).createCallDataTransaction(
+          to, dataHex, valueWei, priority as EVMChainTransactionPriority);
 
   @override
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
     if (service is EVMChainLedgerService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedgerConnection(
-          service.ledgerConnection, wallet.walletInfo.derivationInfo?.derivationPath);
+          service.ledgerConnection, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     } else if (service is EVMChainBitboxService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
-          .setBitbox(service.manager, wallet.walletInfo.derivationInfo?.derivationPath);
+          .setBitbox(service.manager, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     }
+    return Future.value();
   }
 
   @override
@@ -245,4 +247,12 @@ class CWBase extends Base {
       (element) => element.contractAddress.toLowerCase() == contractAddress.toLowerCase(),
     );
   }
+
+  @override
+  String? getBaseNativeEstimatedFee(WalletBase wallet) =>
+      (wallet as EVMChainWallet).nativeTxEstimatedFee;
+
+  @override
+  String? getBaseERC20EstimatedFee(WalletBase wallet) =>
+      (wallet as EVMChainWallet).erc20TxEstimatedFee;
 }

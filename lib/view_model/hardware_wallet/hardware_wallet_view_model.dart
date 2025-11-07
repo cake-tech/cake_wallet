@@ -22,7 +22,7 @@ abstract class HardwareWalletViewModel {
 
   HardwareWalletService getHardwareWalletService(WalletType type);
 
-  void initWallet(WalletBase wallet);
+  Future<void> initWallet(WalletBase wallet);
 
   String? interpretErrorCode(String error) => null;
 }
