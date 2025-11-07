@@ -213,6 +213,10 @@ jobs:
         run: |
           set -x -e
           pushd scripts
+            # cleaning
+            rm -rf reown_flutter
+            rm -f reown_flutter.tar.gz
+            
             wget https://github.com/cake-tech/reown_flutter/releases/download/v0.0.4/reown_flutter-v0.0.4.tar.gz -O reown_flutter.tar.gz
             mkdir reown_flutter
             pushd reown_flutter
