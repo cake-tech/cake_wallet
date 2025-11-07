@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
@@ -186,6 +188,10 @@ class LightningWallet {
     Map<String, ElectrumTransactionInfo> txHistory = {};
     for (final payment in payments) {
       TransactionDirection direction = TransactionDirection.outgoing;
+
+      if (payment.paymentType == PaymentType.receive) {
+        direction = TransactionDirection.incoming;
+      }
 
       if (payment.method == PaymentMethod.deposit) {
         direction = TransactionDirection.incoming;
