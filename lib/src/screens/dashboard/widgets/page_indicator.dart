@@ -23,9 +23,7 @@ class _PageIndicatorState extends State<PageIndicator> {
   static const barHeight = 37.0;
   static const iconWidth = 16.0;
   static const iconHeight = 16.0;
-  static const pillIconWidth = 16.0;
-  static const pillIconHeight = 16.0;
-  static const pillIconSpacing = 5.0;
+  static const iconSpacing = 5.0;
   static const pillHorizontalPadding = 8.0;
   static const barBorderRadius = 50.0;
   static const pillBorderRadius = 50.0;
@@ -35,7 +33,7 @@ class _PageIndicatorState extends State<PageIndicator> {
   static const inactiveIconAppearDuration = Duration(milliseconds: 250);
   static const pillMoveDuration = Duration(milliseconds: 300);
   static const pillResizeDuration = Duration(milliseconds: 200);
-  static const pillTextStyle = TextStyle(
+  static const textStyle = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w400,
   );
@@ -104,65 +102,63 @@ class _PageIndicatorState extends State<PageIndicator> {
     });
   }
 
-  double _estimatePillWidthForAction(
+  double _estimateItemWidthForAction(
       BuildContext context, PageIndicatorActions action,
       {Color? color}) {
     final text = action.name(context);
     final textPainter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: pillTextStyle.copyWith(color: color),
-      ),
+      text: TextSpan(text: text, style: textStyle.copyWith(color: color)),
       maxLines: 1,
       textDirection: TextDirection.ltr,
+      textScaler: MediaQuery.of(context).textScaler,
     )..layout();
-    return pillIconWidth +
-        pillIconSpacing +
+    return iconWidth +
+        iconSpacing +
         textPainter.width +
         pillHorizontalPadding * 2;
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final backgroundColor = theme.colorScheme.surfaceContainer.withAlpha(122);
-    final pillColor = theme.colorScheme.onSurface.withAlpha(30);
-    final activeColor = theme.colorScheme.onSurface;
-    final inactiveColor = theme.colorScheme.primary;
+    const double edgePadding = 5.0;
 
     final visibleActions = PageIndicatorActions.all
         .where(
             (action) => action.canShow?.call(widget.dashboardViewModel) ?? true)
         .toList();
 
+    final theme = Theme.of(context);
+    final backgroundColor = theme.colorScheme.surfaceContainer.withAlpha(122);
+    final pillColor = theme.colorScheme.onSurface.withAlpha(30);
+    final activeColor = theme.colorScheme.onSurface;
+    final inactiveColor = theme.colorScheme.primary;
+
     final screenWidth = MediaQuery.of(context).size.width;
-    final pillWidth = _estimatePillWidthForAction(
+
+    final pillWidth = _estimateItemWidthForAction(
         context, visibleActions[selectedIndex],
         color: activeColor);
 
-    final baseWidth = screenWidth * 0.6;
-    final maxPillWidth = visibleActions
-        .map((a) => _estimatePillWidthForAction(context, a))
-        .reduce(math.max);
-    final minRequiredWidth =
-        maxPillWidth + (visibleActions.length - 1) * (maxPillWidth * 0.7);
-    final barWidth =
-        math.min(screenWidth * 0.9, math.max(baseWidth, minRequiredWidth));
+    final actionWidths = visibleActions
+        .map((action) =>
+            _estimateItemWidthForAction(context, action, color: inactiveColor))
+        .toList();
 
-    const double edgePadding = 5.0;
+    final totalItemsWidth =
+        actionWidths.fold<double>(0, (sum, width) => sum + width) + 16;
+
+    final double barWidth = math.min(totalItemsWidth, screenWidth * 0.95);
+
     final double firstItemLeft = edgePadding;
     final double lastItemLeft = barWidth - pillWidth - edgePadding;
-    final double centerOfBar = barWidth / 2;
-    final double halfPill = pillWidth / 2;
-    final double centerItemLeft = centerOfBar - halfPill;
+    final double centerItemLeft = actionWidths[0] + (edgePadding * 2);
 
-    final double centerCorrection = -barWidth * 0.02;
+    final isRTL = Directionality.of(context) == TextDirection.rtl;
 
-    final List<double> positions = [
-      firstItemLeft,
-      centerItemLeft + centerCorrection,
-      lastItemLeft,
-    ];
+    final List<double> positions = isRTL
+        ? [lastItemLeft, centerItemLeft, firstItemLeft]
+        : [firstItemLeft, centerItemLeft, lastItemLeft];
+
 
     final double left = positions[selectedIndex];
     final currentAction = visibleActions[selectedIndex];
@@ -192,20 +188,20 @@ class _PageIndicatorState extends State<PageIndicator> {
                         left: left,
                         pillColor: pillColor,
                         currentAction: currentAction,
-                        pillIconHeight: pillIconHeight,
-                        pillIconWidth: pillIconWidth,
-                        pillIconSpacing: pillIconSpacing,
+                        pillIconHeight: iconHeight,
+                        pillIconWidth: iconWidth,
+                        pillIconSpacing: iconSpacing,
                         pillBorderRadius: pillBorderRadius,
                         contentColor: activeColor,
                         estimateWidthForAction: pillWidth,
-                        pillTextStyle: pillTextStyle,
+                        pillTextStyle: textStyle,
                         pillMoveDuration: pillMoveDuration,
                         pillResizeDuration: pillResizeDuration,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             for (int i = 0; i < visibleActions.length; i++)
                               Semantics(
@@ -231,7 +227,7 @@ class _PageIndicatorState extends State<PageIndicator> {
                                       curve: Curves.easeOutCubic,
                                       width: i == selectedIndex
                                           ? pillWidth
-                                          : _estimatePillWidthForAction(
+                                          : _estimateItemWidthForAction(
                                               context, visibleActions[i]),
                                       alignment: Alignment.center,
                                       child: AnimatedOpacity(
@@ -258,10 +254,10 @@ class _PageIndicatorState extends State<PageIndicator> {
                                                   BlendMode.srcIn,
                                                 ),
                                               ),
-                                              SizedBox(width: pillIconSpacing),
+                                              SizedBox(width: iconSpacing),
                                               Text(
                                                 visibleActions[i].name(context),
-                                                style: pillTextStyle.copyWith(
+                                                style: textStyle.copyWith(
                                                   color: inactiveColor,
                                                 ),
                                                 overflow: TextOverflow.fade,
