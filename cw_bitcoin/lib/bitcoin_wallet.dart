@@ -31,6 +31,7 @@ import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -95,11 +96,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     // final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
 
     if (mnemonic != null) {
-      lightningWallet = LightningWallet(
-        mnemonic: mnemonic,
-        apiKey: secrets.breezApiKey,
-        lnurlDomain: "cake.cash",
-      );
+      try {
+        lightningWallet = LightningWallet(
+          mnemonic: mnemonic,
+          apiKey: secrets.breezApiKey,
+          lnurlDomain: "cake.cash",
+        );
+      } catch (e) {
+        printV(e);
+      }
     } else {
       lightningWallet = null;
     }
