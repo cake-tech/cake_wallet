@@ -109,7 +109,7 @@ class _PageIndicatorState extends State<PageIndicator> {
     final textPainter = TextPainter(
       text: TextSpan(text: text, style: textStyle.copyWith(color: color)),
       maxLines: 1,
-      textDirection: TextDirection.ltr,
+      textDirection: Directionality.of(context),
       textScaler: MediaQuery.of(context).textScaler,
     )..layout();
     return iconWidth +
@@ -122,10 +122,21 @@ class _PageIndicatorState extends State<PageIndicator> {
   Widget build(BuildContext context) {
     const double edgePadding = 5.0;
 
-    final visibleActions = PageIndicatorActions.all
-        .where(
-            (action) => action.canShow?.call(widget.dashboardViewModel) ?? true)
-        .toList();
+    final showMarketplace =
+        widget.dashboardViewModel.shouldShowMarketPlaceInDashboard;
+
+    final visibleActions = [
+      for (final a in PageIndicatorActions.all)
+        if (showMarketplace || a != PageIndicatorActions.appsAction)
+          if (a.canShow?.call(widget.dashboardViewModel) ?? true) a,
+    ];
+
+    // If there are no visible actions, return an empty widget
+    if (visibleActions.isEmpty) return const SizedBox.shrink();
+
+    if (selectedIndex >= visibleActions.length) {
+      selectedIndex = visibleActions.length - 1;
+    }
 
     final theme = Theme.of(context);
     final backgroundColor = theme.colorScheme.surfaceContainer.withAlpha(122);
@@ -149,18 +160,31 @@ class _PageIndicatorState extends State<PageIndicator> {
 
     final double barWidth = math.min(totalItemsWidth, screenWidth * 0.95);
 
-    final double firstItemLeft = edgePadding;
-    final double lastItemLeft = barWidth - pillWidth - edgePadding;
-    final double centerItemLeft = actionWidths[0] + (edgePadding * 2);
-
     final isRTL = Directionality.of(context) == TextDirection.rtl;
+    final count = visibleActions.length;
 
-    final List<double> positions = isRTL
-        ? [lastItemLeft, centerItemLeft, firstItemLeft]
-        : [firstItemLeft, centerItemLeft, lastItemLeft];
+    List<double> positions = [];
 
+    if (count == 1) {
+      positions = [barWidth / 2 - pillWidth / 2];
+    } else if (count == 2) {
+      final spacing = (barWidth - pillWidth * 2) / 3;
+      positions = [
+        spacing,
+        barWidth - pillWidth - spacing,
+      ];
+    } else {
+      final double firstItemLeft = edgePadding;
+      final double lastItemLeft = barWidth - pillWidth - edgePadding;
 
-    final double left = positions[selectedIndex];
+      final double centerItemLeft =
+          (isRTL ? actionWidths.last : actionWidths.first) + (edgePadding * 2);
+
+      positions = [firstItemLeft, centerItemLeft, lastItemLeft];
+    }
+
+    if (isRTL) positions = positions.reversed.toList();
+    final left = positions[selectedIndex];
     final currentAction = visibleActions[selectedIndex];
 
     return Align(

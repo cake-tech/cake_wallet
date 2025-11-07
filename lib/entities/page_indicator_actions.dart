@@ -19,12 +19,12 @@ class PageIndicatorActions {
   });
 
   static List<PageIndicatorActions> all = [
-    AppsAction,
+    appsAction,
     homeAction,
     historyAction,
   ];
 
-  static PageIndicatorActions AppsAction = PageIndicatorActions._(
+  static PageIndicatorActions appsAction = PageIndicatorActions._(
     name: (context) => S.of(context).apps,
     image: 'assets/images/main_actions/apps.svg',
     key: ValueKey('dashboard_page_apps_action_button_key'),
