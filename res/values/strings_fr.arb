@@ -895,6 +895,7 @@
   "single_seed_wallets_group": "Portefeuilles de mots-clés (seed) simples",
   "slidable": "Glissable",
   "solana_create_associated_token_account_exception": "Création d'erreur Création de jetons associés pour l'adresse détenue.",
+  "solana_invalid_data_message": "Erreur lors de l'analyse du compte de jeton associé pour le jeton. Veuillez confirmer l'adresse de réception et réessayer.",
   "solana_no_associated_token_account_exception": "Il n'y a pas de compte de jeton associé pour cette adresse.",
   "solana_sign_native_transaction_rent_exception": "Transaction impossible. Il ne restera pas suffisamment de SOL pour la location après la transaction. Veuillez recharger votre solde SOL ou réduire la quantité de SOL envoyée.",
   "solana_sign_spl_token_transaction_rent_exception": "Transaction impossible. Il ne restera pas suffisamment de SOL pour la location après la transaction. Veuillez recharger votre solde SOL.",

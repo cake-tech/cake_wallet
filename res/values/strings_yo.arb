@@ -896,6 +896,7 @@
   "single_seed_wallets_group": "Awọn Wowei Awọn gige",
   "slidable": "Slidable",
   "solana_create_associated_token_account_exception": "Aṣiṣe ṣiṣẹda akọọlẹ token ti o ni ibatan fun adirẹsi gbigba.",
+  "solana_invalid_data_message": "Aṣoju aṣiṣe ipari si iroyin token fun àmi. Jowo fire gba aṣẹ ati gbiyanju lẹẹkansi.",
   "solana_no_associated_token_account_exception": "Ko si iroyin token ti o ni ibatan fun adirẹsi yii.",
   "solana_sign_native_transaction_rent_exception": "Idunadura ko le pari. Solusi ti ko to ju fun iyalo lẹhin idunadura. Jowo oke iwọntunwọnsi rẹ tabi dinku iye sol ti o firanṣẹ.",
   "solana_sign_spl_token_transaction_rent_exception": "Idunadura ko le pari. Solusi ti ko to ju fun iyalo lẹhin idunadura. Sanra si oke ni iwọntunwọnsi Sol rẹ.",

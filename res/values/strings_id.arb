@@ -898,6 +898,7 @@
   "single_seed_wallets_group": "Dompet biji tunggal",
   "slidable": "Dapat digeser",
   "solana_create_associated_token_account_exception": "Kesalahan Membuat Akun Token Terkait untuk Alamat Penerima.",
+  "solana_invalid_data_message": "Terjadi kesalahan saat mengurai akun token terkait untuk token. Mohon konfirmasi alamat penerimaan dan coba lagi.",
   "solana_no_associated_token_account_exception": "Tidak ada akun token terkait untuk alamat ini.",
   "solana_sign_native_transaction_rent_exception": "Transaksi tidak dapat diselesaikan. SOL yang tidak mencukupi pergi untuk disewa setelah transaksi. Mohon tambah saldo SOL Anda atau kurangi jumlah SOL yang Anda kirim.",
   "solana_sign_spl_token_transaction_rent_exception": "Transaksi tidak dapat diselesaikan. SOL yang tidak mencukupi pergi untuk disewa setelah transaksi. Mohon tambah saldo SOL Anda.",

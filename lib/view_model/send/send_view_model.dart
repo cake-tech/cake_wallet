@@ -1033,6 +1033,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.solana_no_associated_token_account_exception;
       }
 
+      if (errorMessage.contains('found no record of a prior credit')) {
+        return S.current.insufficient_funds_for_tx;
+      }
+
       if (errorMessage.contains('insufficient funds for rent') &&
           errorMessage.contains('Transaction simulation failed') &&
           errorMessage.contains('account_index')) {
@@ -1044,8 +1048,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
-      if (errorMessage.contains('found no record of a prior credit')) {
-        return S.current.insufficient_funds_for_tx;
+      if (errorMessage.contains('invalid account data')) {
+        return S.current.solana_invalid_data_message;
       }
 
       return errorMessage;
