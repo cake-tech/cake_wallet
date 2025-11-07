@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:mobx/mobx.dart';
@@ -22,6 +24,8 @@ abstract class DEuroBorrowingViewModelBase with Store {
     final response = await ethereum!.getDEuroOwnedPositions(this.appStore.wallet!);
 
     if (response.length == positions.length) return;
+
+    log(response.first.toString());
     positions.clear();
     positions.addAll(response);
   }
@@ -34,6 +38,4 @@ abstract class DEuroBorrowingViewModelBase with Store {
 
   @observable
   String expiryDate = '';
-
-  
 }
