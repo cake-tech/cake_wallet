@@ -12,6 +12,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
     required this.footerType,
     this.slideActionButtonText,
     this.onSlideActionComplete,
+    this.isSlideActionEnabled = true,
     this.singleActionButtonText,
     this.accessibleNavigationModeSlideActionButtonText,
     this.onSingleActionButtonPressed,
@@ -30,6 +31,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
   final FooterType footerType;
   final String? slideActionButtonText;
   final VoidCallback? onSlideActionComplete;
+  final bool isSlideActionEnabled;
   final String? singleActionButtonText;
   final String? accessibleNavigationModeSlideActionButtonText;
   final VoidCallback? onSingleActionButtonPressed;
@@ -112,6 +114,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
             buttonText: slideActionButtonText ?? '',
             onSlideComplete: onSlideActionComplete ?? () {},
             accessibleNavigationModeButtonText: accessibleNavigationModeSlideActionButtonText ?? '',
+            isDisabled: !isSlideActionEnabled,
           ),
         );
 
