@@ -25,6 +25,8 @@ class LinkViewModel {
   bool get _isValidPaymentUri => currentLink?.path.isNotEmpty ?? false;
   bool get isWalletConnectLink => currentLink?.authority == 'wc';
   bool get isNanoGptLink => currentLink?.scheme == 'nano-gpt';
+  bool get isQuickActionLink =>
+      currentLink?.scheme == 'cakewallet' && currentLink?.host == 'quickaction';
 
   String? getRouteToGo() {
     if (isWalletConnectLink) {
@@ -33,6 +35,19 @@ class LinkViewModel {
         return null;
       }
       return Routes.walletConnectConnectionsListing;
+    }
+
+    // Check for a quick action first.
+    if (isQuickActionLink) {
+      final action = currentLink!.pathSegments.isNotEmpty ? currentLink!.pathSegments.first : null;
+      switch (action) {
+        case 'send':
+          return Routes.send;
+        case 'receive':
+          return Routes.receive;
+        default:
+          return null;
+      }
     }
 
     if (authenticationStore.state == AuthenticationState.uninitialized) {
@@ -60,6 +75,10 @@ class LinkViewModel {
   dynamic getRouteArgs() {
     if (isWalletConnectLink) {
       return currentLink;
+    }
+
+    if (isQuickActionLink) {
+      return null;
     }
 
     if (isNanoGptLink) {
@@ -98,6 +117,11 @@ class LinkViewModel {
     dynamic args = getRouteArgs();
     if (route != null) {
       if (appStore.wallet == null) {
+        return;
+      }
+
+      // Prevent navigating to the same route again.
+      if (appStore.currentRouteName == route) {
         return;
       }
 
