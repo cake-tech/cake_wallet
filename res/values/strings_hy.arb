@@ -95,6 +95,8 @@
   "biometric_auth_reason": "Սկանավեք ձեր մատնահետքը նույնականացման համար",
   "bitcoin_dark_theme": "Bitcoin մութ տեսք",
   "bitcoin_light_theme": "Bitcoin պայծառ տեսք",
+  "bitcoin_lightning_deposit": "Ավանդ",
+  "bitcoin_lightning_withdraw": "Հանել",
   "bitcoin_payments_require_1_confirmation": "Bitcoin վճարումները պահանջում են 1 հաստատում, որը կարող է տևել 20 րոպե կամ ավելի: Շնորհակալություն ձեր համբերության համար: Դուք էլ. նամակ կստանաք, երբ վճարումը հաստատվի։",
   "block_height": "Բլոկի բարձրությունը",
   "block_remaining": "1 Բլոկ է մնացել",

@@ -95,6 +95,8 @@
   "biometric_auth_reason": "Відскануйте свій відбиток пальця для аутентифікації",
   "bitcoin_dark_theme": "Темна тема Bitcoin",
   "bitcoin_light_theme": "Світла тема Bitcoin",
+  "bitcoin_lightning_deposit": "депозит",
+  "bitcoin_lightning_withdraw": "Вилучити",
   "bitcoin_payments_require_1_confirmation": "Платежі Bitcoin потребують 1 підтвердження, яке може зайняти 20 хвилин або більше. Дякую за Ваше терпіння! Ви отримаєте електронний лист, коли платіж буде підтверджено.",
   "block_height": "Висота блоку",
   "block_remaining": "1 блок, що залишився",

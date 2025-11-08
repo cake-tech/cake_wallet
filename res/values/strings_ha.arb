@@ -95,6 +95,8 @@
   "biometric_auth_reason": "Duba hoton yatsa don tantancewa",
   "bitcoin_dark_theme": "Bitcoin Dark Jigo",
   "bitcoin_light_theme": "Jigon Hasken Bitcoin",
+  "bitcoin_lightning_deposit": "Yi ajiya",
+  "bitcoin_lightning_withdraw": "Janye",
   "bitcoin_payments_require_1_confirmation": "Akwatin Bitcoin na buɗe 1 sambumbu, da yake za ta samu mintuna 20 ko yawa. Ina kira ga sabuwar lafiya! Zaka sanarwa ta email lokacin da aka samu akwatin samun lambar waya.",
   "block_height": "Toshe tsawo",
   "block_remaining": "1 toshe ragowar",

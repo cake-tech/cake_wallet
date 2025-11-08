@@ -95,6 +95,8 @@
   "biometric_auth_reason": "Skenirajte svoj otisak prsta za autentifikaciju",
   "bitcoin_dark_theme": "Bitcoin Tamna tema",
   "bitcoin_light_theme": "Bitcoin Light Theme",
+  "bitcoin_lightning_deposit": "Polog",
+  "bitcoin_lightning_withdraw": "Povući",
   "bitcoin_payments_require_1_confirmation": "Bitcoin plaćanja zahtijevaju 1 potvrdu, što može potrajati 20 minuta ili dulje. Hvala na Vašem strpljenju! Dobit ćete e-poruku kada plaćanje bude potvrđeno.",
   "block_height": "Visina bloka",
   "block_remaining": "Preostalo 1 blok",

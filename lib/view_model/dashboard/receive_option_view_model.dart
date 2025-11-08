@@ -11,59 +11,21 @@ class ReceiveOptionViewModel = ReceiveOptionViewModelBase with _$ReceiveOptionVi
 abstract class ReceiveOptionViewModelBase with Store {
   ReceiveOptionViewModelBase(this._wallet, this.initialPageOption)
       : selectedReceiveOption = initialPageOption ??
-            (_wallet.type == WalletType.bitcoin ||
-             _wallet.type == WalletType.litecoin
+            ([WalletType.bitcoin, WalletType.litecoin].contains(_wallet.type)
                 ? bitcoin!.getSelectedAddressType(_wallet)
-                    : (_wallet.type == WalletType.decred && _wallet.isTestnet)
+                : (_wallet.type == WalletType.decred && _wallet.isTestnet)
                     ? ReceivePageOption.testnet
-                    : ReceivePageOption.mainnet),
-        _options = [] {
-    final walletType = _wallet.type;
-    switch (walletType) {
-      case WalletType.bitcoin:
-        _options = [
-          ...bitcoin!.getBitcoinReceivePageOptions(_wallet),
-          ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
-        ];
-        break;
-      case WalletType.litecoin:
-        _options = [
-          ...bitcoin!.getLitecoinReceivePageOptions(_wallet),
-          ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
-        ];
-        break;
-      case WalletType.haven:
-        _options = [ReceivePageOption.mainnet];
-        break;
-      case WalletType.decred:
-        if (_wallet.isTestnet) {
-          _options = [
-            ReceivePageOption.testnet,
-            ...ReceivePageOptions.where(
-                (element) => element != ReceivePageOption.mainnet)
-          ];
-        } else {
-          _options = ReceivePageOptions;
-        }
-        break;
-      default:
-        _options = ReceivePageOptions;
-    }
-  }
+                    : ReceivePageOption.mainnet);
 
   final WalletBase _wallet;
 
   final ReceivePageOption? initialPageOption;
 
-  List<ReceivePageOption> _options;
-
   @observable
   ReceivePageOption selectedReceiveOption;
 
-  List<ReceivePageOption> get options => _options;
+  List<ReceivePageOption> get options => _wallet.walletAddresses.receivePageOptions;
 
   @action
-  void selectReceiveOption(ReceivePageOption option) {
-    selectedReceiveOption = option;
-  }
+  void selectReceiveOption(ReceivePageOption option) => selectedReceiveOption = option;
 }

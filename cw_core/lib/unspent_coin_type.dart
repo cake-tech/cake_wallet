@@ -1,1 +1,1 @@
-enum UnspentCoinType { mweb, nonMweb, any }
+enum UnspentCoinType { mweb, nonMweb, any, lightning }

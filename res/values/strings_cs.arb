@@ -95,6 +95,8 @@
   "biometric_auth_reason": "Naskenujte otisk prstu pro ověření",
   "bitcoin_dark_theme": "Tmavé téma bitcoinů",
   "bitcoin_light_theme": "Světlé téma bitcoinů",
+  "bitcoin_lightning_deposit": "Vklad",
+  "bitcoin_lightning_withdraw": "Odebrat",
   "bitcoin_payments_require_1_confirmation": "U plateb Bitcoinem je vyžadováno alespoň 1 potvrzení, což může trvat 20 minut i déle. Děkujeme za vaši trpělivost! Až bude platba potvrzena, budete informováni e-mailem.",
   "block_height": "Výška bloku",
   "block_remaining": "1 blok zbývající",

@@ -95,6 +95,8 @@
   "biometric_auth_reason": "Scan your fingerprint to authenticate",
   "bitcoin_dark_theme": "Bitcoin Dark Theme",
   "bitcoin_light_theme": "Bitcoin Light Theme",
+  "bitcoin_lightning_deposit": "Deposit",
+  "bitcoin_lightning_withdraw": "Withdraw",
   "bitcoin_payments_require_1_confirmation": "Bitcoin payments require 1 confirmation, which can take 20 minutes or longer. Thanks for your patience! You will be emailed when the payment is confirmed.",
   "block_height": "Block height",
   "block_remaining": "1 Block Remaining",
