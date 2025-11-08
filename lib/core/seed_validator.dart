@@ -1,3 +1,5 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/entities/mnemonic_item.dart';
@@ -52,6 +54,10 @@ class SeedValidator extends Validator<MnemonicItem> {
         return zano!.getWordList(language);
       case WalletType.decred:
         return decred!.getDecredWordList();
+      case WalletType.base:
+        return base!.getBaseWordList(language);
+      case WalletType.arbitrum:
+        return arbitrum!.getArbitrumWordList(language);
       case WalletType.none:
       case WalletType.haven:
         return [];

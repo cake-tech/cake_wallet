@@ -106,6 +106,8 @@ class Node extends HiveObject with Keyable {
       case WalletType.banano:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.zano:
@@ -169,6 +171,8 @@ class Node extends HiveObject with Keyable {
         case WalletType.bitcoinCash:
         case WalletType.ethereum:
         case WalletType.polygon:
+        case WalletType.base:
+        case WalletType.arbitrum:
         case WalletType.solana:
         case WalletType.tron:
         case WalletType.dogecoin:

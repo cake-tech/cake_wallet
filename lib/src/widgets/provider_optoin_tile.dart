@@ -1,6 +1,5 @@
-import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class ProviderOptionTile extends StatelessWidget {
   const ProviderOptionTile({
@@ -78,16 +77,16 @@ class ProviderOptionTile extends StatelessWidget {
             ? darkImagePath
             : lightImagePath
         : !isLightMode
-            ? darkImagePath
-            : lightImagePath;
+            ? lightImagePath
+            : darkImagePath;
 
     final rightSubTitleIconPath = isSelected
         ? !isLightMode
             ? rightSubTitleDarkIconPath
             : rightSubTitleLightIconPath
         : !isLightMode
-            ? rightSubTitleDarkIconPath
-            : rightSubTitleLightIconPath;
+            ? rightSubTitleLightIconPath
+            : rightSubTitleDarkIconPath;
 
     return GestureDetector(
       onTap: onPressed,
@@ -106,8 +105,8 @@ class ProviderOptionTile extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  getImage(imagePath,
-                      height: imageHeight, width: imageWidth, imageColor: textColor),
+                  ImageUtil.getImageFromPath(imagePath:imagePath,
+                      height: imageHeight, width: imageWidth),
                   SizedBox(width: 8),
                   Expanded(
                     child: Container(
@@ -203,7 +202,7 @@ class subTitleWidget extends StatelessWidget {
                   if (subTitleIconPath != null && subTitleIconPath!.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(right: 6),
-                      child: getImage(subTitleIconPath!),
+                      child: ImageUtil.getImageFromPath(imagePath: subTitleIconPath!),
                     ),
                   Text(
                     leftSubTitle ?? '',
@@ -219,7 +218,7 @@ class subTitleWidget extends StatelessWidget {
                   if (rightSubTitleIconPath != null && rightSubTitleIconPath!.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(right: 4),
-                      child: getImage(rightSubTitleIconPath!, imageColor: textColor),
+                      child: ImageUtil.getImageFromPath(imagePath: rightSubTitleIconPath!),
                     ),
                   Text(
                     rightSubTitle ?? '',
@@ -262,84 +261,6 @@ class Badge extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-Widget getImage(String imagePath, {double? height, double? width, Color? imageColor}) {
-  bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
-  if (CakeTor.instance!.enabled && isNetworkImage) {
-    imagePath = "assets/images/tor_logo.svg";
-    isNetworkImage = false;
-  }
-  final bool isSvg = imagePath.endsWith('.svg');
-  final double imageHeight = height ?? 35;
-  final double imageWidth = width ?? 35;
-
-  if (isNetworkImage) {
-    return isSvg
-        ? SvgPicture.network(
-            imagePath,
-            height: imageHeight,
-            width: imageWidth,
-            colorFilter: imageColor != null ? ColorFilter.mode(imageColor, BlendMode.srcIn) : null,
-            placeholderBuilder: (BuildContext context) => Container(
-              height: imageHeight,
-              width: imageWidth,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-            errorBuilder: (_, __, ___) {
-              return Container(
-                height: imageHeight,
-                width: imageWidth,
-                child: Center(
-                  child: Icon(Icons.error_outline, color: Colors.grey),
-                ),
-              );
-            },
-          )
-        : Image.network(
-            imagePath,
-            height: imageHeight,
-            width: imageWidth,
-            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-              if (loadingProgress == null) {
-                return child;
-              }
-              return Container(
-                height: imageHeight,
-                width: imageWidth,
-                child: Center(
-                  child: CircularProgressIndicator(
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                        : null,
-                  ),
-                ),
-              );
-            },
-            errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-              return Container(
-                height: imageHeight,
-                width: imageWidth,
-                child: Center(
-                  child: Icon(Icons.error_outline, color: Colors.grey),
-                ),
-              );
-            },
-          );
-  } else {
-    return isSvg
-        ? SvgPicture.asset(
-            imagePath,
-            height: imageHeight,
-            width: imageWidth,
-            colorFilter: imageColor != null ? ColorFilter.mode(imageColor, BlendMode.srcIn) : null,
-            errorBuilder: (_, __, ___) => Icon(Icons.error, color: Colors.grey),
-          )
-        : Image.asset(imagePath, height: imageHeight, width: imageWidth);
   }
 }
 

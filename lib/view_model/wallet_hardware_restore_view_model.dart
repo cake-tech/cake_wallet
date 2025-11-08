@@ -6,6 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
@@ -24,18 +25,17 @@ class WalletHardwareRestoreViewModel = WalletHardwareRestoreViewModelBase
     with _$WalletHardwareRestoreViewModel;
 
 abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with Store {
-  final LedgerViewModel ledgerViewModel;
+  final HardwareWalletViewModel hardwareWalletVM;
 
   int _nextIndex = 0;
 
   WalletHardwareRestoreViewModelBase(
-      this.ledgerViewModel,
+      this.hardwareWalletVM,
       AppStore appStore,
       WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource,
       SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type})
-      : super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+      : super(appStore, walletCreationService, seedSettingsViewModel,
             type: type, isRecovery: true);
 
   @observable
@@ -56,33 +56,16 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   @action
   Future<void> getNextAvailableAccounts(int limit) async {
     try {
-      List<HardwareAccountData> accounts;
-      switch (type) {
-        case WalletType.bitcoin:
-          accounts = await bitcoin!
-              .getHardwareWalletBitcoinAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-        break;
-      case WalletType.litecoin:
-        accounts = await bitcoin!
-            .getHardwareWalletLitecoinAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-        break;
-      case WalletType.ethereum:
-        accounts = await ethereum!
-            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-        break;
-      case WalletType.polygon:
-        accounts = await polygon!
-            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-        break;
-      default:
-        return;
-    }
+      final service = await hardwareWalletVM.getHardwareWalletService(type);
+      List<HardwareAccountData> accounts = await service
+          .getAvailableAccounts(index: _nextIndex, limit: limit);
 
       availableAccounts.addAll(accounts);
       _nextIndex += limit;
     } catch (e) {
       printV(e);
-      error = ledgerViewModel.interpretErrorCode(e.toString()) ?? S.current.ledger_connection_error;
+      error =
+          hardwareWalletVM.interpretErrorCode(e.toString()) ?? S.current.ledger_connection_error;
     }
 
     isLoadingMoreAccounts = false;
@@ -110,7 +93,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
 
         credentials = monero!.createMoneroRestoreWalletFromHardwareCredentials(
           name: name,
-          ledgerConnection: ledgerViewModel.connection,
+          ledgerConnection: (hardwareWalletVM as LedgerViewModel).connection,
           password: password,
           height: _options['height'] as int? ?? 0,
         );
@@ -118,7 +101,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
         throw Exception('Unexpected type: ${type.toString()}');
     }
 
-    credentials.hardwareWalletType = HardwareWalletType.ledger;
+    credentials.hardwareWalletType = hardwareWalletVM.hardwareWalletType;
 
     return credentials;
   }

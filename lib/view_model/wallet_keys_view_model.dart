@@ -126,6 +126,8 @@ abstract class WalletKeysViewModelBase with Store {
         break;
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
         items.addAll([
@@ -252,6 +254,10 @@ abstract class WalletKeysViewModelBase with Store {
         return 'banano-wallet';
       case WalletType.polygon:
         return 'polygon-wallet';
+      case WalletType.base:
+        return 'base-wallet';
+      case WalletType.arbitrum:
+        return 'arbitrum-wallet';
       case WalletType.solana:
         return 'solana-wallet';
       case WalletType.tron:

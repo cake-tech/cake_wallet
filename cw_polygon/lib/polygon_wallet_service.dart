@@ -10,8 +10,7 @@ import 'package:cw_polygon/polygon_mnemonics_exception.dart';
 import 'package:cw_polygon/polygon_wallet.dart';
 
 class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
-  PolygonWalletService(
-    super.walletInfoSource, super.isDirect, {
+  PolygonWalletService(super.isDirect, {
     required this.client,
   });
 
@@ -28,6 +27,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
 
     final wallet = PolygonWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       mnemonic: mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -43,8 +43,10 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
 
   @override
   Future<PolygonWallet> openWallet(String name, String password) async {
-    final walletInfo =
-        walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
 
     try {
       final wallet = await PolygonWallet.open(
@@ -55,7 +57,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
       );
 
       await wallet.init();
-      wallet.addInitialTokens(true);
+      wallet.addInitialTokens();
       await wallet.save();
       saveBackup(name);
       return wallet;
@@ -82,6 +84,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -95,15 +98,16 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   @override
   Future<PolygonWallet> restoreFromHardwareWallet(
       EVMChainRestoreWalletFromHardware credentials) async {
-    credentials.walletInfo!.derivationInfo = DerivationInfo(
-        derivationType: DerivationType.bip39,
-        derivationPath: "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0"
-    );
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    derivationInfo.derivationType = DerivationType.bip39;
+    derivationInfo.derivationPath = "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0";
+    derivationInfo.save();
     credentials.walletInfo!.hardwareWalletType = credentials.hardwareWalletType;
     credentials.walletInfo!.address = credentials.hwAccountData.address;
 
     final wallet = PolygonWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: derivationInfo,
       password: credentials.password!,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -127,6 +131,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       passphrase: credentials.passphrase,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -141,8 +146,10 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
     final currentWallet = await PolygonWallet.open(
       password: password,
       name: currentName,
@@ -157,6 +164,6 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    await newWalletInfo.save();
   }
 }

@@ -12,6 +12,7 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
+import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -25,7 +26,7 @@ import 'package:cw_core/output_info.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
@@ -46,6 +47,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   BitcoinWalletBase({
     required String password,
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Box<PayjoinSession> payjoinBox,
     required EncryptionFileUtils encryptionFileUtils,
@@ -68,6 +70,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           xpub: xpub,
           password: password,
           walletInfo: walletInfo,
+          derivationInfo: derivationInfo,
           unspentCoinsInfo: unspentCoinsInfo,
           network: networkParam == null
               ? BitcoinNetwork.mainnet
@@ -132,7 +135,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }) async {
     late Uint8List seedBytes;
 
-    switch (walletInfo.derivationInfo?.derivationType) {
+    final derivationInfo = await walletInfo.getDerivationInfo();
+
+    switch (derivationInfo.derivationType) {
       case DerivationType.bip39:
         seedBytes = await bip39.mnemonicToSeed(
           mnemonic,
@@ -151,6 +156,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       passphrase: passphrase ?? "",
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialSilentAddresses: initialSilentAddresses,
@@ -211,20 +217,21 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       );
     }
 
-    walletInfo.derivationInfo ??= DerivationInfo();
+    final derivationInfo = await walletInfo.getDerivationInfo();
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath ??=
+    derivationInfo.derivationPath ??=
         snp?.derivationPath ?? electrum_path;
-    walletInfo.derivationInfo!.derivationType ??=
+    derivationInfo.derivationType ??=
         snp?.derivationType ?? DerivationType.electrum;
+    await derivationInfo.save();
 
     Uint8List? seedBytes = null;
     final mnemonic = keysData.mnemonic;
     final passphrase = keysData.passphrase;
 
     if (mnemonic != null) {
-      switch (walletInfo.derivationInfo!.derivationType) {
+      switch (derivationInfo.derivationType) {
         case DerivationType.electrum:
           seedBytes =
               await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
@@ -241,10 +248,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     return BitcoinWallet(
         mnemonic: mnemonic,
-        xpub: keysData.xPub,
+        xpub: keysData.xPub != null ? convertZpubToXpub(keysData.xPub!) : null,
         password: password,
         passphrase: passphrase,
         walletInfo: walletInfo,
+        derivationInfo: derivationInfo,
         unspentCoinsInfo: unspentCoinsInfo,
         initialAddresses: snp?.addresses,
         initialSilentAddresses: snp?.silentAddresses,
@@ -258,16 +266,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         networkParam: network,
         alwaysScan: snp?.alwaysScan,
         payjoinBox: payjoinBox);
-  }
-
-  LedgerConnection? _ledgerConnection;
-  BitcoinLedgerApp? _bitcoinLedgerApp;
-
-  @override
-  void setLedgerConnection(LedgerConnection connection) {
-    _ledgerConnection = connection;
-    _bitcoinLedgerApp = BitcoinLedgerApp(_ledgerConnection!,
-        derivationPath: walletInfo.derivationInfo!.derivationPath!);
   }
 
   @override
@@ -331,7 +329,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
   }) async {
-    final masterFingerprint = await _bitcoinLedgerApp!.getMasterFingerprint();
+    final masterFingerprint =
+        await (hardwareWalletService as BitcoinHardwareWalletService).getMasterFingerprint();
 
     final psbt = await buildPsbt(
       outputs: outputs,
@@ -347,7 +346,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       outputOrdering: outputOrdering,
     );
 
-    final rawHex = await _bitcoinLedgerApp!.signPsbt(psbt: psbt);
+    final psbtStr = base64Encode(psbt.serialize());
+    final rawHex = await hardwareWalletService!.signTransaction(transaction: psbtStr);
     return BtcTransaction.fromRaw(BytesUtils.toHexString(rawHex));
   }
 
@@ -491,12 +491,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           : null;
       final index = addressEntry?.index ?? 0;
       final isChange = addressEntry?.isHidden == true ? 1 : 0;
-      final accountPath = walletInfo.derivationInfo?.derivationPath;
+      final derivationInfo = await walletInfo.getDerivationInfo();
+      final accountPath = derivationInfo.derivationPath;
       final derivationPath =
           accountPath != null ? "$accountPath/$isChange/$index" : null;
 
-      final signature = await _bitcoinLedgerApp!.signMessage(
-          message: ascii.encode(message), signDerivationPath: derivationPath);
+      final signature = await hardwareWalletService!
+          .signMessage(message: ascii.encode(message), derivationPath: derivationPath);
       return base64Encode(signature);
     }
 

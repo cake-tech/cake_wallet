@@ -1,3 +1,5 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -134,6 +136,15 @@ class TransactionListItem extends ActionListItem with Keyable {
         return asset;
       }
 
+      if (balanceViewModel.wallet.type == WalletType.base) {
+        final asset = base!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      }
+      if (balanceViewModel.wallet.type == WalletType.arbitrum) {
+        final asset = arbitrum!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      }
+
       if (balanceViewModel.wallet.type == WalletType.solana) {
         final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
         return asset;
@@ -184,6 +195,20 @@ class TransactionListItem extends ActionListItem with Keyable {
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
             cryptoAmount: polygon!.formatterPolygonAmountToDouble(transaction: transaction),
+            price: price);
+        break;
+      case WalletType.base:
+        final asset = base!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: base!.formatterBaseAmountToDouble(transaction: transaction),
+            price: price);
+        break;
+      case WalletType.arbitrum:
+        final asset = arbitrum!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: arbitrum!.formatterArbitrumAmountToDouble(transaction: transaction),
             price: price);
         break;
       case WalletType.nano:

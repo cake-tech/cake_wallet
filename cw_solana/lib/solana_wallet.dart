@@ -43,6 +43,7 @@ abstract class SolanaWalletBase
     with Store, WalletKeysFile {
   SolanaWalletBase({
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     String? mnemonic,
     String? privateKey,
     required String password,
@@ -57,7 +58,7 @@ abstract class SolanaWalletBase
         walletAddresses = SolanaWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, SolanaBalance>.of(
             {CryptoCurrency.sol: initialBalance ?? SolanaBalance(BigInt.zero.toDouble())}),
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = SolanaTransactionHistory(
       walletInfo: walletInfo,
@@ -292,6 +293,14 @@ abstract class SolanaWalletBase
   @override
   Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async => {};
 
+  @override
+  Future<void> updateTransactionsHistory() async {
+    await Future.wait([
+      _updateNativeSOLTransactions(),
+      _updateSPLTokenTransactions(),
+    ]);
+  }
+
   void updateTransactions(List<SolanaTransactionModel> updatedTx) {
     _addTransactionsToTransactionHistory(updatedTx);
   }
@@ -441,8 +450,11 @@ abstract class SolanaWalletBase
       );
     }
 
+    final derivationInfo = await walletInfo.getDerivationInfo();
+
     return SolanaWallet(
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       password: password,
       passphrase: keysData.passphrase,
       mnemonic: keysData.mnemonic,
@@ -506,7 +518,12 @@ abstract class SolanaWalletBase
     final initialSPLTokens = DefaultSPLTokens().initialSPLTokens;
 
     for (var token in initialSPLTokens) {
-      splTokensBox.put(token.mintAddress, token);
+      if (!splTokensBox.containsKey(token.mintAddress)) {
+        splTokensBox.put(token.mintAddress, token);
+      } else { // update existing token
+        final existingToken = splTokensBox.get(token.mintAddress);
+        splTokensBox.put(token.mintAddress, SPLToken.copyWith(token, enabled: existingToken!.enabled));
+      }
     }
   }
 

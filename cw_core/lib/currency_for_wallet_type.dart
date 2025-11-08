@@ -1,21 +1,25 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 
-CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
+CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false}) {
   switch (type) {
+    case WalletType.monero:
+      return CryptoCurrency.xmr;
     case WalletType.bitcoin:
-      if (isTestnet == true) {
+      if (isTestnet) {
         return CryptoCurrency.tbtc;
       }
       return CryptoCurrency.btc;
-    case WalletType.monero:
-      return CryptoCurrency.xmr;
     case WalletType.litecoin:
       return CryptoCurrency.ltc;
     case WalletType.haven:
       return CryptoCurrency.xhv;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
+    case WalletType.base:
+      return CryptoCurrency.baseEth;
+    case WalletType.arbitrum:
+      return CryptoCurrency.arbEth;
     case WalletType.bitcoinCash:
       return CryptoCurrency.bch;
     case WalletType.nano:
@@ -38,41 +42,6 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
       return CryptoCurrency.doge;
     case WalletType.none:
       throw Exception(
-          'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
-  }
-}
-
-WalletType? walletTypeForCurrency(CryptoCurrency currency) {
-  switch (currency) {
-    case CryptoCurrency.btc:
-      return WalletType.bitcoin;
-    case CryptoCurrency.xmr:
-      return WalletType.monero;
-    case CryptoCurrency.ltc:
-      return WalletType.litecoin;
-    case CryptoCurrency.xhv:
-      return WalletType.haven;
-    case CryptoCurrency.eth:
-      return WalletType.ethereum;
-    case CryptoCurrency.bch:
-      return WalletType.bitcoinCash;
-    case CryptoCurrency.nano:
-      return WalletType.nano;
-    case CryptoCurrency.banano:
-      return WalletType.banano;
-    case CryptoCurrency.maticpoly:
-      return WalletType.polygon;
-    case CryptoCurrency.sol:
-      return WalletType.solana;
-    case CryptoCurrency.trx:
-      return WalletType.tron;
-    case CryptoCurrency.wow:
-      return WalletType.wownero;
-    case CryptoCurrency.zano:
-      return WalletType.zano;
-    case CryptoCurrency.dcr:
-      return WalletType.decred;
-    default:
-      return null;
+          'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }
 }

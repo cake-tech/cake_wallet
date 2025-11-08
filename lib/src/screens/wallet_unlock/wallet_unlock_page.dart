@@ -136,7 +136,11 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                     height: 37,
                     width: 37,
                     child: InkWell(
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: () {
+                        if (context.mounted && Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                      },
                       child: _backArrowImageDarkTheme,
                     ),
                   ))

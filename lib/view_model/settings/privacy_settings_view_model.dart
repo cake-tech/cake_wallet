@@ -1,3 +1,5 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -76,6 +78,12 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get usePolygonScan => _settingsStore.usePolygonScan;
 
   @computed
+  bool get useBaseScan => _settingsStore.useBaseScan;
+
+  @computed
+  bool get useArbiScan => _settingsStore.useArbiScan;
+
+  @computed
   bool get useTronGrid => _settingsStore.useTronGrid;
 
   @computed
@@ -111,6 +119,10 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
+
+  bool get canUseBaseScan => _wallet.type == WalletType.base;
+
+  bool get canUseArbiScan => _wallet.type == WalletType.arbitrum;
 
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
@@ -178,9 +190,21 @@ abstract class PrivacySettingsViewModelBase with Store {
   }
 
   @action
+  void setUseBaseScan(bool value) {
+    _settingsStore.useBaseScan = value;
+    base!.updateBaseScanUsageState(_wallet, value);
+  }
+
+  @action
   void setUseTronGrid(bool value) {
     _settingsStore.useTronGrid = value;
     tron!.updateTronGridUsageState(_wallet, value);
+  }
+
+  @action
+  void setUseArbiScan(bool value) {
+    _settingsStore.useArbiScan = value;
+    arbitrum!.updateArbitrumScanUsageState(_wallet, value);
   }
 
   @action

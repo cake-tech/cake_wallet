@@ -4,7 +4,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
-  url_launcher: 6.3.1
+  url_launcher: 6.3.2
   qr_flutter:
     git:
       url: https://github.com/cake-tech/qr.flutter.git
@@ -105,7 +105,7 @@ dependencies:
     git:
       url: https://github.com/LacticWhale/socks_dart
       ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
-  flutter_svg: ^2.0.9
+  flutter_svg: ^2.2.0
   polyseed: ^0.0.7
   nostr_tools:
     git:
@@ -116,12 +116,19 @@ dependencies:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: 60817d4b20144f9da9029f5034790272795b9d38
+  trezor_connect:
+    git:
+      url: https://github.com/cake-tech/trezor_connect
+      ref: d1242cea90f84b00200e7bcab914a5af750e23fb
+  bitbox_flutter:
+    path: ./scripts/bitbox_flutter
   hashlib: 1.19.2
   on_chain:
     git:
       url: https://github.com/cake-tech/on_chain.git
       ref: cake-update-v2
-  reown_walletkit: 1.1.5+1
+  reown_walletkit:
+    path: ./scripts/reown_flutter/packages/reown_walletkit
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
@@ -175,7 +182,6 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
-  flutter_secure_storage_platform_interface: 1.0.2
   protobuf: ^3.1.0
   bitcoin_base:
     git:
@@ -184,8 +190,12 @@ dependency_overrides:
   ffi: 2.1.0
   ledger_flutter_plus:
     git:
-      url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: 60817d4b20144f9da9029f5034790272795b9d38
+      url: https://github.com/cake-tech/ledger-flutter-plus
+      ref: 5237e5b3d5f07696eefd0aaee9c32478ed399d20
+  ledger_usb_plus:
+    git:
+      url: https://github.com/konstantinullrich/ledger-usb-plus
+      ref: dad482c847c0d0eedceabbb40d3478e64b65e630
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart.git
@@ -209,6 +219,8 @@ flutter:
     - assets/images/
     - assets/images/flags/
     - assets/images/hardware_wallet/
+    - assets/images/crypto/
+    - assets/images/stocks/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
@@ -224,6 +236,8 @@ flutter:
     - assets/zano_node_list.yml
     - assets/decred_node_list.yml
     - assets/dogecoin_electrum_server_list.yml
+    - assets/base_node_list.yml
+    - assets/arbitrum_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

@@ -55,8 +55,9 @@ class SecretKey {
     SecretKey('litecoinTestWalletSeeds', () => ''),
     SecretKey('bitcoinCashTestWalletSeeds', () => ''),
     SecretKey('polygonTestWalletSeeds', () => ''),
+    SecretKey('baseTestWalletSeeds', () => ''),
+    SecretKey('arbitrumTestWalletSeeds', () => ''),
     SecretKey('solanaTestWalletSeeds', () => ''),
-    SecretKey('polygonTestWalletSeeds', () => ''),
     SecretKey('tronTestWalletSeeds', () => ''),
     SecretKey('nanoTestWalletSeeds', () => ''),
     SecretKey('wowneroTestWalletSeeds', () => ''),
@@ -66,6 +67,8 @@ class SecretKey {
     SecretKey('litecoinTestWalletReceiveAddress', () => ''),
     SecretKey('bitcoinCashTestWalletReceiveAddress', () => ''),
     SecretKey('polygonTestWalletReceiveAddress', () => ''),
+    SecretKey('baseTestWalletReceiveAddress', () => ''),
+    SecretKey('arbitrumTestWalletReceiveAddress', () => ''),
     SecretKey('solanaTestWalletReceiveAddress', () => ''),
     SecretKey('tronTestWalletReceiveAddress', () => ''),
     SecretKey('nanoTestWalletReceiveAddress', () => ''),
@@ -81,6 +84,7 @@ class SecretKey {
     SecretKey('chainflipAffiliateFee', () => ''),
     SecretKey('kryptonimApiKey', () => ''),
     SecretKey('walletGroupSalt', () => hex.encode(encrypt.Key.fromSecureRandom(16).bytes)),
+    SecretKey('swapsXyzApiKey', () => ''),
   ];
 
   static final evmChainsSecrets = [

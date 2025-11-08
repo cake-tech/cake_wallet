@@ -120,12 +120,13 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -465,6 +466,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return 'lightning';
       case 'POL':
         return 'polygon';
+      case 'ARB':
+        return 'arbitrum';
       case 'ZEC':
         return 'zcash';
       case 'AVAXC':
@@ -480,6 +483,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       'tron' => 'TRX',
       'lightning' => 'LN',
       'polygon' => 'POL',
+      'arbitrum' => 'ARB',
       'zcash' => 'ZEC',
       'avax' => 'AVAXC',
       _ => network,

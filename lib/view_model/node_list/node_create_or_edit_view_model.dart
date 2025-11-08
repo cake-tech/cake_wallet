@@ -80,6 +80,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     switch (_walletType) {
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.banano:
       case WalletType.nano:

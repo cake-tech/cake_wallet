@@ -25,8 +25,8 @@ import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dar
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
@@ -43,6 +43,7 @@ import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
@@ -52,7 +53,6 @@ import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
@@ -80,7 +80,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     this.contactListViewModel,
     this.unspentCoinsListViewModel,
     this.feesViewModel,
-    this.walletInfoSource,
     this.fiatConversionStore,
   )   : _cryptoNumberFormat = NumberFormat(),
         isSendAllEnabled = false,
@@ -148,12 +147,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     });
 
-    isDepositAddressEnabled = !(depositCurrency == wallet.currency);
+    isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
     depositAmount = '';
     receiveAmount = '';
     receiveAddress = '';
     depositAddress =
-        depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
+        useSameWalletAddress(depositCurrency) ? wallet.walletAddresses.addressForExchange : '';
 
     provider = providerList.firstOrNull;
     final initialProvider = provider;
@@ -188,6 +187,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
   }
 
+  bool useSameWalletAddress(CryptoCurrency currency) =>
+      currency == wallet.currency ||
+      (currency.tag != null && currency.tag == wallet.currency.tag) ||
+      currency.tag == wallet.currency.title;
+
   bool get isElectrumWallet => [
         WalletType.bitcoin,
         WalletType.litecoin,
@@ -206,13 +210,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   List<ExchangeProvider> get _allProviders => [
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
-        SideShiftExchangeProvider(),
+        // SideShiftExchangeProvider(),
         ChainflipExchangeProvider(tradesStore: trades),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
         LetsExchangeExchangeProvider(),
         StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
+        SwapsXyzExchangeProvider(),
         TrocadorExchangeProvider(
             useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
       ];
@@ -362,8 +367,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   final FeesViewModel feesViewModel;
 
-  final Box<WalletInfo> walletInfoSource;
-
   @observable
   double bestRate = 0.0;
 
@@ -412,7 +415,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     depositCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();
-    isDepositAddressEnabled = !(depositCurrency == wallet.currency);
+    isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
   }
 
   @action
@@ -420,7 +423,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     receiveCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();
-    isDepositAddressEnabled = !(depositCurrency == wallet.currency);
+    isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
   }
 
   @action
@@ -452,10 +455,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @action
   void setReceiveAmountFromFiat({required String fiatAmount}) {
     final _enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0.0;
-    final crypto = _enteredAmount / fiatConversionStore.prices[receiveCurrency]!;
+    final price = fiatConversionStore.prices[receiveCurrency];
+    if (price == null || price == 0.0) return;
+
+    final crypto = _enteredAmount / price;
     final receiveAmountTmp = _cryptoNumberFormat.format(crypto);
     if (receiveAmount != receiveAmountTmp) {
-      changeReceiveAmount(amount: receiveAmountTmp);
+      changeReceiveAmount(amount: receiveAmountTmp.withMaxDecimals(receiveCurrency.decimals));
     }
   }
 
@@ -528,12 +534,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       _providers.map(
         (element) => element
             .fetchRate(
-              from: depositCurrency,
-              to: receiveCurrency,
-              amount: amount,
-              isFixedRateMode: isFixedRateMode,
-              isReceiveAmount: isFixedRateMode,
-            )
+                from: depositCurrency,
+                to: receiveCurrency,
+                amount: amount,
+                isFixedRateMode: isFixedRateMode,
+                isReceiveAmount: isFixedRateMode)
             .timeout(
               Duration(seconds: 7),
               onTimeout: () => 0.0,
@@ -549,7 +554,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
         try {
-           newSortedProviders[result[i]] = _providers[i];
+          newSortedProviders[result[i]] = _providers[i];
         } catch (e) {
           // will throw "Concurrent modification during iteration" error if modified at the same
           // time [createTrade] is called, as this is not a normal map, but a sorted map
@@ -632,11 +637,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
-    if (depositCurrency == receiveCurrency) {
-      tradeState = TradeIsCreatedFailure(
-          title: S.current.trade_not_created, error: 'Can\'t exchange the same currency');
-      return;
-    }
     if (isSendAllEnabled) {
       await calculateDepositAllAmount();
       final amount = double.tryParse(depositAmount);
@@ -702,16 +702,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             continue;
           } else {
             try {
-              if (provider is SwapTradeExchangeProvider) {
-                final destinationAmount = (fiatConversionStore.prices[request.toCurrency] ?? 0.00) *
-                    (double.tryParse(request.toAmount) ?? 0.00);
-                final sendingAmount = (fiatConversionStore.prices[request.fromCurrency] ?? 0.00) *
-                    (double.tryParse(request.fromAmount) ?? 0.00);
-
-                if (destinationAmount > 5000 || sendingAmount > 5000) {
-                  continue;
-                }
-              }
               tradeState = TradeIsCreating();
               final trade = await provider.createTrade(
                 request: request,
@@ -882,6 +872,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.polygon:
         depositCurrency = CryptoCurrency.maticpoly;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.base:
+        depositCurrency = CryptoCurrency.baseEth;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.arbitrum:
+        depositCurrency = CryptoCurrency.arbEth;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.solana:
@@ -1098,7 +1096,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> _injectUserEthTokensIntoCurrencyLists() async {
-    final userTokens = await TokenUtilities.loadAllUniqueEvmTokens(walletInfoSource);
+    final userTokens = await TokenUtilities.loadAllUniqueEvmTokens();
 
     final toAddReceive = <CryptoCurrency>[];
     final toAddDeposit = <CryptoCurrency>[];
@@ -1136,7 +1134,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> _injectUserSplTokensIntoCurrencyLists() async {
-    final userTokens = await TokenUtilities.loadAllUniqueSolTokens(walletInfoSource);
+    final userTokens = await TokenUtilities.loadAllUniqueSolTokens();
 
     final toAddReceive = <CryptoCurrency>[];
     final toAddDeposit = <CryptoCurrency>[];
@@ -1164,7 +1162,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> _injectUserTronTokensIntoCurrencyLists() async {
-    final userTokens = await TokenUtilities.loadAllUniqueTronTokens(walletInfoSource);
+    final userTokens = await TokenUtilities.loadAllUniqueTronTokens();
 
     final toAddReceive = <CryptoCurrency>[];
     final toAddDeposit = <CryptoCurrency>[];

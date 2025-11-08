@@ -14,6 +14,8 @@ import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
@@ -41,7 +43,7 @@ void startAuthenticationStateChange(
     if (state == AuthenticationState.installed &&
         !SettingsStoreBase.walletPasswordDirectInput) {
       try {
-        if (!requireHardwareWalletConnection()) await loadCurrentWallet();
+        if (!(await requireHardwareWalletConnection())) await loadCurrentWallet();
       } catch (error, stack) {
         loginError = error;
         await ExceptionHandler.resetLastPopupDate();
@@ -54,14 +56,16 @@ void startAuthenticationStateChange(
     if ([AuthenticationState.allowed, AuthenticationState.allowedCreate]
         .contains(state)) {
       if (state == AuthenticationState.allowed &&
-          requireHardwareWalletConnection()) {
+          (await requireHardwareWalletConnection())) {
         await navigatorKey.currentState!.pushNamedAndRemoveUntil(
           Routes.connectDevices,
           (route) => false,
           arguments: ConnectDevicePageParams(
             walletType: WalletType.monero,
+            hardwareWalletType: HardwareWalletType.ledger,
             onConnectDevice: (context, ledgerVM) async {
-              monero!.setGlobalLedgerConnection(ledgerVM.connection);
+              if (ledgerVM is LedgerViewModel)
+                monero!.setGlobalLedgerConnection(ledgerVM.connection);
               showPopUp<void>(
                 context: context,
                 builder: (context) => AlertWithOneAction(

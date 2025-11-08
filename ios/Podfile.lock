@@ -1,4 +1,6 @@
 PODS:
+  - bitbox_flutter (0.0.1):
+    - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
   - CryptoSwift (1.8.4)
@@ -112,6 +114,7 @@ PODS:
   - YttriumWrapper (0.8.35)
 
 DEPENDENCIES:
+  - bitbox_flutter (from `.symlinks/plugins/bitbox_flutter/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
   - cw_decred (from `.symlinks/plugins/cw_decred/ios`)
@@ -158,6 +161,8 @@ SPEC REPOS:
     - YttriumWrapper
 
 EXTERNAL SOURCES:
+  bitbox_flutter:
+    :path: ".symlinks/plugins/bitbox_flutter/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   cw_decred:
@@ -226,6 +231,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
+  bitbox_flutter: 506f80b961ddf646b0d80cef9f6eadaab96d91b0
   connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
   cw_decred: 9c0e1df74745b51a1289ec5e91fb9e24b68fa14a

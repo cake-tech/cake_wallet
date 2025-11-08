@@ -14,6 +14,7 @@ class NanoNewWalletCredentials extends WalletCredentials {
           password: password,
           walletInfo: walletInfo,
           passphrase: passphrase,
+          derivationInfo: DerivationInfo(derivationType: derivationType),
         );
 
   final String? mnemonic;

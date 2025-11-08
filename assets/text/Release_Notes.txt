@@ -1,4 +1,1 @@
-Payjoin enhancements
-Connectivity improvements
-UI enhancements
 Bug fixes

@@ -4,7 +4,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
@@ -20,7 +19,6 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
   ExchangeTradeCardItemWidget({
     required this.isReceiveDetailsCard,
     required this.exchangeTradeViewModel,
-    required this.currentTheme,
     Key? key,
   })  : feesViewModel = exchangeTradeViewModel.feesViewModel,
         output = exchangeTradeViewModel.output;
@@ -29,7 +27,6 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
   final bool isReceiveDetailsCard;
   final FeesViewModel feesViewModel;
   final ExchangeTradeViewModel exchangeTradeViewModel;
-  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +48,6 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
               .where((item) => item.isReceiveDetail == isReceiveDetailsCard)
               .map(
                 (item) => TradeItemRowWidget(
-                  currentTheme: currentTheme,
                   title: item.title,
                   value: item.data,
                   isCopied: item.isCopied,
@@ -64,7 +60,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
               FeeSelectionWidget(
                 feesViewModel: feesViewModel,
                 output: output,
-                onTap: () => pickTransactionPriority(context),
+                onTap: () => pickTransactionPriority(context, output),
               ),
             if (exchangeTradeViewModel.sendViewModel.hasCoinControl)
               CoinControlWidget(
@@ -79,7 +75,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
     );
   }
 
-  Future<void> pickTransactionPriority(BuildContext context) async {
+  Future<void> pickTransactionPriority(BuildContext context, Output output) async {
     final items = priorityForWalletType(feesViewModel.walletType);
     final selectedItem = items.indexOf(feesViewModel.transactionPriority);
     final customItemIndex = feesViewModel.getCustomPriorityIndex(items);
@@ -106,10 +102,10 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               sliderValue: customFeeRate,
               onSliderChanged: (double newValue) => setState(() => customFeeRate = newValue),
-              onItemSelected: (TransactionPriority priority) {
+              onItemSelected: (TransactionPriority priority) async {
                 feesViewModel.setTransactionPriority(priority);
                 setState(() => selectedIdx = items.indexOf(priority));
-
+                await output.calculateEstimatedFee();
                 if (feesViewModel.isLowFee) {
                   _showFeeAlert(context);
                 }
@@ -151,14 +147,12 @@ class TradeItemRowWidget extends StatelessWidget {
   final String value;
   final bool isCopied;
   final Image copyImage;
-  final MaterialThemeBase currentTheme;
 
   const TradeItemRowWidget({
     required this.title,
     required this.value,
     required this.isCopied,
     required this.copyImage,
-    required this.currentTheme,
     super.key,
   });
 

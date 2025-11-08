@@ -1,3 +1,4 @@
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -9,18 +10,17 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 
 class TokenUtilities {
-  static Future<List<Erc20Token>> loadAllUniqueEvmTokens(
-    Box<WalletInfo> walletInfoSource,
-  ) async {
-    final evmWallets = walletInfoSource.values.where(
-      (w) => w.type == WalletType.ethereum || w.type == WalletType.polygon,
+  static Future<List<Erc20Token>> loadAllUniqueEvmTokens() async {
+    final allWi = await WalletInfo.getAll();
+    final evmWallets = allWi.where(
+      (w) => isEVMCompatibleChain(w.type),
     );
 
     final seen = <String>{};
     final unique = <Erc20Token>[];
 
     for (final wallet in evmWallets) {
-      final chain = wallet.type == WalletType.ethereum ? 'ETH' : 'POL';
+      final chain = getTokenNameBasedOnWalletType(wallet.type);
       final box = await _openEvmTokensBoxFor(wallet);
 
       for (final t in box.values.where((t) => t.enabled)) {
@@ -34,10 +34,9 @@ class TokenUtilities {
     return unique;
   }
 
-  static Future<List<SPLToken>> loadAllUniqueSolTokens(
-    Box<WalletInfo> walletInfoSource,
-  ) async {
-    final solWallets = walletInfoSource.values.where(
+  static Future<List<SPLToken>> loadAllUniqueSolTokens() async {
+    final allWi = await WalletInfo.getAll();
+    final solWallets = allWi.where(
       (w) => w.type == WalletType.solana,
     );
 
@@ -56,10 +55,9 @@ class TokenUtilities {
     return unique;
   }
 
-  static Future<List<TronToken>> loadAllUniqueTronTokens(
-    Box<WalletInfo> walletInfoSource,
-  ) async {
-    final tronWallets = walletInfoSource.values.where(
+  static Future<List<TronToken>> loadAllUniqueTronTokens() async {
+    final allWi = await WalletInfo.getAll();
+    final tronWallets = allWi.where(
       (w) => w.type == WalletType.tron,
     );
 
@@ -81,26 +79,26 @@ class TokenUtilities {
   /// - Tron: match by contractAddress
   static Future<CryptoCurrency?> findTokenByAddress({
     required WalletType walletType,
-    required Box<WalletInfo> walletInfoSource,
     required String address,
   }) async {
     final lower = address.toLowerCase();
     switch (walletType) {
       case WalletType.ethereum:
       case WalletType.polygon:
-        final tokens = await loadAllUniqueEvmTokens(walletInfoSource);
+      case WalletType.base:
+        final tokens = await loadAllUniqueEvmTokens();
         for (final t in tokens) {
           if (t.contractAddress.toLowerCase() == lower) return t;
         }
         return null;
       case WalletType.solana:
-        final solTokens = await loadAllUniqueSolTokens(walletInfoSource);
+        final solTokens = await loadAllUniqueSolTokens();
         for (final t in solTokens) {
           if (t.mintAddress.toLowerCase() == lower) return t;
         }
         return null;
       case WalletType.tron:
-        final tronTokens = await loadAllUniqueTronTokens(walletInfoSource);
+        final tronTokens = await loadAllUniqueTronTokens();
         for (final t in tronTokens) {
           if (t.contractAddress.toLowerCase() == lower) return t;
         }
@@ -117,6 +115,8 @@ class TokenUtilities {
     final boxName = switch (walletInfo.type) {
       WalletType.ethereum => '${walletKey}_${Erc20Token.ethereumBoxName}',
       WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
+      WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
+      WalletType.arbitrum => '${walletKey}_${Erc20Token.arbitrumBoxName}',
       _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
     };
 
@@ -194,7 +194,7 @@ class TokenUtilities {
     }
 
     // Arbitrum One
-    if (title == 'arbitrum' || title == 'arb' || tag == 'arbitrum') {
+    if (title == 'arbitrum' || title == 'arb' || tag == 'arb') {
       return 42161;
     }
 

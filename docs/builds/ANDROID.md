@@ -18,8 +18,8 @@ In order to build the latest version of Cake Wallet, simply run the following:
 git clone --branch main https://github.com/cake-tech/cake_wallet.git
 # NOTE: Replace `main` with the latest release tag available at https://github.com/cake-tech/cake_wallet/releases/latest.
 cd cake_wallet
-# docker build -t ghcr.io/cake-tech/cake_wallet:debian12-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly . # Uncomment to build the docker image yourself instead of pulling it from the registry
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:debian12-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly bash -x << EOF
+# docker build -t ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly . # Uncomment to build the docker image yourself instead of pulling it from the registry
+docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly bash -x << EOF
 set -x -e
 pushd scripts/android
     ./build_torch.sh
@@ -28,7 +28,7 @@ pushd scripts/android
     ./app_config.sh
     ./build_monero_all.sh
     ./build_decred.sh
-    ./build_mwebd.sh --dont-install
+    ./build_mwebd.sh
 popd
 pushd android/app
     [[ -f key.jks ]] || keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass hunter1 -keypass hunter1
