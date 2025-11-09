@@ -10,6 +10,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/encryption_log_utils.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -17,6 +18,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
@@ -88,6 +91,19 @@ class ExceptionHandler {
         return;
       }
 
+      final tmp = await getTemporaryDirectory();
+      final tmpPath = p.join(tmp.path, "plain_logs");
+      final tmpDir = Directory(tmpPath);
+      if (!tmpDir.existsSync()) {
+        tmpDir.createSync(recursive: true);
+      }
+      final decryptedFile = File(p.join(tmpPath, p.basename(_file!.path)));
+      final str = await EncryptionLogUtil.read(
+        path: _file!.path
+      );
+
+      decryptedFile.writeAsStringSync(str);
+
       final MailOptions mailOptions = MailOptions(
         subject: 'Mobile App Issue',
         recipients: ['support@cakewallet.com'],
@@ -102,6 +118,7 @@ class ExceptionHandler {
           result.name == MailerResponse.saved.name ||
           result.name == MailerResponse.android.name) {
         _file!.writeAsString("", mode: FileMode.write);
+        decryptedFile.delete();
       }
     } catch (e, s) {
       _saveException(e.toString(), s);
