@@ -115,7 +115,7 @@ class _PageIndicatorState extends State<PageIndicator> {
     return iconWidth +
         iconSpacing +
         textPainter.width +
-        pillHorizontalPadding * 2;
+        pillHorizontalPadding * 2 + 6;
   }
 
   @override
@@ -152,7 +152,7 @@ class _PageIndicatorState extends State<PageIndicator> {
 
     final actionWidths = visibleActions
         .map((action) =>
-            _estimateItemWidthForAction(context, action, color: inactiveColor))
+        _estimateItemWidthForAction(context, action, color: inactiveColor))
         .toList();
 
     final totalItemsWidth =
@@ -191,9 +191,7 @@ class _PageIndicatorState extends State<PageIndicator> {
       alignment: Alignment.bottomCenter,
       child: Padding(
         padding: EdgeInsets.only(top: 10),
-        child: AnimatedContainer(
-          duration: barResizeDuration,
-          curve: Curves.easeOutCubic,
+        child: Container(
           width: barWidth,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(barBorderRadius),
@@ -233,10 +231,10 @@ class _PageIndicatorState extends State<PageIndicator> {
                                 label: visibleActions[i].name(context),
                                 value: i == selectedIndex ? 'Selected' : null,
                                 hint:
-                                    'Double tap to open ${visibleActions[i].name(context)} page',
+                                'Double tap to open ${visibleActions[i].name(context)} page',
                                 enabled: (visibleActions[i]
-                                        .isEnabled
-                                        ?.call(widget.dashboardViewModel) ??
+                                    .isEnabled
+                                    ?.call(widget.dashboardViewModel) ??
                                     true),
                                 onTap: () => _onItemTap(i),
                                 child: GestureDetector(
@@ -252,44 +250,30 @@ class _PageIndicatorState extends State<PageIndicator> {
                                       width: i == selectedIndex
                                           ? pillWidth
                                           : _estimateItemWidthForAction(
-                                              context, visibleActions[i]),
+                                          context, visibleActions[i]),
                                       alignment: Alignment.center,
-                                      child: AnimatedOpacity(
-                                        duration: inactiveIconFadeDuration,
-                                        curve: Curves.easeOutCubic,
-                                        opacity: (i == selectedIndex &&
-                                                _fadeSelected)
-                                            ? 0.0
-                                            : 1.0,
-                                        child: AnimatedScale(
-                                          duration: inactiveIconAppearDuration,
-                                          curve: Curves.easeOutCubic,
-                                          scale:
-                                              (i == selectedIndex) ? 0.95 : 1.0,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              SvgPicture.asset(
-                                                visibleActions[i].image,
-                                                width: iconWidth,
-                                                height: iconHeight,
-                                                colorFilter: ColorFilter.mode(
-                                                  inactiveColor,
-                                                  BlendMode.srcIn,
-                                                ),
-                                              ),
-                                              SizedBox(width: iconSpacing),
-                                              Text(
-                                                visibleActions[i].name(context),
-                                                style: textStyle.copyWith(
-                                                  color: inactiveColor,
-                                                ),
-                                                overflow: TextOverflow.fade,
-                                                softWrap: false,
-                                              ),
-                                            ],
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SvgPicture.asset(
+                                            visibleActions[i].image,
+                                            width: iconWidth,
+                                            height: iconHeight,
+                                            colorFilter: ColorFilter.mode(
+                                              inactiveColor,
+                                              BlendMode.srcIn,
+                                            ),
                                           ),
-                                        ),
+                                          SizedBox(width: iconSpacing),
+                                          Text(
+                                            visibleActions[i].name(context),
+                                            style: textStyle.copyWith(
+                                              color: inactiveColor,
+                                            ),
+                                            overflow: TextOverflow.fade,
+                                            softWrap: false,
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -393,36 +377,6 @@ class _AnimatedPillState extends State<AnimatedPill> {
           duration: const Duration(milliseconds: 200),
           opacity: _isFading ? 0.9 : 1.0,
           curve: Curves.easeInOutCubic,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                    _visibleAction.image,
-                    width: widget.pillIconWidth,
-                    height: widget.pillIconHeight,
-                    colorFilter: ColorFilter.mode(
-                      widget.contentColor,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                  SizedBox(width: widget.pillIconSpacing),
-                  Text(
-                    _visibleAction.name(context),
-                    style: widget.pillTextStyle.copyWith(
-                      color: widget.contentColor,
-                    ),
-                    overflow: TextOverflow.fade,
-                    softWrap: false,
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
       ),
     );
