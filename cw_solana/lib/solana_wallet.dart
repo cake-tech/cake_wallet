@@ -319,7 +319,6 @@ abstract class SolanaWalletBase
     if (tokens.isEmpty) return;
 
     const int batchSize = 5;
-    final List<SolanaTransactionModel> allResults = [];
 
     for (var i = 0; i < tokens.length; i += batchSize) {
       final batch = tokens.sublist(
@@ -343,12 +342,8 @@ abstract class SolanaWalletBase
       );
 
       for (final list in results) {
-        if (list.isNotEmpty) allResults.addAll(list);
+        await _addTransactionsToTransactionHistory(list);
       }
-    }
-
-    if (allResults.isNotEmpty) {
-      await _addTransactionsToTransactionHistory(allResults);
     }
   }
 
@@ -524,7 +519,6 @@ abstract class SolanaWalletBase
         balance[token] = fetchedBalance ?? currentBalance;
       }
     }
-
   }
 
   @override
