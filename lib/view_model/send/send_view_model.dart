@@ -1022,7 +1022,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       if (error is CreateAssociatedTokenAccountException) {
-        return "${S.current.solana_create_associated_token_account_exception} ${S.current.added_message_for_ata_error}\n\n${error.errorMessage}";
+        return "${S.current.solana_create_associated_token_account_exception} ${S.current.added_message_for_ata_error}";
       }
 
       if (error is SignSPLTokenTransactionRentException) {
