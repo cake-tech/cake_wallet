@@ -101,6 +101,21 @@ class BaseURI extends PaymentURI {
   }
 }
 
+class ArbitrumURI extends PaymentURI {
+  ArbitrumURI({required super.amount, required super.address});
+
+  @override
+  String toString() {
+    var base = 'arbitrum:$address';
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 class BitcoinCashURI extends PaymentURI {
   BitcoinCashURI({required super.amount, required super.address});
 

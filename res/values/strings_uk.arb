@@ -60,6 +60,7 @@
   "approve": "Затвердити",
   "approve_request": "Запитайте запит",
   "approve_tokens": "Затвердити токени",
+  "arbiscan_history": "Арбісканська історія",
   "arrive_in_this_address": "${currency} ${tag}надійде на цю адресу",
   "ascending": "Висхід",
   "ask_each_time": "Запитайте кожен раз",

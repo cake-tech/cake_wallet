@@ -117,6 +117,7 @@ class TokenUtilities {
       WalletType.ethereum => '${walletKey}_${Erc20Token.ethereumBoxName}',
       WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
       WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
+      WalletType.arbitrum => '${walletKey}_${Erc20Token.arbitrumBoxName}',
       _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
     };
 
@@ -194,7 +195,7 @@ class TokenUtilities {
     }
 
     // Arbitrum One
-    if (title == 'arbitrum' || title == 'arb' || tag == 'arbitrum') {
+    if (title == 'arbitrum' || title == 'arb' || tag == 'arb') {
       return 42161;
     }
 

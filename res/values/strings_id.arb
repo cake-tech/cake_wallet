@@ -60,6 +60,7 @@
   "approve": "Menyetujui",
   "approve_request": "Menyetujui permintaan",
   "approve_tokens": "Menyetujui token",
+  "arbiscan_history": "Sejarah ArbiScan",
   "arrive_in_this_address": "${currency} ${tag} akan tiba di alamat ini",
   "ascending": "Naik",
   "ask_each_time": "Tanyakan setiap kali",

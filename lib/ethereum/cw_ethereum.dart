@@ -189,8 +189,8 @@ class CWEthereum extends Ethereum {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
           .setBitbox(service.manager, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     } else if (service is EVMChainTrezorService) {
-      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials)
-          .setTrezorConnect(service.connect, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
+      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials).setTrezorConnect(
+          service.connect, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     }
   }
 
@@ -211,15 +211,16 @@ class CWEthereum extends Ethereum {
     return DefaultEthereumErc20Tokens().initialErc20Tokens.map((e) => e.contractAddress).toList();
   }
 
-
   @override
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
     final ethereumWallet = wallet as EthereumWallet;
-    return ethereumWallet.erc20Currencies.any((element) => element.contractAddress.toLowerCase() == contractAddress.toLowerCase());
+    return ethereumWallet.erc20Currencies
+        .any((element) => element.contractAddress.toLowerCase() == contractAddress.toLowerCase());
   }
 
   @override
-  Future<bool> isApprovalRequired(WalletBase wallet, String tokenContract,String spender, BigInt requiredAmount) =>
+  Future<bool> isApprovalRequired(
+          WalletBase wallet, String tokenContract, String spender, BigInt requiredAmount) =>
       (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
 
   @override
@@ -229,9 +230,10 @@ class CWEthereum extends Ethereum {
           amount, spender, token, priority as EVMChainTransactionPriority, "ETH");
 
   @override
-  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to, String dataHex, BigInt valueWei,
-      TransactionPriority priority) =>
-      (wallet as EVMChainWallet).createCallDataTransaction(to, dataHex, valueWei, priority as EVMChainTransactionPriority);
+  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to,
+          String dataHex, BigInt valueWei, TransactionPriority priority) =>
+      (wallet as EVMChainWallet).createCallDataTransaction(
+          to, dataHex, valueWei, priority as EVMChainTransactionPriority);
 
   // Integrations
   @override
@@ -270,4 +272,12 @@ class CWEthereum extends Ethereum {
   @override
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority) =>
       DEuro(wallet as EthereumWallet).enableSavings(priority as EVMChainTransactionPriority);
+
+  @override
+  String? getEthereumNativeEstimatedFee(WalletBase wallet) =>
+      (wallet as EVMChainWallet).nativeTxEstimatedFee;
+
+  @override
+  String? getEthereumERC20EstimatedFee(WalletBase wallet) =>
+      (wallet as EVMChainWallet).erc20TxEstimatedFee;
 }
