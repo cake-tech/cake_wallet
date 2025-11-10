@@ -236,9 +236,6 @@ class TokenUtilities {
 
       if (matches && _shouldAddToken(allTokens, currency, addedAddresses)) {
         allTokens.add(currency);
-        if (currency is Erc20Token) {
-          addedAddresses.add(currency.contractAddress.toLowerCase());
-        }
       }
     }
 
@@ -277,7 +274,7 @@ class TokenUtilities {
 
   static bool _matchesCurrency(CryptoCurrency a, CryptoCurrency b) {
     return a.title.toUpperCase() == b.title.toUpperCase() &&
-        (a.tag?.toUpperCase() == b.tag?.toUpperCase() || (a.tag == null && b.tag == null));
+        (a.tag?.toUpperCase() == b.tag?.toUpperCase());
   }
 
   static Future<List<CryptoCurrency>> _getUserTokensForNetwork(CryptoCurrency baseCurrency) async {

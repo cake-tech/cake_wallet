@@ -5,6 +5,8 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:mobx/mobx.dart';
 
 part 'payment_view_model.g.dart';
@@ -70,7 +72,7 @@ abstract class PaymentViewModelBase with Store {
       isProcessing = false;
     }
   }
-  
+
   bool _isEVMAddress(String address) {
     return RegExp(r'^0x[a-fA-F0-9]{40}$').hasMatch(address);
   }
@@ -151,6 +153,16 @@ class PaymentFlowResult {
   /// Incompatible address
   factory PaymentFlowResult.incompatible(String message) =>
       PaymentFlowResult._(type: PaymentFlowType.incompatible, message: message);
+
+  CryptoCurrency? get detectedCurrency {
+    if (type == PaymentFlowType.evmNetworkSelection) {
+      return addressDetectionResult?.detectedCurrency;
+    }
+    if (walletType != null) {
+      return walletTypeToCryptoCurrency(walletType!);
+    }
+    return null;
+  }
 }
 
 enum PaymentFlowType {

@@ -137,9 +137,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
   @override
   Widget build(BuildContext context) {
-    final detectedCurrency = widget.paymentFlowResult.type == PaymentFlowType.evmNetworkSelection
-        ? widget.paymentFlowResult.addressDetectionResult!.detectedCurrency!
-        : walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!);
+    final detectedCurrency = widget.paymentFlowResult.detectedCurrency!;
 
     return Form(
       key: _formKey,
@@ -430,10 +428,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
       }
     });
 
-    exchangeViewModel.receiveCurrency =
-        paymentFlowResult.type == PaymentFlowType.evmNetworkSelection
-            ? paymentFlowResult.addressDetectionResult!.detectedCurrency!
-            : walletTypeToCryptoCurrency(paymentFlowResult.walletType!);
+    exchangeViewModel.receiveCurrency = paymentFlowResult.detectedCurrency!;
 
     await exchangeViewModel.fetchFiatPrice(exchangeViewModel.receiveCurrency);
 
