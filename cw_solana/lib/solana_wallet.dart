@@ -226,8 +226,12 @@ abstract class SolanaWalletBase
 
     await _updateBalance();
 
-    final CryptoCurrency transactionCurrency =
-        balance.keys.firstWhere((element) => element.title == solCredentials.currency.title);
+    final transactionCurrency = balance.keys.firstWhere(
+            (currency) =>
+        currency.title == credentials.currency.title &&
+            currency.tag == credentials.currency.tag,
+        orElse: () => throw Exception(
+            'Currency ${credentials.currency.title} ${credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
