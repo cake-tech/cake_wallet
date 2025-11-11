@@ -19,6 +19,7 @@ void startWalletSyncStatusChangeReaction(
   _onWalletSyncStatusChangeReaction = reaction((_) => wallet.syncStatus, (SyncStatus status) async {
     try {
       if (status is ConnectedSyncStatus) {
+        SyncingSyncStatus.resetSyncStartTime();
         await wallet.startSync();
       }
       if (status is SyncingSyncStatus || status is ProcessingSyncStatus) {
