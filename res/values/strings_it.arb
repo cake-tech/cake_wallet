@@ -896,6 +896,7 @@
   "single_seed_wallets_group": "Portafogli singoli",
   "slidable": "Scorrevole",
   "solana_create_associated_token_account_exception": "Errore nella creazione di un account token associato per l'indirizzo destinatario.",
+  "solana_invalid_data_message": "Errore durante l'analisi dell'account token associato per il token. Si prega di confermare la ricezione dell'indirizzo e riprovare.",
   "solana_no_associated_token_account_exception": "Non esiste un account token associato per questo indirizzo.",
   "solana_sign_native_transaction_rent_exception": "La transazione non può essere completata. SOL insufficienti per l'affitto dopo la transazione. Si prega di ricaricare il saldo SOL, o ridurre la quantità di SOL che stai inviando.",
   "solana_sign_spl_token_transaction_rent_exception": "La transazione non può essere completata. SOL insufficienti per l'affitto dopo la transazione. Si prega di ricaricare il tuo saldo SOL.",

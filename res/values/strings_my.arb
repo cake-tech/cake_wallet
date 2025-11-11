@@ -895,6 +895,7 @@
   "single_seed_wallets_group": "တစ်ခုတည်းမျိုးစေ့ပိုက်ဆံအိတ်",
   "slidable": "လျှောချနိုင်သည်။",
   "solana_create_associated_token_account_exception": "Encipient Token အကောင့်ကိုလက်ခံသည့်လိပ်စာအတွက်အကောင့်များဖန်တီးခြင်းအတွက်အမှားအယွင်းများဖန်တီးခြင်း။",
+  "solana_invalid_data_message": "Token အတွက် Associated Token အကောင့်ကိုခွဲခြမ်းစိတ်ဖြာခြင်းအမှား။ ကြင်နာစွာလိပ်စာလက်ခံရရှိပြီးထပ်ကြိုးစားပါ။",
   "solana_no_associated_token_account_exception": "ဒီလိပ်စာအတွက်မပေါင်းသင်းတဲ့လက်ခဏာသက်သေအကောင့်မရှိဘူး။",
   "solana_sign_native_transaction_rent_exception": "ငွေပေးငွေယူကိုမပြီးစီးနိုင်ပါ။ ငွေပေးငွေယူပြီးနောက်ငှားရန် Sol မလုံလောက်ပါ။ ကြင်နာစွာသင်၏ SOR ချိန်ခွင်လျှာကိုငွေဖြည့်ပါသို့မဟုတ်သင်ပို့နေသည့်ပမာဏကိုလျှော့ချပါ။",
   "solana_sign_spl_token_transaction_rent_exception": "ငွေပေးငွေယူကိုမပြီးစီးနိုင်ပါ။ ငွေပေးငွေယူပြီးနောက်ငှားရန် Sol မလုံလောက်ပါ။ ကြင်နာစွာသင်၏ s ကိုချိန်ခွင်လျှာကိုတက်ပါ။",
