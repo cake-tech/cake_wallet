@@ -896,6 +896,7 @@
   "single_seed_wallets_group": "Carteras de semilla única",
   "slidable": "Deslizable",
   "solana_create_associated_token_account_exception": "Error al crear la cuenta de token asociada para la dirección del destinatario.",
+  "solana_invalid_data_message": "Error al analizar la cuenta de token asociada para el token. Por favor confirme la dirección de recepción e inténtelo nuevamente.",
   "solana_no_associated_token_account_exception": "No hay una cuenta de token asociada a esta dirección.",
   "solana_sign_native_transaction_rent_exception": "La transacción no se puede completar. SOL insuficiente para la renta después de la transacción. Por favor, recarga tu saldo de SOL o reduce la cantidad de SOL que estás enviando.",
   "solana_sign_spl_token_transaction_rent_exception": "La transacción no se puede completar. SOL insuficiente para la renta después de la transacción. Por favor, recarga tu saldo de SOL.",

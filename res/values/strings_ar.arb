@@ -895,6 +895,7 @@
   "single_seed_wallets_group": "محافظ بذرة واحدة",
   "slidable": "قابل للانزلاق",
   "solana_create_associated_token_account_exception": "خطأ في إنشاء حساب رمز المرتبط بعنوان المستلم.",
+  "solana_invalid_data_message": "حدث خطأ أثناء تحليل حساب الرمز المميز المرتبط بالرمز المميز. يرجى تأكيد عنوان الاستلام والمحاولة مرة أخرى.",
   "solana_no_associated_token_account_exception": "لا يوجد حساب مميز مرتبط بهذا العنوان.",
   "solana_sign_native_transaction_rent_exception": "لا يمكن إكمال المعاملة. غادر SOL غير كاف للإيجار بعد المعاملة. يرجى أن تصل إلى رصيد SOL أو تقليل كمية SOL التي ترسلها.",
   "solana_sign_spl_token_transaction_rent_exception": "لا يمكن إكمال المعاملة. غادر SOL غير كاف للإيجار بعد المعاملة. يرجى أن تصل إلى توازن سولك.",

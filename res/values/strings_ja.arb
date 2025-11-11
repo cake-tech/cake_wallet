@@ -896,6 +896,7 @@
   "single_seed_wallets_group": "シングルシードウォレット",
   "slidable": "スライド可能",
   "solana_create_associated_token_account_exception": "関連するトークンの作成エラー受信アドレスのアカウント。",
+  "solana_invalid_data_message": "トークンに関連付けられたトークン アカウントの解析中にエラーが発生しました。受信アドレスを確認して、もう一度お試しください。",
   "solana_no_associated_token_account_exception": "このアドレスに関連付けられたトークンアカウントはありません。",
   "solana_sign_native_transaction_rent_exception": "トランザクションは完了できません。取引後にレンタルのために残された不十分なソル。ソルバランスを補充するか、送信するソルの量を減らしてください。",
   "solana_sign_spl_token_transaction_rent_exception": "トランザクションは完了できません。取引後にレンタルのために残された不十分なソル。ソルバランスを補充してください。",

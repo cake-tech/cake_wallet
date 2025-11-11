@@ -895,6 +895,7 @@
   "single_seed_wallets_group": "Tek tohum cüzdanları",
   "slidable": "kaydırılabilir",
   "solana_create_associated_token_account_exception": "ALIPITIENT ADRESİ İÇİN BAŞLANGIÇ HESABI oluşturma Hata.",
+  "solana_invalid_data_message": "Belirteç için ilişkili belirteç hesabı ayrıştırılırken hata oluştu. Lütfen aldığınız adresi onaylayın ve tekrar deneyin.",
   "solana_no_associated_token_account_exception": "Bu adres için ilişkili belirteç hesabı yoktur.",
   "solana_sign_native_transaction_rent_exception": "İşlem tamamlanamaz. Yetersiz Sol işlemden sonra kira için kaldı. Lütfen sol bakiyenizi doldurun veya gönderdiğiniz Sol miktarını azaltın.",
   "solana_sign_spl_token_transaction_rent_exception": "İşlem tamamlanamaz. Yetersiz Sol işlemden sonra kira için kaldı. Lütfen sol bakiyenizi doldurun.",

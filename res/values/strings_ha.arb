@@ -897,6 +897,7 @@
   "single_seed_wallets_group": "Guaro",
   "slidable": "Mai iya zamewa",
   "solana_create_associated_token_account_exception": "Kuskuren ƙirƙirar asusun Asusun da aka danganta don Adireshin karɓar karɓa.",
+  "solana_invalid_data_message": "Kuskuren hade da asusun ajiyar banki don alama. Da fatan za a tabbatar da adireshin da sake gwadawa.",
   "solana_no_associated_token_account_exception": "Babu wani haɗin yanar gizo mai alaƙa don wannan adireshin.",
   "solana_sign_native_transaction_rent_exception": "Ma'amala ba za a iya kammala ba. Rashin cancanta na Sol ya bar haya bayan ma'amala. Da kyau a saman ma'auni na Solku ko rage adadin Sol da kuke aikawa.",
   "solana_sign_spl_token_transaction_rent_exception": "Ma'amala ba za a iya kammala ba. Rashin cancanta na Sol ya bar haya bayan ma'amala. Da kyau sama da ma'auni na Sol.",

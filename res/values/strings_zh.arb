@@ -895,6 +895,7 @@
   "single_seed_wallets_group": "单个种子钱包",
   "slidable": "可滑动",
   "solana_create_associated_token_account_exception": "错误创建有关接收地址的关联令牌帐户。",
+  "solana_invalid_data_message": "解析令牌的关联令牌帐户时出错。请确认接收地址并重试。",
   "solana_no_associated_token_account_exception": "该地址没有关联的令牌帐户。",
   "solana_sign_native_transaction_rent_exception": "交易无法完成。交易后剩下的溶胶不足。请增强您的溶胶余额或减少您发送的SOL的量。",
   "solana_sign_spl_token_transaction_rent_exception": "交易无法完成。交易后剩下的溶胶不足。请增强您的溶液余额。",
