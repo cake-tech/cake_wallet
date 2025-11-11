@@ -86,7 +86,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
 
-  Future<void> updateEstimatedFeesParams(TransactionPriority priority) async {}
+  Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async {}
 
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,

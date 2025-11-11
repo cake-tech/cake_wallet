@@ -277,7 +277,7 @@ abstract class EVMChainWalletBase
   int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
 
   @override
-  Future<void> updateEstimatedFeesParams(TransactionPriority priority) async =>
+  Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async =>
       await _getEstimatedFees(priority);
 
   Future<void> _getEstimatedFees(TransactionPriority? priority) async {
@@ -296,7 +296,7 @@ abstract class EVMChainWalletBase
       int priorityFee = 0;
       if (hasPriorityFee) {
         if (priority is EVMChainTransactionPriority) {
-          priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
+          priorityFee = getTotalPriorityFee(priority);
         }
       }
 
@@ -324,7 +324,7 @@ abstract class EVMChainWalletBase
       int priorityFee = 0;
       if (hasPriorityFee) {
         if (priority is EVMChainTransactionPriority) {
-          priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
+          priorityFee = getTotalPriorityFee(priority);
         }
       }
 
@@ -348,6 +348,8 @@ abstract class EVMChainWalletBase
     }
   }
 
+  int getTotalPriorityFee(EVMChainTransactionPriority priority);
+
   /// Allows more customization to the fetch estimatedFees flow.
   ///
   /// We are able to pass in:
@@ -365,7 +367,7 @@ abstract class EVMChainWalletBase
       int priorityFee = 0;
       if (hasPriorityFee && priority != null) {
         if (priority is EVMChainTransactionPriority) {
-          priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
+          priorityFee = getTotalPriorityFee(priority);
         }
       }
 
@@ -375,45 +377,9 @@ abstract class EVMChainWalletBase
       int maxFeePerGas;
       int adjustedGasPrice;
 
-      bool isPolygon = _client.chainId == 137;
-
-      if (gasBaseFee != null) {
-        // MaxFeePerGas with EIP1559;
-        maxFeePerGas = gasBaseFee + priorityFee;
-      } else {
-        // MaxFeePerGas with gasPrice
-        maxFeePerGas = gasPrice + priorityFee;
-      }
+      maxFeePerGas = gasBaseFee != null ? (gasBaseFee + priorityFee) : (gasPrice + priorityFee);
 
       adjustedGasPrice = maxFeePerGas;
-
-      // Polygon has a minimum priority fee of 25 gwei
-      if (isPolygon) {
-        int minPriorityFee = 25;
-        int minPriorityFeeWei =
-            EtherAmount.fromInt(EtherUnit.gwei, minPriorityFee).getInWei.toInt();
-
-        // Calculate  user selected priority-based additional fee on top of minimum
-        int additionalPriorityFee = 0;
-        switch (priority) {
-          case EVMChainTransactionPriority.slow:
-            // We use minimum priority fee only
-            additionalPriorityFee = 0;
-            break;
-          case EVMChainTransactionPriority.medium:
-            // We add 15 gwei on top of minimum
-            additionalPriorityFee = EtherAmount.fromInt(EtherUnit.gwei, 15).getInWei.toInt();
-            break;
-          case EVMChainTransactionPriority.fast:
-            // We add 35 gwei on top of minimum
-            additionalPriorityFee = EtherAmount.fromInt(EtherUnit.gwei, 35).getInWei.toInt();
-            break;
-        }
-
-        int totalPriorityFee = minPriorityFeeWei + additionalPriorityFee;
-        adjustedGasPrice = gasPrice + totalPriorityFee;
-        maxFeePerGas = gasPrice + totalPriorityFee;
-      }
 
       final estimatedGas = await _client.getEstimatedGasUnitsForTransaction(
         contractAddress: contractAddress,
@@ -561,7 +527,9 @@ abstract class EVMChainWalletBase
             EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
 
         totalAmount = parseFixed(
-            EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent), exponent);
+          EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent),
+          exponent,
+        );
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {
@@ -581,32 +549,20 @@ abstract class EVMChainWalletBase
 
       if (output.sendAll && transactionCurrency is! Erc20Token) {
         if (_client.chainId == 8453) {
-          // Add a safety buffer for Base chain to account for gas price fluctuations
-          // Use 1% buffer or minimum 1000 wei (0.000001 ETH), whichever is higher
-          final gasBufferPercent =
-              estimatedFeesForTransaction * BigInt.from(101) ~/ BigInt.from(100);
-          final gasBufferMin = estimatedFeesForTransaction + BigInt.from(1000);
+          // Applying a small buffer to account for gas price fluctuations
+          // 10% or minimum 10,000 wei, whichever is higher
+          final refinedGasFee = estimatedFeesForTransaction;
+          final gasBufferPercent = refinedGasFee * BigInt.from(110) ~/ BigInt.from(100);
+          final gasBufferMin = refinedGasFee + BigInt.from(10000);
           final gasBuffer = gasBufferPercent > gasBufferMin ? gasBufferPercent : gasBufferMin;
 
+          // Using the buffered fee for the final amount
           totalAmount = (currencyBalance.balance - gasBuffer);
-
-          // Re-estimate gas with the correct amount to get more accurate gas estimation
-          final refinedGasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
-            amount: totalAmount,
-            receivingAddressHex: toAddress,
-            priority: _credentials.priority,
-            contractAddress: contractAddress,
-          );
-
-          // Use the higher of the two gas estimations to be safe
-          final refinedGasFee = BigInt.from(refinedGasFeesModel.estimatedGasFee);
-          estimatedFeesForTransaction = refinedGasFee > gasBuffer ? refinedGasFee : gasBuffer;
-          estimatedGasUnitsForTransaction = refinedGasFeesModel.estimatedGasUnits;
-          maxFeePerGasForTransaction = refinedGasFeesModel.maxFeePerGas;
+          estimatedFeesForTransaction = gasBuffer;
+        } else {
+          // Calculating the final amount with the estimated gas fee
+          totalAmount = (currencyBalance.balance - estimatedFeesForTransaction);
         }
-
-        // Final amount calculation with the higher gas estimation
-        totalAmount = (currencyBalance.balance - estimatedFeesForTransaction);
       }
 
       // check the fees on the base currency
