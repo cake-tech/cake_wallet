@@ -446,6 +446,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       final address =
                           output.isParsedAddress ? output.extractedAddress : output.address;
 
+                      if (address.contains('@')) return;
+
                       await _handlePaymentFlow(
                         address,
                         PaymentRequest(
