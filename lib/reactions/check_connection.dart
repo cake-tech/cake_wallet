@@ -26,7 +26,7 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
     try {
       final connectivityResult = await (Connectivity().checkConnectivity());
 
-      if (connectivityResult == ConnectivityResult.none) {
+      if (connectivityResult.contains(ConnectivityResult.none)) {
         wallet.syncStatus = FailedSyncStatus();
         return;
       }

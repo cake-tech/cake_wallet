@@ -34,11 +34,11 @@ class SyncingSyncStatus extends SyncStatus {
   String toString() => '$blocksLeft';
 
   /// Returns true if we should show blocks remaining instead of percentage
-  /// Shows blocks remaining for the first 5 seconds of syncing
+  /// Shows blocks remaining for the first 15 seconds of syncing
   bool shouldShowBlocksRemaining() {
     if (_globalSyncStartTime == null) return true;
     final elapsed = DateTime.now().difference(_globalSyncStartTime!);
-    return elapsed.inSeconds < 5;
+    return elapsed.inSeconds < 15;
   }
 
   /// Reset the global sync start time (call when sync completes or fails)
