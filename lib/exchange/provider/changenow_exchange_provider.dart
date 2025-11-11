@@ -315,8 +315,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       expiredAt: expiredAt,
       outputTransaction: outputTransaction,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase()}',
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase()}',
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
     );
   }
 
