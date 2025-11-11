@@ -59,22 +59,14 @@ class SyncingSyncStatus extends SyncStatus {
 
   static void updateEtaHistory(int blocksLeft) {
     blockHistory[DateTime.now()] = blocksLeft;
-
-    // keep only the last 30 entries (gives us better statistical accuracy)
-    while (blockHistory.length > 30) {
-      blockHistory.remove(blockHistory.keys.first);
-    }
   }
 
   static Map<DateTime, int> blockHistory = {};
   static Duration? lastEtaDuration;
   static const int _minDataPoints = 3;
-  static const int _maxDataAgeMinutes = 2;
   static DateTime? _globalSyncStartTime;
 
   String? getFormattedEtaWithPlaceholder() {
-    _cleanOldEntries();
-
     // If we have enough data, show actual ETA
     if (blockHistory.length >= _minDataPoints) {
       final eta = getFormattedEta();
@@ -83,11 +75,6 @@ class SyncingSyncStatus extends SyncStatus {
 
     // Show the placeholder ETA while gathering data
     return '--:--';
-  }
-
-  void _cleanOldEntries() {
-    final cutoffTime = DateTime.now().subtract(Duration(minutes: _maxDataAgeMinutes));
-    blockHistory.removeWhere((key, value) => key.isBefore(cutoffTime));
   }
 
   String? getFormattedEta() {
