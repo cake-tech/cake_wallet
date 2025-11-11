@@ -886,8 +886,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
         items: sendViewModel.currencies,
         hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) =>
-            sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency),
+        onItemSelected: (Currency cur) async {
+          final selectedCurrency = sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency);
+          await output.calculateEstimatedFee();
+          return selectedCurrency;
+        },
       ),
     );
   }
