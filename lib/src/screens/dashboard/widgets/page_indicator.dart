@@ -24,13 +24,13 @@ class _PageIndicatorState extends State<PageIndicator> {
   static const iconWidth = 16.0;
   static const iconHeight = 16.0;
   static const iconSpacing = 5.0;
+  static const barHorizontalPadding = 4.0;
   static const pillHorizontalPadding = 8.0;
+  static const edgePadding = 5.0;
   static const barBorderRadius = 50.0;
   static const pillBorderRadius = 50.0;
-  static const barResizeDuration = Duration(milliseconds: 400);
+  static const pageSwitchDuration = Duration(milliseconds: 300);
   static const inactiveIconMoveDuration = Duration(milliseconds: 150);
-  static const inactiveIconFadeDuration = Duration(milliseconds: 100);
-  static const inactiveIconAppearDuration = Duration(milliseconds: 250);
   static const pillMoveDuration = Duration(milliseconds: 300);
   static const pillResizeDuration = Duration(milliseconds: 200);
   static const textStyle = TextStyle(
@@ -40,9 +40,6 @@ class _PageIndicatorState extends State<PageIndicator> {
 
   late int selectedIndex;
   late final VoidCallback _pageListener;
-
-  bool _fadeSelected = true;
-  bool _firstFrame = true;
 
   @override
   void initState() {
@@ -58,17 +55,11 @@ class _PageIndicatorState extends State<PageIndicator> {
       if (rounded != selectedIndex && mounted) {
         setState(() {
           selectedIndex = rounded;
-          _fadeSelected = true;
         });
       }
     };
 
     widget.controller.addListener(_pageListener);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      setState(() => _firstFrame = false);
-    });
   }
 
   @override
@@ -79,27 +70,11 @@ class _PageIndicatorState extends State<PageIndicator> {
 
   void _onItemTap(int index) {
     if (index == selectedIndex) return;
-
     widget.controller.animateToPage(
       index,
-      duration: const Duration(milliseconds: 300),
+      duration: pageSwitchDuration,
       curve: Curves.easeOutCubic,
     );
-
-    Future.delayed(const Duration(milliseconds: 20), () {
-      if (!mounted) return;
-      setState(() {
-        selectedIndex = index;
-        _fadeSelected = false;
-      });
-    });
-
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (!mounted) return;
-      if (index == selectedIndex) {
-        setState(() => _fadeSelected = true);
-      }
-    });
   }
 
   double _estimateItemWidthForAction(
@@ -115,76 +90,78 @@ class _PageIndicatorState extends State<PageIndicator> {
     return iconWidth +
         iconSpacing +
         textPainter.width +
-        pillHorizontalPadding * 2 + 6;
+        pillHorizontalPadding * 2;
   }
 
   @override
   Widget build(BuildContext context) {
-    const double edgePadding = 5.0;
-
     final showMarketplace =
         widget.dashboardViewModel.shouldShowMarketPlaceInDashboard;
 
-    final visibleActions = [
-      for (final a in PageIndicatorActions.all)
-        if (showMarketplace || a != PageIndicatorActions.appsAction)
-          if (a.canShow?.call(widget.dashboardViewModel) ?? true) a,
-    ];
+    final visibleActions = PageIndicatorActions.all.where((action) {
+      if (!showMarketplace && action == PageIndicatorActions.appsAction) {
+        return false;
+      }
 
-    // If there are no visible actions, return an empty widget
-    if (visibleActions.isEmpty) return const SizedBox.shrink();
+      return action.canShow?.call(widget.dashboardViewModel) ?? true;
+    }).toList();
 
-    if (selectedIndex >= visibleActions.length) {
-      selectedIndex = visibleActions.length - 1;
-    }
+    // Don't show indicator if less than 2 actions
+    if (visibleActions.length < 2) return const SizedBox.shrink();
 
+    selectedIndex = selectedIndex.clamp(0, visibleActions.length - 1);
+
+    // Theme setup
     final theme = Theme.of(context);
     final backgroundColor = theme.colorScheme.surfaceContainer.withAlpha(122);
     final pillColor = theme.colorScheme.onSurface.withAlpha(30);
     final activeColor = theme.colorScheme.onSurface;
     final inactiveColor = theme.colorScheme.primary;
 
+    // Size calculations
     final screenWidth = MediaQuery.of(context).size.width;
+    final isRTL = Directionality.of(context) == TextDirection.rtl;
 
     final pillWidth = _estimateItemWidthForAction(
-        context, visibleActions[selectedIndex],
-        color: activeColor);
+      context,
+      visibleActions[selectedIndex],
+      color: activeColor,
+    );
 
-    final actionWidths = visibleActions
-        .map((action) =>
-        _estimateItemWidthForAction(context, action, color: inactiveColor))
-        .toList();
+    final actionWidths = [
+      for (final action in visibleActions)
+        _estimateItemWidthForAction(context, action, color: inactiveColor)
+    ];
 
     final totalItemsWidth =
-        actionWidths.fold<double>(0, (sum, width) => sum + width) + 16;
+        actionWidths.fold(0.0, (sum, width) => sum + width) +
+            barHorizontalPadding * 2;
 
-    final double barWidth = math.min(totalItemsWidth, screenWidth * 0.95);
+    final barWidth = math.min(totalItemsWidth, screenWidth * 0.95);
 
-    final isRTL = Directionality.of(context) == TextDirection.rtl;
     final count = visibleActions.length;
+    final firstLeft = edgePadding;
+    final secondLeft =
+        barWidth - (isRTL ? actionWidths.first : actionWidths[1]) - edgePadding;
 
-    List<double> positions = [];
+    final List<double> positions;
 
-    if (count == 1) {
-      positions = [barWidth / 2 - pillWidth / 2];
-    } else if (count == 2) {
-      final spacing = (barWidth - pillWidth * 2) / 3;
-      positions = [
-        spacing,
-        barWidth - pillWidth - spacing,
-      ];
+    if (count == 2) {
+      positions = [firstLeft, secondLeft];
     } else {
-      final double firstItemLeft = edgePadding;
-      final double lastItemLeft = barWidth - pillWidth - edgePadding;
+      final lastLeft = barWidth -
+          (isRTL ? actionWidths.first : actionWidths.last) -
+          edgePadding;
 
-      final double centerItemLeft =
-          (isRTL ? actionWidths.last : actionWidths.first) + (edgePadding * 2);
+      final centerLeft = (isRTL
+          ? actionWidths.last + edgePadding
+          : actionWidths.first + edgePadding);
 
-      positions = [firstItemLeft, centerItemLeft, lastItemLeft];
+      positions = [firstLeft, centerLeft, lastLeft];
     }
 
-    if (isRTL) positions = positions.reversed.toList();
-    final left = positions[selectedIndex];
+    final left =
+        (isRTL ? positions.reversed.toList() : positions)[selectedIndex];
     final currentAction = visibleActions[selectedIndex];
 
     return Align(
@@ -221,7 +198,8 @@ class _PageIndicatorState extends State<PageIndicator> {
                         pillResizeDuration: pillResizeDuration,
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: barHorizontalPadding),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -231,50 +209,65 @@ class _PageIndicatorState extends State<PageIndicator> {
                                 label: visibleActions[i].name(context),
                                 value: i == selectedIndex ? 'Selected' : null,
                                 hint:
-                                'Double tap to open ${visibleActions[i].name(context)} page',
+                                    'Double tap to open ${visibleActions[i].name(context)} page',
                                 enabled: (visibleActions[i]
-                                    .isEnabled
-                                    ?.call(widget.dashboardViewModel) ??
+                                        .isEnabled
+                                        ?.call(widget.dashboardViewModel) ??
                                     true),
                                 onTap: () => _onItemTap(i),
                                 child: GestureDetector(
                                   behavior: HitTestBehavior.translucent,
                                   onTap: () => _onItemTap(i),
-                                  child: SizedBox(
+                                  child: Container(
                                     height: barHeight,
-                                    child: AnimatedContainer(
-                                      duration: _firstFrame
-                                          ? Duration.zero
-                                          : inactiveIconMoveDuration,
-                                      curve: Curves.easeOutCubic,
-                                      width: i == selectedIndex
-                                          ? pillWidth
-                                          : _estimateItemWidthForAction(
-                                          context, visibleActions[i]),
-                                      alignment: Alignment.center,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          SvgPicture.asset(
+                                    width: i == selectedIndex
+                                        ? pillWidth
+                                        : _estimateItemWidthForAction(
+                                            context, visibleActions[i]),
+                                    alignment: Alignment.center,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TweenAnimationBuilder<Color?>(
+                                          duration: const Duration(
+                                              milliseconds: 300),
+                                          curve: Curves.easeOutCubic,
+                                          tween: ColorTween(
+                                            begin: inactiveColor,
+                                            end: i == selectedIndex
+                                                ? activeColor
+                                                : inactiveColor,
+                                          ),
+                                          builder: (context, color, _) =>
+                                              SvgPicture.asset(
                                             visibleActions[i].image,
                                             width: iconWidth,
                                             height: iconHeight,
                                             colorFilter: ColorFilter.mode(
-                                              inactiveColor,
-                                              BlendMode.srcIn,
-                                            ),
+                                                color!, BlendMode.srcIn),
                                           ),
-                                          SizedBox(width: iconSpacing),
-                                          Text(
+                                        ),
+                                        SizedBox(width: iconSpacing),
+                                        TweenAnimationBuilder<Color?>(
+                                          duration: const Duration(
+                                              milliseconds: 300),
+                                          curve: Curves.easeOutCubic,
+                                          tween: ColorTween(
+                                            begin: inactiveColor,
+                                            end: i == selectedIndex
+                                                ? activeColor
+                                                : inactiveColor,
+                                          ),
+                                          builder: (context, color, _) =>
+                                              Text(
                                             visibleActions[i].name(context),
                                             style: textStyle.copyWith(
-                                              color: inactiveColor,
-                                            ),
+                                                color: color),
                                             overflow: TextOverflow.fade,
                                             softWrap: false,
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -292,7 +285,7 @@ class _PageIndicatorState extends State<PageIndicator> {
   }
 }
 
-class AnimatedPill extends StatefulWidget {
+class AnimatedPill extends StatelessWidget {
   const AnimatedPill({
     super.key,
     required this.left,
@@ -323,61 +316,22 @@ class AnimatedPill extends StatefulWidget {
   final Duration pillResizeDuration;
 
   @override
-  State<AnimatedPill> createState() => _AnimatedPillState();
-}
-
-class _AnimatedPillState extends State<AnimatedPill> {
-  late PageIndicatorActions _visibleAction;
-  bool _isFading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _visibleAction = widget.currentAction;
-  }
-
-  @override
-  void didUpdateWidget(covariant AnimatedPill oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (widget.currentAction != oldWidget.currentAction) {
-      setState(() => _isFading = true);
-
-      Future.delayed(const Duration(milliseconds: 80), () {
-        if (!mounted) return;
-        setState(() => _visibleAction = widget.currentAction);
-      });
-
-      Future.delayed(const Duration(milliseconds: 200), () {
-        if (!mounted) return;
-        setState(() => _isFading = false);
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return AnimatedPositioned(
-      duration: widget.pillMoveDuration,
+      duration: pillMoveDuration,
       curve: Curves.easeOutCubic,
-      left: widget.left,
+      left: left,
       top: 4,
       bottom: 4,
       child: AnimatedContainer(
-        duration: widget.pillResizeDuration,
+        duration: pillResizeDuration,
         curve: Curves.easeOutCubic,
-        width: widget.estimateWidthForAction,
+        width: estimateWidthForAction,
         decoration: BoxDecoration(
-          color: widget.pillColor,
-          borderRadius: BorderRadius.circular(widget.pillBorderRadius),
-        ),
+            color: pillColor,
+            borderRadius: BorderRadius.circular(pillBorderRadius)),
         clipBehavior: Clip.hardEdge,
         alignment: Alignment.center,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
-          opacity: _isFading ? 0.9 : 1.0,
-          curve: Curves.easeInOutCubic,
-        ),
       ),
     );
   }
