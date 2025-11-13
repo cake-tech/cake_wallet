@@ -567,6 +567,7 @@ class SendPage extends BasePage {
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   accessibleNavigationModeSlideActionButtonText: S.of(bottomSheetContext).send,
                   footerType: FooterType.slideActionButton,
+                  isSlideActionEnabled: sendViewModel.isReadyForSend,
                   walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,

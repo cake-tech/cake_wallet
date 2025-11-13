@@ -21,6 +21,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     String? titleIconPath,
     String? slideActionButtonText,
     VoidCallback? onSlideActionComplete,
+    bool isSlideActionEnabled = true,
     String? accessibleNavigationModeSlideActionButtonText,
     required this.currency,
     this.paymentId,
@@ -49,6 +50,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
             footerType: footerType,
             slideActionButtonText: slideActionButtonText ?? 'Swipe to send',
             onSlideActionComplete: onSlideActionComplete,
+            isSlideActionEnabled: isSlideActionEnabled,
             accessibleNavigationModeSlideActionButtonText:
                 accessibleNavigationModeSlideActionButtonText,
             key: key);
