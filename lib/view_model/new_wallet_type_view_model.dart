@@ -1,6 +1,4 @@
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 import '../reactions/wallet_utils.dart' show isBIP39Wallet;
@@ -11,7 +9,7 @@ class NewWalletTypeViewModel = NewWalletTypeViewModelBase
     with _$NewWalletTypeViewModel;
 
 abstract class NewWalletTypeViewModelBase with Store {
-  NewWalletTypeViewModelBase(this._walletInfoSource) {
+  NewWalletTypeViewModelBase(this.hasExisitingWallet) {
     itemSelection = ObservableMap<WalletType, bool>.of({
       WalletType.monero: false,
       WalletType.bitcoin: false,
@@ -27,12 +25,10 @@ abstract class NewWalletTypeViewModelBase with Store {
     });
   }
 
-  final Box<WalletInfo> _walletInfoSource;
+
+  final bool hasExisitingWallet;
+
   late final ObservableMap<WalletType, bool> itemSelection;
-
-
-  @computed
-  bool get hasExisitingWallet => _walletInfoSource.isNotEmpty;
 
   @computed
   bool get hasAnySelected => selectedTypes.isNotEmpty;

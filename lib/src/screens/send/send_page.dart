@@ -21,7 +21,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.da
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/simple_checkbox.dart';
@@ -377,19 +376,6 @@ class SendPage extends BasePage {
                   bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
                   bottomSection: Column(
                     children: [
-                      if (sendViewModel.hasCurrecyChanger)
-                        Observer(
-                          builder: (_) => Padding(
-                            padding: EdgeInsets.only(bottom: 12),
-                            child: PrimaryButton(
-                              key: ValueKey('send_page_change_asset_button_key'),
-                              onPressed: () => presentCurrencyPicker(context),
-                              text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
-                              color: Colors.transparent,
-                              textColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
                       if (sendViewModel.sendTemplateViewModel.hasMultiRecipient)
                         Padding(
                             padding: EdgeInsets.only(bottom: 12),
@@ -581,6 +567,7 @@ class SendPage extends BasePage {
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   accessibleNavigationModeSlideActionButtonText: S.of(bottomSheetContext).send,
                   footerType: FooterType.slideActionButton,
+                  isSlideActionEnabled: sendViewModel.isReadyForSend,
                   walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,
@@ -800,20 +787,6 @@ class SendPage extends BasePage {
               buttonText: S.of(context).ok,
               buttonAction: () => Navigator.of(context).pop());
         });
-  }
-
-  void presentCurrencyPicker(BuildContext context) async {
-    await showPopUp<CryptoCurrency>(
-        builder: (_) => Picker(
-              items: sendViewModel.currencies,
-              displayItem: (Object item) => item.toString(),
-              selectedAtIndex:
-                  sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
-              title: S.of(context).please_select,
-              mainAxisAlignment: MainAxisAlignment.center,
-              onItemSelected: (CryptoCurrency cur) => sendViewModel.selectedCryptoCurrency = cur,
-            ),
-        context: context);
   }
 
   bool isRegularElectrumAddress(String address) {

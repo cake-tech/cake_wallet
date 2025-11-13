@@ -5,6 +5,7 @@ bool isBIP39Wallet(WalletType walletType) {
     case WalletType.ethereum:
     case WalletType.polygon:
     case WalletType.base:
+    case WalletType.arbitrum:
     case WalletType.solana:
     case WalletType.tron:
     case WalletType.bitcoin:
@@ -50,6 +51,7 @@ bool hasTokens(WalletType walletType) {
     case WalletType.tron:
     case WalletType.zano:
     case WalletType.base:
+    case WalletType.arbitrum:
       return true;
     default:
       return false;

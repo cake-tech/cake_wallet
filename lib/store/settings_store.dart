@@ -110,6 +110,7 @@ abstract class SettingsStoreBase with Store {
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
       required this.useBaseScan,
+      required this.useArbiScan,
       required this.usePolygonScan,
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
@@ -467,6 +468,11 @@ abstract class SettingsStoreBase with Store {
         (_) => useBaseScan,
         (bool useBaseScan) =>
             _sharedPreferences.setBool(PreferencesKey.useBaseScan, useBaseScan));
+      
+    reaction(
+        (_) => useArbiScan,
+        (bool useArbiScan) =>
+            _sharedPreferences.setBool(PreferencesKey.useArbiScan, useArbiScan));
 
     reaction((_) => useTronGrid,
         (bool useTronGrid) => _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
@@ -827,6 +833,9 @@ abstract class SettingsStoreBase with Store {
   bool useBaseScan;
 
   @observable
+  bool useArbiScan;
+
+  @observable
   bool useTronGrid;
 
   @observable
@@ -1067,6 +1076,7 @@ abstract class SettingsStoreBase with Store {
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     final usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
     final useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? true;
+    final useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
@@ -1113,6 +1123,7 @@ abstract class SettingsStoreBase with Store {
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
+    final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
@@ -1135,6 +1146,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == polygonDefaultNodeUri);
     final baseNode = nodeSource.get(baseNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == baseDefaultNodeUri);
+    final arbitrumNode = nodeSource.get(arbitrumNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == arbitrumDefaultNodeUri);
     final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == cakeWalletBitcoinCashDefaultNodeUri);
     final nanoNode = nodeSource.get(nanoNodeId) ??
@@ -1210,6 +1223,10 @@ abstract class SettingsStoreBase with Store {
 
     if (baseNode != null) {
       nodes[WalletType.base] = baseNode;
+    }
+
+    if (arbitrumNode != null) {
+      nodes[WalletType.arbitrum] = arbitrumNode;
     }
 
     if (bitcoinCashElectrumServer != null) {
@@ -1391,6 +1408,7 @@ abstract class SettingsStoreBase with Store {
       useEtherscan: useEtherscan,
       usePolygonScan: usePolygonScan,
       useBaseScan: useBaseScan,
+      useArbiScan: useArbiScan,
       useTronGrid: useTronGrid,
       useMempoolFeeAPI: useMempoolFeeAPI,
       defaultNanoRep: defaultNanoRep,
@@ -1588,6 +1606,7 @@ abstract class SettingsStoreBase with Store {
     useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
     useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? true;
+    useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
@@ -1619,6 +1638,7 @@ abstract class SettingsStoreBase with Store {
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
+    final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
@@ -1633,6 +1653,7 @@ abstract class SettingsStoreBase with Store {
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final polygonNode = nodeSource.get(polygonNodeId);
     final baseNode = nodeSource.get(baseNodeId);
+    final arbitrumNode = nodeSource.get(arbitrumNodeId);
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
@@ -1668,6 +1689,10 @@ abstract class SettingsStoreBase with Store {
 
     if (baseNode != null) {
       nodes[WalletType.base] = baseNode;
+    }
+
+    if (arbitrumNode != null) {
+      nodes[WalletType.arbitrum] = arbitrumNode;
     }
 
     if (bitcoinCashNode != null) {
@@ -1832,6 +1857,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.base:
         await _sharedPreferences.setInt(PreferencesKey.currentBaseNodeIdKey, node.key as int);
+        break;
+      case WalletType.arbitrum:
+        await _sharedPreferences.setInt(PreferencesKey.currentArbitrumNodeIdKey, node.key as int);
         break;
       case WalletType.solana:
         await _sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);

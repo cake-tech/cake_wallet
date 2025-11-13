@@ -16,8 +16,7 @@ class WalletCreationService {
       {required WalletType initialType,
       required this.keyService,
       required this.sharedPreferences,
-      required this.settingsStore,
-      required this.walletInfoSource})
+      required this.settingsStore})
       : type = initialType {
     if (initialType != WalletType.none) {
       changeWalletType(type: initialType);
@@ -31,7 +30,6 @@ class WalletCreationService {
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
   final KeyService keyService;
-  final Box<WalletInfo> walletInfoSource;
   WalletService? _service;
 
   static const _isNewMoneroWalletPasswordUpdated = true;
@@ -62,9 +60,9 @@ class WalletCreationService {
     await sharedPreferences.setString('$_groupNameKeyPrefix$groupKey', name);
   }
 
-  bool exists(String name) {
+  Future<bool> exists(String name) async {
     final walletName = name.toLowerCase();
-    return walletInfoSource.values.any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
+    return (await WalletInfo.getAll()).any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
   }
 
   bool groupNameExists(String name) {
@@ -72,20 +70,19 @@ class WalletCreationService {
     return getAllCustomGroupNames().any((name) => name.toLowerCase() == groupName);
   }
 
-  bool typeExists(WalletType type) {
-    return walletInfoSource.values.any((walletInfo) => walletInfo.type == type);
+  Future<bool> typeExists(WalletType type) async {
+    return (await WalletInfo.getAll()).any((walletInfo) => walletInfo.type == type);
   }
 
-  void checkIfExists(String name) {
-    if (exists(name)) {
+  Future<void> checkIfExists(String name) async {
+    if (await exists(name)) {
       throw Exception('Wallet with name ${name} already exists!');
     }
   }
 
   Future<WalletBase> create(WalletCredentials credentials, {bool? isTestnet}) async {
     _ensureServiceAvailable();
-
-    checkIfExists(credentials.name);
+    await checkIfExists(credentials.name);
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
@@ -114,15 +111,16 @@ class WalletCreationService {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.dogecoin:
+      case WalletType.nano:
         return true;
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
       case WalletType.haven:
-      case WalletType.nano:
       case WalletType.banano:
       case WalletType.zano:
       case WalletType.decred:

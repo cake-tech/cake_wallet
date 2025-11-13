@@ -140,6 +140,7 @@ jobs:
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
@@ -164,6 +165,7 @@ jobs:
           echo "const bitcoinCashTestWalletSeeds =  '${{ secrets.BITCOIN_CASH_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const polygonTestWalletSeeds = '${{ secrets.POLYGON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const baseTestWalletSeeds = '${{ secrets.BASE_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const arbitrumTestWalletSeeds = '${{ secrets.ARBITRUM_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const solanaTestWalletSeeds = '${{ secrets.SOLANA_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const solanaTestWalletSeeds2 = '${{ secrets.SOLANA_TEST_WALLET_SEEDS2 }}';" >> lib/.secrets.g.dart
           echo "const tronTestWalletSeeds = '${{ secrets.TRON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
@@ -178,6 +180,7 @@ jobs:
           echo "const bitcoinCashTestWalletReceiveAddress = '${{ secrets.BITCOIN_CASH_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const polygonTestWalletReceiveAddress =  '${{ secrets.POLYGON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const baseTestWalletReceiveAddress =  '${{ secrets.BASE_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const arbitrumTestWalletReceiveAddress =  '${{ secrets.ARBITRUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const solanaTestWalletReceiveAddress =  '${{ secrets.SOLANA_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const tronTestWalletReceiveAddress =  '${{ secrets.TRON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
