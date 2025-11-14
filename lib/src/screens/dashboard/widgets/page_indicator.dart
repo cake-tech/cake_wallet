@@ -30,7 +30,6 @@ class _PageIndicatorState extends State<PageIndicator> {
   static const barBorderRadius = 50.0;
   static const pillBorderRadius = 50.0;
   static const pageSwitchDuration = Duration(milliseconds: 300);
-  static const inactiveIconMoveDuration = Duration(milliseconds: 150);
   static const pillMoveDuration = Duration(milliseconds: 300);
   static const pillResizeDuration = Duration(milliseconds: 200);
   static const textStyle = TextStyle(
@@ -95,15 +94,9 @@ class _PageIndicatorState extends State<PageIndicator> {
 
   @override
   Widget build(BuildContext context) {
-    final showMarketplace =
-        widget.dashboardViewModel.shouldShowMarketPlaceInDashboard;
 
     final visibleActions = PageIndicatorActions.all.where((action) {
-      if (!showMarketplace && action == PageIndicatorActions.appsAction) {
-        return false;
-      }
-
-      return action.canShow?.call(widget.dashboardViewModel) ?? true;
+      return action.isEnabled?.call(widget.dashboardViewModel) ?? true;
     }).toList();
 
     // Don't show indicator if less than 2 actions
@@ -208,12 +201,7 @@ class _PageIndicatorState extends State<PageIndicator> {
                                 button: true,
                                 label: visibleActions[i].name(context),
                                 value: i == selectedIndex ? 'Selected' : null,
-                                hint:
-                                    'Double tap to open ${visibleActions[i].name(context)} page',
-                                enabled: (visibleActions[i]
-                                        .isEnabled
-                                        ?.call(widget.dashboardViewModel) ??
-                                    true),
+                                hint: 'Double tap to open ${visibleActions[i].name(context)} page',
                                 onTap: () => _onItemTap(i),
                                 child: GestureDetector(
                                   behavior: HitTestBehavior.translucent,

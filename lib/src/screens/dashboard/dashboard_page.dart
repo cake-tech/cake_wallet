@@ -221,12 +221,16 @@ class _DashboardPageView extends BasePage {
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: <Widget>[
-              PageView.builder(
-                key: const ValueKey('dashboard_page_view_key'),
-                controller: controller,
-                physics: const BouncingScrollPhysics(),
-                itemCount: pages.length,
-                itemBuilder: (context, index) => pages[index],
+              Observer(
+                builder: (context) {
+                  return PageView.builder(
+                    key: const ValueKey('dashboard_page_view_key'),
+                    controller: controller,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: pages.length,
+                    itemBuilder: (context, index) => pages[index],
+                  );
+                },
               ),
               Positioned(
                 child: Container(
@@ -263,7 +267,7 @@ class _DashboardPageView extends BasePage {
     if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
       pages.add(
         Semantics(
-          label: 'Cake ${S.of(context).features}',
+          label: S.of(context).apps,
           child: CakeFeaturesPage(
             dashboardViewModel: dashboardViewModel,
             cakeFeaturesViewModel: getIt.get<CakeFeaturesViewModel>(),
@@ -274,7 +278,7 @@ class _DashboardPageView extends BasePage {
     pages.add(Semantics(label: S.of(context).balance_page, child: balancePage));
     pages.add(
       Semantics(
-        label: S.of(context).settings_transactions,
+        label: S.of(context).history,
         child: TransactionsPage(dashboardViewModel: dashboardViewModel),
       ),
     );
