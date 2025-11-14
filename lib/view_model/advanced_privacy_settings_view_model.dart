@@ -53,12 +53,14 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.banano:
         return _settingsStore.nanoSeedType == NanoSeedType.bip39;
 
+      case WalletType.decred:
+        return _settingsStore.decredSeedType == DecredSeedType.bip39;
+
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
       case WalletType.haven:
       case WalletType.zano:
-      case WalletType.decred:
         return false;
     }
   }
@@ -75,6 +77,8 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
 
+  bool get isDecredSeedTypeOptionsEnabled => [WalletType.decred].contains(type);
+
   bool get hasPassphraseOption => [
         WalletType.bitcoin,
         WalletType.litecoin,
@@ -89,7 +93,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.wownero,
         WalletType.zano,
         WalletType.dogecoin,
-      ].contains(type);
+      ].contains(type) || (type == WalletType.decred && _settingsStore.decredSeedType != DecredSeedType.decred);
 
   @computed
   bool get addCustomNode => _addCustomNode;
