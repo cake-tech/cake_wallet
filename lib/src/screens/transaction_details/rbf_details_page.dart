@@ -190,6 +190,7 @@ class RBFDetailsPage extends BasePage {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('rbf_confirm_sending_bottom_sheet'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
+                  isSlideActionEnabled: transactionDetailsViewModel.sendViewModel.isReadyForSend,
                   walletType: transactionDetailsViewModel.sendViewModel.walletType,
                   titleIconPath:
                       transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,

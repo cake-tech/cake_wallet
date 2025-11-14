@@ -15,8 +15,10 @@ import 'package:cw_ethereum/ethereum_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
+import 'package:web3dart/web3dart.dart';
 
 class EthereumWallet extends EVMChainWallet {
   EthereumWallet({
@@ -32,15 +34,22 @@ class EthereumWallet extends EVMChainWallet {
   }) : super(nativeCurrency: CryptoCurrency.eth);
 
   @override
+  int getTotalPriorityFee(EVMChainTransactionPriority priority) {
+    return EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
+  }
+
+  @override
   void addInitialTokens() {
     final initialErc20Tokens = DefaultEthereumErc20Tokens().initialErc20Tokens;
 
     for (final token in initialErc20Tokens) {
       if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
         evmChainErc20TokensBox.put(token.contractAddress, token);
-      } else { // update existing token
+      } else {
+        // update existing token
         final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
-        evmChainErc20TokensBox.put(token.contractAddress, Erc20Token.copyWith(token, enabled: existingToken!.enabled));
+        evmChainErc20TokensBox.put(
+            token.contractAddress, Erc20Token.copyWith(token, enabled: existingToken!.enabled));
       }
     }
   }

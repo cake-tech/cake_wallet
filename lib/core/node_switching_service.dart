@@ -22,7 +22,6 @@ class NodeSwitchingService {
   // Cooldown period between node switching attempts (in seconds)
   static const int _nodeSwitchingCooldownSeconds = 15;
 
-  // State to manage switching attempts and cooldown
   int _switchingAttempts = 0;
   DateTime? _lastSwitchingAttempt;
   bool _hasExhaustedAllNodes = false;
@@ -38,7 +37,6 @@ class NodeSwitchingService {
   final SettingsStore settingsStore;
   final Box<Node> nodeSource;
 
-  // Track used nodes to cycle through all trusted nodes
   final Map<WalletType, List<dynamic>> _usedNodeKeys = {};
 
   void startHealthCheckTimer() {
@@ -85,7 +83,6 @@ class NodeSwitchingService {
     }
 
     try {
-      // Check network connectivity first
       final connectivityResult = await Connectivity().checkConnectivity();
       if (connectivityResult == ConnectivityResult.none) {
         printV('No network connectivity detected. Skipping node health check.');
@@ -106,6 +103,26 @@ class NodeSwitchingService {
     } catch (e) {
       printV('Error during health check: $e');
     }
+  }
+
+  /// Find an active node from the provided list, checking only unused nodes
+  /// Marks inactive nodes as used to avoid retrying them
+  Future<Node?> _findActiveNode(
+    List<Node> nodes,
+    WalletType walletType,
+  ) async {
+    for (final node in nodes) {
+      if (!_usedNodeKeys[walletType]!.contains(node.key)) {
+        final isActive = await node.requestNode();
+        if (isActive) {
+          return node;
+        } else {
+          printV('Node ${node.uriRaw} is not active. Marking as used.');
+          _usedNodeKeys[walletType]!.add(node.key);
+        }
+      }
+    }
+    return null;
   }
 
   /// Switch to the next available trusted node
@@ -143,14 +160,8 @@ class NodeSwitchingService {
         _usedNodeKeys[walletType]!.add(currentNode.key);
       }
 
-      // Get next unused trusted node from the list
-      Node? nextNode;
-      for (final node in trustedNodes) {
-        if (!_usedNodeKeys[walletType]!.contains(node.key)) {
-          nextNode = node;
-          break;
-        }
-      }
+      // Try to find an active unused node
+      Node? nextNode = await _findActiveNode(trustedNodes, walletType);
 
       // If all trusted nodes have been used, check if we should reset
       if (nextNode == null) {
@@ -160,16 +171,22 @@ class NodeSwitchingService {
         if (_switchingAttempts < _maxNodeSwitchingAttempts) {
           printV('Resetting used nodes list and trying again');
           _usedNodeKeys[walletType]!.clear();
-          nextNode = trustedNodes.first;
-        } else {
-          printV('Maximum attempts reached. No more node switching.');
+          // Try again with cleared used list
+          nextNode = await _findActiveNode(trustedNodes, walletType);
+        }
+
+        // If still no active node found, we give up
+        if (nextNode == null) {
+          printV('No active nodes available for switching after checking all nodes.');
           _hasExhaustedAllNodes = true;
           return;
         }
       }
 
-      // Add the next node to used list
-      _usedNodeKeys[walletType]!.add(nextNode.key);
+      // Ensure the selected node is marked as used
+      if (!_usedNodeKeys[walletType]!.contains(nextNode.key)) {
+        _usedNodeKeys[walletType]!.add(nextNode.key);
+      }
 
       printV(
           'Switching from ${currentNode.uriRaw} to ${nextNode.uriRaw} (attempt $_switchingAttempts/$_maxNodeSwitchingAttempts)');

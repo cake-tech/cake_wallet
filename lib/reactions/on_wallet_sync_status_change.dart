@@ -19,13 +19,23 @@ void startWalletSyncStatusChangeReaction(
   _onWalletSyncStatusChangeReaction = reaction((_) => wallet.syncStatus, (SyncStatus status) async {
     try {
       if (status is ConnectedSyncStatus) {
+        SyncingSyncStatus.resetSyncStartTime();
         await wallet.startSync();
       }
+
       if (status is SyncingSyncStatus || status is ProcessingSyncStatus) {
         await WakelockPlus.enable();
       }
-      if (status is SyncedSyncStatus || status is FailedSyncStatus) {
+
+      if (status is SyncedSyncStatus) {
         await WakelockPlus.disable();
+        SyncingSyncStatus.resetSyncStartTime();
+        SyncingSyncStatus.blockHistory.clear();
+      }
+
+      if (status is FailedSyncStatus) {
+        await WakelockPlus.disable();
+        SyncingSyncStatus.resetSyncStartTime();
       }
 
       if (status is SyncedSyncStatus &&

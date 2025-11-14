@@ -5,6 +5,8 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:mobx/mobx.dart';
 
 part 'payment_view_model.g.dart';
@@ -37,11 +39,15 @@ abstract class PaymentViewModelBase with Store {
       // Detect address type
       final detectionResult = UniversalAddressDetector.detectAddress(addressData);
 
-      if (!detectionResult.isValid || detectionResult.detectedWalletType == null) {
+      detectedWalletType = detectionResult.detectedWalletType;
+
+      if (!detectionResult.isValid || detectedWalletType == null) {
         return PaymentFlowResult.incompatible('Unable to detect address type');
       }
 
-      detectedWalletType = detectionResult.detectedWalletType;
+      if (_isEVMAddress(detectionResult.address)) {
+        return PaymentFlowResult.evmNetworkSelection(detectionResult);
+      }
 
       // Check if current wallet is compatible
       final currentWallet = appStore.wallet;
@@ -67,6 +73,10 @@ abstract class PaymentViewModelBase with Store {
     }
   }
 
+  bool _isEVMAddress(String address) {
+    return RegExp(r'^0x[a-fA-F0-9]{40}$').hasMatch(address);
+  }
+
   Future<List<WalletInfo>> getWalletsByType(WalletType walletType) async {
     return (await WalletInfo.getAll()).where((wallet) => wallet.type == walletType).toList();
   }
@@ -89,13 +99,30 @@ class PaymentFlowResult {
     this.addressDetectionResult,
   });
 
+  /// EVM address detected - needs network selection
+  /// We'll also take note of the number of compatible wallets for EVM ecosystem
+  factory PaymentFlowResult.evmNetworkSelection(
+    AddressDetectionResult addressDetectionResult, {
+    List<WalletInfo>? compatibleWallets,
+    WalletInfo? wallet,
+  }) =>
+      PaymentFlowResult._(
+        type: PaymentFlowType.evmNetworkSelection,
+        addressDetectionResult: addressDetectionResult,
+        walletType: addressDetectionResult.detectedWalletType,
+        wallets: compatibleWallets ?? [],
+        wallet: wallet,
+      );
+
   /// Current wallet is compatible
   factory PaymentFlowResult.currentWalletCompatible() =>
       PaymentFlowResult._(type: PaymentFlowType.currentWalletCompatible);
 
   /// Single compatible wallet available
   factory PaymentFlowResult.singleWallet(
-          WalletInfo wallet, AddressDetectionResult addressDetectionResult) =>
+    WalletInfo wallet,
+    AddressDetectionResult addressDetectionResult,
+  ) =>
       PaymentFlowResult._(
           type: PaymentFlowType.singleWallet,
           wallet: wallet,
@@ -126,6 +153,16 @@ class PaymentFlowResult {
   /// Incompatible address
   factory PaymentFlowResult.incompatible(String message) =>
       PaymentFlowResult._(type: PaymentFlowType.incompatible, message: message);
+
+  CryptoCurrency? get detectedCurrency {
+    if (type == PaymentFlowType.evmNetworkSelection) {
+      return addressDetectionResult?.detectedCurrency;
+    }
+    if (walletType != null) {
+      return walletTypeToCryptoCurrency(walletType!);
+    }
+    return null;
+  }
 }
 
 enum PaymentFlowType {
@@ -133,6 +170,7 @@ enum PaymentFlowType {
   singleWallet,
   multipleWallets,
   noWallets,
+  evmNetworkSelection,
   error,
   incompatible,
 }

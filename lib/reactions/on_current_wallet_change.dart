@@ -11,6 +11,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -92,6 +93,7 @@ void startCurrentWalletChangeReaction(
       }
       
       await wallet.connectToNode(node: node);
+      SyncingSyncStatus.blockHistory.clear();
       if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
         final powNode = settingsStore.getCurrentPowNode(wallet.type);
         await wallet.connectToPowNode(node: powNode);

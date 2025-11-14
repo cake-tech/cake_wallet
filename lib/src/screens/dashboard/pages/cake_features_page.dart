@@ -28,7 +28,7 @@ class CakeFeaturesPage extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(left: 24, top: 16),
             child: Text(
-              'Cake ${S.of(context).features}',
+              S.of(context).apps,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurface,

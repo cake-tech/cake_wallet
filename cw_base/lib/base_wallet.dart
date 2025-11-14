@@ -15,8 +15,10 @@ import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
+import 'package:web3dart/web3dart.dart';
 
 class BaseWallet extends EVMChainWallet {
   BaseWallet({
@@ -30,6 +32,16 @@ class BaseWallet extends EVMChainWallet {
     required super.encryptionFileUtils,
     super.passphrase,
   }) : super(nativeCurrency: CryptoCurrency.baseEth);
+
+  @override
+  int getTotalPriorityFee(EVMChainTransactionPriority priority) {
+    return switch (priority) {
+      EVMChainTransactionPriority.fast => EtherAmount.fromInt(EtherUnit.mwei, 5).getInWei.toInt(),
+      EVMChainTransactionPriority.medium => EtherAmount.fromInt(EtherUnit.mwei, 3).getInWei.toInt(),
+      EVMChainTransactionPriority.slow => EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
+      _ => EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
+    };
+  }
 
   @override
   Future<void> initErc20TokensBox() async {

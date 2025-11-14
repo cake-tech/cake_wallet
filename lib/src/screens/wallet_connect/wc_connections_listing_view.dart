@@ -33,9 +33,13 @@ class WalletConnectConnectionsView extends StatelessWidget {
 
     final query = actualLinkList[1];
 
-    final uri = Uri.decodeComponent(query);
+    final decoded = Uri.decodeComponent(query).trim();
 
-    final uriData = Uri.parse(uri);
+    final sanitized = decoded.startsWith('@') ? decoded.substring(1) : decoded;
+
+    final uriData = Uri.tryParse(sanitized);
+
+    if (uriData == null || (uriData.scheme.isEmpty)) return;
 
     await walletKitService.pairWithUri(uriData);
   }
@@ -88,7 +92,25 @@ class WCPairingsWidget extends BasePage {
     if (walletConnectURI == null) return _invalidUriToast(context, S.current.nullURIError);
 
     log('_onFoundUri: $walletConnectURI');
-    final Uri uriData = Uri.parse(walletConnectURI);
+    // Accept either a raw WC URI or a full URL containing `uri=` parameter
+    String input = walletConnectURI.trim();
+
+    if (input.contains('uri=')) {
+      final parts = input.split('uri=');
+      if (parts.length > 1) {
+        input = Uri.decodeComponent(parts.last);
+      }
+    }
+
+    // Some scanners may prefix with '@', strip it
+    if (input.startsWith('@')) {
+      input = input.substring(1);
+    }
+    final Uri? uriData = Uri.tryParse(input);
+    final bool hasValidScheme = uriData != null && uriData.scheme.isNotEmpty;
+    if (!hasValidScheme) {
+      return _invalidUriToast(context, S.current.invalid_input);
+    }
     await walletKitService.pairWithUri(uriData);
   }
 
@@ -121,10 +143,10 @@ class WCPairingsWidget extends BasePage {
                   Text(
                     S.current.connectWalletPrompt,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                   ),
                   SizedBox(height: 16),
                   PrimaryButton(
@@ -156,10 +178,10 @@ class WCPairingsWidget extends BasePage {
                     S.current.activeConnectionsPrompt,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                   ),
                 ),
                 replacement: ListView.builder(

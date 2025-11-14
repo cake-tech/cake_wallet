@@ -249,6 +249,7 @@ WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
     case CryptoCurrency.xmr:
       return WalletType.monero;
     case CryptoCurrency.btc:
+    case CryptoCurrency.btcln:
       return WalletType.bitcoin;
     case CryptoCurrency.ltc:
       return WalletType.litecoin;

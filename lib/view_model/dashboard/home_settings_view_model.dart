@@ -260,6 +260,7 @@ abstract class HomeSettingsViewModelBase with Store {
         break;
       case WalletType.base:
         defaultTokenAddresses = base!.getDefaultTokenContractAddresses();
+        break;
       case WalletType.arbitrum:
         defaultTokenAddresses = arbitrum!.getDefaultTokenContractAddresses();
         break;

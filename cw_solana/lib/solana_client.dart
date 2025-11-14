@@ -16,7 +16,6 @@ import 'package:cw_core/spl_token.dart';
 import 'package:on_chain/solana/solana.dart';
 import 'package:on_chain/solana/src/instructions/associated_token_account/constant.dart';
 import 'package:on_chain/solana/src/models/pda/pda.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:on_chain/solana/src/rpc/models/models/confirmed_transaction_meta.dart';
 import '.secrets.g.dart' as secrets;
 
@@ -24,6 +23,7 @@ class SolanaWalletClient {
   // Minimum amount in SOL to consider a transaction valid (to filter spam)
   static const double minValidAmount = 0.00000003;
   final httpClient = ProxyWrapper().getHttpClient();
+  late final client = ProxyWrapper().getHttpIOClient();
   SolanaRPC? _provider;
 
   bool connect(Node node) {
@@ -90,8 +90,8 @@ class SolanaWalletClient {
     }
   }
 
-  Future<SolanaBalance?> getSplTokenBalance(
-      String mintAddress, String walletAddress, {bool throwOnError = false}) async {
+  Future<SolanaBalance?> getSplTokenBalance(String mintAddress, String walletAddress,
+      {bool throwOnError = false}) async {
     try {
       // Fetch the token accounts (a token can have multiple accounts for various uses)
       final tokenAccounts = await getSPLTokenAccounts(mintAddress, walletAddress);
@@ -134,16 +134,14 @@ class SolanaWalletClient {
         ),
       );
 
-      final fee =
-          (feeForMessage?.toDouble() ?? 0.0) / SolanaUtils.lamportsPerSol;
+      final fee = (feeForMessage?.toDouble() ?? 0.0) / SolanaUtils.lamportsPerSol;
       return fee;
     } catch (_) {
       return 0.0;
     }
   }
 
-  Future<double> getEstimatedFee(
-      SolanaPublicKey publicKey, Commitment commitment) async {
+  Future<double> getEstimatedFee(SolanaPublicKey publicKey, Commitment commitment) async {
     final message = await _getMessageForNativeTransaction(
       publicKey: publicKey,
       destinationAddress: publicKey.toAddress().address,
@@ -181,7 +179,6 @@ class SolanaWalletClient {
       String signature = (txResponse.transaction?.signatures.isEmpty ?? true)
           ? ""
           : Base58Encoder.encode(txResponse.transaction!.signatures.first);
-
 
       for (final instruction in instructions) {
         final programId = message.accountKeys[instruction.programIdIndex];
@@ -443,20 +440,17 @@ class SolanaWalletClient {
           }
         }));
 
-        final versionedBatchResponses =
-            batchResponses.whereType<VersionedTransactionResponse>();
+        final versionedBatchResponses = batchResponses.whereType<VersionedTransactionResponse>();
 
-        final parsedTransactionsFutures =
-            versionedBatchResponses.map((tx) => parseTransaction(
-                  txResponse: tx,
-                  splTokenSymbol: splTokenSymbol,
-                  walletAddress: walletAddress?.address ?? address.address,
-                ));
+        final parsedTransactionsFutures = versionedBatchResponses.map((tx) => parseTransaction(
+              txResponse: tx,
+              splTokenSymbol: splTokenSymbol,
+              walletAddress: walletAddress?.address ?? address.address,
+            ));
 
         final parsedTransactions = await Future.wait(parsedTransactionsFutures);
 
-        transactions.addAll(
-            parsedTransactions.whereType<SolanaTransactionModel>().toList());
+        transactions.addAll(parsedTransactions.whereType<SolanaTransactionModel>().toList());
 
         // Only update UI if we have new valid transactions
         if (parsedTransactions.isNotEmpty) {
@@ -525,39 +519,76 @@ class SolanaWalletClient {
   }
 
   Future<SPLToken?> fetchSPLTokenInfo(String mintAddress) async {
-    final programAddress = MetaplexTokenMetaDataProgramUtils.findMetadataPda(
-        mint: SolAddress(mintAddress));
+    try {
+      final uri = Uri.https(
+        'solana-gateway.moralis.io',
+        '/token/mainnet/$mintAddress/metadata',
+      );
 
-    final token = await _provider!.request(
-      SolanaRPCGetMetadataAccount(
-        account: programAddress.address,
-        commitment: Commitment.confirmed,
-      ),
-    );
+      final response = await client.get(
+        uri,
+        headers: {
+          "Accept": "application/json",
+          "X-API-Key": secrets.moralisApiKey,
+        },
+      );
 
-    if (token == null) {
+      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+
+      final symbol = (decodedResponse['symbol'] ?? '') as String;
+
+      final name = decodedResponse['name'] ?? '';
+      final decimal = decodedResponse['decimals'] ?? '0';
+      final iconPath = decodedResponse['logo'] ?? '';
+
+      String filteredTokenSymbol =
+          symbol.replaceFirst(RegExp('^\\\$'), '').replaceAll('\u0000', '');
+
+      return SPLToken(
+        name: name,
+        mint: symbol,
+        symbol: filteredTokenSymbol,
+        mintAddress: mintAddress,
+        iconPath: iconPath,
+        decimal: int.tryParse(decimal) ?? 0,
+      );
+    } catch (e, s) {
+      printV('Error fetching token info: $e \n $s');
+      try {
+        final programAddress =
+            MetaplexTokenMetaDataProgramUtils.findMetadataPda(mint: SolAddress(mintAddress));
+
+        final token = await _provider!.request(
+          SolanaRPCGetMetadataAccount(
+            account: programAddress.address,
+            commitment: Commitment.confirmed,
+          ),
+        );
+
+        if (token == null) return null;
+
+        final metadata = token.data;
+
+        String? iconPath;
+        //TODO(Further explore fetching images)
+        // try {
+        //   iconPath = await _client.getIconImageFromTokenUri(metadata.uri);
+        // } catch (_) {}
+
+        String filteredTokenSymbol =
+            metadata.symbol.replaceFirst(RegExp('^\\\$'), '').replaceAll('\u0000', '');
+
+        return SPLToken.fromMetadata(
+          name: metadata.name,
+          mint: metadata.symbol,
+          symbol: filteredTokenSymbol,
+          mintAddress: token.mint.address,
+          iconPath: iconPath,
+        );
+      } catch (_) {}
+
       return null;
     }
-
-    final metadata = token.data;
-
-    String? iconPath;
-    //TODO(Further explore fetching images)
-    // try {
-    //   iconPath = await _client.getIconImageFromTokenUri(metadata.uri);
-    // } catch (_) {}
-
-    String filteredTokenSymbol = metadata.symbol
-        .replaceFirst(RegExp('^\\\$'), '')
-        .replaceAll('\u0000', '');
-
-    return SPLToken.fromMetadata(
-      name: metadata.name,
-      mint: metadata.symbol,
-      symbol: filteredTokenSymbol,
-      mintAddress: token.mint.address,
-      iconPath: iconPath,
-    );
   }
 
   void stop() {}
@@ -665,8 +696,7 @@ class SolanaWalletClient {
     return message;
   }
 
-  Future<double> _getFeeFromCompiledMessage(
-      Message message, Commitment commitment) async {
+  Future<double> _getFeeFromCompiledMessage(Message message, Commitment commitment) async {
     final base64Message = base64Encode(message.serialize());
 
     final fee = await getFeeForMessage(base64Message, commitment);
@@ -805,8 +835,7 @@ class SolanaWalletClient {
     required SolAddress mintAddress,
     required bool shouldCreateATA,
   }) async {
-    final associatedTokenAccount =
-        AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+    final associatedTokenAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
       mint: mintAddress,
       owner: ownerAddress,
     );
@@ -877,8 +906,7 @@ class SolanaWalletClient {
     final amount = (inputAmount * math.pow(10, tokenDecimals)).toInt();
     ProgramDerivedAddress? associatedSenderAccount;
     try {
-      associatedSenderAccount =
-          AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+      associatedSenderAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
         mint: mintAddress,
         owner: ownerPrivateKey.publicKey().toAddress(),
       );

@@ -15,6 +15,7 @@ import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
 
@@ -33,6 +34,9 @@ class ArbitrumWallet extends EVMChainWallet {
 
   @override
   bool get hasPriorityFee => false;
+
+  @override
+  int getTotalPriorityFee(EVMChainTransactionPriority priority) => 0;
 
   @override
   Future<void> initErc20TokensBox() async {

@@ -11,6 +11,7 @@ class StandardSlideButton extends StatefulWidget {
     required this.accessibleNavigationModeButtonText,
     this.tileBackgroundColor,
     this.knobColor,
+    this.isDisabled = false,
   }) : super(key: key);
 
   final VoidCallback onSlideComplete;
@@ -19,6 +20,7 @@ class StandardSlideButton extends StatefulWidget {
   final String accessibleNavigationModeButtonText;
   final Color? tileBackgroundColor;
   final Color? knobColor;
+  final bool isDisabled;
 
   @override
   StandardSlideButtonState createState() => StandardSlideButtonState();
@@ -36,14 +38,16 @@ class StandardSlideButtonState extends State<StandardSlideButton> {
   Widget build(BuildContext context) {
     final bool accessible = MediaQuery.of(context).accessibleNavigation;
 
-    final tileBackgroundColor = context.currentTheme.customColors.backgroundGradientColor;
+    final tileBackgroundColor = widget.isDisabled
+        ? context.currentTheme.customColors.backgroundGradientColor.withOpacity(0.5)
+        : context.currentTheme.customColors.backgroundGradientColor;
 
     return accessible
         ? PrimaryButton(
             text: widget.accessibleNavigationModeButtonText,
             color: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.onPrimary,
-            onPressed: () => widget.onSlideComplete(),
+            onPressed: widget.isDisabled ? null : () => widget.onSlideComplete(),
           )
         : LayoutBuilder(
             builder: (context, constraints) {
@@ -56,7 +60,10 @@ class StandardSlideButtonState extends State<StandardSlideButton> {
                 height: widget.height,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: widget.tileBackgroundColor ?? tileBackgroundColor,
+                  color: (widget.isDisabled
+                          ? widget.tileBackgroundColor?.withOpacity(0.5)
+                          : widget.tileBackgroundColor) ??
+                      tileBackgroundColor,
                 ),
                 child: Stack(
                   alignment: Alignment.centerLeft,
@@ -74,22 +81,26 @@ class StandardSlideButtonState extends State<StandardSlideButton> {
                       left: sideMargin + _dragPosition,
                       child: GestureDetector(
                         key: ValueKey('standard_slide_button_widget_slider_key'),
-                        onHorizontalDragUpdate: (details) {
-                          setState(() {
-                            _dragPosition += details.delta.dx;
-                            if (_dragPosition < 0) _dragPosition = 0;
-                            if (_dragPosition > effectiveMaxWidth - sliderWidth) {
-                              _dragPosition = effectiveMaxWidth - sliderWidth;
-                            }
-                          });
-                        },
-                        onHorizontalDragEnd: (details) {
-                          if (_dragPosition >= effectiveMaxWidth - sliderWidth - 10) {
-                            widget.onSlideComplete();
-                          } else {
-                            setState(() => _dragPosition = 0);
-                          }
-                        },
+                        onHorizontalDragUpdate: widget.isDisabled
+                            ? null
+                            : (details) {
+                                setState(() {
+                                  _dragPosition += details.delta.dx;
+                                  if (_dragPosition < 0) _dragPosition = 0;
+                                  if (_dragPosition > effectiveMaxWidth - sliderWidth) {
+                                    _dragPosition = effectiveMaxWidth - sliderWidth;
+                                  }
+                                });
+                              },
+                        onHorizontalDragEnd: widget.isDisabled
+                            ? null
+                            : (details) {
+                                if (_dragPosition >= effectiveMaxWidth - sliderWidth - 10) {
+                                  widget.onSlideComplete();
+                                } else {
+                                  setState(() => _dragPosition = 0);
+                                }
+                              },
                         child: Container(
                           key: ValueKey('standard_slide_button_widget_slider_container_key'),
                           width: sliderWidth,
