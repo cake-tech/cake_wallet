@@ -691,6 +691,7 @@
   "silent_payments_scanning": "Reescanea hepyme’ẽ kirirĩme",
   "silent_payments_settings": "Ñemohenda hepyme’ẽ kirirĩme rehegua",
   "slidable": "Ikatúva osyry",
+  "solana_invalid_data_message": "Error Parsing Asociado Cuenta de Token para Token. Amablemente emoañete recibir dirección ha eñeha'ã jey.",
   "sort_by": "Ñemohenda pe",
   "spend_key_private": "Papapy (ñemigua)",
   "spend_key_public": "Papapy (ojeikuaáva)",
