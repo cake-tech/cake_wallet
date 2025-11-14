@@ -3,7 +3,8 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 
 class DecredNewWalletCredentials extends WalletCredentials {
-  DecredNewWalletCredentials({required String name, WalletInfo? walletInfo, required this.isBip39, required this.mnemonic})
+  DecredNewWalletCredentials(
+      {required String name, WalletInfo? walletInfo, required this.isBip39, required this.mnemonic})
       : super(name: name, walletInfo: walletInfo);
 
   final bool isBip39;

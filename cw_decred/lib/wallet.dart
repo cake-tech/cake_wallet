@@ -37,8 +37,8 @@ class DecredWallet = DecredWalletBase with _$DecredWallet;
 
 abstract class DecredWalletBase
     extends WalletBase<DecredBalance, DecredTransactionHistory, DecredTransactionInfo> with Store {
-  DecredWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo, String password, Box<UnspentCoinsInfo> unspentCoinsInfo,
-      Libwallet libwallet, Function() closeLibwallet)
+  DecredWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo, String password,
+      Box<UnspentCoinsInfo> unspentCoinsInfo, Libwallet libwallet, Function() closeLibwallet)
       : _password = password,
         _libwallet = libwallet,
         _closeLibwallet = closeLibwallet,
@@ -46,13 +46,11 @@ abstract class DecredWalletBase
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.watchingOnly =
             derivationInfo.derivationPath == DecredWalletService.pubkeyRestorePath ||
-                derivationInfo.derivationPath ==
-                    DecredWalletService.pubkeyRestorePathTestnet,
+                derivationInfo.derivationPath == DecredWalletService.pubkeyRestorePathTestnet,
         this.balance = ObservableMap.of({CryptoCurrency.dcr: DecredBalance.zero()}),
-        this.isTestnet = derivationInfo.derivationPath ==
-                DecredWalletService.seedRestorePathTestnet ||
-            derivationInfo.derivationPath ==
-                DecredWalletService.pubkeyRestorePathTestnet,
+        this.isTestnet =
+            derivationInfo.derivationPath == DecredWalletService.seedRestorePathTestnet ||
+                derivationInfo.derivationPath == DecredWalletService.pubkeyRestorePathTestnet,
         super(walletInfo, derivationInfo) {
     walletAddresses = DecredWalletAddresses(walletInfo, libwallet);
     transactionHistory = DecredTransactionHistory();
