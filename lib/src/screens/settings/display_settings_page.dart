@@ -37,7 +37,7 @@ class DisplaySettingsPage extends BasePage {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SettingsSwitcherCell(
-                title: S.of(context).show_market_place,
+                title: S.of(context).apps,
                 value: _displaySettingsViewModel.shouldShowMarketPlaceInDashboard,
                 onValueChange: (_, bool value) {
                   _displaySettingsViewModel.setShouldShowMarketPlaceInDashbaord(value);

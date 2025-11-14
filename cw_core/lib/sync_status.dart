@@ -21,6 +21,7 @@ class StartingScanSyncStatus extends SyncStatus {
 class SyncingSyncStatus extends SyncStatus {
   SyncingSyncStatus(this.blocksLeft, this.ptc) {
     updateEtaHistory(blocksLeft);
+    _globalSyncStartTime ??= DateTime.now();
   }
 
   double ptc;
@@ -31,6 +32,19 @@ class SyncingSyncStatus extends SyncStatus {
 
   @override
   String toString() => '$blocksLeft';
+
+  /// Returns true if we should show blocks remaining instead of percentage
+  /// Shows blocks remaining for the first 15 seconds of syncing
+  bool shouldShowBlocksRemaining() {
+    if (_globalSyncStartTime == null) return true;
+    final elapsed = DateTime.now().difference(_globalSyncStartTime!);
+    return elapsed.inSeconds < 15;
+  }
+
+  /// Reset the global sync start time (call when sync completes or fails)
+  static void resetSyncStartTime() {
+    _globalSyncStartTime = null;
+  }
 
   factory SyncingSyncStatus.fromHeightValues(int chainTip, int initialSyncHeight, int syncHeight) {
     final track = chainTip - initialSyncHeight;
@@ -45,21 +59,14 @@ class SyncingSyncStatus extends SyncStatus {
 
   static void updateEtaHistory(int blocksLeft) {
     blockHistory[DateTime.now()] = blocksLeft;
-
-    // keep only the last 30 entries (gives us better statistical accuracy)
-    while (blockHistory.length > 30) {
-      blockHistory.remove(blockHistory.keys.first);
-    }
   }
 
   static Map<DateTime, int> blockHistory = {};
   static Duration? lastEtaDuration;
   static const int _minDataPoints = 3;
-  static const int _maxDataAgeMinutes = 2;
+  static DateTime? _globalSyncStartTime;
 
   String? getFormattedEtaWithPlaceholder() {
-    _cleanOldEntries();
-
     // If we have enough data, show actual ETA
     if (blockHistory.length >= _minDataPoints) {
       final eta = getFormattedEta();
@@ -68,11 +75,6 @@ class SyncingSyncStatus extends SyncStatus {
 
     // Show the placeholder ETA while gathering data
     return '--:--';
-  }
-
-  void _cleanOldEntries() {
-    final cutoffTime = DateTime.now().subtract(Duration(minutes: _maxDataAgeMinutes));
-    blockHistory.removeWhere((key, value) => key.isBefore(cutoffTime));
   }
 
   String? getFormattedEta() {

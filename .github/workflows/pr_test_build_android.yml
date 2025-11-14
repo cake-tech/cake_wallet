@@ -134,6 +134,7 @@ jobs:
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
@@ -311,16 +312,19 @@ jobs:
           set -x
           apk_file=$(ls build/app/outputs/flutter-apk/test-apk/${BRANCH_NAME}.apk || exit 1)
           echo "APK_FILE=$apk_file" >> $GITHUB_ENV
+      - name: Write BRANCH_NAME to env
+        run: echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
 
-      - name: Upload artifact to slack
-        if: ${{ !contains(env.message, 'skip slack') }}
-        continue-on-error: true
-        uses: adrey/slack-file-upload-action@1.0.5
+      - name: Upload to slack step
+        uses: vaporif/slack-file-upload-action@v1
         with:
           token: ${{ secrets.SLACK_APP_TOKEN }}
-          path: ${{ env.APK_FILE }}
-          channel: ${{ secrets.SLACK_APK_CHANNEL }}
           initial_comment: ${{ env.message }}
+          files: >
+            [
+              {"file": "${{ env.APK_FILE }}", "filename": "${{ env.BRANCH_NAME }}.apk"}
+            ]
+          channel_id: ${{ secrets.SLACK_APK_CHANNEL }}
 
       - name: cleanup
         run: rm -rf build/app/outputs/flutter-apk/test-apk/
