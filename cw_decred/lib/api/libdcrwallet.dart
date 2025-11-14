@@ -490,8 +490,7 @@ class Libwallet {
     return res.payload;
   }
 
-  Future<String> createTransaction(
-      String walletName, String createTransactionReq) async {
+  Future<String> createTransaction(String walletName, String createTransactionReq) async {
     if (_closed) throw StateError('Closed');
     final completer = Completer<Object?>.sync();
     final id = _idCounter++;
