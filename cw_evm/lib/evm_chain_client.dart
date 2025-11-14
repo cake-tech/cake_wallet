@@ -17,20 +17,73 @@ import 'package:web3dart/web3dart.dart';
 
 import 'contract/erc20.dart';
 
-abstract class EVMChainClient {
+class EVMChainClient {
   late final client = ProxyWrapper().getHttpIOClient();
   Web3Client? _client;
+  final int _chainId;
 
-  //! To be overridden by all child classes
+  EVMChainClient({required int chainId}) : _chainId = chainId;
 
-  int get chainId;
+  //! Can be overridden by child classes
+
+  int get chainId => _chainId;
 
   Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
-      {String? contractAddress});
+      {String? contractAddress}) async {
+    try {
+      final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
+        "chainid": "$chainId",
+        "module": "account",
+        "action": contractAddress != null ? "tokentx" : "txlist",
+        if (contractAddress != null) "contractaddress": contractAddress,
+        "address": address,
+        "apikey": secrets.etherScanApiKey,
+      }));
 
-  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address);
+      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
-  Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction);
+      if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
+        final res = (jsonResponse['result'] as List);
+        res.removeWhere((e) => e['value'] == '0');
+
+        return res
+            .map(
+              (e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'),
+            )
+            .toList();
+      }
+
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
+    try {
+      final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
+        "chainid": "$chainId",
+        "module": "account",
+        "action": "txlistinternal",
+        "address": address,
+        "apikey": secrets.etherScanApiKey,
+      }));
+
+      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
+        return (jsonResponse['result'] as List)
+            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'))
+            .toList();
+      }
+
+      return [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction) => signedTransaction;
 
   //! Common methods across all child classes
 
@@ -185,7 +238,8 @@ abstract class EVMChainClient {
     final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
-      maxPriorityFeePerGas: priority != null ? EtherAmount.fromInt(EtherUnit.gwei, priority.tip) : null,
+      maxPriorityFeePerGas:
+          priority != null ? EtherAmount.fromInt(EtherUnit.gwei, priority.tip) : null,
       amount: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
       maxGas: estimatedGasUnits,
@@ -242,7 +296,8 @@ abstract class EVMChainClient {
     final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(contractAddress),
-      maxPriorityFeePerGas:priority != null ? EtherAmount.fromInt(EtherUnit.gwei, priority.tip) : null,
+      maxPriorityFeePerGas:
+          priority != null ? EtherAmount.fromInt(EtherUnit.gwei, priority.tip) : null,
       amount: EtherAmount.zero(),
       maxGas: estimatedGasUnits,
       maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
