@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_listener_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -22,7 +23,6 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/navigation_dock.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -260,7 +260,7 @@ class _DashboardPageView extends BasePage {
                   ),
                 ),
               ),
-              NavigationDock(
+              NewMainNavBar(
                 dashboardViewModel: dashboardViewModel,
               )
             ],
