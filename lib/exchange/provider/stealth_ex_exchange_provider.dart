@@ -74,8 +74,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
         throw Exception('StealthEx fetch limits failed: ${response.body}');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final min = toDouble(responseJSON['min_amount']);
-      final max = responseJSON['max_amount'] as double?;
+      final min = _toDouble(responseJSON['min_amount']);
+      final max = _toDouble(responseJSON['max_amount']);
       return Limits(min: min, max: max);
     } catch (e) {
       log(e.toString());
@@ -230,8 +230,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
       final payoutAddress = withdrawal['address'] as String;
       final depositAddress = deposit['address'] as String;
       final refundAddress = responseJSON['refund_address'] as String;
-      final depositAmount = toDouble(deposit['amount']);
-      final receiveAmount = toDouble(withdrawal['amount']);
+      final depositAmount = _toDouble(deposit['amount']);
+      final receiveAmount = _toDouble(withdrawal['amount']);
       final status = responseJSON['status'] as String;
       final createdAtString = responseJSON['created_at'] as String;
       final extraId = deposit['extra_id'] as String?;
@@ -342,15 +342,24 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final withdrawal = responseJSON['withdrawal'] as Map<String, dynamic>;
 
     final respId = responseJSON['id'] as String;
-    final from = deposit['symbol'] as String;
+
+    // Parsing 'from' currency with network tag
+    final fromCurrency = deposit['symbol'] as String;
     final fromNetwork = deposit['network'] as String?;
-    final to = withdrawal['symbol'] as String;
+    final fromTag = fromNetwork == 'mainnet' ? null : fromNetwork;
+    final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
+
+    // Parsing 'to' currency with network tag
+    final toCurrency = withdrawal['symbol'] as String;
     final toNetwork = withdrawal['network'] as String?;
+    final toTag = toNetwork == 'mainnet' ? null : toNetwork;
+    final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
+
     final payoutAddress = withdrawal['address'] as String;
     final depositAddress = deposit['address'] as String;
     final refundAddress = responseJSON['refund_address'] as String;
-    final depositAmount = toDouble(deposit['amount']);
-    final receiveAmount = toDouble(withdrawal['amount']);
+    final depositAmount = _toDouble(deposit['amount']);
+    final receiveAmount = _toDouble(withdrawal['amount']);
     final status = responseJSON['status'] as String;
     final createdAtString = responseJSON['created_at'] as String;
     final createdAt = DateTime.parse(createdAtString).toLocal();
@@ -358,8 +367,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: respId,
-      from: CryptoCurrency.safeParseCurrencyFromString(from),
-      to: CryptoCurrency.safeParseCurrencyFromString(to),
+      from: from,
+      to: to,
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: payoutAddress,
@@ -370,8 +379,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
       createdAt: createdAt,
       isRefund: status == 'refunded',
       extraId: extraId,
-      userCurrencyFromRaw: '${from.toUpperCase()}' + '_' + '${fromNetwork?.toUpperCase() ?? ''}',
-      userCurrencyToRaw: '${to.toUpperCase()}' + '_' + '${toNetwork?.toUpperCase() ?? ''}',
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
     );
   }
 
@@ -414,15 +423,17 @@ class StealthExExchangeProvider extends ExchangeProvider {
     }
   }
 
-  double toDouble(dynamic value) {
+  static double? _toDouble(dynamic value) {
     if (value is int) {
       return value.toDouble();
     } else if (value is double) {
       return value;
-    } else {
-      return 0.0;
+    } else if (value is String) {
+      return double.tryParse(value);
     }
+    return null;
   }
+
 
   String _getName(CryptoCurrency currency) {
     if (currency == CryptoCurrency.usdcEPoly) return 'usdce';

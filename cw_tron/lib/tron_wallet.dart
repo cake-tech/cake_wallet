@@ -312,8 +312,13 @@ abstract class TronWalletBase
 
     final hasMultiDestination = outputs.length > 1;
 
-    final CryptoCurrency transactionCurrency =
-        balance.keys.firstWhere((element) => element.title == tronCredentials.currency.title);
+    final transactionCurrency = balance.keys.firstWhere(
+            (currency) =>
+        currency.title == tronCredentials.currency.title &&
+            currency.tag == tronCredentials.currency.tag,
+        orElse: () => throw Exception(
+            'Currency ${tronCredentials.currency.title} ${tronCredentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
+
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
