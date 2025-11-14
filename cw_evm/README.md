@@ -1,39 +1,52 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+## cw_evm
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+Shared EVM-chain wallet foundation for Cake Wallet. Provides common client/wallet abstractions used by `cw_ethereum`, `cw_polygon`, and other EVM chains.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+### What it provides
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+- `EVMChainClient` (Web3 + HTTP):
+  - Connect to RPC (supports NowNodes short hosts with API key).
+  - Read balance, gas price/base fee, estimate gas, send raw tx, watch tx.
+  - Sign native and ERC‑20 transactions; build approval calldata.
+  - Fetch ERC‑20 metadata (via Moralis) and balances.
+- `EVMChainWallet`:
+  - Derive keys from BIP‑39 or use private key / Ledger (`EvmLedgerCredentials`).
+  - EIP‑1559 fee calculation with priority presets; Polygon-specific tuning.
+  - ERC‑20 token box per wallet; add/remove tokens and maintain balances.
+  - Transaction history assembly (external/internal + token transfers).
+  - Message sign/verify helpers.
+- `EVMChainWalletService`: common create/open/restore/rename lifecycle.
 
-## Features
+### Secrets
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Create `cw_evm/lib/.secrets.g.dart` (do not commit):
 
 ```dart
-const like = 'sample';
+const String nowNodesApiKey = '...';      // used for eth.nownodes.io / matic.nownodes.io
+const String etherScanApiKey = '...';     // Etherscan v2 API key (incl. Polygon)
+const String moralisApiKey = '...';       // optional, ERC-20 metadata lookup
 ```
 
-## Additional information
+### Extending to a new EVM chain
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+Create a client and wallet subclass:
+
+```dart
+class MyChainClient extends EVMChainClient {
+  @override
+  int get chainId => 8453; // example
+  @override
+  Uint8List prepareSignedTransactionForSending(Uint8List tx) => tx;
+  @override
+  Future<List<EVMChainTransactionModel>> fetchTransactions(String address, {String? contractAddress}) async { /* ... */ }
+  @override
+  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async { /* ... */ }
+}
+```
+
+Then wire into a `WalletService` similar to `EthereumWalletService`/`PolygonWalletService`.
+
+### Additional information
+
+- Uses `web3dart` under the hood and integrates with Cake Wallet’s `cw_core` types.
+- See `lib/` for the reference implementation details.
