@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cw_decred/api/libdcrwallet.dart';
-import 'package:cw_decred/mnemonic.dart';
 import 'package:cw_decred/wallet_creation_credentials.dart';
 import 'package:cw_decred/wallet.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -62,12 +61,11 @@ class DecredWalletService extends WalletService<
       final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
       final mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
       return restoreFromSeed(DecredRestoreWalletFromSeedCredentials(
-        name: credentials.name,
-        password: credentials.password!,
-        mnemonic: mnemonic,
-        walletInfo: credentials.walletInfo,
-        passphrase: credentials.passphrase??''
-      ));
+          name: credentials.name,
+          password: credentials.password!,
+          mnemonic: mnemonic,
+          walletInfo: credentials.walletInfo,
+          passphrase: credentials.passphrase ?? ''));
     }
     final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
     final network = isTestnet == true ? testnet : mainnet;
@@ -164,8 +162,8 @@ class DecredWalletService extends WalletService<
       "unsyncedaddrs": true,
     };
     await libwallet!.loadWallet(jsonEncode(config));
-    final wallet =
-        DecredWallet(walletInfo, di, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
+    final wallet = DecredWallet(
+        walletInfo, di, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
     await wallet.init();
     return wallet;
   }
@@ -187,10 +185,10 @@ class DecredWalletService extends WalletService<
       throw Exception('Wallet not found');
     }
     final di = await currentWalletInfo.getDerivationInfo();
-    final network = di.derivationPath == seedRestorePathTestnet ||
-            di.derivationPath == pubkeyRestorePathTestnet
-        ? testnet
-        : mainnet;
+    final network =
+        di.derivationPath == seedRestorePathTestnet || di.derivationPath == pubkeyRestorePathTestnet
+            ? testnet
+            : mainnet;
     currentWalletInfo.network = network;
     currentWalletInfo.save();
     if (libwallet == null) {
@@ -217,19 +215,20 @@ class DecredWalletService extends WalletService<
     await this.init();
     final network = isTestnet == true ? testnet : mainnet;
     final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
-    
-    if ([12,24].contains(credentials.seedPhraseLength!)) {
+
+    var mnemonic = credentials.mnemonic;
+    if ([12, 24].contains(credentials.seedPhraseLength!)) {
       // bip39 stuff - converting from non-english to english.
       final entropy = bip39.mnemonicToEntropy(credentials.mnemonic);
-      bip39.entropyToMnemonic(entropy);
-      
+      mnemonic = bip39.entropyToMnemonic(entropy);
     }
-    
+
     final config = {
       "name": credentials.walletInfo!.name,
       "datadir": dirPath,
       "pass": credentials.password!,
-      "mnemonic": credentials.mnemonic,
+      "mnemonic": mnemonic,
+      "seedpass": credentials.passphrase,
       "net": network,
       "unsyncedaddrs": true,
     };
