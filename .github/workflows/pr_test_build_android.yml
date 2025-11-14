@@ -312,6 +312,8 @@ jobs:
           set -x
           apk_file=$(ls build/app/outputs/flutter-apk/test-apk/${BRANCH_NAME}.apk || exit 1)
           echo "APK_FILE=$apk_file" >> $GITHUB_ENV
+      - name: Write BRANCH_NAME to env
+        run: echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
 
       - name: Upload to slack step
         uses: vaporif/slack-file-upload-action@v1
