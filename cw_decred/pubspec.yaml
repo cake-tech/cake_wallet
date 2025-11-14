@@ -18,6 +18,11 @@ dependencies:
   cw_core:
     path: ../cw_core
 
+  mobx: any
+  ffi: any
+  path: any
+  hive: any
+  intl: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

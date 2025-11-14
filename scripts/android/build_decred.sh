@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 CW_DECRED_DIR=$(realpath ../..)/cw_decred
 LIBWALLET_PATH="${PWD}/decred/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
-LIBWALLET_VERSION="29c832efedd48514db9552a0c95ef02ce9cd5dc8"
+LIBWALLET_VERSION="cbfeb71a1343ce93d24e4b11fc7268f733ab600c"
 
 if [[ -e $LIBWALLET_PATH ]]; then
     rm -fr $LIBWALLET_PATH || true
