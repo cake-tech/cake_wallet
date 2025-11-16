@@ -67,7 +67,7 @@ class LightningPaymentRequest extends PaymentURI {
 }
 
 class LitecoinURI extends PaymentURI {
-  LitecoinURI({required super.amount, required super.address});
+  LitecoinURI({required super.amount, required super.address, required super.scheme});
 
   @override
   String toString() {
@@ -79,7 +79,7 @@ class LitecoinURI extends PaymentURI {
 }
 
 class EthereumURI extends PaymentURI {
-  EthereumURI({required super.amount, required super.address});
+  EthereumURI({required super.amount, required super.address, required super.scheme});
 
   @override
   String toString() {
@@ -91,7 +91,7 @@ class EthereumURI extends PaymentURI {
 }
 
 class BaseURI extends PaymentURI {
-  BaseURI({required super.amount, required super.address});
+  BaseURI({required super.amount, required super.address, required super.scheme});
 
   @override
   String toString() {
@@ -103,7 +103,7 @@ class BaseURI extends PaymentURI {
 }
 
 class ArbitrumURI extends PaymentURI {
-  ArbitrumURI({required super.amount, required super.address});
+  ArbitrumURI({required super.amount, required super.address, required super.scheme});
 
   @override
   String toString() {
