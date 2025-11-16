@@ -115,6 +115,9 @@ abstract class BalanceViewModelBase with Store {
       wallet.type == WalletType.zano;
 
   @computed
+  bool get isEVMCompatible => isEVMCompatibleChain(wallet.type);
+
+  @computed
   bool get hasAccounts => wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
 
   @computed
