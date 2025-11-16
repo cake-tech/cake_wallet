@@ -98,6 +98,8 @@ mainAxisAlignment: MainAxisAlignment.center,
                                 _selectedIndex = index;
                               });
                             },
+                            onEditSwitchTapped: (){},
+                            editSwitchValue: true,
                             animDuration: EvmSwitcher.editModeAnimDuration,
                           );
                         },

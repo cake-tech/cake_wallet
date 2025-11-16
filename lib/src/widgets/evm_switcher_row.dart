@@ -11,6 +11,8 @@ class EvmSwitcherRow extends StatelessWidget {
     required this.data,
     required this.onTap,
     required this.animDuration,
+    required this.onEditSwitchTapped,
+    required this.editSwitchValue,
   });
 
   final bool editMode;
@@ -18,6 +20,8 @@ class EvmSwitcherRow extends StatelessWidget {
   final EvmSwitcherDataItem data;
   final VoidCallback onTap;
   final Duration animDuration;
+  final VoidCallback onEditSwitchTapped;
+  final bool editSwitchValue;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +70,7 @@ class EvmSwitcherRow extends StatelessWidget {
               AnimatedOpacity(
                   opacity: editMode ? 1 : 0,
                   duration: animDuration,
-                  child: StandardSwitch(value: false, onTapped: () {}))
+                  child: StandardSwitch(value: editSwitchValue, onTapped: onEditSwitchTapped))
             ],
           ),
         ),
