@@ -10,7 +10,9 @@ class FeatureFlag {
   static const bool isBackgroundSyncEnabled = true;
   static bool get isInAppTorEnabled => CakeTor.instance is! CakeTorDisabled;
   static const int verificationWordsCount = kDebugMode ? 0 : 2;
-  static const bool hasDevOptions = bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode);
+  static const bool hasDevOptions =
+      bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode);
   static const bool hasBitcoinViewOnly = true;
   static const bool customBackgroundEnabled = false;
+  static const bool hasNewUi = true;
 }

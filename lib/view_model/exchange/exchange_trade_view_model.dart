@@ -18,7 +18,6 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -422,16 +421,6 @@ abstract class ExchangeTradeViewModelBase with Store {
       case WalletType.ethereum:
         return _createERC681URI(fromCurrency, inputAddress, amount);
       // TODO: Expand ERC681URI support to Polygon(modify decoding flow for QRs, pay anything, and deep link handling)
-      case WalletType.polygon:
-        return PolygonURI(amount: amount, address: inputAddress);
-      case WalletType.base:
-        return BaseURI(amount: amount, address: inputAddress);
-      case WalletType.arbitrum:
-        return ArbitrumURI(amount: amount, address: inputAddress);
-      case WalletType.solana:
-        return SolanaURI(amount: amount, address: inputAddress);
-      case WalletType.tron:
-        return TronURI(amount: amount, address: inputAddress);
       case WalletType.monero:
         return MoneroURI(address: inputAddress, amount: amount);
       case WalletType.wownero:

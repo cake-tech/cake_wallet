@@ -100,8 +100,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.transactionDescriptionBox,
     this.hardwareWalletViewModel,
     this.unspentCoinsListViewModel,
-    this.feesViewModel,
-    this.walletInfoSource, {
+    this.feesViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
@@ -873,7 +872,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           WalletType.banano,
           WalletType.solana,
           WalletType.tron,
-          WalletType.arbitrium
+          WalletType.arbitrum
         ].contains(wallet.type)) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
@@ -1053,7 +1052,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       WalletType.polygon,
       WalletType.base,
       WalletType.haven,
-      WalletType.arbitrium
+      WalletType.arbitrum
     ].contains(walletType)) {
       if (errorMessage.contains('gas required exceeds allowance')) {
         return S.current.gas_exceeds_allowance;

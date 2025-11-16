@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -40,6 +41,7 @@ import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
@@ -148,6 +150,7 @@ import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -163,14 +166,18 @@ Route<T> handleRouteWithPlatformAwareness<T>(
   bool fullscreenDialog = false,
 }) {
   if (Platform.isIOS) {
-    return CupertinoPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return CupertinoPageRoute<T>(
+        builder: builder, fullscreenDialog: fullscreenDialog);
   } else {
-    return MaterialPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return MaterialPageRoute<T>(
+        builder: builder, fullscreenDialog: fullscreenDialog);
   }
 }
 
 Route<dynamic> createRoute(RouteSettings settings) {
   currentRouteSettings = settings;
+
+  printV(settings.name);
 
   switch (settings.name) {
     case Routes.welcome:
@@ -222,7 +229,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.walletGroupsDisplayPage:
       final type = settings.arguments as WalletType;
-      final walletGroupsDisplayVM = getIt.get<WalletGroupsDisplayViewModel>(param1: type);
+      final walletGroupsDisplayVM =
+          getIt.get<WalletGroupsDisplayViewModel>(param1: type);
 
       return handleRouteWithPlatformAwareness(
         (_) => WalletGroupsDisplayPage(
@@ -247,21 +255,25 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.chooseHardwareWalletAccount:
       final arguments = settings.arguments as List<dynamic>;
       final type = arguments[0] as WalletType;
-      final hardwareWallet = arguments [1] as HardwareWalletType;
+      final hardwareWallet = arguments[1] as HardwareWalletType;
 
       final walletVM = getIt.get<WalletHardwareRestoreViewModel>(
-          param1: type, param2: getIt<HardwareWalletViewModel>(param1: hardwareWallet));
+          param1: type,
+          param2: getIt<HardwareWalletViewModel>(param1: hardwareWallet));
 
       if (type == WalletType.monero)
-        return handleRouteWithPlatformAwareness((_) => MoneroHardwareWalletOptionsPage(walletVM));
+        return handleRouteWithPlatformAwareness(
+            (_) => MoneroHardwareWalletOptionsPage(walletVM));
 
-      return handleRouteWithPlatformAwareness((_) => SelectHardwareWalletAccountPage(walletVM));
+      return handleRouteWithPlatformAwareness(
+          (_) => SelectHardwareWalletAccountPage(walletVM));
 
     case Routes.setupPin:
       Function(PinCodeState<PinCodeWidget>, String)? callback;
 
       if (settings.arguments is Function(PinCodeState<PinCodeWidget>, String)) {
-        callback = settings.arguments as Function(PinCodeState<PinCodeWidget>, String);
+        callback =
+            settings.arguments as Function(PinCodeState<PinCodeWidget>, String);
       }
 
       return handleRouteWithPlatformAwareness(
@@ -274,7 +286,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: NewWalletTypeArguments(
             onTypeSelected: (BuildContext context, WalletType type) {
               final arg = {'walletType': type};
-              Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: arg);
+              Navigator.of(context)
+                  .pushNamed(Routes.restoreWallet, arguments: arg);
             },
             isCreate: false,
           ),
@@ -294,7 +307,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWalletFromSeedKeys:
       if (isSingleCoin) {
         return handleRouteWithPlatformAwareness(
-          (context) => getIt.get<WalletRestorePage>(param1: availableWalletTypes.first),
+          (context) =>
+              getIt.get<WalletRestorePage>(param1: availableWalletTypes.first),
         );
       }
       return handleRouteWithPlatformAwareness(
@@ -302,7 +316,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: NewWalletTypeArguments(
             onTypeSelected: (BuildContext context, WalletType type) {
               final arg = {'walletType': type};
-              Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: arg);
+              Navigator.of(context)
+                  .pushNamed(Routes.restoreWallet, arguments: arg);
             },
             isCreate: false,
           ),
@@ -312,19 +327,23 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWalletFromHardwareWallet:
       final arguments = settings.arguments as Map<String, dynamic>?;
       final showUnavailable = (arguments?['showUnavailable'] as bool?) ?? true;
-      final onSelect = arguments?['onSelect'] as void Function(BuildContext, HardwareWalletType)?;
+      final onSelect = arguments?['onSelect'] as void Function(
+          BuildContext, HardwareWalletType)?;
       final availableHardwareWalletTypes =
-          arguments?['availableHardwareWalletTypes'] as List<HardwareWalletType>?;
+          arguments?['availableHardwareWalletTypes']
+              as List<HardwareWalletType>?;
 
-      return handleRouteWithPlatformAwareness((_) => SelectDeviceManufacturerPage(
-            showUnavailable: showUnavailable,
-            onSelect: onSelect,
-            availableHardwareWalletTypes: availableHardwareWalletTypes,
-          ));
+      return handleRouteWithPlatformAwareness(
+          (_) => SelectDeviceManufacturerPage(
+                showUnavailable: showUnavailable,
+                onSelect: onSelect,
+                availableHardwareWalletTypes: availableHardwareWalletTypes,
+              ));
 
     case Routes.connectHardwareWallet:
       final arguments = settings.arguments as List<dynamic>;
-      final hardwareWalletType = (arguments[0] as HardwareWalletType?) ?? HardwareWalletType.ledger;
+      final hardwareWalletType =
+          (arguments[0] as HardwareWalletType?) ?? HardwareWalletType.ledger;
 
       if (isSingleCoin) {
         return handleRouteWithPlatformAwareness(
@@ -332,9 +351,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
             ConnectDevicePageParams(
               walletType: availableWalletTypes.first,
               hardwareWalletType: hardwareWalletType,
-              onConnectDevice: (BuildContext context, _) => Navigator.of(context).pushNamed(
-                  Routes.chooseHardwareWalletAccount,
-                  arguments: [availableWalletTypes.first, hardwareWalletType]),
+              onConnectDevice: (BuildContext context, _) =>
+                  Navigator.of(context).pushNamed(
+                      Routes.chooseHardwareWalletAccount,
+                      arguments: [
+                    availableWalletTypes.first,
+                    hardwareWalletType
+                  ]),
               isReconnect: false,
             ),
             getIt.get<LedgerViewModel>(),
@@ -346,7 +369,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: NewWalletTypeArguments(
             onTypeSelected: (BuildContext context, WalletType type) {
               if (hardwareWalletType == HardwareWalletType.trezor) {
-                Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
+                Navigator.of(context).pushNamed(
+                    Routes.chooseHardwareWalletAccount,
                     arguments: [type, hardwareWalletType]);
                 return;
               }
@@ -354,13 +378,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
               final arguments = ConnectDevicePageParams(
                 walletType: type,
                 hardwareWalletType: hardwareWalletType,
-                onConnectDevice: (BuildContext context, _) => Navigator.of(context).pushNamed(
-                    Routes.chooseHardwareWalletAccount,
-                    arguments: [type, hardwareWalletType]),
+                onConnectDevice: (BuildContext context, _) =>
+                    Navigator.of(context).pushNamed(
+                        Routes.chooseHardwareWalletAccount,
+                        arguments: [type, hardwareWalletType]),
                 isReconnect: false,
               );
 
-              Navigator.of(context).pushNamed(Routes.connectDevices, arguments: arguments);
+              Navigator.of(context)
+                  .pushNamed(Routes.connectDevices, arguments: arguments);
             },
             isCreate: false,
             hardwareWalletType: hardwareWalletType,
@@ -381,14 +407,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.seed:
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<WalletSeedPage>(param1: settings.arguments as bool),
+        (context) =>
+            getIt.get<WalletSeedPage>(param1: settings.arguments as bool),
       );
 
     case Routes.restoreWallet:
       final args = settings.arguments as Map<String, dynamic>?;
       final walletType = args?['walletType'] as WalletType;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<WalletRestorePage>(param1: walletType, param2: args));
+          builder: (_) =>
+              getIt.get<WalletRestorePage>(param1: walletType, param2: args));
 
     case Routes.restoreWalletChooseDerivation:
       return MaterialPageRoute<void>(
@@ -396,16 +424,21 @@ Route<dynamic> createRoute(RouteSettings settings) {
               param1: settings.arguments as List<DerivationInfo>));
 
     case Routes.sweepingWalletPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<SweepingWalletPage>());
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SweepingWalletPage>());
 
     case Routes.dashboard:
       return CupertinoPageRoute<void>(
-          settings: settings, builder: (_) => getIt.get<DashboardPage>());
+          settings: settings, builder: (_) =>
+          FeatureFlag.hasNewUi?
+              getIt.get<NewDashboard>():
+              getIt.get<DashboardPage>());
 
     case Routes.send:
       final args = settings.arguments as Map<String, dynamic>?;
       final initialPaymentRequest = args?['paymentRequest'] as PaymentRequest?;
-      final coinTypeToSpendFrom = args?['coinTypeToSpendFrom'] as UnspentCoinType?;
+      final coinTypeToSpendFrom =
+          args?['coinTypeToSpendFrom'] as UnspentCoinType?;
 
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<SendPage>(
@@ -416,10 +449,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.sendTemplate:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<SendTemplatePage>());
 
     case Routes.receive:
-      return CupertinoPageRoute<void>(builder: (context) => getIt.get<ReceivePage>());
+      return CupertinoPageRoute<void>(
+          builder: (context) => getIt.get<ReceivePage>());
 
     case Routes.addressPage:
       return handleRouteWithPlatformAwareness(
@@ -429,29 +464,34 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) =>
-              getIt.get<TransactionDetailsPage>(param1: settings.arguments as TransactionInfo));
+          builder: (_) => getIt.get<TransactionDetailsPage>(
+              param1: settings.arguments as TransactionInfo));
 
     case Routes.bumpFeePage:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => getIt.get<RBFDetailsPage>(param1: settings.arguments as List<dynamic>));
+          builder: (_) => getIt.get<RBFDetailsPage>(
+              param1: settings.arguments as List<dynamic>));
 
     case Routes.newSubaddress:
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<AddressEditOrCreatePage>(param1: settings.arguments));
+          builder: (_) =>
+              getIt.get<AddressEditOrCreatePage>(param1: settings.arguments));
 
     case Routes.disclaimer:
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());
 
     case Routes.readDisclaimer:
-      return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage(isReadOnly: true));
+      return CupertinoPageRoute<void>(
+          builder: (_) => DisclaimerPage(isReadOnly: true));
 
     case Routes.readThirdPartyDisclaimer:
-      return CupertinoPageRoute<void>(builder: (_) => ThirdPartyDisclaimerPage());
+      return CupertinoPageRoute<void>(
+          builder: (_) => ThirdPartyDisclaimerPage());
 
     case Routes.changeRep:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<NanoChangeRepPage>());
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<NanoChangeRepPage>());
 
     case Routes.walletList:
       final onWalletLoaded = settings.arguments as Function(BuildContext)?;
@@ -463,8 +503,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.walletEdit:
       return MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (_) =>
-            getIt.get<WalletEditPage>(param1: settings.arguments as WalletEditPageArguments),
+        builder: (_) => getIt.get<WalletEditPage>(
+            param1: settings.arguments as WalletEditPageArguments),
       );
 
     case Routes.auth:
@@ -477,7 +517,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   instanceName: 'wallet_unlock_verifiable',
                   param2: true)
               : getIt.get<AuthPage>(
-                  param1: settings.arguments as OnAuthenticationFinished, param2: true));
+                  param1: settings.arguments as OnAuthenticationFinished,
+                  param2: true));
 
     case Routes.totpAuthCodePage:
       final args = settings.arguments as TotpAuthArgumentsModel;
@@ -503,13 +544,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
               ? WillPopScope(
                   child: getIt.get<WalletUnlockPage>(
                       param1: WalletUnlockArguments(
-                          callback: settings.arguments as OnAuthenticationFinished),
+                          callback:
+                              settings.arguments as OnAuthenticationFinished),
                       param2: false,
                       instanceName: 'wallet_unlock_verifiable'),
                   onWillPop: () async => false)
               : WillPopScope(
                   child: getIt.get<AuthPage>(
-                      param1: settings.arguments as OnAuthenticationFinished, param2: false),
+                      param1: settings.arguments as OnAuthenticationFinished,
+                      param2: false),
                   onWillPop: () async => false));
 
     case Routes.silentPaymentsSettings:
@@ -554,11 +597,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.trocadorProvidersPage:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<TrocadorProvidersPage>());
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<TrocadorProvidersPage>());
 
     case Routes.domainLookupsPage:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<DomainLookupsPage>());
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<DomainLookupsPage>());
 
     case Routes.displaySettingsPage:
       return handleRouteWithPlatformAwareness(
@@ -574,17 +619,20 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final args = settings.arguments as Map<String, dynamic>?;
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NodeCreateOrEditPage>(
-              param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
+              param1: args?['editingNode'] as Node?,
+              param2: args?['isSelected'] as bool?));
 
     case Routes.login:
       return CupertinoPageRoute<void>(
           builder: (context) => WillPopScope(
               child: SettingsStoreBase.walletPasswordDirectInput
-                  ? getIt.get<WalletUnlockPage>(instanceName: 'wallet_password_login')
+                  ? getIt.get<WalletUnlockPage>(
+                      instanceName: 'wallet_password_login')
                   : getIt.get<AuthPage>(instanceName: 'login'),
               onWillPop: () async =>
                   // FIX-ME: Additional check does it works correctly
-                  (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ??
+                  (await SystemChannels.platform
+                          .invokeMethod<bool>('SystemNavigator.pop') ??
                       false)),
           fullscreenDialog: true);
 
@@ -592,7 +640,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final args = settings.arguments as Map<String, dynamic>?;
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<PowNodeCreateOrEditPage>(
-              param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
+              param1: args?['editingNode'] as Node?,
+              param2: args?['isSelected'] as bool?));
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
@@ -601,8 +650,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.nanoAccountCreation:
       return CupertinoPageRoute<String>(
-          builder: (_) =>
-              getIt.get<NanoAccountEditOrCreatePage>(param1: settings.arguments as NanoAccount?));
+          builder: (_) => getIt.get<NanoAccountEditOrCreatePage>(
+              param1: settings.arguments as NanoAccount?));
 
     case Routes.addressBook:
       return handleRouteWithPlatformAwareness(
@@ -615,11 +664,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<ContactListPage>(param1: selectedCurrency));
 
     case Routes.pickerWalletAddress:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<AddressListPage>());
 
     case Routes.addressBookAddContact:
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<ContactPage>(param1: settings.arguments as ContactRecord?),
+        (context) => getIt.get<ContactPage>(
+            param1: settings.arguments as ContactRecord?),
       );
 
     case Routes.showKeys:
@@ -628,19 +679,23 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.exchangeTrade:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTradePage>());
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<ExchangeTradePage>());
 
     case Routes.exchangeConfirm:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<ExchangeConfirmPage>());
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<ExchangeConfirmPage>());
 
     case Routes.tradeDetails:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => getIt.get<TradeDetailsPage>(param1: settings.arguments as Trade));
+          builder: (_) =>
+              getIt.get<TradeDetailsPage>(param1: settings.arguments as Trade));
 
     case Routes.orderDetails:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
+          builder: (_) =>
+              getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
     case Routes.buySellPage:
       final args = settings.arguments as bool;
@@ -650,7 +705,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.buyOptionsPage:
       final args = settings.arguments as List;
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuyOptionsPage>(param1: args));
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<BuyOptionsPage>(param1: args));
 
     case Routes.paymentMethodOptionsPage:
       final args = settings.arguments as List;
@@ -661,15 +717,18 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final args = settings.arguments as List;
 
       return MaterialPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<BuyWebViewPage>(param1: args));
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<BuyWebViewPage>(param1: args));
 
     case Routes.exchange:
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<ExchangePage>(param1: settings.arguments as PaymentRequest?),
+        (context) => getIt.get<ExchangePage>(
+            param1: settings.arguments as PaymentRequest?),
       );
 
     case Routes.exchangeTemplate:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTemplatePage>());
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<ExchangeTemplatePage>());
 
     case Routes.rescan:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<RescanPage>());
@@ -681,11 +740,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<PreSeedPage>());
 
     case Routes.walletGroupExistingSeedDescriptionPage:
-      return MaterialPageRoute<void>(builder: (_) => WalletGroupExistingSeedDescriptionPage());
+      return MaterialPageRoute<void>(
+          builder: (_) => WalletGroupExistingSeedDescriptionPage());
 
     case Routes.transactionSuccessPage:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<TransactionSuccessPage>(param1: settings.arguments as String));
+          builder: (_) => getIt.get<TransactionSuccessPage>(
+              param1: settings.arguments as String));
 
     case Routes.backup:
       return handleRouteWithPlatformAwareness(
@@ -693,11 +754,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.editBackupPassword:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<EditBackupPasswordPage>());
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<EditBackupPasswordPage>());
 
     case Routes.restoreFromBackup:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<RestoreFromBackupPage>());
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<RestoreFromBackupPage>());
 
     case Routes.support:
       return handleRouteWithPlatformAwareness(
@@ -705,7 +768,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.supportLiveChat:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<SupportChatPage>());
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SupportChatPage>());
 
     case Routes.supportOtherLinks:
       return handleRouteWithPlatformAwareness(
@@ -715,7 +779,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.unspentCoinsList:
       final coinTypeToSpendFrom = settings.arguments as UnspentCoinType?;
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<UnspentCoinsListPage>(param1: coinTypeToSpendFrom),
+        (context) =>
+            getIt.get<UnspentCoinsListPage>(param1: coinTypeToSpendFrom),
       );
 
     case Routes.unspentCoinsDetails:
@@ -752,7 +817,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (context) => getIt.get<CakePayVerifyOtpPage>(param1: args),
       );
 
-
     case Routes.cakePayAccountPage:
       return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayAccountPage>(),
@@ -782,41 +846,47 @@ Route<dynamic> createRoute(RouteSettings settings) {
           toggleUseTestnet: toggleTestnet,
           advancedPrivacySettingsViewModel:
               getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-          nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
+          nodeViewModel:
+              getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
           seedSettingsViewModel: getIt.get<SeedSettingsViewModel>(),
         ),
       );
 
     case Routes.anonPayInvoicePage:
       final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
 
     case Routes.anonPayReceivePage:
       final anonReceivePageArgs = settings.arguments as AnonPayReceivePageArgs;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<AnonPayReceivePage>(param1: anonReceivePageArgs));
+          builder: (_) =>
+              getIt.get<AnonPayReceivePage>(param1: anonReceivePageArgs));
 
     case Routes.anonPayDetailsPage:
       final anonInvoiceViewData = settings.arguments as AnonpayInvoiceInfo;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<AnonpayDetailsPage>(param1: anonInvoiceViewData));
+          builder: (_) =>
+              getIt.get<AnonpayDetailsPage>(param1: anonInvoiceViewData));
 
     case Routes.payjoinDetails:
       final arguments = settings.arguments as List;
       final sessionId = arguments.first as String;
       final transactionInfo = arguments[1] as TransactionInfo?;
       return CupertinoPageRoute<void>(
-          builder: (_) =>
-              getIt.get<PayjoinDetailsPage>(param1: sessionId, param2: transactionInfo));
+          builder: (_) => getIt.get<PayjoinDetailsPage>(
+              param1: sessionId, param2: transactionInfo));
 
     case Routes.desktop_actions:
       return PageRouteBuilder(
         opaque: false,
-        pageBuilder: (_, __, ___) => DesktopDashboardActions(getIt<DashboardViewModel>()),
+        pageBuilder: (_, __, ___) =>
+            DesktopDashboardActions(getIt<DashboardViewModel>()),
       );
 
     case Routes.desktop_settings_page:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<DesktopSettingsPage>());
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<DesktopSettingsPage>());
 
     case Routes.empty_no_route:
       return MaterialPageRoute<void>(builder: (_) => SizedBox.shrink());
@@ -831,17 +901,21 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAPage>());
 
     case Routes.setup_2faQRPage:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAQRPage>());
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<Setup2FAQRPage>());
 
     case Routes.modify2FAPage:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<Modify2FAPage>());
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<Modify2FAPage>());
 
     case Routes.setup2faInfoPage:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAInfoPage>());
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<Setup2FAInfoPage>());
 
     case Routes.urqrAnimatedPage:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<AnimatedURPage>(param1: settings.arguments));
+          builder: (_) =>
+              getIt.get<AnimatedURPage>(param1: settings.arguments));
 
     case Routes.homeSettings:
       return CupertinoPageRoute<void>(
@@ -863,10 +937,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.manageNodes:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: false));
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<ManageNodesPage>(param1: false));
 
     case Routes.managePowNodes:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<ManageNodesPage>(param1: true));
 
     case Routes.walletConnectConnectionsListing:
       return MaterialPageRoute<void>(
@@ -902,7 +978,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
       return MaterialPageRoute<void>(
           builder: (_) => ConnectDevicePage(
-              params, getIt.get<HardwareWalletViewModel>(param1: params.hardwareWalletType)));
+              params,
+              getIt.get<HardwareWalletViewModel>(
+                  param1: params.hardwareWalletType)));
 
     case Routes.walletGroupDescription:
       final walletType = settings.arguments as WalletType;
@@ -942,12 +1020,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevBackgroundSyncLogsPage>(),
       );
-    
+
     case Routes.devSocketHealthLogs:
       return CupertinoPageRoute<void>(
         builder: (_) => getIt.get<DevSocketHealthLogsPage>(),
       );
-    
+
     case Routes.devQRTools:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevQRToolsPage>(),
@@ -957,12 +1035,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevNetworkRequests>(),
       );
-    
+
     case Routes.devExchangeProviderLogs:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevExchangeProviderLogsPage>(),
       );
-    
+
     case Routes.devMoneroCallProfiler:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevMoneroCallProfilerPage>(),
@@ -977,7 +1055,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevSecurePreferencesPage>(),
       );
-    
+
     case Routes.startTor:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<StartTorPage>(),
@@ -991,6 +1069,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(
-              body: Center(child: Text(S.current.router_no_route(settings.name ?? 'No route')))));
+              body: Center(
+                  child: Text(S.current
+                      .router_no_route(settings.name ?? 'No route')))));
   }
 }

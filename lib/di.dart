@@ -11,6 +11,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
@@ -748,6 +749,10 @@ Future<void> setup({
         addressListViewModel: getIt.get<WalletAddressListViewModel>(),
       ));
 
+  getIt.registerFactory<NewDashboard>(() => NewDashboard(
+    dashboardViewModel: getIt.get<DashboardViewModel>(),
+  ));
+
   getIt.registerFactory<DesktopSidebarWrapper>(() {
     final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
     return DesktopSidebarWrapper(
@@ -1015,7 +1020,7 @@ Future<void> setup({
   getIt.registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => WalletKeysPage(getIt.get<WalletKeysViewModel>()));
-  
+
   getIt.registerFactory(() => AnimatedURModel(getIt.get<AppStore>()));
 
   getIt.registerFactoryParam<AnimatedURPage, Map<String, String>, void>((Map<String, String> urQr, _) =>
@@ -1581,24 +1586,24 @@ Future<void> setup({
   getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
 
   getIt.registerFactory(() => DevSecurePreferencesPage(getIt.get<DevSecurePreferences>()));
-  
+
   getIt.registerFactory(() => BackgroundSyncLogsViewModel());
-  
+
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
-  
+
   getIt.registerFactory(() => SocketHealthLogsViewModel());
 
   getIt.registerFactory(() => DevSocketHealthLogsPage(getIt.get<SocketHealthLogsViewModel>()));
-  
+
   getIt.registerFactory(() => DevNetworkRequests());
-  
+
   getIt.registerFactory(() => DevQRToolsPage());
 
   getIt.registerFactory(() => ExchangeProviderLogsViewModel());
   getIt.registerFactory(() => DevExchangeProviderLogsPage(getIt.get<ExchangeProviderLogsViewModel>()));
 
   getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
-  
+
   getIt.registerFactory(() => DEuroViewModel(
     getIt<AppStore>(),
     getIt<BalanceViewModel>(),
