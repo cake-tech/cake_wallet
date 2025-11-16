@@ -13,13 +13,16 @@ class CoinActionButton extends StatelessWidget {
   final String label;
   final VoidCallback action;
 
+  static const sizeFactor = 0.18;
+
   @override
   Widget build(BuildContext context) {
+    final double size = MediaQuery.of(context).size.width*sizeFactor;
     return Column(
       children: [
         Container(
-          width: 80,
-          height: 80,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(

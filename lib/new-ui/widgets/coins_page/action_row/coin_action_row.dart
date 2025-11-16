@@ -16,7 +16,7 @@ class CoinActionRow extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 24.0,
+        spacing: MediaQuery.of(context).size.width*0.05,
         children: [
           CoinActionButton(
             icon: SvgPicture.asset("assets/new-ui/send.svg"),

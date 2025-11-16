@@ -21,8 +21,8 @@ class TopBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if(dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance ||
-          dashboardViewModel.balanceViewModel.hasSecondAvailableBalance)
+          (dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance ||
+          dashboardViewModel.balanceViewModel.hasSecondAvailableBalance) ?
           SizedBox(
             child: AnimatedSwitcher(
               duration: Duration(milliseconds: 200),
@@ -69,7 +69,7 @@ class TopBar extends StatelessWidget {
                 ),
               ),
             ),
-          ),
+          ) : Container(),
           ModernButton.svg(size: 44, onPressed: (){}, svgPath: "assets/new-ui/top-settings.svg",),
         ],
       ),
