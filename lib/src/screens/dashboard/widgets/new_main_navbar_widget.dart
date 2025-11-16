@@ -50,7 +50,6 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   );
 
   int selectedIndex = 0;
-  bool _fadeSelected = false;
   bool _firstFrame = true;
 
   @override
@@ -69,15 +68,6 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
 
     setState(() {
       selectedIndex = index;
-      _fadeSelected = true;
-    });
-
-    // delay fade (tweak duration)
-    Future.delayed(const Duration(milliseconds: 00), () {
-      if (!mounted) return;
-      if (index == selectedIndex) {
-        setState(() => _fadeSelected = true);
-      }
     });
 
     NewMainActions.all[index].onTap.call();
@@ -196,7 +186,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                   child: AnimatedOpacity(
                                     duration: inactiveIconFadeDuration,
                                     curve: Curves.easeOutCubic,
-                                    opacity: (i == selectedIndex && _fadeSelected)
+                                    opacity: (i == selectedIndex)
                                         ? 0.0
                                         : 1.0,
                                     child: AnimatedScale(
