@@ -23,7 +23,7 @@ class HeaderRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Text(
-            S.of(context).transactions,
+            S.of(context).history,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w500,
                 color: Theme.of(context).colorScheme.onSurface),
