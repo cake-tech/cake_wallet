@@ -34,6 +34,7 @@ class LightningWallet {
     final config = defaultConfig(network: Network.mainnet).copyWith(
       lnurlDomain: lnurlDomain,
       apiKey: apiKey,
+      privateEnabledDefault: true,
     );
 
     final connectRequest = ConnectRequest(
@@ -221,6 +222,7 @@ extension _ConfigCopyWith on Config {
     Fee? maxDepositClaimFee,
     bool? preferSparkOverLightning,
     bool? useDefaultExternalInputParsers,
+    bool? privateEnabledDefault,
   }) =>
       Config(
         lnurlDomain: lnurlDomain ?? this.lnurlDomain,
@@ -231,5 +233,6 @@ extension _ConfigCopyWith on Config {
         preferSparkOverLightning: preferSparkOverLightning ?? this.preferSparkOverLightning,
         useDefaultExternalInputParsers:
             useDefaultExternalInputParsers ?? this.useDefaultExternalInputParsers,
+        privateEnabledDefault: privateEnabledDefault ?? this.privateEnabledDefault,
       );
 }
