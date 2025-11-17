@@ -25,6 +25,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
     this.evmSignatureName,
     this.contractAddress,
     required WalletType walletType,
+    required this.chainId,
   })  : amount = ethAmount.toInt(),
         fee = ethFee.toInt(),
         _walletType = walletType;
@@ -47,6 +48,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
   final String? evmSignatureName;
   final String? contractAddress;
   final WalletType _walletType;
+  final int chainId;
 
   /// Get fee currency symbol based on wallet type
   String get feeCurrency => EVMChainUtils.getFeeCurrency(_walletType);
@@ -90,6 +92,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
       evmSignatureName: data['evmSignatureName'] as String?,
       contractAddress: data['contractAddress'] as String?,
       walletType: walletType,
+      chainId: data['chainId'] as int? ?? 1,
     );
   }
 
@@ -108,5 +111,6 @@ class EVMChainTransactionInfo extends TransactionInfo {
         'from': from,
         'evmSignatureName': evmSignatureName,
         'contractAddress': contractAddress,
+        'chainId': chainId,
       };
 }

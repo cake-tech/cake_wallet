@@ -19,6 +19,7 @@ abstract class EVMChainTransactionHistoryBase extends TransactionHistoryBase<EVM
     required this.walletInfo,
     required String password,
     required this.encryptionFileUtils,
+    required this.getCurrentChainId,
   }) : _password = password {
     transactions = ObservableMap<String, EVMChainTransactionInfo>();
   }
@@ -27,10 +28,13 @@ abstract class EVMChainTransactionHistoryBase extends TransactionHistoryBase<EVM
 
   final WalletInfo walletInfo;
   final EncryptionFileUtils encryptionFileUtils;
+  
+  /// Function to get the current chain ID (allows transaction history to use correct file)
+  final int Function() getCurrentChainId;
 
-  /// Get transaction history file name based on wallet type
+  /// Get transaction history file name based on current chain ID
   String getTransactionHistoryFileName() {
-    return EVMChainUtils.getTransactionHistoryFileName(walletInfo.type);
+    return EVMChainUtils.getTransactionHistoryFileNameByChainId(getCurrentChainId());
   }
 
   EVMChainTransactionInfo getTransactionInfo(Map<String, dynamic> val) {

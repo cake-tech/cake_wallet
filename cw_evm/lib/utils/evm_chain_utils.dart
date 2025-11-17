@@ -1,5 +1,6 @@
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:web3dart/web3dart.dart' show EtherAmount, EtherUnit;
 
@@ -39,15 +40,27 @@ class EVMChainUtils {
     };
   }
 
-  /// Get transaction history file name for a wallet type
-  static String getTransactionHistoryFileName(WalletType walletType) {
-    return switch (walletType) {
-      WalletType.ethereum => 'transactions.json',
-      WalletType.polygon => 'polygon_transactions.json',
-      WalletType.base => 'base_transactions.json',
-      WalletType.arbitrum => 'arbitrum_transactions.json',
-      _ => 'transactions.json',
+  /// Get transaction history file name for a chain ID
+  static String getTransactionHistoryFileNameByChainId(int chainId) {
+    return switch (chainId) {
+      1 => 'transactions.json', // Ethereum
+      137 => 'polygon_transactions.json', // Polygon
+      8453 => 'base_transactions.json', // Base
+      42161 => 'arbitrum_transactions.json', // Arbitrum
+      _ => 'transactions_$chainId.json', // Generic format for other chains
     };
+  }
+
+  /// Get transaction history file name for a wallet type (convenience wrapper)
+  /// Looks up the default chainId for the wallet type and returns the file name
+  static String getTransactionHistoryFileName(WalletType walletType) {
+    final registry = EvmChainRegistry();
+    final chainId = registry.getChainIdByWalletType(walletType);
+    if (chainId != null) {
+      return getTransactionHistoryFileNameByChainId(chainId);
+    }
+    // Fallback to Ethereum if wallet type not found
+    return 'transactions.json';
   }
 
   /// Get scan provider preference key for a wallet type

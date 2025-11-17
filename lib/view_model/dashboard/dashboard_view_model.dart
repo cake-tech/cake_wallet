@@ -577,9 +577,17 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @action
-  void selectChain(int chainId) {
+  Future<void> selectChain(int chainId) async {
     if (!isEVMWallet) return;
-    evm!.selectChain(wallet, chainId);
+    
+    // Get wallet type for the selected chain to retrieve the correct node
+    final walletType = evm!.getWalletTypeByChainId(chainId);
+    if (walletType == null) {
+      throw Exception('Wallet type not found for chainId: $chainId');
+    }
+    
+    final node = appStore.settingsStore.getCurrentNode(walletType);
+    await evm!.selectChain(wallet, chainId, node: node);
   }
 
   final KeyService keyService;

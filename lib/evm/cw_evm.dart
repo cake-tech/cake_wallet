@@ -433,6 +433,11 @@ class CWEVM extends EVM {
   }
 
   @override
+  WalletType? getWalletTypeByChainId(int chainId) {
+    return _registry.getWalletTypeByChainId(chainId);
+  }
+
+  @override
   List<ChainInfo> getAllChains() {
     final allChains = _registry.getAllChains();
     return allChains.map((config) => ChainInfo(
@@ -457,9 +462,9 @@ class CWEVM extends EVM {
   }
 
   @override
-  void selectChain(WalletBase wallet, int chainId) {
+  Future<void> selectChain(WalletBase wallet, int chainId, {required Node node}) async {
     if (wallet is EVMChainWallet) {
-      wallet.selectChain(chainId);
+      await wallet.selectChain(chainId, node: node);
     }
   }
 }

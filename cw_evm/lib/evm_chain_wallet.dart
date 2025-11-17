@@ -173,13 +173,14 @@ abstract class EVMChainWalletBase
   /// Select a different EVM chain for this wallet
   ///
   /// This allows switching between EVM chains (Ethereum, Polygon, Base, Arbitrum, etc.)
-  /// without creating a new wallet. The selected chain ID is stored and the client is
-  /// immediately updated to match the new chain.
+  /// without creating a new wallet. The selected chain ID is stored, the client is
+  /// immediately updated, and the wallet automatically connects to the node, updates
+  /// balance, and refreshes transactions for the selected chain.
   ///
-  /// Note: The new client is not automatically connected. To connect to a node for the
-  /// new chain, call connectToNode() after selecting.
+  /// Transactions are stored in separate files per chain (based on chainId), so switching
+  /// chains automatically loads transactions from the correct file.
   @action
-  void selectChain(int chainId) {
+  Future<void> selectChain(int chainId, {required Node node}) async {
     final registry = EvmChainRegistry();
     final config = registry.getChainConfig(chainId);
 
@@ -193,6 +194,14 @@ abstract class EVMChainWalletBase
     // Update selected chain and create new client
     selectedChainId = chainId;
     _client = EVMChainClientFactory.createClient(selectedChainId);
+
+    // Automatically connect to node for the selected chain
+    await connectToNode(node: node);
+
+    // Reload transaction history from the new chain's file
+    await transactionHistory.init();
+
+    await startSync();
   }
 
   //! Implemented methods - unified for all chains
@@ -291,6 +300,7 @@ abstract class EVMChainWalletBase
       evmSignatureName: transactionModel.evmSignatureName,
       contractAddress: transactionModel.contractAddress,
       walletType: walletInfo.type,
+      chainId: selectedChainId,
     );
   }
 
@@ -316,6 +326,7 @@ abstract class EVMChainWalletBase
       walletInfo: walletInfo,
       password: password,
       encryptionFileUtils: encryptionFileUtils,
+      getCurrentChainId: () => selectedChainId,
     );
   }
 
@@ -600,12 +611,14 @@ abstract class EVMChainWalletBase
         syncStatus = FailedSyncStatus();
         return;
       }
-
       await _updateBalance();
-      await _updateTransactions();
-      await _getEstimatedFees(
-        hasPriorityFee ? EVMChainTransactionPriority.medium : null,
-      ); // We're using medium priority for default estimation
+      
+      await Future.wait([
+        _updateTransactions(),
+        _getEstimatedFees(
+          hasPriorityFee ? EVMChainTransactionPriority.medium : null,
+        ), // We're using medium priority for default estimation
+      ]);
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {

@@ -1267,6 +1267,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/node.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
@@ -1429,6 +1430,7 @@ abstract class EVM {
   String getCaip2ByChainId(int chainId);
   int? getChainIdByTag(String tag);
   int? getChainIdByTitle(String title);
+  WalletType? getWalletTypeByChainId(int chainId);
   
   // Chain selection methods
   List<ChainInfo> getAllChains();

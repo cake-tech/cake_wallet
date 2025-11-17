@@ -61,6 +61,38 @@ class EVMChainWalletService extends WalletService<
     );
   }
 
+  /// Override saveBackup to look up walletType from wallet name
+  @override
+  Future<void> saveBackup(String name) async {
+    final walletInfo = await _findWalletByName(name);
+    if (walletInfo == null) {
+      throw Exception('Wallet not found: $name');
+    }
+
+    final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: walletInfo.type);
+    final walletDirPath = await pathForWalletDir(name: name, type: walletInfo.type);
+
+    if (File(walletDirPath).existsSync()) {
+      await File(walletDirPath).copy(backupWalletDirPath);
+    }
+  }
+
+  /// Override restoreWalletFilesFromBackup to look up walletType from wallet name
+  @override
+  Future<void> restoreWalletFilesFromBackup(String name) async {
+    final walletInfo = await _findWalletByName(name);
+    if (walletInfo == null) {
+      throw Exception('Wallet not found: $name');
+    }
+
+    final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: walletInfo.type);
+    final walletDirPath = await pathForWalletDir(name: name, type: walletInfo.type);
+
+    if (File(backupWalletDirPath).existsSync()) {
+      await File(backupWalletDirPath).copy(walletDirPath);
+    }
+  }
+
   @override
   Future<EVMChainWallet> create(
     EVMChainNewWalletCredentials credentials, {
@@ -118,7 +150,7 @@ class EVMChainWalletService extends WalletService<
       await wallet.init();
       wallet.addInitialTokens();
       await wallet.save();
-      saveBackup(name);
+      await saveBackup(name);
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
