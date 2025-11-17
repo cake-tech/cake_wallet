@@ -13,7 +13,7 @@ part 'evm_chain_transaction_history.g.dart';
 
 class EVMChainTransactionHistory = EVMChainTransactionHistoryBase with _$EVMChainTransactionHistory;
 
-class EVMChainTransactionHistoryBase extends TransactionHistoryBase<EVMChainTransactionInfo>
+abstract class EVMChainTransactionHistoryBase extends TransactionHistoryBase<EVMChainTransactionInfo>
     with Store {
   EVMChainTransactionHistoryBase({
     required this.walletInfo,

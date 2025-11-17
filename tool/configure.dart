@@ -1276,6 +1276,7 @@ import 'package:web3dart/web3dart.dart';
   const evmCWHeaders = """
 import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -1290,8 +1291,7 @@ import 'package:cw_evm/evm_chain_wallet_service.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
 import 'package:cw_evm/evm_chain_default_tokens.dart';
-import 'package:cw_ethereum/deuro/deuro_savings.dart';
-import 'package:cw_ethereum/ethereum_wallet.dart';
+import 'package:cw_evm/deuro/deuro_savings.dart';
 import 'package:eth_sig_util/util/utils.dart';
 
 """;

@@ -68,7 +68,7 @@ const Map<String, String> methodSignatureToType = {
 
 class EVMChainWallet = EVMChainWalletBase with _$EVMChainWallet;
 
-class EVMChainWalletBase
+abstract class EVMChainWalletBase
     extends WalletBase<EVMChainERC20Balance, EVMChainTransactionHistory, EVMChainTransactionInfo>
     with Store, WalletKeysFile {
   EVMChainWalletBase({
