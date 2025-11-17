@@ -42,7 +42,7 @@ class EvmSwitcherDataItem {
 class EvmSwitcher extends StatefulWidget {
   const EvmSwitcher({super.key});
 
-  static const editModeAnimDuration = Duration(milliseconds: 150);
+  static const editModeAnimDuration = Duration(milliseconds: 200);
 
   @override
   State<EvmSwitcher> createState() => _EvmSwitcherState();
@@ -67,6 +67,7 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
 
   @override
   Widget build(BuildContext context) {
+    final double popupWidth = MediaQuery.of(context).size.width*0.9;
     return Center(
       child: Column(
         spacing: 25.0,
@@ -85,7 +86,7 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
               ),
               child: AnimatedContainer(
                   duration: EvmSwitcher.editModeAnimDuration,
-                  width: 400,
+                  width: popupWidth,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -93,7 +94,7 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
                         curve: Curves.easeOutCubic,
                         duration: EvmSwitcher.editModeAnimDuration,
                         child: Container(
-                          width: _editMode ? 0 : 400,
+                          width: _editMode ? 0 : popupWidth,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -159,7 +160,7 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
                         curve: Curves.easeOutCubic,
                         duration: EvmSwitcher.editModeAnimDuration,
                         child: Container(
-                          width: _editMode ? 400 : 0,
+                          width: _editMode ? popupWidth : 0,
                           height: _editMode ? null : 0,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
