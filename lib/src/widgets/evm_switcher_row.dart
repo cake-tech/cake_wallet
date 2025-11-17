@@ -11,7 +11,6 @@ class EvmSwitcherRow extends StatelessWidget {
     required this.data,
     required this.onTap,
     required this.animDuration,
-    required this.onEditSwitchTapped,
     required this.editSwitchValue,
   });
 
@@ -20,7 +19,6 @@ class EvmSwitcherRow extends StatelessWidget {
   final EvmSwitcherDataItem data;
   final VoidCallback onTap;
   final Duration animDuration;
-  final VoidCallback onEditSwitchTapped;
   final bool editSwitchValue;
 
   @override
@@ -57,20 +55,14 @@ class EvmSwitcherRow extends StatelessWidget {
                   Text(data.name,
                       style: TextStyle(
                           color: resolvedForegroundColor, fontSize: 14)),
-                  if (selected)
-                    AnimatedOpacity(
-                        opacity: editMode ? 0 : 1,
-                        duration: animDuration,
-                        child: SvgPicture.asset(
-                            "assets/images/evm_switcher_checkmark.svg",
-                            width: 18,
-                            height: 18)),
+                  if (selected && !editMode)
+                    SvgPicture.asset(
+                        "assets/images/evm_switcher_checkmark.svg",
+                        width: 18,
+                        height: 18),
                 ],
               ),
-              AnimatedOpacity(
-                  opacity: editMode ? 1 : 0,
-                  duration: animDuration,
-                  child: StandardSwitch(value: editSwitchValue, onTapped: onEditSwitchTapped))
+              if(editMode) StandardSwitch(value: editSwitchValue, onTapped: onTap)
             ],
           ),
         ),

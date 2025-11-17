@@ -51,6 +51,16 @@ class EvmSwitcher extends StatefulWidget {
 class _EvmSwitcherState extends State<EvmSwitcher> {
   bool _editMode = false;
   int _selectedIndex = 0;
+  var optionsEnabled = List.filled(EvmSwitcherDataItem.items.length, true);
+
+  bool shouldBuildSeparator(int index) {
+    final nextEnabled = optionsEnabled.indexWhere(
+          (e) => e,
+      index + 1,
+    );
+
+    return index != _selectedIndex && optionsEnabled[index] && nextEnabled != _selectedIndex && nextEnabled != -1;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,79 +73,133 @@ mainAxisAlignment: MainAxisAlignment.center,
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Theme.of(context).colorScheme.surfaceContainer,
-                ),
-                width: 400,
-                // height: 300,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    EvmSwitcherAdditionalOption(
-                        title: "Back",
-                        svgPath: "assets/images/evm_switcher_arrow_left.svg",
-                        animDuration: EvmSwitcher.editModeAnimDuration,
-                        topSeparator: false,
-                        bottomSeparator: true,
-                        visible: _editMode,
-                        onTap: () {
-                          setState(() {
-                            _editMode = false;
-                          });
-                        },iconOnRight: false),
-                    ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return EvmSwitcherRow(
-                            key: ValueKey(EvmSwitcherDataItem.items[index].name),
-                            data: EvmSwitcherDataItem.items[index],
-                            editMode: _editMode,
-                            selected: index == _selectedIndex,
-                            onTap: () {
-                              setState(() {
-                                _selectedIndex = index;
-                              });
-                            },
-                            onEditSwitchTapped: (){},
-                            editSwitchValue: true,
-                            animDuration: EvmSwitcher.editModeAnimDuration,
-                          );
-                        },
-                        separatorBuilder: (context, index) {
-                          if (!(index == _selectedIndex ||
-                                  index == _selectedIndex - 1) ||
-                              _editMode)
-                            return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 18),
-                                child: Container(
-                                  height: 1,
-                                  width: double.infinity,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHigh,
-                                ));
-                          else
-                            return Container(height: 1);
-                        },
-                        itemCount: EvmSwitcherDataItem.items.length),
-                    EvmSwitcherAdditionalOption(
-                        title: "Customize options",
-                        svgPath: "assets/images/evm_switcher_arrow_right.svg",
-                        animDuration: EvmSwitcher.editModeAnimDuration,
-                        topSeparator: true,
-                        bottomSeparator: false,
-                        visible: !_editMode,
-                        onTap: () {
-                          setState(() {
-                            _editMode = true;
-                          });
-                        },
-                        iconOnRight: true
-                        )
-                  ],
-                )),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Theme.of(context).colorScheme.surfaceContainer,
+              ),
+              child: AnimatedContainer(
+                duration: EvmSwitcher.editModeAnimDuration,
+                  width: 400,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AnimatedSize(curve: Curves.easeOutCubic,
+                        duration: EvmSwitcher.editModeAnimDuration,
+                        child: Container(
+                          width:_editMode ? 0 : 400,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    if(optionsEnabled[index])
+                                    return EvmSwitcherRow(
+                                      key: ValueKey(EvmSwitcherDataItem.items[index].name),
+                                      data: EvmSwitcherDataItem.items[index],
+                                      editMode: false,
+                                      selected: index == _selectedIndex,
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedIndex = index;
+                                        });
+                                      },
+                                      editSwitchValue: true,
+                                      animDuration: EvmSwitcher.editModeAnimDuration,
+                                    ); else return Container();
+                                  },
+                                  separatorBuilder: (context, index) {
+                                    if (shouldBuildSeparator(index))
+                                      return Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                                          child: Container(
+                                            height: 1,
+                                            width: double.infinity,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerHigh,
+                                          ));
+                                    else
+                                      return Container(height: 1);
+                                  },
+                                  itemCount: EvmSwitcherDataItem.items.length),
+                              EvmSwitcherAdditionalOption(
+                                  title: "Customize options",
+                                  svgPath: "assets/images/evm_switcher_arrow_right.svg",
+                                  animDuration: EvmSwitcher.editModeAnimDuration,
+                                  topSeparator: true,
+                                  bottomSeparator: false,
+                                  visible: true,
+                                  onTap: () {
+                                    setState(() {
+                                      _editMode = true;
+                                    });
+                                  },
+                                  iconOnRight: true
+                                  )
+                            ],
+                          ),
+                        ),
+                      ),
+                      AnimatedSize(
+                        curve: Curves.easeOutCubic,
+                        duration: EvmSwitcher.editModeAnimDuration,
+                        child: Container(
+                          width:_editMode ? 400 : 0,
+                          height: _editMode ? null : 0,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              EvmSwitcherAdditionalOption(
+                                  title: "Back",
+                                  svgPath: "assets/images/evm_switcher_arrow_left.svg",
+                                  animDuration: EvmSwitcher.editModeAnimDuration,
+                                  topSeparator: false,
+                                  bottomSeparator: true,
+                                  visible: true,
+                                  onTap: () {
+                                    setState(() {
+                                      _editMode = false;
+                                    });
+                                  },iconOnRight: false),
+                              ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    return EvmSwitcherRow(
+                                      key: ValueKey(EvmSwitcherDataItem.items[index].name),
+                                      data: EvmSwitcherDataItem.items[index],
+                                      editMode: _editMode,
+                                      selected: index == _selectedIndex,
+                                      onTap: () {
+                                        setState(() {
+                                          optionsEnabled[index] = !optionsEnabled[index];
+                                        });
+                                      },
+                                      editSwitchValue: optionsEnabled[index],
+                                      animDuration: EvmSwitcher.editModeAnimDuration,
+                                    );
+                                  },
+                                  separatorBuilder: (context, index) {
+                                      return Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                                          child: Container(
+                                            height: 1,
+                                            width: double.infinity,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerHigh,
+                                          ));
+                                  },
+                                  itemCount: EvmSwitcherDataItem.items.length),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
+            ),
           ),
         ],
       ),
@@ -165,50 +229,46 @@ class EvmSwitcherAdditionalOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSize(
-      curve: Curves.easeOutCubic,
-      duration: animDuration,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.translucent,
       child: Container(
-        height: visible ? null : 0,
-        child: GestureDetector(
-          onTap: onTap,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              if (topSeparator)
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: Container(
-                      height: 1,
-                      width: double.infinity,
-                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                    )),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            if (topSeparator)
               Padding(
-                padding: const EdgeInsets.all(18),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  spacing: 8.0,
-                  children: [
-                    if(!iconOnRight) SvgPicture.asset(svgPath, width: 16, height: 16),
-                    Text(
-                      title,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary),
-                    ),
-                    if(iconOnRight) SvgPicture.asset(svgPath, width: 16, height: 16),
-                  ],
-                ),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Container(
+                    height: 1,
+                    width: double.infinity,
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  )),
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                spacing: 8.0,
+                children: [
+                  if(!iconOnRight) SvgPicture.asset(svgPath, width: 16, height: 16),
+                  Text(
+                    title,
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                  if(iconOnRight) SvgPicture.asset(svgPath, width: 16, height: 16),
+                ],
               ),
-              if (bottomSeparator)
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: Container(
-                      height: 1,
-                      width: double.infinity,
-                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                    )),
-            ],
-          ),
+            ),
+            if (bottomSeparator)
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Container(
+                    height: 1,
+                    width: double.infinity,
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  )),
+          ],
         ),
       ),
     );
