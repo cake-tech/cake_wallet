@@ -37,12 +37,12 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
 
   static const barHorizontalPadding = 12.0;
 
-  static const barResizeDuration = Duration(milliseconds: 100);
-  static const inactiveIconMoveDuration = Duration(milliseconds: 150);
-  static const inactiveIconFadeDuration = Duration(milliseconds: 100);
-  static const inactiveIconAppearDuration = Duration(milliseconds: 250);
-  static const pillMoveDuration = Duration(milliseconds: 150);
-  static const pillResizeDuration = Duration(milliseconds: 100);
+  static const barResizeDuration = Duration(milliseconds: 300);
+  static const inactiveIconMoveDuration = Duration(milliseconds: 300);
+  static const inactiveIconFadeDuration = Duration(milliseconds: 300);
+  static const inactiveIconAppearDuration = Duration(milliseconds: 300);
+  static const pillMoveDuration = Duration(milliseconds: 250);
+  static const pillResizeDuration = Duration(milliseconds: 250);
 
   static const pillTextStyle = TextStyle(
     fontSize: 16,
@@ -50,6 +50,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   );
 
   int selectedIndex = 0;
+  bool _fadeSelected = false;
   bool _firstFrame = true;
 
   @override
@@ -183,16 +184,14 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                       i == selectedIndex ? pillWidth : iconWidth,
                                   height: iconHeight,
                                   alignment: Alignment.center,
-                                  child: AnimatedOpacity(
+                                  child: AnimatedAlign(
                                     duration: inactiveIconFadeDuration,
                                     curve: Curves.easeOutCubic,
-                                    opacity: (i == selectedIndex)
-                                        ? 0.0
-                                        : 1.0,
+                                    alignment: Alignment.centerLeft,
                                     child: AnimatedScale(
                                       duration: inactiveIconAppearDuration,
                                       curve: Curves.easeOutCubic,
-                                      scale: (i == selectedIndex) ? 0.95 : 1.0,
+                                      scale: (i == selectedIndex) ? 0.8 : 1.0,
                                       child: SvgPicture.asset(
                                         visibleActions[i].image,
                                         width: iconWidth,
@@ -273,21 +272,14 @@ class AnimatedPill extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SvgPicture.asset(
-                  currentAction.image,
-                  width: pillIconWidth,
-                  height: pillIconHeight,
-                  colorFilter: ColorFilter.mode(
-                    contentColor,
-                    BlendMode.srcIn,
-                  ),
-                ),
                 SizedBox(width: pillIconSpacing),
-                Text(
-                  currentAction.name(context),
-                  style: pillTextStyle.copyWith(color: contentColor),
-                  overflow: TextOverflow.fade,
-                  softWrap: false,
+                Padding(padding: EdgeInsets.only(left: pillIconWidth),
+                  child: Text(
+                    currentAction.name(context),
+                    style: pillTextStyle.copyWith(color: contentColor),
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                  ),
                 ),
               ],
             ),
