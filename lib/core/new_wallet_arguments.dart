@@ -18,12 +18,14 @@ class WalletGroupArguments {
     this.currentType,
     this.mnemonic,
     this.passphrase,
+    this.pendingNode,
   });
 
   final List<WalletType> types;
   final WalletType? currentType;
   final String? mnemonic;
   final String? passphrase;
+  final Map<String, dynamic>? pendingNode;
 }
 
 class WalletGroupParams {

@@ -306,39 +306,69 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
               ),
             ),
             const SizedBox(height: 24),
-            LoadingPrimaryButton(
-              onPressed: () {
-                if (widget.privacySettingsViewModel.addCustomNode) {
-                  if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-                    return;
-                  }
+          LoadingPrimaryButton(
+            onPressed: () {
+              final isGroupFlow = widget.privacySettingsViewModel.type == WalletType.none;
+              Map<String, dynamic>? pendingNode;
 
+              if (widget.privacySettingsViewModel.addCustomNode) {
+                if (_formKey.currentState != null && !_formKey.currentState!.validate()) return;
+
+                if (isGroupFlow) {
+                  pendingNode = {
+                    'address': widget.nodeViewModel.address,
+                    'port': widget.nodeViewModel.port,
+                    'useSSL': widget.nodeViewModel.useSSL,
+                    'path': widget.nodeViewModel.path,
+                    'login': widget.nodeViewModel.login,
+                    'password': widget.nodeViewModel.password,
+                    'trusted': widget.nodeViewModel.trusted,
+                    'socksProxyAddress': widget.nodeViewModel.socksProxyAddress,
+                  };
+                } else {
                   widget.nodeViewModel.save();
                 }
-                if (testnetValue == true &&
-                    widget.privacySettingsViewModel.type == WalletType.bitcoin) {
-                  // TODO: add type (mainnet/testnet) to Node class so when switching wallets the node can be switched to a matching type
-                  // Currently this is so you can create a working testnet wallet but you need to keep switching back the node if you use multiple wallets at once
+              }
+
+              // TODO: add type (mainnet/testnet) to Node class so when switching wallets the node can be switched to a matching type
+              if (testnetValue == true &&
+                  widget.privacySettingsViewModel.type == WalletType.bitcoin) {
+                if (isGroupFlow) {
+                  pendingNode = {
+                    'address': publicBitcoinTestnetElectrumAddress,
+                    'port': publicBitcoinTestnetElectrumPort,
+                    'useSSL': false,
+                    'path': '',
+                    'login': null,
+                    'password': null,
+                    'trusted': false,
+                    'socksProxyAddress': null,
+                  };
+                } else {
                   widget.nodeViewModel.address = publicBitcoinTestnetElectrumAddress;
                   widget.nodeViewModel.port = publicBitcoinTestnetElectrumPort;
-
                   widget.nodeViewModel.save();
                 }
-                if (passphraseController.text.isNotEmpty) {
-                  if (_passphraseFormKey.currentState != null &&
-                      !_passphraseFormKey.currentState!.validate()) {
-                    return;
-                  }
+              }
+
+              if (passphraseController.text.isNotEmpty) {
+                if (_passphraseFormKey.currentState != null &&
+                    !_passphraseFormKey.currentState!.validate()) {
+                  return;
                 }
+              }
+              widget.seedTypeViewModel.setPassphrase(passphraseController.text);
 
-                widget.seedTypeViewModel.setPassphrase(passphraseController.text);
-
+              if (isGroupFlow) {
+                Navigator.pop(context, {'pendingNode': pendingNode});
+              } else {
                 Navigator.pop(context);
-              },
-              text: S.of(context).continue_text,
-              color: Theme.of(context).colorScheme.primary,
-              textColor: Theme.of(context).colorScheme.onPrimary,
-            ),
+              }
+            },
+            text: S.of(context).continue_text,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
+          ),
             SizedBox(height: 16),
           ],
         ),

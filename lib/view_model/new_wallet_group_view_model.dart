@@ -5,6 +5,8 @@ import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/node.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
@@ -24,6 +26,7 @@ abstract class WalletGroupNewVMBase with Store {
     this.walletCreationService, {
     required this.walletNewVMBuilder,
     required this.args,
+    required this.nodeSource,
   })  : state = InitialExecutionState(),
         name = '';
 
@@ -31,6 +34,7 @@ abstract class WalletGroupNewVMBase with Store {
   final WalletCreationService walletCreationService;
   final WalletNewVM Function(NewWalletArguments) walletNewVMBuilder;
   final WalletGroupArguments args;
+  final Box<Node> nodeSource;
 
   static const defaultMoneroOptions = [
     defaultSeedLanguage,
@@ -93,6 +97,7 @@ abstract class WalletGroupNewVMBase with Store {
 
       final types = args.types;
       final currentType = args.currentType;
+      final pendingNode = args.pendingNode;
 
       if (types.isEmpty) throw 'No wallet types provided.';
       if (currentType == null) throw 'Current wallet type is not provided.';
@@ -127,6 +132,9 @@ abstract class WalletGroupNewVMBase with Store {
         options: options,
         makeCurrent: true,
       );
+
+      await _saveNodeForInitialWallet(type: currentType, tmpl: pendingNode);
+
       done = [...done, currentType];
       progress = done.length / types.length;
 
@@ -218,5 +226,24 @@ abstract class WalletGroupNewVMBase with Store {
     final walletNewVM = walletNewVMBuilder(newArgs);
     walletNewVM.name = finalName;
     await walletNewVM.create(options: options, makeCurrent: makeCurrent);
+  }
+
+  Future<void> _saveNodeForInitialWallet({
+    required WalletType type,
+    required Map<String, dynamic>? tmpl,
+  }) async {
+    if (tmpl == null) return;
+
+    final node = Node(
+      uri: '${tmpl['address']}:${tmpl['port']}',
+      login: tmpl['login'] as String?,
+      password: tmpl['password'] as String?,
+      useSSL: tmpl['useSSL'] as bool?,
+      trusted: (tmpl['trusted'] as bool?) ?? false,
+      socksProxyAddress: tmpl['socksProxyAddress'] as String?,
+      path: tmpl['path'] as String? ?? '',
+      type: type,
+    );
+    await nodeSource.add(node);
   }
 }

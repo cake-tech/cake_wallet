@@ -454,7 +454,8 @@ Future<void> setup({
           (args, _) => WalletGroupNewVM(getIt.get<AppStore>(),
           getIt.get<WalletCreationService>(param1: WalletType.none),
           args: args,
-          walletNewVMBuilder: (args) => getIt<WalletNewVM>(param1: args)));
+          walletNewVMBuilder: (args) => getIt<WalletNewVM>(param1: args),
+              nodeSource: _nodeSource));
 
 
   final walletList = await WalletInfo.getAll();
