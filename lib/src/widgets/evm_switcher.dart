@@ -55,11 +55,14 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
 
   bool shouldBuildSeparator(int index) {
     final nextEnabled = optionsEnabled.indexWhere(
-          (e) => e,
+      (e) => e,
       index + 1,
     );
 
-    return index != _selectedIndex && optionsEnabled[index] && nextEnabled != _selectedIndex && nextEnabled != -1;
+    return index != _selectedIndex &&
+        optionsEnabled[index] &&
+        nextEnabled != _selectedIndex &&
+        nextEnabled != -1;
   }
 
   @override
@@ -67,9 +70,12 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
     return Center(
       child: Column(
         spacing: 25.0,
-mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(_editMode ? "Customize options":"Select Network", style: TextStyle(fontSize: 16,fontWeight: FontWeight.w500),),
+          Text(
+            _editMode ? "Customize options" : "Select Network",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Container(
@@ -78,15 +84,16 @@ mainAxisAlignment: MainAxisAlignment.center,
                 color: Theme.of(context).colorScheme.surfaceContainer,
               ),
               child: AnimatedContainer(
-                duration: EvmSwitcher.editModeAnimDuration,
+                  duration: EvmSwitcher.editModeAnimDuration,
                   width: 400,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      AnimatedSize(curve: Curves.easeOutCubic,
+                      AnimatedSize(
+                        curve: Curves.easeOutCubic,
                         duration: EvmSwitcher.editModeAnimDuration,
                         child: Container(
-                          width:_editMode ? 0 : 400,
+                          width: _editMode ? 0 : 400,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -94,25 +101,30 @@ mainAxisAlignment: MainAxisAlignment.center,
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemBuilder: (context, index) {
-                                    if(optionsEnabled[index])
-                                    return EvmSwitcherRow(
-                                      key: ValueKey(EvmSwitcherDataItem.items[index].name),
-                                      data: EvmSwitcherDataItem.items[index],
-                                      editMode: false,
-                                      selected: index == _selectedIndex,
-                                      onTap: () {
-                                        setState(() {
-                                          _selectedIndex = index;
-                                        });
-                                      },
-                                      editSwitchValue: true,
-                                      animDuration: EvmSwitcher.editModeAnimDuration,
-                                    ); else return Container();
+                                    if (optionsEnabled[index])
+                                      return EvmSwitcherRow(
+                                        key: ValueKey(EvmSwitcherDataItem
+                                            .items[index].name),
+                                        data: EvmSwitcherDataItem.items[index],
+                                        editMode: false,
+                                        selected: index == _selectedIndex,
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedIndex = index;
+                                          });
+                                        },
+                                        editSwitchValue: true,
+                                        animDuration:
+                                            EvmSwitcher.editModeAnimDuration,
+                                      );
+                                    else
+                                      return Container();
                                   },
                                   separatorBuilder: (context, index) {
                                     if (shouldBuildSeparator(index))
                                       return Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 18),
                                           child: Container(
                                             height: 1,
                                             width: double.infinity,
@@ -126,8 +138,10 @@ mainAxisAlignment: MainAxisAlignment.center,
                                   itemCount: EvmSwitcherDataItem.items.length),
                               EvmSwitcherAdditionalOption(
                                   title: "Customize options",
-                                  svgPath: "assets/images/evm_switcher_arrow_right.svg",
-                                  animDuration: EvmSwitcher.editModeAnimDuration,
+                                  svgPath:
+                                      "assets/images/evm_switcher_arrow_right.svg",
+                                  animDuration:
+                                      EvmSwitcher.editModeAnimDuration,
                                   topSeparator: true,
                                   bottomSeparator: false,
                                   visible: true,
@@ -136,8 +150,7 @@ mainAxisAlignment: MainAxisAlignment.center,
                                       _editMode = true;
                                     });
                                   },
-                                  iconOnRight: true
-                                  )
+                                  iconOnRight: true)
                             ],
                           ),
                         ),
@@ -146,15 +159,17 @@ mainAxisAlignment: MainAxisAlignment.center,
                         curve: Curves.easeOutCubic,
                         duration: EvmSwitcher.editModeAnimDuration,
                         child: Container(
-                          width:_editMode ? 400 : 0,
+                          width: _editMode ? 400 : 0,
                           height: _editMode ? null : 0,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               EvmSwitcherAdditionalOption(
                                   title: "Back",
-                                  svgPath: "assets/images/evm_switcher_arrow_left.svg",
-                                  animDuration: EvmSwitcher.editModeAnimDuration,
+                                  svgPath:
+                                      "assets/images/evm_switcher_arrow_left.svg",
+                                  animDuration:
+                                      EvmSwitcher.editModeAnimDuration,
                                   topSeparator: false,
                                   bottomSeparator: true,
                                   visible: true,
@@ -162,35 +177,40 @@ mainAxisAlignment: MainAxisAlignment.center,
                                     setState(() {
                                       _editMode = false;
                                     });
-                                  },iconOnRight: false),
+                                  },
+                                  iconOnRight: false),
                               ListView.separated(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemBuilder: (context, index) {
                                     return EvmSwitcherRow(
-                                      key: ValueKey(EvmSwitcherDataItem.items[index].name),
+                                      key: ValueKey(EvmSwitcherDataItem
+                                          .items[index].name),
                                       data: EvmSwitcherDataItem.items[index],
                                       editMode: _editMode,
                                       selected: index == _selectedIndex,
                                       onTap: () {
                                         setState(() {
-                                          optionsEnabled[index] = !optionsEnabled[index];
+                                          optionsEnabled[index] =
+                                              !optionsEnabled[index];
                                         });
                                       },
                                       editSwitchValue: optionsEnabled[index],
-                                      animDuration: EvmSwitcher.editModeAnimDuration,
+                                      animDuration:
+                                          EvmSwitcher.editModeAnimDuration,
                                     );
                                   },
                                   separatorBuilder: (context, index) {
-                                      return Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 18),
-                                          child: Container(
-                                            height: 1,
-                                            width: double.infinity,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .surfaceContainerHigh,
-                                          ));
+                                    return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 18),
+                                        child: Container(
+                                          height: 1,
+                                          width: double.infinity,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surfaceContainerHigh,
+                                        ));
                                   },
                                   itemCount: EvmSwitcherDataItem.items.length),
                             ],
@@ -216,7 +236,8 @@ class EvmSwitcherAdditionalOption extends StatelessWidget {
       required this.topSeparator,
       required this.bottomSeparator,
       required this.visible,
-      required this.onTap, required this.iconOnRight});
+      required this.onTap,
+      required this.iconOnRight});
 
   final String title;
   final String svgPath;
@@ -250,13 +271,15 @@ class EvmSwitcherAdditionalOption extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 spacing: 8.0,
                 children: [
-                  if(!iconOnRight) SvgPicture.asset(svgPath, width: 16, height: 16),
+                  if (!iconOnRight)
+                    SvgPicture.asset(svgPath, width: 16, height: 16),
                   Text(
                     title,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary),
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
-                  if(iconOnRight) SvgPicture.asset(svgPath, width: 16, height: 16),
+                  if (iconOnRight)
+                    SvgPicture.asset(svgPath, width: 16, height: 16),
                 ],
               ),
             ),

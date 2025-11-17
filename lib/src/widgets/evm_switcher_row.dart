@@ -56,13 +56,12 @@ class EvmSwitcherRow extends StatelessWidget {
                       style: TextStyle(
                           color: resolvedForegroundColor, fontSize: 14)),
                   if (selected && !editMode)
-                    SvgPicture.asset(
-                        "assets/images/evm_switcher_checkmark.svg",
-                        width: 18,
-                        height: 18),
+                    SvgPicture.asset("assets/images/evm_switcher_checkmark.svg",
+                        width: 18, height: 18),
                 ],
               ),
-              if(editMode) StandardSwitch(value: editSwitchValue, onTapped: onTap)
+              if (editMode)
+                StandardSwitch(value: editSwitchValue, onTapped: onTap)
             ],
           ),
         ),
