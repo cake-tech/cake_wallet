@@ -1,7 +1,6 @@
 import 'dart:developer' as dev;
 import 'dart:core';
 
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/payment_uris.dart';
@@ -9,11 +8,10 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -257,26 +255,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       }
     }
 
-    if (wallet.type == WalletType.ethereum) {
-      final primaryAddress = ethereum!.getAddress(wallet);
-
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
-    }
-
-    if (wallet.type == WalletType.polygon) {
-      final primaryAddress = polygon!.getAddress(wallet);
-
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
-    }
-
-    if (wallet.type == WalletType.base) {
-      final primaryAddress = base!.getAddress(wallet);
-
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
-    }
-
-    if (wallet.type == WalletType.arbitrum) {
-      final primaryAddress = arbitrum!.getAddress(wallet);
+    if (isEVMCompatibleChain(wallet.type)) {
+      final primaryAddress = evm!.getAddress(wallet);
 
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }

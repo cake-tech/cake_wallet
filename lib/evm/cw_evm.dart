@@ -11,7 +11,6 @@ class CWEVM extends EVM {
 
   @override
   WalletCredentials createEVMNewWalletCredentials({
-    required WalletType walletType,
     required String name,
     WalletInfo? walletInfo,
     String? password,
@@ -29,7 +28,6 @@ class CWEVM extends EVM {
 
   @override
   WalletCredentials createEVMRestoreWalletFromSeedCredentials({
-    required WalletType walletType,
     required String name,
     required String mnemonic,
     required String password,
@@ -45,7 +43,6 @@ class CWEVM extends EVM {
 
   @override
   WalletCredentials createEVMRestoreWalletFromPrivateKey({
-    required WalletType walletType,
     required String name,
     required String privateKey,
     required String password,
@@ -59,7 +56,6 @@ class CWEVM extends EVM {
 
   @override
   WalletCredentials createEVMHardwareWalletCredentials({
-    required WalletType walletType,
     required String name,
     required HardwareAccountData hwAccountData,
     WalletInfo? walletInfo,
@@ -108,7 +104,6 @@ class CWEVM extends EVM {
 
   @override
   Object createEVMTransactionCredentials(
-    WalletType walletType,
     List<Output> outputs, {
     required TransactionPriority priority,
     required CryptoCurrency currency,
@@ -135,7 +130,6 @@ class CWEVM extends EVM {
 
   @override
   Object createEVMTransactionCredentialsRaw(
-    WalletType walletType,
     List<OutputInfo> outputs, {
     TransactionPriority? priority,
     required CryptoCurrency currency,
@@ -325,32 +319,32 @@ class CWEVM extends EVM {
   // Chain-specific integrations (only for Ethereum)
   @override
   Future<BigInt>? getDEuroSavingsBalance(WalletBase wallet) {
-    if (wallet.type == WalletType.ethereum) {
-      return DEuro(wallet as EthereumWallet).savingsBalance;
+    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+      return DEuro(wallet).savingsBalance;
     }
     return null;
   }
 
   @override
   Future<BigInt>? getDEuroAccruedInterest(WalletBase wallet) {
-    if (wallet.type == WalletType.ethereum) {
-      return DEuro(wallet as EthereumWallet).accruedInterest;
+    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+      return DEuro(wallet).accruedInterest;
     }
     return null;
   }
 
   @override
   Future<BigInt>? getDEuroInterestRate(WalletBase wallet) {
-    if (wallet.type == WalletType.ethereum) {
-      return DEuro(wallet as EthereumWallet).interestRate;
+    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+      return DEuro(wallet).interestRate;
     }
     return null;
   }
 
   @override
   Future<BigInt>? getDEuroSavingsApproved(WalletBase wallet) {
-    if (wallet.type == WalletType.ethereum) {
-      return DEuro(wallet as EthereumWallet).approvedBalance;
+    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+      return DEuro(wallet).approvedBalance;
     }
     return null;
   }
@@ -358,8 +352,8 @@ class CWEVM extends EVM {
   @override
   Future<PendingTransaction>? addDEuroSaving(
       WalletBase wallet, BigInt amount, TransactionPriority priority) {
-    if (wallet.type == WalletType.ethereum) {
-      return DEuro(wallet as EthereumWallet)
+    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+      return DEuro(wallet)
           .depositSavings(amount, priority as EVMChainTransactionPriority);
     }
     return null;
@@ -368,8 +362,8 @@ class CWEVM extends EVM {
   @override
   Future<PendingTransaction>? removeDEuroSaving(
       WalletBase wallet, BigInt amount, TransactionPriority priority) {
-    if (wallet.type == WalletType.ethereum) {
-      return DEuro(wallet as EthereumWallet)
+    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+      return DEuro(wallet)
           .withdrawSavings(amount, priority as EVMChainTransactionPriority);
     }
     return null;
@@ -378,8 +372,8 @@ class CWEVM extends EVM {
   @override
   Future<PendingTransaction>? reinvestDEuroInterest(
       WalletBase wallet, TransactionPriority priority) {
-    if (wallet.type == WalletType.ethereum) {
-      return DEuro(wallet as EthereumWallet)
+    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+      return DEuro(wallet)
           .reinvestInterest(priority as EVMChainTransactionPriority);
     }
     return null;
@@ -388,8 +382,8 @@ class CWEVM extends EVM {
   @override
   Future<PendingTransaction>? enableDEuroSaving(
       WalletBase wallet, TransactionPriority priority) {
-    if (wallet.type == WalletType.ethereum) {
-      return DEuro(wallet as EthereumWallet)
+    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+      return DEuro(wallet)
           .enableSavings(priority as EVMChainTransactionPriority);
     }
     return null;
