@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:cw_evm/.secrets.g.dart' as secrets;
-import 'package:cw_evm/evm_chain_client.dart';
+import 'package:cw_evm/clients/evm_chain_client.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web3dart/web3dart.dart';

@@ -16,5 +16,5 @@ class BaseTransactionHistory extends EVMChainTransactionHistory {
 
   @override
   EVMChainTransactionInfo getTransactionInfo(Map<String, dynamic> val) =>
-      BaseTransactionInfo.fromJson(val);
+      BaseTransactionInfo.fromJson(val, walletInfo.type);
 }

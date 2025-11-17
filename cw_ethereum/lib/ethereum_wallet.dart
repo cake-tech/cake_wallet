@@ -118,6 +118,7 @@ class EthereumWallet extends EVMChainWallet {
       from: transactionModel.from,
       evmSignatureName: transactionModel.evmSignatureName,
       contractAddress: transactionModel.contractAddress,
+      walletType: walletInfo.type,
     );
     return model;
   }

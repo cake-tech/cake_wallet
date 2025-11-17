@@ -5,19 +5,21 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
+import 'package:cw_evm/utils/evm_chain_utils.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 
 part 'evm_chain_transaction_history.g.dart';
 
-abstract class EVMChainTransactionHistory = EVMChainTransactionHistoryBase
-    with _$EVMChainTransactionHistory;
+class EVMChainTransactionHistory = EVMChainTransactionHistoryBase with _$EVMChainTransactionHistory;
 
-abstract class EVMChainTransactionHistoryBase
-    extends TransactionHistoryBase<EVMChainTransactionInfo> with Store {
-  EVMChainTransactionHistoryBase(
-      {required this.walletInfo, required String password, required this.encryptionFileUtils})
-      : _password = password {
+class EVMChainTransactionHistoryBase extends TransactionHistoryBase<EVMChainTransactionInfo>
+    with Store {
+  EVMChainTransactionHistoryBase({
+    required this.walletInfo,
+    required String password,
+    required this.encryptionFileUtils,
+  }) : _password = password {
     transactions = ObservableMap<String, EVMChainTransactionInfo>();
   }
 
@@ -26,13 +28,14 @@ abstract class EVMChainTransactionHistoryBase
   final WalletInfo walletInfo;
   final EncryptionFileUtils encryptionFileUtils;
 
-  //! Method to be overridden by all child classes
+  /// Get transaction history file name based on wallet type
+  String getTransactionHistoryFileName() {
+    return EVMChainUtils.getTransactionHistoryFileName(walletInfo.type);
+  }
 
-  String getTransactionHistoryFileName();
-
-  EVMChainTransactionInfo getTransactionInfo(Map<String, dynamic> val);
-
-  //! Common methods across all child classes
+  EVMChainTransactionInfo getTransactionInfo(Map<String, dynamic> val) {
+    return EVMChainTransactionInfo.fromJson(val, walletInfo.type);
+  }
 
   Future<void> init() async {
     clear();

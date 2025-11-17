@@ -15,7 +15,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart' as hex;
 import 'package:web3dart/web3dart.dart';
 
-import 'contract/erc20.dart';
+import '../contract/erc20.dart';
 
 class EVMChainClient {
   late final client = ProxyWrapper().getHttpIOClient();

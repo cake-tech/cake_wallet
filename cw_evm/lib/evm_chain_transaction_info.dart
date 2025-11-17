@@ -5,8 +5,10 @@ import 'dart:math';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_evm/utils/evm_chain_utils.dart';
 
-abstract class EVMChainTransactionInfo extends TransactionInfo {
+class EVMChainTransactionInfo extends TransactionInfo {
   EVMChainTransactionInfo({
     required this.id,
     required this.height,
@@ -22,8 +24,10 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
     required this.from,
     this.evmSignatureName,
     this.contractAddress,
+    required WalletType walletType,
   })  : amount = ethAmount.toInt(),
-        fee = ethFee.toInt();
+        fee = ethFee.toInt(),
+        _walletType = walletType;
 
   final String id;
   final int height;
@@ -42,9 +46,10 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
   final String? from;
   final String? evmSignatureName;
   final String? contractAddress;
+  final WalletType _walletType;
 
-  //! Getter to be overridden in child classes
-  String get feeCurrency;
+  /// Get fee currency symbol based on wallet type
+  String get feeCurrency => EVMChainUtils.getFeeCurrency(_walletType);
 
   @override
   String amountFormatted() {
@@ -62,6 +67,30 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
   String feeFormatted() {
     final amount = (ethFee / BigInt.from(10).pow(18)).toString();
     return '${amount.substring(0, min(18, amount.length))} $feeCurrency';
+  }
+
+  /// Factory constructor to create from JSON
+  factory EVMChainTransactionInfo.fromJson(
+    Map<String, dynamic> data,
+    WalletType walletType,
+  ) {
+    return EVMChainTransactionInfo(
+      id: data['id'] as String,
+      height: data['height'] as int,
+      ethAmount: BigInt.parse(data['amount'] as String),
+      exponent: data['exponent'] as int? ?? 18,
+      ethFee: BigInt.parse(data['fee'] as String),
+      direction: TransactionDirection.values[data['direction'] as int],
+      date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
+      isPending: data['isPending'] as bool? ?? false,
+      confirmations: data['confirmations'] as int,
+      tokenSymbol: data['tokenSymbol'] as String,
+      to: data['to'] as String?,
+      from: data['from'] as String?,
+      evmSignatureName: data['evmSignatureName'] as String?,
+      contractAddress: data['contractAddress'] as String?,
+      walletType: walletType,
+    );
   }
 
   Map<String, dynamic> toJson() => {

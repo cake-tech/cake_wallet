@@ -1,4 +1,5 @@
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 
 class ArbitrumTransactionInfo extends EVMChainTransactionInfo {
@@ -16,9 +17,13 @@ class ArbitrumTransactionInfo extends EVMChainTransactionInfo {
     required super.from,
     super.contractAddress,
     super.exponent,
-  });
+    required WalletType walletType,
+  }) : super(walletType: walletType);
 
-  factory ArbitrumTransactionInfo.fromJson(Map<String, dynamic> data) {
+  factory ArbitrumTransactionInfo.fromJson(
+    Map<String, dynamic> data,
+    WalletType walletType,
+  ) {
     return ArbitrumTransactionInfo(
       id: data['id'] as String,
       height: data['height'] as int,
@@ -33,6 +38,7 @@ class ArbitrumTransactionInfo extends EVMChainTransactionInfo {
       to: data['to'],
       from: data['from'],
       contractAddress: data['contractAddress'],
+      walletType: walletType,
     );
   }
 

@@ -1,6 +1,6 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_evm/chain_config.dart';
+import 'package:cw_evm/utils/network_chain_utils.dart';
 
 /// Centralized registry for all EVM chain configurations
 class EvmChainRegistry {
@@ -186,16 +186,6 @@ class EvmChainRegistry {
     return chainId != null ? _chains[chainId] : null;
   }
 
-  /// Get all available chain configurations for a given WalletType
-  /// For EVM wallets, returns all registered EVM chains since they can switch between chains
-  List<ChainConfig> getAvailableChainsForWallet(WalletType walletType) {
-    // If it's an EVM wallet type, return all EVM chains (all EVM wallets can use all EVM chains)
-    if (_walletTypeToChainId.containsKey(walletType)) {
-      return _chains.values.toList();
-    }
-    return [];
-  }
-
   WalletType? getWalletTypeByChainId(int chainId) => _chainIdToWalletType[chainId];
 
   int? getChainIdByWalletType(WalletType walletType) => _walletTypeToChainId[walletType];
@@ -205,4 +195,11 @@ class EvmChainRegistry {
   List<int> getRegisteredChainIds() => _chains.keys.toList();
 
   List<ChainConfig> getAllChains() => _chains.values.toList();
+
+  List<WalletType> getRegisteredWalletTypes() {
+    if (!_initialized) {
+      initialize();
+    }
+    return _walletTypeToChainId.keys.toList();
+  }
 }

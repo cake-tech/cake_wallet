@@ -14,6 +14,7 @@ import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
@@ -21,13 +22,17 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_evm/evm_chain_client.dart';
+import 'package:cw_evm/clients/evm_chain_client.dart';
+import 'package:cw_evm/evm_chain_client_factory.dart';
+import 'package:cw_evm/evm_chain_default_tokens.dart';
 import 'package:cw_evm/evm_chain_exceptions.dart';
-import 'package:cw_evm/evm_chain_formatter.dart';
+import 'package:cw_evm/utils/evm_chain_formatter.dart';
+import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
+import 'package:cw_evm/utils/evm_chain_utils.dart';
 import 'package:cw_evm/evm_chain_wallet_addresses.dart';
 import 'package:cw_evm/hardware/evm_chain_bitbox_credentials.dart';
 import 'package:cw_evm/hardware/evm_chain_ledger_credentials.dart';
@@ -60,9 +65,9 @@ const Map<String, String> methodSignatureToType = {
   '0xd505accf': 'permit',
 };
 
-abstract class EVMChainWallet = EVMChainWalletBase with _$EVMChainWallet;
+class EVMChainWallet = EVMChainWalletBase with _$EVMChainWallet;
 
-abstract class EVMChainWalletBase
+class EVMChainWalletBase
     extends WalletBase<EVMChainERC20Balance, EVMChainTransactionHistory, EVMChainTransactionInfo>
     with Store, WalletKeysFile {
   EVMChainWalletBase({
@@ -115,7 +120,7 @@ abstract class EVMChainWalletBase
 
   late final EVMChainClient _client;
 
-  bool hasPriorityFee = true;
+  bool get hasPriorityFee => EVMChainUtils.hasPriorityFee(walletInfo.type);
 
   @observable
   String? nativeTxEstimatedFee;
@@ -141,34 +146,129 @@ abstract class EVMChainWalletBase
 
   Completer<SharedPreferences> sharedPrefs = Completer();
 
-  //! Methods to be overridden by every child
+  //! Implemented methods - unified for all chains
 
-  void addInitialTokens();
+  void addInitialTokens() {
+    final initialErc20Tokens = EVMChainDefaultTokens.getDefaultTokens(walletInfo.type);
 
-  // Future<EVMChainWallet> open({
-  //   required String name,
-  //   required String password,
-  //   required WalletInfo walletInfo,
-  // });
+    for (final token in initialErc20Tokens) {
+      if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
+        evmChainErc20TokensBox.put(token.contractAddress, token);
+      } else {
+        // update existing token
+        final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
+        evmChainErc20TokensBox.put(
+          token.contractAddress,
+          Erc20Token.copyWith(token, enabled: existingToken!.enabled),
+        );
+      }
+    }
+  }
 
-  List<String> get getDefaultTokenContractAddresses;
+  List<String> get getDefaultTokenContractAddresses =>
+      EVMChainDefaultTokens.getDefaultTokenAddresses(walletInfo.type);
 
-  Future<void> initErc20TokensBox();
+  Future<void> initErc20TokensBox() async {
+    // Handle Ethereum's special backward compatibility case
+    if (walletInfo.type == WalletType.ethereum) {
+      await _initEthereumErc20TokensBox();
+      return;
+    }
 
-  String getTransactionHistoryFileName();
+    // For other chains, use standard box name
+    final boxName = EVMChainUtils.getErc20TokensBoxName(
+      walletInfo.name,
+      walletInfo.type,
+    );
+    evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
+  }
 
-  Future<bool> checkIfScanProviderIsEnabled();
+  /// Ethereum-specific initialization with backward compatibility
+  Future<void> _initEthereumErc20TokensBox() async {
+    // Opens a box specific to this wallet
+    evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(
+      "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.ethereumBoxName}",
+    );
+
+    // Open the previous token configs box
+    erc20TokensBox = await CakeHive.openBox<Erc20Token>(Erc20Token.boxName);
+
+    // Check if it's empty, if it is, we stop the flow and return.
+    if (erc20TokensBox.isEmpty) {
+      // If it's empty, but the new wallet specific box is also empty,
+      // we load the initial tokens to the new box.
+      if (evmChainErc20TokensBox.isEmpty) addInitialTokens();
+      return;
+    }
+
+    final allValues = erc20TokensBox.values.toList();
+
+    // Clear and delete the old token box
+    await erc20TokensBox.clear();
+    await erc20TokensBox.deleteFromDisk();
+
+    // Add all the previous tokens with configs to the new box
+    await evmChainErc20TokensBox.addAll(allValues);
+  }
+
+  String getTransactionHistoryFileName() =>
+      EVMChainUtils.getTransactionHistoryFileName(walletInfo.type);
+
+  Future<bool> checkIfScanProviderIsEnabled() async {
+    final key = EVMChainUtils.getScanProviderPreferenceKey(walletInfo.type);
+    return (await sharedPrefs.future).getBool(key) ?? true;
+  }
 
   EVMChainTransactionInfo getTransactionInfo(
-      EVMChainTransactionModel transactionModel, String address);
+    EVMChainTransactionModel transactionModel,
+    String address,
+  ) {
+    return EVMChainTransactionInfo(
+      id: transactionModel.hash,
+      height: transactionModel.blockNumber,
+      ethAmount: transactionModel.amount,
+      direction: transactionModel.from == address
+          ? TransactionDirection.outgoing
+          : TransactionDirection.incoming,
+      isPending: false,
+      date: transactionModel.date,
+      confirmations: transactionModel.confirmations,
+      ethFee: BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
+      exponent: transactionModel.tokenDecimal ?? 18,
+      tokenSymbol:
+          transactionModel.tokenSymbol ?? EVMChainUtils.getDefaultTokenSymbol(walletInfo.type),
+      to: transactionModel.to,
+      from: transactionModel.from,
+      evmSignatureName: transactionModel.evmSignatureName,
+      contractAddress: transactionModel.contractAddress,
+      walletType: walletInfo.type,
+    );
+  }
 
-  Erc20Token createNewErc20TokenObject(Erc20Token token, String? iconPath);
+  Erc20Token createNewErc20TokenObject(Erc20Token token, String? iconPath) {
+    return Erc20Token(
+      name: token.name,
+      symbol: token.symbol,
+      contractAddress: token.contractAddress,
+      decimal: token.decimal,
+      enabled: token.enabled,
+      tag: token.tag ?? EVMChainUtils.getDefaultTokenTag(walletInfo.type),
+      iconPath: iconPath,
+      isPotentialScam: token.isPotentialScam,
+    );
+  }
 
   EVMChainTransactionHistory setUpTransactionHistory(
     WalletInfo walletInfo,
     String password,
     EncryptionFileUtils encryptionFileUtils,
-  );
+  ) {
+    return EVMChainTransactionHistory(
+      walletInfo: walletInfo,
+      password: password,
+      encryptionFileUtils: encryptionFileUtils,
+    );
+  }
 
   String _getUSDCContractAddress() {
     return switch (_client.chainId) {
@@ -348,7 +448,9 @@ abstract class EVMChainWalletBase
     }
   }
 
-  int getTotalPriorityFee(EVMChainTransactionPriority priority);
+  int getTotalPriorityFee(EVMChainTransactionPriority priority) {
+    return EVMChainUtils.getTotalPriorityFee(priority, walletInfo.type);
+  }
 
   /// Allows more customization to the fetch estimatedFees flow.
   ///
@@ -940,6 +1042,71 @@ abstract class EVMChainWalletBase
   void _onNewTransaction() {
     _updateBalance();
     _updateTransactions();
+  }
+
+  /// Static method to open an existing wallet
+  static Future<EVMChainWallet> open({
+    required String name,
+    required String password,
+    required WalletInfo walletInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+  }) async {
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
+    final path = await pathForWallet(name: name, type: walletInfo.type);
+
+    Map<String, dynamic>? data;
+    try {
+      final jsonSource = await encryptionFileUtils.read(path: path, password: password);
+      data = json.decode(jsonSource) as Map<String, dynamic>;
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
+
+    final balance = EVMChainERC20Balance.fromJSON(data?['balance'] as String?) ??
+        EVMChainERC20Balance(BigInt.zero);
+
+    final WalletKeysData keysData;
+    // Migrate wallet from the old scheme to the new .keys file scheme
+    if (!hasKeysFile) {
+      final mnemonic = data!['mnemonic'] as String?;
+      final privateKey = data['private_key'] as String?;
+      final passphrase = data['passphrase'] as String?;
+
+      keysData = WalletKeysData(
+        mnemonic: mnemonic,
+        privateKey: privateKey,
+        passphrase: passphrase,
+      );
+    } else {
+      keysData = await WalletKeysFile.readKeysFile(
+        name,
+        walletInfo.type,
+        password,
+        encryptionFileUtils,
+      );
+    }
+
+    // Get chain config and create appropriate client
+    final registry = EvmChainRegistry();
+    final chainConfig = registry.getChainConfigByWalletType(walletInfo.type);
+    if (chainConfig == null) {
+      throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
+    }
+
+    final client = EVMChainClientFactory.createClient(chainConfig.chainId);
+
+    return EVMChainWallet(
+      walletInfo: walletInfo,
+      derivationInfo: await walletInfo.getDerivationInfo(),
+      password: password,
+      mnemonic: keysData.mnemonic,
+      privateKey: keysData.privateKey,
+      passphrase: keysData.passphrase,
+      initialBalance: balance,
+      client: client,
+      nativeCurrency: chainConfig.nativeCurrency,
+      encryptionFileUtils: encryptionFileUtils,
+    );
   }
 
   @override

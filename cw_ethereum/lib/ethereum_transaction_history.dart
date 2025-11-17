@@ -15,5 +15,5 @@ class EthereumTransactionHistory extends EVMChainTransactionHistory {
 
   @override
   EVMChainTransactionInfo getTransactionInfo(Map<String, dynamic> val) =>
-      EthereumTransactionInfo.fromJson(val);
+      EthereumTransactionInfo.fromJson(val, walletInfo.type);
 }

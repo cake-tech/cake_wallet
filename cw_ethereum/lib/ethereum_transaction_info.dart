@@ -1,4 +1,5 @@
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 
 class EthereumTransactionInfo extends EVMChainTransactionInfo {
@@ -17,9 +18,13 @@ class EthereumTransactionInfo extends EVMChainTransactionInfo {
     super.contractAddress,
     super.evmSignatureName,
     super.exponent,
-  });
+    required WalletType walletType,
+  }) : super(walletType: walletType);
 
-  factory EthereumTransactionInfo.fromJson(Map<String, dynamic> data) {
+  factory EthereumTransactionInfo.fromJson(
+    Map<String, dynamic> data,
+    WalletType walletType,
+  ) {
     return EthereumTransactionInfo(
       id: data['id'] as String,
       height: data['height'] as int,
@@ -35,6 +40,7 @@ class EthereumTransactionInfo extends EVMChainTransactionInfo {
       from: data['from'],
       evmSignatureName: data['evmSignatureName'],
       contractAddress: data['contractAddress'],
+      walletType: walletType,
     );
   }
 

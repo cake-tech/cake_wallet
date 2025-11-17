@@ -16,5 +16,5 @@ class ArbitrumTransactionHistory extends EVMChainTransactionHistory {
 
   @override
   EVMChainTransactionInfo getTransactionInfo(Map<String, dynamic> val) =>
-      ArbitrumTransactionInfo.fromJson(val);
+      ArbitrumTransactionInfo.fromJson(val, walletInfo.type);
 }

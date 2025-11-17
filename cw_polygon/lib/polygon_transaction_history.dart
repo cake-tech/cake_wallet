@@ -16,5 +16,5 @@ class PolygonTransactionHistory extends EVMChainTransactionHistory {
 
   @override
   EVMChainTransactionInfo getTransactionInfo(Map<String, dynamic> val) =>
-      PolygonTransactionInfo.fromJson(val);
+      PolygonTransactionInfo.fromJson(val, walletInfo.type);
 }

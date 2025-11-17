@@ -112,6 +112,7 @@ class ArbitrumWallet extends EVMChainWallet {
       to: transactionModel.to,
       from: transactionModel.from,
       contractAddress: transactionModel.contractAddress,
+      walletType: walletInfo.type,
     );
     return model;
   }
