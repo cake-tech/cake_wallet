@@ -1954,6 +1954,23 @@ abstract class EVM {
   String getCaip2ByChainId(int chainId);
   int? getChainIdByTag(String tag);
   int? getChainIdByTitle(String title);
+  
+  // Chain selection methods
+  List<ChainInfo> getAllChains();
+  ChainInfo? getCurrentChain(WalletBase wallet);
+  void selectChain(WalletBase wallet, int chainId);
+}
+
+class ChainInfo {
+  const ChainInfo({
+    required this.chainId,
+    required this.name,
+    required this.shortCode,
+  });
+  
+  final int chainId;
+  final String name;
+  final String shortCode;
 }
   """;
 

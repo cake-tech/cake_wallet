@@ -437,5 +437,36 @@ class CWEVM extends EVM {
     // Try as lowercase title
     return getChainIdByTag(title.toLowerCase());
   }
+
+  @override
+  List<ChainInfo> getAllChains() {
+    final allChains = _registry.getAllChains();
+    return allChains.map((config) => ChainInfo(
+      chainId: config.chainId,
+      name: config.name,
+      shortCode: config.shortCode,
+    )).toList();
+  }
+
+  @override
+  ChainInfo? getCurrentChain(WalletBase wallet) {
+    if (wallet is EVMChainWallet) {
+      final config = wallet.selectedChainConfig;
+      if (config == null) return null;
+      return ChainInfo(
+        chainId: config.chainId,
+        name: config.name,
+        shortCode: config.shortCode,
+      );
+    }
+    return null;
+  }
+
+  @override
+  void selectChain(WalletBase wallet, int chainId) {
+    if (wallet is EVMChainWallet) {
+      wallet.selectChain(chainId);
+    }
+  }
 }
 

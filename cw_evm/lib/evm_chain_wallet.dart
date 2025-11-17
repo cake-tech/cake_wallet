@@ -315,7 +315,7 @@ class EVMChainWalletBase
       walletInfo: walletInfo,
       password: password,
       encryptionFileUtils: encryptionFileUtils,
-    );
+  );
   }
 
   String _getUSDCContractAddress() {

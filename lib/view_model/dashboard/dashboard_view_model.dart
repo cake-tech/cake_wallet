@@ -43,7 +43,6 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -62,6 +61,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/evm/evm.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -559,6 +560,27 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
+
+  @computed
+  bool get isEVMWallet => isEVMCompatibleChain(wallet.type);
+
+  @computed
+  List<ChainInfo> get availableChains {
+    if (!isEVMWallet) return [];
+    return evm!.getAllChains();
+  }
+
+  @computed
+  ChainInfo? get currentChain {
+    if (!isEVMWallet) return null;
+    return evm!.getCurrentChain(wallet);
+  }
+
+  @action
+  void selectChain(int chainId) {
+    if (!isEVMWallet) return;
+    evm!.selectChain(wallet, chainId);
+  }
 
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
