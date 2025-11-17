@@ -33,6 +33,7 @@ import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
+import 'package:cw_evm/utils/network_chain_utils.dart';
 import 'package:cw_evm/evm_chain_wallet_addresses.dart';
 import 'package:cw_evm/hardware/evm_chain_bitbox_credentials.dart';
 import 'package:cw_evm/hardware/evm_chain_ledger_credentials.dart';
@@ -87,6 +88,7 @@ class EVMChainWalletBase
         _hexPrivateKey = privateKey,
         _isTransactionUpdating = false,
         _client = client,
+        selectedChainId = client.chainId,
         walletAddresses = EVMChainWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, EVMChainERC20Balance>.of(
           {
@@ -120,6 +122,18 @@ class EVMChainWalletBase
 
   late final EVMChainClient _client;
 
+  /// Currently selected chain ID for this wallet
+  /// Initialized from walletType on creation, can be changed via selectChain()
+  @observable
+  int selectedChainId;
+
+  /// Get chain configuration for currently selected chain
+  @computed
+  ChainConfig? get selectedChainConfig {
+    final registry = EvmChainRegistry();
+    return registry.getChainConfig(selectedChainId);
+  }
+
   bool get hasPriorityFee => EVMChainUtils.hasPriorityFee(walletInfo.type);
 
   @observable
@@ -145,6 +159,41 @@ class EVMChainWalletBase
   late ObservableMap<CryptoCurrency, EVMChainERC20Balance> balance;
 
   Completer<SharedPreferences> sharedPrefs = Completer();
+
+  //! Chain selection methods
+
+  /// Select a different EVM chain for this wallet
+  ///
+  /// This allows switching between EVM chains (Ethereum, Polygon, Base, Arbitrum, etc.)
+  /// without creating a new wallet. The selected chain ID is stored and used for
+  /// all subsequent operations.
+  @action
+  void selectChain(int chainId) {
+    final registry = EvmChainRegistry();
+    final config = registry.getChainConfig(chainId);
+
+    if (config == null) {
+      throw Exception('Chain config not found for chainId: $chainId');
+    }
+
+    selectedChainId = chainId;
+  }
+
+  /// Get the client for the currently selected chain
+  ///
+  /// For backward compatibility, returns the existing client if it matches
+  /// the selected chain. Otherwise, creates a new client for the selected chain.
+  /// Note: This client is not connected yet - connection must be handled by caller
+  EVMChainClient _getClientForCurrentChain() {
+    // If current client matches selected chain, use it
+    if (_client.chainId == selectedChainId) {
+      return _client;
+    }
+
+
+    final newClient = EVMChainClientFactory.createClient(selectedChainId);
+    return newClient;
+  }
 
   //! Implemented methods - unified for all chains
 
