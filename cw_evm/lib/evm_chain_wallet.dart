@@ -165,34 +165,26 @@ class EVMChainWalletBase
   /// Select a different EVM chain for this wallet
   ///
   /// This allows switching between EVM chains (Ethereum, Polygon, Base, Arbitrum, etc.)
-  /// without creating a new wallet. The selected chain ID is stored and used for
-  /// all subsequent operations.
+  /// without creating a new wallet. The selected chain ID is stored and the client is
+  /// immediately updated to match the new chain.
+  ///
+  /// Note: The new client is not automatically connected. To connect to a node for the
+  /// new chain, call connectToNode() after selecting.
   @action
   void selectChain(int chainId) {
     final registry = EvmChainRegistry();
     final config = registry.getChainConfig(chainId);
 
-    if (config == null) {
-      throw Exception('Chain config not found for chainId: $chainId');
-    }
+    if (config == null) throw Exception('Chain config not found for chainId: $chainId');
 
+    if (selectedChainId == chainId) return;
+
+    // Stop old client before switching
+    _client.stop();
+
+    // Update selected chain and create new client
     selectedChainId = chainId;
-  }
-
-  /// Get the client for the currently selected chain
-  ///
-  /// For backward compatibility, returns the existing client if it matches
-  /// the selected chain. Otherwise, creates a new client for the selected chain.
-  /// Note: This client is not connected yet - connection must be handled by caller
-  EVMChainClient _getClientForCurrentChain() {
-    // If current client matches selected chain, use it
-    if (_client.chainId == selectedChainId) {
-      return _client;
-    }
-
-
-    final newClient = EVMChainClientFactory.createClient(selectedChainId);
-    return newClient;
+    _client = EVMChainClientFactory.createClient(selectedChainId);
   }
 
   //! Implemented methods - unified for all chains
@@ -320,12 +312,12 @@ class EVMChainWalletBase
   }
 
   String _getUSDCContractAddress() {
-    return switch (_client.chainId) {
+    return switch (selectedChainId) {
       1 => "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       137 => "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
       8453 => "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
       42161 => "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
-      _ => throw Exception("Unsupported chain ID: ${_client.chainId}"),
+      _ => throw Exception("Unsupported chain ID: $selectedChainId"),
     };
   }
 
@@ -699,7 +691,7 @@ class EVMChainWalletBase
       maxFeePerGasForTransaction = gasFeesModel.maxFeePerGas;
 
       if (output.sendAll && transactionCurrency is! Erc20Token) {
-        if (_client.chainId == 8453) {
+        if (selectedChainId == 8453) {
           // Applying a small buffer to account for gas price fluctuations
           // 10% or minimum 10,000 wei, whichever is higher
           final refinedGasFee = estimatedFeesForTransaction;
@@ -729,7 +721,7 @@ class EVMChainWalletBase
     if (transactionCurrency is Erc20Token &&
         walletInfo.hardwareWalletType == HardwareWalletType.ledger) {
       await (_evmChainPrivateKey as EvmLedgerCredentials)
-          .provideERC20Info(transactionCurrency.contractAddress, _client.chainId);
+          .provideERC20Info(transactionCurrency.contractAddress, selectedChainId);
     }
 
     final pendingEVMChainTransaction = await _client.signTransaction(
@@ -740,7 +732,7 @@ class EVMChainWalletBase
       gasFee: estimatedFeesForTransaction,
       priority: _credentials.priority,
       currency: transactionCurrency,
-      feeCurrency: switch (_client.chainId) { 137 => "POL", _ => "ETH" },
+      feeCurrency: switch (selectedChainId) { 137 => "POL", _ => "ETH" },
       maxFeePerGas: maxFeePerGasForTransaction,
       exponent: exponent,
       contractAddress:
@@ -767,7 +759,7 @@ class EVMChainWalletBase
       data: _client.hexToBytes(dataHex),
     );
 
-    final nativeCurrency = switch (_client.chainId) {
+    final nativeCurrency = switch (selectedChainId) {
       137 => CryptoCurrency.maticpoly,
       8453 => CryptoCurrency.baseEth,
       42161 => CryptoCurrency.arbEth,
@@ -996,7 +988,7 @@ class EVMChainWalletBase
       final erc20 = ERC20(
         client: _client.getWeb3Client()!,
         address: EthereumAddress.fromHex(tokenContract),
-        chainId: _client.chainId,
+        chainId: selectedChainId,
       );
 
       final allowance = await erc20.allowance(owner, EthereumAddress.fromHex(spender));
