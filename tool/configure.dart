@@ -14,6 +14,7 @@ const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
 const baseOutputPath = 'lib/base/base.dart';
 const arbitrumOutputPath = 'lib/arbitrum/arbitrum.dart';
+const evmOutputPath = 'lib/evm/evm.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -36,6 +37,7 @@ Future<void> main(List<String> args) async {
   final hasDogecoin = args.contains('${prefix}dogecoin');
   final hasBase = args.contains('${prefix}base');
   final hasArbitrum = args.contains('${prefix}arbitrum');
+  final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum;
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -53,6 +55,7 @@ Future<void> main(List<String> args) async {
   await generateDogecoin(hasDogecoin);
   await generateBase(hasBase);
   await generateArbitrum(hasArbitrum);
+  await generateEVM(hasEVM);
 
   await generatePubspec(
     hasMonero: hasMonero,
@@ -1766,6 +1769,203 @@ abstract class Arbitrum {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateEVM(bool hasImplementation) async {
+  final outputFile = File(evmOutputPath);
+  const evmCommonHeaders = """
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
+import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
+import 'package:trezor_connect/trezor_connect.dart' as trezor;
+import 'package:web3dart/web3dart.dart';
+
+""";
+  const evmCWHeaders = """
+import 'package:cw_evm/utils/evm_chain_formatter.dart';
+import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_evm/evm_chain_transaction_credentials.dart';
+import 'package:cw_evm/evm_chain_transaction_info.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
+import 'package:cw_evm/hardware/evm_chain_bitbox_credentials.dart';
+import 'package:cw_evm/hardware/evm_chain_ledger_credentials.dart';
+import 'package:cw_evm/hardware/evm_chain_trezor_credentials.dart';
+import 'package:cw_evm/evm_chain_wallet.dart';
+import 'package:cw_evm/hardware/evm_chain_bitbox_service.dart';
+import 'package:cw_evm/hardware/evm_chain_ledger_service.dart';
+import 'package:cw_evm/hardware/evm_chain_trezor_service.dart';
+import 'package:cw_evm/evm_chain_wallet_service.dart';
+import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+import 'package:cw_evm/utils/evm_chain_utils.dart';
+import 'package:cw_evm/evm_chain_default_tokens.dart';
+import 'package:cw_ethereum/deuro/deuro_savings.dart';
+import 'package:cw_ethereum/ethereum_wallet.dart';
+import 'package:eth_sig_util/util/utils.dart';
+
+""";
+  const evmCwPart = "part 'cw_evm.dart';";
+  const evmContent = """
+/// Unified abstract class for all EVM chains
+/// 
+/// This replaces separate proxy classes (Ethereum, Polygon, Base, Arbitrum)
+/// with a single unified interface that works for all EVM chains.
+/// Methods take WalletType parameter to determine chain-specific behavior.
+abstract class EVM {
+  List<String> getEVMWordList(String language);
+  
+  /// Create unified wallet service for any EVM chain
+  WalletService createEVMWalletService(WalletType walletType, bool isDirect);
+  
+  /// Generic credential creation - uses WalletType
+  WalletCredentials createEVMNewWalletCredentials({
+    required WalletType walletType,
+    required String name,
+    WalletInfo? walletInfo,
+    String? password,
+    String? mnemonic,
+    String? passphrase,
+  });
+  
+  WalletCredentials createEVMRestoreWalletFromSeedCredentials({
+    required WalletType walletType,
+    required String name,
+    required String mnemonic,
+    required String password,
+    String? passphrase,
+  });
+  
+  WalletCredentials createEVMRestoreWalletFromPrivateKey({
+    required WalletType walletType,
+    required String name,
+    required String privateKey,
+    required String password,
+  });
+  
+  WalletCredentials createEVMHardwareWalletCredentials({
+    required WalletType walletType,
+    required String name,
+    required HardwareAccountData hwAccountData,
+    WalletInfo? walletInfo,
+  });
+  
+  // Generic methods that work for all EVM chains
+  String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getEVMTransactionPrioritySlow();
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority deserializeEVMTransactionPriority(int raw);
+  
+  Object createEVMTransactionCredentials(
+    WalletType walletType,
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    required CryptoCurrency currency,
+    int? feeRate,
+  });
+  
+  Object createEVMTransactionCredentialsRaw(
+    WalletType walletType,
+    List<OutputInfo> outputs, {
+    TransactionPriority? priority,
+    required CryptoCurrency currency,
+    required int feeRate,
+  });
+  
+  int formatterEVMParseAmount(String amount);
+  double formatterEVMAmountToDouble({
+    TransactionInfo? transaction,
+    BigInt? amount,
+    int exponent = 18,
+  });
+  
+  List<Erc20Token> getERC20Currencies(WalletBase wallet);
+  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token);
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
+  
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  void updateScanProviderUsageState(WalletBase wallet, bool isEnabled);
+  Web3Client? getWeb3Client(WalletBase wallet);
+  String getTokenAddress(CryptoCurrency asset);
+  
+  Future<bool> isApprovalRequired(
+    WalletBase wallet,
+    String tokenContract,
+    String spender,
+    BigInt requiredAmount,
+  );
+  
+  Future<PendingTransaction> createTokenApproval(
+    WalletBase wallet,
+    BigInt amount,
+    String spender,
+    CryptoCurrency token,
+    TransactionPriority priority,
+  );
+  
+  Future<PendingTransaction> createRawCallDataTransaction(
+    WalletBase wallet,
+    String to,
+    String dataHex,
+    BigInt valueWei,
+    TransactionPriority priority,
+  );
+  
+  // Hardware wallet methods
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
+  
+  // Utility methods
+  List<String> getDefaultTokenContractAddresses(WalletType walletType);
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
+  String? getEVMNativeEstimatedFee(WalletBase wallet);
+  String? getEVMERC20EstimatedFee(WalletBase wallet);
+  
+  // Chain-specific integrations (optional, can be null for non-Ethereum chains)
+  Future<BigInt>? getDEuroSavingsBalance(WalletBase wallet) => null;
+  Future<BigInt>? getDEuroAccruedInterest(WalletBase wallet) => null;
+  Future<BigInt>? getDEuroInterestRate(WalletBase wallet) => null;
+  Future<BigInt>? getDEuroSavingsApproved(WalletBase wallet) => null;
+  Future<PendingTransaction>? addDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority) => null;
+  Future<PendingTransaction>? removeDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority) => null;
+  Future<PendingTransaction>? reinvestDEuroInterest(WalletBase wallet, TransactionPriority priority) => null;
+  Future<PendingTransaction>? enableDEuroSaving(WalletBase wallet, TransactionPriority priority) => null;
+}
+  """;
+
+  const evmEmptyDefinition = 'EVM? evm;\n';
+  const evmCWDefinition = 'EVM? evm = CWEVM();\n';
+
+  final output = '$evmCommonHeaders\n' +
+      (hasImplementation ? '$evmCWHeaders\n' : '\n') +
+      (hasImplementation ? '$evmCwPart\n\n' : '\n') +
+      (hasImplementation ? evmCWDefinition : evmEmptyDefinition) +
+      '\n' +
+      evmContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generatePubspec({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1912,7 +2112,7 @@ Future<void> generatePubspec({
     output += '\n$flutterSecureStorage\n';
   }
 
-  if (hasEthereum || hasPolygon) {
+  if (hasEthereum || hasPolygon || hasBase || hasArbitrum) {
     output += '\n$cwEVM';
   }
 

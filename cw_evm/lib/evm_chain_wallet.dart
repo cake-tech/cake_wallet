@@ -88,7 +88,7 @@ class EVMChainWalletBase
         _hexPrivateKey = privateKey,
         _isTransactionUpdating = false,
         _client = client,
-        selectedChainId = client.chainId,
+        selectedChainId = _getInitialChainId(walletInfo.type),
         walletAddresses = EVMChainWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, EVMChainERC20Balance>.of(
           {
@@ -135,6 +135,13 @@ class EVMChainWalletBase
   }
 
   bool get hasPriorityFee => EVMChainUtils.hasPriorityFee(walletInfo.type);
+
+  /// Get initial chain ID from registry based on wallet type
+  static int _getInitialChainId(WalletType walletType) {
+    final registry = EvmChainRegistry();
+    final chainConfig = registry.getChainConfigByWalletType(walletType);
+    return chainConfig?.chainId ?? 1; // Default to Ethereum if not found
+  }
 
   @observable
   String? nativeTxEstimatedFee;
