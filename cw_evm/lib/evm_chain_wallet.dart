@@ -82,13 +82,14 @@ class EVMChainWalletBase
     EVMChainERC20Balance? initialBalance,
     required this.encryptionFileUtils,
     this.passphrase,
+    int? initialChainId,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
         _hexPrivateKey = privateKey,
         _isTransactionUpdating = false,
         _client = client,
-        selectedChainId = _getInitialChainId(walletInfo.type),
+        selectedChainId = initialChainId ?? _getInitialChainId(walletInfo.type),
         walletAddresses = EVMChainWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, EVMChainERC20Balance>.of(
           {
@@ -952,6 +953,7 @@ class EVMChainWalletBase
         'private_key': privateKey,
         'balance': balance[currency]!.toJSON(),
         'passphrase': passphrase,
+        'selected_chain_id': selectedChainId,
       });
 
   Future<void> _updateBalance() async {
@@ -1134,14 +1136,24 @@ class EVMChainWalletBase
       );
     }
 
-    // Get chain config and create appropriate client
+    // Get saved chain ID or default to wallet type's chain
+    final savedChainId = data?['selected_chain_id'] as int?;
+    
+    // Get chain config - use saved chain ID if available, otherwise use wallet type's default
     final registry = EvmChainRegistry();
-    final chainConfig = registry.getChainConfigByWalletType(walletInfo.type);
-    if (chainConfig == null) {
+    final chainId = savedChainId ?? 
+        registry.getChainConfigByWalletType(walletInfo.type)?.chainId;
+    
+    if (chainId == null) {
       throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
     }
+    
+    final chainConfig = registry.getChainConfig(chainId);
+    if (chainConfig == null) {
+      throw Exception('Chain config not found for chainId: $chainId');
+    }
 
-    final client = EVMChainClientFactory.createClient(chainConfig.chainId);
+    final client = EVMChainClientFactory.createClient(chainId);
 
     return EVMChainWallet(
       walletInfo: walletInfo,
@@ -1154,6 +1166,7 @@ class EVMChainWalletBase
       client: client,
       nativeCurrency: chainConfig.nativeCurrency,
       encryptionFileUtils: encryptionFileUtils,
+      initialChainId: savedChainId,
     );
   }
 
@@ -1257,3 +1270,4 @@ class GasParamsHandler {
     );
   }
 }
+
