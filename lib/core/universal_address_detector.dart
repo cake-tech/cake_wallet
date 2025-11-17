@@ -104,6 +104,18 @@ class UniversalAddressDetector {
         pattern: RegExp(r'^(lnbc|LNBC)[a-km-zA-HJ-NP-Z1-9]{1,}[a-zA-Z0-9]+$'),
         currency: CryptoCurrency.btcln,
       ),
+      
+      // Lightning Address (email format)
+      _DetectionPattern(
+        pattern: RegExp(r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'),
+        currency: CryptoCurrency.btcln,
+      ),
+      
+      // LNURL format
+      _DetectionPattern(
+        pattern: RegExp(r'^(LNURL|lnurl)[a-zA-Z0-9]+$', caseSensitive: false),
+        currency: CryptoCurrency.btcln,
+      ),
 
       // Bitcoin (P2PKH, P2SH, Bech32, Silent Payments)
       _DetectionPattern(

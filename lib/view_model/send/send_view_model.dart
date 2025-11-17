@@ -1009,7 +1009,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       if (error is CreateAssociatedTokenAccountException) {
-        return "${S.current.solana_create_associated_token_account_exception} ${S.current.added_message_for_ata_error}\n\n${error.errorMessage}";
+        return "${S.current.solana_create_associated_token_account_exception} ${S.current.added_message_for_ata_error}";
       }
 
       if (error is SignSPLTokenTransactionRentException) {
@@ -1018,6 +1018,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (error is NoAssociatedTokenAccountException) {
         return S.current.solana_no_associated_token_account_exception;
+      }
+
+      if (errorMessage.contains('found no record of a prior credit')) {
+        return S.current.insufficient_funds_for_tx;
       }
 
       if (errorMessage.contains('insufficient funds for rent') &&
@@ -1029,6 +1033,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               ? S.current.insufficientFundsForRentError
               : S.current.insufficientFundsForRentErrorReceiver;
         }
+      }
+
+      if (errorMessage.contains('invalid account data')) {
+        return S.current.solana_invalid_data_message;
       }
 
       return errorMessage;

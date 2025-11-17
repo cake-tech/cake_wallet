@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dar
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/evm_payment_flow_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
@@ -166,6 +167,13 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             result,
           );
           break;
+        case PaymentFlowType.evmNetworkSelection:
+          await _showEVMPaymentFlow(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
+          );
+          break;
         case PaymentFlowType.currentWalletCompatible:
         case PaymentFlowType.error:
         case PaymentFlowType.incompatible:
@@ -198,6 +206,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             paymentViewModel,
             walletSwitcherViewModel,
             paymentRequest,
+            result,
           ),
           onChangeWallet: () => _handleChangeWallet(
             paymentViewModel,
@@ -211,10 +220,43 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     );
   }
 
+  Future<void> _showEVMPaymentFlow(
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isDismissible: true,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return EVMPaymentFlowBottomSheet(
+          paymentViewModel: paymentViewModel,
+          paymentRequest: paymentRequest,
+          onNext: (PaymentFlowResult newResult) {
+            if (newResult.addressDetectionResult!.detectedWalletType ==
+                paymentViewModel.currentWalletType) {
+              sendViewModel.setSelectedCryptoCurrency(
+                  newResult.addressDetectionResult!.detectedCurrency!.title);
+            } else {
+              _showPaymentConfirmation(
+                paymentViewModel,
+                walletSwitcherViewModel,
+                paymentRequest,
+                newResult,
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _handleSelectWallet(
     PaymentViewModel paymentViewModel,
     WalletSwitcherViewModel walletSwitcherViewModel,
     PaymentRequest paymentRequest,
+    PaymentFlowResult result,
   ) async {
     Navigator.of(context).pop();
 
@@ -233,6 +275,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     final success = await walletSwitcherViewModel.switchToSelectedWallet();
 
     if (success) {
+      await sendViewModel.wallet.updateBalance();
+      sendViewModel
+          .setSelectedCryptoCurrency(result.addressDetectionResult!.detectedCurrency!.title);
       _applyPaymentRequest(paymentRequest);
     }
   }
@@ -269,6 +314,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         if (loadingBottomSheetContext != null && loadingBottomSheetContext!.mounted) {
           Navigator.of(loadingBottomSheetContext!).pop();
         }
+
+        await sendViewModel.wallet.updateBalance();
+        sendViewModel
+            .setSelectedCryptoCurrency(result.addressDetectionResult!.detectedCurrency!.title);
         _applyPaymentRequest(paymentRequest);
       }
     }
@@ -396,6 +445,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
                       final address =
                           output.isParsedAddress ? output.extractedAddress : output.address;
+
+                      if (address.contains('@')) return;
 
                       await _handlePaymentFlow(
                         address,
@@ -890,8 +941,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
         items: sendViewModel.currencies,
         hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) =>
-            sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency),
+        onItemSelected: (Currency cur) async {
+          final selectedCurrency = sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency);
+          await output.calculateEstimatedFee();
+          return selectedCurrency;
+        },
       ),
     );
   }

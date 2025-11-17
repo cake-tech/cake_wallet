@@ -4,6 +4,20 @@ import 'package:cw_core/sync_status.dart';
 
 String syncStatusTitle(SyncStatus syncStatus, SyncStatusDisplayMode syncStatusDisplayMode) {
   if (syncStatus is SyncingSyncStatus) {
+    // Show blocks remaining for the first 3 seconds, then switch to percentage
+    if (syncStatus.shouldShowBlocksRemaining()) {
+      if (syncStatus.blocksLeft == 1) {
+        return S.current.block_remaining;
+      }
+      return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+    }
+
+    // After 3 seconds, show percentage-based display
+    // Don't show ETA for very few blocks (less than 100) to avoid inconsistency
+    if (syncStatus.blocksLeft < 100) {
+      return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+    }
+
     if (syncStatus.blocksLeft == 1) {
       return S.current.block_remaining;
     }

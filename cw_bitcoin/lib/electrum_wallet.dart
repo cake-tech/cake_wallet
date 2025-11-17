@@ -2658,9 +2658,8 @@ abstract class ElectrumWalletBase
 
         break;
       case electrum.ConnectionStatus.disconnected:
-        if (syncStatus is! NotConnectedSyncStatus &&
-            syncStatus is! ConnectingSyncStatus &&
-            syncStatus is! SyncronizingSyncStatus) {
+        // Always show disconnected status when connection is lost, regardless of current sync state
+        if (syncStatus is! NotConnectedSyncStatus) {
           syncStatus = NotConnectedSyncStatus();
         }
         break;
