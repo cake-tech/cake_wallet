@@ -458,7 +458,7 @@ Future<void> setup({
 
 
   final walletList = await WalletInfo.getAll();
-  getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(walletList.isNotEmpty));
+  getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(walletList.isNotEmpty, getIt.get<AppStore>()));
 
 
   getIt.registerFactory<WalletManager>(

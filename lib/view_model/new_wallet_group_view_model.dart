@@ -20,12 +20,11 @@ class WalletGroupNewVM = WalletGroupNewVMBase with _$WalletGroupNewVM;
 
 abstract class WalletGroupNewVMBase with Store {
   WalletGroupNewVMBase(
-      this.appStore,
-      this.walletCreationService,
-      {
-        required this.walletNewVMBuilder,
-        required this.args,
-      })  : state = InitialExecutionState(),
+    this.appStore,
+    this.walletCreationService, {
+    required this.walletNewVMBuilder,
+    required this.args,
+  })  : state = InitialExecutionState(),
         name = '';
 
   final AppStore appStore;
@@ -33,7 +32,10 @@ abstract class WalletGroupNewVMBase with Store {
   final WalletNewVM Function(NewWalletArguments) walletNewVMBuilder;
   final WalletGroupArguments args;
 
-  static const defaultMoneroOptions = [defaultSeedLanguage, MoneroSeedType.bip39];
+  static const defaultMoneroOptions = [
+    defaultSeedLanguage,
+    MoneroSeedType.bip39
+  ];
 
   @observable
   String name;
@@ -56,15 +58,15 @@ abstract class WalletGroupNewVMBase with Store {
   @observable
   String? error;
 
-  bool nameExists(String name) => walletCreationService.exists(name);
+  Future<bool> nameExists(String name) => walletCreationService.exists(name);
 
   bool groupNameExists(String name) =>
       walletCreationService.groupNameExists(name);
 
-  String _uniquePerTypeName(WalletType type) {
+  Future<String> _uniquePerTypeName(WalletType type) async {
     final base = walletTypeToString(type);
     var i = 1;
-    while (walletCreationService.exists('$base $i')) {
+    while (await walletCreationService.exists('$base $i')) {
       i++;
     }
     return '$base $i';
@@ -94,17 +96,20 @@ abstract class WalletGroupNewVMBase with Store {
 
       if (types.isEmpty) throw 'No wallet types provided.';
       if (currentType == null) throw 'Current wallet type is not provided.';
-      if (!onlyBIP39Selected(types)) throw 'Only BIP39-based wallet types are supported in a group.';
+      if (!onlyBIP39Selected(types))
+        throw 'Only BIP39-based wallet types are supported in a group.';
 
       final restTypes = types.where((type) => type != currentType).toList();
 
-      var groupNameCandidate = name.trim().isEmpty ? await generateName() : name.trim();
+      var groupNameCandidate =
+          name.trim().isEmpty ? await generateName() : name.trim();
       final groupName = _uniqueGroupName(groupNameCandidate);
 
       final providedMnemonic = args.mnemonic;
       if (providedMnemonic != null && providedMnemonic.isEmpty) {
         throw 'Provided mnemonic is empty.';
       }
+
 
       dynamic options;
 
@@ -113,9 +118,7 @@ abstract class WalletGroupNewVMBase with Store {
         options = defaultMoneroOptions;
       }
 
-
-
-      final currentWalletName = _uniquePerTypeName(currentType);
+      final currentWalletName = await _uniquePerTypeName(currentType);
       await _createSingleWallet(
         type: currentType,
         finalName: currentWalletName,
@@ -128,10 +131,13 @@ abstract class WalletGroupNewVMBase with Store {
       progress = done.length / types.length;
 
       final currentWallet = appStore.wallet;
-      if (currentWallet == null) throw Exception('First wallet was not set as current.');
+      if (currentWallet == null)
+        throw Exception('First wallet was not set as current.');
 
       final groupKey = currentWallet.walletInfo.hashedWalletIdentifier ?? '';
-      if (groupKey.isEmpty) throw Exception('Failed to resolve wallet group key from first wallet.');
+      if (groupKey.isEmpty)
+        throw Exception(
+            'Failed to resolve wallet group key from first wallet.');
 
       String? sharedMnemonic = providedMnemonic;
       sharedMnemonic ??= currentWallet.seed;
@@ -139,12 +145,17 @@ abstract class WalletGroupNewVMBase with Store {
         throw Exception('Failed to resolve mnemonic (shared) for group.');
       }
 
+
+      final String? sharedPassphrase =
+          args.passphrase ?? currentWallet.passphrase;
+
       await walletCreationService.setGroupNameForKey(groupKey, groupName);
 
       state = ExecutedSuccessfullyState(
         payload: WalletGroupParams(
           restTypes: restTypes,
           sharedMnemonic: sharedMnemonic,
+          sharedPassphrase: sharedPassphrase,
           isChildWallet: true,
           groupKey: groupKey,
         ),
@@ -161,12 +172,22 @@ abstract class WalletGroupNewVMBase with Store {
     await Future<void>.delayed(Duration.zero); // run on next event loop turn
 
     for (final type in params.restTypes) {
-      final walletName = _uniquePerTypeName(type);
+      final walletName = await _uniquePerTypeName(type);
       dynamic options;
 
       // default options for monero
       if (type == WalletType.monero) {
         options = defaultMoneroOptions;
+      }
+
+      if (params.sharedPassphrase != null &&
+          params.sharedPassphrase!.isNotEmpty) {
+        final sharedPassphraseMap = {'passphrase': params.sharedPassphrase!};
+        if (options is List) {
+          options = [...options, sharedPassphraseMap];
+        } else {
+          options = [sharedPassphraseMap];
+        }
       }
 
       await _createSingleWallet(
@@ -178,7 +199,8 @@ abstract class WalletGroupNewVMBase with Store {
         makeCurrent: false,
       );
       done = [...done, type];
-      progress = done.length / (done.length + params.restTypes.length - done.length);
+      progress =
+          done.length / (done.length + params.restTypes.length - done.length);
     }
   }
 
@@ -190,7 +212,8 @@ abstract class WalletGroupNewVMBase with Store {
     required dynamic options,
     required bool makeCurrent,
   }) async {
-    final newArgs = NewWalletArguments(type: type, mnemonic: mnemonic, isChildWallet: isChildWallet);
+    final newArgs = NewWalletArguments(
+        type: type, mnemonic: mnemonic, isChildWallet: isChildWallet);
 
     final walletNewVM = walletNewVMBuilder(newArgs);
     walletNewVM.name = finalName;

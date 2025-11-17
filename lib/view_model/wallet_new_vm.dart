@@ -61,7 +61,17 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   @override
   WalletCredentials getCredentials(dynamic _options) {
     final options = _options as List<dynamic>?;
-    final passphrase = seedSettingsViewModel.passphrase;
+
+    String? sharedPassphrase;
+    if (options != null) {
+      options.forEach((dynamic element) {
+        if (element is Map<String, String>) {
+          sharedPassphrase = element['passphrase'];
+        }
+      });
+    }
+
+    final passphrase = seedSettingsViewModel.passphrase ?? sharedPassphrase;
     seedSettingsViewModel.setPassphrase(null);
 
     switch (type) {

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -9,7 +10,7 @@ class NewWalletTypeViewModel = NewWalletTypeViewModelBase
     with _$NewWalletTypeViewModel;
 
 abstract class NewWalletTypeViewModelBase with Store {
-  NewWalletTypeViewModelBase(this.hasExisitingWallet) {
+  NewWalletTypeViewModelBase(this.hasExisitingWallet, this.appStore) {
     itemSelection = ObservableMap<WalletType, bool>.of({
       WalletType.monero: false,
       WalletType.bitcoin: false,
@@ -27,6 +28,7 @@ abstract class NewWalletTypeViewModelBase with Store {
 
 
   final bool hasExisitingWallet;
+  final AppStore appStore;
 
   late final ObservableMap<WalletType, bool> itemSelection;
 
