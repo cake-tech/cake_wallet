@@ -1,11 +1,8 @@
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -23,15 +20,13 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.litecoin:
       return bitcoin!.getLitecoinTransactionPriorities();
     case WalletType.ethereum:
-      return ethereum!.getTransactionPriorities();
+    case WalletType.polygon:
+    case WalletType.base:
+      return evm!.getTransactionPriorities();
     case WalletType.bitcoinCash:
       return bitcoinCash!.getTransactionPriorities();
     case WalletType.dogecoin:
       return dogecoin!.getTransactionPriorities();
-    case WalletType.polygon:
-      return polygon!.getTransactionPriorities();
-    case WalletType.base:
-      return base!.getTransactionPriorities();
     case WalletType.arbitrum:
     case WalletType.nano:
     case WalletType.banano:

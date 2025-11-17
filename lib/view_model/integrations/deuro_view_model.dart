@@ -2,7 +2,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -82,7 +82,7 @@ abstract class DEuroViewModelBase with Store {
 
   @computed
   String get savingsBalanceFormated =>
-      ethereum!.formatterEthereumAmountToDouble(amount: savingsBalance).toStringAsFixed(6);
+      evm!.formatterEVMAmountToDouble(amount: savingsBalance).toStringAsFixed(6);
 
   @computed
   String get fiatSavingsBalanceFormated => _getDEuroFiatAmount(savingsBalanceFormated);
@@ -98,7 +98,7 @@ abstract class DEuroViewModelBase with Store {
 
   @computed
   String get accruedInterestFormated =>
-      ethereum!.formatterEthereumAmountToDouble(amount: accruedInterest).toStringAsFixed(6);
+      evm!.formatterEVMAmountToDouble(amount: accruedInterest).toStringAsFixed(6);
 
   @computed
   String get fiatAccruedInterestFormated => _getDEuroFiatAmount(accruedInterestFormated);
@@ -126,15 +126,15 @@ abstract class DEuroViewModelBase with Store {
 
   @action
   Future<void> reloadSavingsUserData() async {
-    approvedTokens = await ethereum!.getDEuroSavingsApproved(_appStore.wallet!);
-    savingsBalance = await ethereum!.getDEuroSavingsBalance(_appStore.wallet!);
-    accruedInterest = await ethereum!.getDEuroAccruedInterest(_appStore.wallet!);
+    approvedTokens = await evm!.getDEuroSavingsApproved(_appStore.wallet!) ?? BigInt.zero;
+    savingsBalance = await evm!.getDEuroSavingsBalance(_appStore.wallet!) ?? BigInt.zero;
+    accruedInterest = await evm!.getDEuroAccruedInterest(_appStore.wallet!) ?? BigInt.zero;
     isLoading = false;
   }
 
   @action
   Future<void> reloadInterestRate() async {
-    final interestRateRaw = await ethereum!.getDEuroInterestRate(_appStore.wallet!);
+    final interestRateRaw = await evm!.getDEuroInterestRate(_appStore.wallet!) ?? BigInt.zero;
 
     interestRateFormated = (interestRateRaw / BigInt.from(10000)).toString();
   }
@@ -149,7 +149,11 @@ abstract class DEuroViewModelBase with Store {
     try {
       state = TransactionCommitting();
       final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
-      approvalTransaction = await ethereum!.enableDEuroSaving(_appStore.wallet!, priority);
+      final approval = await evm!.enableDEuroSaving(_appStore.wallet!, priority);
+      if (approval == null) {
+        throw Exception('DEuro saving not available');
+      }
+      approvalTransaction = approval;
       state = InitialExecutionState();
     } catch (e) {
       state = FailureState(e.toString());
@@ -163,9 +167,13 @@ abstract class DEuroViewModelBase with Store {
       final amount = parseFixed(amountRaw, 18);
       final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
       actionType = isAdding ? DEuroActionType.deposit : DEuroActionType.withdraw;
-      transaction = await (isAdding
-          ? ethereum!.addDEuroSaving(_appStore.wallet!, amount, priority)
-          : ethereum!.removeDEuroSaving(_appStore.wallet!, amount, priority));
+      final tx = await (isAdding
+          ? evm!.addDEuroSaving(_appStore.wallet!, amount, priority)
+          : evm!.removeDEuroSaving(_appStore.wallet!, amount, priority));
+      if (tx == null) {
+        throw Exception('DEuro saving not available');
+      }
+      transaction = tx;
       state = InitialExecutionState();
     } catch (e) {
       state = FailureState(e.toString());
@@ -179,7 +187,11 @@ abstract class DEuroViewModelBase with Store {
       state = TransactionCommitting();
       actionType = DEuroActionType.reinvest;
       final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
-      transaction = await ethereum!.reinvestDEuroInterest(_appStore.wallet!, priority);
+      final tx = await evm!.reinvestDEuroInterest(_appStore.wallet!, priority);
+      if (tx == null) {
+        throw Exception('DEuro saving not available');
+      }
+      transaction = tx;
       state = InitialExecutionState();
     } catch (e) {
       state = FailureState(e.toString());

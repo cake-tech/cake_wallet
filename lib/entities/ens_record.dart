@@ -1,7 +1,5 @@
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -10,25 +8,11 @@ import 'package:ens_dart/ens_dart.dart';
 import 'package:web3dart/web3dart.dart';
 
 class EnsRecord {
-  
   static Future<String> fetchEnsAddress(String name, {WalletBase? wallet}) async {
-
     Web3Client? _client;
 
-    if (wallet != null && wallet.type == WalletType.ethereum) {
-      _client = ethereum!.getWeb3Client(wallet);
-    }
-    
-    if (wallet != null && wallet.type == WalletType.polygon) {
-      _client = polygon!.getWeb3Client(wallet);
-    }
-
-    if (wallet != null && wallet.type == WalletType.base) {
-      _client = base!.getWeb3Client(wallet);
-    }
-
-    if (wallet != null && wallet.type == WalletType.arbitrum) {
-      _client = arbitrum!.getWeb3Client(wallet);
+    if (wallet != null && (isEVMCompatibleChain(wallet.type))) {
+      _client = evm!.getWeb3Client(wallet);
     }
 
     if (_client == null) {

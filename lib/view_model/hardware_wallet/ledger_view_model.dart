@@ -3,11 +3,10 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
@@ -187,9 +186,8 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.litecoin:
         return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
-        return ethereum!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.polygon:
-        return polygon!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+        return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }
@@ -203,9 +201,8 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.litecoin:
         return bitcoin!.getLedgerHardwareWalletService(connection, false);
       case WalletType.ethereum:
-        return ethereum!.getLedgerHardwareWalletService(connection);
       case WalletType.polygon:
-        return polygon!.getLedgerHardwareWalletService(connection);
+        return evm!.getLedgerHardwareWalletService(connection);
       default:
         throw UnimplementedError();
     }

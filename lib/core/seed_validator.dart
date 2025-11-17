@@ -1,12 +1,9 @@
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/entities/mnemonic_item.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -36,14 +33,15 @@ class SeedValidator extends Validator<MnemonicItem> {
       case WalletType.monero:
         return monero!.getMoneroWordList(language);
       case WalletType.ethereum:
-        return ethereum!.getEthereumWordList(language);
+      case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
+        return evm!.getEVMWordList(language);
       case WalletType.bitcoinCash:
         return getBitcoinWordList(language);
       case WalletType.nano:
       case WalletType.banano:
         return nano!.getNanoWordList(language);
-      case WalletType.polygon:
-        return polygon!.getPolygonWordList(language);
       case WalletType.solana:
         return solana!.getSolanaWordList(language);
       case WalletType.tron:
@@ -54,10 +52,6 @@ class SeedValidator extends Validator<MnemonicItem> {
         return zano!.getWordList(language);
       case WalletType.decred:
         return decred!.getDecredWordList();
-      case WalletType.base:
-        return base!.getBaseWordList(language);
-      case WalletType.arbitrum:
-        return arbitrum!.getArbitrumWordList(language);
       case WalletType.none:
       case WalletType.haven:
         return [];

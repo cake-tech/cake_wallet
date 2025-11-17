@@ -1,7 +1,4 @@
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
@@ -22,13 +19,10 @@ class KeyServiceImpl implements WalletConnectKeyService {
   static String _getPrivateKeyForWallet(WalletBase wallet) {
     switch (wallet.type) {
       case WalletType.ethereum:
-        return ethereum!.getPrivateKey(wallet);
       case WalletType.polygon:
-        return polygon!.getPrivateKey(wallet);
       case WalletType.base:
-        return base!.getPrivateKey(wallet);
       case WalletType.arbitrum:
-        return arbitrum!.getPrivateKey(wallet);
+        return evm!.getPrivateKey(wallet);
       case WalletType.solana:
         return solana!.getPrivateKey(wallet);
       default:
@@ -39,13 +33,10 @@ class KeyServiceImpl implements WalletConnectKeyService {
   static String _getPublicKeyForWallet(WalletBase wallet) {
     switch (wallet.type) {
       case WalletType.ethereum:
-        return ethereum!.getPublicKey(wallet);
       case WalletType.polygon:
-        return polygon!.getPublicKey(wallet);
       case WalletType.base:
-        return base!.getPublicKey(wallet);
       case WalletType.arbitrum:
-        return arbitrum!.getPublicKey(wallet);
+        return evm!.getPublicKey(wallet);
       case WalletType.solana:
         return solana!.getPublicKey(wallet);
       default:

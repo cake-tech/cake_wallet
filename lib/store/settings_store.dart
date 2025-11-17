@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -27,13 +26,12 @@ import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
@@ -991,15 +989,15 @@ abstract class SettingsStoreBase with Store {
           sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
-      ethereumTransactionPriority = ethereum?.deserializeEthereumTransactionPriority(
+      ethereumTransactionPriority = evm?.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
-      polygonTransactionPriority = polygon?.deserializePolygonTransactionPriority(
+      polygonTransactionPriority = evm?.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.baseTransactionPriority) != null) {
-      baseTransactionPriority = base?.deserializeBaseTransactionPriority(
+      baseTransactionPriority = evm?.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
@@ -1023,12 +1021,12 @@ abstract class SettingsStoreBase with Store {
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
     havenTransactionPriority ??= monero?.getDefaultTransactionPriority();
     litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
-    ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
+    ethereumTransactionPriority ??= evm?.getDefaultTransactionPriority();
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
-    polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
-    baseTransactionPriority ??= base?.getDefaultTransactionPriority();
+    polygonTransactionPriority ??= evm?.getDefaultTransactionPriority();
+    baseTransactionPriority ??= evm?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
@@ -1497,19 +1495,19 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.litecoin] = bitcoin!.deserializeLitecoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!);
     }
-    if (ethereum != null &&
+    if (evm != null &&
         sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
-      priority[WalletType.ethereum] = ethereum!.deserializeEthereumTransactionPriority(
+      priority[WalletType.ethereum] = evm!.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
     }
-    if (polygon != null &&
+    if (evm != null &&
         sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
-      priority[WalletType.polygon] = polygon!.deserializePolygonTransactionPriority(
+      priority[WalletType.polygon] = evm!.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority)!);
     }
-    if (base != null &&
+    if (evm != null &&
         sharedPreferences.getInt(PreferencesKey.baseTransactionPriority) != null) {
-      priority[WalletType.base] = base!.deserializeBaseTransactionPriority(
+      priority[WalletType.base] = evm!.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
     }
     if (bitcoinCash != null &&

@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -36,23 +34,9 @@ Future<void> startFiatRateUpdate(
               torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
 
       Iterable<CryptoCurrency>? currencies;
-      if (appStore.wallet!.type == WalletType.ethereum) {
+      if (isEVMCompatibleChain(appStore.wallet!.type)) {
         currencies =
-            ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
-      }
-
-      if (appStore.wallet!.type == WalletType.polygon) {
-        currencies =
-            polygon!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
-      }
-
-      if (appStore.wallet!.type == WalletType.base) {
-        currencies =
-            base!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
-      }
-      if (appStore.wallet!.type == WalletType.arbitrum) {
-        currencies =
-            arbitrum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+            evm!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
       }
 
       if (appStore.wallet!.type == WalletType.solana) {

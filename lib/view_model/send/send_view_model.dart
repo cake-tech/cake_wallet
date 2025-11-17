@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -20,7 +19,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
@@ -28,8 +27,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -73,7 +70,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void onWalletChange(wallet) {
     currencies = wallet.balance.keys.toList();
     selectedCryptoCurrency = wallet.currency;
-    hasMultipleTokens = isEVMCompatibleChain(wallet.type) ||
+    hasMultipleTokens = isEVMWallet ||
         wallet.type == WalletType.solana ||
         wallet.type == WalletType.tron ||
         wallet.type == WalletType.zano;
@@ -539,30 +536,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               (trade.requiresTokenApproval ?? false) && !_isPreparedTransfer;
 
           if (requiresTokenApproval && tokenContract.isNotEmpty && requiredAmount > BigInt.zero) {
-            if (walletType == WalletType.ethereum) {
-              final priority = _settingsStore.priority[WalletType.ethereum]!;
-              _pendingApprovalTx = await buildApprovalIfNeeded(
-                spender: routerTo!, // if API provides a specific spender, use that instead
-                tokenContract: tokenContract,
-                requiredAmount: requiredAmount,
-                sourceTokenDecimals: trade.sourceTokenDecimals,
-              );
-
-              // Build the callData tx
-              pendingTransaction = await ethereum!.createRawCallDataTransaction(
-                wallet,
-                routerTo,
-                routerData,
-                routerValueWei,
-                priority,
-              );
-
-              _isSwapsXYZCallDataTx = true;
-              state = ExecutedSuccessfullyState();
-              return pendingTransaction; // do NOT fall back to regular flow
-            }
-            if (walletType == WalletType.polygon) {
-              final priority = _settingsStore.priority[WalletType.polygon]!;
+            if (isEVMWallet) {
+              final priority = _settingsStore.priority[walletType]!;
               _pendingApprovalTx = await buildApprovalIfNeeded(
                 spender: routerTo!,
                 tokenContract: tokenContract,
@@ -571,54 +546,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               );
 
               // Build the callData tx
-              pendingTransaction = await polygon!.createRawCallDataTransaction(
+              pendingTransaction = await evm!.createRawCallDataTransaction(
                 wallet,
                 routerTo,
                 routerData,
                 routerValueWei,
                 priority,
-              );
-
-              _isSwapsXYZCallDataTx = true;
-              state = ExecutedSuccessfullyState();
-              return pendingTransaction; // do NOT fall back to regular flow
-            }
-            if (walletType == WalletType.base) {
-              final priority = _settingsStore.priority[WalletType.base]!;
-              _pendingApprovalTx = await buildApprovalIfNeeded(
-                spender: routerTo!,
-                tokenContract: tokenContract,
-                requiredAmount: requiredAmount,
-                sourceTokenDecimals: trade.sourceTokenDecimals,
-              );
-
-              // Build the callData tx
-              pendingTransaction = await base!.createRawCallDataTransaction(
-                wallet,
-                routerTo,
-                routerData,
-                routerValueWei,
-                priority,
-              );
-
-              _isSwapsXYZCallDataTx = true;
-              state = ExecutedSuccessfullyState();
-              return pendingTransaction; // do NOT fall back to regular flow
-            }
-            if (walletType == WalletType.arbitrum) {
-              _pendingApprovalTx = await buildApprovalIfNeeded(
-                spender: routerTo!,
-                tokenContract: tokenContract,
-                requiredAmount: requiredAmount,
-                sourceTokenDecimals: trade.sourceTokenDecimals,
-              );
-
-              // Build the callData tx
-              pendingTransaction = await arbitrum!.createRawCallDataTransaction(
-                wallet,
-                routerTo,
-                routerData,
-                routerValueWei,
               );
 
               _isSwapsXYZCallDataTx = true;
@@ -628,51 +561,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           }
 
           // No approval needed (or prepared transfer): send exactly what backend prepared
-          if (walletType == WalletType.ethereum) {
-            final priority = _settingsStore.priority[WalletType.ethereum]!;
-            pendingTransaction = await ethereum!.createRawCallDataTransaction(
+          if (isEVMWallet) {
+            final priority = _settingsStore.priority[walletType]!;
+            pendingTransaction = await evm!.createRawCallDataTransaction(
               wallet,
               routerTo!,
               routerData,
               routerValueWei,
               priority,
-            );
-            _isSwapsXYZCallDataTx = true;
-            state = ExecutedSuccessfullyState();
-            return pendingTransaction;
-          }
-          if (walletType == WalletType.polygon) {
-            final priority = _settingsStore.priority[WalletType.polygon]!;
-            pendingTransaction = await polygon!.createRawCallDataTransaction(
-              wallet,
-              routerTo!,
-              routerData,
-              routerValueWei,
-              priority,
-            );
-            _isSwapsXYZCallDataTx = true;
-            state = ExecutedSuccessfullyState();
-            return pendingTransaction;
-          }
-          if (walletType == WalletType.base) {
-            final priority = _settingsStore.priority[WalletType.base]!;
-            pendingTransaction = await base!.createRawCallDataTransaction(
-              wallet,
-              routerTo!,
-              routerData,
-              routerValueWei,
-              priority,
-            );
-            _isSwapsXYZCallDataTx = true;
-            state = ExecutedSuccessfullyState();
-            return pendingTransaction;
-          }
-          if (walletType == WalletType.arbitrum) {
-            pendingTransaction = await arbitrum!.createRawCallDataTransaction(
-              wallet,
-              routerTo!,
-              routerData,
-              routerValueWei,
             );
             _isSwapsXYZCallDataTx = true;
             state = ExecutedSuccessfullyState();
@@ -910,19 +806,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
       case WalletType.ethereum:
-        return ethereum!.createEthereumTransactionCredentials(outputs,
-            priority: priority!, currency: selectedCryptoCurrency);
+      case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
+        return evm!.createEVMTransactionCredentials(
+          outputs,
+          priority: priority!,
+          currency: selectedCryptoCurrency,
+        );
       case WalletType.nano:
         return nano!.createNanoTransactionCredentials(outputs);
-      case WalletType.polygon:
-        return polygon!.createPolygonTransactionCredentials(outputs,
-            priority: priority!, currency: selectedCryptoCurrency);
-      case WalletType.base:
-        return base!.createBaseTransactionCredentials(outputs,
-            priority: priority!, currency: selectedCryptoCurrency);
-      case WalletType.arbitrum:
-        return arbitrum!
-            .createArbitrumTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       case WalletType.solana:
         return solana!
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
@@ -1175,29 +1068,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (requiredAmount <= BigInt.zero) return null;
 
     bool needsApproval = false;
-    if (walletType == WalletType.ethereum) {
-      needsApproval = await ethereum!.isApprovalRequired(
-        wallet,
-        tokenContract,
-        spender,
-        requiredAmount,
-      );
-    } else if (walletType == WalletType.polygon) {
-      needsApproval = await polygon!.isApprovalRequired(
-        wallet,
-        tokenContract,
-        spender,
-        requiredAmount,
-      );
-    } else if (walletType == WalletType.base) {
-      needsApproval = await base!.isApprovalRequired(
-        wallet,
-        tokenContract,
-        spender,
-        requiredAmount,
-      );
-    } else if (walletType == WalletType.arbitrum) {
-      needsApproval = await arbitrum!.isApprovalRequired(
+    if (isEVMWallet) {
+      needsApproval = await evm!.isApprovalRequired(
         wallet,
         tokenContract,
         spender,
@@ -1218,39 +1090,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           ),
         );
 
-    if (walletType == WalletType.ethereum) {
-      final priority = _settingsStore.priority[WalletType.ethereum]!;
-      return await ethereum!.createTokenApproval(
+    if (isEVMWallet) {
+      final priority = _settingsStore.priority[walletType]!;
+      return await evm!.createTokenApproval(
         wallet,
         requiredAmount,
         spender,
         erc20Token,
         priority,
-      );
-    } else if (walletType == WalletType.polygon) {
-      final priority = _settingsStore.priority[WalletType.polygon]!;
-      return await polygon!.createTokenApproval(
-        wallet,
-        requiredAmount,
-        spender,
-        erc20Token,
-        priority,
-      );
-    } else if (walletType == WalletType.base) {
-      final priority = _settingsStore.priority[WalletType.base]!;
-      return await base!.createTokenApproval(
-        wallet,
-        requiredAmount,
-        spender,
-        erc20Token,
-        priority,
-      );
-    } else if (walletType == WalletType.arbitrum) {
-      return await arbitrum!.createTokenApproval(
-        wallet,
-        requiredAmount,
-        spender,
-        erc20Token,
       );
     }
 
