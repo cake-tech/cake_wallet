@@ -73,6 +73,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.ape:
       case CryptoCurrency.avaxc:
       case CryptoCurrency.eth:
+      case CryptoCurrency.baseEth:
+      case CryptoCurrency.arbEth:
       case CryptoCurrency.mana:
       case CryptoCurrency.matic:
       case CryptoCurrency.maticpoly:
@@ -227,6 +229,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.steth:
       case CryptoCurrency.shib:
       case CryptoCurrency.avaxc:
+      case CryptoCurrency.baseEth:
+      case CryptoCurrency.arbEth:
         return [42];
       case CryptoCurrency.bch:
         return [42, 54, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35];
@@ -333,6 +337,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.eth:
       case CryptoCurrency.maticpoly:
       case CryptoCurrency.baseEth:
+      case CryptoCurrency.arbEth:
         pattern = '0x[0-9a-zA-Z]+';
       case CryptoCurrency.nano:
         pattern = 'nano_[0-9a-zA-Z]{60}';
