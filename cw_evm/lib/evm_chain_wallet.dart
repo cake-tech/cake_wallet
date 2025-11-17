@@ -316,7 +316,7 @@ class EVMChainWalletBase
       walletInfo: walletInfo,
       password: password,
       encryptionFileUtils: encryptionFileUtils,
-  );
+    );
   }
 
   String _getUSDCContractAddress() {
@@ -1136,18 +1136,16 @@ class EVMChainWalletBase
       );
     }
 
-    // Get saved chain ID or default to wallet type's chain
     final savedChainId = data?['selected_chain_id'] as int?;
-    
+
     // Get chain config - use saved chain ID if available, otherwise use wallet type's default
     final registry = EvmChainRegistry();
-    final chainId = savedChainId ?? 
-        registry.getChainConfigByWalletType(walletInfo.type)?.chainId;
-    
+    final chainId = savedChainId ?? registry.getChainConfigByWalletType(walletInfo.type)?.chainId;
+
     if (chainId == null) {
       throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
     }
-    
+
     final chainConfig = registry.getChainConfig(chainId);
     if (chainConfig == null) {
       throw Exception('Chain config not found for chainId: $chainId');
@@ -1270,4 +1268,3 @@ class GasParamsHandler {
     );
   }
 }
-
