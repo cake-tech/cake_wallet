@@ -43,6 +43,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   static const inactiveIconAppearDuration = Duration(milliseconds: 300);
   static const pillMoveDuration = Duration(milliseconds: 250);
   static const pillResizeDuration = Duration(milliseconds: 250);
+  static const iconColorChangeDuration = Duration(milliseconds: 200);
 
   static const pillTextStyle = TextStyle(
     fontSize: 16,
@@ -192,14 +193,23 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                       duration: inactiveIconAppearDuration,
                                       curve: Curves.easeOutCubic,
                                       scale: (i == selectedIndex) ? 0.8 : 1.0,
-                                      child: SvgPicture.asset(
-                                        visibleActions[i].image,
-                                        width: iconWidth,
-                                        height: iconHeight,
-                                        colorFilter: ColorFilter.mode(
-                                          inactiveColor,
-                                          BlendMode.srcIn,
-                                        ),
+                                      child: TweenAnimationBuilder<Color?>(
+                                          tween: ColorTween(
+                                            begin: (i == selectedIndex) ? inactiveColor : activeColor,
+                                            end: (i==selectedIndex) ? activeColor : inactiveColor,
+                                          ),
+                                        duration: iconColorChangeDuration,
+                                        builder: (context, value, child) {
+                                          return SvgPicture.asset(
+                                            visibleActions[i].image,
+                                            width: iconWidth,
+                                            height: iconHeight,
+                                            colorFilter: ColorFilter.mode(
+                                              value ?? inactiveColor,
+                                              BlendMode.srcIn,
+                                            ),
+                                          );
+                                        }
                                       ),
                                     ),
                                   ),
