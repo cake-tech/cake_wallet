@@ -14,6 +14,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -28,6 +29,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 
 import 'package:cake_wallet/entities/contact_base.dart';
 
@@ -49,8 +51,15 @@ abstract class OutputBase with Store {
         address = '',
         note = '',
         extractedAddress = '',
+        estimatedFee = '0.0',
         parsedAddress = ParsedAddress(addresses: []) {
     _setCryptoNumMaximumFractionDigits();
+    autorun((_) {
+      final status = _wallet.syncStatus;
+      printV("Sync status changed to $status. Recalculating fees");
+
+      calculateEstimatedFee();
+    });
   }
 
   Key key;
@@ -118,6 +127,9 @@ abstract class OutputBase with Store {
           case WalletType.base:
             _amount = base!.formatterBaseParseAmount(_cryptoAmount);
             break;
+          case WalletType.arbitrum:
+            _amount = arbitrum!.formatterArbitrumParseAmount(_cryptoAmount);
+            break;
           case WalletType.wownero:
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
@@ -145,78 +157,110 @@ abstract class OutputBase with Store {
     return amount;
   }
 
-  @computed
-  double get estimatedFee {
+  @observable
+  String estimatedFee;
+
+  @action
+  Future<void> calculateEstimatedFee() async {
     try {
-      // forces mobx to rebuild the computed value
-      final _ = _wallet.syncStatus;
-
-      if (_wallet.type == WalletType.tron) {
-        if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
-          final nativeEstimatedFee = tron!.getTronNativeEstimatedFee(_wallet) ?? 0;
-          return double.parse(nativeEstimatedFee.toString());
-        } else {
-          final trc20EstimatedFee = tron!.getTronTRC20EstimatedFee(_wallet) ?? 0;
-          return double.parse(trc20EstimatedFee.toString());
-        }
+      if (isEVMCompatibleChain(_wallet.type)) {
+        await _wallet.updateEstimatedFeesParams(_settingsStore.priority[_wallet.type]!);
       }
 
-      if (_wallet.type == WalletType.solana) {
-        return solana!.getEstimateFees(_wallet) ?? 0.0;
+      int fee = 0;
+      if (_settingsStore.priority[_wallet.type] != null) {
+        fee = _wallet.calculateEstimatedFee(
+          _settingsStore.priority[_wallet.type]!,
+          formattedCryptoAmount,
+        );
       }
 
-      int? fee = _wallet.calculateEstimatedFee(
-          _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
+      switch (_wallet.type) {
+        case WalletType.monero:
+          estimatedFee = monero!.formatterMoneroAmountToDouble(amount: fee).toString();
+          break;
+        case WalletType.bitcoin:
+          if (_settingsStore.priority[_wallet.type] ==
+              bitcoin!.getBitcoinTransactionPriorityCustom()) {
+            fee = bitcoin!.getEstimatedFeeWithFeeRate(
+                _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
+          }
 
-      if (_wallet.type == WalletType.bitcoin) {
-        if (_settingsStore.priority[_wallet.type] ==
-            bitcoin!.getBitcoinTransactionPriorityCustom()) {
-          fee = bitcoin!.getEstimatedFeeWithFeeRate(
-              _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
-        }
+          estimatedFee = bitcoin!.formatterBitcoinAmountToDouble(amount: fee).toString();
+          break;
+        case WalletType.litecoin:
+        case WalletType.bitcoinCash:
+        case WalletType.dogecoin:
+          estimatedFee = bitcoin!.formatterBitcoinAmountToDouble(amount: fee).toString();
+          break;
+        case WalletType.solana:
+          estimatedFee = solana!.getEstimateFees(_wallet).toString();
+          break;
+        case WalletType.wownero:
+          estimatedFee = wownero!.formatterWowneroAmountToDouble(amount: fee).toString();
+          break;
+        case WalletType.zano:
+          estimatedFee = zano!
+              .formatterIntAmountToDouble(
+                  amount: fee, currency: cryptoCurrencyHandler(), forFee: true)
+              .toString();
+          break;
+        case WalletType.decred:
+          estimatedFee = decred!.formatterDecredAmountToDouble(amount: fee).toString();
+          break;
+        case WalletType.tron:
+          if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
+            estimatedFee = tron!.getTronNativeEstimatedFee(_wallet).toString();
+          } else {
+            estimatedFee = tron!.getTronTRC20EstimatedFee(_wallet).toString();
+          }
+          break;
 
-        return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
-      }
+        /// EVMs
+        case WalletType.ethereum:
+          String? fee = cryptoCurrencyHandler() == CryptoCurrency.eth
+              ? ethereum!.getEthereumNativeEstimatedFee(_wallet)
+              : ethereum!.getEthereumERC20EstimatedFee(_wallet);
 
-      if (_wallet.type == WalletType.litecoin ||
-          _wallet.type == WalletType.bitcoinCash ||
-          _wallet.type == WalletType.dogecoin) {
-        return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
-      }
+          estimatedFee = formatFixed(BigInt.parse(fee ?? '0.0'), 18, fractionalDigits: 12);
+          break;
 
-      if (_wallet.type == WalletType.monero) {
-        return monero!.formatterMoneroAmountToDouble(amount: fee);
-      }
+        case WalletType.polygon:
+          String? fee = cryptoCurrencyHandler() == CryptoCurrency.maticpoly
+              ? polygon!.getPolygonNativeEstimatedFee(_wallet)
+              : polygon!.getPolygonERC20EstimatedFee(_wallet);
 
-      if (_wallet.type == WalletType.wownero) {
-        return wownero!.formatterWowneroAmountToDouble(amount: fee);
-      }
+          estimatedFee = formatFixed(BigInt.parse(fee ?? '0.0'), 18, fractionalDigits: 12);
+          break;
 
-      if (_wallet.type == WalletType.ethereum) {
-        return ethereum!.formatterEthereumAmountToDouble(amount: BigInt.from(fee));
-      }
+        case WalletType.base:
+          String? fee = cryptoCurrencyHandler() == CryptoCurrency.baseEth
+              ? base!.getBaseNativeEstimatedFee(_wallet)
+              : base!.getBaseERC20EstimatedFee(_wallet);
 
-      if (_wallet.type == WalletType.polygon) {
-        return polygon!.formatterPolygonAmountToDouble(amount: BigInt.from(fee));
-      }
+          estimatedFee = formatFixed(BigInt.parse(fee ?? '0.0'), 18, fractionalDigits: 12);
+          break;
 
-      if (_wallet.type == WalletType.base) {
-        return base!.formatterBaseAmountToDouble(amount: BigInt.from(fee));
-      }
+        case WalletType.arbitrum:
+          String? fee = cryptoCurrencyHandler() == CryptoCurrency.arbEth
+              ? arbitrum!.getArbitrumNativeEstimatedFee(_wallet)
+              : arbitrum!.getArbitrumERC20EstimatedFee(_wallet);
 
-      if (_wallet.type == WalletType.zano) {
-        return zano!.formatterIntAmountToDouble(
-            amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
-      }
+          estimatedFee = formatFixed(BigInt.parse(fee ?? '0.0'), 18, fractionalDigits: 12);
+          break;
 
-      if (_wallet.type == WalletType.decred) {
-        return decred!.formatterDecredAmountToDouble(amount: fee);
+        /// end EVMs
+
+        case WalletType.haven:
+        case WalletType.nano:
+        case WalletType.banano:
+        case WalletType.none:
+          // will not reach here as it doesn't have priority and this function is triggered only when priority changes
+          break;
       }
     } catch (e) {
       printV(e.toString());
     }
-
-    return 0;
   }
 
   @computed
@@ -231,7 +275,8 @@ abstract class OutputBase with Store {
           ? _wallet.currency
           : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
-          price: _fiatConversationStore.prices[currency]!, cryptoAmount: estimatedFee);
+          price: _fiatConversationStore.prices[currency]!,
+          cryptoAmount: double.parse(estimatedFee));
       return fiat;
     } catch (_) {
       return '0.00';
@@ -245,6 +290,7 @@ abstract class OutputBase with Store {
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
+
   @action
   void setSendAll(String fullBalance) {
     cryptoFullBalance = fullBalance;
@@ -337,6 +383,7 @@ abstract class OutputBase with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.haven:

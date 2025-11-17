@@ -19,6 +19,8 @@ wownero.SubaddressAccount? subaddressAccount;
 bool isUpdating = false;
 
 void refreshAccounts() {
+  if (wptr == null) return;
+
   try {
     isUpdating = true;
     subaddressAccount = wownero.Wallet_subaddressAccount(wptr!);
@@ -31,6 +33,7 @@ void refreshAccounts() {
 }
 
 List<wownero.SubaddressAccountRow> getAllAccount() {
+  if (wptr == null) return [];
   // final size = wownero.Wallet_numSubaddressAccounts(wptr!);
   refreshAccounts();
   int size = wownero.SubaddressAccount_getAll_size(subaddressAccount!);
