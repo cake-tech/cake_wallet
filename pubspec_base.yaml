@@ -217,6 +217,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/evm_switcher_icons/
     - assets/images/flags/
     - assets/images/hardware_wallet/
     - assets/images/crypto/
