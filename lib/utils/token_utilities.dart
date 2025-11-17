@@ -1,4 +1,5 @@
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -176,44 +177,49 @@ class TokenUtilities {
   }
 
   static int getChainId(CryptoCurrency currency) {
+    final tag = currency.tag?.toUpperCase();
     final title = currency.title.toLowerCase();
-    final tag = currency.tag?.toLowerCase();
-
-    // Polygon
-    if (title == 'polygon' || title == 'matic' || tag == 'polygon') {
-      return 137;
+    
+    // Only check EVM registry for currencies that might be EVM-related
+    final isPotentialEVM = 
+        title == 'eth' || title == 'ethereum' || title == 'polygon' || 
+        title == 'matic' || title == 'base' || title == 'arbitrum' ||
+        (tag != null && (tag == 'ETH' || tag == 'POL' || tag == 'BASE' || tag == 'ARB')) ||
+        isNativeToken(currency);
+    
+    if (isPotentialEVM) {
+      // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')
+      if (tag != null) {
+        final chainId = evm!.getChainIdByTag(tag);
+        if (chainId != null) return chainId;
+      }
+      
+      // Try by title (case-insensitive)
+      final titleChainId = evm!.getChainIdByTitle(title);
+      if (titleChainId != null) return titleChainId;
     }
-
+    
+    // Fallback to hardcoded values for chains not in registry yet
     // BSC (Binance Smart Chain)
-    if (title == 'bsc' || title == 'bnb' || tag == 'bsc') {
+    if (title == 'bsc' || title == 'bnb' || tag == 'BSC') {
       return 56;
     }
-
+    
     // Avalanche C-Chain
-    if (title == 'avalanche' || title == 'avax' || tag == 'avalanche') {
+    if (title == 'avalanche' || title == 'avax' || tag == 'AVALANCHE') {
       return 43114;
     }
-
-    // Arbitrum One
-    if (title == 'arbitrum' || title == 'arb' || tag == 'arb') {
-      return 42161;
-    }
-
+    
     // Optimism
-    if (title == 'optimism' || title == 'op' || tag == 'optimism') {
+    if (title == 'optimism' || title == 'op' || tag == 'OPTIMISM') {
       return 10;
     }
-
-    // Base
-    if (title == 'base' || tag == 'base') {
-      return 8453;
-    }
-
+    
     // Fantom Opera
-    if (title == 'fantom' || title == 'ftm' || tag == 'fantom') {
+    if (title == 'fantom' || title == 'ftm' || tag == 'FANTOM') {
       return 250;
     }
-
+    
     // Default to Ethereum mainnet
     return 1;
   }

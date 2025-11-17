@@ -1946,6 +1946,14 @@ abstract class EVM {
   Future<PendingTransaction>? removeDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority) => null;
   Future<PendingTransaction>? reinvestDEuroInterest(WalletBase wallet, TransactionPriority priority) => null;
   Future<PendingTransaction>? enableDEuroSaving(WalletBase wallet, TransactionPriority priority) => null;
+  
+  // Registry helper methods (for backward compatibility helpers)
+  int getChainIdByWalletType(WalletType walletType);
+  String getChainNameByWalletType(WalletType walletType);
+  String getTokenNameByWalletType(WalletType walletType);
+  String getCaip2ByChainId(int chainId);
+  int? getChainIdByTag(String tag);
+  int? getChainIdByTitle(String title);
 }
   """;
 

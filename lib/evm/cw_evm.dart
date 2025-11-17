@@ -394,5 +394,48 @@ class CWEVM extends EVM {
     }
     return null;
   }
+
+  // Registry helper methods
+  static final EvmChainRegistry _registry = EvmChainRegistry();
+  
+  @override
+  int getChainIdByWalletType(WalletType walletType) {
+    final config = _registry.getChainConfigByWalletType(walletType);
+    return config?.chainId ?? 1; // Default to Ethereum
+  }
+
+  @override
+  String getChainNameByWalletType(WalletType walletType) {
+    final config = _registry.getChainConfigByWalletType(walletType);
+    return config?.shortCode ?? 'eth';
+  }
+
+  @override
+  String getTokenNameByWalletType(WalletType walletType) {
+    final config = _registry.getChainConfigByWalletType(walletType);
+    return config?.nativeCurrency.title ?? 'ETH';
+  }
+
+  @override
+  String getCaip2ByChainId(int chainId) {
+    final config = _registry.getChainConfig(chainId);
+    return config?.caip2 ?? 'eip155:1';
+  }
+
+  @override
+  int? getChainIdByTag(String tag) {
+    final config = _registry.getChainConfigByTag(tag);
+    return config?.chainId;
+  }
+
+  @override
+  int? getChainIdByTitle(String title) {
+    // Try as tag first (uppercase)
+    final tagResult = getChainIdByTag(title.toUpperCase());
+    if (tagResult != null) return tagResult;
+    
+    // Try as lowercase title
+    return getChainIdByTag(title.toLowerCase());
+  }
 }
 

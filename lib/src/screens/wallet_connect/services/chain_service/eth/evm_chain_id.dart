@@ -1,3 +1,5 @@
+import 'package:cake_wallet/evm/evm.dart';
+
 enum EVMChainId {
   ethereum,
   polygon,
@@ -9,29 +11,26 @@ enum EVMChainId {
 
 extension EVMChainIdX on EVMChainId {
   String chain() {
-    String name = '';
+    final chainId = _getChainIdForEnum(this);
 
-    switch (this) {
-      case EVMChainId.ethereum:
-        name = '1';
-        break;
-      case EVMChainId.polygon:
-        name = '137';
-        break;
-      case EVMChainId.base:
-        name = '8453';
-        break;
-      case EVMChainId.goerli:
-        name = '5';
-        break;
-      case EVMChainId.arbitrum:
-        name = '42161';
-        break;
-      case EVMChainId.mumbai:
-        name = '80001';
-        break;
+    if (chainId == null) {
+      return switch (this) {
+        EVMChainId.goerli => 'eip155:5',
+        EVMChainId.mumbai => 'eip155:80001',
+        _ => 'eip155:1', // Default to Ethereum
+      };
     }
 
-    return 'eip155:$name';
+    return evm!.getCaip2ByChainId(chainId);
+  }
+
+  int? _getChainIdForEnum(EVMChainId id) {
+    return switch (id) {
+      EVMChainId.ethereum => 1,
+      EVMChainId.polygon => 137,
+      EVMChainId.base => 8453,
+      EVMChainId.arbitrum => 42161,
+      _ => null,
+    };
   }
 }
