@@ -411,7 +411,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             credentials.outputs.first.cryptoAmount?.isNotEmpty == true
                 ? credentials.outputs.first.cryptoAmount!
                 : "0",
-            9);
+            8);
       }
 
       return lightningWallet!.createTransaction(credentials.outputs.first.address,

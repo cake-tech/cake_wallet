@@ -115,7 +115,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   Future<PaymentURI> getPaymentRequestUri(String amount) async {
     if (addressPageType is LightningAddressType && lightningWallet != null) {
-      final amountSats = amount.isNotEmpty ? parseFixed(amount, 9) : null;
+      final amountSats = amount.isNotEmpty ? parseFixed(amount, 8) : null;
       final invoice = await lightningWallet!.getBolt11Invoice(amountSats, "Send to Cake Wallet");
       return LightningPaymentRequest(address: address, amount: amount, bolt11Invoice: invoice);
     }
