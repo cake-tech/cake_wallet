@@ -45,7 +45,7 @@ abstract class PaymentViewModelBase with Store {
         return PaymentFlowResult.incompatible('Unable to detect address type');
       }
 
-      if (_isEVMAddress(detectionResult.address)) {
+      if (!addressData.contains(':') && _isEVMAddress(detectionResult.address)) {
         return PaymentFlowResult.evmNetworkSelection(detectionResult);
       }
 
