@@ -149,6 +149,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   }
 
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
+    if (uri.contains('@') || paymentRequest.address.contains('@')) return;
+
     try {
       final result = await paymentViewModel.processAddress(uri);
 
@@ -445,8 +447,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
                       final address =
                           output.isParsedAddress ? output.extractedAddress : output.address;
-
-                      if (address.contains('@')) return;
 
                       await _handlePaymentFlow(
                         address,
@@ -851,8 +851,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         }
 
         final parsedAddress = output.isParsedAddress ? output.extractedAddress : output.address;
-
-        if (parsedAddress.contains('@')) return;
 
         _lastHandledAddress = current;
         await _handlePaymentFlow(
