@@ -48,6 +48,8 @@ class LightningWallet {
 
   Future<String?> getAddress() async => (await sdk.getLightningAddress())?.lightningAddress;
 
+  Future<String?> getLNURL() async => (await sdk.getLightningAddress())?.lnurl;
+
   Future<String> getDepositAddress() async => (await sdk.receivePayment(
           request: ReceivePaymentRequest(paymentMethod: ReceivePaymentMethod.bitcoinAddress())))
       .paymentRequest;

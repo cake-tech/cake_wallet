@@ -54,16 +54,19 @@ class BitcoinURI extends PaymentURI {
 }
 
 class LightningPaymentRequest extends PaymentURI {
-  const LightningPaymentRequest(
-      {required super.address,
-      required super.amount,
-      required this.bolt11Invoice,
-      super.scheme = "lightning"});
+  const LightningPaymentRequest({
+    required super.address,
+    required super.amount,
+    required this.lnURL,
+    this.bolt11Invoice,
+    super.scheme = "lightning",
+  });
 
-  final String bolt11Invoice;
+  final String lnURL;
+  final String? bolt11Invoice;
 
   @override
-  String toString() => bolt11Invoice;
+  String toString() => bolt11Invoice ?? lnURL;
 }
 
 class BitcoinCashURI extends PaymentURI {

@@ -14,6 +14,8 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:payjoin_flutter/receive.dart' as payjoin;
 
+import 'lightning/utils.dart';
+
 part 'bitcoin_wallet_addresses.g.dart';
 
 class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAddresses;
@@ -116,8 +118,13 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   Future<PaymentURI> getPaymentRequestUri(String amount) async {
     if (addressPageType is LightningAddressType && lightningWallet != null) {
       final amountSats = amount.isNotEmpty ? parseFixed(amount, 8) : null;
+      final lnUrl = getLnurlOfLightningAddress(address);
+      if (amountSats == null) {
+        return LightningPaymentRequest(address: address, lnURL: lnUrl, amount: amount);
+      }
       final invoice = await lightningWallet!.getBolt11Invoice(amountSats, "Send to Cake Wallet");
-      return LightningPaymentRequest(address: address, amount: amount, bolt11Invoice: invoice);
+      return LightningPaymentRequest(
+          address: address, lnURL: lnUrl, amount: amount, bolt11Invoice: invoice);
     }
     return getPaymentUri(amount);
   }
