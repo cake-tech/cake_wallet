@@ -37,9 +37,6 @@ dependencies:
     git:
       url: https://github.com/cake-tech/sp_scanner
       ref: sp_v4.0.1
-  bech32:
-    git:
-      url: https://github.com/cake-tech/bech32.git
   payjoin_flutter:
     git:
       url: https://github.com/konstantinullrich/payjoin-flutter

@@ -6,6 +6,7 @@ class LightningAddressType implements BitcoinAddressType {
 
   static const String Bolt11InvoiceMatcher = r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt)[a-z0-9]+$';
   static const String Bolt12OfferMatcher = r'^(lightning:)?(lno1)[a-z0-9]+$';
+  static const String LNURLMatcher = r'^(lightning:)?(lnurl)[a-z0-9]+$';
 
   @override
   bool get isP2sh => false;

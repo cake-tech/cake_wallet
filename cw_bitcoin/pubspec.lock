@@ -56,7 +56,7 @@ packages:
     source: git
     version: "1.0.0"
   bech32:
-    dependency: "direct main"
+    dependency: transitive
     description:
       path: "."
       ref: HEAD

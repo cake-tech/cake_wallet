@@ -5,6 +5,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/open_crypto_pay/exceptions.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/core/validator.dart';
@@ -461,11 +462,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       outputs.first.note = ocpRequest!.receiverName;
 
       return createTransaction();
+    } on OpenCryptoPayNotSupportedException catch (e) {
+      printV(e.message);
+      if (walletType == WalletType.bitcoin) {
+        state = InitialExecutionState();
+      } else {
+        state = FailureState(translateErrorMessage(e, walletType, currency));
+      }
     } catch (e) {
       printV(e);
       state = FailureState(translateErrorMessage(e, walletType, currency));
-      return null;
     }
+    return null;
   }
 
   bool isLightningInvoice(String txt) {

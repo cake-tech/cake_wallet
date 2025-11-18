@@ -45,6 +45,9 @@ dependencies:
       ref: cake-update-v2
   sqflite: ^2.4.1
   sqflite_common_ffi: ^2.3.4+4
+  bech32:
+    git:
+      url: https://github.com/cake-tech/bech32.git
 
 dev_dependencies:
   flutter_test:

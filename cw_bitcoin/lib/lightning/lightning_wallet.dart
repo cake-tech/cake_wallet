@@ -77,7 +77,7 @@ class LightningWallet {
   Future<bool> isCompatible(String input) async {
     try {
       final inputType = await sdk.parse(input: input);
-      return (inputType is InputType_Bolt11Invoice) || (inputType is InputType_LightningAddress);
+      return (inputType is InputType_Bolt11Invoice) || (inputType is InputType_LightningAddress) || (inputType is InputType_LnurlPay);
     } catch (_) {
       return false;
     }
@@ -108,14 +108,24 @@ class LightningWallet {
           },
         );
       }
-    } else if (inputType is InputType_LightningAddress) {
+    } else if (inputType is InputType_LightningAddress || inputType is InputType_LnurlPay) {
       final optionalValidateSuccessActionUrl = true;
 
-      final request = PrepareLnurlPayRequest(
-        amountSats: amountSats!,
-        payRequest: inputType.field0.payRequest,
-        validateSuccessActionUrl: optionalValidateSuccessActionUrl,
-      );
+      PrepareLnurlPayRequest request;
+      if (inputType is InputType_LightningAddress) {
+        request = PrepareLnurlPayRequest(
+          amountSats: amountSats!,
+          payRequest: inputType.field0.payRequest,
+          validateSuccessActionUrl: optionalValidateSuccessActionUrl,
+        );
+      } else {
+        request = PrepareLnurlPayRequest(
+          amountSats: amountSats!,
+          payRequest: (inputType as InputType_LnurlPay).field0,
+          validateSuccessActionUrl: optionalValidateSuccessActionUrl,
+        );
+      }
+
       final prepareResponse = await sdk.prepareLnurlPay(request: request);
 
       final feeSats = prepareResponse.feeSats;
