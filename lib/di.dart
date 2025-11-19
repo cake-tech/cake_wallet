@@ -12,6 +12,7 @@ import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
+import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
@@ -34,6 +35,7 @@ import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_con
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
@@ -753,6 +755,8 @@ Future<void> setup({
     dashboardViewModel: getIt.get<DashboardViewModel>(),
   ));
 
+  getIt.registerFactory<NewHomePage>(()=>NewHomePage(dashboardViewModel: getIt.get<DashboardViewModel>()));
+
   getIt.registerFactory<DesktopSidebarWrapper>(() {
     final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
     return DesktopSidebarWrapper(
@@ -1339,6 +1343,11 @@ Future<void> setup({
           appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
+
+
+  getIt.registerFactory(() => CakeFeaturesPage(
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
+      cakeFeaturesViewModel: getIt.get<CakeFeaturesViewModel>()));
 
   getIt.registerFactory(() => BackupServiceV3(getIt.get<SecureStorage>(),
       _transactionDescriptionBox,

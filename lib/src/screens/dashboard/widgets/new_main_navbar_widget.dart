@@ -8,11 +8,13 @@ class NewMainNavBar extends StatefulWidget {
   const NewMainNavBar({
     super.key,
     required this.dashboardViewModel,
-    this.initialIndex = 0,
+    required this.selectedIndex,
+    required this.onItemTap,
   });
 
   final DashboardViewModel dashboardViewModel;
-  final int initialIndex;
+  final int selectedIndex;
+  final Function(int index) onItemTap;
 
   @override
   State<NewMainNavBar> createState() => _NEWNewMainNavBarState();
@@ -50,14 +52,11 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
     fontWeight: FontWeight.w500,
   );
 
-  int selectedIndex = 0;
-  bool _fadeSelected = false;
   bool _firstFrame = true;
 
   @override
   void initState() {
     super.initState();
-    selectedIndex = widget.initialIndex;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -66,11 +65,13 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   }
 
   void _onItemTap(int index) {
-    if (index == selectedIndex) return;
+    // if (index == widget.selectedIndex) return;
+    //
+    // setState(() {
+    //   widget.selectedIndex = index;
+    // });
 
-    setState(() {
-      selectedIndex = index;
-    });
+    widget.onItemTap(index);
 
     NewMainActions.all[index].onTap.call();
   }
@@ -98,7 +99,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
     final double baseOffset = (iconWidth+iconHorizontalPadding) * index;
 
     double additionalSpacing;
-    if (index > selectedIndex) additionalSpacing = pillWidth-iconWidth;
+    if (index > widget.selectedIndex) additionalSpacing = pillWidth-iconWidth;
      else additionalSpacing = 0;
 
     return baseOffset + additionalSpacing;
@@ -123,12 +124,12 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
         .toList();
 
     final pillWidth = _estimatePillWidthForAction(
-        context, visibleActions[selectedIndex],
+        context, visibleActions[widget.selectedIndex],
         color: activeColor);
 
     final barWidth = calcBarWidth(pillWidth);
 
-    final currentAction = visibleActions[selectedIndex];
+    final currentAction = visibleActions[widget.selectedIndex];
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -156,7 +157,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                         alignment: Alignment.center,
                         children: [
                           AnimatedPill(
-                            left: calcLeft(selectedIndex, pillWidth),
+                            left: calcLeft(widget.selectedIndex, pillWidth),
                             pillColor: pillColor,
                             currentAction: currentAction,
                             pillIconHeight: pillIconHeight,
@@ -182,7 +183,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                       : inactiveIconMoveDuration,
                                   curve: Curves.easeOutCubic,
                                   width:
-                                      i == selectedIndex ? pillWidth : iconWidth,
+                                      i == widget.selectedIndex ? pillWidth : iconWidth,
                                   height: iconHeight,
                                   alignment: Alignment.center,
                                   child: AnimatedAlign(
@@ -192,11 +193,11 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                     child: AnimatedScale(
                                       duration: inactiveIconAppearDuration,
                                       curve: Curves.easeOutCubic,
-                                      scale: (i == selectedIndex) ? 0.8 : 1.0,
+                                      scale: (i == widget.selectedIndex) ? 0.8 : 1.0,
                                       child: TweenAnimationBuilder<Color?>(
                                           tween: ColorTween(
-                                            begin: (i == selectedIndex) ? inactiveColor : activeColor,
-                                            end: (i==selectedIndex) ? activeColor : inactiveColor,
+                                            begin: (i == widget.selectedIndex) ? inactiveColor : activeColor,
+                                            end: (i==widget.selectedIndex) ? activeColor : inactiveColor,
                                           ),
                                         duration: iconColorChangeDuration,
                                         builder: (context, value, child) {

@@ -21,80 +21,82 @@ class CakeFeaturesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(left: 24, top: 16),
-            child: Text(
-              S.of(context).apps,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+    return SafeArea(
+      child: Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 24, top: 16),
+              child: Text(
+                S.of(context).apps,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+              ),
             ),
-          ),
-          Expanded(
-            child: ListView(
-              children: <Widget>[
-                SizedBox(height: 2),
-                DashBoardRoundedCardWidget(
-                  shadowBlur: dashboardViewModel.getShadowBlur(),
-                  shadowSpread: dashboardViewModel.getShadowSpread(),
-                  onTap: () {
-                    if (Platform.isMacOS) {
-                      _launchUrl("buy.cakepay.com");
-                    } else {
-                      _navigatorToGiftCardsPage(context);
+            Expanded(
+              child: ListView(
+                children: <Widget>[
+                  SizedBox(height: 2),
+                  DashBoardRoundedCardWidget(
+                    shadowBlur: dashboardViewModel.getShadowBlur(),
+                    shadowSpread: dashboardViewModel.getShadowSpread(),
+                    onTap: () {
+                      if (Platform.isMacOS) {
+                        _launchUrl("buy.cakepay.com");
+                      } else {
+                        _navigatorToGiftCardsPage(context);
+                      }
+                    },
+                    title: 'Cake Pay',
+                    subTitle: S.of(context).cake_pay_subtitle,
+                    image: Image.asset(
+                      'assets/images/cakepay.png',
+                      height: 74,
+                      width: 70,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Observer(builder: (_) {
+                    if (dashboardViewModel.type == WalletType.ethereum) {
+                      return DashBoardRoundedCardWidget(
+                        shadowBlur: dashboardViewModel.getShadowBlur(),
+                        shadowSpread: dashboardViewModel.getShadowSpread(),
+                        onTap: () => Navigator.of(context).pushNamed(Routes.dEuroSavings),
+                        title: S.of(context).deuro_savings,
+                        subTitle: S.of(context).deuro_savings_subtitle,
+                        image: Image.asset(
+                          'assets/images/deuro_icon.png',
+                          height: 80,
+                          width: 80,
+                          fit: BoxFit.cover,
+                        ),
+                      );
                     }
-                  },
-                  title: 'Cake Pay',
-                  subTitle: S.of(context).cake_pay_subtitle,
-                  image: Image.asset(
-                    'assets/images/cakepay.png',
-                    height: 74,
-                    width: 70,
-                    fit: BoxFit.cover,
+      
+                    return const SizedBox();
+                  }),
+                  DashBoardRoundedCardWidget(
+                    shadowBlur: dashboardViewModel.getShadowBlur(),
+                    shadowSpread: dashboardViewModel.getShadowSpread(),
+                    onTap: () => _launchUrl("cake.nano-gpt.com"),
+                    title: "NanoGPT",
+                    subTitle: S.of(context).nanogpt_subtitle,
+                    image: Image.asset(
+                      'assets/images/nanogpt.png',
+                      height: 80,
+                      width: 80,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                Observer(builder: (_) {
-                  if (dashboardViewModel.type == WalletType.ethereum) {
-                    return DashBoardRoundedCardWidget(
-                      shadowBlur: dashboardViewModel.getShadowBlur(),
-                      shadowSpread: dashboardViewModel.getShadowSpread(),
-                      onTap: () => Navigator.of(context).pushNamed(Routes.dEuroSavings),
-                      title: S.of(context).deuro_savings,
-                      subTitle: S.of(context).deuro_savings_subtitle,
-                      image: Image.asset(
-                        'assets/images/deuro_icon.png',
-                        height: 80,
-                        width: 80,
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  }
-
-                  return const SizedBox();
-                }),
-                DashBoardRoundedCardWidget(
-                  shadowBlur: dashboardViewModel.getShadowBlur(),
-                  shadowSpread: dashboardViewModel.getShadowSpread(),
-                  onTap: () => _launchUrl("cake.nano-gpt.com"),
-                  title: "NanoGPT",
-                  subTitle: S.of(context).nanogpt_subtitle,
-                  image: Image.asset(
-                    'assets/images/nanogpt.png',
-                    height: 80,
-                    width: 80,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(height: 125),
-              ],
+                  SizedBox(height: 125),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
