@@ -194,13 +194,12 @@ class AddressResolver {
   }
 
   static String extractUnstoppableDomain(String raw) {
-    for (final tld in unstoppableDomains) {
-      final index = raw.indexOf('.$tld');
-      if (index != -1) {
-        final start = raw.lastIndexOf(' ', index) + 1;
-        final end = index + tld.length + 1;
-        return raw.substring(start, end);
-      }
+    // sort by length to avoid matching shorter tld instead of longer
+    final domains = List<String>.from(unstoppableDomains)..sort((a, b) => b.length.compareTo(a.length));
+    for (final tld in domains) {
+      final pattern = RegExp(r'([A-Za-z0-9-]+)\.' + RegExp.escape(tld), caseSensitive: false);
+      final match = pattern.firstMatch(raw);
+      if (match != null) return match.group(0)!;
     }
     return '';
   }
@@ -290,7 +289,8 @@ class AddressResolver {
           if (pinnedTweet != null) {
             final addressFromPinnedTweet = extractAddressByType(
                 raw: pinnedTweet,
-                type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency));
+                type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency),
+                requireSurroundingWhitespaces: false);
             if (addressFromPinnedTweet != null) {
               return ParsedAddress.fetchTwitterAddress(
                   address: addressFromPinnedTweet,
@@ -328,7 +328,7 @@ class AddressResolver {
               await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
 
           if (mastodonUser != null) {
-            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency);
+            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency, requireSurroundingWhitespaces: false);
 
             if (addressFromBio != null && addressFromBio.isNotEmpty) {
               return ParsedAddress.fetchMastodonAddress(
@@ -343,7 +343,8 @@ class AddressResolver {
               if (pinnedPosts.isNotEmpty) {
                 final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
                 String? addressFromPinnedPost =
-                    extractAddressByType(raw: userPinnedPostsText, type: currency);
+                    extractAddressByType(raw: userPinnedPostsText, type: currency,
+                        requireSurroundingWhitespaces: false);
 
                 if (addressFromPinnedPost != null && addressFromPinnedPost.isNotEmpty) {
                   return ParsedAddress.fetchMastodonAddress(
