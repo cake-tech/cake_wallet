@@ -183,7 +183,7 @@ Future<bool> _showDuressPinDescription(BuildContext context) async {
       context: context,
       builder: (BuildContext context) => AlertWithOneAction(
           alertTitle: S.of(context).alert_notice,
-          alertContent: '', //TODO: Add description for duress pin
+          alertContent: S.current.duress_pin_description,
           buttonText: S.of(context).ok,
           buttonAction: () => Navigator.of(context).pop(true)));
   return ok ?? false;
@@ -194,9 +194,9 @@ Future<bool> _showDuressPinConfirmation(BuildContext context) async {
       context: context,
       builder: (BuildContext context) => AlertWithTwoActions(
           alertTitle: S.of(context).confirm,
-          alertContent: '', //TODO: Add confirmation text for duress pin
-          leftButtonText: 'NO',
-          rightButtonText: 'YES',
+          alertContent: S.current.did_you_back_up_seeds,
+          leftButtonText: S.current.no,
+          rightButtonText: S.current.yes,
           actionLeftButton: () => Navigator.of(context).pop(false),
           actionRightButton: () => Navigator.of(context).pop(true)));
   return ok ?? false;

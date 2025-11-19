@@ -17,7 +17,7 @@ class SetupPinCodePage extends BasePage {
   final GlobalKey<PinCodeState> pinCodeStateKey;
 
   @override
-  String get title => isDuressPin ? 'Setup Duress PIN': S.current.setup_pin; // TODO: Add translation for 'Setup Duress PIN'
+  String get title => isDuressPin ? S.current.durres_PIN : S.current.setup_pin;
 
   @override
   Widget body(BuildContext context) => PinCodeWidget(
@@ -54,9 +54,9 @@ class SetupPinCodePage extends BasePage {
               builder: (BuildContext context) {
                 return AlertWithOneAction(
                   buttonKey: ValueKey('setup_pin_code_success_button_key'),
-                  alertTitle: isDuressPin ? 'Duress PIN' : S.current.setup_pin,
+                  alertTitle: isDuressPin ? S.current.durres_PIN : S.current.setup_pin,
                   alertContent: isDuressPin
-                      ? 'Duress PIN has been set up successfully' //TODO: Add translation for 'Duress PIN has been set up successfully'
+                      ? S.current.durres_PIN_set_up_successfully
                       : S.current.setup_successful,
                   buttonText: S.of(context).ok,
                   buttonAction: () {
@@ -71,14 +71,13 @@ class SetupPinCodePage extends BasePage {
                 );
               });
         } catch (e) {
-          // FIXME: Add translation for alert content text.
           await showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                  alertTitle: isDuressPin ? 'Duress PIN' : S.current.setup_pin, //TODO: Add translation for 'Duress PIN' if needed
+                  alertTitle: isDuressPin ? S.current.durres_PIN : S.current.setup_pin,
                   alertContent:
-                      'Setup pin is failed with error: ${e.toString()}', //TODO: Add translation for 'Setup pin is failed with error: {error}'
+                      '${S.current.setup_pin_is_failed} ${e.toString()}',
                   buttonText: S.of(context).ok,
                   buttonAction: () => Navigator.of(context).pop(),
                   alertBarrierDismissible: false,
