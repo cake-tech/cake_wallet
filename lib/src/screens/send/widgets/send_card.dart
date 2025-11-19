@@ -537,9 +537,15 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                           future: sendViewModel.sendingBalance,
                           builder: (context, snapshot) {
                             return Text(
-                              snapshot.data ??
-                                  sendViewModel.balance, // default to balance while loading
-                              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                              (sendViewModel.balanceViewModel.displayMode ==
+                                      BalanceDisplayMode.hiddenBalance)
+                                  ? '●●●●●●'
+                                  : (snapshot.data ?? sendViewModel.balance),
+                              // default to balance while loading
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall!
+                                  .copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
