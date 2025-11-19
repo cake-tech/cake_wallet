@@ -186,7 +186,7 @@ abstract class DashboardViewModelBase with Store {
                 value: () => tradeFilterStore.displaySwapXyz,
                 caption: ExchangeProviderDescription.swapsXyz.title,
                 onChanged: () =>
-                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
           ]
         },
         subname = '',
@@ -579,14 +579,15 @@ abstract class DashboardViewModelBase with Store {
   @action
   Future<void> selectChain(int chainId) async {
     if (!isEVMWallet) return;
-    
+
     // Get wallet type for the selected chain to retrieve the correct node
     final walletType = evm!.getWalletTypeByChainId(chainId);
     if (walletType == null) {
       throw Exception('Wallet type not found for chainId: $chainId');
     }
-    
+
     final node = appStore.settingsStore.getCurrentNode(walletType);
+
     await evm!.selectChain(wallet, chainId, node: node);
   }
 
@@ -1098,10 +1099,11 @@ abstract class DashboardViewModelBase with Store {
   @action
   void setBuiltinTor(bool value, BuildContext context) {
     if (value) {
-      unawaited(showPopUp<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
+      unawaited(
+        showPopUp<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
               alertTitle: S.of(context).tor_connection,
               alertContent: S.of(context).tor_experimental,
               buttonText: S.of(context).ok,
@@ -1114,12 +1116,14 @@ abstract class DashboardViewModelBase with Store {
     settingsStore.currentBuiltinTor = value;
     if (value) {
       unawaited(ensureTorStarted(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == false) return; // return when tor got disabled in the meantime;
+        if (settingsStore.currentBuiltinTor == false)
+          return; // return when tor got disabled in the meantime;
         await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
       }));
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == true) return; // return when tor got enabled in the meantime;
+        if (settingsStore.currentBuiltinTor == true)
+          return; // return when tor got enabled in the meantime;
         await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
       }));
     }

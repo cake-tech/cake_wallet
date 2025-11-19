@@ -1435,7 +1435,7 @@ abstract class EVM {
   // Chain selection methods
   List<ChainInfo> getAllChains();
   ChainInfo? getCurrentChain(WalletBase wallet);
-  void selectChain(WalletBase wallet, int chainId);
+  Future<void> selectChain(WalletBase wallet, int chainId, {required Node node});
 }
 
 class ChainInfo {
@@ -1448,6 +1448,14 @@ class ChainInfo {
   final int chainId;
   final String name;
   final String shortCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChainInfo && runtimeType == other.runtimeType && chainId == other.chainId;
+
+  @override
+  int get hashCode => chainId.hashCode;
 }
   """;
 

@@ -121,7 +121,7 @@ abstract class EVMChainWalletBase
 
   Credentials get evmChainPrivateKey => _evmChainPrivateKey;
 
-  late final EVMChainClient _client;
+  late EVMChainClient _client;
 
   /// Currently selected chain ID for this wallet
   /// Initialized from walletType on creation, can be changed via selectChain()
