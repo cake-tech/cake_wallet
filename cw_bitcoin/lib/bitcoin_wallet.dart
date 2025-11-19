@@ -99,6 +99,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       try {
         lightningWallet = LightningWallet(
           mnemonic: mnemonic,
+          passphrase: passphrase,
+          seedBytes: seedBytes,
           apiKey: secrets.breezApiKey,
           lnurlDomain: "cake.cash",
         );

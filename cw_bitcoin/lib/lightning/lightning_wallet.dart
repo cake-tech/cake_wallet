@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
@@ -12,6 +13,8 @@ bool _breezSdkSparkLibUninitialized = true;
 
 class LightningWallet {
   final String mnemonic;
+  final String? passphrase;
+  final Uint8List? seedBytes;
   final String apiKey;
   final String lnurlDomain;
   final Network network;
@@ -19,6 +22,8 @@ class LightningWallet {
 
   LightningWallet({
     required this.mnemonic,
+    this.passphrase,
+    this.seedBytes,
     required this.apiKey,
     required this.lnurlDomain,
     this.network = Network.mainnet,
@@ -30,7 +35,9 @@ class LightningWallet {
       _breezSdkSparkLibUninitialized = false;
     }
 
-    final seed = Seed.mnemonic(mnemonic: mnemonic, passphrase: null);
+    final seed = seedBytes != null
+        ? Seed.entropy(seedBytes!)
+        : Seed.mnemonic(mnemonic: mnemonic, passphrase: passphrase);
     final config = defaultConfig(network: Network.mainnet).copyWith(
       lnurlDomain: lnurlDomain,
       apiKey: apiKey,
@@ -79,7 +86,9 @@ class LightningWallet {
   Future<bool> isCompatible(String input) async {
     try {
       final inputType = await sdk.parse(input: input);
-      return (inputType is InputType_Bolt11Invoice) || (inputType is InputType_LightningAddress) || (inputType is InputType_LnurlPay);
+      return (inputType is InputType_Bolt11Invoice) ||
+          (inputType is InputType_LightningAddress) ||
+          (inputType is InputType_LnurlPay);
     } catch (_) {
       return false;
     }
@@ -137,7 +146,8 @@ class LightningWallet {
         amount: ((prepareResponse.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
         fee: feeSats.toInt(),
         commitOverride: () async {
-          final res = await sdk.lnurlPay(request: LnurlPayRequest(prepareResponse: prepareResponse));
+          final res =
+              await sdk.lnurlPay(request: LnurlPayRequest(prepareResponse: prepareResponse));
           printV(res.payment.status.name);
         },
       );
