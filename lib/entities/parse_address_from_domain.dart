@@ -193,6 +193,18 @@ class AddressResolver {
     });
   }
 
+  static String extractUnstoppableDomain(String raw) {
+    for (final tld in unstoppableDomains) {
+      final index = raw.indexOf('.$tld');
+      if (index != -1) {
+        final start = raw.lastIndexOf(' ', index) + 1;
+        final end = index + tld.length + 1;
+        return raw.substring(start, end);
+      }
+    }
+    return '';
+  }
+
   bool isEmailFormat(String address) {
     final RegExp emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -228,6 +240,50 @@ class AddressResolver {
                 name: text,
                 profileImageUrl: twitterUser.profileImageUrl,
                 profileName: twitterUser.name);
+          } else {
+            final domain = extractUnstoppableDomain(twitterUser.description);
+            if (domain.isNotEmpty) {
+              final parsedAddressFromDomain = await resolve(context, domain, currency);
+              if (parsedAddressFromDomain.addresses.isNotEmpty) {
+                return ParsedAddress(
+                  addresses: parsedAddressFromDomain.addresses,
+                  name: text,
+                  profileImageUrl: twitterUser.profileImageUrl,
+                  profileName: twitterUser.name,
+                  parseFrom: ParseFrom.twitter,
+                );
+              }
+
+            }
+
+          }
+
+          final addressFromLocation = extractAddressByType(
+              raw: twitterUser.location,
+              type: CryptoCurrency.fromString(ticker,
+                  walletCurrency: wallet.currency), requireSurroundingWhitespaces: false);
+          if (addressFromLocation != null && addressFromLocation.isNotEmpty) {
+            return ParsedAddress.fetchTwitterAddress(
+                address: addressFromLocation,
+                name: text,
+                profileImageUrl: twitterUser.profileImageUrl,
+                profileName: twitterUser.name);
+          } else {
+            final domain = extractUnstoppableDomain(twitterUser.location);
+            if (domain.isNotEmpty) {
+              final parsedAddressFromDomain = await resolve(context, domain, currency);
+              if (parsedAddressFromDomain.addresses.isNotEmpty) {
+                return ParsedAddress(
+                  addresses: parsedAddressFromDomain.addresses,
+                  name: text,
+                  profileImageUrl: twitterUser.profileImageUrl,
+                  profileName: twitterUser.name,
+                  parseFrom: ParseFrom.twitter,
+                );
+              }
+
+            }
+
           }
 
           final pinnedTweet = twitterUser.pinnedTweet?.text;
@@ -241,6 +297,20 @@ class AddressResolver {
                   name: text,
                   profileImageUrl: twitterUser.profileImageUrl,
                   profileName: twitterUser.name);
+            } else {
+              final domain = extractUnstoppableDomain(pinnedTweet);
+              if (domain.isNotEmpty) {
+                final parsedAddressFromDomain = await resolve(context, domain, currency);
+                if (parsedAddressFromDomain.addresses.isNotEmpty) {
+                  return ParsedAddress(
+                    addresses: parsedAddressFromDomain.addresses,
+                    name: text,
+                    profileImageUrl: twitterUser.profileImageUrl,
+                    profileName: twitterUser.name,
+                    parseFrom: ParseFrom.twitter,
+                  );
+                }
+              }
             }
           }
         }
