@@ -872,6 +872,7 @@
   "show": "Mostra",
   "show_address_book_popup": "Mostra popup della rubrica",
   "show_balance": "Tieni premuto per mostrare l'importo",
+  "show_balance_send_page": "Tocca per rivelare",
   "show_balance_toast": "Tieni premuto per nascondere o mostrare l'importo",
   "show_details": "Mostra dettagli",
   "show_keys": "Mostra seme/chiavi",

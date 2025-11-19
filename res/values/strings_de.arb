@@ -872,6 +872,7 @@
   "show": "Zeigen",
   "show_address_book_popup": "Popup \"zum Adressbuch hinzufügen\" nach dem Senden anzeigen",
   "show_balance": "Lange drücken, um das Kontoguthaben zu zeigen",
+  "show_balance_send_page": "Zum Enthüllen tippen",
   "show_balance_toast": "Langes drücken, um das Kontoguthaben zu verbergen oder zu zeigen",
   "show_details": "Details anzeigen",
   "show_keys": "Seed/Schlüssel anzeigen",

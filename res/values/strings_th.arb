@@ -871,6 +871,7 @@
   "show": "แสดง",
   "show_address_book_popup": "แสดงสมุดที่อยู่ป๊อปอัพ",
   "show_balance": "กดยาวเพื่อแสดงความสมดุล",
+  "show_balance_send_page": "แตะเพื่อเปิดเผย",
   "show_balance_toast": "กดนานเพื่อซ่อนหรือแสดงความสมดุล",
   "show_details": "แสดงรายละเอียด",
   "show_keys": "แสดงซีด/คีย์",

@@ -871,6 +871,7 @@
   "show": "Ipakita",
   "show_address_book_popup": "Ipakita ang Address Book Popup",
   "show_balance": "Mahabang pindutin upang ipakita ang balanse",
+  "show_balance_send_page": "Tapikin upang ibunyag",
   "show_balance_toast": "Mahabang pindutin upang itago o ipakita ang balanse",
   "show_details": "Ipakita ang mga detalye",
   "show_keys": "Ipakita ang mga seed/key",

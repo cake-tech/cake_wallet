@@ -872,6 +872,7 @@
   "show": "Show",
   "show_address_book_popup": "Show Address Book popup",
   "show_balance": "Long Press to Show Balance",
+  "show_balance_send_page": "Tap to reveal",
   "show_balance_toast": "Long press to hide or show balance",
   "show_details": "Show Details",
   "show_keys": "Show seed/keys",

@@ -868,6 +868,7 @@
   "show": "Trình diễn",
   "show_address_book_popup": "Hiển thị cửa sổ bật lên sổ sách địa chỉ",
   "show_balance": "Báo chí dài để hiển thị sự cân bằng",
+  "show_balance_send_page": "Nhấn để tiết lộ",
   "show_balance_toast": "Nhấn dài để ẩn hoặc hiển thị sự cân bằng",
   "show_details": "Hiển thị chi tiết",
   "show_keys": "Hiển thị hạt giống/khóa",

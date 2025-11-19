@@ -871,6 +871,7 @@
   "show": "Show",
   "show_address_book_popup": "Zobrazit vyskakovací okno",
   "show_balance": "Dlouhý stisknutí zobrazí rovnováhu",
+  "show_balance_send_page": "Klepnutím zobrazíte",
   "show_balance_toast": "Dlouhý stiskněte pro skrytí nebo zobrazení rovnováhy",
   "show_details": "Zobrazit detaily",
   "show_keys": "Zobrazit seed/klíče",

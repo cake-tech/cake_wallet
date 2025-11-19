@@ -872,6 +872,7 @@
   "show": "見せる",
   "show_address_book_popup": "アドレス帳のポップアップを表示します",
   "show_balance": "バランスを示すためにロングプレス",
+  "show_balance_send_page": "タップして表示します",
   "show_balance_toast": "バランスを隠したり表示したりするためにロングプレス",
   "show_details": "詳細を表示",
   "show_keys": "シード/キーを表示する",

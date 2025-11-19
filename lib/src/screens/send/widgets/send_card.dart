@@ -537,19 +537,36 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         FutureBuilder<String>(
                           future: sendViewModel.sendingBalance,
                           builder: (context, snapshot) {
-                            return Text(
-                              (sendViewModel.balanceViewModel.displayMode ==
-                                      BalanceDisplayMode.hiddenBalance)
-                                  ? '●●●●●●'
-                                  : (snapshot.data ?? sendViewModel.balance),
-                              // default to balance while loading
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall!
-                                  .copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
+                            return GestureDetector(
+                              onTap: () {
+                                sendViewModel.balanceViewModel
+                                    .switchBalanceValue();
+                              },
+                              child: Observer(builder: (_) {
+                                final hidden = sendViewModel
+                                        .balanceViewModel.displayMode ==
+                                    BalanceDisplayMode.hiddenBalance;
+                                return Text(
+                                  hidden
+                                      ? S.of(context).show_balance_send_page
+                                      : (snapshot.data ??
+                                          sendViewModel.balance),
+                                  // default to balance while loading
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: hidden
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                      ),
+                                );
+                              }),
                             );
                           },
                         )

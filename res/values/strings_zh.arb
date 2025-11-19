@@ -871,6 +871,7 @@
   "show": "展示",
   "show_address_book_popup": "显示地址簿弹出",
   "show_balance": "长印刷以显示平衡",
+  "show_balance_send_page": "点击即可显示",
   "show_balance_toast": "长按以隐藏或显示平衡",
   "show_details": "显示详细信息",
   "show_keys": "显示种子/密钥",
