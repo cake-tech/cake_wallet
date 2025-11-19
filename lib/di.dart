@@ -586,11 +586,14 @@ Future<void> setup({
     keyService: getIt.get<KeyService>()));
 
   getIt.registerFactory<AuthService>(
-    () => AuthService(
-      secureStorage: getIt.get<SecureStorage>(),
-      sharedPreferences: getIt.get<SharedPreferences>(),
-      settingsStore: getIt.get<SettingsStore>(),
-    ),
+        () => AuthService(
+        secureStorage: getIt.get<SecureStorage>(),
+        sharedPreferences: getIt.get<SharedPreferences>(),
+        settingsStore: getIt.get<SettingsStore>(),
+        authenticationStore: getIt.get<AuthenticationStore>(),
+        appStore: getIt.get<AppStore>(),
+        resetService: getIt.get<ResetService>(),
+        walletList: walletList),
   );
 
   getIt.registerFactory<ResetService>(
@@ -1236,13 +1239,25 @@ Future<void> setup({
     }
   });
 
-  getIt.registerFactory<SetupPinCodeViewModel>(
-      () => SetupPinCodeViewModel(getIt.get<AuthService>(), getIt.get<SettingsStore>()));
+  getIt.registerFactoryParam<SetupPinCodeViewModel, bool?, void>(
+        (isDuressPin, _) => SetupPinCodeViewModel(
+      getIt.get<AuthService>(),
+      getIt.get<SettingsStore>(),
+      isDuressPin: isDuressPin ?? false,
+    ),
+  );
 
-  getIt.registerFactoryParam<SetupPinCodePage, void Function(PinCodeState<PinCodeWidget>, String),
-          void>(
-      (onSuccessfulPinSetup, _) => SetupPinCodePage(getIt.get<SetupPinCodeViewModel>(),
-          onSuccessfulPinSetup: onSuccessfulPinSetup));
+
+  getIt.registerFactoryParam<
+      SetupPinCodePage,
+      void Function(PinCodeState<PinCodeWidget>, String),
+      bool?>(
+        (onSuccessfulPinSetup, isDuressPin) => SetupPinCodePage(
+      getIt.get<SetupPinCodeViewModel>(param1: isDuressPin),
+      onSuccessfulPinSetup: onSuccessfulPinSetup,
+      isDuressPin: isDuressPin ?? false,
+    ),
+  );
 
   getIt.registerFactory(() => WelcomePage());
 

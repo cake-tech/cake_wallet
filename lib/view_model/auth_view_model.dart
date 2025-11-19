@@ -41,7 +41,7 @@ abstract class AuthViewModelBase with Store {
   final SettingsStore _settingsStore;
 
   @action
-  Future<void> auth({required String password}) async {
+  Future<void> auth({required String password,required BuildContext context}) async {
     state = InitialExecutionState();
     final _banDuration = banDuration();
 
@@ -54,7 +54,7 @@ abstract class AuthViewModelBase with Store {
     }
 
     state = IsExecutingState();
-    final isSuccessfulAuthenticated = await _authService.authenticate(password);
+    final isSuccessfulAuthenticated = await _authService.authenticate(password, context);
 
     if (isSuccessfulAuthenticated) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {

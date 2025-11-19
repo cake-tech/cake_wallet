@@ -17,6 +17,9 @@ abstract class SecuritySettingsViewModelBase with Store {
   bool get allowBiometricalAuthentication => _settingsStore.allowBiometricalAuthentication;
 
   @computed
+  bool get enableDuressPin => _settingsStore.enableDuressPin;
+
+  @computed
   bool get useTotp2FA => _settingsStore.useTOTP2FA;
 
   @computed
@@ -38,4 +41,8 @@ abstract class SecuritySettingsViewModelBase with Store {
   @action
   void setPinCodeRequiredDuration(PinCodeRequiredDuration duration) =>
       _settingsStore.pinTimeOutDuration = duration;
+
+  @action
+  void setEnableDuressPin(bool value) =>
+      _settingsStore.enableDuressPin = value;
 }
