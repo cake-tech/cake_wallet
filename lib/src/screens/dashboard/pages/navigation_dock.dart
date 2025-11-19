@@ -21,23 +21,9 @@ class NavigationDock extends StatelessWidget {
           return Container(
             height: 84,
             alignment: Alignment.bottomCenter,
-            decoration: dashboardViewModel.settingsStore.backgroundImage.isEmpty
-                ? BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: _getColors(context),
-                    ),
-                  )
-                : null,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: _getColors(context),
-                ),
               ),
               margin: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
               child: ClipRRect(
@@ -104,17 +90,5 @@ class NavigationDock extends StatelessWidget {
         },
       ),
     );
-  }
-
-  List<Color> _getColors(BuildContext context) {
-    return <Color>[
-      context.customColors.backgroundGradientColor.withAlpha(5),
-      context.customColors.backgroundGradientColor.withAlpha(50),
-      context.customColors.backgroundGradientColor.withAlpha(125),
-      context.customColors.backgroundGradientColor.withAlpha(150),
-      context.customColors.backgroundGradientColor.withAlpha(200),
-      context.customColors.backgroundGradientColor,
-      context.customColors.backgroundGradientColor,
-    ];
   }
 }
