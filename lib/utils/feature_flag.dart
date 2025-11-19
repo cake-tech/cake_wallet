@@ -15,4 +15,5 @@ class FeatureFlag {
   static const bool hasBitcoinViewOnly = true;
   static const bool customBackgroundEnabled = false;
   static const bool hasNewUi = true;
+  static const bool hasNewUiExtraPages = false;
 }
