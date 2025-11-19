@@ -2115,6 +2115,8 @@ class FakeSecureStorage extends SecureStorage {
   @override
   Future<void> delete({required String key}) async {}
   @override
+  Future<void> deleteAll() async {}
+  @override
   Future<String?> readNoIOptions({required String key}) async => null;
   @override
   Future<Map<String, String>> readAll() async => {};
