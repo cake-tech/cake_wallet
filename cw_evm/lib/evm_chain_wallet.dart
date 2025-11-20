@@ -135,6 +135,17 @@ abstract class EVMChainWalletBase
     return registry.getChainConfig(selectedChainId);
   }
 
+  @override
+  @computed
+  CryptoCurrency get currency {
+    if (type == WalletType.evm) {
+      final config = selectedChainConfig;
+      return config?.nativeCurrency ?? CryptoCurrency.eth;
+    }
+
+    return super.currency;
+  }
+
   bool get hasPriorityFee => EVMChainUtils.hasPriorityFee(walletInfo.type);
 
   /// Get initial chain ID from registry based on wallet type
@@ -612,7 +623,7 @@ abstract class EVMChainWalletBase
         return;
       }
       await _updateBalance();
-      
+
       await Future.wait([
         _updateTransactions(),
         _getEstimatedFees(

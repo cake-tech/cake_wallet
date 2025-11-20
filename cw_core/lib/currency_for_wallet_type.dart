@@ -1,7 +1,7 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 
-CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false}) {
+CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false, int? chainId}) {
   switch (type) {
     case WalletType.monero:
       return CryptoCurrency.xmr;
@@ -14,6 +14,23 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.ltc;
     case WalletType.haven:
       return CryptoCurrency.xhv;
+    case WalletType.evm:
+      if (chainId == null) {
+        throw Exception('chainId required for WalletType.evm. Use wallet.currency instead of walletTypeToCryptoCurrency(wallet.type) for EVM wallets.');
+      }
+      switch (chainId) {
+        case 1:
+          return CryptoCurrency.eth;
+        case 137:
+          return CryptoCurrency.maticpoly;
+        case 8453:
+          return CryptoCurrency.baseEth;
+        case 42161:
+          return CryptoCurrency.arbEth;
+        default:
+          // Default to Ethereum for unknown chainIds
+          return CryptoCurrency.eth;
+      }
     case WalletType.ethereum:
       return CryptoCurrency.eth;
     case WalletType.base:

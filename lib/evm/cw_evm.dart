@@ -479,5 +479,14 @@ class CWEVM extends EVM {
       await wallet.selectChain(chainId, node: node);
     }
   }
+
+  @override
+  String? getExplorerUrlForChainId(int chainId, String txId) {
+    final config = _registry.getChainConfig(chainId);
+    if (config != null && config.explorerUrls.isNotEmpty) {
+      return '${config.explorerUrls.first}/tx/$txId';
+    }
+    return null;
+  }
 }
 

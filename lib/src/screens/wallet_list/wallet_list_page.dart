@@ -29,7 +29,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -289,7 +288,10 @@ class WalletListBodyState extends State<WalletListBody> {
                                           )
                                         : SizedBox(width: 6),
                                     Image.asset(
-                                      walletTypeToCryptoCurrency(wallet.type).iconPath!,
+                                      walletTypeToCryptoCurrency(
+                                        wallet.type,
+                                        chainId: wallet.type == WalletType.evm ? 1 : null,
+                                      ).iconPath!,
                                       width: 32,
                                       height: 32,
                                     ),

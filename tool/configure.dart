@@ -1438,6 +1438,7 @@ abstract class EVM {
   List<ChainInfo> getAllChains();
   ChainInfo? getCurrentChain(WalletBase wallet);
   Future<void> selectChain(WalletBase wallet, int chainId, {required Node node});
+  String? getExplorerUrlForChainId(int chainId, String txId);
 }
 
 class ChainInfo {

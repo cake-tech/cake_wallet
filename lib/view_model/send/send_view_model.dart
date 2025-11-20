@@ -233,7 +233,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   CryptoCurrency get currency => wallet.currency;
 
   Validator<String> amountValidator(Output output) => AmountValidator(
-        currency: walletTypeToCryptoCurrency(wallet.type),
+        currency: wallet.currency,
         minValue: isSendToSilentPayments(output)
             ?
             //  TODO: get from server

@@ -45,7 +45,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     required this.yatStore,
     required this.fiatConversionStore,
   })  : _baseItems = <ListItem>[],
-        selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
+        selectedCurrency = appStore.wallet!.currency,
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
         hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven]
             .contains(appStore.wallet!.type),
@@ -59,7 +59,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void onWalletChange(wallet) {
     _init();
 
-    selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
+    selectedCurrency = wallet.currency;
     hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven].contains(wallet.type);
   }
 
@@ -73,7 +73,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   double? _fiatRate;
   String _rawAmount = '';
 
-  List<Currency> get currencies => [walletTypeToCryptoCurrency(wallet.type), ...FiatCurrency.all];
+  List<Currency> get currencies => [wallet.currency, ...FiatCurrency.all];
 
   String get buttonTitle {
     if (isElectrumWallet) {
@@ -122,6 +122,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: address.address);
       case WalletType.ethereum:
+        return EthereumURI(amount: amount, address: address.address);
+      case WalletType.evm:
         return EthereumURI(amount: amount, address: address.address);
       case WalletType.bitcoinCash:
         return BitcoinCashURI(amount: amount, address: address.address);
@@ -524,7 +526,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     selectedCurrency = currency;
 
     if (currency is FiatCurrency && _settingsStore.fiatCurrency != currency) {
-      final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
+      final cryptoCurrency = wallet.currency;
 
       dev.log("Requesting Fiat rate for $cryptoCurrency-$currency");
       FiatConversionService.fetchPrice(
@@ -555,7 +557,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   void _convertAmountToCrypto() {
-    final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
+    final cryptoCurrency = wallet.currency;
     final fiatRate = _fiatRate ?? (fiatConversionStore.prices[cryptoCurrency] ?? 0.0);
 
     if (fiatRate <= 0.0) {
