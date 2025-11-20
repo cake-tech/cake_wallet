@@ -92,10 +92,14 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   void initState() {
     types = filteredTypes = availableWalletTypes
         .where((element) =>
-            !widget.isHardwareWallet ||
-            DeviceConnectionType.supportedConnectionTypes(
-                    element, widget.hardwareWalletType!, Platform.isIOS)
-                .isNotEmpty)
+            element != WalletType.ethereum &&
+            element != WalletType.polygon &&
+            element != WalletType.base &&
+            element != WalletType.arbitrum &&
+            (!widget.isHardwareWallet ||
+                DeviceConnectionType.supportedConnectionTypes(
+                        element, widget.hardwareWalletType!, Platform.isIOS)
+                    .isNotEmpty))
         .toList();
     super.initState();
 
@@ -143,7 +147,11 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                         child: SelectButton(
                           key: ValueKey('new_wallet_type_${type.name}_button_key'),
                           image: Image.asset(
-                            walletTypeToCryptoCurrency(type).iconPath ?? '',
+                            walletTypeToCryptoCurrency(
+                                  type,
+                                  chainId: type == WalletType.evm ? 1 : null,
+                                ).iconPath ??
+                                '',
                             height: 24,
                             width: 24,
                           ),
