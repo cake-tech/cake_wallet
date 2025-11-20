@@ -146,7 +146,11 @@ abstract class EVMChainWalletBase
     return super.currency;
   }
 
-  bool get hasPriorityFee => EVMChainUtils.hasPriorityFee(walletInfo.type);
+  bool get hasPriorityFee {
+    // For WalletType.evm, use selectedChainId; for old types, use walletInfo.type
+    final chainId = type == WalletType.evm ? selectedChainId : null;
+    return EVMChainUtils.hasPriorityFee(walletInfo.type, chainId: chainId);
+  }
 
   /// Get initial chain ID from registry based on wallet type
   static int _getInitialChainId(WalletType walletType) {
@@ -218,7 +222,11 @@ abstract class EVMChainWalletBase
   //! Implemented methods - unified for all chains
 
   void addInitialTokens() {
-    final initialErc20Tokens = EVMChainDefaultTokens.getDefaultTokens(walletInfo.type);
+    final chainId = type == WalletType.evm ? selectedChainId : null;
+    final initialErc20Tokens = EVMChainDefaultTokens.getDefaultTokens(
+      walletInfo.type,
+      chainId: chainId,
+    );
 
     for (final token in initialErc20Tokens) {
       if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
@@ -234,8 +242,14 @@ abstract class EVMChainWalletBase
     }
   }
 
-  List<String> get getDefaultTokenContractAddresses =>
-      EVMChainDefaultTokens.getDefaultTokenAddresses(walletInfo.type);
+  List<String> get getDefaultTokenContractAddresses {
+    // For WalletType.evm, use selectedChainId; for old types, use walletInfo.type
+    final chainId = type == WalletType.evm ? selectedChainId : null;
+    return EVMChainDefaultTokens.getDefaultTokenAddresses(
+      walletInfo.type,
+      chainId: chainId,
+    );
+  }
 
   Future<void> initErc20TokensBox() async {
     // Handle Ethereum's special backward compatibility case
@@ -520,7 +534,13 @@ abstract class EVMChainWalletBase
   }
 
   int getTotalPriorityFee(EVMChainTransactionPriority priority) {
-    return EVMChainUtils.getTotalPriorityFee(priority, walletInfo.type);
+    // For WalletType.evm, use selectedChainId; for old types, use walletInfo.type
+    final chainId = type == WalletType.evm ? selectedChainId : null;
+    return EVMChainUtils.getTotalPriorityFee(
+      priority,
+      walletInfo.type,
+      chainId: chainId,
+    );
   }
 
   /// Allows more customization to the fetch estimatedFees flow.

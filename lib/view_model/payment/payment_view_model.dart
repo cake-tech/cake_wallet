@@ -159,6 +159,9 @@ class PaymentFlowResult {
       return addressDetectionResult?.detectedCurrency;
     }
     if (walletType != null) {
+      if (walletType == WalletType.evm) {
+        return walletTypeToCryptoCurrency(walletType!, chainId: 1);
+      }
       return walletTypeToCryptoCurrency(walletType!);
     }
     return null;

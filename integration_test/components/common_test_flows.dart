@@ -344,6 +344,7 @@ class CommonTestFlows {
         return secrets.moneroTestWalletSeeds;
       case WalletType.bitcoin:
         return secrets.bitcoinTestWalletSeeds;
+      case WalletType.evm:
       case WalletType.ethereum:
         return secrets.ethereumTestWalletSeeds;
       case WalletType.litecoin:

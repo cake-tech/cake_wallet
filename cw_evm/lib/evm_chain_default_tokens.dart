@@ -7,8 +7,14 @@ import 'package:cw_evm/tokens/polygon_tokens.dart';
 
 /// Default ERC20 tokens for each EVM chain
 class EVMChainDefaultTokens {
-  /// Get default tokens for a wallet type
-  static List<Erc20Token> getDefaultTokens(WalletType walletType) {
+  static List<Erc20Token> getDefaultTokens(WalletType walletType, {int? chainId}) {
+    if (walletType == WalletType.evm) {
+      if (chainId == null) {
+        throw Exception('chainId required for WalletType.evm');
+      }
+      return getDefaultTokensByChainId(chainId);
+    }
+
     return switch (walletType) {
       WalletType.ethereum => EthereumTokens.tokens,
       WalletType.polygon => PolygonTokens.tokens,
@@ -18,9 +24,18 @@ class EVMChainDefaultTokens {
     };
   }
 
-  /// Get default token contract addresses for a wallet type
-  static List<String> getDefaultTokenAddresses(WalletType walletType) {
-    return getDefaultTokens(walletType)
+  static List<Erc20Token> getDefaultTokensByChainId(int chainId) {
+    return switch (chainId) {
+      1 => EthereumTokens.tokens,
+      137 => PolygonTokens.tokens,
+      8453 => BaseTokens.tokens,
+      42161 => ArbitrumTokens.tokens,
+      _ => [],
+    };
+  }
+
+  static List<String> getDefaultTokenAddresses(WalletType walletType, {int? chainId}) {
+    return getDefaultTokens(walletType, chainId: chainId)
         .map((token) => token.contractAddress)
         .toList();
   }

@@ -124,6 +124,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.zano:
         keys = zano!.getKeys(_wallet);
         break;
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:

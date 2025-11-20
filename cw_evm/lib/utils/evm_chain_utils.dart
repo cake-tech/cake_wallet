@@ -6,11 +6,20 @@ import 'package:web3dart/web3dart.dart' show EtherAmount, EtherUnit;
 
 /// Utility class for chain-specific EVM chain operations
 class EVMChainUtils {
-  /// Get priority fee calculation based on wallet type
+  /// Get priority fee calculation based on wallet type or chainId
   static int getTotalPriorityFee(
     EVMChainTransactionPriority priority,
-    WalletType walletType,
-  ) {
+    WalletType walletType, {
+    int? chainId,
+  }) {
+    // Handle WalletType.evm with chainId
+    if (walletType == WalletType.evm) {
+      if (chainId == null) {
+        throw Exception('chainId required for WalletType.evm');
+      }
+      return getTotalPriorityFeeByChainId(priority, chainId);
+    }
+
     return switch (walletType) {
       WalletType.ethereum => _ethereumPriorityFee(priority),
       WalletType.polygon => _polygonPriorityFee(priority),
@@ -20,10 +29,42 @@ class EVMChainUtils {
     };
   }
 
+  /// Get priority fee by chainId
+  static int getTotalPriorityFeeByChainId(
+    EVMChainTransactionPriority priority,
+    int chainId,
+  ) {
+    return switch (chainId) {
+      1 => _ethereumPriorityFee(priority),
+      137 => _polygonPriorityFee(priority),
+      8453 => _basePriorityFee(priority),
+      42161 => 0, // Arbitrum doesn't use priority fees
+      _ => _ethereumPriorityFee(priority),
+    };
+  }
+
   /// Check if chain supports priority fees
-  static bool hasPriorityFee(WalletType walletType) {
+  /// For WalletType.evm, chainId must be provided
+  static bool hasPriorityFee(WalletType walletType, {int? chainId}) {
+    // Handle WalletType.evm with chainId
+    if (walletType == WalletType.evm) {
+      if (chainId == null) {
+        throw Exception('chainId required for WalletType.evm');
+      }
+      return hasPriorityFeeByChainId(chainId);
+    }
+
+    // Handle old wallet types
     return switch (walletType) {
       WalletType.arbitrum => false,
+      _ => true,
+    };
+  }
+
+  /// Check if chain supports priority fees by chainId
+  static bool hasPriorityFeeByChainId(int chainId) {
+    return switch (chainId) {
+      42161 => false, // Arbitrum doesn't use priority fees
       _ => true,
     };
   }
@@ -115,15 +156,13 @@ class EVMChainUtils {
   // Polygon priority fee calculation (minimum 25 gwei + additional based on priority)
   static int _polygonPriorityFee(EVMChainTransactionPriority priority) {
     const int minPriorityFee = 25;
-    final minPriorityFeeWei =
-        EtherAmount.fromInt(EtherUnit.gwei, minPriorityFee).getInWei.toInt();
+    final minPriorityFeeWei = EtherAmount.fromInt(EtherUnit.gwei, minPriorityFee).getInWei.toInt();
 
     final int additionalPriorityFee = switch (priority) {
       EVMChainTransactionPriority.slow => 0,
       EVMChainTransactionPriority.medium =>
         EtherAmount.fromInt(EtherUnit.gwei, 15).getInWei.toInt(),
-      EVMChainTransactionPriority.fast =>
-        EtherAmount.fromInt(EtherUnit.gwei, 35).getInWei.toInt(),
+      EVMChainTransactionPriority.fast => EtherAmount.fromInt(EtherUnit.gwei, 35).getInWei.toInt(),
       _ => 0,
     };
 
@@ -133,14 +172,10 @@ class EVMChainUtils {
   // Base priority fee calculation (in mwei)
   static int _basePriorityFee(EVMChainTransactionPriority priority) {
     return switch (priority) {
-      EVMChainTransactionPriority.fast =>
-        EtherAmount.fromInt(EtherUnit.mwei, 5).getInWei.toInt(),
-      EVMChainTransactionPriority.medium =>
-        EtherAmount.fromInt(EtherUnit.mwei, 3).getInWei.toInt(),
-      EVMChainTransactionPriority.slow =>
-        EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
+      EVMChainTransactionPriority.fast => EtherAmount.fromInt(EtherUnit.mwei, 5).getInWei.toInt(),
+      EVMChainTransactionPriority.medium => EtherAmount.fromInt(EtherUnit.mwei, 3).getInWei.toInt(),
+      EVMChainTransactionPriority.slow => EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
       _ => EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
     };
   }
 }
-
