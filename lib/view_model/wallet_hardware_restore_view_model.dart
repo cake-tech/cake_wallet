@@ -78,6 +78,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
         credentials =
             bitcoin!.createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
         break;
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
         credentials = evm!.createEVMHardwareWalletCredentials(

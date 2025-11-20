@@ -288,6 +288,7 @@ abstract class SettingsStoreBase with Store {
         case WalletType.haven:
           key = PreferencesKey.havenTransactionPriority;
           break;
+        case WalletType.evm:
         case WalletType.ethereum:
           key = PreferencesKey.ethereumTransactionPriority;
           break;
@@ -921,14 +922,44 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<WalletType, Node> nodes;
   ObservableMap<WalletType, Node> powNodes;
 
-  Node getCurrentNode(WalletType walletType) {
+  Node getCurrentNode(WalletType walletType, {int? chainId}) {
+    if (walletType == WalletType.evm) {
+      if (chainId == null) {
+        throw Exception('chainId required for WalletType.evm');
+      }
+      final preferenceKey = _getEVMNodePreferenceKey(chainId);
+      final nodeId = _sharedPreferences.getInt(preferenceKey);
+      if (nodeId != null) {
+        final walletTypeForChain = evm!.getWalletTypeByChainId(chainId);
+        if (walletTypeForChain != null) {
+          final node = nodes[walletTypeForChain];
+          if (node != null) return node;
+        }
+      }
+      throw Exception('No node found for WalletType.evm with chainId: $chainId');
+    }
+    
     final node = nodes[walletType];
-
     if (node == null) {
       throw Exception('No node found for wallet type: ${walletType.toString()}');
     }
-
     return node;
+  }
+  
+  String _getEVMNodePreferenceKey(int chainId) {
+    switch (chainId) {
+      case 1:
+        return PreferencesKey.currentEthereumNodeIdKey;
+      case 137:
+        return PreferencesKey.currentPolygonNodeIdKey;
+      case 8453:
+        return PreferencesKey.currentBaseNodeIdKey;
+      case 42161:
+        return PreferencesKey.currentArbitrumNodeIdKey;
+      default:
+        // Default to Ethereum for unknown chainIds
+        return PreferencesKey.currentEthereumNodeIdKey;
+    }
   }
 
   Node getCurrentPowNode(WalletType walletType) {
@@ -1839,6 +1870,15 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.haven:
         await _sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.key as int);
+        break;
+      case WalletType.evm:
+        // For WalletType.evm, we need chainId to save to the correct preference key
+        // Since the observer doesn't have chainId, we'll use the node's type to determine the chain
+        // The node.type should be set to the old wallet type (ethereum, polygon, etc.)
+        // This is a temporary solution until Phase 6 proper implementation
+        // For now, default to Ethereum preference key
+        // TODO: In Phase 6, update to use chainId-based storage properly
+        await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);
         break;
       case WalletType.ethereum:
         await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);

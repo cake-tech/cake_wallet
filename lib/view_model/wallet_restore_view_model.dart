@@ -47,6 +47,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.tron:
       case WalletType.wownero:
       case WalletType.haven:
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
@@ -82,6 +83,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
 
   late final bool hasRestoreFromPrivateKey = [
+    WalletType.evm,
     WalletType.ethereum,
     WalletType.polygon,
     WalletType.base,
@@ -159,6 +161,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             derivationType: derivationInfo!.derivationType!,
             passphrase: passphrase,
           );
+        case WalletType.evm:
         case WalletType.ethereum:
         case WalletType.polygon:
         case WalletType.base:

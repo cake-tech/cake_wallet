@@ -19,6 +19,7 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
     case WalletType.haven:
       path = 'assets/haven_node_list.yml';
       break;
+    case WalletType.evm:
     case WalletType.ethereum:
       path = 'assets/ethereum_server_list.yml';
       break;

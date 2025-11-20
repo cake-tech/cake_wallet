@@ -77,6 +77,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           passphrase: passphrase,
           mnemonic: newWalletArguments!.mnemonic,
         );
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:

@@ -18,6 +18,7 @@ abstract class WalletConnectKeyService {
 class KeyServiceImpl implements WalletConnectKeyService {
   static String _getPrivateKeyForWallet(WalletBase wallet) {
     switch (wallet.type) {
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
@@ -32,6 +33,7 @@ class KeyServiceImpl implements WalletConnectKeyService {
 
   static String _getPublicKeyForWallet(WalletBase wallet) {
     switch (wallet.type) {
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
@@ -73,7 +75,12 @@ class KeyServiceImpl implements WalletConnectKeyService {
 
   @override
   List<ChainKeyModel> getKeysForChain(WalletBase wallet) {
-    final chain = getChainNameSpaceAndIdBasedOnWalletType(wallet.type);
+    int? chainId;
+    if (wallet.type == WalletType.evm) {
+      final chainInfo = evm!.getCurrentChain(wallet);
+      chainId = chainInfo?.chainId;
+    }
+    final chain = getChainNameSpaceAndIdBasedOnWalletType(wallet.type, chainId: chainId);
 
     final keys = getKeys(wallet);
 

@@ -55,6 +55,7 @@ abstract class TrezorViewModelBase extends HardwareWalletViewModel with Store {
         return bitcoin!.getTrezorHardwareWalletService(trezorConnect, true);
       case WalletType.litecoin:
         return bitcoin!.getTrezorHardwareWalletService(trezorConnect, false);
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.getTrezorHardwareWalletService(trezorConnect);
@@ -69,6 +70,7 @@ abstract class TrezorViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));

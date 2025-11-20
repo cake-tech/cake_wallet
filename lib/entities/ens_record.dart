@@ -34,6 +34,7 @@ class EnsRecord {
             return await ens.withName(name).getCoinAddress(CoinType.LTC);
           case WalletType.haven:
             return await ens.withName(name).getCoinAddress(CoinType.XHV);
+          case WalletType.evm:
           case WalletType.ethereum:
           case WalletType.polygon:
           case WalletType.base:

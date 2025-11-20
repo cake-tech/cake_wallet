@@ -190,6 +190,7 @@ abstract class HomeSettingsViewModelBase with Store {
     // get the default tokens for each currency type:
     List<String> defaultTokenAddresses = [];
     switch (_balanceViewModel.wallet.type) {
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:

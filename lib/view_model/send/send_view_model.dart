@@ -216,6 +216,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   CryptoCurrency pendingTransactionFeeCurrency(WalletType type) {
     switch (type) {
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
@@ -805,6 +806,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return wownero!
             .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:

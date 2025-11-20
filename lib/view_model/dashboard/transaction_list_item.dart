@@ -166,6 +166,7 @@ class TransactionListItem extends ActionListItem with Keyable {
             cryptoAmount: bitcoin!.formatterBitcoinAmountToDouble(amount: transaction.amount),
             price: price);
         break;
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:

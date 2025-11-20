@@ -644,6 +644,7 @@ String _getDefaultNodeUri(WalletType type) {
       return cakeWalletLitecoinElectrumUri;
     case WalletType.haven:
       return havenDefaultNodeUri;
+    case WalletType.evm:
     case WalletType.ethereum:
       return ethereumDefaultNodeUri;
     case WalletType.nano:
