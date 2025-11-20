@@ -79,6 +79,7 @@ class SecurityBackupPage extends BasePage {
                         if (isAuthenticatedSuccessfully) {
                           if (!value) {
                             _securitySettingsViewModel.setEnableDuressPin(value);
+                            _securitySettingsViewModel.clearDuressPin();
                             return;
                           }
                           final res = await _showDuressPinDescription(context);

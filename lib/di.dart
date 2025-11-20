@@ -1000,7 +1000,7 @@ Future<void> setup({
           getIt.get<SendViewModel>()));
 
   getIt.registerFactory(() =>
-      SecuritySettingsViewModel(getIt.get<SettingsStore>()));
+      SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
 

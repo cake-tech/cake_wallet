@@ -1,4 +1,6 @@
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/entities/encrypt.dart';
+import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 
 class SetupPinCodeViewModel {
@@ -10,9 +12,9 @@ class SetupPinCodeViewModel {
 
   String repeatedPinCode = '';
 
-  set pinCode(String pinCode) {
+  Future<void> setPinCode(String pinCode) async {
     if (!isOriginalPinCodeFull) {
-      setOriginalPinCode(pinCode);
+      await setOriginalPinCode(pinCode);
       return;
     }
 
@@ -40,12 +42,23 @@ class SetupPinCodeViewModel {
   final bool isDuressPin;
   int _pinCodeLength;
 
-  void setOriginalPinCode(String pinCode) {
-    if (isOriginalPinCodeFull) {
-      return;
-    }
+  Future<void> setOriginalPinCode(String pin) async {
+    originalPinCode = pin;
 
-    originalPinCode = pinCode;
+    if (isDuressPin && pin.length == pinCodeLength) {
+
+      final regularKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+      final encodedRegularPin = await _authService.secureStorage.read(key: regularKey);
+
+      if (encodedRegularPin != null && encodedRegularPin.isNotEmpty) {
+        final realPin = decodedPinCode(pin: encodedRegularPin);
+
+        if (pin == realPin) {
+          reset();
+          throw Exception('Duress PIN cannot be the same as regular PIN');
+        }
+      }
+    }
   }
 
   void setRepeatedPinCode(String pinCode) {

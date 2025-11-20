@@ -66,6 +66,11 @@ class AuthService with Store {
     await secureStorage.write(key: key, value: encodedPin);
   }
 
+  Future<void> clearDuressPin() async {
+    final key = generateStoreKeyFor(key: SecretStoreKey.duressPinCodePassword);
+    await secureStorage.delete(key: key);
+  }
+
   Future<bool> canAuthenticate() async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final walletName = sharedPreferences.getString(PreferencesKey.currentWalletName) ?? '';

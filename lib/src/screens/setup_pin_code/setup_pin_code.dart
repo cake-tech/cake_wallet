@@ -85,7 +85,29 @@ class SetupPinCodePage extends BasePage {
               });
         }
       },
-      onChangedPin: (String pin) => pinCodeViewModel.pinCode = pin,
+      onChangedPin: (String pin) async {
+        try {
+          await pinCodeViewModel.setPinCode(pin);
+        } catch (e) {
+          await showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                alertTitle: S.current.durres_PIN,
+                alertContent: e.toString(),
+                buttonText: S.of(context).ok,
+                buttonAction: () {
+                  Navigator.of(context).pop();
+                },
+                alertBarrierDismissible: false,
+              );
+            },
+          );
+
+          pinCodeStateKey.currentState?.reset();
+          pinCodeViewModel.reset();
+        }
+      },
       onChangedPinLength: (int length) =>
           pinCodeViewModel.pinCodeLength = length,
       initialPinLength: pinCodeViewModel.pinCodeLength);
