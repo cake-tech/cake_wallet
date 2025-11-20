@@ -96,6 +96,12 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     } catch (e) {
       printV("Failed to initialize tor: $e");
     }
+    
+    try {
+      await linuxSymlinkSharedPreferences();
+    } catch (e) { 
+      printV("Failed to symlink linux preferences: $e");
+    }
 
     await initializeAppAtRoot();
 
