@@ -34,6 +34,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 
 class DashboardPage extends StatefulWidget {
   DashboardPage({
@@ -232,27 +233,51 @@ class _DashboardPageView extends BasePage {
                   );
                 },
               ),
-              Positioned(
-                child: Container(
-                  alignment: Alignment.bottomCenter,
-                  margin: EdgeInsets.only(bottom: 110),
-                  child: Semantics(
-                  container: true,
-                  label: 'Page indicator',
-                  hint: 'Swipe left or right to change page, or double tap buttons below to navigate directly.',
-                  child: ExcludeSemantics(
-                    excluding: false,
-                    child: PageIndicator(
-                      controller: controller,
-                      dashboardViewModel: dashboardViewModel,
+              Stack(
+                alignment: Alignment.bottomCenter,
+                children: <Widget>[
+                  IgnorePointer(
+                    child: Container(
+                      alignment: Alignment.bottomCenter,
+                      height: 220,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: <Color>[
+                            context.customColors.backgroundGradientColor.withAlpha(5),
+                            context.customColors.backgroundGradientColor.withAlpha(50),
+                            context.customColors.backgroundGradientColor.withAlpha(125),
+                            context.customColors.backgroundGradientColor.withAlpha(150),
+                            context.customColors.backgroundGradientColor.withAlpha(200),
+                            context.customColors.backgroundGradientColor,
+                            context.customColors.backgroundGradientColor,
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 110),
+                    child: Semantics(
+                      container: true,
+                      label: 'Page indicator',
+                      hint:
+                          'Swipe left or right to change page, or double tap buttons below to navigate directly.',
+                      child: ExcludeSemantics(
+                        excluding: false,
+                        child: PageIndicator(
+                          controller: controller,
+                          dashboardViewModel: dashboardViewModel,
+                        ),
+                      ),
+                    ),
+                  ),
+                  NewMainNavBar(
+                    dashboardViewModel: dashboardViewModel,
+                  )
+                ],
               ),
-              NewMainNavBar(
-                dashboardViewModel: dashboardViewModel,
-              )
             ],
           ),
         ),
