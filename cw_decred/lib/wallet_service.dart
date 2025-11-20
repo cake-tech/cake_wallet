@@ -60,6 +60,7 @@ class DecredWalletService extends WalletService<
     if (credentials.isBip39) {
       final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
       final mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
+      credentials.seedPhraseLength = strength == 128 ? 12 : 24;
       return restoreFromSeed(DecredRestoreWalletFromSeedCredentials(
           name: credentials.name,
           password: credentials.password!,
@@ -217,11 +218,6 @@ class DecredWalletService extends WalletService<
     final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
 
     var mnemonic = credentials.mnemonic;
-    if ([12, 24].contains(credentials.seedPhraseLength!)) {
-      // bip39 stuff - converting from non-english to english.
-      final entropy = bip39.mnemonicToEntropy(credentials.mnemonic);
-      mnemonic = bip39.entropyToMnemonic(entropy);
-    }
 
     final config = {
       "name": credentials.walletInfo!.name,
