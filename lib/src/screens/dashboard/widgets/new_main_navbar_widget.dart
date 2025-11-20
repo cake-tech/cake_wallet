@@ -29,10 +29,10 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   static const iconHeight = 28.0;
   static const iconHorizontalPadding = 12.0;
 
-  static const pillIconWidth = 20.0;
-  static const pillIconHeight = 20.0;
+  static const pillIconWidth = 24.0;
+  static const pillIconHeight = 24.0;
   static const pillIconSpacing = 4.0;
-  static const pillHorizontalPadding = 16.0;
+  static const pillHorizontalPadding = 20.0;
 
   static const barBorderRadius = 50.0;
   static const pillBorderRadius = 50.0;
@@ -99,22 +99,22 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
     final double baseOffset = (iconWidth+iconHorizontalPadding) * index;
 
     double additionalSpacing;
-    if (index > widget.selectedIndex) additionalSpacing = pillWidth-iconWidth;
+    if (index > widget.selectedIndex) additionalSpacing = pillWidth-iconWidth-iconHorizontalPadding/2;
      else additionalSpacing = 0;
 
     return baseOffset + additionalSpacing;
   }
 
   double calcBarWidth(double pillWidth) {
-    return (iconWidth+iconHorizontalPadding)*NewMainActions.all.length+(pillWidth-iconWidth)+barHorizontalPadding;
+    return (iconWidth+iconHorizontalPadding)*(NewMainActions.all.length)+(pillWidth-(iconWidth))+barHorizontalPadding+pillIconSpacing/2;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final backgroundColor =
-        theme.colorScheme.surfaceContainerHighest.withAlpha(85);
-    final pillColor = theme.colorScheme.onSurfaceVariant.withAlpha(85);
+        theme.colorScheme.surfaceContainer.withAlpha(127);
+    final pillColor = theme.colorScheme.onSurface.withAlpha(25);
     final activeColor = theme.colorScheme.onSurface;
     final inactiveColor = theme.colorScheme.primary;
 
@@ -149,6 +149,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                     height: barHeight,
                     decoration: BoxDecoration(
                       color: backgroundColor,
+                      border: Border.all(color: Color(0x14FFFFFF), width: 1),
                       borderRadius: BorderRadius.circular(barBorderRadius),
                     ),
                     child: Padding(
@@ -173,7 +174,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                           for (int i = 0; i < visibleActions.length; i++)
                             AnimatedPositioned(
                               duration: pillResizeDuration,
-                              left: calcLeft(i, pillWidth),
+                              left: calcLeft(i, pillWidth)+((i == widget.selectedIndex) ? iconHorizontalPadding/2 : 0),
                               curve: Curves.easeOutCubic,
                               child: GestureDetector(
                                 onTap: () => _onItemTap(i),
@@ -193,7 +194,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                     child: AnimatedScale(
                                       duration: inactiveIconAppearDuration,
                                       curve: Curves.easeOutCubic,
-                                      scale: (i == widget.selectedIndex) ? 0.8 : 1.0,
+                                      scale: (i == widget.selectedIndex) ? 0.857 : 1.0,
                                       child: TweenAnimationBuilder<Color?>(
                                           tween: ColorTween(
                                             begin: (i == widget.selectedIndex) ? inactiveColor : activeColor,
@@ -265,8 +266,8 @@ class AnimatedPill extends StatelessWidget {
         duration: pillMoveDuration,
         curve: Curves.easeOutCubic,
         left: left,
-        top: 12,
-        bottom: 12,
+        top: 8,
+        bottom: 8,
         child: AnimatedContainer(
           duration: pillResizeDuration,
           curve: Curves.easeOutCubic,
@@ -283,7 +284,7 @@ class AnimatedPill extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(width: pillIconSpacing),
+                // SizedBox(width: pillIconSpacing*10),
                 Padding(padding: EdgeInsets.only(left: pillIconWidth),
                   child: Text(
                     currentAction.name(context),

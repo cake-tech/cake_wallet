@@ -46,6 +46,7 @@ class _NewHomePageState extends State<NewHomePage> {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
+            spacing: 24.0,
             children: [
               TopBar(
                 dashboardViewModel: widget.dashboardViewModel,

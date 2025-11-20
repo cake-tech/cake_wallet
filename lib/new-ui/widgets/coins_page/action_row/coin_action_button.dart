@@ -13,7 +13,7 @@ class CoinActionButton extends StatelessWidget {
   final String label;
   final VoidCallback action;
 
-  static const sizeFactor = 0.18;
+  static const sizeFactor = 0.16;
 
   @override
   Widget build(BuildContext context) {
@@ -44,10 +44,10 @@ class CoinActionButton extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.only(top:8.0),
           child: Text(
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 12,
               color: Theme.of(context).colorScheme.onSurface,
             ),
             label,

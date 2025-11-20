@@ -41,9 +41,9 @@ class WalletInfo extends StatelessWidget {
                   ),
                 ),
         ),
-        Text(name, style: TextStyle(fontSize: 20)),
+        Text(name, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
         SizedBox(width: 8),
-        ModernButton.svg(size: 20, onPressed: (){}, svgPath: "assets/new-ui/3dots.svg",)
+        ModernButton.svg(size: 24, onPressed: (){}, svgPath: "assets/new-ui/3dots.svg",)
       ],
     );
   }
