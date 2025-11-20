@@ -10,6 +10,7 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/evm/evm.dart';
 
 part 'node_list_view_model.g.dart';
 
@@ -28,12 +29,22 @@ abstract class NodeListViewModelBase with Store {
 
   @computed
   Node get currentNode {
-    final node = settingsStore.nodes[_appStore.wallet!.type];
+    final wallet = _appStore.wallet!;
+    final walletType = wallet.type;
 
-    if (node == null) {
-      throw Exception('No node for wallet type: ${_appStore.wallet!.type}');
+    int? chainId;
+    if (walletType == WalletType.evm) {
+      chainId = evm!.getSelectedChainId(wallet);
     }
 
+    if (walletType == WalletType.evm && chainId != null) {
+      return settingsStore.getCurrentNode(walletType, chainId: chainId);
+    }
+
+    final node = settingsStore.nodes[walletType];
+    if (node == null) {
+      throw Exception('No node for wallet type: $walletType');
+    }
     return node;
   }
 

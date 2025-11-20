@@ -474,6 +474,14 @@ class CWEVM extends EVM {
   }
 
   @override
+  int? getSelectedChainId(WalletBase wallet) {
+    if (wallet is EVMChainWallet) {
+      return wallet.selectedChainId;
+    }
+    return null;
+  }
+
+  @override
   Future<void> selectChain(WalletBase wallet, int chainId, {required Node node}) async {
     if (wallet is EVMChainWallet) {
       await wallet.selectChain(chainId, node: node);

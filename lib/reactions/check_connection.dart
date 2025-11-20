@@ -7,6 +7,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/evm/evm.dart';
 
 Timer? _checkConnectionTimer;
 
@@ -34,14 +35,20 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
       if (wallet.type != WalletType.bitcoin &&
           (wallet.syncStatus is LostConnectionSyncStatus ||
               wallet.syncStatus is FailedSyncStatus)) {
-        final alive = await settingsStore.getCurrentNode(wallet.type).requestNode();
+        int? chainId;
+        if (wallet.type == WalletType.evm) {
+          chainId = evm!.getSelectedChainId(wallet);
+        }
+
+        final node = settingsStore.getCurrentNode(wallet.type, chainId: chainId);
+        final alive = await node.requestNode();
 
         if (alive) {
           if (settingsStore.currentBuiltinTor) {
             await ensureTorStarted(context: null);
           }
-      
-          await wallet.connectToNode(node: settingsStore.getCurrentNode(wallet.type));
+
+          await wallet.connectToNode(node: node);
         }
       }
     } catch (e) {

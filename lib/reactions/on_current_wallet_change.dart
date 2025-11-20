@@ -65,7 +65,12 @@ void startCurrentWalletChangeReaction(
 
       await getIt.get<WalletManager>().ensureGroupHasHashedIdentifier(wallet);
 
-      final node = settingsStore.getCurrentNode(wallet.type);
+      int? chainId;
+      if (wallet.type == WalletType.evm && isEVMCompatibleChain(wallet.type)) {
+        chainId = evm!.getSelectedChainId(wallet);
+      }
+      
+      final node = settingsStore.getCurrentNode(wallet.type, chainId: chainId);
 
       startWalletSyncStatusChangeReaction(wallet, settingsStore);
       startCheckConnectionReaction(wallet, settingsStore);

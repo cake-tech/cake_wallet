@@ -1437,7 +1437,10 @@ abstract class EVM {
   // Chain selection methods
   List<ChainInfo> getAllChains();
   ChainInfo? getCurrentChain(WalletBase wallet);
+
+  int? getSelectedChainId(WalletBase wallet);
   Future<void> selectChain(WalletBase wallet, int chainId, {required Node node});
+  
   String? getExplorerUrlForChainId(int chainId, String txId);
 }
 

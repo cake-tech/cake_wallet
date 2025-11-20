@@ -6,6 +6,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:cake_wallet/evm/evm.dart';
 
 class NodeSwitchingService {
   NodeSwitchingService({
@@ -138,12 +139,28 @@ class NodeSwitchingService {
         return;
       }
 
-      final walletType = appStore.wallet!.type;
-      final currentNode = settingsStore.getCurrentNode(walletType);
+      final wallet = appStore.wallet!;
+      final walletType = wallet.type;
+      
+      int? chainId;
+      WalletType nodeWalletType = walletType;
+      
+      if (walletType == WalletType.evm) {
+        chainId = evm!.getSelectedChainId(wallet);
+        if (chainId != null) {
+          final chainWalletType = evm!.getWalletTypeByChainId(chainId);
+          if (chainWalletType != null) {
+            nodeWalletType = chainWalletType;
+          }
+        }
+      }
+      
+      final currentNode = settingsStore.getCurrentNode(walletType, chainId: chainId);
 
       // Get all trusted nodes for this wallet type
+      // For WalletType.evm, filter by the chain-specific wallet type
       final trustedNodes = nodeSource.values
-          .where((node) => node.type == walletType && node.isEnabledForAutoSwitching)
+          .where((node) => node.type == nodeWalletType && node.isEnabledForAutoSwitching)
           .toList();
 
       if (trustedNodes.isEmpty) {
@@ -153,26 +170,26 @@ class NodeSwitchingService {
       }
 
       // Initialize used nodes list for this wallet type if it does not exist
-      _usedNodeKeys.putIfAbsent(walletType, () => []);
+      _usedNodeKeys.putIfAbsent(nodeWalletType, () => []);
 
       // Add current node to used list if not already there
-      if (!_usedNodeKeys[walletType]!.contains(currentNode.key)) {
-        _usedNodeKeys[walletType]!.add(currentNode.key);
+      if (!_usedNodeKeys[nodeWalletType]!.contains(currentNode.key)) {
+        _usedNodeKeys[nodeWalletType]!.add(currentNode.key);
       }
 
       // Try to find an active unused node
-      Node? nextNode = await _findActiveNode(trustedNodes, walletType);
+      Node? nextNode = await _findActiveNode(trustedNodes, nodeWalletType);
 
       // If all trusted nodes have been used, check if we should reset
       if (nextNode == null) {
-        printV('All trusted nodes have been tried for wallet type: $walletType');
+        printV('All trusted nodes have been tried for wallet type: $nodeWalletType');
 
         // If we've tried all nodes and still haven't reached max attempts, reset and try again
         if (_switchingAttempts < _maxNodeSwitchingAttempts) {
           printV('Resetting used nodes list and trying again');
-          _usedNodeKeys[walletType]!.clear();
+          _usedNodeKeys[nodeWalletType]!.clear();
           // Try again with cleared used list
-          nextNode = await _findActiveNode(trustedNodes, walletType);
+          nextNode = await _findActiveNode(trustedNodes, nodeWalletType);
         }
 
         // If still no active node found, we give up
@@ -184,13 +201,13 @@ class NodeSwitchingService {
       }
 
       // Ensure the selected node is marked as used
-      if (!_usedNodeKeys[walletType]!.contains(nextNode.key)) {
-        _usedNodeKeys[walletType]!.add(nextNode.key);
+      if (!_usedNodeKeys[nodeWalletType]!.contains(nextNode.key)) {
+        _usedNodeKeys[nodeWalletType]!.add(nextNode.key);
       }
 
       printV(
           'Switching from ${currentNode.uriRaw} to ${nextNode.uriRaw} (attempt $_switchingAttempts/$_maxNodeSwitchingAttempts)');
-      printV('Used nodes for ${walletType}: ${_usedNodeKeys[walletType]}');
+      printV('Used nodes for ${nodeWalletType}: ${_usedNodeKeys[nodeWalletType]}');
 
       // Update the current node in settings
       settingsStore.nodes[walletType] = nextNode;

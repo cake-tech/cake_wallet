@@ -586,7 +586,10 @@ abstract class DashboardViewModelBase with Store {
       throw Exception('Wallet type not found for chainId: $chainId');
     }
 
-    final node = appStore.settingsStore.getCurrentNode(walletType);
+    final node = appStore.settingsStore.getCurrentNode(
+      wallet.type == WalletType.evm ? WalletType.evm : walletType,
+      chainId: wallet.type == WalletType.evm ? chainId : null,
+    );
 
     await evm!.selectChain(wallet, chainId, node: node);
   }
@@ -940,7 +943,12 @@ abstract class DashboardViewModelBase with Store {
   }
 
   Future<void> reconnect() async {
-    final node = appStore.settingsStore.getCurrentNode(wallet.type);
+    int? chainId;
+    if (wallet.type == WalletType.evm && isEVMWallet) {
+      chainId = evm!.getSelectedChainId(wallet);
+    }
+
+    final node = appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId);
     await wallet.connectToNode(node: node);
     if (hasPowNodes) {
       final powNode = settingsStore.getCurrentPowNode(wallet.type);
@@ -1119,13 +1127,23 @@ abstract class DashboardViewModelBase with Store {
       unawaited(ensureTorStarted(context: context).then((_) async {
         if (settingsStore.currentBuiltinTor == false)
           return; // return when tor got disabled in the meantime;
-        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+        int? chainId;
+        if (wallet.type == WalletType.evm && isEVMWallet) {
+          chainId = evm!.getSelectedChainId(wallet);
+        }
+        await wallet.connectToNode(
+            node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
       }));
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
         if (settingsStore.currentBuiltinTor == true)
           return; // return when tor got enabled in the meantime;
-        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+        int? chainId;
+        if (wallet.type == WalletType.evm && isEVMWallet) {
+          chainId = evm!.getSelectedChainId(wallet);
+        }
+        await wallet.connectToNode(
+            node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
       }));
     }
   }
