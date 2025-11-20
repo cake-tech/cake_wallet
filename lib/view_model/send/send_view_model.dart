@@ -353,8 +353,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   String? get walletCurrencyName => wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
 
-  bool get hasCurrencyChanger => walletType == WalletType.haven;
-
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
