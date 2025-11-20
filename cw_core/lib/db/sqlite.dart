@@ -6,7 +6,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 late Database db; 
 
 Future<void> initDb({String? pathOverride}) async {
-  if (Platform.isLinux) { 
+  if (Platform.isLinux || Platform.isWindows) { 
     databaseFactory = databaseFactoryFfi;
   }
   db = await openDatabase(
