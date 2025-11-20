@@ -106,6 +106,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         );
       } catch (e) {
         printV(e);
+        lightningWallet = null;
       }
     } else {
       lightningWallet = null;
