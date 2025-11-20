@@ -1162,9 +1162,10 @@ abstract class EVMChainWalletBase
 
     final savedChainId = data?['selected_chain_id'] as int?;
 
-    // Get chain config - use saved chain ID if available, otherwise use wallet type's default
     final registry = EvmChainRegistry();
-    final chainId = savedChainId ?? registry.getChainConfigByWalletType(walletInfo.type)?.chainId;
+    final chainId = walletInfo.type == WalletType.evm
+        ? (savedChainId ?? 1)
+        : (savedChainId ?? registry.getChainConfigByWalletType(walletInfo.type)?.chainId);
 
     if (chainId == null) {
       throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
