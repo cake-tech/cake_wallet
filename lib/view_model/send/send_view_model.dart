@@ -5,6 +5,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/open_crypto_pay/exceptions.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/core/validator.dart';
@@ -74,9 +75,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     currencies = wallet.balance.keys.toList();
     selectedCryptoCurrency = wallet.currency;
     hasMultipleTokens = isEVMCompatibleChain(wallet.type) ||
-        wallet.type == WalletType.solana ||
-        wallet.type == WalletType.tron ||
-        wallet.type == WalletType.zano;
+        [WalletType.solana, WalletType.tron, WalletType.zano].contains(wallet.type);
 
     for (final output in outputs) {
       output.updateWallet(wallet);
@@ -106,9 +105,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         currencies = appStore.wallet!.balance.keys.toList(),
         selectedCryptoCurrency = appStore.wallet!.currency,
         hasMultipleTokens = isEVMCompatibleChain(appStore.wallet!.type) ||
-            appStore.wallet!.type == WalletType.solana ||
-            appStore.wallet!.type == WalletType.tron ||
-            appStore.wallet!.type == WalletType.zano,
+            [WalletType.solana, WalletType.tron, WalletType.zano].contains(appStore.wallet!.type),
         outputs = ObservableList<Output>(),
         _settingsStore = appStore.settingsStore,
         fiatFromSettings = appStore.settingsStore.fiatCurrency,
@@ -467,11 +464,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       outputs.first.note = ocpRequest!.receiverName;
 
       return createTransaction();
+    } on OpenCryptoPayNotSupportedException catch (e) {
+      printV(e.message);
+      if (walletType == WalletType.bitcoin) {
+        state = InitialExecutionState();
+      } else {
+        state = FailureState(translateErrorMessage(e, walletType, currency));
+      }
     } catch (e) {
       printV(e);
       state = FailureState(translateErrorMessage(e, walletType, currency));
-      return null;
     }
+    return null;
   }
 
   bool isLightningInvoice(String txt) {
@@ -867,12 +871,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     final priority = _settingsStore.priority[wallet.type];
 
     if (priority == null &&
-        [
+        ![
           WalletType.nano,
           WalletType.banano,
           WalletType.solana,
           WalletType.tron,
-          WalletType.arbitrum
+          WalletType.arbitrum,
         ].contains(wallet.type)) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
@@ -1051,8 +1055,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       WalletType.ethereum,
       WalletType.polygon,
       WalletType.base,
-      WalletType.haven,
-      WalletType.arbitrum
+      WalletType.arbitrum,
     ].contains(walletType)) {
       if (errorMessage.contains('gas required exceeds allowance')) {
         return S.current.gas_exceeds_allowance;

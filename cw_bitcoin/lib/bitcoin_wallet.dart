@@ -85,9 +85,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           initialBalance: initialBalance,
           seedBytes: seedBytes,
           encryptionFileUtils: encryptionFileUtils,
-          currency: networkParam == BitcoinNetwork.testnet
-              ? CryptoCurrency.tbtc
-              : CryptoCurrency.btc,
+          currency:
+              networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
@@ -100,11 +99,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       try {
         lightningWallet = LightningWallet(
           mnemonic: mnemonic,
+          passphrase: passphrase,
+          seedBytes: seedBytes,
           apiKey: secrets.breezApiKey,
           lnurlDomain: "cake.cash",
         );
       } catch (e) {
         printV(e);
+        lightningWallet = null;
       }
     } else {
       lightningWallet = null;
@@ -241,10 +243,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final derivationInfo = await walletInfo.getDerivationInfo();
 
     // set the default if not present:
-    derivationInfo.derivationPath ??=
-        snp?.derivationPath ?? electrum_path;
-    derivationInfo.derivationType ??=
-        snp?.derivationType ?? DerivationType.electrum;
+    derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
+    derivationInfo.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
     await derivationInfo.save();
 
     Uint8List? seedBytes = null;
@@ -405,11 +405,17 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final isLNCompatible = await lightningWallet?.isCompatible(credentials.outputs.first.address);
     if ((credentials.coinTypeToSpendFrom == UnspentCoinType.lightning && lightningWallet != null) ||
         isLNCompatible == true) {
-      final amount = parseFixed(
-          credentials.outputs.first.cryptoAmount?.isNotEmpty == true
-              ? credentials.outputs.first.cryptoAmount!
-              : "0",
-          9);
+
+      BigInt amount;
+      if (credentials.outputs.first.sendAll) {
+        amount = (await lightningWallet!.getBalance()) - BigInt.from(10);
+      } else {
+        amount = parseFixed(
+            credentials.outputs.first.cryptoAmount?.isNotEmpty == true
+                ? credentials.outputs.first.cryptoAmount!
+                : "0",
+            8);
+      }
 
       return lightningWallet!.createTransaction(credentials.outputs.first.address,
           amount > BigInt.zero ? amount : null, credentials.priority);
@@ -549,8 +555,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       final isChange = addressEntry?.isHidden == true ? 1 : 0;
       final derivationInfo = await walletInfo.getDerivationInfo();
       final accountPath = derivationInfo.derivationPath;
-      final derivationPath =
-          accountPath != null ? "$accountPath/$isChange/$index" : null;
+      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
 
       final signature = await hardwareWalletService!
           .signMessage(message: ascii.encode(message), derivationPath: derivationPath);

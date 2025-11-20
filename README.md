@@ -74,7 +74,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 
 ### Ethereum Specific Features
 
-* Store ETH and all ERc-20 tokens
+* Store ETH and all ERC-20 tokens
 * Add custom tokens by contract address
 * Enable or disable Etherscan for transaction history
 

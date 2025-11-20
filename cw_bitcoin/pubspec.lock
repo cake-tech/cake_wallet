@@ -56,7 +56,7 @@ packages:
     source: git
     version: "1.0.0"
   bech32:
-    dependency: "direct main"
+    dependency: transitive
     description:
       path: "."
       ref: HEAD
@@ -134,11 +134,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: bca05bc9085f778e95916d55e9a75133c27755a2
-      resolved-ref: bca05bc9085f778e95916d55e9a75133c27755a2
+      ref: "9baaad9bdcef32bd0572a9bacaa67c7923c4e0a5"
+      resolved-ref: "9baaad9bdcef32bd0572a9bacaa67c7923c4e0a5"
       url: "https://github.com/breez/breez-sdk-spark-flutter"
     source: git
-    version: "0.3.5-rc1"
+    version: "0.4.2"
   bs58check:
     dependency: transitive
     description:

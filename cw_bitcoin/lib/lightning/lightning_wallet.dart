@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
@@ -12,6 +13,8 @@ bool _breezSdkSparkLibUninitialized = true;
 
 class LightningWallet {
   final String mnemonic;
+  final String? passphrase;
+  final Uint8List? seedBytes;
   final String apiKey;
   final String lnurlDomain;
   final Network network;
@@ -19,6 +22,8 @@ class LightningWallet {
 
   LightningWallet({
     required this.mnemonic,
+    this.passphrase,
+    this.seedBytes,
     required this.apiKey,
     required this.lnurlDomain,
     this.network = Network.mainnet,
@@ -30,10 +35,13 @@ class LightningWallet {
       _breezSdkSparkLibUninitialized = false;
     }
 
-    final seed = Seed.mnemonic(mnemonic: mnemonic, passphrase: null);
+    final seed = seedBytes != null
+        ? Seed.entropy(seedBytes!)
+        : Seed.mnemonic(mnemonic: mnemonic, passphrase: passphrase);
     final config = defaultConfig(network: Network.mainnet).copyWith(
       lnurlDomain: lnurlDomain,
       apiKey: apiKey,
+      privateEnabledDefault: true,
     );
 
     final connectRequest = ConnectRequest(
@@ -46,6 +54,8 @@ class LightningWallet {
   }
 
   Future<String?> getAddress() async => (await sdk.getLightningAddress())?.lightningAddress;
+
+  Future<String?> getLNURL() async => (await sdk.getLightningAddress())?.lnurl;
 
   Future<String> getDepositAddress() async => (await sdk.receivePayment(
           request: ReceivePaymentRequest(paymentMethod: ReceivePaymentMethod.bitcoinAddress())))
@@ -76,7 +86,9 @@ class LightningWallet {
   Future<bool> isCompatible(String input) async {
     try {
       final inputType = await sdk.parse(input: input);
-      return (inputType is InputType_Bolt11Invoice) || (inputType is InputType_LightningAddress);
+      return (inputType is InputType_Bolt11Invoice) ||
+          (inputType is InputType_LightningAddress) ||
+          (inputType is InputType_LnurlPay);
     } catch (_) {
       return false;
     }
@@ -107,14 +119,24 @@ class LightningWallet {
           },
         );
       }
-    } else if (inputType is InputType_LightningAddress) {
+    } else if (inputType is InputType_LightningAddress || inputType is InputType_LnurlPay) {
       final optionalValidateSuccessActionUrl = true;
 
-      final request = PrepareLnurlPayRequest(
-        amountSats: amountSats!,
-        payRequest: inputType.field0.payRequest,
-        validateSuccessActionUrl: optionalValidateSuccessActionUrl,
-      );
+      PrepareLnurlPayRequest request;
+      if (inputType is InputType_LightningAddress) {
+        request = PrepareLnurlPayRequest(
+          amountSats: amountSats!,
+          payRequest: inputType.field0.payRequest,
+          validateSuccessActionUrl: optionalValidateSuccessActionUrl,
+        );
+      } else {
+        request = PrepareLnurlPayRequest(
+          amountSats: amountSats!,
+          payRequest: (inputType as InputType_LnurlPay).field0,
+          validateSuccessActionUrl: optionalValidateSuccessActionUrl,
+        );
+      }
+
       final prepareResponse = await sdk.prepareLnurlPay(request: request);
 
       final feeSats = prepareResponse.feeSats;
@@ -124,7 +146,8 @@ class LightningWallet {
         amount: ((prepareResponse.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
         fee: feeSats.toInt(),
         commitOverride: () async {
-          final res = await sdk.lnurlPay(request: LnurlPayRequest(prepareResponse: prepareResponse));
+          final res =
+              await sdk.lnurlPay(request: LnurlPayRequest(prepareResponse: prepareResponse));
           printV(res.payment.status.name);
         },
       );
@@ -221,6 +244,7 @@ extension _ConfigCopyWith on Config {
     Fee? maxDepositClaimFee,
     bool? preferSparkOverLightning,
     bool? useDefaultExternalInputParsers,
+    bool? privateEnabledDefault,
   }) =>
       Config(
         lnurlDomain: lnurlDomain ?? this.lnurlDomain,
@@ -231,5 +255,6 @@ extension _ConfigCopyWith on Config {
         preferSparkOverLightning: preferSparkOverLightning ?? this.preferSparkOverLightning,
         useDefaultExternalInputParsers:
             useDefaultExternalInputParsers ?? this.useDefaultExternalInputParsers,
+        privateEnabledDefault: privateEnabledDefault ?? this.privateEnabledDefault,
       );
 }

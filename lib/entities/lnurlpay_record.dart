@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 
@@ -31,14 +30,14 @@ class LNUrlPayRecord {
         name = "_";
       }
 
-      // lookup domain/.well-known/nano-currency.json and check if it has a nano address:
+      final expectedUrl = "https://$domain/.well-known/lnurlp/$name";
       final response = await ProxyWrapper().get(
-        clearnetUri: Uri.parse("https://$domain/.well-known/lnurlp/$name"),
+        clearnetUri: Uri.parse(expectedUrl),
         headers: <String, String>{"Accept": "application/json"},
       );
 
       if (response.statusCode == 200) {
-        return username;
+        return encodeLNURL(expectedUrl);
       }
     } catch (e) {
       printV("error checking well-known username: $e");
@@ -60,7 +59,7 @@ class LNUrlPayRecord {
     required String formattedName,
     required CryptoCurrency currency,
   }) async {
-    String name = formattedName;
+    final name = formattedName;
 
     printV("formattedName: $formattedName");
 

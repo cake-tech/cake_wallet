@@ -16,10 +16,9 @@ class AddressValidator extends TextValidator {
           useAdditionalValidation: [CryptoCurrency.btc, CryptoCurrency.ltc].contains(type)
               ? (String txt) {
                   final RegExp lightningInvoiceRegex = RegExp(
-                      r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt)[a-z0-9]+$',
+                      r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl)[a-z0-9]+$',
                       caseSensitive: false);
                   if (lightningInvoiceRegex.hasMatch(txt)) return true;
-                  if (txt.contains("@")) return true;
 
                   return BitcoinAddressUtils.validateAddress(
                     address: txt,
@@ -62,7 +61,7 @@ class AddressValidator extends TextValidator {
               '|(bc1q[ac-hj-np-z02-9]{25,39})'
               '|(bc1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89}))'
               '|(bc1q[ac-hj-np-z02-9]{40,80})'
-              '|(lightning:)?(lnbc|lntb|lnbs|lnbcrt)[a-z0-9]'
+              '|(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl)[a-z0-9]+'
               '|(${silentPaymentAddressPatternMainnet})(\$|\s)';
         }
       case CryptoCurrency.ltc:
