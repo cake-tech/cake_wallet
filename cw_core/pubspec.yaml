@@ -48,6 +48,7 @@ dependencies:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
+  sqlite3_flutter_libs: 0.5.40
 
 dev_dependencies:
   flutter_test:
@@ -65,7 +66,7 @@ dependency_overrides:
 
 # The following section is specific to Flutter.
 flutter:
-    uses-material-design: true
+  uses-material-design: true
 
   # To add assets to your package, add an assets section, like this:
   # assets:
