@@ -42,7 +42,6 @@ enum WalletType {
   haven,
 
   @HiveField(5)
-  @Deprecated('Use WalletType.evm instead. This type is kept for backward compatibility with existing wallets.')
   ethereum,
 
   @HiveField(6)
@@ -55,7 +54,6 @@ enum WalletType {
   bitcoinCash,
 
   @HiveField(9)
-  @Deprecated('Use WalletType.evm instead. This type is kept for backward compatibility with existing wallets.')
   polygon,
 
   @HiveField(10)
@@ -77,11 +75,9 @@ enum WalletType {
   dogecoin,
 
   @HiveField(16)
-  @Deprecated('Use WalletType.evm instead. This type is kept for backward compatibility with existing wallets.')
   base,
 
   @HiveField(17)
-  @Deprecated('Use WalletType.evm instead. This type is kept for backward compatibility with existing wallets.')
   arbitrum,
 
   @HiveField(18)

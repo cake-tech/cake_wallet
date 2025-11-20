@@ -7,6 +7,7 @@ import 'package:cake_wallet/evm/evm.dart';
 
 bool isEVMCompatibleChain(WalletType walletType) {
   switch (walletType) {
+    case WalletType.evm:
     case WalletType.polygon:
     case WalletType.ethereum:
     case WalletType.base:
@@ -19,6 +20,7 @@ bool isEVMCompatibleChain(WalletType walletType) {
 
 bool isNFTACtivatedChain(WalletType walletType) {
   switch (walletType) {
+    case WalletType.evm:
     case WalletType.polygon:
     case WalletType.ethereum:
     case WalletType.base:
@@ -32,10 +34,11 @@ bool isNFTACtivatedChain(WalletType walletType) {
 
 bool isWalletConnectCompatibleChain(WalletType walletType) {
   switch (walletType) {
+    case WalletType.evm:
+    case WalletType.solana:
     case WalletType.polygon:
     case WalletType.ethereum:
     case WalletType.base:
-    case WalletType.solana:
     case WalletType.arbitrum:
       return true;
     default:
@@ -43,7 +46,14 @@ bool isWalletConnectCompatibleChain(WalletType walletType) {
   }
 }
 
-String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType) {
+String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType, {int? chainId}) {
+  if (walletType == WalletType.evm) {
+    if (chainId == null) {
+      throw Exception('chainId required for WalletType.evm');
+    }
+    return evm!.getCaip2ByChainId(chainId);
+  }
+  
   switch (walletType) {
     case WalletType.ethereum:
       return EVMChainId.ethereum.chain();
@@ -62,6 +72,7 @@ String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType) {
 
 List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
   switch (walletType) {
+    case WalletType.evm:
     case WalletType.ethereum:
     case WalletType.polygon:
     case WalletType.base:
@@ -74,21 +85,41 @@ List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
   }
 }
 
-int getChainIdBasedOnWalletType(WalletType walletType) {
+int getChainIdBasedOnWalletType(WalletType walletType, {int? chainId}) {
+  if (walletType == WalletType.evm) {
+    if (chainId == null) {
+      throw Exception('chainId required for WalletType.evm');
+    }
+    return chainId;
+  }
   return evm!.getChainIdByWalletType(walletType);
 }
 
-String getChainNameBasedOnWalletType(WalletType walletType) {
+String getChainNameBasedOnWalletType(WalletType walletType, {int? chainId}) {
   if (walletType == WalletType.solana) {
     return 'mainnet';
+  }
+  
+  if (walletType == WalletType.evm) {
+    if (chainId == null) {
+      throw Exception('chainId required for WalletType.evm');
+    }
+    return evm!.getChainNameByChainId(chainId);
   }
   
   return evm!.getChainNameByWalletType(walletType);
 }
 
-String getTokenNameBasedOnWalletType(WalletType walletType) {
+String getTokenNameBasedOnWalletType(WalletType walletType, {int? chainId}) {
   if (walletType == WalletType.solana) {
     return 'SOL';
+  }
+  
+  if (walletType == WalletType.evm) {
+    if (chainId == null) {
+      throw Exception('chainId required for WalletType.evm');
+    }
+    return evm!.getTokenNameByChainId(chainId);
   }
   
   return evm!.getTokenNameByWalletType(walletType);

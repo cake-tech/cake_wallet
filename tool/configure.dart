@@ -1431,6 +1431,8 @@ abstract class EVM {
   int? getChainIdByTag(String tag);
   int? getChainIdByTitle(String title);
   WalletType? getWalletTypeByChainId(int chainId);
+  String getChainNameByChainId(int chainId);
+  String getTokenNameByChainId(int chainId);
   
   // Chain selection methods
   List<ChainInfo> getAllChains();

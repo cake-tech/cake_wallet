@@ -417,6 +417,18 @@ class CWEVM extends EVM {
   }
 
   @override
+  String getChainNameByChainId(int chainId) {
+    final config = _registry.getChainConfig(chainId);
+    return config?.shortCode ?? 'eth';
+  }
+
+  @override
+  String getTokenNameByChainId(int chainId) {
+    final config = _registry.getChainConfig(chainId);
+    return config?.nativeCurrency.title ?? 'ETH';
+  }
+
+  @override
   int? getChainIdByTag(String tag) {
     final config = _registry.getChainConfigByTag(tag);
     return config?.chainId;
