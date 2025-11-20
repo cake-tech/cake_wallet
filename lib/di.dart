@@ -11,6 +11,8 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/new-ui/new_dashboard.dart';
+import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
@@ -33,6 +35,7 @@ import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_con
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
@@ -748,6 +751,12 @@ Future<void> setup({
         addressListViewModel: getIt.get<WalletAddressListViewModel>(),
       ));
 
+  getIt.registerFactory<NewDashboard>(() => NewDashboard(
+    dashboardViewModel: getIt.get<DashboardViewModel>(),
+  ));
+
+  getIt.registerFactory<NewHomePage>(()=>NewHomePage(dashboardViewModel: getIt.get<DashboardViewModel>()));
+
   getIt.registerFactory<DesktopSidebarWrapper>(() {
     final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
     return DesktopSidebarWrapper(
@@ -1015,7 +1024,7 @@ Future<void> setup({
   getIt.registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => WalletKeysPage(getIt.get<WalletKeysViewModel>()));
-  
+
   getIt.registerFactory(() => AnimatedURModel(getIt.get<AppStore>()));
 
   getIt.registerFactoryParam<AnimatedURPage, Map<String, String>, void>((Map<String, String> urQr, _) =>
@@ -1335,6 +1344,11 @@ Future<void> setup({
 
   getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
 
+
+  getIt.registerFactory(() => CakeFeaturesPage(
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
+      cakeFeaturesViewModel: getIt.get<CakeFeaturesViewModel>()));
+
   getIt.registerFactory(() => BackupServiceV3(getIt.get<SecureStorage>(),
       _transactionDescriptionBox,
       getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
@@ -1581,24 +1595,24 @@ Future<void> setup({
   getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
 
   getIt.registerFactory(() => DevSecurePreferencesPage(getIt.get<DevSecurePreferences>()));
-  
+
   getIt.registerFactory(() => BackgroundSyncLogsViewModel());
-  
+
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
-  
+
   getIt.registerFactory(() => SocketHealthLogsViewModel());
 
   getIt.registerFactory(() => DevSocketHealthLogsPage(getIt.get<SocketHealthLogsViewModel>()));
-  
+
   getIt.registerFactory(() => DevNetworkRequests());
-  
+
   getIt.registerFactory(() => DevQRToolsPage());
 
   getIt.registerFactory(() => ExchangeProviderLogsViewModel());
   getIt.registerFactory(() => DevExchangeProviderLogsPage(getIt.get<ExchangeProviderLogsViewModel>()));
 
   getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
-  
+
   getIt.registerFactory(() => DEuroViewModel(
     getIt<AppStore>(),
     getIt<BalanceViewModel>(),

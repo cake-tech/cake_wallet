@@ -1,0 +1,47 @@
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:flutter/material.dart';
+import '../view_model/dashboard/dashboard_view_model.dart';
+
+class NewDashboard extends StatefulWidget {
+  NewDashboard({super.key, required this.dashboardViewModel});
+
+  final DashboardViewModel dashboardViewModel;
+
+  @override
+  State<NewDashboard> createState() => _NewDashboardState();
+}
+
+class _NewDashboardState extends State<NewDashboard> {
+  int _selectedPage = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          [
+            getIt.get<NewHomePage>(),
+            getIt.get<WalletListPage>(),
+            getIt.get<ContactListPage>(),
+            getIt.get<CakeFeaturesPage>(),
+            Placeholder(),
+          ][_selectedPage],
+          NewMainNavBar(
+            dashboardViewModel: widget.dashboardViewModel,
+            selectedIndex: _selectedPage,
+            onItemTap: (index) {
+              setState(() {
+                _selectedPage = index;
+              });
+            },
+          )
+        ],
+      ),
+    );
+  }
+}

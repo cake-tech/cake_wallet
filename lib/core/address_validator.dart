@@ -61,7 +61,7 @@ class AddressValidator extends TextValidator {
               '|(bc1q[ac-hj-np-z02-9]{25,39})'
               '|(bc1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89}))'
               '|(bc1q[ac-hj-np-z02-9]{40,80})'
-              '|(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl)[a-z0-9]'
+              '|(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl)[a-z0-9]+'
               '|(${silentPaymentAddressPatternMainnet})(\$|\s)';
         }
       case CryptoCurrency.ltc:

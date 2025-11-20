@@ -69,6 +69,57 @@ class LightningPaymentRequest extends PaymentURI {
   String toString() => bolt11Invoice ?? lnURL;
 }
 
+class LitecoinURI extends PaymentURI {
+  LitecoinURI({required super.amount, required super.address, required super.scheme});
+
+  @override
+  String toString() {
+    var base = 'litecoin:$address';
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
+
+    return base;
+  }
+}
+
+class EthereumURI extends PaymentURI {
+  EthereumURI({required super.amount, required super.address, required super.scheme});
+
+  @override
+  String toString() {
+    var base = 'ethereum:$address';
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
+
+    return base;
+  }
+}
+
+class BaseURI extends PaymentURI {
+  BaseURI({required super.amount, required super.address, required super.scheme});
+
+  @override
+  String toString() {
+    var base = 'base:$address';
+    if (amount.isNotEmpty) base += '?amount=${amount.replaceAll(',', '.')}';
+
+    return base;
+  }
+}
+
+class ArbitrumURI extends PaymentURI {
+  ArbitrumURI({required super.amount, required super.address, required super.scheme});
+
+  @override
+  String toString() {
+    var base = 'arbitrum:$address';
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 class BitcoinCashURI extends PaymentURI {
   const BitcoinCashURI({required super.address, required super.amount, super.scheme = ""});
 

@@ -242,6 +242,7 @@ flutter:
     - assets/text/
     - assets/faq/
     - assets/animation/
+    - assets/new-ui/
 
   fonts:
     - family: Lato
