@@ -8,12 +8,15 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'balance_card.dart';
 
 class CardsView extends StatefulWidget {
-  const CardsView({super.key, required this.dashboardViewModel, required this.accountListViewModel, required this.lightningMode});
+  const CardsView(
+      {super.key,
+      required this.dashboardViewModel,
+      required this.accountListViewModel,
+      required this.lightningMode});
 
   final DashboardViewModel dashboardViewModel;
   final MoneroAccountListViewModel? accountListViewModel;
   final bool lightningMode;
-
 
   @override
   _CardsViewState createState() => _CardsViewState();
@@ -58,20 +61,22 @@ class _CardsViewState extends State<CardsView> {
         child: GestureDetector(
           onTap: () {
             setState(() {
-              if(widget.accountListViewModel != null)
-              widget.accountListViewModel!.select(widget.accountListViewModel!.accounts[index]);
+              if (widget.accountListViewModel != null)
+                widget.accountListViewModel!.select(widget.accountListViewModel!.accounts[index]);
               _selectedIndex = index;
             });
           },
-          child: Observer(
-            builder: (_){return BalanceCard(
+          child: Observer(builder: (_) {
+            return BalanceCard(
               width: cardWidth,
-              accountName: (widget.accountListViewModel?.accounts[index].label) ?? "Primary account",
+              accountName:
+                  (widget.accountListViewModel?.accounts[index].label) ?? "Primary account",
               accountBalance: widget.accountListViewModel?.accounts[index].balance ?? "",
-              balanceRecord: widget.dashboardViewModel.balanceViewModel.formattedBalances.elementAt(0),
+              balanceRecord:
+                  widget.dashboardViewModel.balanceViewModel.formattedBalances.elementAt(0),
               selected: _selectedIndex == index,
-            );}
-          ),
+            );
+          }),
         ),
       ),
     );
@@ -79,10 +84,10 @@ class _CardsViewState extends State<CardsView> {
 
   double _getBoxHeight() {
     return
-    /* height of initial card */
-    (2 / 3) * (cardWidth) +
-        /* height of bg card * amount of bg cards */
-        overlapAmount * ((widget.accountListViewModel?.accounts.length ??1) - 1);
+        /* height of initial card */
+        (2 / 3) * (cardWidth) +
+            /* height of bg card * amount of bg cards */
+            overlapAmount * ((widget.accountListViewModel?.accounts.length ?? 1) - 1);
   }
 
   @override
@@ -96,13 +101,12 @@ class _CardsViewState extends State<CardsView> {
           _selectedIndex = 0;
         }
 
-        for (
-          int i = _selectedIndex!;
-          i < (widget.accountListViewModel?.accounts.length ?? 1) + _selectedIndex!;
-          i++
-        ) {
+        for (int i = _selectedIndex!;
+            i < (widget.accountListViewModel?.accounts.length ?? 1) + _selectedIndex!;
+            i++) {
           if (i != _selectedIndex) {
-            children.add(_buildCard(i % (widget.accountListViewModel?.accounts.length ?? 1), parentWidth));
+            children.add(
+                _buildCard(i % (widget.accountListViewModel?.accounts.length ?? 1), parentWidth));
           }
         }
 
@@ -110,28 +114,26 @@ class _CardsViewState extends State<CardsView> {
           children.add(_buildCard(_selectedIndex!, parentWidth));
         }
 
-        return Observer(
-          builder: (_){return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        width: double.infinity,
-        height: _getBoxHeight(),
-        child: AnimatedSwitcher(
-        duration: Duration(milliseconds: 200),
-        transitionBuilder: (child, animation) =>
-        FadeTransition(opacity: animation, child: child),
-        child: SizedBox(
-        key: ValueKey(_getBoxHeight()),
-        width: double.infinity,
-        height: _getBoxHeight(),
-        child: Stack(alignment: Alignment.center, children: children),
-        ),
-        ),
-        ),
-        );}
-      );
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            width: double.infinity,
+            height: _getBoxHeight(),
+            child: AnimatedSwitcher(
+              duration: Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
+              child: SizedBox(
+                key: ValueKey(_getBoxHeight()),
+                width: double.infinity,
+                height: _getBoxHeight(),
+                child: Stack(alignment: Alignment.center, children: children),
+              ),
+            ),
+          ),
+        );
       },
     );
   }

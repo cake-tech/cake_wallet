@@ -49,12 +49,18 @@ class AssetsTopBar extends StatelessWidget {
                     padding: const EdgeInsets.all(12.0),
                     child: Row(
                       spacing: 4.0,
-                      children: [Icon(Icons.settings, color: Theme.of(context).colorScheme.primary), Text("Tokens", style: TextStyle(color: Theme.of(context).colorScheme.primary),)],
+                      children: [
+                        Icon(Icons.settings, color: Theme.of(context).colorScheme.primary),
+                        Text(
+                          "Tokens",
+                          style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                        )
+                      ],
                     ),
                   ),
                 ),
               ),
-              ModernButton(size: 48, onPressed:(){}, icon: Icon(Icons.question_mark)),
+              ModernButton(size: 48, onPressed: () {}, icon: Icon(Icons.question_mark)),
             ],
           ),
         ],
