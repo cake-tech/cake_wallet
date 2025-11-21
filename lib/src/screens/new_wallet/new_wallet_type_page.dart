@@ -567,34 +567,105 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       if (mounted) setState(() => _isProcessing = false);
     }
   }
-
   Future<void> showInfoBottomSheet(MaterialThemeBase currentTheme) async {
     await showModalBottomSheet<void>(
       context: context,
-      scrollControlDisabledMaxHeightRatio: 0.7,
-      isDismissible: false,
-      builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
-        footerType: FooterType.singleActionButton,
-        height: 500,
-        titleText: '',
-        contentImage: currentTheme == ThemeList.lightTheme
-            ? 'assets/images/wallet_group_options_light.png'
-            : 'assets/images/wallet_group_options_dark.png',
-        contentImageSize: 200,
-        bottomTextWidget: Padding(
-          padding: EdgeInsets.fromLTRB(24, 24, 24, 0),
-          child: Text(
-            'In Cake Wallet, you can create a wallet group by selecting an existing wallet to share a seed with. Each wallet group can contain a single wallet of each currency type. \n\n'
-            'You can select Choose Wallet Group to see the available wallets and/or wallet groups screen.Or choose Create New Seed to create a wallet with an entirely new seed.',
-            style: TextStyle(fontSize: 16),
-            textAlign: TextAlign.center,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext bottomSheetContext) {
+        return WalletGroupInfoBottomSheet(currentTheme: currentTheme);
+      },
+    );
+  }
+}
+
+class WalletGroupInfoBottomSheet extends StatelessWidget {
+  const WalletGroupInfoBottomSheet({
+    super.key,
+    required this.currentTheme,
+  });
+
+  final MaterialThemeBase currentTheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final imagePath = currentTheme == ThemeList.lightTheme
+        ? 'assets/images/wallet_group_options_light.png'
+        : 'assets/images/wallet_group_options_dark.png';
+
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.6,
+      minChildSize: 0.4,
+      maxChildSize: 0.7,
+      builder: (context, scrollController) {
+        return ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
           ),
-        ),
-        singleActionButtonText: S.of(bottomSheetContext).litecoin_mweb_dismiss,
-        singleActionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
-        onSingleActionButtonPressed: () =>
-            Navigator.of(bottomSheetContext).pop(),
-      ),
+          child: Container(
+            color: theme.colorScheme.surface,
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 64,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: theme.colorScheme.onSurface.withOpacity(0.4),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          imagePath,
+                          height: 200,
+                        ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'In Cake Wallet, you can create a wallet group by selecting an existing '
+                              'wallet to share a seed with. Each wallet group can contain a single '
+                              'wallet of each currency type.\n\n'
+                              'You can select Choose Wallet Group to see the available wallets and/or '
+                              'wallet groups screen. Or choose Create New Seed to create a wallet with '
+                              'an entirely new seed.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SafeArea(
+                  top: false,
+                  minimum:
+                  const EdgeInsets.fromLTRB(30, 12, 30, 24),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: PrimaryButton(
+                      key: ValueKey('wallet_group_info_bottom_sheet_dismiss_button_key'),
+                      text: S.of(context).litecoin_mweb_dismiss,
+                      onPressed: () => Navigator.of(context).pop(),
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
+                    )
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
