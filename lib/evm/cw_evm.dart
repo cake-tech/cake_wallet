@@ -68,8 +68,7 @@ class CWEVM extends EVM {
   }
 
   @override
-  String getAddress(WalletBase wallet) =>
-      (wallet as EVMChainWallet).walletAddresses.address;
+  String getAddress(WalletBase wallet) => (wallet as EVMChainWallet).walletAddresses.address;
 
   @override
   String getPrivateKey(WalletBase wallet) {
@@ -87,16 +86,13 @@ class CWEVM extends EVM {
   }
 
   @override
-  TransactionPriority getDefaultTransactionPriority() =>
-      EVMChainTransactionPriority.medium;
+  TransactionPriority getDefaultTransactionPriority() => EVMChainTransactionPriority.medium;
 
   @override
-  TransactionPriority getEVMTransactionPrioritySlow() =>
-      EVMChainTransactionPriority.slow;
+  TransactionPriority getEVMTransactionPrioritySlow() => EVMChainTransactionPriority.slow;
 
   @override
-  List<TransactionPriority> getTransactionPriorities() =>
-      EVMChainTransactionPriority.all;
+  List<TransactionPriority> getTransactionPriorities() => EVMChainTransactionPriority.all;
 
   @override
   TransactionPriority deserializeEVMTransactionPriority(int raw) =>
@@ -144,8 +140,7 @@ class CWEVM extends EVM {
   }
 
   @override
-  int formatterEVMParseAmount(String amount) =>
-      EVMChainFormatter.parseEVMChainAmount(amount);
+  int formatterEVMParseAmount(String amount) => EVMChainFormatter.parseEVMChainAmount(amount);
 
   @override
   double formatterEVMAmountToDouble({
@@ -176,32 +171,29 @@ class CWEVM extends EVM {
       (wallet as EVMChainWallet).deleteErc20Token(token as Erc20Token);
 
   @override
-  Future<void> removeTokenTransactionsInHistory(
-      WalletBase wallet, CryptoCurrency token) =>
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token) =>
       (wallet as EVMChainWallet).removeTokenTransactionsInHistory(token as Erc20Token);
 
   @override
-  Future<Erc20Token?> getErc20Token(
-      WalletBase wallet, String contractAddress) {
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) {
     final evmWallet = wallet as EVMChainWallet;
     final chainName = EVMChainUtils.getDefaultTokenSymbol(evmWallet.walletInfo.type).toLowerCase();
     return evmWallet.getErc20Token(contractAddress, chainName);
   }
 
   @override
-  CryptoCurrency assetOfTransaction(
-      WalletBase wallet, TransactionInfo transaction) {
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     transaction as EVMChainTransactionInfo;
     final evmWallet = wallet as EVMChainWallet;
-    final isPolygon = evmWallet.walletInfo.type == WalletType.polygon;
-    final nativeCurrencyTitle = isPolygon
-        ? CryptoCurrency.maticpoly.title
-        : CryptoCurrency.eth.title;
-    
+
+    final nativeCurrency = evmWallet.currency;
+    final nativeCurrencyTitle = nativeCurrency.title;
+
     if (transaction.tokenSymbol == nativeCurrencyTitle) {
-      return isPolygon ? CryptoCurrency.maticpoly : CryptoCurrency.eth;
+      return nativeCurrency;
     }
 
+    // Otherwise, it's an ERC20 token
     return evmWallet.erc20Currencies.firstWhere(
       (element) => transaction.tokenSymbol == element.symbol,
     );
@@ -212,12 +204,10 @@ class CWEVM extends EVM {
       (wallet as EVMChainWallet).updateScanProviderUsageState(isEnabled);
 
   @override
-  Web3Client? getWeb3Client(WalletBase wallet) =>
-      (wallet as EVMChainWallet).getWeb3Client();
+  Web3Client? getWeb3Client(WalletBase wallet) => (wallet as EVMChainWallet).getWeb3Client();
 
   @override
-  String getTokenAddress(CryptoCurrency asset) =>
-      (asset as Erc20Token).contractAddress;
+  String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
   Future<bool> isApprovalRequired(
@@ -226,8 +216,7 @@ class CWEVM extends EVM {
     String spender,
     BigInt requiredAmount,
   ) =>
-      (wallet as EVMChainWallet)
-          .isApprovalRequired(tokenContract, spender, requiredAmount);
+      (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
 
   @override
   Future<PendingTransaction> createTokenApproval(
@@ -264,48 +253,46 @@ class CWEVM extends EVM {
       );
 
   @override
-  Future<void> setHardwareWalletService(
-      WalletBase wallet, HardwareWalletService service) async {
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
     if (service is EVMChainLedgerService) {
-      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials)
-          .setLedgerConnection(service.ledgerConnection,
-              (await wallet.walletInfo.getDerivationInfo()).derivationPath);
+      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedgerConnection(
+          service.ledgerConnection, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     } else if (service is EVMChainBitboxService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
-          .setBitbox(service.manager,
-              (await wallet.walletInfo.getDerivationInfo()).derivationPath);
+          .setBitbox(service.manager, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     } else if (service is EVMChainTrezorService) {
-      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials)
-          .setTrezorConnect(service.connect,
-              (await wallet.walletInfo.getDerivationInfo()).derivationPath);
+      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials).setTrezorConnect(
+          service.connect, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
     }
   }
 
   @override
-  HardwareWalletService getLedgerHardwareWalletService(
-          ledger.LedgerConnection connection) =>
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
       EVMChainLedgerService(connection);
 
   @override
-  HardwareWalletService getBitboxHardwareWalletService(
-          bitbox.BitboxManager manager) =>
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager) =>
       EVMChainBitboxService(manager);
 
   @override
-  HardwareWalletService getTrezorHardwareWalletService(
-          trezor.TrezorConnect connect) =>
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect) =>
       EVMChainTrezorService(connect);
 
   @override
-  List<String> getDefaultTokenContractAddresses(WalletType walletType) {
-    return EVMChainDefaultTokens.getDefaultTokenAddresses(walletType);
+  List<String> getDefaultTokenContractAddresses(WalletBase wallet) {
+    final walletType = wallet.type;
+    int? chainId;
+    if (walletType == WalletType.evm) {
+      chainId = getSelectedChainId(wallet);
+    }
+    return EVMChainDefaultTokens.getDefaultTokenAddresses(walletType, chainId: chainId);
   }
 
   @override
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
     final evmWallet = wallet as EVMChainWallet;
-    return evmWallet.erc20Currencies.any((element) =>
-        element.contractAddress.toLowerCase() == contractAddress.toLowerCase());
+    return evmWallet.erc20Currencies
+        .any((element) => element.contractAddress.toLowerCase() == contractAddress.toLowerCase());
   }
 
   @override
@@ -353,8 +340,7 @@ class CWEVM extends EVM {
   Future<PendingTransaction>? addDEuroSaving(
       WalletBase wallet, BigInt amount, TransactionPriority priority) {
     if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
-      return DEuro(wallet)
-          .depositSavings(amount, priority as EVMChainTransactionPriority);
+      return DEuro(wallet).depositSavings(amount, priority as EVMChainTransactionPriority);
     }
     return null;
   }
@@ -363,8 +349,7 @@ class CWEVM extends EVM {
   Future<PendingTransaction>? removeDEuroSaving(
       WalletBase wallet, BigInt amount, TransactionPriority priority) {
     if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
-      return DEuro(wallet)
-          .withdrawSavings(amount, priority as EVMChainTransactionPriority);
+      return DEuro(wallet).withdrawSavings(amount, priority as EVMChainTransactionPriority);
     }
     return null;
   }
@@ -373,25 +358,22 @@ class CWEVM extends EVM {
   Future<PendingTransaction>? reinvestDEuroInterest(
       WalletBase wallet, TransactionPriority priority) {
     if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
-      return DEuro(wallet)
-          .reinvestInterest(priority as EVMChainTransactionPriority);
+      return DEuro(wallet).reinvestInterest(priority as EVMChainTransactionPriority);
     }
     return null;
   }
 
   @override
-  Future<PendingTransaction>? enableDEuroSaving(
-      WalletBase wallet, TransactionPriority priority) {
+  Future<PendingTransaction>? enableDEuroSaving(WalletBase wallet, TransactionPriority priority) {
     if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
-      return DEuro(wallet)
-          .enableSavings(priority as EVMChainTransactionPriority);
+      return DEuro(wallet).enableSavings(priority as EVMChainTransactionPriority);
     }
     return null;
   }
 
   // Registry helper methods
   static final EvmChainRegistry _registry = EvmChainRegistry();
-  
+
   @override
   int getChainIdByWalletType(WalletType walletType) {
     final config = _registry.getChainConfigByWalletType(walletType);
@@ -439,7 +421,7 @@ class CWEVM extends EVM {
     // Try as tag first (uppercase)
     final tagResult = getChainIdByTag(title.toUpperCase());
     if (tagResult != null) return tagResult;
-    
+
     // Try as lowercase title
     return getChainIdByTag(title.toLowerCase());
   }
@@ -452,11 +434,13 @@ class CWEVM extends EVM {
   @override
   List<ChainInfo> getAllChains() {
     final allChains = _registry.getAllChains();
-    return allChains.map((config) => ChainInfo(
-      chainId: config.chainId,
-      name: config.name,
-      shortCode: config.shortCode,
-    )).toList();
+    return allChains
+        .map((config) => ChainInfo(
+              chainId: config.chainId,
+              name: config.name,
+              shortCode: config.shortCode,
+            ))
+        .toList();
   }
 
   @override
@@ -497,4 +481,3 @@ class CWEVM extends EVM {
     return null;
   }
 }
-

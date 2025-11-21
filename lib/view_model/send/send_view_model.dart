@@ -47,7 +47,6 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
@@ -115,6 +114,22 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     unspentCoinsListViewModel.initialSetup().then((_) {
       unspentCoinsListViewModel.resetUnspentCoinsInfoSelections();
+    });
+    
+    // React to chain changes for EVM wallets (selectedChainId changes)
+    // Observe wallet.currency which is computed from selectedChainId for WalletType.evm
+    // MobX will track the dependency chain: currency -> selectedChainConfig -> selectedChainId
+    reaction((_) {
+      if (wallet.type == WalletType.evm) {
+        // Access currency which depends on selectedChainId, so MobX tracks the change
+        return wallet.currency;
+      }
+      return null;
+    }, (_) {
+      // Chain switched - update currencies and selected currency
+      currencies = wallet.balance.keys.toList();
+      selectedCryptoCurrency = wallet.currency;
+      updateSendingBalance();
     });
   }
 
@@ -263,7 +278,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
-    return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
+    // Handle case where balance might not be available yet (e.g., during chain switch)
+    final balanceForCurrency = wallet.balance[selectedCryptoCurrency];
+    if (balanceForCurrency == null) {
+      return wallet.formatCryptoAmount('0');
+    }
+    return balanceForCurrency.formattedFullAvailableBalance;
   }
 
   @action

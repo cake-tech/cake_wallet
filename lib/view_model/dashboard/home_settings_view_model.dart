@@ -30,6 +30,25 @@ abstract class HomeSettingsViewModelBase with Store {
         isDeletingToken = false,
         isValidatingContractAddress = false {
     _updateTokensList();
+    
+    // React to wallet changes
+    reaction((_) => _balanceViewModel.wallet, (_) {
+      _updateTokensList();
+    });
+    
+    // React to chain changes for EVM wallets (selectedChainId changes)
+    // Observe wallet.currency which is computed from selectedChainId for WalletType.evm
+    // MobX will track the dependency chain: currency -> selectedChainConfig -> selectedChainId
+    reaction((_) {
+      final wallet = _balanceViewModel.wallet;
+      if (wallet.type == WalletType.evm) {
+        // Access currency which depends on selectedChainId, so MobX tracks the change
+        return wallet.currency;
+      }
+      return null;
+    }, (_) {
+      _updateTokensList();
+    });
   }
 
   final SettingsStore _settingsStore;
@@ -196,7 +215,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
         defaultTokenAddresses =
-            evm!.getDefaultTokenContractAddresses(_balanceViewModel.wallet.type);
+            evm!.getDefaultTokenContractAddresses(_balanceViewModel.wallet);
         break;
       case WalletType.solana:
         defaultTokenAddresses = solana!.getDefaultTokenContractAddresses();

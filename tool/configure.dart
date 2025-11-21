@@ -1408,7 +1408,7 @@ abstract class EVM {
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
   
   // Utility methods
-  List<String> getDefaultTokenContractAddresses(WalletType walletType);
+  List<String> getDefaultTokenContractAddresses(WalletBase wallet);
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
   String? getEVMNativeEstimatedFee(WalletBase wallet);
   String? getEVMERC20EstimatedFee(WalletBase wallet);

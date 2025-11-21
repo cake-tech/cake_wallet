@@ -93,7 +93,6 @@ abstract class EVMChainWalletBase
         walletAddresses = EVMChainWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, EVMChainERC20Balance>.of(
           {
-            // Not sure of this yet, will it work? will it not?
             nativeCurrency: initialBalance ?? EVMChainERC20Balance(BigInt.zero),
           },
         ),
@@ -115,7 +114,7 @@ abstract class EVMChainWalletBase
 
   late final Box<Erc20Token> erc20TokensBox;
 
-  late final Box<Erc20Token> evmChainErc20TokensBox;
+  late Box<Erc20Token> evmChainErc20TokensBox;
 
   late final Credentials _evmChainPrivateKey;
 
@@ -124,7 +123,6 @@ abstract class EVMChainWalletBase
   late EVMChainClient _client;
 
   /// Currently selected chain ID for this wallet
-  /// Initialized from walletType on creation, can be changed via selectChain()
   @observable
   int selectedChainId;
 
@@ -146,11 +144,10 @@ abstract class EVMChainWalletBase
     return super.currency;
   }
 
-  bool get hasPriorityFee {
-    // For WalletType.evm, use selectedChainId; for old types, use walletInfo.type
-    final chainId = type == WalletType.evm ? selectedChainId : null;
-    return EVMChainUtils.hasPriorityFee(walletInfo.type, chainId: chainId);
-  }
+  bool get hasPriorityFee => EVMChainUtils.hasPriorityFee(
+        walletInfo.type,
+        chainId: type == WalletType.evm ? selectedChainId : null,
+      );
 
   /// Get initial chain ID from registry based on wallet type
   static int _getInitialChainId(WalletType walletType) {
@@ -167,7 +164,6 @@ abstract class EVMChainWalletBase
 
   bool _isTransactionUpdating;
 
-  // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
   Timer? _transactionsUpdateTimer;
 
   @override
@@ -185,15 +181,15 @@ abstract class EVMChainWalletBase
 
   //! Chain selection methods
 
-  /// Select a different EVM chain for this wallet
+  /// Select a different EVM network chain for this wallet
   ///
-  /// This allows switching between EVM chains (Ethereum, Polygon, Base, Arbitrum, etc.)
+  /// This allows switching between EVM networks (Ethereum, Polygon, Base, Arbitrum, etc.)
   /// without creating a new wallet. The selected chain ID is stored, the client is
   /// immediately updated, and the wallet automatically connects to the node, updates
-  /// balance, and refreshes transactions for the selected chain.
+  /// balance, and refreshes transactions for the selected network.
   ///
-  /// Transactions are stored in separate files per chain (based on chainId), so switching
-  /// chains automatically loads transactions from the correct file.
+  /// Transactions are stored in separate files per network (based on chainId), so switching
+  /// networks automatically loads transactions from the correct file.
   @action
   Future<void> selectChain(int chainId, {required Node node}) async {
     final registry = EvmChainRegistry();
@@ -203,18 +199,34 @@ abstract class EVMChainWalletBase
 
     if (selectedChainId == chainId) return;
 
-    // Stop old client before switching
+    final oldNativeCurrency = currency;
+
     _client.stop();
 
-    // Update selected chain and create new client
+    // Clear all ERC20 tokens from balance map before switching networks
+    // This ensures we only show tokens for the newly selected network
+    final tokensToRemove = balance.keys.whereType<Erc20Token>().toList();
+    for (final token in tokensToRemove) {
+      balance.remove(token);
+    }
+
     selectedChainId = chainId;
     _client = EVMChainClientFactory.createClient(selectedChainId);
 
     // Automatically connect to node for the selected chain
     await connectToNode(node: node);
 
+    // Reload ERC20 tokens box for the new chain
+    await initErc20TokensBox();
+
     // Reload transaction history from the new chain's file
     await transactionHistory.init();
+
+    // Remove old native currency if it's different from the new one
+    final newNativeCurrency = currency;
+    if (oldNativeCurrency != newNativeCurrency) {
+      balance.remove(oldNativeCurrency);
+    }
 
     await startSync();
   }
@@ -258,12 +270,34 @@ abstract class EVMChainWalletBase
       return;
     }
 
-    // For other chains, use standard box name
+    // For WalletType.evm, use selectedChainId; for old types, use walletInfo.type
+    final chainId = type == WalletType.evm ? selectedChainId : null;
     final boxName = EVMChainUtils.getErc20TokensBoxName(
       walletInfo.name,
       walletInfo.type,
+      chainId: chainId,
     );
-    evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
+
+    // Close existing box if it's already open (for chain switching)
+    try {
+      if (evmChainErc20TokensBox.isOpen) {
+        await evmChainErc20TokensBox.close();
+      }
+    } catch (_) {
+      // Box might not be initialized yet, ignore
+    }
+
+    // Check if box is already open, if so use it, otherwise open it
+    if (CakeHive.isBoxOpen(boxName)) {
+      evmChainErc20TokensBox = CakeHive.box<Erc20Token>(boxName);
+    } else {
+      evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
+    }
+
+    // Add initial tokens if box is empty
+    if (evmChainErc20TokensBox.isEmpty) {
+      addInitialTokens();
+    }
   }
 
   /// Ethereum-specific initialization with backward compatibility
@@ -413,6 +447,12 @@ abstract class EVMChainWalletBase
       );
       walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
     }
+
+    // Ensure balance is initialized for current currency (in case currency changed)
+    if (!balance.containsKey(currency)) {
+      balance[currency] = EVMChainERC20Balance(BigInt.zero);
+    }
+
     await save();
   }
 
@@ -471,9 +511,6 @@ abstract class EVMChainWalletBase
 
     final erc20Fee = await _getErc20TxFee(priority);
     erc20TxEstimatedFee = erc20Fee.toString();
-
-    printV('Native Estimated Fee: $nativeTxEstimatedFee');
-    printV('ERC20 Estimated Fee: $erc20TxEstimatedFee');
   }
 
   Future<int> _getNativeTxFee(TransactionPriority? priority) async {
@@ -995,7 +1032,7 @@ abstract class EVMChainWalletBase
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
         'private_key': privateKey,
-        'balance': balance[currency]!.toJSON(),
+        'balance': balance[currency]?.toJSON() ?? EVMChainERC20Balance(BigInt.zero).toJSON(),
         'passphrase': passphrase,
         'selected_chain_id': selectedChainId,
       });

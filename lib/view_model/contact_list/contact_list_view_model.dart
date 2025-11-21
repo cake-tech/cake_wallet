@@ -7,9 +7,12 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -44,7 +47,11 @@ abstract class ContactListViewModelBase with Store {
             walletContacts.add(WalletContact(
               address.address,
               name,
-              walletTypeToCryptoCurrency(info.type),
+              walletTypeToCryptoCurrency(
+                info.type,
+                chainId: info.type == WalletType.evm ? 1 : null,
+              ),
+              walletType: info.type,
             ));
           }
         }
@@ -56,7 +63,11 @@ abstract class ContactListViewModelBase with Store {
           walletContacts.add(WalletContact(
             address,
             name,
-            walletTypeToCryptoCurrency(info.type),
+            walletTypeToCryptoCurrency(
+              info.type,
+              chainId: info.type == WalletType.evm ? 1 : null,
+            ),
+            walletType: info.type,
           ));
         } else {
           addresses.forEach((address, label) {
@@ -67,10 +78,13 @@ abstract class ContactListViewModelBase with Store {
             walletContacts.add(WalletContact(
               address,
               name,
-              walletTypeToCryptoCurrency(info.type,
-                  isTestnet: info.network == null
-                      ? false
-                      : info.network!.toLowerCase().contains("testnet")),
+              walletTypeToCryptoCurrency(
+                info.type,
+                isTestnet:
+                    info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
+                chainId: info.type == WalletType.evm ? 1 : null,
+              ),
+              walletType: info.type,
             ));
           });
         }
@@ -81,7 +95,11 @@ abstract class ContactListViewModelBase with Store {
               key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
                   ? 0
                   : null),
-          walletTypeToCryptoCurrency(info.type),
+          walletTypeToCryptoCurrency(
+            info.type,
+            chainId: info.type == WalletType.evm ? 1 : null,
+          ),
+          walletType: info.type,
         ));
       }
     }
@@ -136,10 +154,137 @@ abstract class ContactListViewModelBase with Store {
         isWalletContact &&
         (element.type == CryptoCurrency.btc || element.type == CryptoCurrency.ltc)) return false;
 
-    return element.type == _currency ||
-        (element.type.tag != null && _currency.tag != null && element.type.tag == _currency.tag) ||
-        _currency.toString() == element.type.tag ||
-        _currency.tag == element.type.toString();
+    // Check for exact currency match
+    if (element.type == _currency) return true;
+
+    // Check for tag matching
+    if (element.type.tag != null && _currency.tag != null && element.type.tag == _currency.tag) {
+      return true;
+    }
+
+    if (_currency.toString() == element.type.tag || _currency.tag == element.type.toString()) {
+      return true;
+    }
+
+    // For EVM wallet contacts: use walletType field for proper filtering
+    if (isWalletContact && element is WalletContact) {
+      final contactWalletType = element.walletType;
+      if (contactWalletType == null) {
+        // If wallet type is not available, use currency-based check
+        if (_isEVMCompatibleCurrency(_currency) && _isEVMCompatibleCurrency(element.type)) {
+          return true;
+        }
+        return false;
+      }
+
+      if (!_isEVMCompatibleCurrency(_currency)) {
+        return false;
+      }
+
+      final currentWalletType = _getWalletTypeFromCurrency(_currency);
+
+      // For WalletType.evm: show all EVM-compatible wallet contacts
+      // If we can't determine the wallet type from currency, assume it's WalletType.evm
+      if (currentWalletType == null || currentWalletType == WalletType.evm) {
+        return isEVMCompatibleChain(contactWalletType);
+      }
+
+      // For old individual EVM types (ethereum, polygon, base, arbitrum):
+      // Show wallets that match that wallet type, plus WalletType.evm wallets
+      if (isEVMCompatibleChain(currentWalletType)) {
+        if (contactWalletType == currentWalletType) {
+          return true;
+        }
+        // Also show WalletType.evm wallets (they can switch to any chain including this one)
+        if (contactWalletType == WalletType.evm) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /// Get wallet type from currency (for EVM currencies)
+  /// Returns null if currency doesn't correspond to a specific old wallet type
+  /// (null means it could be WalletType.evm or we can't determine)
+  WalletType? _getWalletTypeFromCurrency(CryptoCurrency currency) {
+    // ERC20 tokens don't have a specific wallet type - they could be from any EVM chain
+    if (currency is Erc20Token) {
+      return null;
+    }
+
+    // Check for native EVM currencies with tags that indicate old wallet types
+    final tag = currency.tag?.toUpperCase();
+
+    // Currencies with tags (POL, BASE, ARB) indicate old wallet types
+    if (tag == 'POL') {
+      return WalletType.polygon;
+    }
+    if (tag == 'BASE') {
+      return WalletType.base;
+    }
+    if (tag == 'ARB') {
+      return WalletType.arbitrum;
+    }
+
+    // ETH without a tag could be either WalletType.ethereum or WalletType.evm
+    // We can't determine, so return null (will be treated as WalletType.evm)
+    if (currency == CryptoCurrency.eth) {
+      return null; // Could be WalletType.ethereum or WalletType.evm
+    }
+
+    // MATIC/Polygon currencies
+    if (currency == CryptoCurrency.maticpoly || currency == CryptoCurrency.matic) {
+      return WalletType.polygon;
+    }
+
+    // Try to get chainId from currency, then get wallet type
+    final title = currency.title.toLowerCase();
+    int? chainId;
+    if (tag != null) {
+      chainId = evm!.getChainIdByTag(tag);
+    }
+    if (chainId == null) {
+      chainId = evm!.getChainIdByTitle(title);
+    }
+
+    if (chainId != null) {
+      // Get wallet type from chainId
+      final walletType = evm!.getWalletTypeByChainId(chainId);
+      // Only return old wallet types, not WalletType.evm
+      if (walletType != null && walletType != WalletType.evm) {
+        return walletType;
+      }
+    }
+
+    return null;
+  }
+
+  /// Check if a currency is EVM-compatible (ERC20 token or native EVM currency)
+  bool _isEVMCompatibleCurrency(CryptoCurrency currency) {
+    // ERC20 tokens are always EVM-compatible
+    if (currency is Erc20Token) return true;
+
+    // Check for native EVM currencies
+    // These are currencies that correspond to EVM chains
+    final title = currency.title.toLowerCase();
+    final tag = currency.tag?.toUpperCase();
+
+    // Native EVM currencies
+    return title == 'eth' ||
+        title == 'ethereum' ||
+        title == 'matic' ||
+        title == 'polygon' ||
+        title == 'base' ||
+        title == 'arbitrum' ||
+        tag == 'ETH' ||
+        tag == 'POL' ||
+        tag == 'BASE' ||
+        tag == 'ARB' ||
+        currency == CryptoCurrency.eth ||
+        currency == CryptoCurrency.maticpoly ||
+        currency == CryptoCurrency.matic;
   }
 
   void dispose() => _subscription?.cancel();
@@ -203,7 +348,6 @@ abstract class ContactListViewModelBase with Store {
         await sortGroupByType();
         break;
       case FilterListOrderType.Custom:
-      default:
         reorderAccordingToContactList();
         break;
     }

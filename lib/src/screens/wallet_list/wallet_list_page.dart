@@ -222,7 +222,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 return item.isCurrent
                                     ? SizedBox.shrink()
                                     : EditWalletButtonWidget(
-                                        width: 60,
+                                        width: 64,
                                         onTap: () => Navigator.of(context).pushNamed(
                                           Routes.walletEdit,
                                           arguments: WalletEditPageArguments(

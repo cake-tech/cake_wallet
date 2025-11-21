@@ -174,7 +174,9 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = evm!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
-            cryptoAmount: evm!.formatterEVMAmountToDouble(transaction: transaction), price: price);
+          cryptoAmount: evm!.formatterEVMAmountToDouble(transaction: transaction),
+          price: price,
+        );
         break;
       case WalletType.nano:
         amount = calculateFiatAmountRaw(

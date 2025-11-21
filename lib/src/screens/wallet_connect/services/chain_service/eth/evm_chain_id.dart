@@ -33,4 +33,6 @@ extension EVMChainIdX on EVMChainId {
       _ => null,
     };
   }
+
+  int? get chainId => _getChainIdForEnum(this);
 }

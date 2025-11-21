@@ -400,6 +400,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   List<String> get walletImages {
     switch (wallet.type) {
+      case WalletType.evm:
       case WalletType.ethereum:
         return [
           'assets/images/eth_icon.svg',

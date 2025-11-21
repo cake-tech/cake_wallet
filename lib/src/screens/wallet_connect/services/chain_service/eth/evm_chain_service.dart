@@ -1,8 +1,9 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class EvmChainServiceImpl {
     Web3Client? web3Client,
   }) : ethClient = web3Client ??
             Web3Client(
-              appStore.settingsStore.getCurrentNode(appStore.wallet!.type).uri.toString(),
+              _getNodeUriForChain(reference, appStore),
               ProxyWrapper().getHttpIOClient(),
             ) {
     for (final event in EventsConstants.allEvents) {
@@ -76,6 +77,29 @@ class EvmChainServiceImpl {
   final BottomSheetService bottomSheetService;
 
   String getChainId() => reference.chain();
+
+  static String _getNodeUriForChain(EVMChainId reference, AppStore appStore) {
+    final walletType = appStore.wallet!.type;
+    
+    // For WalletType.evm, we need to pass chainId
+    if (walletType == WalletType.evm) {
+      final chainId = reference.chainId;
+      if (chainId == null) {
+        final selectedChainId = evm!.getSelectedChainId(appStore.wallet!);
+        return appStore.settingsStore.getCurrentNode(
+          walletType,
+          chainId: selectedChainId ?? 1,
+        ).uri.toString();
+      }
+      return appStore.settingsStore.getCurrentNode(
+        walletType,
+        chainId: chainId,
+      ).uri.toString();
+    }
+    
+    // For old wallet types, use the wallet type directly
+    return appStore.settingsStore.getCurrentNode(walletType).uri.toString();
+  }
 
   Future<void> personalSign(String topic, dynamic parameters) async {
     debugPrint('personalSign request: $parameters');

@@ -66,6 +66,20 @@ abstract class BalanceViewModelBase with Store {
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
       _checkMweb();
     });
+    
+    // React to chain changes for EVM wallets (selectedChainId changes)
+    // Observe wallet.currency which is computed from selectedChainId for WalletType.evm
+    // MobX will track the dependency chain: currency -> selectedChainConfig -> selectedChainId
+    reaction((_) {
+      if (wallet.type == WalletType.evm) {
+        // Access currency which depends on selectedChainId, so MobX tracks the change
+        return wallet.currency;
+      }
+      return null;
+    }, (_) {
+      // Chain switched - balance will be updated by startSync() in selectChain()
+      // This reaction ensures UI reacts to the chain change
+    });
   }
 
   void _checkMweb() {

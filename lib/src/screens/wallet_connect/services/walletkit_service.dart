@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_service.dart';
@@ -105,7 +106,14 @@ abstract class WalletKitServiceBase with Store {
     List<ChainKeyModel> chainKeys = walletKeyService.getKeys(appStore.wallet!);
     for (final chainKey in chainKeys) {
       for (final chainId in chainKey.chains) {
-        final chainNameSpace = getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type);
+        int? evmChainId;
+        if (appStore.wallet!.type == WalletType.evm) {
+          evmChainId = evm!.getSelectedChainId(appStore.wallet!);
+        }
+        final chainNameSpace = getChainNameSpaceAndIdBasedOnWalletType(
+          appStore.wallet!.type,
+          chainId: evmChainId,
+        );
         if (chainNameSpace == chainId) {
           final account = '$chainId:${chainKey.publicKey}';
           debugPrint('registerAccount $account');

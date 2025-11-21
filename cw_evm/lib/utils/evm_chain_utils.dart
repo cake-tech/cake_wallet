@@ -69,14 +69,33 @@ class EVMChainUtils {
     };
   }
 
-  /// Get ERC20 tokens box name for a wallet type
-  static String getErc20TokensBoxName(String walletName, WalletType walletType) {
+  static String getErc20TokensBoxName(String walletName, WalletType walletType, {int? chainId}) {
     final sanitizedName = walletName.replaceAll(" ", "_");
+    
+    // Handle WalletType.evm with chainId
+    if (walletType == WalletType.evm) {
+      if (chainId == null) {
+        throw Exception('chainId required for WalletType.evm');
+      }
+      return getErc20TokensBoxNameByChainId(sanitizedName, chainId);
+    }
+    
     return switch (walletType) {
       WalletType.ethereum => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
       WalletType.polygon => "${sanitizedName}_${Erc20Token.polygonBoxName}",
       WalletType.base => "${sanitizedName}_${Erc20Token.baseBoxName}",
       WalletType.arbitrum => "${sanitizedName}_${Erc20Token.arbitrumBoxName}",
+      _ => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
+    };
+  }
+
+  /// Get ERC20 tokens box name by chainId
+  static String getErc20TokensBoxNameByChainId(String sanitizedName, int chainId) {
+    return switch (chainId) {
+      1 => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
+      137 => "${sanitizedName}_${Erc20Token.polygonBoxName}",
+      8453 => "${sanitizedName}_${Erc20Token.baseBoxName}",
+      42161 => "${sanitizedName}_${Erc20Token.arbitrumBoxName}",
       _ => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
     };
   }

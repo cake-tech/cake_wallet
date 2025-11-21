@@ -61,11 +61,21 @@ abstract class EVMChainTransactionHistoryBase extends TransactionHistoryBase<EVM
   }
 
   @override
-  void addOne(EVMChainTransactionInfo transaction) => transactions[transaction.id] = transaction;
+  void addOne(EVMChainTransactionInfo transaction) {
+    if (transaction.chainId == getCurrentChainId()) {
+      transactions[transaction.id] = transaction;
+    }
+  }
 
   @override
-  void addMany(Map<String, EVMChainTransactionInfo> transactions) =>
-      this.transactions.addAll(transactions);
+  void addMany(Map<String, EVMChainTransactionInfo> transactionsToAdd) {
+    final currentChainId = getCurrentChainId();
+    for (final entry in transactionsToAdd.entries) {
+      if (entry.value.chainId == currentChainId) {
+        transactions[entry.key] = entry.value;
+      }
+    }
+  }
 
   Future<Map<String, dynamic>> _read() async {
     final transactionsHistoryFileNameForWallet = getTransactionHistoryFileName();
@@ -82,13 +92,16 @@ abstract class EVMChainTransactionHistoryBase extends TransactionHistoryBase<EVM
     try {
       final content = await _read();
       final txs = content['transactions'] as Map<String, dynamic>? ?? {};
+      final currentChainId = getCurrentChainId();
 
       for (var entry in txs.entries) {
         final val = entry.value;
 
         if (val is Map<String, dynamic>) {
           final tx = getTransactionInfo(val);
-          _update(tx);
+          if (tx.chainId == currentChainId) {
+            _update(tx);
+          }
         }
       }
     } catch (e) {

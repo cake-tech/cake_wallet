@@ -122,17 +122,15 @@ class CryptoBalanceWidget extends StatelessWidget {
                                         builder: (_) {
                                           final currentChain = dashboardViewModel.currentChain;
                                           if (currentChain == null) return const SizedBox.shrink();
-                                          
+
                                           return DropdownButton<ChainInfo>(
                                             value: currentChain,
-                                            items: dashboardViewModel.availableChains
-                                                .map((chain) {
+                                            items: dashboardViewModel.availableChains.map((chain) {
                                               return DropdownMenuItem<ChainInfo>(
                                                 value: chain,
                                                 child: Text(
                                                   chain.name,
-                                                  style: Theme.of(context)
-                                                      .textTheme.bodyMedium,
+                                                  style: Theme.of(context).textTheme.bodyMedium,
                                                 ),
                                               );
                                             }).toList(),
@@ -146,9 +144,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                               Icons.arrow_drop_down,
                                               color: Theme.of(context).colorScheme.onSurface,
                                             ),
-                                            style: Theme.of(context)
-                                                .textTheme.bodyMedium
-                                                ?.copyWith(
+                                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                                   color: Theme.of(context).colorScheme.onSurface,
                                                 ),
                                             dropdownColor: Theme.of(context).colorScheme.surface,
@@ -213,6 +209,21 @@ class CryptoBalanceWidget extends StatelessWidget {
           }),
           Observer(
             builder: (_) {
+              if (dashboardViewModel.balanceViewModel.formattedBalances.isEmpty) {
+                return Center(
+                  child: Container(
+                    child: Text(
+                      'Loading balances...',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            height: 1,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }
+
               return ListView.separated(
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,

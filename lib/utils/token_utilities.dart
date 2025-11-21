@@ -22,13 +22,30 @@ class TokenUtilities {
     final unique = <Erc20Token>[];
 
     for (final wallet in evmWallets) {
-      final chain = getTokenNameBasedOnWalletType(wallet.type);
-      final box = await _openEvmTokensBoxFor(wallet);
+      if (wallet.type == WalletType.evm) {
+        final allChains = evm!.getAllChains();
+        
+        for (final chainInfo in allChains) {
+          final chainId = chainInfo.chainId;
+          final chain = getTokenNameBasedOnWalletType(wallet.type, chainId: chainId);
+          final box = await _openEvmTokensBoxFor(wallet, chainId: chainId);
 
-      for (final t in box.values.where((t) => t.enabled)) {
-        final key = '$chain|${t.contractAddress.toLowerCase()}';
-        if (seen.add(key)) {
-          unique.add(t);
+          for (final t in box.values.where((t) => t.enabled)) {
+            final key = '$chain|${t.contractAddress.toLowerCase()}';
+            if (seen.add(key)) {
+              unique.add(t);
+            }
+          }
+        }
+      } else {
+        final chain = getTokenNameBasedOnWalletType(wallet.type);
+        final box = await _openEvmTokensBoxFor(wallet);
+
+        for (final t in box.values.where((t) => t.enabled)) {
+          final key = '$chain|${t.contractAddress.toLowerCase()}';
+          if (seen.add(key)) {
+            unique.add(t);
+          }
         }
       }
     }
@@ -112,21 +129,45 @@ class TokenUtilities {
   }
 
   static Future<Box<Erc20Token>> _openEvmTokensBoxFor(
-    WalletInfo walletInfo,
-  ) async {
+    WalletInfo walletInfo, {
+    int? chainId,
+  }) async {
     final walletKey = walletInfo.name.replaceAll(' ', '_');
-    final boxName = switch (walletInfo.type) {
-      WalletType.ethereum => '${walletKey}_${Erc20Token.ethereumBoxName}',
-      WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
-      WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
-      WalletType.arbitrum => '${walletKey}_${Erc20Token.arbitrumBoxName}',
-      _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
-    };
+    final boxName = _getErc20TokensBoxName(walletKey, walletInfo.type, chainId: chainId);
 
     if (CakeHive.isBoxOpen(boxName)) {
       return CakeHive.box<Erc20Token>(boxName);
     }
     return CakeHive.openBox<Erc20Token>(boxName);
+  }
+
+  static String _getErc20TokensBoxName(String sanitizedName, WalletType walletType, {int? chainId}) {
+    // Handle WalletType.evm with chainId
+    if (walletType == WalletType.evm) {
+      if (chainId == null) {
+        throw Exception('chainId required for WalletType.evm');
+      }
+      return _getErc20TokensBoxNameByChainId(sanitizedName, chainId);
+    }
+    
+    // Handle old wallet types
+    return switch (walletType) {
+      WalletType.ethereum => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
+      WalletType.polygon => "${sanitizedName}_${Erc20Token.polygonBoxName}",
+      WalletType.base => "${sanitizedName}_${Erc20Token.baseBoxName}",
+      WalletType.arbitrum => "${sanitizedName}_${Erc20Token.arbitrumBoxName}",
+      _ => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
+    };
+  }
+
+  static String _getErc20TokensBoxNameByChainId(String sanitizedName, int chainId) {
+    return switch (chainId) {
+      1 => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
+      137 => "${sanitizedName}_${Erc20Token.polygonBoxName}",
+      8453 => "${sanitizedName}_${Erc20Token.baseBoxName}",
+      42161 => "${sanitizedName}_${Erc20Token.arbitrumBoxName}",
+      _ => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
+    };
   }
 
   static Future<Box<SPLToken>> _openSolTokensBoxFor(WalletInfo wallet) async {

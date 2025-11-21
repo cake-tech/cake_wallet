@@ -295,7 +295,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     var list = <DerivationInfo>[];
     var walletType = credentials["walletType"] as WalletType;
     var appStore = getIt.get<AppStore>();
-    var node = appStore.settingsStore.getCurrentNode(walletType);
+
+    int? chainId;
+    if (walletType == WalletType.evm) {
+      chainId = 1; // Default to Ethereum for new/restored EVM wallets
+    }
+
+    var node = appStore.settingsStore.getCurrentNode(walletType, chainId: chainId);
 
     switch (walletType) {
       case WalletType.bitcoin:
