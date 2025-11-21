@@ -5,9 +5,8 @@ import 'assets_section.dart';
 import 'history_section.dart';
 
 class LightningAssets extends StatefulWidget {
-  const LightningAssets({super.key, required this.dashboardViewModel});
+  LightningAssets({super.key, required this.dashboardViewModel});
 
-  static const List<String> tabs = ["Assets", "History"];
   final DashboardViewModel dashboardViewModel;
 
   @override
@@ -15,7 +14,21 @@ class LightningAssets extends StatefulWidget {
 }
 
 class _LightningAssetsState extends State<LightningAssets> {
+  late final List<Widget> lightningTabs;
   int _selectedTab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    lightningTabs = [
+      AssetsSection(
+        dashboardViewModel: widget.dashboardViewModel,
+      ),
+      HistorySection(
+        dashboardViewModel: widget.dashboardViewModel,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +42,7 @@ class _LightningAssetsState extends State<LightningAssets> {
           },
           selectedTab: _selectedTab,
         ),
-        [
-          AssetsSection(dashboardViewModel: widget.dashboardViewModel,),
-          HistorySection(dashboardViewModel: widget.dashboardViewModel,),
-        ][_selectedTab],
+        lightningTabs[_selectedTab],
       ],
     );
   }

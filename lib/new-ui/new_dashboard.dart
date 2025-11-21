@@ -12,6 +12,14 @@ class NewDashboard extends StatefulWidget {
 
   final DashboardViewModel dashboardViewModel;
 
+  final List<Widget> dashboardPageWidgets = [
+    getIt.get<NewHomePage>(),
+    getIt.get<WalletListPage>(),
+    getIt.get<ContactListPage>(),
+    getIt.get<CakeFeaturesPage>(),
+    Placeholder(),
+  ];
+
   @override
   State<NewDashboard> createState() => _NewDashboardState();
 }
@@ -24,13 +32,7 @@ class _NewDashboardState extends State<NewDashboard> {
     return Scaffold(
       body: Stack(
         children: [
-          [
-            getIt.get<NewHomePage>(),
-            getIt.get<WalletListPage>(),
-            getIt.get<ContactListPage>(),
-            getIt.get<CakeFeaturesPage>(),
-            Placeholder(),
-          ][_selectedPage],
+         widget.dashboardPageWidgets[_selectedPage],
           NewMainNavBar(
             dashboardViewModel: widget.dashboardViewModel,
             selectedIndex: _selectedPage,
