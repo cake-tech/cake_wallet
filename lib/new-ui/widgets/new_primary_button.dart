@@ -1,0 +1,59 @@
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+class NewPrimaryButton extends StatelessWidget {
+  const NewPrimaryButton(
+      {required this.onPressed,
+        required this.image,
+        required this.text,
+        required this.color,
+        required this.textColor,
+        this.borderColor = Colors.transparent,
+        super.key});
+
+  final VoidCallback onPressed;
+  final SvgPicture image;
+  final Color color;
+  final Color textColor;
+  final Color borderColor;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+      child: SizedBox(
+        width: double.infinity,
+        height: 52.0,
+        child: TextButton(
+          onPressed: onPressed,
+          style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.all(color),
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+              )),
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                image,
+                SizedBox(width: 10),
+                Text(
+                  text,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,8 +1,14 @@
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class ReceiveBottomButtons extends StatelessWidget {
   final bool largeQrMode;
-  const ReceiveBottomButtons({super.key, required this.largeQrMode});
+  final VoidCallback onCopyButtonPressed;
+  final VoidCallback onAccountsButtonPressed;
+
+  const ReceiveBottomButtons({super.key, required this.largeQrMode, required this.onCopyButtonPressed, required this.onAccountsButtonPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -17,79 +23,33 @@ class ReceiveBottomButtons extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         opacity: targetOpacity,
         curve: Curves.easeOut,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainer,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: Column(
+            spacing: 15.0,
+            children: [
+              NewPrimaryButton(
+                onPressed: onAccountsButtonPressed,
+                image: SvgPicture.asset(
+                  "assets/new-ui/addr-book.svg",
+                  colorFilter:
+                      ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                 ),
-                onPressed: () {},
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.book_outlined,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Accounts & Addresses',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
+                text: "Accounts & Addresses",
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                textColor: Theme.of(context).colorScheme.primary,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                onPressed: () {},
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Copy Address',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Icon(
-                      Icons.copy_all_outlined,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                  ],
-                ),
+              NewPrimaryButton(
+                onPressed: onCopyButtonPressed,
+                image: SvgPicture.asset("assets/new-ui/copy-icon.svg",
+                    colorFilter:
+                        ColorFilter.mode(Theme.of(context).colorScheme.onPrimary, BlendMode.srcIn)),
+                text: "Copy Address",
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
