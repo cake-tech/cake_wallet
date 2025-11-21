@@ -14,7 +14,6 @@ import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/evm/evm.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -115,45 +114,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                                         color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
-                                  if (dashboardViewModel.isEVMWallet &&
-                                      dashboardViewModel.availableChains.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 8),
-                                      child: Observer(
-                                        builder: (_) {
-                                          final currentChain = dashboardViewModel.currentChain;
-                                          if (currentChain == null) return const SizedBox.shrink();
-
-                                          return DropdownButton<ChainInfo>(
-                                            value: currentChain,
-                                            items: dashboardViewModel.availableChains.map((chain) {
-                                              return DropdownMenuItem<ChainInfo>(
-                                                value: chain,
-                                                child: Text(
-                                                  chain.name,
-                                                  style: Theme.of(context).textTheme.bodyMedium,
-                                                ),
-                                              );
-                                            }).toList(),
-                                            onChanged: (chain) {
-                                              if (chain != null) {
-                                                dashboardViewModel.selectChain(chain.chainId);
-                                              }
-                                            },
-                                            underline: const SizedBox(),
-                                            icon: Icon(
-                                              Icons.arrow_drop_down,
-                                              color: Theme.of(context).colorScheme.onSurface,
-                                            ),
-                                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                                  color: Theme.of(context).colorScheme.onSurface,
-                                                ),
-                                            dropdownColor: Theme.of(context).colorScheme.surface,
-                                            borderRadius: BorderRadius.circular(15.0),
-                                          );
-                                        },
-                                      ),
-                                    ),
                                   if (dashboardViewModel
                                       .balanceViewModel.isHomeScreenSettingsEnabled)
                                     TextButton(
@@ -173,21 +133,34 @@ class CryptoBalanceWidget extends StatelessWidget {
                                             height: 30),
                                       ),
                                     ),
-                                  if (dashboardViewModel.balanceViewModel.isEVMCompatible)
-                                    TextButton(
-                                      style: TextButton.styleFrom(
-                                          minimumSize: Size(50, 30),
-                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                          alignment: Alignment.centerLeft),
-                                      onPressed: () => showDialog(
-                                        context: context,
-                                        builder: (context) => EvmSwitcher(),
-                                      ),
-                                      child: Container(
-                                        child: SvgPicture.asset('assets/images/evm_switcher.svg',
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                            height: 30),
-                                      ),
+                                  if (dashboardViewModel.isEVMWallet &&
+                                      dashboardViewModel.availableChains.isNotEmpty)
+                                    Observer(
+                                      builder: (_) {
+                                        return TextButton(
+                                          style: TextButton.styleFrom(
+                                            minimumSize: Size(50, 30),
+                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            alignment: Alignment.centerLeft,
+                                          ),
+                                          onPressed: () => showDialog(
+                                            context: context,
+                                            builder: (context) => EvmSwitcher(
+                                              chains: dashboardViewModel.availableChains,
+                                              currentChain: dashboardViewModel.currentChain,
+                                              onChainSelected: (chainId) =>
+                                                  dashboardViewModel.selectChain(chainId),
+                                            ),
+                                          ),
+                                          child: Container(
+                                            child: SvgPicture.asset(
+                                              'assets/images/evm_switcher.svg',
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                              height: 30,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                 ],
                               );

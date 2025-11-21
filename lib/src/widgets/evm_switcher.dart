@@ -1,3 +1,4 @@
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,40 +8,72 @@ import 'evm_switcher_row.dart';
 class EvmSwitcherDataItem {
   final String name;
   final String svgPath;
+  final int chainId;
 
   const EvmSwitcherDataItem({
     required this.name,
     required this.svgPath,
+    required this.chainId,
   });
 
   static const ethereum = EvmSwitcherDataItem(
-      name: 'Ethereum',
-      svgPath: 'assets/images/evm_switcher_icons/ethereum.svg');
+    name: 'Ethereum',
+    svgPath: 'assets/images/evm_switcher_icons/ethereum.svg',
+    chainId: 1,
+  );
 
   static const polygon = EvmSwitcherDataItem(
-      name: 'Polygon', svgPath: 'assets/images/evm_switcher_icons/polygon.svg');
+    name: 'Polygon',
+    svgPath: 'assets/images/evm_switcher_icons/polygon.svg',
+    chainId: 137,
+  );
 
   static const arbitrum = EvmSwitcherDataItem(
-      name: 'Arbitrum',
-      svgPath: 'assets/images/evm_switcher_icons/arbitrum.svg');
+    name: 'Arbitrum',
+    svgPath: 'assets/images/evm_switcher_icons/arbitrum.svg',
+    chainId: 42161,
+  );
 
   static const base = EvmSwitcherDataItem(
-      name: 'Base', svgPath: 'assets/images/evm_switcher_icons/base.svg');
-
-  static const gnosis = EvmSwitcherDataItem(
-      name: 'Gnosis', svgPath: 'assets/images/evm_switcher_icons/gnosis.svg');
+    name: 'Base',
+    svgPath: 'assets/images/evm_switcher_icons/base.svg',
+    chainId: 8453,
+  );
 
   static const items = [
     ethereum,
     polygon,
     arbitrum,
     base,
-    gnosis,
   ];
 }
 
+String _getSvgPathForChain(String chainName) {
+  final name = chainName.toLowerCase();
+  if (name.contains('ethereum')) {
+    return 'assets/images/evm_switcher_icons/ethereum.svg';
+  } else if (name.contains('polygon')) {
+    return 'assets/images/evm_switcher_icons/polygon.svg';
+  } else if (name.contains('arbitrum')) {
+    return 'assets/images/evm_switcher_icons/arbitrum.svg';
+  } else if (name.contains('base')) {
+    return 'assets/images/evm_switcher_icons/base.svg';
+  }
+  // Default to ethereum if unknown
+  return 'assets/images/evm_switcher_icons/ethereum.svg';
+}
+
 class EvmSwitcher extends StatefulWidget {
-  const EvmSwitcher({super.key});
+  const EvmSwitcher({
+    super.key,
+    required this.chains,
+    required this.currentChain,
+    required this.onChainSelected,
+  });
+
+  final List<ChainInfo> chains;
+  final ChainInfo? currentChain;
+  final Future<void> Function(int chainId) onChainSelected;
 
   static const editModeAnimDuration = Duration(milliseconds: 200);
 
@@ -50,8 +83,20 @@ class EvmSwitcher extends StatefulWidget {
 
 class _EvmSwitcherState extends State<EvmSwitcher> {
   bool _editMode = false;
-  int _selectedIndex = 0;
-  var optionsEnabled = List.filled(EvmSwitcherDataItem.items.length, true);
+  var optionsEnabled = <bool>[];
+
+  @override
+  void initState() {
+    super.initState();
+    optionsEnabled = List.filled(widget.chains.length, true);
+  }
+
+  int get _selectedIndex {
+    if (widget.currentChain == null) return -1;
+    return widget.chains.indexWhere(
+      (chain) => chain.chainId == widget.currentChain!.chainId,
+    );
+  }
 
   bool shouldBuildSeparator(int index) {
     final nextEnabled = optionsEnabled.indexWhere(
@@ -67,7 +112,7 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
 
   @override
   Widget build(BuildContext context) {
-    final double popupWidth = MediaQuery.of(context).size.width*0.9;
+    final double popupWidth = MediaQuery.of(context).size.width * 0.9;
     return Center(
       child: Column(
         spacing: 25.0,
@@ -102,47 +147,49 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemBuilder: (context, index) {
-                                    if (optionsEnabled[index])
+                                    if (optionsEnabled[index]) {
+                                      final chain = widget.chains[index];
+                                      final data = EvmSwitcherDataItem(
+                                        name: chain.name,
+                                        svgPath: _getSvgPathForChain(chain.name),
+                                        chainId: chain.chainId,
+                                      );
                                       return EvmSwitcherRow(
-                                        key: ValueKey(EvmSwitcherDataItem
-                                            .items[index].name),
-                                        data: EvmSwitcherDataItem.items[index],
+                                        key: ValueKey(chain.chainId),
+                                        data: data,
                                         editMode: false,
                                         selected: index == _selectedIndex,
-                                        onTap: () {
-                                          setState(() {
-                                            _selectedIndex = index;
-                                          });
+                                        onTap: () async {
+                                          await widget.onChainSelected(chain.chainId);
+                                          if (mounted) {
+                                            Navigator.of(context).pop();
+                                          }
                                         },
                                         editSwitchValue: true,
-                                        animDuration:
-                                            EvmSwitcher.editModeAnimDuration,
+                                        animDuration: EvmSwitcher.editModeAnimDuration,
                                       );
-                                    else
+                                    } else {
                                       return Container();
+                                    }
                                   },
                                   separatorBuilder: (context, index) {
                                     if (shouldBuildSeparator(index))
                                       return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 18),
+                                          padding: const EdgeInsets.symmetric(horizontal: 18),
                                           child: Container(
                                             height: 1,
                                             width: double.infinity,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .surfaceContainerHigh,
+                                            color:
+                                                Theme.of(context).colorScheme.surfaceContainerHigh,
                                           ));
                                     else
                                       return Container(height: 1);
                                   },
-                                  itemCount: EvmSwitcherDataItem.items.length),
+                                  itemCount: widget.chains.length),
                               EvmSwitcherAdditionalOption(
                                   title: "Customize options",
-                                  svgPath:
-                                      "assets/images/evm_switcher_arrow_right.svg",
-                                  animDuration:
-                                      EvmSwitcher.editModeAnimDuration,
+                                  svgPath: "assets/images/evm_switcher_arrow_right.svg",
+                                  animDuration: EvmSwitcher.editModeAnimDuration,
                                   topSeparator: true,
                                   bottomSeparator: false,
                                   visible: true,
@@ -167,10 +214,8 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
                             children: [
                               EvmSwitcherAdditionalOption(
                                   title: "Back",
-                                  svgPath:
-                                      "assets/images/evm_switcher_arrow_left.svg",
-                                  animDuration:
-                                      EvmSwitcher.editModeAnimDuration,
+                                  svgPath: "assets/images/evm_switcher_arrow_left.svg",
+                                  animDuration: EvmSwitcher.editModeAnimDuration,
                                   topSeparator: false,
                                   bottomSeparator: true,
                                   visible: true,
@@ -184,36 +229,36 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemBuilder: (context, index) {
+                                    final chain = widget.chains[index];
+                                    final data = EvmSwitcherDataItem(
+                                      name: chain.name,
+                                      svgPath: _getSvgPathForChain(chain.name),
+                                      chainId: chain.chainId,
+                                    );
                                     return EvmSwitcherRow(
-                                      key: ValueKey(EvmSwitcherDataItem
-                                          .items[index].name),
-                                      data: EvmSwitcherDataItem.items[index],
+                                      key: ValueKey(chain.chainId),
+                                      data: data,
                                       editMode: _editMode,
                                       selected: index == _selectedIndex,
                                       onTap: () {
                                         setState(() {
-                                          optionsEnabled[index] =
-                                              !optionsEnabled[index];
+                                          optionsEnabled[index] = !optionsEnabled[index];
                                         });
                                       },
                                       editSwitchValue: optionsEnabled[index],
-                                      animDuration:
-                                          EvmSwitcher.editModeAnimDuration,
+                                      animDuration: EvmSwitcher.editModeAnimDuration,
                                     );
                                   },
                                   separatorBuilder: (context, index) {
                                     return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 18),
+                                        padding: const EdgeInsets.symmetric(horizontal: 18),
                                         child: Container(
                                           height: 1,
                                           width: double.infinity,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .surfaceContainerHigh,
+                                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
                                         ));
                                   },
-                                  itemCount: EvmSwitcherDataItem.items.length),
+                                  itemCount: widget.chains.length),
                             ],
                           ),
                         ),
@@ -272,15 +317,12 @@ class EvmSwitcherAdditionalOption extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 spacing: 8.0,
                 children: [
-                  if (!iconOnRight)
-                    SvgPicture.asset(svgPath, width: 16, height: 16),
+                  if (!iconOnRight) SvgPicture.asset(svgPath, width: 16, height: 16),
                   Text(
                     title,
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.primary),
+                    style: TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
-                  if (iconOnRight)
-                    SvgPicture.asset(svgPath, width: 16, height: 16),
+                  if (iconOnRight) SvgPicture.asset(svgPath, width: 16, height: 16),
                 ],
               ),
             ),
