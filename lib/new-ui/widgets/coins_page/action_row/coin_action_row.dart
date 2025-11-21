@@ -92,6 +92,7 @@ class CoinActionRow extends StatelessWidget {
                 if (code == null) return;
                 if (code.isEmpty) return;
                 final uri = Uri.tryParse(code);
+                if (uri == null) return;
                 rootKey.currentState?.handleDeepLinking(uri);
               };
             },
