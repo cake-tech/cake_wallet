@@ -75,6 +75,13 @@ class _CardsViewState extends State<CardsView> {
               balanceRecord:
                   widget.dashboardViewModel.balanceViewModel.formattedBalances.elementAt(0),
               selected: _selectedIndex == index,
+              gradient: LinearGradient(
+                colors: [Colors.lightBlue, Colors.blue],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              svgPath: widget.dashboardViewModel.balanceViewModel.balances.keys.elementAt(0).iconPath!,
+              lightningMode: widget.lightningMode,
             );
           }),
         ),

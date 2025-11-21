@@ -7,14 +7,22 @@ class BalanceCard extends StatelessWidget {
     super.key,
     required this.width,
     required this.balanceRecord,
-    required this.selected, required this.accountName, required this.accountBalance,
+    required this.selected,
+    required this.accountName,
+    required this.accountBalance,
+    required this.gradient,
+    required this.svgPath,
+    required this.lightningMode,
   });
 
   final double width;
   final String accountBalance;
   final String accountName;
+  final Gradient gradient;
+  final String svgPath;
   final BalanceRecord balanceRecord;
   final bool selected;
+  final bool lightningMode;
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +33,7 @@ class BalanceCard extends StatelessWidget {
       height: width * 2.0 / 3,
       decoration: BoxDecoration(
         border: Border.all(color: Color(0x77FFFFFF), width: 1),
-        gradient: LinearGradient(
-          colors: [Colors.lightBlueAccent, Colors.blue],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
+        gradient: gradient,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
@@ -49,7 +53,6 @@ class BalanceCard extends StatelessWidget {
                       accountName,
                       style: TextStyle(color: Colors.black, fontSize: 20),
                     ),
-
                     AnimatedOpacity(
                       opacity: selected ? 0 : 1,
                       duration: textFadeDuration,
@@ -67,7 +70,9 @@ class BalanceCard extends StatelessWidget {
                     spacing: 8.0,
                     children: [
                       Text(
-                        balanceRecord.availableBalance,
+                        lightningMode
+                            ? balanceRecord.secondAvailableBalance
+                            : balanceRecord.availableBalance,
                         style: TextStyle(color: Colors.black, fontSize: 28),
                       ),
                       Text(
@@ -78,12 +83,13 @@ class BalanceCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  balanceRecord.fiatAvailableBalance,
+                  lightningMode
+                      ? balanceRecord.fiatSecondAdditionalBalance
+                      : balanceRecord.fiatAvailableBalance,
                   style: TextStyle(color: Colors.black45, fontSize: 20),
                 ),
               ],
             ),
-
             Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -109,7 +115,7 @@ class BalanceCard extends StatelessWidget {
                   ),
                 ),
                 SvgPicture.asset(
-                  "assets/new-ui/switcher-bitcoin.svg",
+                  svgPath,
                   height: 50,
                   width: 50,
                   colorFilter: const ColorFilter.mode(
