@@ -69,7 +69,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
     final currency = wallet.currency;
     final price = _fiatConversationStore.prices[currency];
-    if (price == null || price == 0.0) return {};
+    if (price == null || price == 0.0 || isFiatDisabled) return {};
 
     final result = <String, String>{};
     for (final item in items) {
@@ -79,7 +79,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       result[item.hash] = fiatCurrency.title + ' ' + fiatValue.toStringAsFixed(2);
     }
 
-    return isFiatDisabled ? {} : result;
+    return result;
   }
 
   Future<void> initialSetup() async {
