@@ -394,7 +394,6 @@ class MoneroWalletService extends WalletService<
     derivationInfo.derivationType = DerivationType.bip39;
     derivationInfo.derivationPath = "m/44'/128'/0'/0/0";
     await derivationInfo.save();
-    walletInfo.save();
 
     final legacyMnemonic =
         getLegacySeedFromBip39(mnemonic, passphrase: passphrase ?? "");
