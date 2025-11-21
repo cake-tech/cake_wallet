@@ -872,6 +872,7 @@
   "show": "표시",
   "show_address_book_popup": "주소록 팝업 표시",
   "show_balance": "길게 눌러 잔액 표시",
+  "show_balance_send_page": "공개하려면 탭하세요.",
   "show_balance_toast": "길게 눌러 잔액 숨기기 또는 표시",
   "show_details": "세부 정보 표시",
   "show_keys": "시드/키 표시",

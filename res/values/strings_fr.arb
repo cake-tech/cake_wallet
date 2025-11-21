@@ -871,6 +871,7 @@
   "show": "Montrer",
   "show_address_book_popup": "Afficher la fenêtre contextuelle du carnet d'adresses",
   "show_balance": "Appuyez longtemps pour afficher votre solde",
+  "show_balance_send_page": "Appuyez pour révéler",
   "show_balance_toast": "Appuyez longtemps pour masquer ou afficher votre solde",
   "show_details": "Afficher les détails",
   "show_keys": "Visualiser la phrase secrète (seed) et les clefs",

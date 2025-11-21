@@ -871,6 +871,7 @@
   "show": "Göstermek",
   "show_address_book_popup": "Adres Kitabı Popup'ı Göster",
   "show_balance": "Dengeyi Göstermek İçin Uzun Basın",
+  "show_balance_send_page": "Ortaya çıkarmak için dokunun",
   "show_balance_toast": "Dengeyi gizlemek veya göstermek için uzun basın",
   "show_details": "Detayları Göster",
   "show_keys": "Tohumları/anahtarları göster",

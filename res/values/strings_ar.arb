@@ -871,6 +871,7 @@
   "show": "يعرض",
   "show_address_book_popup": "عرض دفتر العناوين المنبثقة",
   "show_balance": "اضغط لفترة طويلة لإظهار التوازن",
+  "show_balance_send_page": "انقر للكشف",
   "show_balance_toast": "اضغط لفترة طويلة لإخفاء أو إظهار التوازن",
   "show_details": "اظهر التفاصيل",
   "show_keys": "اظهار السييد / المفاتيح",
