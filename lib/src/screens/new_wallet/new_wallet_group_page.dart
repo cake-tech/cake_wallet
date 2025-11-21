@@ -39,7 +39,7 @@ class NewWalletGroupPage extends BasePage {
           GradientBackground(scaffold: scaffold);
 
   @override
-  String get title => 'New Wallet Group';
+  String get title => S.current.new_wallet_group;
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
@@ -50,15 +50,14 @@ class NewWalletGroupPage extends BasePage {
       };
 
   @override
-  Widget body(BuildContext context) => WalletNameForm(_walletGroupVM,_seedSettingsViewModel,
+  Widget body(BuildContext context) => WalletNameForm(_walletGroupVM,
       currentTheme.isDark ? welcomeImageDark : welcomeImageLight);
 }
 
 class WalletNameForm extends StatefulWidget {
-  WalletNameForm(this._walletGroupVM,this._seedSettingsViewModel, this.walletImage);
+  WalletNameForm(this._walletGroupVM, this.walletImage);
 
   final WalletGroupNewVM _walletGroupVM;
-  final SeedSettingsViewModel _seedSettingsViewModel;
   final String walletImage;
 
   @override
@@ -105,9 +104,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
                 context: context,
                 builder: (_) {
                   return AlertWithOneAction(
-                    key: ValueKey('new_wallet_page_failure_dialog_key'),
+                    key: ValueKey('new_wallet_group_page_failure_dialog_key'),
                     buttonKey:
-                        ValueKey('new_wallet_page_failure_dialog_button_key'),
+                        ValueKey('new_wallet_group_page_failure_dialog_button_key'),
                     alertTitle: S.current.new_wallet,
                     alertContent: state.error,
                     buttonText: S.of(context).ok,
@@ -154,7 +153,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                       children: [
                         BaseTextFormField(
                           key: ValueKey(
-                              'new_wallet_page_wallet_name_textformfield_key'),
+                              'new_wallet_group_page_wallet_name_textformfield_key'),
                           onChanged: (value) => _walletGroupVM.name = value,
                           controller: _nameController,
                           textStyle: Theme.of(context)
@@ -171,12 +170,12 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                     height: 1.4,
                                     fontSize: 16.0,
                                   ),
-                          hintText: 'Wallet Group name',
+                          hintText: S.of(context).wallet_group_name,
                           suffixIcon: Semantics(
                             label: S.of(context).generate_name,
                             child: IconButton(
                               key: ValueKey(
-                                'new_wallet_page_wallet_name_textformfield_generate_name_button_key',
+                                'new_wallet_group_page_wallet_name_textformfield_generate_name_button_key',
                               ),
                               onPressed: () async {
                                 final rName = await generateName();
@@ -222,7 +221,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
         bottomSection: Column(
           children: [
             PrimaryButton(
-              key: ValueKey('new_wallet_page_advanced_settings_button_key'),
+              key: ValueKey('new_wallet_group_page_advanced_settings_button_key'),
               onPressed: () {
                 Navigator.of(context).pushNamed(Routes.advancedPrivacySettings, arguments: {
                   "type": WalletType.none,
@@ -239,7 +238,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
             Observer(
               builder: (context) {
                 return LoadingPrimaryButton(
-                  key: ValueKey('new_wallet_page_confirm_button_key'),
+                  key: ValueKey('new_wallet_group_page_confirm_button_key'),
                   onPressed: _confirmForm,
                   text: S.of(context).seed_language_next,
                   color: Theme.of(context).colorScheme.primary,
@@ -270,8 +269,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
             builder: (_) {
               return AlertWithOneAction(
                   alertTitle: '',
-                  alertContent: 'A group with this name already exists.',
-                  //S.of(context).wallet_name_exists, //TODO localization
+                  alertContent: S.of(context).wallet_name_exists,
                   buttonText: S.of(context).ok,
                   buttonAction: () {
                     if (Navigator.of(context).canPop()) {

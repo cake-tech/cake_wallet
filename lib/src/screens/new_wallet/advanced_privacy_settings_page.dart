@@ -331,6 +331,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
               }
 
               // TODO: add type (mainnet/testnet) to Node class so when switching wallets the node can be switched to a matching type
+              // Currently this is so you can create a working testnet wallet but you need to keep switching back the node if you use multiple wallets at once
               if (testnetValue == true &&
                   widget.privacySettingsViewModel.type == WalletType.bitcoin) {
                 if (isGroupFlow) {

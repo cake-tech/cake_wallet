@@ -53,7 +53,7 @@ class NewWalletTypePage extends BasePage {
   String get title => newWalletTypeArguments.isCreate
       ? S.current.wallet_list_create_new_wallet
       : newWalletTypeArguments.preselectedTypes.isNotEmpty
-          ? 'Select Currency'
+          ? S.current.select_currency
           : S.current.wallet_list_restore_wallet;
 
   @override
@@ -195,7 +195,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                       Padding(
                         padding: EdgeInsets.only(top: 18),
                         child: Text(
-                          'Want to create more wallets for this wallet group? Feel free to do so below (or anytime later in the Wallets page).',
+                          S.of(context).want_to_create_more_wallets,
                           textAlign: TextAlign.center,
                           style:
                               Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -209,7 +209,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                       InkWell(
                         onTap: () => showInfoBottomSheet(widget.currentTheme),
                         child: Text(
-                          'What is a wallet group?',
+                          S.of(context).what_is_a_wallet_group,
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme
@@ -297,7 +297,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                           builder: (_) => PrimaryButton(
                             key: ValueKey('skip_wallet_type_next_button_key'),
                             onPressed: () => onSkipSelect(),
-                            text: 'Skip',
+                            text: S.of(context).skip,
                             color:
                                 Theme.of(context).colorScheme.surfaceContainer,
                             textColor: Theme.of(context)
@@ -632,12 +632,7 @@ class WalletGroupInfoBottomSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
                         const Text(
-                          'In Cake Wallet, you can create a wallet group by selecting an existing '
-                              'wallet to share a seed with. Each wallet group can contain a single '
-                              'wallet of each currency type.\n\n'
-                              'You can select Choose Wallet Group to see the available wallets and/or '
-                              'wallet groups screen. Or choose Create New Seed to create a wallet with '
-                              'an entirely new seed.',
+                          S.of(context).wallet_group_description_bottom_sheet,
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 16),
                         ),
