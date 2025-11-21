@@ -209,7 +209,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                       InkWell(
                         onTap: () => showInfoBottomSheet(widget.currentTheme),
                         child: Text(
-                          S.of(context).what_is_a_wallet_group,
+                          S.of(context).What_is_a_wallet_group,
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme
@@ -631,7 +631,7 @@ class WalletGroupInfoBottomSheet extends StatelessWidget {
                           height: 200,
                         ),
                         const SizedBox(height: 24),
-                        const Text(
+                        Text(
                           S.of(context).wallet_group_description_bottom_sheet,
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 16),
