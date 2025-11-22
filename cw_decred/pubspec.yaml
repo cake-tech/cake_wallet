@@ -13,9 +13,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  bip39: ^1.0.6
+  bip32: ^2.0.0
   cw_core:
     path: ../cw_core
 
+  mobx: any
+  ffi: any
+  path: any
+  hive: any
+  intl: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
