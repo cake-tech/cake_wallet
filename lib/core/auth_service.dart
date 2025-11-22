@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cake_wallet/core/reset_service.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/store/app_store.dart' show AppStore;
@@ -85,7 +86,7 @@ class AuthService with Store {
     return walletName.isNotEmpty && password.isNotEmpty;
   }
 
-  Future<bool> authenticate(String pin, BuildContext context) async {
+  Future<bool> authenticate(String pin) async {
     final regularKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedRegularPin = await secureStorage.read(key: regularKey);
     final decodedRegularPin = decodedPinCode(pin: encodedRegularPin!);
@@ -112,7 +113,7 @@ class AuthService with Store {
       await _handleDuressLogin(secureStorage, sharedPreferences,
           authenticationStore, appStore, resetService, walletList);
 
-      Navigator.of(context).pushNamedAndRemoveUntil(
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(
         Routes.welcome,
             (route) => false,
       );
