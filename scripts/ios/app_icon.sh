@@ -1,29 +1,55 @@
 #!/bin/sh
 
-ICON_2x_PATH=""
-ICON_2x_ipad_PATH=""
-ICON_3x_PATH=""
 ICON_20_2x_PATH=""
-ICON_20_2x_ipad_PATH=""
 ICON_20_3x_PATH=""
-ICON_20_ipad_PATH=""
-ICON_29_PATH=""
 ICON_29_2x_PATH=""
-ICON_29_2x_ipad_PATH=""
 ICON_29_3x_PATH=""
-ICON_29_3x_ipad_PATH=""
-ICON_29_ipad_PATH=""
+ICON_38_2x_PATH=""
+ICON_38_3x_PATH=""
 ICON_40_2x_PATH=""
-ICON_40_2x_ipad_PATH=""
 ICON_40_3x_PATH=""
-ICON_40_ipad_PATH=""
 ICON_60_2x_PATH=""
 ICON_60_3x_PATH=""
-ICON_83_2x_ipad_PATH=""
-ICON_marketing_PATH=""
-ICON_ipad_PATH=""
+ICON_64_2x_PATH=""
+ICON_64_3x_PATH=""
+ICON_68_2x_PATH=""
+ICON_76_2x_PATH=""
+ICON_83_5_2x_PATH=""
+ICON_1024_1x_PATH=""
 
-ICON_DIRECTORY=""
+ICON_DARK_20_2x_PATH=""
+ICON_DARK_20_3x_PATH=""
+ICON_DARK_29_2x_PATH=""
+ICON_DARK_29_3x_PATH=""
+ICON_DARK_38_2x_PATH=""
+ICON_DARK_38_3x_PATH=""
+ICON_DARK_40_2x_PATH=""
+ICON_DARK_40_3x_PATH=""
+ICON_DARK_60_2x_PATH=""
+ICON_DARK_60_3x_PATH=""
+ICON_DARK_64_2x_PATH=""
+ICON_DARK_64_3x_PATH=""
+ICON_DARK_68_2x_PATH=""
+ICON_DARK_76_2x_PATH=""
+ICON_DARK_83_5_2x_PATH=""
+ICON_DARK_1024_1x_PATH=""
+
+ICON_TINTED_20_2x_PATH=""
+ICON_TINTED_20_3x_PATH=""
+ICON_TINTED_29_2x_PATH=""
+ICON_TINTED_29_3x_PATH=""
+ICON_TINTED_38_2x_PATH=""
+ICON_TINTED_38_3x_PATH=""
+ICON_TINTED_40_2x_PATH=""
+ICON_TINTED_40_3x_PATH=""
+ICON_TINTED_60_2x_PATH=""
+ICON_TINTED_60_3x_PATH=""
+ICON_TINTED_64_2x_PATH=""
+ICON_TINTED_64_3x_PATH=""
+ICON_TINTED_68_2x_PATH=""
+ICON_TINTED_76_2x_PATH=""
+ICON_TINTED_83_5_2x_PATH=""
+ICON_TINTED_1024_1x_PATH=""
 
 DEST_DIR_PATH=`pwd`/../../ios/Runner/Assets.xcassets/AppIcon.appiconset
 
@@ -34,68 +60,155 @@ case $APP_IOS_TYPE in
     ICON_DIRECTORY=cakewallet_ios_icons;;
 esac
 
-ICON_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon@2x.png
-ICON_2x_ipad_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon@2x~ipad.png
-ICON_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon@3x.png
-ICON_20_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-20@2x.png
-ICON_20_2x_ipad_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-20@2x~ipad.png
-ICON_20_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-20@3x.png
-ICON_20_ipad_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-20~ipad.png
-ICON_29_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-29.png
-ICON_29_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-29@2x.png
-ICON_29_2x_ipad_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-29@2x~ipad.png
-ICON_29_3x_ipad_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-29@3x.png
-ICON_29_ipad_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-29~ipad.png
-ICON_40_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-40@2x.png
-ICON_40_2x_ipad_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-40@2x~ipad.png
-ICON_40_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-40@3x.png
-ICON_40_ipad_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-40~ipad.png
-ICON_60_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-60@2x~car.png
-ICON_60_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-60@3x~car.png
-ICON_83_2x_ipad_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon-83.5@2x~ipad.png
-ICON_marketing_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon~ios-marketing.png
-ICON_ipad_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/AppIcon~ipad.png
+ICON_20_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-20x20@2x.png
+ICON_20_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-20x20@3x.png
+ICON_29_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-29x29@2x.png
+ICON_29_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-29x29@3x.png
+ICON_38_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-38x38@2x.png
+ICON_38_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-38x38@3x.png
+ICON_40_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-40x40@2x.png
+ICON_40_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-40x40@3x.png
+ICON_60_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-60x60@2x.png
+ICON_60_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-60x60@3x.png
+ICON_64_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-64x64@2x.png
+ICON_64_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-64x64@3x.png
+ICON_68_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-68x68@2x.png
+ICON_76_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-76x76@2x.png
+ICON_83_5_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-83.5x83.5@2x.png
+ICON_1024_1x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-1024x1024@1x.png
 
-rm $DEST_DIR_PATH/AppIcon@2x.png
-rm $DEST_DIR_PATH/AppIcon@2x~ipad.png
-rm $DEST_DIR_PATH/AppIcon@3x.png
-rm $DEST_DIR_PATH/AppIcon-20@2x.png
-rm $DEST_DIR_PATH/AppIcon-20@2x~ipad.png
-rm $DEST_DIR_PATH/AppIcon-20@3x.png
-rm $DEST_DIR_PATH/AppIcon-20~ipad.png
-rm $DEST_DIR_PATH/AppIcon-29.png
-rm $DEST_DIR_PATH/AppIcon-29@2x.png
-rm $DEST_DIR_PATH/AppIcon-29@2x~ipad.png
-rm $DEST_DIR_PATH/AppIcon-29@3x.png
-rm $DEST_DIR_PATH/AppIcon-29~ipad.png
-rm $DEST_DIR_PATH/AppIcon-40@2x.png
-rm $DEST_DIR_PATH/AppIcon-40@2x~ipad.png
-rm $DEST_DIR_PATH/AppIcon-40@3x.png
-rm $DEST_DIR_PATH/AppIcon-40~ipad.png
-rm $DEST_DIR_PATH/AppIcon-60@2x~car.png
-rm $DEST_DIR_PATH/AppIcon-60@3x~car.png
-rm $DEST_DIR_PATH/AppIcon-83.5@2x~ipad.png
-rm $DEST_DIR_PATH/AppIcon~ios-marketing.png
-rm $DEST_DIR_PATH/AppIcon~ipad.png
+ICON_DARK_20_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-20x20@2x.png
+ICON_DARK_20_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-20x20@3x.png
+ICON_DARK_29_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-29x29@2x.png
+ICON_DARK_29_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-29x29@3x.png
+ICON_DARK_38_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-38x38@2x.png
+ICON_DARK_38_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-38x38@3x.png
+ICON_DARK_40_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-40x40@2x.png
+ICON_DARK_40_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-40x40@3x.png
+ICON_DARK_60_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-60x60@2x.png
+ICON_DARK_60_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-60x60@3x.png
+ICON_DARK_64_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-64x64@2x.png
+ICON_DARK_64_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-64x64@3x.png
+ICON_DARK_68_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-68x68@2x.png
+ICON_DARK_76_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-76x76@2x.png
+ICON_DARK_83_5_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-83.5x83.5@2x.png
+ICON_DARK_1024_1x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Dark-1024x1024@1x.png
 
-ln -s $ICON_2x_PATH $DEST_DIR_PATH/AppIcon@2x.png
-ln -s $ICON_2x_ipad_PATH $DEST_DIR_PATH/AppIcon@2x~ipad.png
-ln -s $ICON_3x_PATH $DEST_DIR_PATH/AppIcon@3x.png
-ln -s $ICON_20_2x_PATH $DEST_DIR_PATH/AppIcon-20@2x.png
-ln -s $ICON_20_2x_ipad_PATH $DEST_DIR_PATH/AppIcon-20@2x~ipad.png
-ln -s $ICON_20_3x_PATH $DEST_DIR_PATH/AppIcon-20@3x.png
-ln -s $ICON_20_ipad_PATH $DEST_DIR_PATH/AppIcon-20~ipad.png
-ln -s $ICON_29_PATH $DEST_DIR_PATH/AppIcon-29.png
-ln -s $ICON_29_2x_PATH $DEST_DIR_PATH/AppIcon-29@2x.png
-ln -s $ICON_29_2x_ipad_PATH $DEST_DIR_PATH/AppIcon-29@2x~ipad.png
-ln -s $ICON_29_3x_ipad_PATH $DEST_DIR_PATH/AppIcon-29@3x.png
-ln -s $ICON_29_ipad_PATH $DEST_DIR_PATH/AppIcon-29~ipad.png
-ln -s $ICON_40_2x_PATH $DEST_DIR_PATH/AppIcon-40@2x.png
-ln -s $ICON_40_2x_ipad_PATH $DEST_DIR_PATH/AppIcon-40@2x~ipad.png
-ln -s $ICON_40_3x_PATH $DEST_DIR_PATH/AppIcon-40@3x.png
-ln -s $ICON_40_ipad_PATH $DEST_DIR_PATH/AppIcon-40~ipad.png
-ln -s $ICON_60_2x_PATH $DEST_DIR_PATH/AppIcon-60@2x~car.png
-ln -s $ICON_60_3x_PATH $DEST_DIR_PATH/AppIcon-60@3x~car.png
-ln -s $ICON_83_2x_ipad_PATH $DEST_DIR_PATH/AppIcon-83.5@2x~ipad.png
-ln -s $ICON_marketing_PATH $DEST_DIR_PATH/AppIcon~ios-marketing.png
-ln -s $ICON_ipad_PATH $DEST_DIR_PATH/AppIcon~ipad.png
+ICON_TINTED_20_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-20x20@2x.png
+ICON_TINTED_20_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-20x20@3x.png
+ICON_TINTED_29_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-29x29@2x.png
+ICON_TINTED_29_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-29x29@3x.png
+ICON_TINTED_38_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-38x38@2x.png
+ICON_TINTED_38_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-38x38@3x.png
+ICON_TINTED_40_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-40x40@2x.png
+ICON_TINTED_40_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-40x40@3x.png
+ICON_TINTED_60_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-60x60@2x.png
+ICON_TINTED_60_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-60x60@3x.png
+ICON_TINTED_64_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-64x64@2x.png
+ICON_TINTED_64_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-64x64@3x.png
+ICON_TINTED_68_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-68x68@2x.png
+ICON_TINTED_76_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-76x76@2x.png
+ICON_TINTED_83_5_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-83.5x83.5@2x.png
+ICON_TINTED_1024_1x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-1024x1024@1x.png
+
+rm $DEST_DIR_PATH/Icon-App-20x20@2x.png
+rm $DEST_DIR_PATH/Icon-App-20x20@3x.png
+rm $DEST_DIR_PATH/Icon-App-29x29@2x.png
+rm $DEST_DIR_PATH/Icon-App-29x29@3x.png
+rm $DEST_DIR_PATH/Icon-App-38x38@2x.png
+rm $DEST_DIR_PATH/Icon-App-38x38@3x.png
+rm $DEST_DIR_PATH/Icon-App-40x40@2x.png
+rm $DEST_DIR_PATH/Icon-App-40x40@3x.png
+rm $DEST_DIR_PATH/Icon-App-60x60@2x.png
+rm $DEST_DIR_PATH/Icon-App-60x60@3x.png
+rm $DEST_DIR_PATH/Icon-App-64x64@2x.png
+rm $DEST_DIR_PATH/Icon-App-64x64@3x.png
+rm $DEST_DIR_PATH/Icon-App-68x68@2x.png
+rm $DEST_DIR_PATH/Icon-App-76x76@2x.png
+rm $DEST_DIR_PATH/Icon-App-83.5x83.5@2x.png
+rm $DEST_DIR_PATH/Icon-App-1024x1024@1x.png
+
+rm $DEST_DIR_PATH/Icon-App-Dark-20x20@2x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-20x20@3x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-29x29@2x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-29x29@3x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-38x38@2x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-38x38@3x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-40x40@2x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-40x40@3x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-60x60@2x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-60x60@3x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-64x64@2x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-64x64@3x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-68x68@2x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-76x76@2x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-83.5x83.5@2x.png
+rm $DEST_DIR_PATH/Icon-App-Dark-1024x1024@1x.png
+
+rm $DEST_DIR_PATH/Icon-App-Tinted-20x20@2x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-20x20@3x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-29x29@2x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-29x29@3x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-38x38@2x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-38x38@3x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-40x40@2x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-40x40@3x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-60x60@2x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-60x60@3x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-64x64@2x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-64x64@3x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-68x68@2x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-76x76@2x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-83.5x83.5@2x.png
+rm $DEST_DIR_PATH/Icon-App-Tinted-1024x1024@1x.png
+
+ln -s $ICON_20_2x_PATH $DEST_DIR_PATH/Icon-App-20x20@2x.png
+ln -s $ICON_20_3x_PATH $DEST_DIR_PATH/Icon-App-20x20@3x.png
+ln -s $ICON_29_2x_PATH $DEST_DIR_PATH/Icon-App-29x29@2x.png
+ln -s $ICON_29_3x_PATH $DEST_DIR_PATH/Icon-App-29x29@3x.png
+ln -s $ICON_38_2x_PATH $DEST_DIR_PATH/Icon-App-38x38@2x.png
+ln -s $ICON_38_3x_PATH $DEST_DIR_PATH/Icon-App-38x38@3x.png
+ln -s $ICON_40_2x_PATH $DEST_DIR_PATH/Icon-App-40x40@2x.png
+ln -s $ICON_40_3x_PATH $DEST_DIR_PATH/Icon-App-40x40@3x.png
+ln -s $ICON_60_2x_PATH $DEST_DIR_PATH/Icon-App-60x60@2x.png
+ln -s $ICON_60_3x_PATH $DEST_DIR_PATH/Icon-App-60x60@3x.png
+ln -s $ICON_64_2x_PATH $DEST_DIR_PATH/Icon-App-64x64@2x.png
+ln -s $ICON_64_3x_PATH $DEST_DIR_PATH/Icon-App-64x64@3x.png
+ln -s $ICON_68_2x_PATH $DEST_DIR_PATH/Icon-App-68x68@2x.png
+ln -s $ICON_76_2x_PATH $DEST_DIR_PATH/Icon-App-76x76@2x.png
+ln -s $ICON_83_5_2x_PATH $DEST_DIR_PATH/Icon-App-83.5x83.5@2x.png
+ln -s $ICON_1024_1x_PATH $DEST_DIR_PATH/Icon-App-1024x1024@1x.png
+
+ln -s $ICON_DARK_20_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-20x20@2x.png
+ln -s $ICON_DARK_20_3x_PATH $DEST_DIR_PATH/Icon-App-Dark-20x20@3x.png
+ln -s $ICON_DARK_29_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-29x29@2x.png
+ln -s $ICON_DARK_29_3x_PATH $DEST_DIR_PATH/Icon-App-Dark-29x29@3x.png
+ln -s $ICON_DARK_38_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-38x38@2x.png
+ln -s $ICON_DARK_38_3x_PATH $DEST_DIR_PATH/Icon-App-Dark-38x38@3x.png
+ln -s $ICON_DARK_40_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-40x40@2x.png
+ln -s $ICON_DARK_40_3x_PATH $DEST_DIR_PATH/Icon-App-Dark-40x40@3x.png
+ln -s $ICON_DARK_60_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-60x60@2x.png
+ln -s $ICON_DARK_60_3x_PATH $DEST_DIR_PATH/Icon-App-Dark-60x60@3x.png
+ln -s $ICON_DARK_64_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-64x64@2x.png
+ln -s $ICON_DARK_64_3x_PATH $DEST_DIR_PATH/Icon-App-Dark-64x64@3x.png
+ln -s $ICON_DARK_68_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-68x68@2x.png
+ln -s $ICON_DARK_76_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-76x76@2x.png
+ln -s $ICON_DARK_83_5_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-83.5x83.5@2x.png
+ln -s $ICON_DARK_1024_1x_PATH $DEST_DIR_PATH/Icon-App-Dark-1024x1024@1x.png
+
+ln -s $ICON_TINTED_20_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-20x20@2x.png
+ln -s $ICON_TINTED_20_3x_PATH $DEST_DIR_PATH/Icon-App-Tinted-20x20@3x.png
+ln -s $ICON_TINTED_29_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-29x29@2x.png
+ln -s $ICON_TINTED_29_3x_PATH $DEST_DIR_PATH/Icon-App-Tinted-29x29@3x.png
+ln -s $ICON_TINTED_38_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-38x38@2x.png
+ln -s $ICON_TINTED_38_3x_PATH $DEST_DIR_PATH/Icon-App-Tinted-38x38@3x.png
+ln -s $ICON_TINTED_40_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-40x40@2x.png
+ln -s $ICON_TINTED_40_3x_PATH $DEST_DIR_PATH/Icon-App-Tinted-40x40@3x.png
+ln -s $ICON_TINTED_60_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-60x60@2x.png
+ln -s $ICON_TINTED_60_3x_PATH $DEST_DIR_PATH/Icon-App-Tinted-60x60@3x.png
+ln -s $ICON_TINTED_64_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-64x64@2x.png
+ln -s $ICON_TINTED_64_3x_PATH $DEST_DIR_PATH/Icon-App-Tinted-64x64@3x.png
+ln -s $ICON_TINTED_68_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-68x68@2x.png
+ln -s $ICON_TINTED_76_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-76x76@2x.png
+ln -s $ICON_TINTED_83_5_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-83.5x83.5@2x.png
+ln -s $ICON_TINTED_1024_1x_PATH $DEST_DIR_PATH/Icon-App-Tinted-1024x1024@1x.png
