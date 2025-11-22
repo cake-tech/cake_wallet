@@ -65,7 +65,7 @@ abstract class WalletCreationVMBase with Store {
 
   Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
 
-  Future<void> create({dynamic options}) async {
+  Future<void> create({dynamic options,bool makeCurrent = true}) async {
     final type = this.type;
     try {
       state = IsExecutingState();
@@ -118,9 +118,15 @@ abstract class WalletCreationVMBase with Store {
       walletInfo.isNonSeedWallet = isNonSeedWallet;
       walletInfo.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
       walletInfo.address = wallet.walletAddresses.address;
+
       await walletInfo.save();
-      await _appStore.changeCurrentWallet(wallet);
-      _appStore.authenticationStore.allowedCreate();
+      if (makeCurrent) {
+        await _appStore.changeCurrentWallet(wallet);
+        _appStore.authenticationStore.allowedCreate();
+      } else {
+        await wallet.close(shouldCleanup: true);
+      }
+
       state = ExecutedSuccessfullyState();
     } catch (e, s) {
       printV("error: $e");
