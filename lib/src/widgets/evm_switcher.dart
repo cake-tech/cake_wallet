@@ -1,0 +1,300 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import 'evm_switcher_row.dart';
+
+class EvmSwitcherDataItem {
+  final String name;
+  final String svgPath;
+
+  const EvmSwitcherDataItem({
+    required this.name,
+    required this.svgPath,
+  });
+
+  static const ethereum = EvmSwitcherDataItem(
+      name: 'Ethereum',
+      svgPath: 'assets/images/evm_switcher_icons/ethereum.svg');
+
+  static const polygon = EvmSwitcherDataItem(
+      name: 'Polygon', svgPath: 'assets/images/evm_switcher_icons/polygon.svg');
+
+  static const arbitrum = EvmSwitcherDataItem(
+      name: 'Arbitrum',
+      svgPath: 'assets/images/evm_switcher_icons/arbitrum.svg');
+
+  static const base = EvmSwitcherDataItem(
+      name: 'Base', svgPath: 'assets/images/evm_switcher_icons/base.svg');
+
+  static const gnosis = EvmSwitcherDataItem(
+      name: 'Gnosis', svgPath: 'assets/images/evm_switcher_icons/gnosis.svg');
+
+  static const items = [
+    ethereum,
+    polygon,
+    arbitrum,
+    base,
+    gnosis,
+  ];
+}
+
+class EvmSwitcher extends StatefulWidget {
+  const EvmSwitcher({super.key});
+
+  static const editModeAnimDuration = Duration(milliseconds: 200);
+
+  @override
+  State<EvmSwitcher> createState() => _EvmSwitcherState();
+}
+
+class _EvmSwitcherState extends State<EvmSwitcher> {
+  bool _editMode = false;
+  int _selectedIndex = 0;
+  var optionsEnabled = List.filled(EvmSwitcherDataItem.items.length, true);
+
+  bool shouldBuildSeparator(int index) {
+    final nextEnabled = optionsEnabled.indexWhere(
+      (e) => e,
+      index + 1,
+    );
+
+    return index != _selectedIndex &&
+        optionsEnabled[index] &&
+        nextEnabled != _selectedIndex &&
+        nextEnabled != -1;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double popupWidth = MediaQuery.of(context).size.width*0.9;
+    return Center(
+      child: Column(
+        spacing: 25.0,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            _editMode ? "Customize options" : "Select Network",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Theme.of(context).colorScheme.surfaceContainer,
+              ),
+              child: AnimatedContainer(
+                  duration: EvmSwitcher.editModeAnimDuration,
+                  width: popupWidth,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AnimatedSize(
+                        curve: Curves.easeOutCubic,
+                        duration: EvmSwitcher.editModeAnimDuration,
+                        child: Container(
+                          width: _editMode ? 0 : popupWidth,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    if (optionsEnabled[index])
+                                      return EvmSwitcherRow(
+                                        key: ValueKey(EvmSwitcherDataItem
+                                            .items[index].name),
+                                        data: EvmSwitcherDataItem.items[index],
+                                        editMode: false,
+                                        selected: index == _selectedIndex,
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedIndex = index;
+                                          });
+                                        },
+                                        editSwitchValue: true,
+                                        animDuration:
+                                            EvmSwitcher.editModeAnimDuration,
+                                      );
+                                    else
+                                      return Container();
+                                  },
+                                  separatorBuilder: (context, index) {
+                                    if (shouldBuildSeparator(index))
+                                      return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 18),
+                                          child: Container(
+                                            height: 1,
+                                            width: double.infinity,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerHigh,
+                                          ));
+                                    else
+                                      return Container(height: 1);
+                                  },
+                                  itemCount: EvmSwitcherDataItem.items.length),
+                              EvmSwitcherAdditionalOption(
+                                  title: "Customize options",
+                                  svgPath:
+                                      "assets/images/evm_switcher_arrow_right.svg",
+                                  animDuration:
+                                      EvmSwitcher.editModeAnimDuration,
+                                  topSeparator: true,
+                                  bottomSeparator: false,
+                                  visible: true,
+                                  onTap: () {
+                                    setState(() {
+                                      _editMode = true;
+                                    });
+                                  },
+                                  iconOnRight: true)
+                            ],
+                          ),
+                        ),
+                      ),
+                      AnimatedSize(
+                        curve: Curves.easeOutCubic,
+                        duration: EvmSwitcher.editModeAnimDuration,
+                        child: Container(
+                          width: _editMode ? popupWidth : 0,
+                          height: _editMode ? null : 0,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              EvmSwitcherAdditionalOption(
+                                  title: "Back",
+                                  svgPath:
+                                      "assets/images/evm_switcher_arrow_left.svg",
+                                  animDuration:
+                                      EvmSwitcher.editModeAnimDuration,
+                                  topSeparator: false,
+                                  bottomSeparator: true,
+                                  visible: true,
+                                  onTap: () {
+                                    setState(() {
+                                      _editMode = false;
+                                    });
+                                  },
+                                  iconOnRight: false),
+                              ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    return EvmSwitcherRow(
+                                      key: ValueKey(EvmSwitcherDataItem
+                                          .items[index].name),
+                                      data: EvmSwitcherDataItem.items[index],
+                                      editMode: _editMode,
+                                      selected: index == _selectedIndex,
+                                      onTap: () {
+                                        setState(() {
+                                          optionsEnabled[index] =
+                                              !optionsEnabled[index];
+                                        });
+                                      },
+                                      editSwitchValue: optionsEnabled[index],
+                                      animDuration:
+                                          EvmSwitcher.editModeAnimDuration,
+                                    );
+                                  },
+                                  separatorBuilder: (context, index) {
+                                    return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 18),
+                                        child: Container(
+                                          height: 1,
+                                          width: double.infinity,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surfaceContainerHigh,
+                                        ));
+                                  },
+                                  itemCount: EvmSwitcherDataItem.items.length),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class EvmSwitcherAdditionalOption extends StatelessWidget {
+  const EvmSwitcherAdditionalOption(
+      {super.key,
+      required this.title,
+      required this.svgPath,
+      required this.animDuration,
+      required this.topSeparator,
+      required this.bottomSeparator,
+      required this.visible,
+      required this.onTap,
+      required this.iconOnRight});
+
+  final String title;
+  final String svgPath;
+  final Duration animDuration;
+  final bool topSeparator;
+  final bool bottomSeparator;
+  final bool visible;
+  final VoidCallback onTap;
+  final bool iconOnRight;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.translucent,
+      child: Container(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            if (topSeparator)
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Container(
+                    height: 1,
+                    width: double.infinity,
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  )),
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                spacing: 8.0,
+                children: [
+                  if (!iconOnRight)
+                    SvgPicture.asset(svgPath, width: 16, height: 16),
+                  Text(
+                    title,
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
+                  ),
+                  if (iconOnRight)
+                    SvgPicture.asset(svgPath, width: 16, height: 16),
+                ],
+              ),
+            ),
+            if (bottomSeparator)
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Container(
+                    height: 1,
+                    width: double.infinity,
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  )),
+          ],
+        ),
+      ),
+    );
+  }
+}
