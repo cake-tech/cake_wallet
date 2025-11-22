@@ -1068,7 +1068,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final resp = await CwMweb.create(CreateRequest(
         rawTx: txb.buildTransaction((a, b, c, d) => '').toBytes(),
         scanSecret: scanSecret,
-        spendSecret: List.filled(32, 0),
+        spendSecret: spendSecret,
         feeRatePerKb: Int64(feeRate * 1000),
         dryRun: true));
     final tx = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
@@ -1343,11 +1343,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     final resp2 = await CwMweb.psbtExtract(PsbtExtractRequest(psbtB64: psbtB64));
 
+    final btcTx = BtcTransaction.fromRaw(hex.encode(resp2.rawTx));
+
     final tx = PendingBitcoinTransaction(
-      BtcTransaction.fromRaw(hex.encode(resp2.rawTx)),
+      btcTx,
       type,
       electrumClient: electrumClient,
-      amount: 0,
+      amount: btcTx.outputs.reduce((a, b) => TxOutput(amount: a.amount + b.amount,  scriptPubKey: a.scriptPubKey)).amount.toInt(),
       fee: resp.fee.toInt(),
       feeRate: "",
       network: network,

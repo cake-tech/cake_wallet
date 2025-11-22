@@ -197,6 +197,7 @@ class LitecoinWalletService extends WalletService<
       scanSecretOverride: credentials.scanSecret,
       spendPubkeyOverride: credentials.spendPubkey,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );

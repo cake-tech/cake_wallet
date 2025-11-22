@@ -73,6 +73,10 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       return null;
     }
+    if ((scanSecret.length < 1 || scanSecret.reduce((a, b) => a + b) == 0) ||
+       (spendPubkey.length < 1 || spendPubkey.reduce((a, b) => a + b) == 0)) {
+      return null;
+    }
 
     Uint8List scan = Uint8List.fromList(scanSecret);
     Uint8List spend = Uint8List.fromList(spendPubkey);
@@ -135,6 +139,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     BitcoinAddressType? addressType,
   }) {
     if (addressType == SegwitAddresType.mweb) {
+      if (mwebAddrs.length == 0) {
+        return "null";
+      }
       return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
