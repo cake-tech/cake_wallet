@@ -393,4 +393,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   @override
   String toString() => title;
+
+  bool titleAndTagEqual(CryptoCurrency other) {
+    return title == other.title && tag == other.tag;
+  }
 }
