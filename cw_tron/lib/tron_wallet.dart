@@ -42,6 +42,7 @@ abstract class TronWalletBase
     with Store, WalletKeysFile {
   TronWalletBase({
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     String? mnemonic,
     String? privateKey,
     required String password,
@@ -57,7 +58,7 @@ abstract class TronWalletBase
         balance = ObservableMap<CryptoCurrency, TronBalance>.of(
           {CryptoCurrency.trx: initialBalance ?? TronBalance(BigInt.zero)},
         ),
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = TronTransactionHistory(
         walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
@@ -163,8 +164,11 @@ abstract class TronWalletBase
       );
     }
 
+    final derivationInfo = await walletInfo.getDerivationInfo();
+
     return TronWallet(
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,
@@ -180,9 +184,11 @@ abstract class TronWalletBase
     for (var token in initialTronTokens) {
       if (!tronTokensBox.containsKey(token.contractAddress)) {
         tronTokensBox.put(token.contractAddress, token);
-      } else { // update existing token
+      } else {
+        // update existing token
         final existingToken = tronTokensBox.get(token.contractAddress);
-        tronTokensBox.put(token.contractAddress, TronToken.copyWith(token, enabled: existingToken!.enabled));
+        tronTokensBox.put(
+            token.contractAddress, TronToken.copyWith(token, enabled: existingToken!.enabled));
       }
     }
   }
@@ -281,7 +287,7 @@ abstract class TronWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
-      
+
       // Verify node health before attempting to sync
       final isHealthy = await checkNodeHealth();
       if (!isHealthy) {
@@ -306,8 +312,13 @@ abstract class TronWalletBase
 
     final hasMultiDestination = outputs.length > 1;
 
-    final CryptoCurrency transactionCurrency =
-        balance.keys.firstWhere((element) => element.title == tronCredentials.currency.title);
+    final transactionCurrency = balance.keys.firstWhere(
+            (currency) =>
+        currency.title == tronCredentials.currency.title &&
+            currency.tag == tronCredentials.currency.tag,
+        orElse: () => throw Exception(
+            'Currency ${tronCredentials.currency.title} ${tronCredentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
+
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
@@ -357,6 +368,14 @@ abstract class TronWalletBase
     );
 
     return pendingTransaction;
+  }
+
+  @override
+  Future<void> updateTransactionsHistory() async {
+    await Future.wait([
+      fetchTransactions(),
+      fetchTrc20ExcludedTransactions(),
+    ]);
   }
 
   @override
@@ -522,11 +541,11 @@ abstract class TronWalletBase
     try {
       // Check native balance
       await _client.getBalance(_tronPublicKey.toAddress(), throwOnError: true);
-      
+
       // Check USDT token balance
       const usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
       await _client.fetchTronTokenBalances(_tronAddress, usdtContractAddress, throwOnError: true);
-      
+
       return true;
     } catch (e) {
       return false;

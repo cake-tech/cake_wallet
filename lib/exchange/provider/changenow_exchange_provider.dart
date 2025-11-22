@@ -91,12 +91,13 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -277,12 +278,21 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected http status: ${response.statusCode}');
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+    // Parsing 'from' currency
     final fromCurrency = responseJSON['fromCurrency'] as String;
     final fromNetwork = responseJSON['fromNetwork'] as String?;
-    final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
+    final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
+    final fromTag = fromCurrency == _normalizedFromNetwork ? null : _normalizedFromNetwork;
+    final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
+
+    // Parsing 'to' currency
     final toCurrency = responseJSON['toCurrency'] as String;
     final toNetwork = responseJSON['toNetwork'] as String?;
-    final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
+    final _normalizedToNetwork = _normalizeNetworkType(toNetwork ?? '');
+    final toTag = toCurrency == _normalizedToNetwork ? null : _normalizedToNetwork;
+    final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
+
     final inputAddress = responseJSON['payinAddress'] as String;
     final expectedSendAmount = responseJSON['expectedAmountFrom'].toString();
     final status = responseJSON['status'] as String;
@@ -292,9 +302,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final expiredAtRaw = responseJSON['validUntil'] as String?;
     final payoutAddress = responseJSON['payoutAddress'] as String;
     final expiredAt = DateTime.tryParse(expiredAtRaw ?? '')?.toLocal();
-
-    final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
-    final _normalizedToNetwork = _normalizeNetworkType(toNetwork ?? '');
 
     return Trade(
       id: id,
@@ -308,8 +315,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       expiredAt: expiredAt,
       outputTransaction: outputTransaction,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${_normalizedFromNetwork.toUpperCase()}',
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${_normalizedToNetwork.toUpperCase()}',
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
     );
   }
 

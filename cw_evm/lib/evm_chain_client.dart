@@ -111,6 +111,7 @@ abstract class EVMChainClient {
           sender: senderAddress,
           to: toAddress,
           value: value,
+          data: data,
         );
 
         return estimatedGas.toInt();
@@ -162,7 +163,7 @@ abstract class EVMChainClient {
     required BigInt gasFee,
     required int estimatedGasUnits,
     required int maxFeePerGas,
-    required EVMChainTransactionPriority priority,
+    required EVMChainTransactionPriority? priority,
     required CryptoCurrency currency,
     required String feeCurrency,
     required int exponent,
@@ -171,15 +172,20 @@ abstract class EVMChainClient {
     int? gasPrice,
   }) async {
     assert(currency == CryptoCurrency.eth ||
-        currency == CryptoCurrency.maticpoly || currency == CryptoCurrency.baseEth ||
+        currency == CryptoCurrency.maticpoly ||
+        currency == CryptoCurrency.baseEth ||
+        currency == CryptoCurrency.arbEth ||
         contractAddress != null);
 
-    bool isNativeToken = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly || currency == CryptoCurrency.baseEth;
+    bool isNativeToken = currency == CryptoCurrency.eth ||
+        currency == CryptoCurrency.maticpoly ||
+        currency == CryptoCurrency.baseEth ||
+        currency == CryptoCurrency.arbEth;
 
     final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
-      maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
+      maxPriorityFeePerGas: priority != null ? EtherAmount.fromInt(EtherUnit.gwei, priority.tip) : null,
       amount: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
       maxGas: estimatedGasUnits,
@@ -228,7 +234,7 @@ abstract class EVMChainClient {
     required String feeCurrency,
     required int estimatedGasUnits,
     required int maxFeePerGas,
-    required EVMChainTransactionPriority priority,
+    required EVMChainTransactionPriority? priority,
     required int exponent,
     required String contractAddress,
     int? gasPrice,
@@ -236,7 +242,7 @@ abstract class EVMChainClient {
     final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(contractAddress),
-      maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
+      maxPriorityFeePerGas:priority != null ? EtherAmount.fromInt(EtherUnit.gwei, priority.tip) : null,
       amount: EtherAmount.zero(),
       maxGas: estimatedGasUnits,
       maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),

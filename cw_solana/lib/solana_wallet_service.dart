@@ -18,9 +18,8 @@ import 'package:hive/hive.dart';
 
 class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
     SolanaRestoreWalletFromSeedCredentials, SolanaRestoreWalletFromPrivateKey, SolanaNewWalletCredentials> {
-  SolanaWalletService(this.walletInfoSource, this.isDirect);
+  SolanaWalletService(this.isDirect);
 
-  final Box<WalletInfo> walletInfoSource;
   final bool isDirect;
 
   @override
@@ -31,6 +30,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
 
     final wallet = SolanaWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       mnemonic: mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -52,8 +52,10 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
 
   @override
   Future<SolanaWallet> openWallet(String name, String password) async {
-    final walletInfo =
-        walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
 
     try {
       final wallet = await SolanaWalletBase.open(
@@ -88,9 +90,11 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
   @override
   Future<void> remove(String wallet) async {
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
   }
 
   @override
@@ -100,6 +104,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -121,6 +126,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -134,8 +140,10 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
     final currentWallet = await SolanaWalletBase.open(
       password: password,
       name: currentName,
@@ -150,7 +158,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    await newWalletInfo.save();
   }
 
   @override

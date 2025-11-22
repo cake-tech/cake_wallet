@@ -112,12 +112,13 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -359,10 +360,19 @@ class ExolixExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected http status: ${response.statusCode}');
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+    // Parsing 'from' currency
     final coinFrom = responseJSON['coinFrom']['coinCode'] as String;
     final coinFromNetwork = responseJSON['coinFrom']['network'] as String?;
+    final fromTag = coinFrom == coinFromNetwork ? null : coinFromNetwork;
+    final from = CryptoCurrency.safeParseCurrencyFromString(coinFrom, tag: fromTag);
+
+    // Parsing 'to' currency
     final coinTo = responseJSON['coinTo']['coinCode'] as String;
     final coinToNetwork = responseJSON['coinTo']['network'] as String?;
+    final toTag = coinTo == coinToNetwork ? null : coinToNetwork;
+    final to = CryptoCurrency.safeParseCurrencyFromString(coinTo, tag: toTag);
+
     final inputAddress = responseJSON['depositAddress'] as String;
     final amount = responseJSON['amount'].toString();
     final status = responseJSON['status'] as String;
@@ -372,8 +382,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     return Trade(
         id: id,
-        from: CryptoCurrency.safeParseCurrencyFromString(coinFrom),
-        to: CryptoCurrency.safeParseCurrencyFromString(coinTo),
+        from: from,
+        to: to,
         provider: description,
         inputAddress: inputAddress,
         amount: amount,
@@ -381,8 +391,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
         extraId: extraId,
         outputTransaction: outputTransaction,
         payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${coinFrom.toUpperCase()}' + '_' + '${coinFromNetwork ?? ''}',
-      userCurrencyToRaw: '${coinTo.toUpperCase()}' + '_' + '${coinToNetwork ?? ''}',
+      userCurrencyFromRaw: '${coinFrom.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
+      userCurrencyToRaw: '${coinTo.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
     );
   }
 

@@ -73,6 +73,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.ape:
       case CryptoCurrency.avaxc:
       case CryptoCurrency.eth:
+      case CryptoCurrency.baseEth:
+      case CryptoCurrency.arbEth:
       case CryptoCurrency.mana:
       case CryptoCurrency.matic:
       case CryptoCurrency.maticpoly:
@@ -227,6 +229,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.steth:
       case CryptoCurrency.shib:
       case CryptoCurrency.avaxc:
+      case CryptoCurrency.baseEth:
+      case CryptoCurrency.arbEth:
         return [42];
       case CryptoCurrency.bch:
         return [42, 54, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35];
@@ -332,6 +336,8 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)((ltc|t)mweb1q[ac-hj-np-z02-9]{90,120})([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.eth:
       case CryptoCurrency.maticpoly:
+      case CryptoCurrency.baseEth:
+      case CryptoCurrency.arbEth:
         pattern = '0x[0-9a-zA-Z]+';
       case CryptoCurrency.nano:
         pattern = 'nano_[0-9a-zA-Z]{60}';
@@ -347,10 +353,10 @@ class AddressValidator extends TextValidator {
         pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
-          pattern = '0x[0-9a-zA-Z]{42}';
+          pattern = '0x[0-9a-zA-Z]+';
         }
         if (type.tag == CryptoCurrency.maticpoly.tag) {
-          pattern = '0x[0-9a-zA-Z]{42}';
+          pattern = '0x[0-9a-zA-Z]+';
         }
         if (type.tag == CryptoCurrency.sol.title) {
           pattern = '[1-9A-HJ-NP-Za-km-z]{43,44}';

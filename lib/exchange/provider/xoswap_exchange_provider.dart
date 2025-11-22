@@ -43,8 +43,41 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     'LTC': 'litecoin',
     'EOS': 'eosio',
     'XLM': 'stellar',
+    'BASE': 'basemainnet',
   };
+  
+  static const supportedTags = [
+    'POL',
+    'ETH',
+    'BTC',
+    'BSC',
+    'SOL',
+    'TRX',
+    'ZEC',
+    'ADA',
+    'DOGE',
+    'XMR',
+    'BCH',
+    'BSV',
+    'XRP',
+    'LTC',
+    'EOS',
+    'XLM',
+    'BASE',
+  ];
 
+
+  String _normalizeXOSwapsNetwork(String string) {
+    final lower = string.toLowerCase();
+
+    if (lower.endsWith('matic0a883d9b')) return string.replaceFirst(RegExp(r'matic0a883d9b$', caseSensitive: false), 'POL');
+    if (lower.endsWith('matic86e249c1')) return string.replaceFirst(RegExp(r'matic86e249c1$', caseSensitive: false), 'POL');
+    if (lower.endsWith('bscddedf0f8')) return string.replaceFirst(RegExp(r'bscddedf0f8$', caseSensitive: false), 'BSC');
+    if (lower.endsWith('basemainnetb5a52617')) return string.replaceFirst(RegExp(r'basemainnetb5a52617$', caseSensitive: false), 'BASE');
+
+    return string;
+  }
+  
   @override
   String get title => 'XOSwap';
 
@@ -142,12 +175,13 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     }
   }
 
+  @override
   Future<double> fetchRate({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required double amount,
     required bool isFixedRateMode,
-    required bool isReceiveAmount,
+    required bool isReceiveAmount
   }) async {
     try {
       final rates = await getRatesForPair(from: from, to: to);
@@ -421,9 +455,46 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final pairId = responseJSON['pairId'] as String;
       final pairParts = pairId.split('_');
       final fromAsset = pairParts.isNotEmpty ? pairParts[0] : '';
+      final normalizedFromAsset = _normalizeXOSwapsNetwork(fromAsset);
+      String? fromAssetTag = _extractTagFromAsset(normalizedFromAsset);
+
+      String fromAssetBase = fromAssetTag != null
+          ? normalizedFromAsset.substring(0, normalizedFromAsset.length - fromAssetTag.length)
+          : normalizedFromAsset;
+
+      // Special case for USDT defaulting to ETH tag
+      if (fromAssetBase == 'USDT' && fromAssetTag == null) {
+        fromAssetTag = 'ETH';
+      }
+
+      // Special case for BASE defaulting to BASE tag
+      if (fromAssetBase == 'BASE' && fromAssetTag == null) {
+        fromAssetTag = 'BASE';
+        fromAssetBase = 'ETH';
+      }
+
       final toAsset = pairParts.length > 1 ? pairParts[1] : '';
-      final fromCurrency = CryptoCurrency.safeParseCurrencyFromString(fromAsset);
-      final toCurrency = CryptoCurrency.safeParseCurrencyFromString(toAsset);
+      final normalizedToAsset = _normalizeXOSwapsNetwork(toAsset);
+      String? toAssetTag = _extractTagFromAsset(normalizedToAsset);
+
+      String toAssetBase = toAssetTag != null
+          ? normalizedToAsset.substring(0, normalizedToAsset.length - toAssetTag.length)
+          : normalizedToAsset;
+
+      // Special case for USDT defaulting to ETH tag
+      if (toAssetBase == 'USDT' && toAssetTag == null) {
+        toAssetTag = 'ETH';
+      }
+
+      // Special case for BASE defaulting to BASE tag
+      if (toAssetBase == 'BASE' && toAssetTag == null) {
+        toAssetTag = 'ETH';
+        toAssetBase = 'BASE';
+      }
+      
+      final fromCurrency = CryptoCurrency.safeParseCurrencyFromString(fromAssetBase,tag: fromAssetTag);
+      final toCurrency = CryptoCurrency.safeParseCurrencyFromString(toAssetBase,tag: toAssetTag);
+
 
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;
@@ -438,6 +509,14 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final createdAt = DateTime.parse(createdAtString).toLocal();
       final extraId = responseJSON['payInAddressTag'] as String?;
 
+      final userCurrencyFromRaw = fromCurrency != null
+          ? '${fromCurrency.title}' + '_' + '${fromCurrency.tag ?? ''}'
+          : '${fromAssetBase}' + '_' + '${fromAssetTag ?? ''}';
+
+      final userCurrencyToRaw = toCurrency != null
+          ? '${toCurrency.title}' + '_' + '${toCurrency.tag ?? ''}'
+          : '${toAssetBase}' + '_' + '${toAssetTag ?? ''}';
+
       return Trade(
         id: orderId,
         from: fromCurrency,
@@ -451,13 +530,29 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount,
         payoutAddress: payoutAddress,
         extraId: extraId,
-        userCurrencyFromRaw: '$fromAsset' + '_',
-        userCurrencyToRaw: '$toAsset' + '_',
+        userCurrencyFromRaw: userCurrencyFromRaw,
+        userCurrencyToRaw: userCurrencyToRaw,
       );
     } catch (e) {
       printV(e.toString());
       throw TradeNotCreatedException(description);
     }
+  }
+
+  // ensure something remains before tag (at least 2 chars)
+  String? _extractTagFromAsset(String asset) {
+
+
+
+    for (final tag in supportedTags) {
+      if (asset.endsWith(tag)) {
+        final prefixLength = asset.length - tag.length;
+        if (prefixLength >= 2) {
+          return tag;
+        }
+      }
+    }
+    return null;
   }
 
   double _toDouble(dynamic value) {

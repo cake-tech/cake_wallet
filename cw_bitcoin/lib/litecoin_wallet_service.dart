@@ -22,10 +22,8 @@ class LitecoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     LitecoinWalletFromKeysCredentials,
     BitcoinRestoreWalletFromHardware> {
-  LitecoinWalletService(
-      this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
+  LitecoinWalletService(this.unspentCoinsInfoSource, this.isDirect);
 
-  final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
 
@@ -35,7 +33,7 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
     final String mnemonic;
-    switch (credentials.walletInfo?.derivationInfo?.derivationType) {
+    switch (credentials.derivationInfo?.derivationType) {
       case DerivationType.bip39:
         final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
@@ -52,6 +50,7 @@ class LitecoinWalletService extends WalletService<
       password: credentials.password!,
       passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -68,8 +67,10 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
 
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
 
     try {
       final wallet = await LitecoinWalletBase.open(
@@ -99,12 +100,14 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<void> remove(String wallet) async {
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
 
     // if there are no more litecoin wallets left, cleanup the neutrino db and other files created by mwebd:
-    if (walletInfoSource.values.where((info) => info.type == WalletType.litecoin).isEmpty) {
+    if ((await WalletInfo.selectList('type = ?', [WalletType.litecoin.index])).isEmpty) {
       final appDirPath = (await getApplicationSupportDirectory()).path;
       File neturinoDb = File('$appDirPath/neutrino.db');
       File blockHeaders = File('$appDirPath/block_headers.bin');
@@ -136,8 +139,10 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
     final currentWallet = await LitecoinWalletBase.open(
       password: password,
       name: currentName,
@@ -153,7 +158,7 @@ class LitecoinWalletService extends WalletService<
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    await newWalletInfo.save();
   }
 
   @override
@@ -161,13 +166,17 @@ class LitecoinWalletService extends WalletService<
       {bool? isTestnet}) async {
     final network = isTestnet == true ? LitecoinNetwork.testnet : LitecoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
-    credentials.walletInfo?.derivationInfo?.derivationPath =
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    derivationInfo.derivationPath =
         credentials.hwAccountData.derivationPath;
+    await derivationInfo.save();
+    credentials.walletInfo!.save();
 
     final wallet = await LitecoinWallet(
       password: credentials.password!,
       xpub: credentials.hwAccountData.xpub,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: derivationInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -209,6 +218,7 @@ class LitecoinWalletService extends WalletService<
       passphrase: credentials.passphrase,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );

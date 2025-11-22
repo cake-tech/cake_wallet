@@ -14,7 +14,7 @@ dependencies:
     sdk: flutter
   http: ^1.1.0
   file: ^7.0.0
-  path_provider: ^2.0.11
+  path_provider: ^2.1.5
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
   intl: any
@@ -44,6 +44,9 @@ dependencies:
     git:
       url: https://github.com/cake-tech/blockchain_utils
       ref: cake-update-v2
+  sqflite: ^2.4.1
+  sqflite_common_ffi: ^2.3.4+4
+  sqlite3_flutter_libs: 0.5.40
 
 dev_dependencies:
   flutter_test:
@@ -61,7 +64,7 @@ dependency_overrides:
 
 # The following section is specific to Flutter.
 flutter:
-    uses-material-design: true
+  uses-material-design: true
 
   # To add assets to your package, add an assets section, like this:
   # assets:

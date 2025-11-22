@@ -34,8 +34,8 @@ class TextValidator extends Validator<String> {
       return isAutovalidate ? true : false;
     }
 
-    final greaterThanMinLength = value.length > (minLength ?? 0);
-    if (!greaterThanMinLength) return false;
+    final greaterThanOrEqualToMinLength = value.length >= (minLength ?? 0);
+    if (!greaterThanOrEqualToMinLength) return false;
 
     final lengthMatched = length?.contains(value.length) ?? true;
     if (!lengthMatched) return false;

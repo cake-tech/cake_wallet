@@ -2,9 +2,9 @@ import 'dart:async' show Timer;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
-import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
@@ -301,7 +301,6 @@ import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 final getIt = GetIt.instance;
 
 var _isSetupFinished = false;
-late Box<WalletInfo> _walletInfoSource;
 late Box<Node> _nodeSource;
 late Box<Node> _powNodeSource;
 late Box<Contact> _contactSource;
@@ -315,7 +314,6 @@ late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 
 Future<void> setup({
-  required Box<WalletInfo> walletInfoSource,
   required Box<Node> nodeSource,
   required Box<Node> powNodeSource,
   required Box<Contact> contactSource,
@@ -330,7 +328,6 @@ Future<void> setup({
   required SecureStorage secureStorage,
   required GlobalKey<NavigatorState> navigatorKey,
 }) async {
-  _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
   _powNodeSource = powNodeSource;
   _contactSource = contactSource;
@@ -432,7 +429,7 @@ Future<void> setup({
           keyService: getIt.get<KeyService>(),
           sharedPreferences: getIt.get<SharedPreferences>(),
           settingsStore: getIt.get<SettingsStore>(),
-          walletInfoSource: _walletInfoSource));
+        ));
 
   getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
       (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
@@ -446,17 +443,17 @@ Future<void> setup({
     (newWalletArgs, _) => WalletNewVM(
       getIt.get<AppStore>(),
       getIt.get<WalletCreationService>(param1:newWalletArgs.type),
-      _walletInfoSource,
       getIt.get<AdvancedPrivacySettingsViewModel>(param1: newWalletArgs.type),
       getIt.get<SeedSettingsViewModel>(),
-      newWalletArguments: newWalletArgs,));
+      newWalletArguments: newWalletArgs,
+    ));
 
 
-  getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
+  final walletList = await WalletInfo.getAll();
+  getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(walletList.isNotEmpty));
 
   getIt.registerFactory<WalletManager>(
     () => WalletManager(
-      _walletInfoSource,
       getIt.get<SharedPreferences>(),
     ),
   );
@@ -535,7 +532,6 @@ Future<void> setup({
           hardwareWalletVM,
           getIt.get<AppStore>(),
           getIt.get<WalletCreationService>(param1: type),
-          _walletInfoSource,
           getIt.get<SeedSettingsViewModel>(),
           type: type));
 
@@ -560,7 +556,6 @@ Future<void> setup({
       getIt.get<ContactListViewModel>(),
       getIt.get<UnspentCoinsListViewModel>(),
       getIt.get<FeesViewModel>(),
-      _walletInfoSource,
       getIt.get<FiatConversionStore>(),
     ),
   );
@@ -639,7 +634,7 @@ Future<void> setup({
 
   getIt.registerFactory<AuthPage>(instanceName: 'login', () {
     return AuthPage(getIt.get<AuthViewModel>(), closable: false,
-        onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) {
+        onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) async {
       if (!isAuthenticated) {
         return;
       }
@@ -680,7 +675,7 @@ Future<void> setup({
         );
       } else {
         // wallet is already loaded:
-        if (appStore.wallet != null || requireHardwareWalletConnection()) {
+        if (appStore.wallet != null || await requireHardwareWalletConnection()) {
           // goes to the dashboard:
           authStore.allowed();
           // trigger any deep links:
@@ -847,8 +842,7 @@ Future<void> setup({
           : null,
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.nonMweb,
       getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
-      getIt.get<FeesViewModel>(),
-      _walletInfoSource,
+      getIt.get<FeesViewModel>()
     ),
   );
 
@@ -867,7 +861,6 @@ Future<void> setup({
   if (DeviceInfo.instance.isMobile) {
     getIt.registerFactory(
       () => WalletListViewModel(
-        _walletInfoSource,
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
         getIt.get<WalletManager>(),
@@ -878,7 +871,6 @@ Future<void> setup({
     // from multiple places at the same time (Wallets DropDown, Wallets List in settings)
     getIt.registerLazySingleton(
       () => WalletListViewModel(
-        _walletInfoSource,
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
         getIt.get<WalletManager>(),
@@ -890,7 +882,7 @@ Future<void> setup({
       (Function(BuildContext)? onWalletLoaded, _) => WalletListPage(
             walletListViewModel: getIt.get<WalletListViewModel>(),
             authService: getIt.get<AuthService>(),
-            onWalletLoaded: onWalletLoaded,
+            onWalletLoaded: onWalletLoaded as Future<void> Function(BuildContext)?,
           ));
 
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
@@ -1034,7 +1026,7 @@ Future<void> setup({
 
   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
       (CryptoCurrency? cur, _) =>
-          ContactListViewModel(_contactSource, _walletInfoSource, cur, getIt.get<SettingsStore>()));
+          ContactListViewModel(_contactSource, walletList, cur, getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _) =>
       ContactListPage(getIt.get<ContactListViewModel>(param1: cur), getIt.get<AuthService>()));
@@ -1190,62 +1182,55 @@ Future<void> setup({
 
   getIt.registerFactory(() => PaymentViewModel(
     appStore: getIt.get<AppStore>(),
-    walletInfoSource: _walletInfoSource,
   ));
 
   getIt.registerFactory(() => WalletSwitcherViewModel(
     appStore: getIt.get<AppStore>(),
     walletLoadingService: getIt.get<WalletLoadingService>(),
-    walletInfoSource: _walletInfoSource,
   ));
 
   getIt.registerFactoryParam<WalletService, WalletType, void>((WalletType param1, __) {
     switch (param1) {
       case WalletType.monero:
-        return monero!.createMoneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+        return monero!.createMoneroWalletService(_unspentCoinsInfoSource);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinWalletService(
-          _walletInfoSource,
           _unspentCoinsInfoSource,
           _payjoinSessionSource,
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.litecoin:
         return bitcoin!.createLitecoinWalletService(
-          _walletInfoSource,
           _unspentCoinsInfoSource,
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.ethereum:
-        return ethereum!.createEthereumWalletService(
-            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return ethereum!.createEthereumWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
-        return bitcoinCash!.createBitcoinCashWalletService(_walletInfoSource,
-            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return bitcoinCash!.createBitcoinCashWalletService(_unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.dogecoin:
-        return dogecoin!.createDogeCoinWalletService(_walletInfoSource,
-            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return dogecoin!.createDogeCoinWalletService(_unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.nano:
       case WalletType.banano:
-        return nano!.createNanoWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return nano!.createNanoWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.polygon:
-        return polygon!.createPolygonWalletService(
-            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return polygon!.createPolygonWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.solana:
-        return solana!.createSolanaWalletService(
-            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return solana!.createSolanaWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.tron:
-        return tron!.createTronWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return tron!.createTronWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.wownero:
-        return wownero!.createWowneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+        return wownero!.createWowneroWalletService(_unspentCoinsInfoSource);
       case WalletType.zano:
-        return zano!.createZanoWalletService(_walletInfoSource);
+        return zano!.createZanoWalletService();
       case WalletType.decred:
-        return decred!.createDecredWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+        return decred!.createDecredWalletService(_unspentCoinsInfoSource);
       case WalletType.base:
-        return base!.createBaseWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return base!.createBaseWalletService(SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.arbitrum:
+        return arbitrum!.createArbitrumWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.haven:
-        return HavenWalletService(_walletInfoSource);
+        return HavenWalletService();
       case WalletType.none:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
@@ -1275,7 +1260,6 @@ Future<void> setup({
     return WalletRestoreViewModel(
         getIt.get<AppStore>(),
         getIt.get<WalletCreationService>(param1: type),
-        _walletInfoSource,
         getIt.get<SeedSettingsViewModel>(),
         type: type,
         restoredWallet: restoredWallet,
@@ -1351,7 +1335,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
 
-  getIt.registerFactory(() => BackupServiceV3(getIt.get<SecureStorage>(), _walletInfoSource,
+  getIt.registerFactory(() => BackupServiceV3(getIt.get<SecureStorage>(),
       _transactionDescriptionBox,
       getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
 
@@ -1444,6 +1428,8 @@ Future<void> setup({
     return UnspentCoinsListViewModel(
       wallet: wallet!,
       unspentCoinsInfo: _unspentCoinsInfoSource,
+      fiatConversationStore: getIt.get<FiatConversionStore>(),
+      settingsStore: getIt.get<SettingsStore>(),
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
     );
   });

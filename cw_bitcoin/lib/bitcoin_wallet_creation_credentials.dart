@@ -16,6 +16,10 @@ class BitcoinNewWalletCredentials extends WalletCredentials {
           walletInfo: walletInfo,
           password: password,
           passphrase: passphrase,
+          derivationInfo: DerivationInfo(
+            derivationType: derivationType,
+            derivationPath: derivationPath,
+          ),
         );
 
   final String? mnemonic;

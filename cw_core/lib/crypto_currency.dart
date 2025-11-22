@@ -1,5 +1,6 @@
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
+import 'package:collection/collection.dart';
 
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implements Currency {
   const CryptoCurrency({
@@ -117,6 +118,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.deps,
     CryptoCurrency.baseEth,
     CryptoCurrency.usde,
+    CryptoCurrency.arbEth,
   ];
 
   static const havenCurrencies = [
@@ -245,6 +247,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const cbbtc = CryptoCurrency(title: 'CBBTC', tag: 'ETH', fullName: 'Coinbase Wrapped BTC', raw: 103, name: 'cbbtc', iconPath: 'assets/images/cbbtc_icon.png', decimals: 8);
   static const baseEth = CryptoCurrency(title: 'ETH', tag: 'BASE', fullName: 'Ethereum', raw: 104, name: 'baseth', iconPath: 'assets/images/crypto/base_icon.webp', decimals: 18);
   static const usde = CryptoCurrency(title: 'USDE', tag: 'BASE', fullName: 'Ethena USDE', raw: 105, name: 'usde', iconPath: 'assets/images/crypto/ethena-usde-logo.png', decimals: 18);
+    static const arbEth = CryptoCurrency(title: 'ETH', tag: 'ARB', fullName: 'Arbitrum', raw: 106, name: 'arbeth', iconPath: 'assets/images/crypto/arbitrum.webp', decimals: 18);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
@@ -282,6 +285,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     'wrappedether': weth,
     'shibainu': shib,
     'zcash': zec,
+    'base': baseEth,
   };
 
   static CryptoCurrency deserialize({required int raw}) {
@@ -333,8 +337,22 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     return CryptoCurrency._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()]!;
   }
 
-  static CryptoCurrency? safeParseCurrencyFromString(String? raw, {CryptoCurrency? walletCurrency}) {
+  static CryptoCurrency? safeParseCurrencyFromString(
+      String? raw, {
+        String? tag,
+        CryptoCurrency? walletCurrency,
+      }) {
     if (raw == null || raw.isEmpty) return null;
+
+    if (tag != null && tag.isNotEmpty) {
+      final match = CryptoCurrency.all.firstWhereOrNull(
+            (e) =>
+        e.title.toUpperCase() == raw.toUpperCase() &&
+            e.tag?.toUpperCase() == tag.toUpperCase(),
+      );
+      if (match != null) return match;
+      return null;
+    }
 
     try {
       return CryptoCurrency.fromString(raw, walletCurrency: walletCurrency);
