@@ -111,9 +111,9 @@ class BackgroundSyncPage extends BasePage {
             return SettingsSwitcherCell(
               title: S.current.new_transactions_notifications,
               value: dashboardViewModel.backgroundSyncNotificationsEnabled,
-              onValueChange: (_, bool value) {
+              onValueChange: (_, bool value) async {
                 try {
-                  dashboardViewModel.setBackgroundSyncNotificationsEnabled(value);
+                  await dashboardViewModel.setBackgroundSyncNotificationsEnabled(value);
                 } catch (e) {
                   showPopUp(
                       context: context,
