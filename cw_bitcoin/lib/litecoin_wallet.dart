@@ -189,7 +189,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       ? hex.decode(scanSecretOverride!)
       : mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
 
-  List<int> get spendSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
+  List<int> get spendSecret =>
+      mwebHd?.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw ?? List.filled(32, 0);
 
   static Future<LitecoinWallet> create(
       {required String mnemonic,
