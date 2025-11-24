@@ -195,6 +195,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     PaymentRequest paymentRequest,
     PaymentFlowResult result,
   ) async {
+    if (!context.mounted) {
+      return;
+    }
+
     await showModalBottomSheet<void>(
       context: context,
       isDismissible: true,
@@ -228,6 +232,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     WalletSwitcherViewModel walletSwitcherViewModel,
     PaymentRequest paymentRequest,
   ) async {
+    if (!context.mounted) {
+      return;
+    }
+
     await showModalBottomSheet<void>(
       context: context,
       isDismissible: true,
