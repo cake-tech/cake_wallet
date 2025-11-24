@@ -26,7 +26,7 @@ class CoinAction {
     CoinAction(
         "Receive", SvgPicture.asset("assets/new-ui/receive.svg"), getIt.get<NewReceivePage>(),
         (context) {
-      Navigator.of(context).pushNamed(Routes.receive);
+      Navigator.of(context).pushNamed(Routes.addressPage);
     }),
     CoinAction("Swap", SvgPicture.asset("assets/new-ui/exchange.svg"), getIt.get<NewSwapPage>(),
         (context) {
