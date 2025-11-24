@@ -86,6 +86,8 @@ class Routes {
   static const mwebNode = '/mweb_node';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
+  static const securityBackupDuressPin = '/security_and_backup_duress_pin';
+  static const setupDuressPin = '/setup_duress_pin';
   static const privacyPage = '/privacy_page';
   static const trocadorProvidersPage = '/trocador_providers_page';
   static const domainLookupsPage = '/domain_lookups_page';
