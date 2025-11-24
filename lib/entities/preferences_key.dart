@@ -108,6 +108,7 @@ class PreferencesKey {
   static const moneroSeedType = 'monero_seed_type';
   static const bitcoinSeedType = 'bitcoin_seed_type';
   static const nanoSeedType = 'nano_seed_type';
+  static const decredSeedType = 'decred_seed_type';
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
   static const donationLinkWalletName = 'donation_link_wallet_name';

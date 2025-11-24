@@ -99,7 +99,7 @@ class WalletRestorePage extends BasePage {
                   children: [
                     Observer(
                       builder: (context) {
-                        return walletRestoreViewModel.mode == WalletRestoreMode.seed
+                        return walletRestoreViewModel.walletHasPassphrase 
                             ? StandardCheckbox(
                                 captionColor: Theme.of(context).colorScheme.onSecondaryContainer,
                                 value: walletRestoreViewModel.hasPassphrase,
@@ -605,7 +605,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
     }
 
     if ((walletRestoreViewModel.type == WalletType.decred) &&
-        seedWords.length != WalletRestoreViewModelBase.decredSeedMnemonicLength) {
+        !WalletRestoreViewModelBase.decredSeedMnemonicLengths.contains(seedWords.length)) {
       return false;
     }
 
