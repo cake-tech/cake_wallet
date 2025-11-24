@@ -67,6 +67,10 @@ abstract class WalletCreationVMBase with Store {
   Future<void> create({dynamic options}) async {
     final type = this.type;
     try {
+      if (state is IsExecutingState) {
+        return;
+      }
+
       state = IsExecutingState();
       if (name.isEmpty) {
         name = await generateName();
