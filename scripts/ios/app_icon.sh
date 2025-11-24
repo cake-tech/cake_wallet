@@ -1,5 +1,7 @@
 #!/bin/sh
 
+CONTENTS_JSON_PATH=""
+
 ICON_20_2x_PATH=""
 ICON_20_3x_PATH=""
 ICON_29_2x_PATH=""
@@ -60,6 +62,8 @@ case $APP_IOS_TYPE in
     ICON_DIRECTORY=cakewallet_ios_icons;;
 esac
 
+CONTENTS_JSON_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Contents.json
+
 ICON_20_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-20x20@2x.png
 ICON_20_3x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-20x20@3x.png
 ICON_29_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-29x29@2x.png
@@ -110,6 +114,8 @@ ICON_TINTED_68_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-
 ICON_TINTED_76_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-76x76@2x.png
 ICON_TINTED_83_5_2x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-83.5x83.5@2x.png
 ICON_TINTED_1024_1x_PATH=`pwd`/../../assets/images/ios_icons/$ICON_DIRECTORY/Icon-App-Tinted-1024x1024@1x.png
+
+rm $DEST_DIR_PATH/Contents.json
 
 rm $DEST_DIR_PATH/Icon-App-20x20@2x.png
 rm $DEST_DIR_PATH/Icon-App-20x20@3x.png
@@ -162,6 +168,8 @@ rm $DEST_DIR_PATH/Icon-App-Tinted-76x76@2x.png
 rm $DEST_DIR_PATH/Icon-App-Tinted-83.5x83.5@2x.png
 rm $DEST_DIR_PATH/Icon-App-Tinted-1024x1024@1x.png
 
+ln -s $CONTENTS_JSON_PATH $DEST_DIR_PATH/Contents.json
+
 ln -s $ICON_20_2x_PATH $DEST_DIR_PATH/Icon-App-20x20@2x.png
 ln -s $ICON_20_3x_PATH $DEST_DIR_PATH/Icon-App-20x20@3x.png
 ln -s $ICON_29_2x_PATH $DEST_DIR_PATH/Icon-App-29x29@2x.png
@@ -178,6 +186,10 @@ ln -s $ICON_68_2x_PATH $DEST_DIR_PATH/Icon-App-68x68@2x.png
 ln -s $ICON_76_2x_PATH $DEST_DIR_PATH/Icon-App-76x76@2x.png
 ln -s $ICON_83_5_2x_PATH $DEST_DIR_PATH/Icon-App-83.5x83.5@2x.png
 ln -s $ICON_1024_1x_PATH $DEST_DIR_PATH/Icon-App-1024x1024@1x.png
+
+
+#TODO once the new monero.com icons are out remove if statement
+if [ $APP_IOS_TYPE = "cakewallet" ]; then
 
 ln -s $ICON_DARK_20_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-20x20@2x.png
 ln -s $ICON_DARK_20_3x_PATH $DEST_DIR_PATH/Icon-App-Dark-20x20@3x.png
@@ -212,3 +224,6 @@ ln -s $ICON_TINTED_68_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-68x68@2x.png
 ln -s $ICON_TINTED_76_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-76x76@2x.png
 ln -s $ICON_TINTED_83_5_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-83.5x83.5@2x.png
 ln -s $ICON_TINTED_1024_1x_PATH $DEST_DIR_PATH/Icon-App-Tinted-1024x1024@1x.png
+
+fi
+
