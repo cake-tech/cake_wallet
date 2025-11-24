@@ -13,8 +13,6 @@ dependencies:
   grpc: 4.0.1
   path_provider: ^2.1.2
   plugin_platform_interface: ^2.0.2
-  cw_core:
-    path: ../cw_core
   ffi: ^2.1.0
 
 dev_dependencies:
