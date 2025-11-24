@@ -36,6 +36,9 @@ abstract class DisplaySettingsViewModelBase with Store {
   bool get shouldShowMarketPlaceInDashboard => _settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
+  bool get preferBalanceInSats => _settingsStore.preferBalanceInSats;
+
+  @computed
   MaterialThemeBase get currentTheme => _themeStore.currentTheme;
 
   @computed
@@ -102,6 +105,9 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;
+
+  @action
+  void setPreferBalanceInSats(bool value) => _settingsStore.preferBalanceInSats = value;
 
   @action
   void setShouldDisplayBalance(bool value) {

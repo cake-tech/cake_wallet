@@ -270,8 +270,7 @@ abstract class OutputBase with Store {
 
     try {
       final currency = (isEVMCompatibleChain(_wallet.type) ||
-              _wallet.type == WalletType.solana ||
-              _wallet.type == WalletType.tron)
+              [WalletType.solana, WalletType.tron].contains(_wallet.type))
           ? _wallet.currency
           : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(

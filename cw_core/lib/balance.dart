@@ -2,7 +2,6 @@ abstract class Balance {
   const Balance(this.available, this.additional, {this.secondAvailable, this.secondAdditional});
 
   final int available;
-
   final int additional;
 
   final int? secondAvailable;

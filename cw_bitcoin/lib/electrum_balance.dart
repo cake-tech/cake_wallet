@@ -1,6 +1,8 @@
 import 'dart:convert';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/format_fixed.dart';
 
 class ElectrumBalance extends Balance {
   ElectrumBalance({
@@ -9,6 +11,7 @@ class ElectrumBalance extends Balance {
     required this.frozen,
     this.secondConfirmed = 0,
     this.secondUnconfirmed = 0,
+    this.showInSats = false,
   }) : super(
           confirmed,
           unconfirmed,
@@ -17,9 +20,7 @@ class ElectrumBalance extends Balance {
         );
 
   static ElectrumBalance? fromJSON(String? jsonSource) {
-    if (jsonSource == null) {
-      return null;
-    }
+    if (jsonSource == null) return null;
 
     final decoded = json.decode(jsonSource) as Map;
 
@@ -37,28 +38,41 @@ class ElectrumBalance extends Balance {
   final int frozen;
   int secondConfirmed = 0;
   int secondUnconfirmed = 0;
+  bool showInSats;
 
   @override
-  String get formattedAvailableBalance => bitcoinAmountToString(amount: ((confirmed + unconfirmed) - frozen) );
+  String get formattedAvailableBalance => showInSats
+      ? ((confirmed + unconfirmed) - frozen).toString()
+      : formatFixed(BigInt.from((confirmed + unconfirmed) - frozen), CryptoCurrency.btc.decimals);
 
   @override
-  String get formattedAdditionalBalance => bitcoinAmountToString(amount: unconfirmed);
+  String get formattedAdditionalBalance => showInSats
+      ? unconfirmed.toString()
+      : formatFixed(BigInt.from(unconfirmed), CryptoCurrency.btc.decimals);
 
   @override
   String get formattedUnAvailableBalance {
-    final frozenFormatted = bitcoinAmountToString(amount: frozen);
-    return frozenFormatted == '0.0' ? '' : frozenFormatted;
+    if (frozen == 0) return '';
+    return showInSats
+        ? frozen.toString()
+        : formatFixed(BigInt.from(frozen), CryptoCurrency.btc.decimals);
   }
 
   @override
-  String get formattedSecondAvailableBalance => bitcoinAmountToString(amount: secondConfirmed);
+  String get formattedSecondAvailableBalance => showInSats
+      ? secondConfirmed.toString()
+      : formatFixed(BigInt.from(secondConfirmed), CryptoCurrency.btc.decimals);
 
   @override
-  String get formattedSecondAdditionalBalance => bitcoinAmountToString(amount: secondUnconfirmed);
+  String get formattedSecondAdditionalBalance => showInSats
+      ? secondUnconfirmed.toString()
+      : formatFixed(BigInt.from(secondUnconfirmed), CryptoCurrency.btc.decimals);
 
   @override
-  String get formattedFullAvailableBalance =>
-      bitcoinAmountToString(amount: (confirmed + unconfirmed) + secondConfirmed - frozen);
+  String get formattedFullAvailableBalance => showInSats
+      ? ((confirmed + unconfirmed) + secondConfirmed - frozen).toString()
+      : formatFixed(BigInt.from((confirmed + unconfirmed) + secondConfirmed - frozen),
+          CryptoCurrency.btc.decimals);
 
   String toJSON() => json.encode({
         'confirmed': confirmed,
