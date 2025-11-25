@@ -648,9 +648,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      output.estimatedFee.toString() +
-                                          ' ' +
-                                          sendViewModel.currency.toString(),
+                                      '${output.estimatedFee} ${sendViewModel.feeCurrencySymbol}',
                                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -660,9 +658,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                       child: sendViewModel.isFiatDisabled
                                           ? const SizedBox(height: 14)
                                           : Text(
-                                              output.estimatedFeeFiatAmount +
-                                                  ' ' +
-                                                  sendViewModel.fiat.title,
+                                              '${output.estimatedFeeFiatAmount} ${sendViewModel.fiat.title}',
                                               style:
                                                   Theme.of(context).textTheme.bodySmall!.copyWith(
                                                         fontWeight: FontWeight.w600,
@@ -726,7 +722,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     ),
                   ),
                 ),
-              if (sendViewModel.currency == CryptoCurrency.ltc && sendViewModel.isMwebEnabled)
+              if (sendViewModel.isMwebAvailable)
                 Observer(
                   builder: (_) => Padding(
                     padding: EdgeInsets.only(top: 14),

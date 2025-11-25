@@ -136,6 +136,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
 
+  bool get isMwebAvailable => wallet.currency == CryptoCurrency.ltc && balanceViewModel.mwebEnabled;
+
   bool get isEVMWallet => isEVMCompatibleChain(walletType);
   @action
   void setShowAddressBookPopup(bool value) {
@@ -235,6 +237,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
   CryptoCurrency get currency => wallet.currency;
+
+  String get feeCurrencySymbol =>
+      wallet.currency == CryptoCurrency.btc && _settingsStore.preferBalanceInSats
+          ? "SATS"
+          : currency.toString();
 
   Validator<String> amountValidator(Output output) => AmountValidator(
         currency: walletTypeToCryptoCurrency(wallet.type),
