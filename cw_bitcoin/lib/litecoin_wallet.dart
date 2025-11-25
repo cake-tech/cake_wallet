@@ -185,9 +185,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   final String? scanSecretOverride;
   final String? spendPubkeyOverride;
-  List<int> get scanSecret => scanSecretOverride != null
+  List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
       ? hex.decode(scanSecretOverride!)
-      : mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+      : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ?? List.filled(32, 0);
 
   List<int> get spendSecret =>
       mwebHd?.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw ?? List.filled(32, 0);

@@ -50,12 +50,12 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   final String? scanSecretOverride;
   final String? spendPubkeyOverride;
 
-  List<int> get scanSecret => scanSecretOverride != null
+  List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
       ? hex.decode(scanSecretOverride!)
-      : mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
-  List<int> get spendPubkey => spendPubkeyOverride != null
+      : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ?? List.filled(32, 0);
+  List<int> get spendPubkey => (spendPubkeyOverride != null && spendPubkeyOverride?.isNotEmpty == true)
       ? hex.decode(spendPubkeyOverride!)
-      : mwebHd!.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
+      : mwebHd?.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed ?? List.filled(32, 0);
 
   @override
   Future<void> init() async {
@@ -70,10 +70,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
+    printV("aaaaaa");
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       return null;
     }
-    if ((scanSecret.length < 1 || scanSecret.reduce((a, b) => a + b) == 0) ||
+    if ((scanSecret.length < 1 || scanSecret.reduce((a, b) => a + b) == 0) &&
        (spendPubkey.length < 1 || spendPubkey.reduce((a, b) => a + b) == 0)) {
       return null;
     }
@@ -140,7 +141,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }) {
     if (addressType == SegwitAddresType.mweb) {
       if (mwebAddrs.length == 0) {
-        return "null";
+        return "";
       }
       return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
