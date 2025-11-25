@@ -38,6 +38,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
@@ -185,18 +186,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (isElectrumWallet) {
       bitcoin!.updateFeeRates(wallet);
     }
-    
-    // React to chain changes for EVM wallets (selectedChainId changes)
-    // Observe wallet.currency which is computed from selectedChainId for WalletType.evm
-    // MobX will track the dependency chain: currency -> selectedChainConfig -> selectedChainId
     reaction((_) {
-      if (wallet.type == WalletType.evm) {
+      if (isEVMCompatibleChain(wallet.type)) {
         // Access currency which depends on selectedChainId, so MobX tracks the change
         return wallet.currency;
       }
       return null;
-    }, (_) {
-      // Chain switched - update currencies and refresh token lists
+    }, (_) async {
+      // When chain changes, update currencies and refresh token lists
+      await Future.delayed(const Duration(milliseconds: 100));
       receiveCurrency = wallet.currency;
       depositCurrency = wallet.currency;
       _injectUserEthTokensIntoCurrencyLists();
@@ -849,6 +847,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   void _initialPairBasedOnWallet() {
+    if (isEVMCompatibleChain(wallet.type)) {
+      depositCurrency = wallet.currency;
+      receiveCurrency = CryptoCurrency.xmr;
+      return;
+    }
+
     switch (wallet.type) {
       case WalletType.monero:
         depositCurrency = CryptoCurrency.xmr;

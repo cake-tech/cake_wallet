@@ -115,18 +115,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     unspentCoinsListViewModel.initialSetup().then((_) {
       unspentCoinsListViewModel.resetUnspentCoinsInfoSelections();
     });
-    
-    // React to chain changes for EVM wallets (selectedChainId changes)
-    // Observe wallet.currency which is computed from selectedChainId for WalletType.evm
-    // MobX will track the dependency chain: currency -> selectedChainConfig -> selectedChainId
+
     reaction((_) {
-      if (wallet.type == WalletType.evm) {
+      if (isEVMCompatibleChain(wallet.type)) {
         // Access currency which depends on selectedChainId, so MobX tracks the change
         return wallet.currency;
       }
       return null;
-    }, (_) {
-      // Chain switched - update currencies and selected currency
+    }, (_) async {
+      // When chain changes, update currencies and selected currency
+      await Future.delayed(const Duration(milliseconds: 100));
       currencies = wallet.balance.keys.toList();
       selectedCryptoCurrency = wallet.currency;
       updateSendingBalance();

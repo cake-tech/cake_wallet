@@ -7,6 +7,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
+import 'package:cw_evm/evm_chain_registry.dart';
 
 class EVMChainTransactionInfo extends TransactionInfo {
   EVMChainTransactionInfo({
@@ -71,11 +72,22 @@ class EVMChainTransactionInfo extends TransactionInfo {
     return '${amount.substring(0, min(18, amount.length))} $feeCurrency';
   }
 
-  /// Factory constructor to create from JSON
   factory EVMChainTransactionInfo.fromJson(
     Map<String, dynamic> data,
     WalletType walletType,
   ) {
+    // If chainId is missing, try to infer it from wallet type for old wallet types
+    // This handles backward compatibility with transactions saved before chainId was added
+    int? chainId = data['chainId'] as int?;
+    if (chainId == null) {
+      final registry = EvmChainRegistry();
+      final chainConfig = registry.getChainConfigByWalletType(walletType);
+      chainId = chainConfig?.chainId;
+    }
+
+    // If still null (shouldn't happen for EVM wallets), default to 1 for backward compatibility
+    chainId ??= 1;
+    
     return EVMChainTransactionInfo(
       id: data['id'] as String,
       height: data['height'] as int,
@@ -92,7 +104,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
       evmSignatureName: data['evmSignatureName'] as String?,
       contractAddress: data['contractAddress'] as String?,
       walletType: walletType,
-      chainId: data['chainId'] as int? ?? 1,
+      chainId: chainId,
     );
   }
 

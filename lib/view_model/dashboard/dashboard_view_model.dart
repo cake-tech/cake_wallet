@@ -331,6 +331,26 @@ abstract class DashboardViewModelBase with Store {
 
   bool _isTransactionDisposerCallbackRunning = false;
 
+  @action
+  void _reloadTransactions() {
+    if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero) {
+      return; // Monero/Wownero transactions are handled separately
+    }
+
+    transactions.clear();
+
+    transactions.addAll(
+      wallet.transactionHistory.transactions.values.map(
+        (transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore,
+          key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
+        ),
+      ),
+    );
+  }
+
   void _transactionDisposerCallback(int _) async {
     // Simple check to prevent the callback from being called multiple times in the same frame
     if (_isTransactionDisposerCallbackRunning) return;
@@ -580,15 +600,11 @@ abstract class DashboardViewModelBase with Store {
   Future<void> selectChain(int chainId) async {
     if (!isEVMWallet) return;
 
-    // Get wallet type for the selected chain to retrieve the correct node
-    final walletType = evm!.getWalletTypeByChainId(chainId);
-    if (walletType == null) {
-      throw Exception('Wallet type not found for chainId: $chainId');
-    }
-
+    // For all EVM wallets (both WalletType.evm and old types), use WalletType.evm
+    // with chainId for node lookup since nodes are stored by chainId
     final node = appStore.settingsStore.getCurrentNode(
-      wallet.type == WalletType.evm ? WalletType.evm : walletType,
-      chainId: wallet.type == WalletType.evm ? chainId : null,
+      WalletType.evm,
+      chainId: chainId,
     );
 
     await evm!.selectChain(wallet, chainId, node: node);
@@ -897,6 +913,8 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _transactionDisposer;
 
+  ReactionDisposer? _chainChangeDisposer;
+
   @computed
   bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(wallet.type);
 
@@ -944,7 +962,7 @@ abstract class DashboardViewModelBase with Store {
 
   Future<void> reconnect() async {
     int? chainId;
-    if (wallet.type == WalletType.evm && isEVMWallet) {
+    if (isEVMWallet) {
       chainId = evm!.getSelectedChainId(wallet);
     }
 
@@ -1006,21 +1024,24 @@ abstract class DashboardViewModelBase with Store {
       // subname = null;
       subname = '';
 
-      transactions.clear();
-
-      transactions.addAll(
-        wallet.transactionHistory.transactions.values.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
-            key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
-          ),
-        ),
-      );
+      _reloadTransactions();
     }
 
     _transactionDisposer?.reaction.dispose();
+
+    if (isEVMCompatibleChain(wallet.type)) {
+      _chainChangeDisposer?.reaction.dispose();
+      _chainChangeDisposer = reaction((_) {
+        // Access selectedChainId through proxy to track chain changes
+        return evm!.getSelectedChainId(wallet);
+      }, (_) {
+        // When chain switches, reload transactions for the new chain
+        _reloadTransactions();
+      });
+    } else {
+      _chainChangeDisposer?.reaction.dispose();
+      _chainChangeDisposer = null;
+    }
 
     _transactionDisposer = reaction((_) {
       final length = appStore.wallet!.transactionHistory.transactions.length;
@@ -1128,7 +1149,7 @@ abstract class DashboardViewModelBase with Store {
         if (settingsStore.currentBuiltinTor == false)
           return; // return when tor got disabled in the meantime;
         int? chainId;
-        if (wallet.type == WalletType.evm && isEVMWallet) {
+        if (isEVMWallet) {
           chainId = evm!.getSelectedChainId(wallet);
         }
         await wallet.connectToNode(
@@ -1139,7 +1160,7 @@ abstract class DashboardViewModelBase with Store {
         if (settingsStore.currentBuiltinTor == true)
           return; // return when tor got enabled in the meantime;
         int? chainId;
-        if (wallet.type == WalletType.evm && isEVMWallet) {
+        if (isEVMWallet) {
           chainId = evm!.getSelectedChainId(wallet);
         }
         await wallet.connectToNode(

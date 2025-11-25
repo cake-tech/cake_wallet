@@ -136,9 +136,9 @@ abstract class EVMChainWalletBase
   @override
   @computed
   CryptoCurrency get currency {
-    if (type == WalletType.evm) {
-      final config = selectedChainConfig;
-      return config?.nativeCurrency ?? CryptoCurrency.eth;
+    final config = selectedChainConfig;
+    if (config != null) {
+      return config.nativeCurrency;
     }
 
     return super.currency;
@@ -146,7 +146,7 @@ abstract class EVMChainWalletBase
 
   bool get hasPriorityFee => EVMChainUtils.hasPriorityFee(
         walletInfo.type,
-        chainId: type == WalletType.evm ? selectedChainId : null,
+        chainId: selectedChainId,
       );
 
   /// Get initial chain ID from registry based on wallet type
@@ -231,13 +231,10 @@ abstract class EVMChainWalletBase
     await startSync();
   }
 
-  //! Implemented methods - unified for all chains
-
   void addInitialTokens() {
-    final chainId = type == WalletType.evm ? selectedChainId : null;
     final initialErc20Tokens = EVMChainDefaultTokens.getDefaultTokens(
       walletInfo.type,
-      chainId: chainId,
+      chainId: selectedChainId,
     );
 
     for (final token in initialErc20Tokens) {
@@ -255,11 +252,9 @@ abstract class EVMChainWalletBase
   }
 
   List<String> get getDefaultTokenContractAddresses {
-    // For WalletType.evm, use selectedChainId; for old types, use walletInfo.type
-    final chainId = type == WalletType.evm ? selectedChainId : null;
     return EVMChainDefaultTokens.getDefaultTokenAddresses(
       walletInfo.type,
-      chainId: chainId,
+      chainId: selectedChainId,
     );
   }
 
@@ -270,8 +265,8 @@ abstract class EVMChainWalletBase
       return;
     }
 
-    // For WalletType.evm, use selectedChainId; for old types, use walletInfo.type
-    final chainId = type == WalletType.evm ? selectedChainId : null;
+    final chainId = selectedChainId;
+
     final boxName = EVMChainUtils.getErc20TokensBoxName(
       walletInfo.name,
       walletInfo.type,
@@ -294,10 +289,7 @@ abstract class EVMChainWalletBase
       evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
     }
 
-    // Add initial tokens if box is empty
-    if (evmChainErc20TokensBox.isEmpty) {
-      addInitialTokens();
-    }
+    addInitialTokens();
   }
 
   /// Ethereum-specific initialization with backward compatibility
@@ -571,12 +563,10 @@ abstract class EVMChainWalletBase
   }
 
   int getTotalPriorityFee(EVMChainTransactionPriority priority) {
-    // For WalletType.evm, use selectedChainId; for old types, use walletInfo.type
-    final chainId = type == WalletType.evm ? selectedChainId : null;
     return EVMChainUtils.getTotalPriorityFee(
       priority,
       walletInfo.type,
-      chainId: chainId,
+      chainId: selectedChainId,
     );
   }
 
@@ -1220,9 +1210,14 @@ abstract class EVMChainWalletBase
     final savedChainId = data?['selected_chain_id'] as int?;
 
     final registry = EvmChainRegistry();
+
+    // For old wallet types (base, ethereum, polygon, arbitrum), always default to their
+    // wallet type's chainId when opening, ignoring any saved chainId.
+    // Users can then switch chains if desired.
+    // For WalletType.evm, use saved chainId or default to Ethereum (1)
     final chainId = walletInfo.type == WalletType.evm
         ? (savedChainId ?? 1)
-        : (savedChainId ?? registry.getChainConfigByWalletType(walletInfo.type)?.chainId);
+        : registry.getChainConfigByWalletType(walletInfo.type)?.chainId;
 
     if (chainId == null) {
       throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
@@ -1235,6 +1230,12 @@ abstract class EVMChainWalletBase
 
     final client = EVMChainClientFactory.createClient(chainId);
 
+    // For old wallet types, always use the wallet type's chainId as initialChainId
+    // (ignoring savedChainId to ensure they default to their specific chain)
+    // For WalletType.evm, use savedChainId if available, otherwise the computed chainId
+    final initialChainIdForWallet =
+        walletInfo.type == WalletType.evm ? (savedChainId ?? chainId) : chainId;
+
     return EVMChainWallet(
       walletInfo: walletInfo,
       derivationInfo: await walletInfo.getDerivationInfo(),
@@ -1246,7 +1247,7 @@ abstract class EVMChainWalletBase
       client: client,
       nativeCurrency: chainConfig.nativeCurrency,
       encryptionFileUtils: encryptionFileUtils,
-      initialChainId: savedChainId,
+      initialChainId: initialChainIdForWallet,
     );
   }
 

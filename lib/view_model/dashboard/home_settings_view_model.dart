@@ -35,18 +35,19 @@ abstract class HomeSettingsViewModelBase with Store {
     reaction((_) => _balanceViewModel.wallet, (_) {
       _updateTokensList();
     });
-
-    // React to chain changes for EVM wallets (selectedChainId changes)
-    // Observe wallet.currency which is computed from selectedChainId for WalletType.evm
-    // MobX will track the dependency chain: currency -> selectedChainConfig -> selectedChainId
     reaction((_) {
       final wallet = _balanceViewModel.wallet;
-      if (wallet.type == WalletType.evm) {
-        // Access currency which depends on selectedChainId, so MobX tracks the change
-        return wallet.currency;
+      if (isEVMCompatibleChain(wallet.type)) {
+        // Access currency and selectedChainId through proxy to track chain changes
+        // Also access erc20Currencies length to ensure we react when the token box is reloaded
+        final selectedChainId = evm!.getSelectedChainId(wallet);
+        final erc20Currencies = evm!.getERC20Currencies(wallet);
+        return '${wallet.currency.title}_${selectedChainId}_${erc20Currencies.length}';
       }
       return null;
-    }, (_) {
+    }, (_) async {
+      // When chain changes, wait a bit for token box to reload, then update token list
+      await Future.delayed(const Duration(milliseconds: 200));
       _updateTokensList();
     });
   }

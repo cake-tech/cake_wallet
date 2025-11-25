@@ -159,8 +159,8 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
                                         data: data,
                                         editMode: false,
                                         selected: index == _selectedIndex,
-                                        onTap: () async {
-                                          await widget.onChainSelected(chain.chainId);
+                                        onTap: () {
+                                          widget.onChainSelected(chain.chainId);
                                           if (mounted) {
                                             Navigator.of(context).pop();
                                           }

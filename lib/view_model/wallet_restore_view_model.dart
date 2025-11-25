@@ -246,6 +246,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             seedKey: options['private_key'] as String,
             derivationType: derivationInfo!.derivationType!,
           );
+        case WalletType.evm:
         case WalletType.ethereum:
         case WalletType.polygon:
         case WalletType.base:

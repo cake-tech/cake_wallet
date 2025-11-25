@@ -8,10 +8,11 @@ import 'package:cw_evm/tokens/polygon_tokens.dart';
 /// Default ERC20 tokens for each EVM chain
 class EVMChainDefaultTokens {
   static List<Erc20Token> getDefaultTokens(WalletType walletType, {int? chainId}) {
-    if (walletType == WalletType.evm) {
-      if (chainId == null) {
-        throw Exception('chainId required for WalletType.evm');
-      }
+    if (chainId == null && walletType == WalletType.evm) {
+      throw Exception('chainId required for WalletType.evm');
+    }
+
+    if (chainId != null) {
       return getDefaultTokensByChainId(chainId);
     }
 

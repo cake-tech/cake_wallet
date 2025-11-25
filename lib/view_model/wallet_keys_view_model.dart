@@ -14,6 +14,8 @@ import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:polyseed/polyseed.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 part 'wallet_keys_view_model.g.dart';
 
@@ -21,17 +23,33 @@ class WalletKeysViewModel = WalletKeysViewModelBase with _$WalletKeysViewModel;
 
 abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(this._appStore)
-      : title = '${walletTypeToString(_appStore.wallet!.type)} ${S.current.wallet_keys}',
-        _wallet = _appStore.wallet!,
+      : _wallet = _appStore.wallet!,
         _walletName = _appStore.wallet!.type.name,
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
         _restoreHeightByTransactions = 0,
-        items = ObservableList<StandartListItem>() {
+        items = ObservableList<StandartListItem>(),
+        _title = _getInitialTitle(_appStore.wallet!) {
     _populateKeysItems();
 
     reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
       _populateKeysItems();
     });
+    
+    if (isEVMCompatibleChain(_wallet.type)) {
+      reaction((_) {
+        final wallet = _appStore.wallet;
+        if (wallet != null && isEVMCompatibleChain(wallet.type)) {
+          return evm!.getSelectedChainId(wallet);
+        }
+        return null;
+      }, (_) {
+        final wallet = _appStore.wallet;
+        if (wallet != null && isEVMCompatibleChain(wallet.type)) {
+          final currentChain = evm!.getCurrentChain(wallet);
+          _title = '${currentChain?.name ?? walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
+        }
+      });
+    }
 
     if (_wallet.type == WalletType.monero ||
         _wallet.type == WalletType.haven ||
@@ -48,12 +66,25 @@ abstract class WalletKeysViewModelBase with Store {
       }
     }
   }
+  
+  static String _getInitialTitle(WalletBase wallet) {
+    if (isEVMCompatibleChain(wallet.type)) {
+      final currentChain = evm!.getCurrentChain(wallet);
+      return '${currentChain?.name ?? walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
+    } else {
+      return '${walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
+    }
+  }
 
   bool get isBitcoin => _wallet.type == WalletType.bitcoin;
 
   final ObservableList<StandartListItem> items;
 
-  final String title;
+  @observable
+  String _title;
+  
+  String get title => _title;
+  
   final WalletBase _wallet;
   final String _walletName;
   final AppStore _appStore;

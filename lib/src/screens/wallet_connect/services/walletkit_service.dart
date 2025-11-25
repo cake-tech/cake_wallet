@@ -12,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_service.dart';
@@ -106,21 +105,22 @@ abstract class WalletKitServiceBase with Store {
     List<ChainKeyModel> chainKeys = walletKeyService.getKeys(appStore.wallet!);
     for (final chainKey in chainKeys) {
       for (final chainId in chainKey.chains) {
-        int? evmChainId;
-        if (appStore.wallet!.type == WalletType.evm) {
-          evmChainId = evm!.getSelectedChainId(appStore.wallet!);
-        }
-        final chainNameSpace = getChainNameSpaceAndIdBasedOnWalletType(
-          appStore.wallet!.type,
-          chainId: evmChainId,
-        );
-        if (chainNameSpace == chainId) {
-          final account = '$chainId:${chainKey.publicKey}';
-          debugPrint('registerAccount $account');
+        if (isEVMCompatibleChain(appStore.wallet!.type)) {
+          // Register account for all EVM chains (chainId is already in eip155:format)
           _walletKit.registerAccount(
             chainId: chainId,
             accountAddress: chainKey.publicKey,
           );
+        } else {
+          final chainNameSpace = getChainNameSpaceAndIdBasedOnWalletType(
+            appStore.wallet!.type,
+          );
+          if (chainNameSpace == chainId) {
+            _walletKit.registerAccount(
+              chainId: chainId,
+              accountAddress: chainKey.publicKey,
+            );
+          }
         }
       }
     }
@@ -390,6 +390,14 @@ abstract class WalletKitServiceBase with Store {
   @action
   void _onPairingCreate(PairingEvent? args) {
     debugPrint('_onPairingCreate $args');
+
+    if (args != null && args.topic != null && args.topic!.isNotEmpty) {
+      // Save the pairing topic when pairing is created
+      savePairingTopicToLocalStorage(args.topic!);
+
+      // Refresh pairings to show the new pairing in the list
+      _refreshPairings();
+    }
   }
 
   Future<void> _onSessionAuthRequest(SessionAuthRequest? args) async {
@@ -570,9 +578,11 @@ abstract class WalletKitServiceBase with Store {
     final filteredPairings = allPairings.where(
       (pairing) {
         bool isInCurrentTopics = currentTopicsForWallet.contains(pairing.topic);
-        bool isActive = pairing.active;
+        // bool isActive = pairing.active;
+        // bool hasSession = sessions.any((session) => session.pairingTopic == pairing.topic);
 
-        return isInCurrentTopics && isActive;
+        // return isInCurrentTopics && isActive;
+        return isInCurrentTopics;
       },
     ).toList();
 
@@ -585,16 +595,30 @@ abstract class WalletKitServiceBase with Store {
   }
 
   String getKeyForStoringTopicsForWallet() {
-    List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
+    try {
+      // For EVM wallets (both WalletType.evm and old types), use getKeys() to get all EVM keys
+      // since the same address works across all EVM chains. For non-EVM wallets, use getKeysForChain()
+      // to get keys specific to the current chain.
+      List<ChainKeyModel> chainKeys;
+      if (isEVMCompatibleChain(appStore.wallet!.type)) {
+        chainKeys = walletKeyService.getKeys(appStore.wallet!);
 
-    if (chainKeys.isEmpty) {
+        chainKeys = chainKeys
+            .where((key) => key.chains.any((chain) => chain.startsWith('eip155:')))
+            .toList();
+      } else {
+        chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
+      }
+
+      if (chainKeys.isEmpty) return '';
+
+      final publicKey = chainKeys.first.publicKey;
+      if (publicKey.isEmpty) return '';
+
+      return PreferencesKey.walletConnectPairingTopicsListForWallet(publicKey);
+    } catch (e) {
       return '';
-    }
-
-    final keyForPairingTopic =
-        PreferencesKey.walletConnectPairingTopicsListForWallet(chainKeys.first.publicKey);
-
-    return keyForPairingTopic;
+    } 
   }
 
   List<String> getPairingTopicsForWallet(String key) {
@@ -623,7 +647,8 @@ abstract class WalletKitServiceBase with Store {
     final pairingTopicsForWallet = getPairingTopicsForWallet(key);
 
     bool isPairingTopicAlreadySaved = pairingTopicsForWallet.contains(pairingTopic);
-    debugPrint('Is Pairing Topic Saved: $isPairingTopicAlreadySaved');
+    debugPrint(
+        'Is Pairing Topic Saved: $isPairingTopicAlreadySaved, Key: $key, Topic: $pairingTopic');
 
     if (!isPairingTopicAlreadySaved) {
       // Update the list with the most recent pairing topic

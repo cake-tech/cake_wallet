@@ -135,32 +135,28 @@ class CryptoBalanceWidget extends StatelessWidget {
                                     ),
                                   if (dashboardViewModel.isEVMWallet &&
                                       dashboardViewModel.availableChains.isNotEmpty)
-                                    Observer(
-                                      builder: (_) {
-                                        return TextButton(
-                                          style: TextButton.styleFrom(
-                                            minimumSize: Size(50, 30),
-                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                            alignment: Alignment.centerLeft,
-                                          ),
-                                          onPressed: () => showDialog(
-                                            context: context,
-                                            builder: (context) => EvmSwitcher(
-                                              chains: dashboardViewModel.availableChains,
-                                              currentChain: dashboardViewModel.currentChain,
-                                              onChainSelected: (chainId) =>
-                                                  dashboardViewModel.selectChain(chainId),
-                                            ),
-                                          ),
-                                          child: Container(
-                                            child: SvgPicture.asset(
-                                              'assets/images/evm_switcher.svg',
-                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                              height: 30,
-                                            ),
-                                          ),
-                                        );
-                                      },
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                        minimumSize: Size(50, 30),
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        alignment: Alignment.centerLeft,
+                                      ),
+                                      onPressed: () => showDialog(
+                                        context: context,
+                                        builder: (context) => EvmSwitcher(
+                                          chains: dashboardViewModel.availableChains,
+                                          currentChain: dashboardViewModel.currentChain,
+                                          onChainSelected: (chainId) =>
+                                              dashboardViewModel.selectChain(chainId),
+                                        ),
+                                      ),
+                                      child: Container(
+                                        child: SvgPicture.asset(
+                                          'assets/images/evm_switcher.svg',
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          height: 30,
+                                        ),
+                                      ),
                                     ),
                                 ],
                               );

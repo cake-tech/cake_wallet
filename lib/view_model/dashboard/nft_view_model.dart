@@ -6,6 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:mobx/mobx.dart';
@@ -47,7 +48,11 @@ abstract class NFTViewModelBase with Store {
     final walletAddress = appStore.wallet!.walletInfo.address;
     log('Fetching wallet NFTs for $walletAddress');
 
-    final chainName = getChainNameBasedOnWalletType(walletType);
+    int? chainId;
+    if (isEVMCompatibleChain(walletType)) {
+      chainId = evm!.getSelectedChainId(appStore.wallet!);
+    }
+    final chainName = getChainNameBasedOnWalletType(walletType, chainId: chainId);
     // the [chain] refers to the chain network that the nft is on
     // the [format] refers to the number format type of the responses
     // the [normalizedMetadata] field is a boolean that determines if
@@ -107,7 +112,7 @@ abstract class NFTViewModelBase with Store {
         solanaNftAssetModels.addAll(results);
       } else {
         final result =
-            WalletNFTsResponseModel.fromJson(decodedResponse as Map<String, dynamic>).result ?? [];
+            WalletNFTsResponseModel.fromJson(decodedResponse).result ?? [];
 
         nftAssetByWalletModels.clear();
 
@@ -147,7 +152,12 @@ abstract class NFTViewModelBase with Store {
 
   @action
   Future<void> importNFT(String tokenAddress, String? tokenId) async {
-    final chainName = getChainNameBasedOnWalletType(appStore.wallet!.type);
+    final walletType = appStore.wallet!.type;
+    int? chainId;
+    if (isEVMCompatibleChain(walletType)) {
+      chainId = evm!.getSelectedChainId(appStore.wallet!);
+    }
+    final chainName = getChainNameBasedOnWalletType(walletType, chainId: chainId);
     // the [chain] refers to the chain network that the nft is on
     // the [format] refers to the number format type of the responses
     // the [normalizedMetadata] field is a boolean that determines if

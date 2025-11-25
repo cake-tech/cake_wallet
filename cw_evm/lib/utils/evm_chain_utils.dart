@@ -6,17 +6,16 @@ import 'package:web3dart/web3dart.dart' show EtherAmount, EtherUnit;
 
 /// Utility class for chain-specific EVM chain operations
 class EVMChainUtils {
-  /// Get priority fee calculation based on wallet type or chainId
   static int getTotalPriorityFee(
     EVMChainTransactionPriority priority,
     WalletType walletType, {
     int? chainId,
   }) {
-    // Handle WalletType.evm with chainId
-    if (walletType == WalletType.evm) {
-      if (chainId == null) {
-        throw Exception('chainId required for WalletType.evm');
-      }
+    if (chainId == null && walletType == WalletType.evm) {
+      throw Exception('chainId required for WalletType.evm');
+    }
+
+    if (chainId != null) {
       return getTotalPriorityFeeByChainId(priority, chainId);
     }
 
@@ -29,11 +28,7 @@ class EVMChainUtils {
     };
   }
 
-  /// Get priority fee by chainId
-  static int getTotalPriorityFeeByChainId(
-    EVMChainTransactionPriority priority,
-    int chainId,
-  ) {
+  static int getTotalPriorityFeeByChainId(EVMChainTransactionPriority priority, int chainId) {
     return switch (chainId) {
       1 => _ethereumPriorityFee(priority),
       137 => _polygonPriorityFee(priority),
@@ -46,22 +41,20 @@ class EVMChainUtils {
   /// Check if chain supports priority fees
   /// For WalletType.evm, chainId must be provided
   static bool hasPriorityFee(WalletType walletType, {int? chainId}) {
-    // Handle WalletType.evm with chainId
-    if (walletType == WalletType.evm) {
-      if (chainId == null) {
-        throw Exception('chainId required for WalletType.evm');
-      }
+    if (chainId == null && walletType == WalletType.evm) {
+      throw Exception('chainId required for WalletType.evm');
+    }
+
+    if (chainId != null) {
       return hasPriorityFeeByChainId(chainId);
     }
 
-    // Handle old wallet types
     return switch (walletType) {
       WalletType.arbitrum => false,
       _ => true,
     };
   }
 
-  /// Check if chain supports priority fees by chainId
   static bool hasPriorityFeeByChainId(int chainId) {
     return switch (chainId) {
       42161 => false, // Arbitrum doesn't use priority fees
@@ -71,16 +64,13 @@ class EVMChainUtils {
 
   static String getErc20TokensBoxName(String walletName, WalletType walletType, {int? chainId}) {
     final sanitizedName = walletName.replaceAll(" ", "_");
-    
-    // Handle WalletType.evm with chainId
-    if (walletType == WalletType.evm) {
-      if (chainId == null) {
-        throw Exception('chainId required for WalletType.evm');
-      }
+
+    if (chainId != null) {
       return getErc20TokensBoxNameByChainId(sanitizedName, chainId);
     }
-    
+
     return switch (walletType) {
+      WalletType.evm => throw Exception('chainId required for WalletType.evm'),
       WalletType.ethereum => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
       WalletType.polygon => "${sanitizedName}_${Erc20Token.polygonBoxName}",
       WalletType.base => "${sanitizedName}_${Erc20Token.baseBoxName}",
@@ -89,7 +79,6 @@ class EVMChainUtils {
     };
   }
 
-  /// Get ERC20 tokens box name by chainId
   static String getErc20TokensBoxNameByChainId(String sanitizedName, int chainId) {
     return switch (chainId) {
       1 => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
@@ -100,26 +89,23 @@ class EVMChainUtils {
     };
   }
 
-  /// Get transaction history file name for a chain ID
   static String getTransactionHistoryFileNameByChainId(int chainId) {
     return switch (chainId) {
       1 => 'transactions.json', // Ethereum
-      137 => 'polygon_transactions.json', // Polygon
-      8453 => 'base_transactions.json', // Base
-      42161 => 'arbitrum_transactions.json', // Arbitrum
+      137 => 'polygon_transactions.json',
+      8453 => 'base_transactions.json',
+      42161 => 'arbitrum_transactions.json',
       _ => 'transactions_$chainId.json', // Generic format for other chains
     };
   }
 
-  /// Get transaction history file name for a wallet type (convenience wrapper)
-  /// Looks up the default chainId for the wallet type and returns the file name
   static String getTransactionHistoryFileName(WalletType walletType) {
     final registry = EvmChainRegistry();
     final chainId = registry.getChainIdByWalletType(walletType);
     if (chainId != null) {
       return getTransactionHistoryFileNameByChainId(chainId);
     }
-    // Fallback to Ethereum if wallet type not found
+
     return 'transactions.json';
   }
 
@@ -134,7 +120,6 @@ class EVMChainUtils {
     };
   }
 
-  /// Get default token tag for a wallet type
   static String getDefaultTokenTag(WalletType walletType) {
     return switch (walletType) {
       WalletType.ethereum => 'ETH',
@@ -145,7 +130,6 @@ class EVMChainUtils {
     };
   }
 
-  /// Get fee currency symbol for a wallet type
   static String getFeeCurrency(WalletType walletType) {
     return switch (walletType) {
       WalletType.ethereum => 'ETH',
@@ -156,7 +140,6 @@ class EVMChainUtils {
     };
   }
 
-  /// Get default token symbol for a wallet type
   static String getDefaultTokenSymbol(WalletType walletType) {
     return switch (walletType) {
       WalletType.ethereum => 'ETH',
@@ -167,7 +150,6 @@ class EVMChainUtils {
     };
   }
 
-  // Ethereum priority fee calculation
   static int _ethereumPriorityFee(EVMChainTransactionPriority priority) {
     return EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
   }
@@ -188,7 +170,6 @@ class EVMChainUtils {
     return minPriorityFeeWei + additionalPriorityFee;
   }
 
-  // Base priority fee calculation (in mwei)
   static int _basePriorityFee(EVMChainTransactionPriority priority) {
     return switch (priority) {
       EVMChainTransactionPriority.fast => EtherAmount.fromInt(EtherUnit.mwei, 5).getInWei.toInt(),
