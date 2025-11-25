@@ -1,6 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/format_amount.dart';
-import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 
@@ -25,8 +24,7 @@ class MoneroTransactionInfo extends TransactionInfo {
   String? _fiatAmount;
 
   @override
-  String amountFormatted() =>
-      '${formatFixed(BigInt.from(amount), CryptoCurrency.xmr.decimals)} XMR';
+  String amountFormatted() => '${CryptoCurrency.xmr.formatAmount(BigInt.from(amount))} XMR';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -35,5 +33,5 @@ class MoneroTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() => '${formatFixed(BigInt.from(fee), CryptoCurrency.xmr.decimals)} XMR';
+  String feeFormatted() => '${CryptoCurrency.xmr.formatAmount(BigInt.from(fee))} XMR';
 }

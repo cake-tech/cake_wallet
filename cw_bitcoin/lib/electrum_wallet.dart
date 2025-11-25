@@ -253,9 +253,6 @@ abstract class ElectrumWalletBase
     return isMempoolAPIEnabled;
   }
 
-  Future<bool> checkIfShouldShowInSats() async =>
-      (await sharedPrefs.future).getBool("prefer_sats") ?? false;
-
   @action
   Future<void> setSilentPaymentsScanning(bool active) async {
     silentPaymentsScanningActive = active;
@@ -2440,8 +2437,6 @@ abstract class ElectrumWalletBase
   }
 
   Future<ElectrumBalance> fetchBalances() async {
-    final showInSats = await checkIfShouldShowInSats();
-
     final addresses = walletAddresses.allAddresses
         .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
         .toList();
@@ -2493,8 +2488,7 @@ abstract class ElectrumWalletBase
       // if we got null balance responses from the server, set our connection status to lost and return our last known balance:
       printV("got null balance responses from the server, setting connection status to lost");
       syncStatus = LostConnectionSyncStatus();
-      return balance[currency] ??
-          ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0, showInSats: showInSats);
+      return balance[currency] ?? ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
     }
 
     for (var i = 0; i < balances.length; i++) {
@@ -2516,7 +2510,6 @@ abstract class ElectrumWalletBase
       confirmed: totalConfirmed,
       unconfirmed: totalUnconfirmed,
       frozen: totalFrozen,
-      showInSats: showInSats,
     );
   }
 

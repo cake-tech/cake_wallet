@@ -6,7 +6,6 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
@@ -226,11 +225,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   @override
   String amountFormatted() =>
-      '${formatFixed(BigInt.from(amount), walletTypeToCryptoCurrency(type).decimals)} ${walletTypeToCryptoCurrency(type).title}';
+      '${walletTypeToCryptoCurrency(type).formatAmount(BigInt.from(amount))} ${walletTypeToCryptoCurrency(type).title}';
 
   @override
   String? feeFormatted() => fee != null
-      ? '${formatFixed(BigInt.from(fee!), walletTypeToCryptoCurrency(type).decimals)} ${walletTypeToCryptoCurrency(type).title}'
+      ? '${walletTypeToCryptoCurrency(type).formatAmount(BigInt.from(fee!))} ${walletTypeToCryptoCurrency(type).title}'
       : '';
 
   @override

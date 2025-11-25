@@ -330,6 +330,15 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addElectrumListItems(TransactionInfo tx, DateFormat dateFormat) {
+
+    String amountFormatted = tx.amountFormatted();
+    String? feeFormatted = tx.feeFormatted();
+
+    if (wallet.type == WalletType.bitcoin && settingsStore.preferBalanceInSats){
+      amountFormatted = "${tx.amount}";
+      if (tx.fee != null) feeFormatted = "${tx.fee}";
+    }
+
     final _items = [
       StandartListItem(
         title: S.current.transaction_details_transaction_id,
@@ -353,13 +362,13 @@ abstract class TransactionDetailsViewModelBase with Store {
       ),
       StandartListItem(
         title: S.current.transaction_details_amount,
-        value: tx.amountFormatted(),
+        value: amountFormatted,
         key: ValueKey('standard_list_item_transaction_details_amount_key'),
       ),
       if (tx.feeFormatted()?.isNotEmpty ?? false)
         StandartListItem(
           title: S.current.transaction_details_fee,
-          value: tx.feeFormatted()!,
+          value: feeFormatted!,
           key: ValueKey('standard_list_item_transaction_details_fee_key'),
         ),
     ];

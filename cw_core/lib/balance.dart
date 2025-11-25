@@ -1,5 +1,6 @@
+/// Balance Data class with all amounts in the lowest possible currency (e.g. satoshis or wei)
 abstract class Balance {
-  const Balance(this.available, this.additional, {this.secondAvailable, this.secondAdditional});
+  const Balance(this.available, this.additional, {this.secondAvailable, this.secondAdditional, this.frozen});
 
   final int available;
   final int additional;
@@ -7,10 +8,10 @@ abstract class Balance {
   final int? secondAvailable;
   final int? secondAdditional;
 
-  String get formattedAvailableBalance;
-  String get formattedAdditionalBalance;
+  final int? frozen;
+
+  int get fullAvailableBalance => available;
+
+  @deprecated
   String get formattedUnAvailableBalance => '';
-  String get formattedSecondAvailableBalance => '';
-  String get formattedSecondAdditionalBalance => '';
-  String get formattedFullAvailableBalance => formattedAvailableBalance;
 }

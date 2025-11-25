@@ -184,7 +184,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]')),
                       ],
-                      hintText: hintText ?? '0.0000',
+                      hintText: hintText ?? (selectedCurrencyDecimals == 0 ? '0' : '0.0000'),
                       fillColor: fillColor,
                       textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontSize: 16,
@@ -198,8 +198,13 @@ class CurrencyAmountTextField extends StatelessWidget {
                           ),
                       validator: isAmountEditable ? currencyValueValidator : null,
                       onChanged: (value) {
-                        final sanitized =
+                        var sanitized =
                             value.replaceAll(',', '.').withMaxDecimals(selectedCurrencyDecimals);
+
+                        if (selectedCurrencyDecimals == 0) {
+                          sanitized = sanitized.replaceAll('.', '');
+                        }
+
                         if (sanitized != amountController.text) {
                           // Update text while preserving a sane cursor position to avoid auto-selection
                           amountController.value = amountController.value.copyWith(

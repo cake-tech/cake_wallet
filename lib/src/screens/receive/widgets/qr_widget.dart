@@ -204,7 +204,7 @@ class QRWidget extends StatelessWidget {
                               borderWidth: 0.0,
                               selectedCurrency: _currencyName,
                               selectedCurrencyDecimals:
-                                  addressListViewModel.selectedCurrency.decimals,
+                                  addressListViewModel.selectedCurrencyDecimals,
                               amountFocusNode: amountTextFieldFocusNode,
                               amountController: amountController,
                               padding: EdgeInsets.only(top: 20, left: _width / 4),
@@ -283,6 +283,7 @@ class QRWidget extends StatelessWidget {
 
   String get _currencyName {
     if (addressListViewModel.selectedCurrency is CryptoCurrency) {
+      if (addressListViewModel.useSatoshis) return "SATS";
       return (addressListViewModel.selectedCurrency as CryptoCurrency).title.toUpperCase();
     }
     return addressListViewModel.selectedCurrency.name.toUpperCase();
