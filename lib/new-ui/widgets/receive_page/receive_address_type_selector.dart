@@ -27,7 +27,6 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
     _otherOptionsExpanded = !widget.receiveOptionViewModel.selectedReceiveOption.isCommon;
   }
 
-
   @override
   Widget build(BuildContext context) {
     final commonOptions =
@@ -98,40 +97,52 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                   ),
                   child: Column(
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _otherOptionsExpanded = !_otherOptionsExpanded;
-                          });
-                        },
-                        child: Container(
-                          height: 64.0,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "More options",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).colorScheme.primary),
-                                ),
-                                AnimatedRotation(
-                                    duration: ReceiveAddressTypeSelector.otherOptionsExpandDuration,
-                                    turns: _otherOptionsExpanded? 0.0:0.5,
-                                    curve: Curves.easeOut,
-                                    child: SvgPicture.asset("assets/new-ui/dropdown_arrow.svg"))
-                              ],
+                      Material(
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                            bottom: _otherOptionsExpanded ? Radius.zero : Radius.circular(20)),
+                        child: InkWell(
+                          highlightColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
+                              bottom: !_otherOptionsExpanded ? Radius.zero : Radius.circular(20)),
+                          onTap: () {
+                            setState(() {
+                              _otherOptionsExpanded = !_otherOptionsExpanded;
+                            });
+                          },
+                          child: Container(
+                            height: 64.0,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "More options",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Theme.of(context).colorScheme.primary),
+                                  ),
+                                  AnimatedRotation(
+                                      duration:
+                                          ReceiveAddressTypeSelector.otherOptionsExpandDuration,
+                                      turns: _otherOptionsExpanded ? 0.0 : 0.5,
+                                      curve: Curves.easeOut,
+                                      child: SvgPicture.asset("assets/new-ui/dropdown_arrow.svg"))
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      if(_otherOptionsExpanded) Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 27.0),
-                        child: HorizontalSectionDivider(),
-                      ),
+                      if (_otherOptionsExpanded)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 27.0),
+                          child: HorizontalSectionDivider(),
+                        ),
                       AnimatedSize(
                         duration: ReceiveAddressTypeSelector.otherOptionsExpandDuration,
                         curve: Curves.easeOut,
@@ -150,7 +161,8 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                 option: opt,
                                 roundedTop: index == 0,
                                 roundedBottom: index == otherOptions.length - 1,
-                                selected: widget.receiveOptionViewModel.selectedReceiveOption == opt,
+                                selected:
+                                    widget.receiveOptionViewModel.selectedReceiveOption == opt,
                                 onItemTap: () {
                                   widget.receiveOptionViewModel.selectReceiveOption(opt);
                                   Navigator.of(context).pop();
@@ -197,58 +209,66 @@ class ReceiveAddressTypeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onItemTap,
-      child: Container(
-        height: rowHeight,
-        decoration: BoxDecoration(
-            color:
-                selected ? Theme.of(context).colorScheme.surfaceContainerHigh : Colors.transparent,
-            borderRadius: BorderRadius.vertical(
-              top: roundedTop ? Radius.circular(20) : Radius.zero,
-              bottom: roundedBottom ? Radius.circular(20) : Radius.zero,
-            )),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Row(
-                children: [
-                  if (option.iconPath != null)
-                    SvgPicture.asset(option.iconPath!, width: iconSize, height: iconSize)
-                  else
-                    Container(width: iconSize, height: iconSize),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          option.value,
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurface),
-                        ),
-                        if (option.description != null)
+    return Material(
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      borderRadius: BorderRadius.vertical(
+        top: roundedTop ? Radius.circular(20) : Radius.zero,
+        bottom: roundedBottom ? Radius.circular(20) : Radius.zero,
+      ),
+      child: InkWell(
+        onTap: onItemTap,
+        child: Container(
+          height: rowHeight,
+          decoration: BoxDecoration(
+              color: selected
+                  ? Theme.of(context).colorScheme.surfaceContainerHigh
+                  : Colors.transparent,
+              borderRadius: BorderRadius.vertical(
+                top: roundedTop ? Radius.circular(20) : Radius.zero,
+                bottom: roundedBottom ? Radius.circular(20) : Radius.zero,
+              )),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Row(
+                  children: [
+                    if (option.iconPath != null)
+                      SvgPicture.asset(option.iconPath!, width: iconSize, height: iconSize)
+                    else
+                      Container(width: iconSize, height: iconSize),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            option.description!,
+                            option.value,
                             style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          )
-                      ],
-                    ),
-                  )
-                ],
-              ),
-              RoundedCheckbox(value: selected)
-            ],
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.onSurface),
+                          ),
+                          if (option.description != null)
+                            Text(
+                              option.description!,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                RoundedCheckbox(value: selected)
+              ],
+            ),
           ),
         ),
       ),

@@ -1,16 +1,14 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_selector.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_input.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_bottom_buttons.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_seed_type_selector.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_seed_type.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:mobx/mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
@@ -108,7 +106,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       },
                       largeQrMode: _largeQrMode,
                     ),
-                    ReceiveSeedTypeSelector(
+                    ReceiveSeedTypeDisplay(
                       receiveOptionViewModel: widget.receiveOptionViewModel,
                     ),
                     ReceiveSeedWidget(
