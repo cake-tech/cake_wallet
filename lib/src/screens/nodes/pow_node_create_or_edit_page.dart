@@ -120,7 +120,6 @@ class PowNodeCreateOrEditPage extends BasePage {
           content: NodeForm(
             formKey: _formKey,
             nodeViewModel: nodeCreateOrEditViewModel,
-            editingNode: editingNode,
           ),
           bottomSectionPadding: EdgeInsets.only(bottom: 24),
           bottomSection: Observer(

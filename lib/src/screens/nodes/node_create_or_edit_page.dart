@@ -84,8 +84,6 @@ class NodeCreateOrEditPage extends BasePage {
         content: NodeForm(
           formKey: _formKey,
           nodeViewModel: nodeCreateOrEditViewModel,
-          editingNode: editingNode,
-          type: type,
         ),
         bottomSectionPadding: const EdgeInsets.only(bottom: 24),
         bottomSection: Observer(
