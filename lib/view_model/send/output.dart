@@ -24,6 +24,7 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/format_fixed.dart';
+import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -94,6 +95,9 @@ abstract class OutputBase with Store {
   bool get isParsedAddress =>
       parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
 
+  @computed
+  bool get useSatoshis => walletType == WalletType.bitcoin && _settingsStore.preferBalanceInSats;
+
   @observable
   String? stealthAddress;
 
@@ -113,7 +117,11 @@ abstract class OutputBase with Store {
           case WalletType.litecoin:
           case WalletType.bitcoinCash:
           case WalletType.dogecoin:
-            _amount = bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
+            if (useSatoshis) {
+              _amount = int.parse(_cryptoAmount);
+            } else {
+              _amount = bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
+            }
             break;
           case WalletType.decred:
             _amount = decred!.formatterStringDoubleToDecredAmount(_cryptoAmount);
@@ -191,11 +199,9 @@ abstract class OutputBase with Store {
                 _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
           }
 
-          if (_settingsStore.preferBalanceInSats) {
-            estimatedFee = "$fee";
-          } else {
-            estimatedFee = walletTypeToCryptoCurrency(_wallet.type).formatAmount(BigInt.from(fee));
-          }
+          estimatedFee = useSatoshis
+              ? "$fee"
+              : walletTypeToCryptoCurrency(_wallet.type).formatAmount(BigInt.from(fee));
           break;
         case WalletType.solana:
           estimatedFee = solana!.getEstimateFees(_wallet).toString();
@@ -273,7 +279,7 @@ abstract class OutputBase with Store {
           : cryptoCurrencyHandler();
 
       var cryptoAmount = double.parse(estimatedFee);
-      if (_settingsStore.preferBalanceInSats) {
+      if (useSatoshis) {
         cryptoAmount = double.parse(currency.formatAmount(BigInt.parse(estimatedFee)));
       }
 
@@ -341,10 +347,16 @@ abstract class OutputBase with Store {
   @action
   void _updateFiatAmount() {
     try {
+      var cryptoAmount_ = sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.');
+
+      if (useSatoshis) {
+        cryptoAmount_ =
+            walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.parse(cryptoAmount_));
+      }
+
       final fiat = calculateFiatAmount(
           price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
-          cryptoAmount:
-              sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.'));
+          cryptoAmount: cryptoAmount_);
       if (fiatAmount != fiat) {
         fiatAmount = fiat;
       }
@@ -360,7 +372,11 @@ abstract class OutputBase with Store {
           _fiatConversationStore.prices[cryptoCurrencyHandler()]!;
       final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
       if (cryptoAmount != cryptoAmountTmp) {
-        cryptoAmount = cryptoAmountTmp;
+        if (useSatoshis) {
+          cryptoAmount = parseFixed(cryptoAmountTmp, 8).toString();
+        } else {
+          cryptoAmount = cryptoAmountTmp;
+        }
       }
     } catch (e) {
       cryptoAmount = '';

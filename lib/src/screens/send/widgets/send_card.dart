@@ -506,8 +506,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 sendAllButtonKey: ValueKey('send_page_send_all_button_key'),
                 currencyAmountTextFieldWidgetKey:
                     ValueKey('send_page_crypto_currency_amount_textfield_widget_key'),
-                selectedCurrency: sendViewModel.selectedCryptoCurrency.title,
-                selectedCurrencyDecimals: sendViewModel.selectedCryptoCurrency.decimals,
+                selectedCurrency: output.useSatoshis ? "SATS" : sendViewModel.selectedCryptoCurrency.title,
+                selectedCurrencyDecimals: output.useSatoshis ? 0 : sendViewModel.selectedCryptoCurrency.decimals,
                 amountFocusNode: widget.cryptoAmountFocus,
                 amountController: cryptoAmountController,
                 isAmountEditable: true,
