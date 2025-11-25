@@ -5,8 +5,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class ReceiveSeedTypeSelector extends StatelessWidget {
-  const ReceiveSeedTypeSelector({super.key, required this.receiveOptionViewModel});
+class ReceiveSeedTypeDisplay extends StatelessWidget {
+  const ReceiveSeedTypeDisplay({super.key, required this.receiveOptionViewModel});
 
   final ReceiveOptionViewModel receiveOptionViewModel;
 
@@ -14,6 +14,7 @@ class ReceiveSeedTypeSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => _showPicker(context),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -47,7 +48,7 @@ class ReceiveSeedTypeSelector extends StatelessWidget {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 constraints: BoxConstraints(),
-                onPressed: () {},
+                onPressed: () => _showPicker(context),
                 icon: (Icon(
                   color: Theme.of(context).colorScheme.primary,
                   size: 20,
