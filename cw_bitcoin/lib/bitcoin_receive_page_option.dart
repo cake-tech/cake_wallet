@@ -1,25 +1,45 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_core/receive_page_option.dart';
 
 class BitcoinReceivePageOption implements ReceivePageOption {
-  static const p2wpkh = BitcoinReceivePageOption._('Segwit (P2WPKH) (Default)');
-  static const p2sh = BitcoinReceivePageOption._('Segwit-Compatible (P2SH)');
-  static const p2tr = BitcoinReceivePageOption._('Taproot (P2TR)');
-  static const p2wsh = BitcoinReceivePageOption._('Segwit (P2WSH)');
-  static const p2pkh = BitcoinReceivePageOption._('Legacy (P2PKH)');
+  static const p2wpkh = BitcoinReceivePageOption._('Standard',
+      description: "Default (P2WPKH)",
+      iconPath: "assets/new-ui/address-type-picker-icons/btc_standard.svg",
+      isCommon: true);
+  static const p2sh = BitcoinReceivePageOption._('Segwit-Compatible',
+      description: "P2SK", iconPath: "assets/new-ui/address-type-picker-icons/segwit.svg");
+  static const p2tr = BitcoinReceivePageOption._('Taproot',
+      description: "P2TR", iconPath: "assets/new-ui/address-type-picker-icons/taproot.svg");
+  static const p2wsh = BitcoinReceivePageOption._('Segwit',
+      description: "P2WSH", iconPath: "assets/new-ui/address-type-picker-icons/segwit.svg");
+  static const p2pkh = BitcoinReceivePageOption._('Legacy',
+      description: "P2PKH", iconPath: "assets/new-ui/address-type-picker-icons/legacy.svg");
   static const mweb = BitcoinReceivePageOption._('MWEB');
 
-  static const silent_payments = BitcoinReceivePageOption._('Silent Payments');
+  static const silent_payments = BitcoinReceivePageOption._('Silent Payments',
+      description: "Privacy-preserving static address",
+      iconPath: "assets/new-ui/address-type-picker-icons/silent.svg",
+      isCommon: true);
+  static const lightning = BitcoinReceivePageOption._('Lightning',
+      description: "Instant, low fee payments",
+      iconPath: "assets/new-ui/address-type-picker-icons/btc_lightning.svg",
+      isCommon: true);
 
-  const BitcoinReceivePageOption._(this.value);
+  const BitcoinReceivePageOption._(this.value,
+      {this.iconPath, this.description, this.isCommon = false});
 
   final String value;
+  final String? iconPath;
+  final String? description;
+  final bool isCommon;
 
   String toString() {
     return value;
   }
 
   static const all = [
+    BitcoinReceivePageOption.lightning,
     BitcoinReceivePageOption.silent_payments,
     BitcoinReceivePageOption.p2wpkh,
     BitcoinReceivePageOption.p2tr,
@@ -42,7 +62,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
     BitcoinReceivePageOption.p2wpkh,
     BitcoinReceivePageOption.mweb,
   ];
-  
+
   BitcoinAddressType toType() {
     switch (this) {
       case BitcoinReceivePageOption.p2tr:
@@ -55,6 +75,8 @@ class BitcoinReceivePageOption implements ReceivePageOption {
         return P2shAddressType.p2wpkhInP2sh;
       case BitcoinReceivePageOption.silent_payments:
         return SilentPaymentsAddresType.p2sp;
+      case BitcoinReceivePageOption.lightning:
+        return LightningAddressType.p2l;
       case BitcoinReceivePageOption.mweb:
         return SegwitAddresType.mweb;
       case BitcoinReceivePageOption.p2wpkh:
@@ -77,6 +99,8 @@ class BitcoinReceivePageOption implements ReceivePageOption {
         return BitcoinReceivePageOption.p2sh;
       case SilentPaymentsAddresType.p2sp:
         return BitcoinReceivePageOption.silent_payments;
+      case LightningAddressType.p2l:
+        return BitcoinReceivePageOption.lightning;
       case SegwitAddresType.p2wpkh:
       default:
         return BitcoinReceivePageOption.p2wpkh;

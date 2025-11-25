@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/payment_uris.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/routes.dart';
