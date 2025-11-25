@@ -64,8 +64,7 @@ class CwMweb {
     }
     printV("Attempting to connect to server on port: $_port");
 
-    final address = InternetAddress("${appDir.path}/mwebd.sock", type: InternetAddressType.unix);
-    _clientChannel = ClientChannel(address, channelShutdownHandler: () {
+    _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
       _rpcClient = null;
       printV("Channel is shutting down!");
     },
