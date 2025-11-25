@@ -191,7 +191,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     try {
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[selectedCryptoCurrency]!,
+          price: _fiatConversationStore.prices[_fiatConversationStore.prices.keys
+              .firstWhere((k) => k.titleAndTagEqual(selectedCryptoCurrency))],
           cryptoAmount: pendingTransaction!.amountFormatted);
       return fiat;
     } catch (_) {
