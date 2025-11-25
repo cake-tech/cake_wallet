@@ -6,6 +6,7 @@ class WalletListItem {
     required this.type,
     required this.key,
     required this.isHardware,
+    this.balance,
     this.isCurrent = false,
     this.isEnabled = true,
     this.isTestnet = false,
@@ -15,6 +16,7 @@ class WalletListItem {
   final WalletType type;
   final bool isCurrent;
   final dynamic key;
+  final String? balance;
   final bool isEnabled;
   final bool isTestnet;
   final bool isHardware;
