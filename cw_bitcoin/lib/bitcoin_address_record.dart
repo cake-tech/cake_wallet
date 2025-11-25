@@ -99,7 +99,11 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 
   String getScriptHash(BasedUtxoNetwork network) {
     if (scriptHash != null) return scriptHash!;
-    scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
+    try {
+      scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
+    } catch (e) {
+      return '';
+    }
     return scriptHash!;
   }
 
