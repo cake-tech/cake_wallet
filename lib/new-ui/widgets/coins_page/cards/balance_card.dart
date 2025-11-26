@@ -119,7 +119,7 @@ class BalanceCard extends StatelessWidget {
                   height: 50,
                   width: 50,
                   colorFilter: const ColorFilter.mode(
-                    Color(0x44FFFFFF),
+                    Color(0xBBFFFFFF),
                     BlendMode.srcIn,
                   ),
                 ),

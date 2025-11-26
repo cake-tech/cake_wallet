@@ -67,20 +67,37 @@ class _CardsViewState extends State<CardsView> {
             });
           },
           child: Observer(builder: (_) {
+            final account = widget.accountListViewModel?.accounts[index];
+
+            final walletBalance =
+                widget.dashboardViewModel.balanceViewModel.formattedBalances.elementAt(0);
+            final walletCurrency =
+                widget.lightningMode ? walletBalance.secondAsset : walletBalance.asset;
+
+            late final String accountName;
+            late final String accountBalance;
+            if (account == null) {
+              accountName = walletCurrency.fullName ?? walletCurrency.title;
+              accountBalance = "";
+            } else {
+              accountName = account.label;
+              accountBalance = account.balance ?? "0.00";
+            }
+
+            // TODO get user-selected custom gradient if set, fallback to CryptoCurrency one if null
+            final gradient = LinearGradient(colors: [
+              walletCurrency.gradientStartColor,
+              walletCurrency.gradientEndColor,
+            ], begin: Alignment.topCenter, end: Alignment.bottomCenter);
+
             return BalanceCard(
               width: cardWidth,
-              accountName:
-                  (widget.accountListViewModel?.accounts[index].label) ?? "Primary account",
-              accountBalance: widget.accountListViewModel?.accounts[index].balance ?? "",
-              balanceRecord:
-                  widget.dashboardViewModel.balanceViewModel.formattedBalances.elementAt(0),
+              accountName: accountName,
+              accountBalance: accountBalance,
+              balanceRecord: walletBalance,
               selected: _selectedIndex == index,
-              gradient: LinearGradient(
-                colors: [Colors.lightBlue, Colors.blue],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              svgPath: widget.dashboardViewModel.balanceViewModel.balances.keys.elementAt(0).iconPath!,
+              gradient: gradient,
+              svgPath: walletCurrency.flatIconPath ?? "assets/new-ui/blank.svg",
               lightningMode: widget.lightningMode,
             );
           }),
