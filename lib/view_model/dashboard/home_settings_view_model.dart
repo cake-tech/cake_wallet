@@ -38,15 +38,12 @@ abstract class HomeSettingsViewModelBase with Store {
     reaction((_) {
       final wallet = _balanceViewModel.wallet;
       if (isEVMCompatibleChain(wallet.type)) {
-        // Access currency and selectedChainId through proxy to track chain changes
-        // Also access erc20Currencies length to ensure we react when the token box is reloaded
         final selectedChainId = evm!.getSelectedChainId(wallet);
         final erc20Currencies = evm!.getERC20Currencies(wallet);
         return '${wallet.currency.title}_${selectedChainId}_${erc20Currencies.length}';
       }
       return null;
     }, (_) async {
-      // When chain changes, wait a bit for token box to reload, then update token list
       await Future.delayed(const Duration(milliseconds: 200));
       _updateTokensList();
     });

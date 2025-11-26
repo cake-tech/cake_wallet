@@ -228,10 +228,7 @@ abstract class EVMChainWalletBase
   }
 
   void addInitialTokens() {
-    final initialErc20Tokens = EVMChainDefaultTokens.getDefaultTokens(
-      walletInfo.type,
-      chainId: selectedChainId,
-    );
+    final initialErc20Tokens = EVMChainDefaultTokens.getDefaultTokensByChainId(selectedChainId);
 
     for (final token in initialErc20Tokens) {
       if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
@@ -247,18 +244,23 @@ abstract class EVMChainWalletBase
     }
   }
 
-  List<String> get getDefaultTokenContractAddresses {
-    return EVMChainDefaultTokens.getDefaultTokenAddresses(
-      walletInfo.type,
-      chainId: selectedChainId,
-    );
-  }
+  List<String> get getDefaultTokenContractAddresses =>
+      EVMChainDefaultTokens.getDefaultTokenAddresses(selectedChainId);
 
   Future<void> initErc20TokensBox() async {
-    // Handle Ethereum's special backward compatibility case
+    // Handle Ethereum's special backward compatibility case (only on first init)
+    // After migration is complete, use normal chain-specific box logic
     if (walletInfo.type == WalletType.ethereum) {
-      await _initEthereumErc20TokensBox();
-      return;
+      try {
+        // Check if erc20TokensBox is already initialized (migration already done)
+        final _ = erc20TokensBox;
+        // If we get here, migration is done, use normal chain-specific logic
+        // Fall through to normal chain-specific box logic below
+      } catch (_) {
+        // erc20TokensBox not initialized yet, run migration
+        await _initEthereumErc20TokensBox();
+        return;
+      }
     }
 
     final chainId = selectedChainId;
@@ -1035,6 +1037,11 @@ abstract class EVMChainWalletBase
   }
 
   Future<void> _fetchErc20Balances() async {
+    // Check if box is open before accessing it
+    if (!evmChainErc20TokensBox.isOpen) {
+      return;
+    }
+
     // First, clean up any tokens in balance map that don't belong to current chain
     // This handles tokens from previous chains that might still be in the balance map
     final tokensInBalance = balance.keys.whereType<Erc20Token>().toList();
@@ -1134,7 +1141,15 @@ abstract class EVMChainWalletBase
   @override
   Future<void> updateTransactionsHistory() async => await _updateTransactions();
 
-  List<Erc20Token> get erc20Currencies => evmChainErc20TokensBox.values.toList();
+  List<Erc20Token> get erc20Currencies {
+    try {
+      if (!evmChainErc20TokensBox.isOpen) return [];
+
+      return evmChainErc20TokensBox.values.toList();
+    } catch (_) {
+      return [];
+    }
+  }
 
   Future<void> addErc20Token(Erc20Token token) async {
     String? iconPath;

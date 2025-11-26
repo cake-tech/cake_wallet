@@ -280,11 +280,9 @@ class CWEVM extends EVM {
 
   @override
   List<String> getDefaultTokenContractAddresses(WalletBase wallet) {
-    final walletType = wallet.type;
-
-    int? chainId = getSelectedChainId(wallet);
-
-    return EVMChainDefaultTokens.getDefaultTokenAddresses(walletType, chainId: chainId);
+    final chainId = getSelectedChainId(wallet);
+    if (chainId == null) return [];
+    return EVMChainDefaultTokens.getDefaultTokenAddresses(chainId);
   }
 
   @override

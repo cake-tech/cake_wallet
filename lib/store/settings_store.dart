@@ -920,7 +920,7 @@ abstract class SettingsStoreBase with Store {
     if (chainId != null && isEVMCompatibleChain(walletType)) {
       final preferenceKey = _getEVMNodePreferenceKey(chainId);
       final nodeId = _sharedPreferences.getInt(preferenceKey);
-      
+
       if (nodeId != null) {
         final walletTypeForChain = evm!.getWalletTypeByChainId(chainId);
         if (walletTypeForChain != null) {
@@ -952,22 +952,6 @@ abstract class SettingsStoreBase with Store {
       default:
         // Default to Ethereum for unknown chainIds
         return PreferencesKey.currentEthereumNodeIdKey;
-    }
-  }
-
-  int _getChainIdFromNodeType(WalletType nodeType) {
-    switch (nodeType) {
-      case WalletType.ethereum:
-        return 1;
-      case WalletType.polygon:
-        return 137;
-      case WalletType.base:
-        return 8453;
-      case WalletType.arbitrum:
-        return 42161;
-      default:
-        // Default to Ethereum chainId
-        return 1;
     }
   }
 
@@ -1889,7 +1873,7 @@ abstract class SettingsStoreBase with Store {
         await _sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.key as int);
         break;
       case WalletType.evm:
-        final chainId = _getChainIdFromNodeType(node.type);
+        final chainId = evm!.getChainIdByWalletType(node.type);
         final preferenceKey = _getEVMNodePreferenceKey(chainId);
         await _sharedPreferences.setInt(preferenceKey, node.key as int);
         break;
