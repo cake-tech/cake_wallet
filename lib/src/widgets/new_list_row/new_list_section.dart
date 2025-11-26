@@ -133,7 +133,7 @@ class NewListSections extends StatelessWidget {
       return ListItemSelectorWidget(
         keyValue: item.keyValue,
         label: item.label,
-        options: ['Item'],
+        options: ['Item1'],
         selectedIndex: 0,
         isFirstInSection: isFirst,
         isLastInSection: isLast,
