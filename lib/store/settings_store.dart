@@ -27,6 +27,7 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -916,12 +917,10 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<WalletType, Node> powNodes;
 
   Node getCurrentNode(WalletType walletType, {int? chainId}) {
-    if (walletType == WalletType.evm) {
-      if (chainId == null) {
-        throw Exception('chainId required for WalletType.evm');
-      }
+    if (chainId != null && isEVMCompatibleChain(walletType)) {
       final preferenceKey = _getEVMNodePreferenceKey(chainId);
       final nodeId = _sharedPreferences.getInt(preferenceKey);
+      
       if (nodeId != null) {
         final walletTypeForChain = evm!.getWalletTypeByChainId(chainId);
         if (walletTypeForChain != null) {
@@ -929,6 +928,7 @@ abstract class SettingsStoreBase with Store {
           if (node != null) return node;
         }
       }
+
       throw Exception('No node found for WalletType.evm with chainId: $chainId');
     }
 

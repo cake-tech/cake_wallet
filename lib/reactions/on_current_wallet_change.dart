@@ -66,10 +66,10 @@ void startCurrentWalletChangeReaction(
       await getIt.get<WalletManager>().ensureGroupHasHashedIdentifier(wallet);
 
       int? chainId;
-      if (wallet.type == WalletType.evm && isEVMCompatibleChain(wallet.type)) {
+      if (isEVMCompatibleChain(wallet.type)) {
         chainId = evm!.getSelectedChainId(wallet);
       }
-      
+
       final node = settingsStore.getCurrentNode(wallet.type, chainId: chainId);
 
       startWalletSyncStatusChangeReaction(wallet, settingsStore);
@@ -94,7 +94,7 @@ void startCurrentWalletChangeReaction(
       if (settingsStore.currentBuiltinTor) {
         await ensureTorStarted(context: null);
       }
-      
+
       await wallet.connectToNode(node: node);
       SyncingSyncStatus.blockHistory.clear();
       if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
@@ -128,8 +128,7 @@ void startCurrentWalletChangeReaction(
 
       Iterable<CryptoCurrency>? currencies;
       if (isEVMCompatibleChain(wallet.type)) {
-        currencies =
-            evm!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+        currencies = evm!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
       }
       if (wallet.type == WalletType.solana) {
         currencies =

@@ -5,9 +5,7 @@ import 'dart:math';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
-import 'package:cw_evm/evm_chain_registry.dart';
 
 class EVMChainTransactionInfo extends TransactionInfo {
   EVMChainTransactionInfo({
@@ -25,11 +23,9 @@ class EVMChainTransactionInfo extends TransactionInfo {
     required this.from,
     this.evmSignatureName,
     this.contractAddress,
-    required WalletType walletType,
     required this.chainId,
   })  : amount = ethAmount.toInt(),
-        fee = ethFee.toInt(),
-        _walletType = walletType;
+        fee = ethFee.toInt();
 
   final String id;
   final int height;
@@ -48,11 +44,10 @@ class EVMChainTransactionInfo extends TransactionInfo {
   final String? from;
   final String? evmSignatureName;
   final String? contractAddress;
-  final WalletType _walletType;
   final int chainId;
 
   /// Get fee currency symbol based on wallet type
-  String get feeCurrency => EVMChainUtils.getFeeCurrency(_walletType);
+  String get feeCurrency => EVMChainUtils.getFeeCurrency(chainId);
 
   @override
   String amountFormatted() {
@@ -72,22 +67,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
     return '${amount.substring(0, min(18, amount.length))} $feeCurrency';
   }
 
-  factory EVMChainTransactionInfo.fromJson(
-    Map<String, dynamic> data,
-    WalletType walletType,
-  ) {
-    // If chainId is missing, try to infer it from wallet type for old wallet types
-    // This handles backward compatibility with transactions saved before chainId was added
-    int? chainId = data['chainId'] as int?;
-    if (chainId == null) {
-      final registry = EvmChainRegistry();
-      final chainConfig = registry.getChainConfigByWalletType(walletType);
-      chainId = chainConfig?.chainId;
-    }
-
-    // If still null (shouldn't happen for EVM wallets), default to 1 for backward compatibility
-    chainId ??= 1;
-    
+  factory EVMChainTransactionInfo.fromJson(Map<String, dynamic> data, int chainId) {
     return EVMChainTransactionInfo(
       id: data['id'] as String,
       height: data['height'] as int,
@@ -103,7 +83,6 @@ class EVMChainTransactionInfo extends TransactionInfo {
       from: data['from'] as String?,
       evmSignatureName: data['evmSignatureName'] as String?,
       contractAddress: data['contractAddress'] as String?,
-      walletType: walletType,
       chainId: chainId,
     );
   }

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
@@ -80,23 +81,13 @@ class EvmChainServiceImpl {
 
   static String _getNodeUriForChain(EVMChainId reference, AppStore appStore) {
     final walletType = appStore.wallet!.type;
-    
-    // For WalletType.evm, we need to pass chainId
-    if (walletType == WalletType.evm) {
+
+    if (isEVMCompatibleChain(walletType)) {
       final chainId = reference.chainId;
-      if (chainId == null) {
-        final selectedChainId = evm!.getSelectedChainId(appStore.wallet!);
-        return appStore.settingsStore.getCurrentNode(
-          walletType,
-          chainId: selectedChainId ?? 1,
-        ).uri.toString();
-      }
-      return appStore.settingsStore.getCurrentNode(
-        walletType,
-        chainId: chainId,
-      ).uri.toString();
+
+      return appStore.settingsStore.getCurrentNode(walletType, chainId: chainId).uri.toString();
     }
-    
+
     // For old wallet types, use the wallet type directly
     return appStore.settingsStore.getCurrentNode(walletType).uri.toString();
   }
@@ -526,7 +517,7 @@ class EvmChainServiceImpl {
 
       // Get the primary type and types
       final primaryType = typedData['primaryType']?.toString() ?? '';
-      final types = typedData['types']  as Map<String, dynamic>? ?? {};
+      final types = typedData['types'] as Map<String, dynamic>? ?? {};
       final message = typedData['message'] as Map<String, dynamic>? ?? {};
 
       // Build a readable message based on the primary type and its structure
@@ -608,7 +599,6 @@ $messageDetails''';
       },
     );
 
-    
     final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
 
     final symbol = (decodedResponse['symbol'] ?? '') as String;

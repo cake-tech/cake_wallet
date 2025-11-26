@@ -56,15 +56,16 @@ class EVMChainWalletService extends WalletService<
   }
 
   /// Override saveBackup to look up walletType from wallet name
+  /// Optionally accepts walletInfo to avoid lookup (useful during rename)
   @override
-  Future<void> saveBackup(String name) async {
-    final walletInfo = await _findWalletByName(name);
-    if (walletInfo == null) {
+  Future<void> saveBackup(String name, {WalletInfo? walletInfo}) async {
+    final info = walletInfo ?? await _findWalletByName(name);
+    if (info == null) {
       throw Exception('Wallet not found: $name');
     }
 
-    final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: walletInfo.type);
-    final walletDirPath = await pathForWalletDir(name: name, type: walletInfo.type);
+    final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: info.type);
+    final walletDirPath = await pathForWalletDir(name: name, type: info.type);
 
     if (File(walletDirPath).existsSync()) {
       await File(walletDirPath).copy(backupWalletDirPath);
@@ -177,11 +178,14 @@ class EVMChainWalletService extends WalletService<
     );
 
     await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
 
+    // Update walletInfo with new name before saving backup
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, currentWalletInfo.type);
     newWalletInfo.name = newName;
+
+    // Pass walletInfo to saveBackup to avoid lookup (since WalletInfo not saved yet)
+    await saveBackup(newName, walletInfo: newWalletInfo);
 
     await newWalletInfo.save();
   }

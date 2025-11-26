@@ -177,7 +177,7 @@ class CWEVM extends EVM {
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) {
     final evmWallet = wallet as EVMChainWallet;
-    final chainName = EVMChainUtils.getDefaultTokenSymbol(evmWallet.walletInfo.type).toLowerCase();
+    final chainName = EVMChainUtils.getDefaultTokenSymbol(evmWallet.selectedChainId).toLowerCase();
     return evmWallet.getErc20Token(contractAddress, chainName);
   }
 
@@ -227,7 +227,7 @@ class CWEVM extends EVM {
     TransactionPriority priority,
   ) {
     final evmWallet = wallet as EVMChainWallet;
-    final feeCurrency = EVMChainUtils.getFeeCurrency(evmWallet.walletInfo.type);
+    final feeCurrency = EVMChainUtils.getFeeCurrency(evmWallet.selectedChainId);
     return evmWallet.createApprovalTransaction(
       amount,
       spender,
@@ -281,10 +281,9 @@ class CWEVM extends EVM {
   @override
   List<String> getDefaultTokenContractAddresses(WalletBase wallet) {
     final walletType = wallet.type;
-    int? chainId;
-    if (walletType == WalletType.evm) {
-      chainId = getSelectedChainId(wallet);
-    }
+
+    int? chainId = getSelectedChainId(wallet);
+
     return EVMChainDefaultTokens.getDefaultTokenAddresses(walletType, chainId: chainId);
   }
 

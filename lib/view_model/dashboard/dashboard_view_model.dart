@@ -600,12 +600,7 @@ abstract class DashboardViewModelBase with Store {
   Future<void> selectChain(int chainId) async {
     if (!isEVMWallet) return;
 
-    // For all EVM wallets (both WalletType.evm and old types), use WalletType.evm
-    // with chainId for node lookup since nodes are stored by chainId
-    final node = appStore.settingsStore.getCurrentNode(
-      WalletType.evm,
-      chainId: chainId,
-    );
+    final node = appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId);
 
     await evm!.selectChain(wallet, chainId, node: node);
   }

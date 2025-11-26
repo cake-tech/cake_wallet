@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:cake_wallet/core/universal_address_detector.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -159,9 +161,11 @@ class PaymentFlowResult {
       return addressDetectionResult?.detectedCurrency;
     }
     if (walletType != null) {
-      if (walletType == WalletType.evm) {
-        return walletTypeToCryptoCurrency(walletType!, chainId: 1);
+      if (isEVMCompatibleChain(walletType!)) {
+        final chainId = evm!.getChainIdByWalletType(walletType!);
+        return walletTypeToCryptoCurrency(walletType!, chainId: chainId);
       }
+
       return walletTypeToCryptoCurrency(walletType!);
     }
     return null;

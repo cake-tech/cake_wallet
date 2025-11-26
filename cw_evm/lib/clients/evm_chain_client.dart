@@ -11,6 +11,7 @@ import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/.secrets.g.dart' as secrets;
+import 'package:cw_evm/utils/evm_chain_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart' as hex;
 import 'package:web3dart/web3dart.dart';
@@ -42,19 +43,27 @@ class EVMChainClient {
 
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
+      if (jsonResponse['result'] is String) {
+        log(jsonResponse['result']);
+        return [];
+      }
+
       if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
         final res = (jsonResponse['result'] as List);
         res.removeWhere((e) => e['value'] == '0');
 
+        final symbol = EVMChainUtils.getFeeCurrency(chainId);
+
         return res
             .map(
-              (e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'),
+              (e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, symbol, chainId),
             )
             .toList();
       }
 
       return [];
     } catch (e) {
+      log(e.toString());
       return [];
     }
   }
@@ -72,13 +81,17 @@ class EVMChainClient {
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
+        final symbol = EVMChainUtils.getFeeCurrency(chainId);
+
         return (jsonResponse['result'] as List)
-            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'))
+            .map((e) =>
+                EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, symbol, chainId))
             .toList();
       }
 
       return [];
-    } catch (_) {
+    } catch (e) {
+      log(e.toString());
       return [];
     }
   }

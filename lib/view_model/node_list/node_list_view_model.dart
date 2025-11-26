@@ -50,9 +50,7 @@ abstract class NodeListViewModelBase with Store {
     }
 
     if (isEVMCompatibleChain(walletType) && chainId != null) {
-      // For EVM wallets (both WalletType.evm and old types), use WalletType.evm for node lookup
-      // since nodes are stored by chainId
-      return settingsStore.getCurrentNode(WalletType.evm, chainId: chainId);
+      return settingsStore.getCurrentNode(walletType, chainId: chainId);
     }
 
     final node = settingsStore.nodes[walletType];

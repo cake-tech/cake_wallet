@@ -144,10 +144,7 @@ abstract class EVMChainWalletBase
     return super.currency;
   }
 
-  bool get hasPriorityFee => EVMChainUtils.hasPriorityFee(
-        walletInfo.type,
-        chainId: selectedChainId,
-      );
+  bool get hasPriorityFee => EVMChainUtils.hasPriorityFee(selectedChainId);
 
   /// Get initial chain ID from registry based on wallet type
   static int _getInitialChainId(WalletType walletType) {
@@ -192,10 +189,9 @@ abstract class EVMChainWalletBase
   /// networks automatically loads transactions from the correct file.
   @action
   Future<void> selectChain(int chainId, {required Node node}) async {
-    final registry = EvmChainRegistry();
-    final config = registry.getChainConfig(chainId);
-
-    if (config == null) throw Exception('Chain config not found for chainId: $chainId');
+    if (EvmChainRegistry().getChainConfig(chainId) == null) {
+      throw Exception('Chain config not found for chainId: $chainId');
+    }
 
     if (selectedChainId == chainId) return;
 
@@ -203,8 +199,6 @@ abstract class EVMChainWalletBase
 
     _client.stop();
 
-    // Clear all ERC20 tokens from balance map before switching networks
-    // This ensures we only show tokens for the newly selected network
     final tokensToRemove = balance.keys.whereType<Erc20Token>().toList();
     for (final token in tokensToRemove) {
       balance.remove(token);
@@ -227,6 +221,8 @@ abstract class EVMChainWalletBase
     if (oldNativeCurrency != newNativeCurrency) {
       balance.remove(oldNativeCurrency);
     }
+
+    await save();
 
     await startSync();
   }
@@ -267,11 +263,7 @@ abstract class EVMChainWalletBase
 
     final chainId = selectedChainId;
 
-    final boxName = EVMChainUtils.getErc20TokensBoxName(
-      walletInfo.name,
-      walletInfo.type,
-      chainId: chainId,
-    );
+    final boxName = EVMChainUtils.getErc20TokensBoxName(walletInfo.name, chainId);
 
     // Close existing box if it's already open (for chain switching)
     try {
@@ -299,13 +291,9 @@ abstract class EVMChainWalletBase
       "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.ethereumBoxName}",
     );
 
-    // Open the previous token configs box
     erc20TokensBox = await CakeHive.openBox<Erc20Token>(Erc20Token.boxName);
 
-    // Check if it's empty, if it is, we stop the flow and return.
     if (erc20TokensBox.isEmpty) {
-      // If it's empty, but the new wallet specific box is also empty,
-      // we load the initial tokens to the new box.
       if (evmChainErc20TokensBox.isEmpty) addInitialTokens();
       return;
     }
@@ -321,10 +309,10 @@ abstract class EVMChainWalletBase
   }
 
   String getTransactionHistoryFileName() =>
-      EVMChainUtils.getTransactionHistoryFileName(walletInfo.type);
+      EVMChainUtils.getTransactionHistoryFileName(selectedChainId);
 
   Future<bool> checkIfScanProviderIsEnabled() async {
-    final key = EVMChainUtils.getScanProviderPreferenceKey(walletInfo.type);
+    final key = EVMChainUtils.getScanProviderPreferenceKey(selectedChainId);
     return (await sharedPrefs.future).getBool(key) ?? true;
   }
 
@@ -344,14 +332,13 @@ abstract class EVMChainWalletBase
       confirmations: transactionModel.confirmations,
       ethFee: BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
       exponent: transactionModel.tokenDecimal ?? 18,
-      tokenSymbol:
-          transactionModel.tokenSymbol ?? EVMChainUtils.getDefaultTokenSymbol(walletInfo.type),
+      tokenSymbol: transactionModel.tokenSymbol ??
+          EVMChainUtils.getDefaultTokenSymbol(transactionModel.chainId),
       to: transactionModel.to,
       from: transactionModel.from,
       evmSignatureName: transactionModel.evmSignatureName,
       contractAddress: transactionModel.contractAddress,
-      walletType: walletInfo.type,
-      chainId: selectedChainId,
+      chainId: transactionModel.chainId,
     );
   }
 
@@ -362,7 +349,7 @@ abstract class EVMChainWalletBase
       contractAddress: token.contractAddress,
       decimal: token.decimal,
       enabled: token.enabled,
-      tag: token.tag ?? EVMChainUtils.getDefaultTokenTag(walletInfo.type),
+      tag: token.tag ?? EVMChainUtils.getDefaultTokenTag(selectedChainId),
       iconPath: iconPath,
       isPotentialScam: token.isPotentialScam,
     );
@@ -562,13 +549,8 @@ abstract class EVMChainWalletBase
     }
   }
 
-  int getTotalPriorityFee(EVMChainTransactionPriority priority) {
-    return EVMChainUtils.getTotalPriorityFee(
-      priority,
-      walletInfo.type,
-      chainId: selectedChainId,
-    );
-  }
+  int getTotalPriorityFee(EVMChainTransactionPriority priority) =>
+      EVMChainUtils.getTotalPriorityFee(priority, selectedChainId);
 
   /// Allows more customization to the fetch estimatedFees flow.
   ///
@@ -1039,8 +1021,52 @@ abstract class EVMChainWalletBase
     return EVMChainERC20Balance(balance.getInWei);
   }
 
+  bool _isTokenMatchingChain(Erc20Token token) {
+    final registry = EvmChainRegistry();
+
+    if (token.tag != null) {
+      final chainConfig = registry.getChainConfigByTag(token.tag!);
+      if (chainConfig != null) return chainConfig.chainId == selectedChainId;
+    }
+
+    if (currency.tag == null) return token.tag == currency.title;
+
+    return token.tag?.toLowerCase() == currency.tag?.toLowerCase();
+  }
+
   Future<void> _fetchErc20Balances() async {
-    for (var token in evmChainErc20TokensBox.values) {
+    // First, clean up any tokens in balance map that don't belong to current chain
+    // This handles tokens from previous chains that might still be in the balance map
+    final tokensInBalance = balance.keys.whereType<Erc20Token>().toList();
+    final tokensInBox = evmChainErc20TokensBox.values.toList();
+    final boxTokenAddresses = tokensInBox.map((t) => t.contractAddress.toLowerCase()).toSet();
+
+    for (var token in tokensInBalance) {
+      // Remove token if it's not in the current box or doesn't match current chain
+      if (!boxTokenAddresses.contains(token.contractAddress.toLowerCase()) ||
+          !_isTokenMatchingChain(token)) {
+        balance.remove(token);
+      }
+    }
+
+    // Get a snapshot of tokens from current box to avoid issues if box is closed during iteration
+    final tokens = tokensInBox;
+
+    for (var token in tokens) {
+      // Check if box is still open before operating on tokens
+      if (!evmChainErc20TokensBox.isOpen) break;
+
+      if (!_isTokenMatchingChain(token)) {
+        printV('NOTEE!!!: Token ${token.title} is not matching the currency ${currency.title}');
+        try {
+          await deleteErc20Token(token, shouldUpdateBalance: false);
+        } catch (e) {
+          balance.remove(token);
+          printV('Error deleting token ${token.title}: $e');
+        }
+        continue;
+      }
+
       try {
         if (token.enabled) {
           balance[token] = await _client.fetchERC20Balances(
@@ -1144,12 +1170,25 @@ abstract class EVMChainWalletBase
     }
   }
 
-  Future<void> deleteErc20Token(Erc20Token token) async {
-    await token.delete();
+  Future<void> deleteErc20Token(Erc20Token token, {bool shouldUpdateBalance = true}) async {
+    // Check if box is open before trying to delete
+    if (!evmChainErc20TokensBox.isOpen) {
+      balance.remove(token);
+      return;
+    }
+
+    try {
+      await token.delete();
+    } catch (e) {
+      // Token might be from a closed box, just remove from balance
+      printV('Error deleting token from box: $e');
+    }
 
     balance.remove(token);
     await removeTokenTransactionsInHistory(token);
-    _updateBalance();
+    if (shouldUpdateBalance) {
+      _updateBalance();
+    }
   }
 
   Future<void> removeTokenTransactionsInHistory(Erc20Token token) async {

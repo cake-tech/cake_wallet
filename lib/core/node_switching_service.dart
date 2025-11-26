@@ -7,6 +7,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 class NodeSwitchingService {
   NodeSwitchingService({
@@ -141,24 +142,17 @@ class NodeSwitchingService {
 
       final wallet = appStore.wallet!;
       final walletType = wallet.type;
-      
-      int? chainId;
+
       WalletType nodeWalletType = walletType;
-      
-      if (walletType == WalletType.evm) {
-        chainId = evm!.getSelectedChainId(wallet);
-        if (chainId != null) {
-          final chainWalletType = evm!.getWalletTypeByChainId(chainId);
-          if (chainWalletType != null) {
-            nodeWalletType = chainWalletType;
-          }
-        }
+
+      int? chainId;
+      if (isEVMCompatibleChain(walletType)) {
+        chainId = evm!.getSelectedChainId(appStore.wallet!);
       }
-      
-      final currentNode = settingsStore.getCurrentNode(walletType, chainId: chainId);
+
+      final currentNode = settingsStore.getCurrentNode(nodeWalletType, chainId: chainId);
 
       // Get all trusted nodes for this wallet type
-      // For WalletType.evm, filter by the chain-specific wallet type
       final trustedNodes = nodeSource.values
           .where((node) => node.type == nodeWalletType && node.isEnabledForAutoSwitching)
           .toList();
@@ -210,7 +204,7 @@ class NodeSwitchingService {
       printV('Used nodes for ${nodeWalletType}: ${_usedNodeKeys[nodeWalletType]}');
 
       // Update the current node in settings
-      settingsStore.nodes[walletType] = nextNode;
+      settingsStore.nodes[nodeWalletType] = nextNode;
 
       // Connect the wallet to the new node
       await appStore.wallet!.connectToNode(node: nextNode);

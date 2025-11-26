@@ -195,7 +195,7 @@ abstract class HomeSettingsViewModelBase with Store {
 
       bool isUnverifiedContract = await _isContractUnverified(
         contractAddress,
-        chainId: getChainIdBasedOnWalletType(_balanceViewModel.wallet.type).toString(),
+        chainId: evm!.getSelectedChainId(_balanceViewModel.wallet).toString(),
       );
 
       final showWarningForContractAddress = isPotentialScamViaMoralis || isUnverifiedContract;

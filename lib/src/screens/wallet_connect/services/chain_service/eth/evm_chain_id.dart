@@ -30,7 +30,7 @@ extension EVMChainIdX on EVMChainId {
       EVMChainId.polygon => 137,
       EVMChainId.base => 8453,
       EVMChainId.arbitrum => 42161,
-      _ => null,
+      _ => 1,
     };
   }
 

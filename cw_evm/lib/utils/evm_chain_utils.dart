@@ -1,34 +1,10 @@
 import 'package:cw_core/erc20_token.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:web3dart/web3dart.dart' show EtherAmount, EtherUnit;
 
 /// Utility class for chain-specific EVM chain operations
 class EVMChainUtils {
-  static int getTotalPriorityFee(
-    EVMChainTransactionPriority priority,
-    WalletType walletType, {
-    int? chainId,
-  }) {
-    if (chainId == null && walletType == WalletType.evm) {
-      throw Exception('chainId required for WalletType.evm');
-    }
-
-    if (chainId != null) {
-      return getTotalPriorityFeeByChainId(priority, chainId);
-    }
-
-    return switch (walletType) {
-      WalletType.ethereum => _ethereumPriorityFee(priority),
-      WalletType.polygon => _polygonPriorityFee(priority),
-      WalletType.base => _basePriorityFee(priority),
-      WalletType.arbitrum => 0, // Arbitrum doesn't use priority fees
-      _ => _ethereumPriorityFee(priority),
-    };
-  }
-
-  static int getTotalPriorityFeeByChainId(EVMChainTransactionPriority priority, int chainId) {
+  static int getTotalPriorityFee(EVMChainTransactionPriority priority, int chainId) {
     return switch (chainId) {
       1 => _ethereumPriorityFee(priority),
       137 => _polygonPriorityFee(priority),
@@ -38,48 +14,16 @@ class EVMChainUtils {
     };
   }
 
-  /// Check if chain supports priority fees
-  /// For WalletType.evm, chainId must be provided
-  static bool hasPriorityFee(WalletType walletType, {int? chainId}) {
-    if (chainId == null && walletType == WalletType.evm) {
-      throw Exception('chainId required for WalletType.evm');
-    }
-
-    if (chainId != null) {
-      return hasPriorityFeeByChainId(chainId);
-    }
-
-    return switch (walletType) {
-      WalletType.arbitrum => false,
-      _ => true,
-    };
-  }
-
-  static bool hasPriorityFeeByChainId(int chainId) {
+  static bool hasPriorityFee(int chainId) {
     return switch (chainId) {
       42161 => false, // Arbitrum doesn't use priority fees
       _ => true,
     };
   }
 
-  static String getErc20TokensBoxName(String walletName, WalletType walletType, {int? chainId}) {
+  static String getErc20TokensBoxName(String walletName, int chainId) {
     final sanitizedName = walletName.replaceAll(" ", "_");
 
-    if (chainId != null) {
-      return getErc20TokensBoxNameByChainId(sanitizedName, chainId);
-    }
-
-    return switch (walletType) {
-      WalletType.evm => throw Exception('chainId required for WalletType.evm'),
-      WalletType.ethereum => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
-      WalletType.polygon => "${sanitizedName}_${Erc20Token.polygonBoxName}",
-      WalletType.base => "${sanitizedName}_${Erc20Token.baseBoxName}",
-      WalletType.arbitrum => "${sanitizedName}_${Erc20Token.arbitrumBoxName}",
-      _ => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
-    };
-  }
-
-  static String getErc20TokensBoxNameByChainId(String sanitizedName, int chainId) {
     return switch (chainId) {
       1 => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
       137 => "${sanitizedName}_${Erc20Token.polygonBoxName}",
@@ -89,7 +33,7 @@ class EVMChainUtils {
     };
   }
 
-  static String getTransactionHistoryFileNameByChainId(int chainId) {
+  static String getTransactionHistoryFileName(int chainId) {
     return switch (chainId) {
       1 => 'transactions.json', // Ethereum
       137 => 'polygon_transactions.json',
@@ -99,53 +43,43 @@ class EVMChainUtils {
     };
   }
 
-  static String getTransactionHistoryFileName(WalletType walletType) {
-    final registry = EvmChainRegistry();
-    final chainId = registry.getChainIdByWalletType(walletType);
-    if (chainId != null) {
-      return getTransactionHistoryFileNameByChainId(chainId);
-    }
-
-    return 'transactions.json';
-  }
-
   /// Get scan provider preference key for a wallet type
-  static String getScanProviderPreferenceKey(WalletType walletType) {
-    return switch (walletType) {
-      WalletType.ethereum => 'use_etherscan',
-      WalletType.polygon => 'use_polygonscan',
-      WalletType.base => 'use_basescan',
-      WalletType.arbitrum => 'use_arbiscan',
+  static String getScanProviderPreferenceKey(int chainId) {
+    return switch (chainId) {
+      1 => 'use_etherscan',
+      137 => 'use_polygonscan',
+      8453 => 'use_basescan',
+      42161 => 'use_arbiscan',
       _ => 'use_etherscan',
     };
   }
 
-  static String getDefaultTokenTag(WalletType walletType) {
-    return switch (walletType) {
-      WalletType.ethereum => 'ETH',
-      WalletType.polygon => 'POL',
-      WalletType.base => 'ETH',
-      WalletType.arbitrum => 'ETH',
+  static String getDefaultTokenTag(int chainId) {
+    return switch (chainId) {
+      1 => 'ETH',
+      137 => 'POL',
+      8453 => 'ETH',
+      42161 => 'ETH',
       _ => 'ETH',
     };
   }
 
-  static String getFeeCurrency(WalletType walletType) {
-    return switch (walletType) {
-      WalletType.ethereum => 'ETH',
-      WalletType.polygon => 'MATIC',
-      WalletType.base => 'ETH',
-      WalletType.arbitrum => 'ETH',
+  static String getFeeCurrency(int chainId) {
+    return switch (chainId) {
+      1 => 'ETH',
+      137 => 'MATIC',
+      8453 => 'ETH',
+      42161 => 'ETH',
       _ => 'ETH',
     };
   }
 
-  static String getDefaultTokenSymbol(WalletType walletType) {
-    return switch (walletType) {
-      WalletType.ethereum => 'ETH',
-      WalletType.polygon => 'MATIC',
-      WalletType.base => 'ETH',
-      WalletType.arbitrum => 'ETH',
+  static String getDefaultTokenSymbol(int chainId) {
+    return switch (chainId) {
+      1 => 'ETH',
+      137 => 'MATIC',
+      8453 => 'ETH',
+      42161 => 'ETH',
       _ => 'ETH',
     };
   }

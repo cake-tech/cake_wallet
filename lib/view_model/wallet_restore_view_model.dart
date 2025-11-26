@@ -7,6 +7,7 @@ import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
@@ -298,8 +299,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     var appStore = getIt.get<AppStore>();
 
     int? chainId;
-    if (walletType == WalletType.evm) {
-      chainId = 1; // Default to Ethereum for new/restored EVM wallets
+    if (isEVMCompatibleChain(walletType)) {
+      chainId = evm!.getSelectedChainId(appStore.wallet!);
     }
 
     var node = appStore.settingsStore.getCurrentNode(walletType, chainId: chainId);

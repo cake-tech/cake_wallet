@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -36,7 +37,7 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
           (wallet.syncStatus is LostConnectionSyncStatus ||
               wallet.syncStatus is FailedSyncStatus)) {
         int? chainId;
-        if (wallet.type == WalletType.evm) {
+        if (isEVMCompatibleChain(wallet.type)) {
           chainId = evm!.getSelectedChainId(wallet);
         }
 

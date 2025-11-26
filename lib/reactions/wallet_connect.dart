@@ -47,13 +47,10 @@ bool isWalletConnectCompatibleChain(WalletType walletType) {
 }
 
 String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType, {int? chainId}) {
-  if (walletType == WalletType.evm) {
-    if (chainId == null) {
-      throw Exception('chainId required for WalletType.evm');
-    }
+  if (chainId != null) {
     return evm!.getCaip2ByChainId(chainId);
   }
-  
+
   switch (walletType) {
     case WalletType.ethereum:
       return EVMChainId.ethereum.chain();
@@ -85,28 +82,15 @@ List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
   }
 }
 
-int getChainIdBasedOnWalletType(WalletType walletType, {int? chainId}) {
-  if (walletType == WalletType.evm) {
-    if (chainId == null) {
-      throw Exception('chainId required for WalletType.evm');
-    }
-    return chainId;
-  }
-  return evm!.getChainIdByWalletType(walletType);
-}
-
 String getChainNameBasedOnWalletType(WalletType walletType, {int? chainId}) {
   if (walletType == WalletType.solana) {
     return 'mainnet';
   }
-  
-  if (walletType == WalletType.evm) {
-    if (chainId == null) {
-      throw Exception('chainId required for WalletType.evm');
-    }
+
+  if (chainId != null) {
     return evm!.getChainNameByChainId(chainId);
   }
-  
+
   return evm!.getChainNameByWalletType(walletType);
 }
 
@@ -114,13 +98,10 @@ String getTokenNameBasedOnWalletType(WalletType walletType, {int? chainId}) {
   if (walletType == WalletType.solana) {
     return 'SOL';
   }
-  
-  if (walletType == WalletType.evm) {
-    if (chainId == null) {
-      throw Exception('chainId required for WalletType.evm');
-    }
+
+  if (chainId != null) {
     return evm!.getTokenNameByChainId(chainId);
   }
-  
+
   return evm!.getTokenNameByWalletType(walletType);
 }

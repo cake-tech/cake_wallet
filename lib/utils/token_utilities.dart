@@ -22,24 +22,12 @@ class TokenUtilities {
     final unique = <Erc20Token>[];
 
     for (final wallet in evmWallets) {
-      if (wallet.type == WalletType.evm) {
-        final allChains = evm!.getAllChains();
-        
-        for (final chainInfo in allChains) {
-          final chainId = chainInfo.chainId;
-          final chain = getTokenNameBasedOnWalletType(wallet.type, chainId: chainId);
-          final box = await _openEvmTokensBoxFor(wallet, chainId: chainId);
+      final allChains = evm!.getAllChains();
 
-          for (final t in box.values.where((t) => t.enabled)) {
-            final key = '$chain|${t.contractAddress.toLowerCase()}';
-            if (seen.add(key)) {
-              unique.add(t);
-            }
-          }
-        }
-      } else {
-        final chain = getTokenNameBasedOnWalletType(wallet.type);
-        final box = await _openEvmTokensBoxFor(wallet);
+      for (final chainInfo in allChains) {
+        final chainId = chainInfo.chainId;
+        final chain = getTokenNameBasedOnWalletType(wallet.type, chainId: chainId);
+        final box = await _openEvmTokensBoxFor(wallet, chainId);
 
         for (final t in box.values.where((t) => t.enabled)) {
           final key = '$chain|${t.contractAddress.toLowerCase()}';
@@ -128,12 +116,9 @@ class TokenUtilities {
     }
   }
 
-  static Future<Box<Erc20Token>> _openEvmTokensBoxFor(
-    WalletInfo walletInfo, {
-    int? chainId,
-  }) async {
+  static Future<Box<Erc20Token>> _openEvmTokensBoxFor(WalletInfo walletInfo, int chainId) async {
     final walletKey = walletInfo.name.replaceAll(' ', '_');
-    final boxName = _getErc20TokensBoxName(walletKey, walletInfo.type, chainId: chainId);
+    final boxName = _getErc20TokensBoxName(walletKey, chainId);
 
     if (CakeHive.isBoxOpen(boxName)) {
       return CakeHive.box<Erc20Token>(boxName);
@@ -141,26 +126,7 @@ class TokenUtilities {
     return CakeHive.openBox<Erc20Token>(boxName);
   }
 
-  static String _getErc20TokensBoxName(String sanitizedName, WalletType walletType, {int? chainId}) {
-    // Handle WalletType.evm with chainId
-    if (walletType == WalletType.evm) {
-      if (chainId == null) {
-        throw Exception('chainId required for WalletType.evm');
-      }
-      return _getErc20TokensBoxNameByChainId(sanitizedName, chainId);
-    }
-    
-    // Handle old wallet types
-    return switch (walletType) {
-      WalletType.ethereum => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
-      WalletType.polygon => "${sanitizedName}_${Erc20Token.polygonBoxName}",
-      WalletType.base => "${sanitizedName}_${Erc20Token.baseBoxName}",
-      WalletType.arbitrum => "${sanitizedName}_${Erc20Token.arbitrumBoxName}",
-      _ => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
-    };
-  }
-
-  static String _getErc20TokensBoxNameByChainId(String sanitizedName, int chainId) {
+  static String _getErc20TokensBoxName(String sanitizedName, int chainId) {
     return switch (chainId) {
       1 => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
       137 => "${sanitizedName}_${Erc20Token.polygonBoxName}",
@@ -178,9 +144,7 @@ class TokenUtilities {
     return CakeHive.openBox<SPLToken>(boxName);
   }
 
-  static Future<Box<TronToken>> _openTronTokensBoxFor(
-    WalletInfo walletInfo,
-  ) async {
+  static Future<Box<TronToken>> _openTronTokensBoxFor(WalletInfo walletInfo) async {
     final boxName = '${walletInfo.name.replaceAll(' ', '_')}_${TronToken.boxName}';
     if (CakeHive.isBoxOpen(boxName)) {
       return CakeHive.box<TronToken>(boxName);
@@ -221,54 +185,55 @@ class TokenUtilities {
   static int getChainId(CryptoCurrency currency) {
     final tag = currency.tag?.toUpperCase();
     final title = currency.title.toLowerCase();
-    
+
     // Only check EVM registry for currencies that might be EVM-related
-    final isPotentialEVM = 
-        title == 'eth' || title == 'ethereum' || title == 'polygon' || 
-        title == 'matic' || title == 'base' || title == 'arbitrum' ||
+    final isPotentialEVM = title == 'eth' ||
+        title == 'ethereum' ||
+        title == 'polygon' ||
+        title == 'matic' ||
+        title == 'base' ||
+        title == 'arbitrum' ||
         (tag != null && (tag == 'ETH' || tag == 'POL' || tag == 'BASE' || tag == 'ARB')) ||
         isNativeToken(currency);
-    
+
     if (isPotentialEVM) {
       // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')
       if (tag != null) {
         final chainId = evm!.getChainIdByTag(tag);
         if (chainId != null) return chainId;
       }
-      
+
       // Try by title (case-insensitive)
       final titleChainId = evm!.getChainIdByTitle(title);
       if (titleChainId != null) return titleChainId;
     }
-    
+
     // Fallback to hardcoded values for chains not in registry yet
     // BSC (Binance Smart Chain)
     if (title == 'bsc' || title == 'bnb' || tag == 'BSC') {
       return 56;
     }
-    
+
     // Avalanche C-Chain
     if (title == 'avalanche' || title == 'avax' || tag == 'AVALANCHE') {
       return 43114;
     }
-    
+
     // Optimism
     if (title == 'optimism' || title == 'op' || tag == 'OPTIMISM') {
       return 10;
     }
-    
+
     // Fantom Opera
     if (title == 'fantom' || title == 'ftm' || tag == 'FANTOM') {
       return 250;
     }
-    
+
     // Default to Ethereum mainnet
     return 1;
   }
 
-  static Future<List<CryptoCurrency>> getAvailableTokensForNetwork(
-    WalletType network,
-  ) async {
+  static Future<List<CryptoCurrency>> getAvailableTokensForNetwork(WalletType network) async {
     final baseCurrency = walletTypeToCryptoCurrency(network);
     final allTokens = <CryptoCurrency>[];
     final addedAddresses = <String>{};

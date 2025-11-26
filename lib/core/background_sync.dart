@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/tor.dart';
@@ -141,9 +142,10 @@ class BackgroundSync {
           printV("${wallet.name} NOT CONNECTED");
 
           int? chainId;
-          if (wallet.type == WalletType.evm) {
+          if (isEVMCompatibleChain(wallet.type)) {
             chainId = evm!.getSelectedChainId(wallet);
           }
+
           final node = settingsStore.getCurrentNode(wallet.type, chainId: chainId);
           await wallet.connectToNode(node: node);
           await wallet.startBackgroundSync();

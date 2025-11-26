@@ -76,7 +76,7 @@ class KeyServiceImpl implements WalletConnectKeyService {
   @override
   List<ChainKeyModel> getKeysForChain(WalletBase wallet) {
     int? chainId;
-    if (wallet.type == WalletType.evm) {
+    if (isEVMCompatibleChain(wallet.type)) {
       final chainInfo = evm!.getCurrentChain(wallet);
       chainId = chainInfo?.chainId;
     }
