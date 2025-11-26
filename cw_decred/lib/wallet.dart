@@ -7,20 +7,6 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_decred/amount_format.dart';
-import 'package:cw_decred/pending_transaction.dart';
-import 'package:cw_decred/transaction_credentials.dart';
-import 'package:flutter/foundation.dart';
-import 'package:mobx/mobx.dart';
-import 'package:hive/hive.dart';
-
-import 'package:cw_decred/api/libdcrwallet.dart';
-import 'package:cw_decred/transaction_history.dart';
-import 'package:cw_decred/wallet_addresses.dart';
-import 'package:cw_decred/transaction_priority.dart';
-import 'package:cw_decred/wallet_service.dart';
-import 'package:cw_decred/balance.dart';
-import 'package:cw_decred/transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -30,6 +16,21 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:flutter/foundation.dart';
+import 'package:mobx/mobx.dart';
+import 'package:hive/hive.dart';
+
+import 'package:cw_decred/amount_format.dart';
+import 'package:cw_decred/pending_transaction.dart';
+import 'package:cw_decred/transaction_credentials.dart';
+import 'package:cw_decred/api/libdcrwallet.dart';
+import 'package:cw_decred/transaction_history.dart';
+import 'package:cw_decred/wallet_addresses.dart';
+import 'package:cw_decred/transaction_priority.dart';
+import 'package:cw_decred/wallet_service.dart';
+import 'package:cw_decred/balance.dart';
+import 'package:cw_decred/transaction_info.dart';
+import 'package:cw_decred/ledger.dart';
 
 part 'wallet.g.dart';
 
@@ -44,9 +45,10 @@ abstract class DecredWalletBase
         _closeLibwallet = closeLibwallet,
         this.syncStatus = NotConnectedSyncStatus(),
         this.unspentCoinsInfo = unspentCoinsInfo,
-        this.watchingOnly =
+        this.isWatchingOnly =
             derivationInfo.derivationPath == DecredWalletService.pubkeyRestorePath ||
                 derivationInfo.derivationPath == DecredWalletService.pubkeyRestorePathTestnet,
+        this.isHardware = walletInfo.hardwareWalletType != null,
         this.balance = ObservableMap.of({CryptoCurrency.dcr: DecredBalance.zero()}),
         this.isTestnet =
             derivationInfo.derivationPath == DecredWalletService.seedRestorePathTestnet ||
@@ -73,6 +75,7 @@ abstract class DecredWalletBase
   final Libwallet _libwallet;
   final Function() _closeLibwallet;
   final idPrefix = "decred_";
+  LedgerWalletService? ledgerWalletService;
 
   // TODO: Encrypt this.
   var _seed = "";
@@ -81,7 +84,8 @@ abstract class DecredWalletBase
 
   // synced is used to set the syncTimer interval.
   bool synced = false;
-  bool watchingOnly;
+  bool isWatchingOnly;
+  bool isHardware;
   bool connecting = false;
   String persistantPeer = "default-spv-nodes";
   FeeCache feeRateFast = FeeCache(defaultFeeRate);
@@ -107,7 +111,7 @@ abstract class DecredWalletBase
 
   @override
   String? get seed {
-    if (watchingOnly) {
+    if (isWatchingOnly) {
       return null;
     }
     return _seed;
@@ -128,7 +132,7 @@ abstract class DecredWalletBase
 
   Future<void> init() async {
     final getSeed = () async {
-      if (!watchingOnly) {
+      if (!isWatchingOnly) {
         _seed = await _libwallet.walletSeed(walletInfo.name, _password) ?? "";
       }
       _pubkey = await _libwallet.defaultPubkey(walletInfo.name);
@@ -350,7 +354,7 @@ abstract class DecredWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    if (watchingOnly) {
+    if (isWatchingOnly && !isHardware) {
       return DecredPendingTransaction(
           txid: "",
           amount: 0,
@@ -403,18 +407,27 @@ abstract class DecredWalletBase
 
     // The inputs are always used. Currently we don't have use for this
     // argument. sendall ingores output value and sends everything.
-    final signReq = {
+    final req = {
       // "inputs": inputs,
       "ignoreInputs": ignoreInputs,
       "outputs": outputs,
       "feerate": creds.feeRate ?? defaultFeeRate,
-      "password": _password,
       "sendall": sendAll,
       "sign": true,
     };
-    final res = await _libwallet.createTransaction(walletInfo.name, jsonEncode(signReq));
+    if (!isHardware) {
+      req["password"] = _password;
+      req["sign"] = true;
+    }
+    final res = await _libwallet.createTransaction(walletInfo.name, jsonEncode(req));
     final decoded = json.decode(res);
-    final signedHex = decoded["hex"];
+    var signedHex;
+    if (isHardware) {
+      signedHex = await signTransaction(
+          decoded["hex"], walletInfo.name, ledgerWalletService!.ledgerConnection, _libwallet);
+    } else {
+      signedHex = decoded["hex"];
+    }
     final send = () async {
       await _libwallet.sendRawTransaction(walletInfo.name, signedHex);
       await updateBalance();
@@ -535,7 +548,7 @@ abstract class DecredWalletBase
     // mnemonic. As long as not private data is imported into the wallet, we
     // can always rescan from there.
     var rescanHeight = 0;
-    if (!watchingOnly) {
+    if (!isWatchingOnly) {
       rescanHeight = await walletBirthdayBlockHeight();
       // Sync has not yet reached the birthday block.
       if (rescanHeight == -1) {
@@ -560,7 +573,7 @@ abstract class DecredWalletBase
 
   @override
   Future<void> changePassword(String password) async {
-    if (watchingOnly) {
+    if (isWatchingOnly) {
       return;
     }
     return () async {
@@ -630,7 +643,21 @@ abstract class DecredWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    if (watchingOnly) {
+    if (isHardware) {
+      var path = "m/44'/42'/0'/0/0";
+      if (address != null) {
+        final vaJSON = await _libwallet.validateAddr(walletInfo.name, address);
+        final va = json.decode(vaJSON.isEmpty ? "{}" : vaJSON);
+        final accountn = va["accountn"] ?? 0;
+        final branch = va["branch"] ?? 0;
+        final index = va["index"] ?? 0;
+        path = "44'/42'/" + accountn.toString() + "'/" + branch.toString() + "/" + index.toString();
+      }
+      final signature = await ledgerWalletService!
+          .signMessage(message: ascii.encode(message), derivationPath: path);
+      return base64Encode(signature);
+    }
+    if (isWatchingOnly) {
       throw "a watching only wallet cannot sign";
     }
     var addr = address;
@@ -765,5 +792,5 @@ abstract class DecredWalletBase
   String get password => _password;
 
   @override
-  bool canSend() => seed != null;
+  bool canSend() => seed != null || isHardware;
 }

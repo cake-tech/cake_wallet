@@ -38,9 +38,7 @@ class DecredRestoreWalletFromPubkeyCredentials extends WalletCredentials {
 class DecredRestoreWalletFromHardwareCredentials extends WalletCredentials {
   DecredRestoreWalletFromHardwareCredentials(
       {required String name, required this.hwAccountData, WalletInfo? walletInfo})
-      : t = throw UnimplementedError(),
-        super(name: name, walletInfo: walletInfo);
+      : super(name: name, walletInfo: walletInfo);
 
   final HardwareAccountData hwAccountData;
-  final void t;
 }
