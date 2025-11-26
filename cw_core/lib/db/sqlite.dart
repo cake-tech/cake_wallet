@@ -1,6 +1,7 @@
 
 import 'dart:io';
 
+import 'package:cw_core/root_dir.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 late Database db; 
@@ -8,6 +9,9 @@ late Database db;
 Future<void> initDb({String? pathOverride}) async {
   if (Platform.isLinux || Platform.isWindows) { 
     databaseFactory = databaseFactoryFfi;
+  }
+  if (Platform.isWindows) {
+    pathOverride ??= "${(await getAppDir()).path}/cake.db";
   }
   db = await openDatabase(
     pathOverride ?? "cake.db",

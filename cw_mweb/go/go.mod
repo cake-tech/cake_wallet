@@ -2,9 +2,7 @@ module github.com/cake-tech/cake_wallet/cw_mweb/go
 
 go 1.24.1
 
-require github.com/ltcmweb/mwebd v0.1.16
-
-require github.com/ltcmweb/mwebd v0.1.16
+require github.com/ltcmweb/mwebd v0.1.17
 
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
@@ -27,7 +25,7 @@ require (
 	github.com/kkdai/bstream v1.0.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/ltcmweb/coinswapd v0.1.0 // indirect
-	github.com/ltcmweb/ltcd v0.25.11 // indirect
+	github.com/ltcmweb/ltcd v0.25.12 // indirect
 	github.com/ltcmweb/ltcd/btcec/v2 v2.3.3 // indirect
 	github.com/ltcmweb/ltcd/chaincfg/chainhash v1.0.3 // indirect
 	github.com/ltcmweb/neutrino v0.17.4 // indirect

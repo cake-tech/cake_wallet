@@ -64,9 +64,24 @@ abstract class WalletCreationVMBase with Store {
 
   Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
 
+  bool _isCreating = false;
   Future<void> create({dynamic options}) async {
+    try {
+      if (_isCreating) {
+        printV("not creating because we don't feel like doing so");
+        return;
+      }
+      _isCreating = true;
+      await _create(options: options);
+    } finally {
+      _isCreating = false;
+    }
+  }
+
+  Future<void> _create({dynamic options}) async {
     final type = this.type;
     try {
+
       state = IsExecutingState();
       if (name.isEmpty) {
         name = await generateName();
