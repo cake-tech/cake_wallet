@@ -2,19 +2,21 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/node_address_validator.dart';
 import 'package:cake_wallet/core/node_port_validator.dart';
 import 'package:cake_wallet/core/socks_proxy_node_address_validator.dart';
-import 'package:cake_wallet/entities/new_ui_entities/new_list_row_item.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/new_list_row.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:collection/collection.dart';
-import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
@@ -44,99 +46,126 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         useSSL = editingNode?.useSSL ?? false {
     nodeFormItems = {
       'main': [
-        NewListRowItem(
-          key: nodeLabelUIKey,
+        ListItemTextField(
+          keyValue: nodeLabelUIKey,
           label: 'Node label',
-          type: NewListRowType.textFormField,
           initialValue: label,
         ),
-        NewListRowItem(
-          key: nodeAddressUIKey,
+        ListItemTextField(
+          keyValue: nodeAddressUIKey,
           label: S.current.node_address,
-          type: NewListRowType.textFormField,
           initialValue: address,
           validator: _walletType == WalletType.decred
               ? NodeAddressValidatorDecredBlankException()
               : NodeAddressValidator(),
         ),
         if (hasPathSupport)
-          NewListRowItem(
-            key: nodePathUIKey,
+          ListItemTextField(
+            keyValue: nodePathUIKey,
             label: '/path',
-            type: NewListRowType.textFormField,
             initialValue: path,
             validator: NodePathValidator(),
           ),
-        NewListRowItem(
-          key: nodePortUIKey,
+        ListItemTextField(
+          keyValue: nodePortUIKey,
           label: S.current.node_port,
-          type: NewListRowType.textFormField,
           initialValue: '',
           //keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
           validator: NodePortValidator(),
         ),
         if (hasAuthCredentials) ...[
-          NewListRowItem(
-            key: nodeUsernameUIKey,
+          ListItemTextField(
+            keyValue: nodeUsernameUIKey,
             label: S.current.login,
-            type: NewListRowType.textFormField,
             initialValue: login,
           ),
-          NewListRowItem(
-            key: nodePasswordUIKey,
+          ListItemTextField(
+            keyValue: nodePasswordUIKey,
             label: S.current.password,
-            type: NewListRowType.textFormField,
             initialValue: password,
           ),
         ]
       ],
       'advanced': [
-        NewListRowItem(
-            key: useSSLUIKey,
+        ListItemCheckbox(
+            keyValue: useSSLUIKey,
             label: S.current.use_ssl,
-            type: NewListRowType.checkbox,
-            checkboxValue: useSSL,
-            onCheckboxChanged: (value) => useSSL = value),
-        NewListRowItem(
-          key: nodeTrustedUIKey,
+            value: useSSL,
+            onChanged: (value) => useSSL = value),
+        ListItemCheckbox(
+          keyValue: nodeTrustedUIKey,
           label: S.current.trusted,
-          type: NewListRowType.checkbox,
-          checkboxValue: trusted,
-          onCheckboxChanged: (value) => trusted = value,
+          value: trusted,
+          onChanged: (value) => trusted = value,
         ),
         if (usesEmbeddedProxy)
-          NewListRowItem(
-            key: nodeEmbeddedTorProxyUIKey,
+          ListItemCheckbox(
+            keyValue: nodeEmbeddedTorProxyUIKey,
             label: 'Embedded Tor SOCKS Proxy',
-            type: NewListRowType.checkbox,
-            checkboxValue: usesEmbeddedProxy,
-            onCheckboxChanged: null,
+            value: usesEmbeddedProxy,
+            onChanged: (_) {},
           ),
-        NewListRowItem(
-          key: useSocksProxyUIKey,
+        ListItemCheckbox(
+          keyValue: useSocksProxyUIKey,
           label: 'Use SOCKS Proxy',
-          type: NewListRowType.checkbox,
-          checkboxValue: useSocksProxy,
-          onCheckboxChanged: (value) {
+          value: useSocksProxy,
+          onChanged: (value) {
             socksProxyAddress = '';
             useSocksProxy = value;
           },
         ),
         if (useSocksProxy)
-          NewListRowItem(
-            key: socksProxyAddressUIKey,
+          ListItemTextField(
+            keyValue: socksProxyAddressUIKey,
             label: '[<ip>:]<port>',
-            type: NewListRowType.textFormField,
             initialValue: socksProxyAddress,
             validator: SocksProxyNodeAddressValidator(),
           ),
-        NewListRowItem(
-            key: autoSwitchingUIKey,
+        ListItemCheckbox(
+            keyValue: autoSwitchingUIKey,
             label: S.current.enable_for_auto_switching,
-            type: NewListRowType.checkbox,
-            checkboxValue: isEnabledForAutoSwitching,
-            onCheckboxChanged: (value) => isEnabledForAutoSwitching = value),
-      ]
+            value: isEnabledForAutoSwitching,
+            onChanged: (value) => isEnabledForAutoSwitching = value),
+      ],
+      'example section': [
+        // NewListRowItem(
+        //     keyValue: 'node_regular_with_drill_in_row_key',
+        //     label: 'Regular with Drill-in',
+        //     type: NewListRowType.regularWithTrailing),
+        // NewListRowItem(
+        //     keyValue: 'node_tall_row_key',
+        //     label: 'Tall',
+        //     subtitle: 'With secondary text',
+        //     type: NewListRowType.regularWithTrailing),
+        // NewListRowItem(
+        //     keyValue: 'node_regular_with_trailing_row_key',
+        //     label: 'Regular with Trailing',
+        //     type: NewListRowType.regularWithTrailing,
+        //     trailingText: 'Trailing'),
+        ListItemToggle(
+            keyValue: 'node_toggle_row_key',
+            label: 'Toggle',
+            value: toggleExampleValue,
+            onChanged: (value) => toggleExampleValue = value),
+        ListItemCheckbox(
+          keyValue: 'node_checkbox_row_key',
+          label: 'Checkbox',
+          value: checkboxExampleValue,
+          onChanged: (value) => checkboxExampleValue = value,
+        ),
+        // NewListRowItem(
+        //     keyValue: 'node_item_selector_row_key',
+        //     label: 'Item Selector',
+        //     trailingText: 'Item',
+        //     type: NewListRowType.itemSelector)
+      ],
+      // 'example dropdown': [
+      //   NewListRowItem(
+      //       keyValue: 'node_dropdown_key',
+      //       label: 'Leading',
+      //       type: NewListRowType.dropdown,
+      //       trailingText: 'Trailing')
+      // ],
     };
   }
 
@@ -153,7 +182,10 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   final useSocksProxyUIKey = 'node_use_socks_proxy_row_key';
   final socksProxyAddressUIKey = 'node_socks_proxy_address_row_key';
 
-  Map<String, List<NewListRowItem>> nodeFormItems = {};
+  Map<String, List<ListItem>> nodeFormItems = {};
+
+  bool toggleExampleValue = false;
+  bool checkboxExampleValue = false;
 
   @observable
   ExecutionState state;
@@ -260,6 +292,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     useSocksProxy = false;
     socksProxyAddress = '';
   }
+
+  @action
+  void setLabel(String val) => label = val;
 
   @action
   void setPort(String val) => port = val;
