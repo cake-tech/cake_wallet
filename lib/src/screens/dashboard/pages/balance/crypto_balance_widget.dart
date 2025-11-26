@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/info_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
-import 'package:cake_wallet/src/widgets/evm_switcher.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
@@ -131,31 +130,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                                             'assets/images/home_screen_setting_icon.svg',
                                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             height: 30),
-                                      ),
-                                    ),
-                                  if (dashboardViewModel.isEVMWallet &&
-                                      dashboardViewModel.availableChains.isNotEmpty)
-                                    TextButton(
-                                      style: TextButton.styleFrom(
-                                        minimumSize: Size(50, 30),
-                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                        alignment: Alignment.centerLeft,
-                                      ),
-                                      onPressed: () => showDialog(
-                                        context: context,
-                                        builder: (context) => EvmSwitcher(
-                                          chains: dashboardViewModel.availableChains,
-                                          currentChain: dashboardViewModel.currentChain,
-                                          onChainSelected: (chainId) =>
-                                              dashboardViewModel.selectChain(chainId),
-                                        ),
-                                      ),
-                                      child: Container(
-                                        child: SvgPicture.asset(
-                                          'assets/images/evm_switcher.svg',
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          height: 30,
-                                        ),
                                       ),
                                     ),
                                 ],

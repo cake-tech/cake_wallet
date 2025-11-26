@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart'
 import 'package:cake_wallet/src/screens/dashboard/widgets/page_indicator.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_listener_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/widgets/evm_switcher.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/haven_wallet_removal_popup.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
@@ -31,7 +32,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
@@ -144,6 +144,31 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget leading(BuildContext context) {
+    if (dashboardViewModel.isEVMWallet && dashboardViewModel.availableChains.isNotEmpty) {
+      return TextButton(
+        style: TextButton.styleFrom(
+          minimumSize: Size(50, 30),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          alignment: Alignment.centerLeft,
+        ),
+        onPressed: () => showDialog(
+          context: context,
+          builder: (context) => EvmSwitcher(
+            chains: dashboardViewModel.availableChains,
+            currentChain: dashboardViewModel.currentChain,
+            onChainSelected: (chainId) => dashboardViewModel.selectChain(chainId),
+          ),
+        ),
+        child: Container(
+          child: SvgPicture.asset(
+            'assets/images/evm_switcher.svg',
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            height: 30,
+          ),
+        ),
+      );
+    }
+
     return Observer(
       builder: (context) {
         return ServicesUpdatesWidget(
