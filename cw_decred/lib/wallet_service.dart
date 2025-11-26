@@ -30,6 +30,10 @@ class DecredWalletService extends WalletService<
   static Libwallet? libwallet;
 
   Future<void> init() async {
+    return initLibwallet();
+  }
+
+  static Future<void> initLibwallet() async {
     if (libwallet != null) {
       return;
     }
@@ -271,6 +275,29 @@ class DecredWalletService extends WalletService<
 
   @override
   Future<DecredWallet> restoreFromHardwareWallet(
-          DecredRestoreWalletFromHardwareCredentials credentials) async =>
-      throw UnimplementedError();
+      DecredRestoreWalletFromHardwareCredentials credentials,
+      {bool? isTestnet}) async {
+    await this.init();
+    final network = isTestnet == true ? testnet : mainnet;
+    final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
+    final config = {
+      "name": credentials.walletInfo!.name,
+      "datadir": dirPath,
+      "pubkey": credentials.hwAccountData.xpub,
+      "net": network,
+      "unsyncedaddrs": true,
+    };
+    await libwallet!.createWatchOnlyWallet(jsonEncode(config));
+    final di = await credentials.walletInfo!.getDerivationInfo();
+    di.derivationPath = isTestnet == true ? pubkeyRestorePathTestnet : pubkeyRestorePath;
+    await di.save();
+    credentials.walletInfo!.network = network;
+    credentials.walletInfo!.dirPath = "";
+    credentials.walletInfo!.path = "";
+    credentials.hardwareWalletType = HardwareWalletType.ledger;
+    final wallet = DecredWallet(credentials.walletInfo!, di, credentials.password!,
+        this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
+    await wallet.init();
+    return wallet;
+  }
 }
