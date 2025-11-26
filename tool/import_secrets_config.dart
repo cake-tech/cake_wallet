@@ -14,6 +14,9 @@ const solanaOutputPath = 'cw_solana/lib/.secrets.g.dart';
 const tronConfigPath = 'tool/.tron-secrets-config.json';
 const tronOutputPath = 'cw_tron/lib/.secrets.g.dart';
 
+const bitcoinConfigPath = 'tool/.bitcoin-secrets-config.json';
+const bitcoinOutputPath = 'cw_bitcoin/lib/.secrets.g.dart';
+
 const nanoConfigPath = 'tool/.nano-secrets-config.json';
 const nanoOutputPath = 'cw_nano/lib/.secrets.g.dart';
 

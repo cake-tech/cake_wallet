@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -31,14 +30,14 @@ class NewMainActions {
 
   static NewMainActions homeAction = NewMainActions._(
     name: (context) => 'Home', //TODO S.of(context).home,
-    image: 'assets/images/main_actions/home.svg',
+    image: 'assets/new-ui/Home.svg',
     key: ValueKey('dashboard_page_home_action_button_key'),
     onTap: () {},
   );
 
   static NewMainActions walletsAction = NewMainActions._(
     name: (context) => S.of(context).wallets,
-    image: 'assets/images/main_actions/wallets.svg',
+    image: 'assets/new-ui/Wallets.svg',
     key: ValueKey('dashboard_page_wallets_action_button_key'),
     onTap: () {},
   );
@@ -46,21 +45,21 @@ class NewMainActions {
 
   static NewMainActions contactsAction = NewMainActions._(
     name: (context) => 'Contacts', //TODO S.of(context).contacts,
-    image: 'assets/images/main_actions/contacts.svg',
+    image: 'assets/new-ui/Contacts.svg',
     key: ValueKey('dashboard_page_contacts_action_button_key'),
     onTap: () {},
   );
 
   static NewMainActions appsAction = NewMainActions._(
     name: (context) => 'Apps', //TODO S.of(context).apps,
-    image: 'assets/images/main_actions/apps.svg',
+    image: 'assets/new-ui/Apps.svg',
     key: ValueKey('dashboard_page_apps_action_button_key'),
     onTap: () {},
   );
 
   static NewMainActions chartsAction = NewMainActions._(
     name: (context) => 'Charts', //TODO S.of(context).charts,
-    image: 'assets/images/main_actions/charts.svg',
+    image: 'assets/new-ui/Charts.svg',
     key: ValueKey('dashboard_page_charts_action_button_key'),
     onTap: () {},
   );

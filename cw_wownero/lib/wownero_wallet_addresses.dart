@@ -1,10 +1,9 @@
 import 'package:cw_core/account.dart';
-import 'package:cw_core/address_info.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_wownero/api/transaction_history.dart';
 import 'package:cw_wownero/api/subaddress_list.dart' as subaddress_list;
 import 'package:cw_wownero/api/wallet.dart';
 import 'package:cw_wownero/wownero_account_list.dart';
@@ -63,7 +62,7 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   WowneroSubaddressList subaddressList;
 
   WowneroAccountList accountList;
-  
+
   @override
   Set<String> usedAddresses = Set();
 
@@ -151,4 +150,8 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   @override
   bool containsAddress(String address) =>
       addressInfos[account?.id ?? 0]?.any((it) => it.address == address) ?? false;
+
+  @override
+  PaymentURI getPaymentUri(String amount) =>
+      MoneroURI(scheme: "wownero", address: address, amount: amount);
 }

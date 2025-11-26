@@ -242,6 +242,8 @@ flutter:
     - assets/text/
     - assets/faq/
     - assets/animation/
+    - assets/new-ui/
+    - assets/new-ui/balance_card_icons/
 
   fonts:
     - family: Lato
