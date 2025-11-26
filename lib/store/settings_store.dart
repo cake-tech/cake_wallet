@@ -90,6 +90,7 @@ abstract class SettingsStoreBase with Store {
       required this.deviceName,
       required Map<WalletType, Node> nodes,
       required Map<WalletType, Node> powNodes,
+      required this.preferBalanceInSats,
       required this.shouldShowYatPopup,
       required this.shouldShowDEuroDisclaimer,
       required this.shouldShowRepWarning,
@@ -427,6 +428,10 @@ abstract class SettingsStoreBase with Store {
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
+    reaction(
+        (_) => preferBalanceInSats,
+        (bool _preferBalanceInSats) => sharedPreferences.setBool(PreferencesKey.preferBalanceInSats, _preferBalanceInSats));
+
     reaction((_) => currentSyncMode, (SyncMode syncMode) {
       sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
       FlutterDaemon().startBackgroundSync(syncMode.frequency.inMinutes);
@@ -719,6 +724,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   BalanceDisplayMode balanceDisplayMode;
+
+  @observable
+  bool preferBalanceInSats;
 
   @observable
   FiatApiMode fiatApiMode;
@@ -1044,6 +1052,7 @@ abstract class SettingsStoreBase with Store {
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
+    final preferBalanceInSats = sharedPreferences.getBool(PreferencesKey.preferBalanceInSats) ?? false;
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
@@ -1392,6 +1401,7 @@ abstract class SettingsStoreBase with Store {
       powNodes: powNodes,
       appVersion: packageInfo.version,
       deviceName: deviceName,
+      preferBalanceInSats: preferBalanceInSats,
       isBitcoinBuyEnabled: isBitcoinBuyEnabled,
       initialFiatCurrency: currentFiatCurrency,
       initialCakePayCountry: currentCakePayCountry,

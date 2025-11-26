@@ -4,22 +4,15 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:cw_core/root_dir.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
-import 'package:cw_bitcoin/litecoin_wallet.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart' as electrum;
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -28,31 +21,37 @@ import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
+import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/socket_health_logger.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/output_info.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sp_scanner/sp_scanner.dart';
-import 'package:hex/hex.dart';
-import 'package:cw_core/utils/socket_health_logger.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -77,8 +76,8 @@ abstract class ElectrumWalletBase
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
     bool? alwaysScan,
-  })  : accountHD =
-            getAccountHDWallet(currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType),
+  })  : accountHD = getAccountHDWallet(
+            currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -773,7 +772,6 @@ abstract class ElectrumWalletBase
         pubKeyHex = hd.childKey(Bip32KeyIndex(utx.bitcoinAddressRecord.index)).publicKey.toHex();
       }
 
-
       final derivationPath =
           "${_hardenedDerivationPath(derivationInfo.derivationPath ?? electrum_path)}"
           "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
@@ -898,7 +896,6 @@ abstract class ElectrumWalletBase
     if (_isBelowDust(credentialsAmount)) {
       throw BitcoinTransactionNoDustException();
     }
-
 
     // If there is only one output, and the amount to send is more than the max spendable amount
     // then it is actually a send all transaction
@@ -1135,7 +1132,6 @@ abstract class ElectrumWalletBase
     bool hasSilentPayment = false,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) async {
-
     final utxoDetailsAll = _createUTXOS(
       sendAll: true,
       paysToSilentPayment: hasSilentPayment,

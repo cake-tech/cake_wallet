@@ -1,37 +1,38 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
+import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/format_fixed.dart';
+import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-
-import 'package:cake_wallet/entities/contact_base.dart';
 
 part 'output.g.dart';
 
@@ -94,6 +95,9 @@ abstract class OutputBase with Store {
   bool get isParsedAddress =>
       parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
 
+  @computed
+  bool get useSatoshis => walletType == WalletType.bitcoin && _settingsStore.preferBalanceInSats;
+
   @observable
   String? stealthAddress;
 
@@ -113,7 +117,11 @@ abstract class OutputBase with Store {
           case WalletType.litecoin:
           case WalletType.bitcoinCash:
           case WalletType.dogecoin:
-            _amount = bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
+            if (useSatoshis) {
+              _amount = int.parse(_cryptoAmount);
+            } else {
+              _amount = bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
+            }
             break;
           case WalletType.decred:
             _amount = decred!.formatterStringDoubleToDecredAmount(_cryptoAmount);
@@ -177,7 +185,12 @@ abstract class OutputBase with Store {
 
       switch (_wallet.type) {
         case WalletType.monero:
-          estimatedFee = monero!.formatterMoneroAmountToDouble(amount: fee).toString();
+        case WalletType.wownero:
+        case WalletType.litecoin:
+        case WalletType.bitcoinCash:
+        case WalletType.dogecoin:
+        case WalletType.decred:
+          estimatedFee = walletTypeToCryptoCurrency(_wallet.type).formatAmount(BigInt.from(fee));
           break;
         case WalletType.bitcoin:
           if (_settingsStore.priority[_wallet.type] ==
@@ -186,27 +199,18 @@ abstract class OutputBase with Store {
                 _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
           }
 
-          estimatedFee = bitcoin!.formatterBitcoinAmountToDouble(amount: fee).toString();
-          break;
-        case WalletType.litecoin:
-        case WalletType.bitcoinCash:
-        case WalletType.dogecoin:
-          estimatedFee = bitcoin!.formatterBitcoinAmountToDouble(amount: fee).toString();
+          estimatedFee = useSatoshis
+              ? "$fee"
+              : walletTypeToCryptoCurrency(_wallet.type).formatAmount(BigInt.from(fee));
           break;
         case WalletType.solana:
           estimatedFee = solana!.getEstimateFees(_wallet).toString();
-          break;
-        case WalletType.wownero:
-          estimatedFee = wownero!.formatterWowneroAmountToDouble(amount: fee).toString();
           break;
         case WalletType.zano:
           estimatedFee = zano!
               .formatterIntAmountToDouble(
                   amount: fee, currency: cryptoCurrencyHandler(), forFee: true)
               .toString();
-          break;
-        case WalletType.decred:
-          estimatedFee = decred!.formatterDecredAmountToDouble(amount: fee).toString();
           break;
         case WalletType.tron:
           if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
@@ -270,14 +274,17 @@ abstract class OutputBase with Store {
 
     try {
       final currency = (isEVMCompatibleChain(_wallet.type) ||
-              _wallet.type == WalletType.solana ||
-              _wallet.type == WalletType.tron)
+              [WalletType.solana, WalletType.tron].contains(_wallet.type))
           ? _wallet.currency
           : cryptoCurrencyHandler();
-      final fiat = calculateFiatAmountRaw(
-          price: _fiatConversationStore.prices[currency]!,
-          cryptoAmount: double.parse(estimatedFee));
-      return fiat;
+
+      var cryptoAmount = double.parse(estimatedFee);
+      if (useSatoshis) {
+        cryptoAmount = double.parse(currency.formatAmount(BigInt.parse(estimatedFee)));
+      }
+
+      return calculateFiatAmountRaw(
+          price: _fiatConversationStore.prices[currency]!, cryptoAmount: cryptoAmount);
     } catch (_) {
       return '0.00';
     }
@@ -340,10 +347,16 @@ abstract class OutputBase with Store {
   @action
   void _updateFiatAmount() {
     try {
+      var cryptoAmount_ = sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.');
+
+      if (useSatoshis) {
+        cryptoAmount_ =
+            walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.parse(cryptoAmount_));
+      }
+
       final fiat = calculateFiatAmount(
           price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
-          cryptoAmount:
-              sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.'));
+          cryptoAmount: cryptoAmount_);
       if (fiatAmount != fiat) {
         fiatAmount = fiat;
       }
@@ -359,7 +372,11 @@ abstract class OutputBase with Store {
           _fiatConversationStore.prices[cryptoCurrencyHandler()]!;
       final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
       if (cryptoAmount != cryptoAmountTmp) {
-        cryptoAmount = cryptoAmountTmp;
+        if (useSatoshis) {
+          cryptoAmount = parseFixed(cryptoAmountTmp, 8).toString();
+        } else {
+          cryptoAmount = cryptoAmountTmp;
+        }
       }
     } catch (e) {
       cryptoAmount = '';

@@ -136,6 +136,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
 
+  bool get isMwebAvailable => wallet.currency == CryptoCurrency.ltc && balanceViewModel.mwebEnabled;
+
   bool get isEVMWallet => isEVMCompatibleChain(walletType);
   @action
   void setShowAddressBookPopup(bool value) {
@@ -236,6 +238,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   CryptoCurrency get currency => wallet.currency;
 
+  String get feeCurrencySymbol =>
+      wallet.currency == CryptoCurrency.btc && _settingsStore.preferBalanceInSats
+          ? "SATS"
+          : currency.toString();
+
   Validator<String> amountValidator(Output output) => AmountValidator(
         currency: walletTypeToCryptoCurrency(wallet.type),
         minValue: isSendToSilentPayments(output)
@@ -266,7 +273,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
-    return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
+    if (walletType == WalletType.bitcoin && _settingsStore.preferBalanceInSats) {
+      return "${wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance}";
+    }
+
+    return selectedCryptoCurrency.formatAmount(BigInt.from(wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance));
   }
 
   @action
@@ -293,14 +304,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
+        final sendingBalance = await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
+        if (_settingsStore.preferBalanceInSats)
+          return sendingBalance.toString();
+        return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.decred:
-        return wallet.formatCryptoAmount(
-            (await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom)).toString());
+        final sendingBalance = await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
+        return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
       default:
         return balance;
     }
@@ -311,11 +326,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get pendingTransactionFiatAmountFormatted =>
-      isFiatDisabled ? '' : pendingTransactionFiatAmount + ' ' + fiat.title;
+      isFiatDisabled ? '' : '$pendingTransactionFiatAmount ${fiat.title}';
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
-      isFiatDisabled ? '' : pendingTransactionFeeFiatAmount + ' ' + fiat.title;
+      isFiatDisabled ? '' : '$pendingTransactionFeeFiatAmount ${fiat.title}';
 
   @computed
   bool get isReadyForSend =>

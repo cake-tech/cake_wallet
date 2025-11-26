@@ -59,6 +59,11 @@ class DisplaySettingsPage extends BasePage {
                 displayItem: (SyncStatusDisplayMode mode) => mode.title,
                 isGridView: false,
               ),
+              SettingsSwitcherCell(
+                title: "Prefer sats", // ToDo: 
+                value: _displaySettingsViewModel.preferBalanceInSats,
+                onValueChange: (_, bool value) => _displaySettingsViewModel.setPreferBalanceInSats(value),
+              ),
               //if (!isHaven) it does not work correctly
               if (!_displaySettingsViewModel.disabledFiatApiMode)
                 SettingsPickerCell<FiatCurrency>(

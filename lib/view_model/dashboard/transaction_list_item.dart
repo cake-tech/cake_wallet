@@ -51,7 +51,10 @@ class TransactionListItem extends ActionListItem with Keyable {
       balanceViewModel.wallet.type == WalletType.tron;
 
   String get formattedCryptoAmount {
-    return displayMode == BalanceDisplayMode.hiddenBalance ? '---' : transaction.amountFormatted();
+    if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
+    if (balanceViewModel.wallet.type == WalletType.bitcoin && settingsStore.preferBalanceInSats)
+      return "${transaction.amount}";
+    return transaction.amountFormatted();
   }
 
   String get formattedTitle {
