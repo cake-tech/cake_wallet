@@ -13,13 +13,11 @@ class SeedPhraseGridWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    double desiredTileWidth = 120; // choose your own width
+    double desiredTileWidth = 120;
     double spacing = 4;
     double padding = 4;
-
     double screenWidth = MediaQuery.of(context).size.width;
 
-// Solve the formula:
     int crossAxisCount =
     ((screenWidth + spacing - (2 * padding)) / (desiredTileWidth + spacing))
         .floor();
@@ -62,16 +60,16 @@ class SeedPhraseGridWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    '${item[0].toLowerCase()}${item.substring(1)}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          height: 1,
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                  ),
+              Expanded(
+                child: Text(
+                  '${item[0].toLowerCase()}${item.substring(1)}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        height: 1,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                 ),
+              ),
             ],
           ),
         );
