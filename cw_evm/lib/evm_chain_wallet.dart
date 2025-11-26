@@ -682,8 +682,12 @@ abstract class EVMChainWalletBase
           '0x${opReturnMemo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join()}';
     }
 
-    final CryptoCurrency transactionCurrency =
-        balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
+    final transactionCurrency = balance.keys.firstWhere(
+            (currency) =>
+        currency.title == _credentials.currency.title &&
+            currency.tag == _credentials.currency.tag,
+        orElse: () => throw Exception(
+            'Currency ${_credentials.currency.title} ${_credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
 
     final currencyBalance = balance[transactionCurrency]!;
     BigInt totalAmount = BigInt.zero;

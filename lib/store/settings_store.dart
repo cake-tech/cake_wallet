@@ -74,6 +74,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialContactListAscending,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
+      required bool initialEnableDuressPin,
       required String initialTotpSecretKey,
       required bool initialUseTOTP2FA,
       required int initialFailedTokenTrial,
@@ -159,6 +160,7 @@ abstract class SettingsStoreBase with Store {
         nanoSeedType = initialNanoSeedType,
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
+        enableDuressPin = initialEnableDuressPin,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
         totpSecretKey = initialTotpSecretKey,
         useTOTP2FA = initialUseTOTP2FA,
@@ -539,6 +541,12 @@ abstract class SettingsStoreBase with Store {
             value: biometricalAuthentication.toString()));
 
     reaction(
+            (_) => enableDuressPin,
+            (bool enableDuressPin) => secureStorage.write(
+            key: SecureKey.enableDuressPin,
+            value: enableDuressPin.toString()));
+
+    reaction(
         (_) => selectedCake2FAPreset,
         (Cake2FAPresetsOptions selectedCake2FAPreset) => secureStorage.write(
             key: SecureKey.selectedCake2FAPreset,
@@ -749,6 +757,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool allowBiometricalAuthentication;
+
+  @observable
+  bool enableDuressPin;
 
   @observable
   bool shouldRequireTOTP2FAForAccessingWallet;
@@ -1316,6 +1327,13 @@ abstract class SettingsStoreBase with Store {
         ) ??
         false;
 
+    final enableDuressPin = await SecureKey.getBool(
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
+          key: SecureKey.enableDuressPin,
+        ) ??
+        false;
+
     final selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
         raw: await SecureKey.getInt(
               secureStorage: secureStorage,
@@ -1420,6 +1438,7 @@ abstract class SettingsStoreBase with Store {
       initialContactListAscending: contactListAscending,
       initialFiatMode: currentFiatApiMode,
       initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+      initialEnableDuressPin: enableDuressPin,
       initialCake2FAPresetOptions: selectedCake2FAPreset,
       initialUseTOTP2FA: useTOTP2FA,
       initialTotpSecretKey: totpSecretKey,

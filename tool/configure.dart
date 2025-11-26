@@ -179,6 +179,7 @@ abstract class Bitcoin {
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
   WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub, HardwareWalletType? hardwareWalletType});
+  WalletCredentials createLitecoinWalletFromKeys({required String name, required String password, required String xpub, required String scanSecret, required String spendPubkey});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
@@ -512,6 +513,13 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/haven_seed_store.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:polyseed/polyseed.dart';""";
@@ -645,6 +653,7 @@ abstract class Wownero {
   Map<String, String> pendingTransactionInfo(Object transaction);
   String getLegacySeed(Object wallet, String langName);
   Map<String, List<int>> debugCallLength();
+  Future<void> backupSeeds(Box<HavenSeedStore> havenSeedStore);
 }
 
 abstract class WowneroSubaddressList {
@@ -1708,9 +1717,9 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.decred,\n';
   }
 
-  if (hasWownero) {
-    outputContent += '\tWalletType.wownero,\n';
-  }
+  // if (hasWownero) {
+  //   outputContent += '\tWalletType.wownero,\n';
+  // }
 
   outputContent += '];\n';
   await walletTypesFile.writeAsString(outputContent);
@@ -1727,6 +1736,7 @@ abstract class SecureStorage {
   Future<String?> read({required String key});
   Future<void> write({required String key, required String? value});
   Future<void> delete({required String key});
+  Future<void> deleteAll();
   // Legacy
   Future<String?> readNoIOptions({required String key});
   Future<Map<String, String>> readAll();
@@ -1759,6 +1769,9 @@ class DefaultSecureStorage extends SecureStorage {
 
   @override
   Future<void> delete({required String key}) async => _secureStorage.delete(key: key);
+  
+  @override
+  Future<void> deleteAll() async => _secureStorage.deleteAll();
 
   @override
   Future<String?> readNoIOptions({required String key}) async => await _readInternal(key, true);
@@ -1783,6 +1796,8 @@ class FakeSecureStorage extends SecureStorage {
   Future<void> write({required String key, required String? value}) async {}
   @override
   Future<void> delete({required String key}) async {}
+  @override
+  Future<void> deleteAll() async {}
   @override
   Future<String?> readNoIOptions({required String key}) async => null;
   @override

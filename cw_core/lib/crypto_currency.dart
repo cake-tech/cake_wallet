@@ -1,5 +1,6 @@
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
+import 'package:collection/collection.dart';
 
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implements Currency {
   const CryptoCurrency({
@@ -336,8 +337,22 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     return CryptoCurrency._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()]!;
   }
 
-  static CryptoCurrency? safeParseCurrencyFromString(String? raw, {CryptoCurrency? walletCurrency}) {
+  static CryptoCurrency? safeParseCurrencyFromString(
+      String? raw, {
+        String? tag,
+        CryptoCurrency? walletCurrency,
+      }) {
     if (raw == null || raw.isEmpty) return null;
+
+    if (tag != null && tag.isNotEmpty) {
+      final match = CryptoCurrency.all.firstWhereOrNull(
+            (e) =>
+        e.title.toUpperCase() == raw.toUpperCase() &&
+            e.tag?.toUpperCase() == tag.toUpperCase(),
+      );
+      if (match != null) return match;
+      return null;
+    }
 
     try {
       return CryptoCurrency.fromString(raw, walletCurrency: walletCurrency);
@@ -378,4 +393,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   @override
   String toString() => title;
+
+  bool titleAndTagEqual(CryptoCurrency other) {
+    return title == other.title && tag == other.tag;
+  }
 }
