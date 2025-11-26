@@ -70,7 +70,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
-    printV("aaaaaa");
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       return null;
     }

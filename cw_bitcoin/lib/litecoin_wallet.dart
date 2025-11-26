@@ -1350,7 +1350,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       btcTx,
       type,
       electrumClient: electrumClient,
-      amount: btcTx.outputs.reduce((a, b) => TxOutput(amount: a.amount + b.amount,  scriptPubKey: a.scriptPubKey)).amount.toInt(),
+      amount: 0,
       fee: resp.fee.toInt(),
       feeRate: "",
       network: network,
