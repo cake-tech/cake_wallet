@@ -8,13 +8,29 @@ class SeedPhraseGridWidget extends StatelessWidget {
 
   final List<String> list;
 
+
+
   @override
   Widget build(BuildContext context) {
+
+    double desiredTileWidth = 120; // choose your own width
+    double spacing = 4;
+    double padding = 4;
+
+    double screenWidth = MediaQuery.of(context).size.width;
+
+// Solve the formula:
+    int crossAxisCount =
+    ((screenWidth + spacing - (2 * padding)) / (desiredTileWidth + spacing))
+        .floor();
+
+    if (crossAxisCount < 1) crossAxisCount = 1;
+
     return GridView.builder(
       itemCount: list.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 2.8,
+        crossAxisCount: crossAxisCount,
+        childAspectRatio: 2.6,
         mainAxisSpacing: 8.0,
         crossAxisSpacing: 8.0,
       ),
@@ -41,19 +57,21 @@ class SeedPhraseGridWidget extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                       ),
+                  softWrap: true,
+                  maxLines: null,
                 ),
               ),
               const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  '${item[0].toLowerCase()}${item.substring(1)}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        height: 1.9,
-                        fontWeight: FontWeight.w700,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                Expanded(
+                  child: Text(
+                    '${item[0].toLowerCase()}${item.substring(1)}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          height: 1,
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                  ),
                 ),
-              ),
             ],
           ),
         );
