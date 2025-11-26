@@ -4,10 +4,14 @@ import 'package:cake_wallet/core/node_port_validator.dart';
 import 'package:cake_wallet/core/socks_proxy_node_address_validator.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_dropdown.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/list_item_selector_widget.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:collection/collection.dart';
@@ -127,21 +131,19 @@ abstract class NodeCreateOrEditViewModelBase with Store {
             value: isEnabledForAutoSwitching,
             onChanged: (value) => isEnabledForAutoSwitching = value),
       ],
+      // TODO: Remove example sections below when done testing
       'example section': [
-        // NewListRowItem(
-        //     keyValue: 'node_regular_with_drill_in_row_key',
-        //     label: 'Regular with Drill-in',
-        //     type: NewListRowType.regularWithTrailing),
-        // NewListRowItem(
-        //     keyValue: 'node_tall_row_key',
-        //     label: 'Tall',
-        //     subtitle: 'With secondary text',
-        //     type: NewListRowType.regularWithTrailing),
-        // NewListRowItem(
-        //     keyValue: 'node_regular_with_trailing_row_key',
-        //     label: 'Regular with Trailing',
-        //     type: NewListRowType.regularWithTrailing,
-        //     trailingText: 'Trailing'),
+        ListItemRegularRow(
+            keyValue: 'node_regular_with_drill_in_row_key',
+            label: 'Regular with Drill-in'),
+        ListItemRegularRow(
+            keyValue: 'node_tall_row_key',
+            label: 'Tall',
+            subtitle: 'With secondary text'),
+        ListItemRegularRow(
+            keyValue: 'node_regular_with_trailing_row_key',
+            label: 'Regular with Trailing',
+            trailingText: 'Trailing'),
         ListItemToggle(
             keyValue: 'node_toggle_row_key',
             label: 'Toggle',
@@ -153,19 +155,39 @@ abstract class NodeCreateOrEditViewModelBase with Store {
           value: checkboxExampleValue,
           onChanged: (value) => checkboxExampleValue = value,
         ),
-        // NewListRowItem(
-        //     keyValue: 'node_item_selector_row_key',
-        //     label: 'Item Selector',
-        //     trailingText: 'Item',
-        //     type: NewListRowType.itemSelector)
+        ListItemSelector(
+          keyValue: 'node_item_selector_row_key',
+          label: 'Item Selector',
+          onTap: () {},
+        ),
       ],
-      // 'example dropdown': [
-      //   NewListRowItem(
-      //       keyValue: 'node_dropdown_key',
-      //       label: 'Leading',
-      //       type: NewListRowType.dropdown,
-      //       trailingText: 'Trailing')
-      // ],
+      'example dropdown': [
+        ListItemDropdown(
+          keyValue: 'node_dropdown_key',
+          label: 'Leading',
+          trailingText: 'Trailing',
+          onTap: () {},
+        ),
+      ],
+      'example icons': [
+        ListItemRegularRow(
+            keyValue: 'node_regular_with_icon_row_key',
+            label: 'Regular with icon',
+            iconPath: 'assets/images/eos.png'
+        ),
+        ListItemRegularRow(
+            keyValue: 'node_regular_tall_with_icon_row_key',
+            label: 'Tall',
+            subtitle: 'with icon',
+            iconPath: 'assets/images/avdo_icon.png'
+        ),
+        ListItemRegularRow(
+            keyValue: 'node_regular_trailing_with_icon_row_key',
+            label: 'Regular with Trailing',
+            trailingText: 'Trailing',
+            iconPath: 'assets/images/avdo_icon.png'
+        ),
+      ],
     };
   }
 
@@ -278,6 +300,32 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   final Node? editingNode;
   final Box<Node> _nodeSource;
   final SettingsStore _settingsStore;
+
+  void updateViewModelFromText(String key, String value) {
+    if (key == nodeLabelUIKey) setLabel(value);
+    if (key == nodeAddressUIKey) setAddress(value);
+    if (key == nodePortUIKey) setPort(value);
+    if (key == nodePathUIKey) setPath(value);
+    if (key == nodeUsernameUIKey) setLogin(value);
+    if (key == nodePasswordUIKey) setPassword(value);
+    if (key == socksProxyAddressUIKey) setSocksProxyAddress(value);
+  }
+
+  void updateCheckboxValue(String key, bool value) {
+    if (key == useSSLUIKey) setSSL(value);
+    if (key == nodeTrustedUIKey) setTrusted(value);
+    if (key == useSocksProxyUIKey) setSocksProxy(value);
+    if (key == autoSwitchingUIKey) setIsEnabledForAutoSwitching(value);
+  }
+
+  bool getCheckboxValue(String key) {
+    if (key == useSSLUIKey) return useSSL;
+    if (key == nodeTrustedUIKey) return trusted;
+    if (key == nodeEmbeddedTorProxyUIKey) return usesEmbeddedProxy;
+    if (key == useSocksProxyUIKey) return useSocksProxy;
+    if (key == autoSwitchingUIKey) return isEnabledForAutoSwitching;
+    return false;
+  }
 
   @action
   void reset() {

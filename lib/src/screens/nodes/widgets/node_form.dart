@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_fi
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobx/mobx.dart';
 
 class NodeForm extends StatefulWidget {
@@ -35,7 +36,7 @@ class _NodeFormState extends State<NodeForm> {
         controller.addListener(() {
           final text = controller.text;
           item.onChanged?.call(text);
-          _updateViewModelFromText(item.keyValue, text);
+          vm.updateViewModelFromText(item.keyValue, text);
         });
       }
     });
@@ -51,38 +52,6 @@ class _NodeFormState extends State<NodeForm> {
     super.dispose();
   }
 
-  void _updateViewModelFromText(String key, String value) {
-    if (key == vm.nodeLabelUIKey) vm.setLabel(value);
-    if (key == vm.nodeAddressUIKey) vm.setAddress(value);
-    if (key == vm.nodePortUIKey) vm.setPort(value);
-    if (key == vm.nodePathUIKey) vm.setPath(value);
-    if (key == vm.nodeUsernameUIKey) vm.setLogin(value);
-    if (key == vm.nodePasswordUIKey) vm.setPassword(value);
-    if (key == vm.socksProxyAddressUIKey) vm.setSocksProxyAddress(value);
-  }
-
-  bool _getCheckboxValue(String key) {
-    if (key == vm.useSSLUIKey) return vm.useSSL;
-    if (key == vm.nodeTrustedUIKey) return vm.trusted;
-    if (key == vm.nodeEmbeddedTorProxyUIKey) {
-      return vm.usesEmbeddedProxy;
-    }
-    if (key == vm.useSocksProxyUIKey) {
-      return vm.useSocksProxy;
-    }
-    if (key == vm.autoSwitchingUIKey) {
-      return vm.isEnabledForAutoSwitching;
-    }
-    return false;
-  }
-
-  void _updateCheckboxValue(String key, bool value) {
-    if (key == vm.useSSLUIKey) vm.useSSL = value;
-    if (key == vm.nodeTrustedUIKey) vm.trusted = value;
-    if (key == vm.useSocksProxyUIKey) vm.useSocksProxy = value;
-    if (key == vm.autoSwitchingUIKey) vm.isEnabledForAutoSwitching = value;
-  }
-
   final NodeCreateOrEditViewModel vm;
 
   @override
@@ -92,10 +61,28 @@ class _NodeFormState extends State<NodeForm> {
         child: NewListSections(
           sections: vm.nodeFormItems,
           controllers: _controllers,
-          getCheckboxValue: _getCheckboxValue,
-          updateCheckboxValue: _updateCheckboxValue,
+          getCheckboxValue: vm.getCheckboxValue,
+          updateCheckboxValue: vm.updateCheckboxValue,
+          tapHandlers: tapHandlers
         ));
   }
+
+  Map<String, VoidCallback> get tapHandlers => {
+    'node_regular_with_drill_in_row_key': () => _showToast('Regular with drill-in row tapped'),
+    'node_tall_row_key': () => _showToast('Tall row tapped'),
+    'node_regular_with_trailing_row_key': () => _showToast('Regular with trailing row tapped'),
+    'node_item_selector_row_key': () => _showToast('Item selector row tapped'),
+  };
+
+  void _showToast(String msg) async {
+    try {
+      await Fluttertoast.showToast(
+        msg: msg,
+        backgroundColor: Color.fromRGBO(0, 0, 0, 0.85),
+      );
+    } catch (_) {}
+  }
+
 
   void _setupReactions() {
     _bindController(() => vm.label, vm.nodeLabelUIKey);

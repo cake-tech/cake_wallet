@@ -1,8 +1,14 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_dropdown.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_checkbox_widget.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/list_item_dropdown_widget.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/list_item_selector_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_text_field_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_toggle_widget.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +18,7 @@ class NewListSections extends StatelessWidget {
     super.key,
     required this.sections,
     this.controllers = const {},
+    this.tapHandlers = const {},
     this.getCheckboxValue,
     this.updateCheckboxValue,
   });
@@ -20,6 +27,7 @@ class NewListSections extends StatelessWidget {
   final Map<String, TextEditingController> controllers;
   final bool Function(String key)? getCheckboxValue;
   final void Function(String key, bool value)? updateCheckboxValue;
+  final Map<String, VoidCallback> tapHandlers;
 
   static const double sectionSpacing = 20.0;
 
@@ -69,6 +77,19 @@ class NewListSections extends StatelessWidget {
       );
     }
 
+    if (item is ListItemRegularRow) {
+      return ListItemRegularRowWidget(
+        keyValue: item.keyValue,
+        label: item.label,
+        subtitle: item.subtitle,
+        trailingText: item.trailingText,
+        iconPath: item.iconPath,
+        onTap: tapHandlers[item.keyValue] ?? item.onTap,
+        isFirstInSection: isFirst,
+        isLastInSection: isLast,
+      );
+    }
+
     if (item is ListItemToggle) {
       return ListItemToggleWidget(
         keyValue: item.keyValue,
@@ -94,6 +115,29 @@ class NewListSections extends StatelessWidget {
         },
         isFirstInSection: isFirst,
         isLastInSection: isLast,
+      );
+    }
+
+    if (item is ListItemDropdown) {
+      return ListItemDropdownWidget(
+        keyValue: item.keyValue,
+        label: item.label,
+        trailingText: item.trailingText,
+        onTap: tapHandlers[item.keyValue] ?? item.onTap,
+        isFirstInSection: isFirst,
+        isLastInSection: isLast,
+      );
+    }
+
+    if (item is ListItemSelector) {
+      return ListItemSelectorWidget(
+        keyValue: item.keyValue,
+        label: item.label,
+        options: ['Item'],
+        selectedIndex: 0,
+        isFirstInSection: isFirst,
+        isLastInSection: isLast,
+        onChanged: (int value) {},
       );
     }
 
