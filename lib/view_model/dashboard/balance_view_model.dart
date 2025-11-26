@@ -31,6 +31,7 @@ class BalanceRecord {
     required this.fiatSecondAvailableBalance,
     required this.fiatSecondAdditionalBalance,
     required this.asset,
+    required this.secondAsset,
     required this.formattedAssetTitle,
   });
 
@@ -45,6 +46,7 @@ class BalanceRecord {
   final String fiatSecondAdditionalBalance;
   final String fiatSecondAvailableBalance;
   final CryptoCurrency asset;
+  final CryptoCurrency secondAsset;
   final String formattedAssetTitle;
 }
 
@@ -196,6 +198,14 @@ abstract class BalanceViewModelBase with Store {
   @computed
   Map<CryptoCurrency, BalanceRecord> get balances {
     return wallet.balance.map((key, value) {
+
+      var secondAsset = key;
+      if (key == CryptoCurrency.btc) {
+        secondAsset = CryptoCurrency.btcln;
+      } else if (key == CryptoCurrency.ltc) {
+        secondAsset = CryptoCurrency.ltcmweb;
+      }
+
       if (displayMode == BalanceDisplayMode.hiddenBalance) {
         final fiatCurrency = settingsStore.fiatCurrency;
         return MapEntry(
@@ -214,6 +224,7 @@ abstract class BalanceViewModelBase with Store {
                 fiatSecondAdditionalBalance:
                     isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 asset: key,
+                secondAsset: secondAsset,
                 formattedAssetTitle: _formatterAsset(key)));
       }
       final fiatCurrency = settingsStore.fiatCurrency;
@@ -267,6 +278,7 @@ abstract class BalanceViewModelBase with Store {
               fiatSecondAvailableBalance: secondAvailableFiatBalance,
               fiatSecondAdditionalBalance: secondAdditionalFiatBalance,
               asset: key,
+              secondAsset: secondAsset,
               formattedAssetTitle: _formatterAsset(key)));
     });
   }
