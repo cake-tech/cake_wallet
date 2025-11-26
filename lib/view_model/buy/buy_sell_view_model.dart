@@ -12,6 +12,7 @@ import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
@@ -80,10 +81,16 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   double get amount {
     final formattedFiatAmount = double.tryParse(fiatAmount) ?? 200.0;
-    final formattedCryptoAmount =
-        double.tryParse(cryptoAmount) ?? (cryptoCurrency == CryptoCurrency.btc ? 0.001 : 1);
+    var formattedCryptoAmount = double.tryParse(cryptoAmount);
 
-    return isBuyAction ? formattedFiatAmount : formattedCryptoAmount;
+    if (useSatoshis && cryptoAmount.isNotEmpty) {
+      formattedCryptoAmount =
+          double.tryParse(cryptoCurrency.formatAmount(BigInt.parse(cryptoAmount)));
+    }
+
+    return isBuyAction
+        ? formattedFiatAmount
+        : formattedCryptoAmount ?? (cryptoCurrency == CryptoCurrency.btc ? 0.001 : 1);
   }
 
   final AppStore _appStore;
@@ -142,6 +149,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @observable
   bool skipIsReadyToTradeReaction = false;
+
+  @computed
+  bool get useSatoshis =>
+      _appStore.settingsStore.preferBalanceInSats && cryptoCurrency == CryptoCurrency.btc;
 
   @computed
   bool get isReadyToTrade {
@@ -215,11 +226,18 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     }
 
     if (bestRateQuote != null) {
-      _cryptoNumberFormat.maximumFractionDigits = cryptoCurrency.decimals;
-      cryptoAmount = _cryptoNumberFormat
-          .format(enteredAmount / bestRateQuote!.rate)
-          .toString()
-          .replaceAll(RegExp('\\,'), '');
+      final amount = enteredAmount / bestRateQuote!.rate;
+      if (useSatoshis) {
+        cryptoAmount = cryptoCurrency
+            .parseAmount(amount.toString().withMaxDecimals(cryptoCurrency.decimals))
+            .toString();
+      } else {
+        _cryptoNumberFormat.maximumFractionDigits = cryptoCurrency.decimals;
+        cryptoAmount = _cryptoNumberFormat
+            .format(enteredAmount / bestRateQuote!.rate)
+            .toString()
+            .replaceAll(RegExp('\\,'), '');
+      }
     } else {
       await calculateBestRate();
     }
@@ -233,6 +251,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       fiatAmount = '';
       cryptoAmount = '';
       return;
+    }
+
+    if (useSatoshis) {
+      amount = cryptoCurrency.formatAmount(BigInt.parse(amount));
     }
 
     final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
@@ -355,12 +377,11 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   Future<void> _getAvailablePaymentTypes() async {
     paymentMethodState = PaymentMethodLoading();
     selectedPaymentMethod = null;
-    final result = await Future.wait(providerList.map((element) => element
-        .getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, isBuyAction)
-        .timeout(
-          Duration(seconds: 10),
-          onTimeout: () => [],
-        )));
+    final result = await Future.wait(providerList.map((element) =>
+        element.getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, isBuyAction).timeout(
+              Duration(seconds: 10),
+              onTimeout: () => [],
+            )));
 
     final List<PaymentMethod> tempPaymentMethods = [];
 
@@ -395,11 +416,11 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     final List<BuyProvider> validProviders = providerList.where((provider) {
       if (isBuyAction) {
-        return provider.supportedCryptoList.any((pair) =>
-        pair.from == cryptoCurrency && pair.to == fiatCurrency);
+        return provider.supportedCryptoList
+            .any((pair) => pair.from == cryptoCurrency && pair.to == fiatCurrency);
       } else {
-        return provider.supportedFiatList.any((pair) =>
-        pair.from == fiatCurrency && pair.to == cryptoCurrency);
+        return provider.supportedFiatList
+            .any((pair) => pair.from == fiatCurrency && pair.to == cryptoCurrency);
       }
     }).toList();
 
@@ -445,10 +466,11 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return true;
     }).toList();
 
-    final List<Quote> successRateQuotes = validQuotes.where((element) =>
-    element.provider is OnRamperBuyProvider &&
-        element.recommendations.contains(ProviderRecommendation.successRate)
-    ).toList();
+    final List<Quote> successRateQuotes = validQuotes
+        .where((element) =>
+            element.provider is OnRamperBuyProvider &&
+            element.recommendations.contains(ProviderRecommendation.successRate))
+        .toList();
 
     for (final quote in successRateQuotes) {
       if (!uniqueProviderQuotes.contains(quote)) {
@@ -495,7 +517,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       if (e.toString().contains("403")) {
         buySellQuotState = BuySellQuotFailed(errorMessage: "Using Tor is not supported");
       } else {
-        buySellQuotState = BuySellQuotFailed(errorMessage: "Something went wrong please try again later");
+        buySellQuotState =
+            BuySellQuotFailed(errorMessage: "Something went wrong please try again later");
       }
     }
   }

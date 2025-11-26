@@ -2,6 +2,7 @@ import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/format_fixed.dart';
+import 'package:cw_core/parse_fixed.dart';
 
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implements Currency {
   const CryptoCurrency({
@@ -396,7 +397,13 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   bool titleAndTagEqual(CryptoCurrency other) => title == other.title && tag == other.tag;
 
-  /// Format the raw raw amount into its decimal representation eg. turn Sats into Bitcoin
+  /// Format the raw amount into its decimal representation eg. turn Sats into Bitcoin
   String formatAmount(BigInt amount, {int? fractionalDigits, bool trimZeros = true}) =>
       formatFixed(amount, decimals, fractionalDigits: fractionalDigits, trimZeros: trimZeros);
+
+  /// Parse the [value] and turn it into the smallest denomination eg. turn Bitcoin into Sats
+  BigInt parseAmount(String value) => parseFixed(value, decimals);
+
+  /// Try parsing the [value] and turn it into the smallest denomination eg. turn Bitcoin into Sats
+  BigInt? tryParseAmount(String value) => tryParseFixed(value, decimals);
 }

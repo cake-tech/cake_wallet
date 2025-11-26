@@ -453,6 +453,7 @@ class BuySellPage extends BasePage {
         fillColor: buySellViewModel.isBuyAction
             ? Theme.of(context).colorScheme.surfaceContainerLow
             : Theme.of(context).colorScheme.surfaceContainer,
+        useSatoshis: buySellViewModel.useSatoshis,
       ),
     );
 
