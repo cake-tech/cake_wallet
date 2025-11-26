@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
 import 'package:flutter/material.dart';
 
 class ListItemRegularRowWidget extends StatelessWidget {
@@ -25,44 +26,12 @@ class ListItemRegularRowWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    final textStyle = TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.w400,
-      fontFamily: 'Wix Madefor Text',
-      color: theme.colorScheme.onSurface,
-    );
-
-    final labelStyle = TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
-      fontFamily: 'Wix Madefor Text',
-      color: theme.colorScheme.onSurfaceVariant,
-    );
-
-    final borderColor = theme.colorScheme.surfaceContainerHigh;
-
-    final radius = BorderRadius.vertical(
-      top: Radius.circular(isFirstInSection ? 16 : 0),
-      bottom: Radius.circular(isLastInSection ? 16 : 0),
-    );
-
-    return GestureDetector(
-      onTap: onTap,
-      child: ClipRRect(
-        borderRadius: radius,
-        child: Container(
-          height: subtitle != null ? 60 : 48,
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainer,
-            border: isLastInSection
-                ? null
-                : Border(
-              bottom: BorderSide(color: borderColor, width: 1),
-            ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: Row(
+    return ListItemStyleWrapper(
+        isFirstInSection: isFirstInSection,
+        isLastInSection: isLastInSection,
+        height: subtitle != null ? 60 : 48,
+        builder: (context, textStyle, labelStyle) {
+          return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
@@ -108,9 +77,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
                 ],
               ),
             ],
-          ),
-        ),
-      ),
+          );
+        }
     );
   }
 }

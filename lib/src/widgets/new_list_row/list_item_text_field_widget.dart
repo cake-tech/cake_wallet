@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
 import 'package:flutter/material.dart';
 
 class ListItemTextFieldWidget extends StatefulWidget {
@@ -29,57 +30,41 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    final textStyle = TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.w400,
-      fontFamily: 'Wix Madefor Text',
-      color: theme.colorScheme.onSurface,
-    );
-
-    final labelStyle = TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
-      fontFamily: 'Wix Madefor Text',
-      color: theme.colorScheme.onSurfaceVariant,
-    );
-
     final underline = widget.isLastInSection
         ? InputBorder.none
         : UnderlineInputBorder(
-      borderSide: BorderSide(
-        color: theme.colorScheme.surfaceContainerHigh,
-        width: 1,
-      ),
-    );
+            borderSide: BorderSide(
+              color: theme.colorScheme.surfaceContainerHigh,
+              width: 1,
+            ),
+          );
 
-    final radius = BorderRadius.vertical(
-      top: Radius.circular(widget.isFirstInSection ? 16 : 0),
-      bottom: Radius.circular(widget.isLastInSection ? 16 : 0),
-    );
-
-    return ClipRRect(
-      borderRadius: radius,
-      child: Container(
-        color: theme.colorScheme.surfaceContainer,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: TextFormField(
-          controller: widget.controller,
-          validator: widget.validator,
-          onChanged: widget.onChanged,
-          style: textStyle,
-          decoration: InputDecoration(
-            labelText: widget.label,
-            labelStyle: labelStyle,
-            border: underline,
-            focusedBorder: underline,
-            enabledBorder: underline,
-            disabledBorder: underline,
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(vertical: 7),
-          ),
-        ),
-      ),
-    );
+    return ListItemStyleWrapper(
+        isFirstInSection: widget.isFirstInSection,
+        isLastInSection: widget.isLastInSection,
+        builder: (context, textStyle, labelStyle) {
+          return Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: widget.controller,
+                  validator: widget.validator,
+                  onChanged: widget.onChanged,
+                  style: textStyle,
+                  decoration: InputDecoration(
+                    labelText: widget.label,
+                    labelStyle: labelStyle,
+                    border: underline,
+                    focusedBorder: underline,
+                    enabledBorder: underline,
+                    disabledBorder: underline,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 7),
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
   }
 }

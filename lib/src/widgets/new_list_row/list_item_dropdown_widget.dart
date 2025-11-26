@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
 import 'package:flutter/material.dart';
 
 class ListItemDropdownWidget extends StatelessWidget {
@@ -25,36 +26,12 @@ class ListItemDropdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final borderColor = theme.colorScheme.surfaceContainerHigh;
-
-    final textStyle = TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.w400,
-      fontFamily: 'Wix Madefor Text',
-      color: theme.colorScheme.onSurface,
-    );
-
-    final labelStyle = TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
-      fontFamily: 'Wix Madefor Text',
-      color: theme.colorScheme.onSurfaceVariant,
-    );
-
-    return ClipRRect(
-      borderRadius: radius,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainer,
-            border: isLastInSection
-                ? null
-                : Border(bottom: BorderSide(color: borderColor)),
-          ),
+    return ListItemStyleWrapper(
+      isFirstInSection: isFirstInSection,
+      isLastInSection: isLastInSection,
+      builder: (context, textStyle, labelStyle) {
+        return InkWell(
+          onTap: onTap,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -71,14 +48,14 @@ class ListItemDropdownWidget extends StatelessWidget {
                     ),
                   Icon(
                     Icons.keyboard_arrow_down,
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ],
               ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

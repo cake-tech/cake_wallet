@@ -11,7 +11,6 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_fi
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_item_selector_widget.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:collection/collection.dart';
@@ -206,6 +205,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   Map<String, List<ListItem>> nodeFormItems = {};
 
+  //TODO: Remove example values when done testing
   bool toggleExampleValue = false;
   bool checkboxExampleValue = false;
 
