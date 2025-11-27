@@ -35,6 +35,7 @@ enum DerivationType {
   nano,
   bip39,
   electrum,
+  decred,
 }
 
 enum HardwareWalletType {
