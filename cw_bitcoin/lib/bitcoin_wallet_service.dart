@@ -165,7 +165,7 @@ class BitcoinWalletService extends WalletService<
     derivationInfo.derivationPath =
         credentials.hwAccountData.derivationPath;
     
-    final xpub = convertZpubToXpub(credentials.hwAccountData.xpub!);
+    final xpub = convertAnyToXpub(credentials.hwAccountData.xpub!);
     
     await credentials.walletInfo!.save();
     final wallet = await BitcoinWallet(
@@ -189,7 +189,7 @@ class BitcoinWalletService extends WalletService<
     final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
 
-    final xpub = convertZpubToXpub(credentials.xpub);
+    final xpub = convertAnyToXpub(credentials.xpub);
 
     final wallet = await BitcoinWallet(
       password: credentials.password!,

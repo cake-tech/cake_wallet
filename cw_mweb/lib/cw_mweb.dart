@@ -4,8 +4,8 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_mweb/mweb_ffi.dart';
+import 'package:cw_mweb/print_verbose.dart';
 import 'package:grpc/grpc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'mwebd.pbgrpc.dart';
@@ -63,9 +63,6 @@ class CwMweb {
       throw Exception("Failed to start server");
     }
     printV("Attempting to connect to server on port: $_port");
-
-    // wait for the server to finish starting up before we try to connect to it:
-    await Future.delayed(const Duration(seconds: 8));
 
     _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
       _rpcClient = null;
@@ -218,5 +215,46 @@ class CwMweb {
       printV("Error getting utxos: $e");
       rethrow;
     }
+  }
+
+  static Future<PsbtResponse> psbtCreate(PsbtCreateRequest request) async {
+    log("mweb.psbtCreate() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtCreate(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtResponse> psbtAddInput(PsbtAddInputRequest request) async {
+    log("mweb.psbtAddInput() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtAddInput(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtResponse> psbtAddRecipient(PsbtAddRecipientRequest request) async {
+    log("mweb.psbtAddRecipient() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtAddRecipient(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtGetRecipientsResponse> psbtGetRecipients(PsbtGetRecipientsRequest request) async {
+    log("mweb.psbtGetRecipients() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtGetRecipients(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<CreateResponse> psbtExtract(PsbtExtractRequest request) async {
+    log("mweb.psbtExtract() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtExtract(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+  static Future<PsbtResponse> psbtSign(PsbtSignRequest request) async {
+    printV("mweb.psbtSign() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtSign(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtResponse> psbtSignNonMweb(PsbtSignNonMwebRequest request) async {
+    printV("mweb.psbtSignNonMweb() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtSignNonMweb(request, options: CallOptions(timeout: TIMEOUT_DURATION));
   }
 }

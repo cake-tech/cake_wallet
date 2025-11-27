@@ -2442,6 +2442,7 @@ abstract class ElectrumWalletBase
 
   Future<ElectrumBalance> fetchBalances() async {
     final addresses = walletAddresses.allAddresses
+        .where((address) => address.address.isNotEmpty)
         .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
         .toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];

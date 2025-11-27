@@ -184,6 +184,7 @@ abstract class Bitcoin {
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
   WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub, HardwareWalletType? hardwareWalletType});
+  WalletCredentials createLitecoinWalletFromKeys({required String name, required String password, required String xpub, required String scanSecret, required String spendPubkey});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
@@ -2043,9 +2044,9 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.decred,\n';
   }
 
-  if (hasWownero) {
-    outputContent += '\tWalletType.wownero,\n';
-  }
+  // if (hasWownero) {
+  //   outputContent += '\tWalletType.wownero,\n';
+  // }
 
   outputContent += '];\n';
   await walletTypesFile.writeAsString(outputContent);
@@ -2062,6 +2063,7 @@ abstract class SecureStorage {
   Future<String?> read({required String key});
   Future<void> write({required String key, required String? value});
   Future<void> delete({required String key});
+  Future<void> deleteAll();
   // Legacy
   Future<String?> readNoIOptions({required String key});
   Future<Map<String, String>> readAll();
@@ -2094,6 +2096,9 @@ class DefaultSecureStorage extends SecureStorage {
 
   @override
   Future<void> delete({required String key}) async => _secureStorage.delete(key: key);
+  
+  @override
+  Future<void> deleteAll() async => _secureStorage.deleteAll();
 
   @override
   Future<String?> readNoIOptions({required String key}) async => await _readInternal(key, true);
@@ -2118,6 +2123,8 @@ class FakeSecureStorage extends SecureStorage {
   Future<void> write({required String key, required String? value}) async {}
   @override
   Future<void> delete({required String key}) async {}
+  @override
+  Future<void> deleteAll() async {}
   @override
   Future<String?> readNoIOptions({required String key}) async => null;
   @override

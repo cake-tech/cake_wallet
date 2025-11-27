@@ -224,8 +224,12 @@ class WalletRestorePage extends BasePage {
               walletRestoreFromKeysFormKey.currentState!.addressController.text;
           credentials['spendKey'] =
               walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
+          credentials['scanSecret'] =
+              walletRestoreFromKeysFormKey.currentState!.scanSecretController.text;
+          credentials['spendPubkey'] =
+              walletRestoreFromKeysFormKey.currentState!.spendPubkeyController.text;
           credentials['height'] =
-              walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState!.height;
+              walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState?.height;
         }
       }
     }
@@ -541,7 +545,8 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
         }
       },
       onViewKeyEntered: (bool entered) {
-        if (widget.walletRestoreViewModel.onlyViewKeyRestore) {
+        if (widget.walletRestoreViewModel.onlyViewKeyRestore ||
+        walletRestoreViewModel.type == WalletType.litecoin) {
           walletRestoreViewModel.isButtonEnabled = entered;
         }
       },
