@@ -89,11 +89,26 @@ abstract class WowneroWalletBase
     _onTxHistoryChangeReaction = reaction((_) => transactionHistory, (__) {
       _updateSubAddress(isEnabledAutoGenerateSubaddress, account: walletAddresses.account);
     });
+
+    _onBalanceChangeReaction = reaction(
+      (_) => balance.entries.map((e) => e.value).toList(),
+      (_) {
+        for (final bal in balance.keys) {
+          if (balance[bal]?.formattedAvailableBalance != null) {
+            BalanceCache(bal.title, bal.tag ?? "", walletInfo.internalId,
+                    balance[bal]!.formattedAvailableBalance)
+                .save();
+          }
+        }
+      },
+    );
   }
 
   static const int _autoSaveInterval = 30;
 
   Box<UnspentCoinsInfo> unspentCoinsInfo;
+
+  late final ReactionDisposer _onBalanceChangeReaction;
 
   void Function(FlutterErrorDetails)? onError;
 
@@ -198,6 +213,7 @@ abstract class WowneroWalletBase
     _onAccountChangeReaction?.reaction.dispose();
     _onTxHistoryChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
+    _onBalanceChangeReaction.reaction.dispose();
   }
 
   @override
@@ -802,4 +818,6 @@ abstract class WowneroWalletBase
   String formatCryptoAmount(String amount) {
     return wowneroAmountToString(amount: int.parse(amount));
   }
+
+
 }

@@ -67,6 +67,19 @@ abstract class NanoWalletBase
     if (!CakeHive.isAdapterRegistered(NanoAccount.typeId)) {
       CakeHive.registerAdapter(NanoAccountAdapter());
     }
+
+    _onBalanceChangeReaction = reaction(
+      (_) => balance.entries.map((e) => e.value).toList(),
+      (_) {
+        for (final bal in balance.keys) {
+          if (balance[bal]?.formattedAvailableBalance != null) {
+            BalanceCache(bal.title, bal.tag ?? "", walletInfo.internalId,
+                    balance[bal]!.formattedAvailableBalance)
+                .save();
+          }
+        }
+      },
+    );
   }
 
   String _mnemonic;
@@ -74,6 +87,8 @@ abstract class NanoWalletBase
   DerivationType _derivationType;
 
   final EncryptionFileUtils _encryptionFileUtils;
+
+  late final ReactionDisposer _onBalanceChangeReaction;
 
   String? _privateKey;
   String? _publicAddress;
@@ -154,6 +169,7 @@ abstract class NanoWalletBase
   Future<void> close({bool shouldCleanup = false}) async {
     _client.stop();
     _receiveTimer?.cancel();
+    _onBalanceChangeReaction.reaction.dispose();
   }
 
   @action

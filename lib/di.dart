@@ -874,6 +874,7 @@ Future<void> setup({
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
         getIt.get<WalletManager>(),
+        getIt.get<FiatConversionStore>(),
       ),
     );
   } else {
@@ -884,6 +885,7 @@ Future<void> setup({
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
         getIt.get<WalletManager>(),
+        getIt.get<FiatConversionStore>()
       ),
     );
   }

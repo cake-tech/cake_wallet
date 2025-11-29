@@ -1,13 +1,19 @@
+import 'dart:async';
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 
 part 'wallet_list_view_model.g.dart';
@@ -19,16 +25,29 @@ abstract class WalletListViewModelBase with Store {
     this._appStore,
     this._walletLoadingService,
     this._walletManager,
+    this.fiatConversionStore,
   )   : wallets = ObservableList<WalletListItem>(),
         multiWalletGroups = ObservableList<WalletGroup>(),
         singleWalletsList = ObservableList<WalletListItem>(),
-        expansionTileStateTrack = ObservableMap<int, bool>() {
+        expansionTileStateTrack = ObservableMap<int, bool>(),
+        cachedBalances = ObservableList<BalanceCache>() {
     setOrderType(_appStore.settingsStore.walletListOrder);
     updateList();
+
+    _updateFiatStore();
+    Timer.periodic(
+      Duration(seconds: 5),
+      (timer) => _updateFiatStore(),
+    );
   }
+
+  final FiatConversionStore fiatConversionStore;
 
   @observable
   ObservableList<WalletListItem> wallets;
+
+  @observable
+  ObservableList<BalanceCache> cachedBalances;
 
   // @observable
   // ObservableList<WalletGroup> walletGroups;
@@ -49,6 +68,37 @@ abstract class WalletListViewModelBase with Store {
     } else {
       expansionTileStateTrack.addEntries({index: isExpanded}.entries);
     }
+  }
+
+  String cachedBalanceFor(CryptoCurrency currency) => cachedBalances
+      .where((element) =>
+          (element.tag == currency.tag || element.tag == "" && currency.tag == null) &&
+          element.title == currency.title)
+      .first
+      .cachedBalance;
+
+  Future<void> _updateFiatStoreForCurrency(CryptoCurrency currency) async {
+    fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
+        crypto: currency,
+        fiat: _appStore.settingsStore.fiatCurrency,
+        torOnly: _appStore.settingsStore.fiatApiMode == FiatApiMode.torOnly);
+  }
+
+
+  Future<void> _updateFiatStore() async {
+    for (final wallet in wallets) {
+      final currency = walletTypeToCryptoCurrency(wallet.type);
+      _updateFiatStoreForCurrency(currency);
+    }
+  }
+
+  String fiatCachedBalanceFor(CryptoCurrency currency) {
+    if (fiatConversionStore.prices[currency] == null) {
+      _updateFiatStoreForCurrency(currency);
+    }
+
+    final price = fiatConversionStore.prices[currency];
+    return calculateFiatAmount(cryptoAmount: cachedBalanceFor(currency), price: price);
   }
 
   @computed
@@ -100,6 +150,7 @@ abstract class WalletListViewModelBase with Store {
 
       for (var info in list) {
         wallets.add(await convertWalletInfoToWalletListItem(info));
+        cachedBalances.addAll(await BalanceCache.fromWalletId(info.internalId));
       }
 
       //========== Split into shared seed groups and single wallets list
@@ -238,7 +289,6 @@ abstract class WalletListViewModelBase with Store {
       name: info.name,
       type: info.type,
       key: info.id,
-      balance: derivationInfoItem.balance,
       isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,

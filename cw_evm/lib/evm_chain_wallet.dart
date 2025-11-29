@@ -98,12 +98,27 @@ abstract class EVMChainWalletBase
     }
 
     sharedPrefs.complete(SharedPreferences.getInstance());
+
+    _onBalanceChangeReaction = reaction(
+      (_) => balance.entries.map((e) => e.value).toList(),
+      (_) {
+        for (final bal in balance.keys) {
+          if (balance[bal]?.formattedAvailableBalance != null) {
+            BalanceCache(bal.title, bal.tag ?? "", walletInfo.internalId,
+                    balance[bal]!.formattedAvailableBalance)
+                .save();
+          }
+        }
+      },
+    );
   }
 
   final String? _mnemonic;
   final String? _hexPrivateKey;
   final String _password;
   final EncryptionFileUtils encryptionFileUtils;
+
+  late final ReactionDisposer _onBalanceChangeReaction;
 
   late final Box<Erc20Token> erc20TokensBox;
 
@@ -334,7 +349,8 @@ abstract class EVMChainWalletBase
       final gasUnits = await _client.getEstimatedGasUnitsForTransaction(
         senderAddress: evmChainPrivateKey.address,
         toAddress: evmChainPrivateKey.address,
-        contractAddress: _getUSDCContractAddress(), // Using USDC for default estimation
+        contractAddress: _getUSDCContractAddress(),
+        // Using USDC for default estimation
         gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasPrice),
         value: EtherAmount.fromBigInt(EtherUnit.wei, BigInt.from(0.0000000001)),
       );
@@ -413,6 +429,7 @@ abstract class EVMChainWalletBase
   Future<void> close({bool shouldCleanup = false}) async {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
+    _onBalanceChangeReaction.reaction.dispose();
   }
 
   @action
@@ -609,7 +626,8 @@ abstract class EVMChainWalletBase
   ) async {
     // Estimate gas with the SAME call (sender, to, value, data)
     final gas = await calculateActualEstimatedFeeForCreateTransaction(
-      amount: valueWei, // native value (usually 0 for ERC20 transfer)
+      amount: valueWei,
+      // native value (usually 0 for ERC20 transfer)
       receivingAddressHex: to,
       priority: priority,
       contractAddress: null,
@@ -806,7 +824,6 @@ abstract class EVMChainWalletBase
 
   Future<void> _updateBalance() async {
     balance[currency] = await _fetchEVMChainBalance();
-
     await _fetchErc20Balances();
     await save();
   }
@@ -882,6 +899,7 @@ abstract class EVMChainWalletBase
 
   @override
   Future<void>? updateBalance() async => await _updateBalance();
+
   @override
   Future<void> updateTransactionsHistory() async => await _updateTransactions();
 

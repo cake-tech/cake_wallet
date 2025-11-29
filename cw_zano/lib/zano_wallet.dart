@@ -78,6 +78,8 @@ abstract class ZanoWalletBase
   @observable
   ObservableMap<CryptoCurrency, ZanoBalance> balance;
 
+  late final ReactionDisposer _onBalanceChangeReaction;
+
   @override
   String seed = '';
 
@@ -117,6 +119,19 @@ abstract class ZanoWalletBase
     if (!CakeHive.isAdapterRegistered(ZanoAsset.typeId)) {
       CakeHive.registerAdapter(ZanoAssetAdapter());
     }
+
+    _onBalanceChangeReaction = reaction(
+      (_) => balance.entries.map((e) => e.value).toList(),
+      (_) {
+        for (final bal in balance.keys) {
+          if (balance[bal]?.formattedAvailableBalance != null) {
+            BalanceCache(bal.title, bal.tag ?? "", walletInfo.internalId,
+                    balance[bal]!.formattedAvailableBalance)
+                .save();
+          }
+        }
+      },
+    );
   }
 
   @override
@@ -217,6 +232,7 @@ abstract class ZanoWalletBase
     closeWallet(null);
     _updateSyncInfoTimer?.cancel();
     _autoSaveTimer?.cancel();
+    _onBalanceChangeReaction.reaction.dispose();
   }
 
   @override

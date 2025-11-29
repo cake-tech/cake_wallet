@@ -66,12 +66,27 @@ abstract class TronWalletBase
     if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
       CakeHive.registerAdapter(TronTokenAdapter());
     }
+
+    _onBalanceChangeReaction = reaction(
+      (_) => balance.entries.map((e) => e.value).toList(),
+      (_) {
+        for (final bal in balance.keys) {
+          if (balance[bal]?.formattedAvailableBalance != null) {
+            BalanceCache(bal.title, bal.tag ?? "", walletInfo.internalId,
+                    balance[bal]!.formattedAvailableBalance)
+                .save();
+          }
+        }
+      },
+    );
   }
 
   final String? _mnemonic;
   final String? _hexPrivateKey;
   final String _password;
   final EncryptionFileUtils encryptionFileUtils;
+
+  late final ReactionDisposer _onBalanceChangeReaction;
 
   late final Box<TronToken> tronTokensBox;
 
@@ -228,7 +243,10 @@ abstract class TronWalletBase
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  Future<void> close({bool shouldCleanup = false}) async => _transactionsUpdateTimer?.cancel();
+  Future<void> close({bool shouldCleanup = false}) async {
+    _transactionsUpdateTimer?.cancel();
+    _onBalanceChangeReaction.reaction.dispose();
+  }
 
   @action
   @override

@@ -70,6 +70,19 @@ abstract class SolanaWalletBase
       CakeHive.registerAdapter(SPLTokenAdapter());
     }
 
+    _onBalanceChangeReaction = reaction(
+      (_) => balance.entries.map((e) => e.value).toList(),
+      (_) {
+        for (final bal in balance.keys) {
+          if (balance[bal]?.formattedAvailableBalance != null) {
+            BalanceCache(bal.title, bal.tag ?? "", walletInfo.internalId,
+                    balance[bal]!.formattedAvailableBalance)
+                .save();
+          }
+        }
+      },
+    );
+
     _sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
@@ -77,6 +90,8 @@ abstract class SolanaWalletBase
   final String? _mnemonic;
   final String? _hexPrivateKey;
   final EncryptionFileUtils encryptionFileUtils;
+
+  late final ReactionDisposer _onBalanceChangeReaction;
 
   late final SolanaWalletClient _client;
 
@@ -185,6 +200,7 @@ abstract class SolanaWalletBase
   Future<void> close({bool shouldCleanup = false}) async {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
+    _onBalanceChangeReaction.reaction.dispose();
   }
 
   @action

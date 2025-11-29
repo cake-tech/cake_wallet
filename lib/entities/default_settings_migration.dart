@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/root_dir.dart';
@@ -554,6 +555,18 @@ Future<void> defaultSettingsMigration(
             type: WalletType.arbitrum,
             currentNodePreferenceKey: PreferencesKey.currentArbitrumNodeIdKey,
           );
+          break;
+        case 54:
+          await db.execute('''
+CREATE TABLE BalanceCache (
+  title TEXT NOT NULL,
+	tag TEXT DEFAULT "",
+	walletInfoId INTEGER NOT NULL,
+	cachedBalance TEXT DEFAULT "",
+	PRIMARY KEY (walletInfoId, title, tag),
+	FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
+);
+        ''');
           break;
 
         default:

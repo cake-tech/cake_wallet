@@ -96,6 +96,19 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     _onTxHistoryChangeReaction = reaction((_) => transactionHistory, (__) {
       _updateSubAddress(isEnabledAutoGenerateSubaddress, account: walletAddresses.account);
     });
+
+    _onBalanceChangeReaction = reaction(
+      (_) => balance.entries.map((e) => e.value).toList(),
+      (_) {
+        for (final bal in balance.keys) {
+          if (balance[bal]?.formattedAvailableBalance != null) {
+            BalanceCache(bal.title, bal.tag ?? "", walletInfo.internalId,
+                    balance[bal]!.formattedAvailableBalance)
+                .save();
+          }
+        }
+      },
+    );
   }
 
   static const int _autoSaveInterval = 30;
@@ -147,6 +160,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   monero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
   ReactionDisposer? _onTxHistoryChangeReaction;
+  late final ReactionDisposer _onBalanceChangeReaction;
+
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
@@ -224,6 +239,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _onTxHistoryChangeReaction?.reaction.dispose();
+    _onBalanceChangeReaction.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
 

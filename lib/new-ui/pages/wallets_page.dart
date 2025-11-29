@@ -8,18 +8,24 @@ class NewWalletListPage extends StatelessWidget {
 
   final WalletListViewModel walletListViewModel;
 
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: ListView.builder(
-        itemCount: walletListViewModel.wallets.length,
-        itemBuilder: (context, index){
-          final wallet = walletListViewModel.wallets[index];
+        child: ListView.builder(
+      itemCount: walletListViewModel.wallets.length,
+      itemBuilder: (context, index) {
+        final wallet = walletListViewModel.wallets[index];
+        final balance =
+            walletListViewModel.cachedBalanceFor(walletTypeToCryptoCurrency(wallet.type));
+        final fiatBalance =
+            walletListViewModel.fiatCachedBalanceFor(walletTypeToCryptoCurrency(wallet.type));
 
-          return AssetTile(iconPath: walletTypeToCryptoCurrency(wallet.type).iconPath!, name: wallet.name, amount: "123 BTC", amountFiat: "123 USD");
-        },
-      )
-    );
+        return AssetTile(
+            iconPath: walletTypeToCryptoCurrency(wallet.type).iconPath!,
+            name: wallet.name,
+            amount: balance,
+            amountFiat: fiatBalance);
+      },
+    ));
   }
 }
