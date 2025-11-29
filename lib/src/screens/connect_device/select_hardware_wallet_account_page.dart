@@ -149,8 +149,10 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                         padding: EdgeInsets.only(top: 10),
                         child: SelectButton(
                           image: Image.asset(
-                            walletTypeToCryptoCurrency(_walletHardwareRestoreVM.type).iconPath ??
-                                '',
+                            walletTypeToCryptoCurrency(
+                              _walletHardwareRestoreVM.type,
+                              chainId: _walletHardwareRestoreVM.type == WalletType.evm ? 1 : null,
+                            ).iconPath ?? '',
                             height: 24,
                             width: 24,
                           ),

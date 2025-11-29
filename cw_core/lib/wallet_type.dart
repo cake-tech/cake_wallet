@@ -21,6 +21,7 @@ const walletTypes = [
   WalletType.dogecoin,
   WalletType.base,
   WalletType.arbitrum,
+  WalletType.evm,
 ];
 
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -78,6 +79,9 @@ enum WalletType {
 
   @HiveField(17)
   arbitrum,
+
+  @HiveField(18)
+  evm,
 }
 
 int serializeToInt(WalletType type) {
@@ -116,6 +120,8 @@ int serializeToInt(WalletType type) {
       return 15;
     case WalletType.arbitrum:
       return 16;
+    case WalletType.evm:
+      return 18;
     case WalletType.none:
       return -1;
   }
@@ -157,6 +163,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.base;
     case 16:
       return WalletType.arbitrum;
+    case 18:
+      return WalletType.evm;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -198,6 +206,8 @@ String walletTypeToString(WalletType type) {
       return 'Base';
     case WalletType.arbitrum:
       return 'Arbitrum';
+    case WalletType.evm:
+      return 'EVM';
     case WalletType.none:
       return '';
   }
@@ -239,6 +249,8 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Base (BASE)';
     case WalletType.arbitrum:
       return 'Arbitrum (ARB)';
+    case WalletType.evm:
+      return 'EVM';
     case WalletType.none:
       return '';
   }
@@ -256,15 +268,16 @@ WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
     case CryptoCurrency.xhv:
       return WalletType.haven;
     case CryptoCurrency.eth:
-      return WalletType.ethereum;
+    case CryptoCurrency.maticpoly:
+    case CryptoCurrency.baseEth:
+    case CryptoCurrency.arbEth:
+      return WalletType.evm;
     case CryptoCurrency.bch:
       return WalletType.bitcoinCash;
     case CryptoCurrency.nano:
       return WalletType.nano;
     case CryptoCurrency.banano:
       return WalletType.banano;
-    case CryptoCurrency.maticpoly:
-      return WalletType.polygon;
     case CryptoCurrency.sol:
       return WalletType.solana;
     case CryptoCurrency.trx:
@@ -277,10 +290,6 @@ WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
       return WalletType.decred;
     case CryptoCurrency.doge:
       return WalletType.dogecoin;
-    case CryptoCurrency.baseEth:
-      return WalletType.base;
-    case CryptoCurrency.arbEth:
-      return WalletType.arbitrum;
     default:
       return null;
   }
