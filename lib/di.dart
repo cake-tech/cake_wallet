@@ -13,6 +13,7 @@ import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import 'package:cake_wallet/new-ui/pages/wallets_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
@@ -873,6 +874,7 @@ Future<void> setup({
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
         getIt.get<WalletManager>(),
+        getIt.get<FiatConversionStore>(),
       ),
     );
   } else {
@@ -883,6 +885,7 @@ Future<void> setup({
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
         getIt.get<WalletManager>(),
+        getIt.get<FiatConversionStore>()
       ),
     );
   }
@@ -893,6 +896,10 @@ Future<void> setup({
             authService: getIt.get<AuthService>(),
             onWalletLoaded: onWalletLoaded as Future<void> Function(BuildContext)?,
           ));
+
+  getIt.registerFactory<NewWalletListPage>(() => NewWalletListPage(
+        walletListViewModel: getIt.get<WalletListViewModel>(),
+      ));
 
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
     (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(

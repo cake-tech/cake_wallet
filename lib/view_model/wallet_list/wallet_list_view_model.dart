@@ -1,14 +1,22 @@
+import 'dart:async';
+
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:mobx/mobx.dart';
 
 part 'wallet_list_view_model.g.dart';
 
@@ -19,16 +27,33 @@ abstract class WalletListViewModelBase with Store {
     this._appStore,
     this._walletLoadingService,
     this._walletManager,
+    this.fiatConversionStore,
   )   : wallets = ObservableList<WalletListItem>(),
         multiWalletGroups = ObservableList<WalletGroup>(),
         singleWalletsList = ObservableList<WalletListItem>(),
-        expansionTileStateTrack = ObservableMap<int, bool>() {
+        expansionTileStateTrack = ObservableMap<int, bool>(),
+        cachedBalances = ObservableList<BalanceCache>(),
+        isBalanceCacheSynced = ObservableList<bool>() {
     setOrderType(_appStore.settingsStore.walletListOrder);
     updateList();
+
+    _updateFiatStore();
+    Timer.periodic(
+      Duration(seconds: 5),
+      (timer) => _updateFiatStore(),
+    );
   }
+
+  final FiatConversionStore fiatConversionStore;
 
   @observable
   ObservableList<WalletListItem> wallets;
+
+  @observable
+  ObservableList<BalanceCache> cachedBalances;
+
+  @observable
+  ObservableList<bool> isBalanceCacheSynced;
 
   // @observable
   // ObservableList<WalletGroup> walletGroups;
@@ -51,6 +76,46 @@ abstract class WalletListViewModelBase with Store {
     }
   }
 
+  String cachedBalanceFor(CryptoCurrency currency) => cachedBalances
+      .where((element) =>
+          (element.tag == currency.tag || element.tag == "" && currency.tag == null) &&
+          element.title == currency.title)
+      .first
+      .cachedBalance;
+
+  Future<void> _updateFiatStoreForCurrency(CryptoCurrency currency) async {
+    fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
+        crypto: currency,
+        fiat: _appStore.settingsStore.fiatCurrency,
+        torOnly: _appStore.settingsStore.fiatApiMode == FiatApiMode.torOnly);
+  }
+
+  Future<void> _updateFiatStore() async {
+    for (final wallet in wallets) {
+      final currency = walletTypeToCryptoCurrency(wallet.type);
+      _updateFiatStoreForCurrency(currency);
+    }
+  }
+
+  String fiatCachedBalanceFor(CryptoCurrency currency) {
+    if (fiatConversionStore.prices[currency] == null) {
+      _updateFiatStoreForCurrency(currency);
+    }
+
+    final price = fiatConversionStore.prices[currency];
+    return calculateFiatAmount(cryptoAmount: cachedBalanceFor(currency), price: price);
+  }
+
+  String totalFiatBalance() {
+    double ret = 0;
+
+    for (final wallet in wallets) {
+      ret += double.parse(fiatCachedBalanceFor(walletTypeToCryptoCurrency(wallet.type)));
+    }
+
+    return ret.toString();
+  }
+
   @computed
   bool get shouldRequireTOTP2FAForAccessingWallet =>
       _appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
@@ -59,6 +124,9 @@ abstract class WalletListViewModelBase with Store {
   bool get shouldRequireTOTP2FAForCreatingNewWallets =>
       _appStore.settingsStore.shouldRequireTOTP2FAForCreatingNewWallets;
 
+  @computed
+  FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
+
   final AppStore _appStore;
   final WalletManager _walletManager;
   final WalletLoadingService _walletLoadingService;
@@ -66,8 +134,7 @@ abstract class WalletListViewModelBase with Store {
   WalletType get currentWalletType => _appStore.wallet!.type;
 
   Future<bool> requireHardwareWalletConnection(WalletListItem walletItem) async =>
-      _walletLoadingService.requireHardwareWalletConnection(
-          walletItem.type, walletItem.name);
+      _walletLoadingService.requireHardwareWalletConnection(walletItem.type, walletItem.name);
 
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
@@ -84,8 +151,8 @@ abstract class WalletListViewModelBase with Store {
 
   bool get ascending => _appStore.settingsStore.walletListAscending;
 
-  
   bool isUpdating = false;
+
   @action
   Future<void> updateList() async {
     if (isUpdating) {
@@ -96,11 +163,14 @@ abstract class WalletListViewModelBase with Store {
       wallets.clear();
       multiWalletGroups.clear();
       singleWalletsList.clear();
+      isBalanceCacheSynced.clear();
 
       final list = await WalletInfo.getAll();
 
       for (var info in list) {
-        wallets.add(convertWalletInfoToWalletListItem(info));
+        wallets.add(await convertWalletInfoToWalletListItem(info));
+        cachedBalances.addAll(await BalanceCache.fromWalletId(info.internalId));
+        isBalanceCacheSynced.add(true);
       }
 
       //========== Split into shared seed groups and single wallets list
@@ -118,6 +188,22 @@ abstract class WalletListViewModelBase with Store {
       }
     } finally {
       isUpdating = false;
+    }
+  }
+
+  @action
+  Future<void> refreshCachedBalances() async {
+    for (final wallet in wallets) {
+      isBalanceCacheSynced[wallets.indexOf(wallet)] = false;
+
+      final tmpWallet = await _walletLoadingService.load(wallet.type, wallet.name);
+      await tmpWallet.startSync();
+      while (tmpWallet.syncStatus.progress() < 1.0) {
+        await Future.delayed(Duration(milliseconds: 100));
+      }
+      await tmpWallet.close();
+
+      isBalanceCacheSynced[wallets.indexOf(wallet)] = true;
     }
   }
 
@@ -150,7 +236,7 @@ abstract class WalletListViewModelBase with Store {
       for (WalletInfo walletInfo in group.wallets) {
         for (int i = 0; i < wiList.length; i++) {
           if (wiList[i].name == walletInfo.name) {
-            wiList[i].sortOrder = i+oldI;
+            wiList[i].sortOrder = i + oldI;
             await wiList[i].save();
             wiList.removeAt(i);
             break;
@@ -239,8 +325,7 @@ abstract class WalletListViewModelBase with Store {
       name: info.name,
       type: info.type,
       key: info.id,
-      isCurrent: info.name == _appStore.wallet?.name &&
-          info.type == _appStore.wallet?.type,
+      isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
       isHardware: info.isHardwareWallet,

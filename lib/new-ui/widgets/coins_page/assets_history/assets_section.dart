@@ -1,8 +1,7 @@
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 
-
-import 'asset_tile.dart';
+import '../../asset_tile.dart';
 
 class AssetsSection extends StatelessWidget {
   const AssetsSection({super.key, required this.dashboardViewModel});
@@ -16,7 +15,15 @@ class AssetsSection extends StatelessWidget {
       physics: NeverScrollableScrollPhysics(),
       itemCount: 1,
       itemBuilder: (context, index) {
-        return AssetTile(dashboardViewModel: dashboardViewModel,);
+        return AssetTile(
+          iconPath: "assets/images/crypto/tether.webp",
+          name: "DummyCoin",
+          amount: "0.000 DMC",
+          amountFiat: "\$ 0.00",
+          // don't worry about this, it's mostly for wallets page
+          // unless you load each asset's balance separately for some reason?
+          showLoading: false,
+        );
       },
     );
   }

@@ -1,10 +1,19 @@
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 
 class AssetTile extends StatelessWidget {
-  const AssetTile({super.key, required this.dashboardViewModel});
+  const AssetTile(
+      {super.key,
+      required this.iconPath,
+      required this.name,
+      required this.amount,
+      required this.amountFiat,
+      required this.showLoading});
 
-  final DashboardViewModel dashboardViewModel;
+  final String iconPath;
+  final String name;
+  final String amount;
+  final String amountFiat;
+  final bool showLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -37,19 +46,19 @@ class AssetTile extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(width: 45, height: 45, child: Image.asset("assets/images/crypto/tether.webp")),
-                  SizedBox(width: 8.0),
+                  Container(width: 36, height: 36, child: Image.asset(iconPath)),
+                  SizedBox(width: 12.0),
                   Column(
                     spacing: 4.0,
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "DummyCoin",
+                        name,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        "0.000 DMC",
+                        amount,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -58,13 +67,14 @@ class AssetTile extends StatelessWidget {
                   ),
                 ],
               ),
-
-              Text(
-                "\$0.00",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
+              showLoading
+                  ? CircularProgressIndicator()
+                  : Text(
+                      amountFiat,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
             ],
           ),
         ),

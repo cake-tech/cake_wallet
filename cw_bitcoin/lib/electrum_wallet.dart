@@ -114,6 +114,19 @@ abstract class ElectrumWalletBase
     reaction((_) => syncStatus, _syncStatusReaction);
 
     sharedPrefs.complete(SharedPreferences.getInstance());
+
+    _onBalanceChangeReaction = reaction(
+      (_) => balance.entries.map((e) => e.value).toList(),
+      (_) {
+        for (final bal in balance.keys) {
+          if (balance[bal]?.formattedAvailableBalance != null) {
+            BalanceCache(bal.title, bal.tag ?? "", walletInfo.internalId,
+                    balance[bal]!.formattedAvailableBalance)
+                .save();
+          }
+        }
+      },
+    );
   }
 
   static Bip32Slip10Secp256k1 getAccountHDWallet(
@@ -183,6 +196,8 @@ abstract class ElectrumWalletBase
   Bip32Slip10Secp256k1 get sideHd => accountHD.childKey(Bip32KeyIndex(1));
 
   final EncryptionFileUtils encryptionFileUtils;
+
+  late final ReactionDisposer _onBalanceChangeReaction;
 
   @override
   final String? passphrase;
@@ -1583,6 +1598,7 @@ abstract class ElectrumWalletBase
     } catch (_) {}
     _autoSaveTimer?.cancel();
     _updateFeeRateTimer?.cancel();
+    _onBalanceChangeReaction.reaction.dispose();
   }
 
   @action

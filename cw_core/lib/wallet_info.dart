@@ -70,7 +70,7 @@ class WalletInfoAddressInfo {
   String address;
   String label;
 
-  static String get tableName => 'walletInfoAddressInfo'; 
+  static String get tableName => 'walletInfoAddressInfo';
   static String get selfIdColumn => "${tableName}Id";
 
   static Future<List<WalletInfoAddressInfo>> selectList(int walletInfoId) async {
@@ -134,8 +134,8 @@ class WalletInfoAddressMap {
   String addressKey;
   String addressValue;
 
-  static String get tableName => 'walletInfoAddressMap'; 
-  static String get selfIdColumn => "${tableName}Id"; 
+  static String get tableName => 'walletInfoAddressMap';
+  static String get selfIdColumn => "${tableName}Id";
 
   static Future<List<WalletInfoAddressMap>> selectList(int walletInfoId) async {
     final query = await db.query(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
@@ -184,7 +184,7 @@ class WalletInfoAddress {
   WalletInfoAddressType type;
   String address;
 
-  static String get tableName => 'walletInfoAddress'; 
+  static String get tableName => 'walletInfoAddress';
   static String get selfIdColumn => "${tableName}Id";
 
   static Future<List<WalletInfoAddress>> selectList(int walletInfoId, WalletInfoAddressType type) async {
@@ -245,7 +245,7 @@ class DerivationInfo {
 
   int id;
 
-  static String get tableName => 'walletInfoDerivationInfo'; 
+  static String get tableName => 'walletInfoDerivationInfo';
   static String get selfIdColumn => "${tableName}Id";
 
   String address;
@@ -262,7 +262,7 @@ class DerivationInfo {
       columns: [
         selfIdColumn,
         'address',
-        'balance', 
+        'balance',
         'transactionsCount',
         'derivationType',
         'derivationPath',
@@ -377,7 +377,7 @@ class WalletInfo {
     );
   }
 
-  static String get tableName => 'walletInfo'; 
+  static String get tableName => 'walletInfo';
   static String get selfIdColumn => "${tableName}Id";
 
   int internalId;
@@ -495,7 +495,7 @@ class WalletInfo {
   String? parentAddress;
   String? hashedWalletIdentifier;
   bool isNonSeedWallet;
- 
+
   int sortOrder;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
@@ -613,5 +613,43 @@ class WalletInfo {
   Future<void> updateRestoreHeight(int height) async {
     restoreHeight = height;
     await save();
+  }
+}
+
+class BalanceCache {
+  final String title;
+  final String tag;
+  final int walletInfoId;
+  final String cachedBalance;
+
+  static String get tableName => "BalanceCache";
+
+  const BalanceCache(this.title, this.tag, this.walletInfoId, this.cachedBalance);
+
+  BalanceCache.fromJson(Map<String, dynamic> json)
+      : title = json['title'] as String,
+        tag = json['tag'] as String,
+        walletInfoId = json['walletInfoId'] as int,
+        cachedBalance = json['cachedBalance'] as String;
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'tag': tag,
+        'walletInfoId': walletInfoId,
+        'cachedBalance': cachedBalance,
+      };
+
+  static Future<List<BalanceCache>> fromWalletId(int walletInfoId) async {
+    final list = await db.query(
+      tableName,
+      where: 'walletInfoId = ?',
+      whereArgs: [walletInfoId],
+    );
+    return List.generate(list.length, (index) => BalanceCache.fromJson(list[index]));
+  }
+
+  Future<void> save() async {
+    final json = toJson();
+    await db.insert(tableName, json, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }

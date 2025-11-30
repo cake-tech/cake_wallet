@@ -1,9 +1,11 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import 'package:cake_wallet/new-ui/pages/wallets_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:flutter/material.dart';
 import '../view_model/dashboard/dashboard_view_model.dart';
 
@@ -14,7 +16,7 @@ class NewDashboard extends StatefulWidget {
 
   final List<Widget> dashboardPageWidgets = [
     getIt.get<NewHomePage>(),
-    getIt.get<WalletListPage>(),
+    FeatureFlag.hasNewUiExtraPages ? getIt.get<NewWalletListPage>() : getIt.get<WalletListPage>(),
     getIt.get<ContactListPage>(),
     getIt.get<CakeFeaturesPage>(),
     Placeholder(),
@@ -32,7 +34,7 @@ class _NewDashboardState extends State<NewDashboard> {
     return Scaffold(
       body: Stack(
         children: [
-         widget.dashboardPageWidgets[_selectedPage],
+          widget.dashboardPageWidgets[_selectedPage],
           NewMainNavBar(
             dashboardViewModel: widget.dashboardViewModel,
             selectedIndex: _selectedPage,
