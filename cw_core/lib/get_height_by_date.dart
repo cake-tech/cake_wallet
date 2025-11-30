@@ -274,7 +274,7 @@ const bitcoinDates = {
 
 Future<int> getBitcoinHeightByDateAPI({required DateTime date}) async {
   final req = await ProxyWrapper().getHttpClient()
-    .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}"))
+    .getUrl(Uri.parse("https://cake.mempool.space/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}"))
     .timeout(Duration(seconds: 15));
   final response = await req.close();
   final stringResponse = await response.transform(utf8.decoder).join();
