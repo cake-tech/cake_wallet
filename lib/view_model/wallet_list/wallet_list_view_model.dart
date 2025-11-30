@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
@@ -7,15 +8,15 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:mobx/mobx.dart';
 
 part 'wallet_list_view_model.g.dart';
 
@@ -179,7 +180,7 @@ abstract class WalletListViewModelBase with Store {
 
       for (var group in walletGroupsFromManager) {
         if (group.wallets.length == 1) {
-          singleWalletsList.add(await convertWalletInfoToWalletListItem(group.wallets.first));
+          singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
           continue;
         }
 
@@ -319,7 +320,7 @@ abstract class WalletListViewModelBase with Store {
     }
   }
 
-  Future<WalletListItem> convertWalletInfoToWalletListItem(WalletInfo info) async {
+  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) {
     return WalletListItem(
       name: info.name,
       type: info.type,
