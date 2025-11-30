@@ -30,6 +30,7 @@ import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -378,7 +379,6 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
       // Creation flow
       if (widget.isCreate) {
-
         if (mergedTypes.contains(WalletType.haven)) {
           throw Exception(S.of(context).pause_wallet_creation);
         }
@@ -411,86 +411,33 @@ class WalletTypeFormState extends State<WalletTypeForm> {
           // Adding wallets to an existing wallet group via explicit group key
           if (widget.walletGroupKey != null &&
               widget.walletGroupKey!.isNotEmpty) {
-
             final groupKey = widget.walletGroupKey!;
             final current = viewModel.appStore.wallet;
+            if (current == null) {
+              throw Exception('No wallet is currently opened.');
+            }
 
             // Ensure current wallet belongs to the same group so we can reuse its seed
             final sameGroup =
-                current?.walletInfo.hashedWalletIdentifier == groupKey;
+                current.walletInfo.hashedWalletIdentifier == groupKey;
             if (sameGroup != true) {
               throw Exception(
                   'Please open a wallet from this group first before adding new wallets to it.');
             }
 
-            final sharedMnemonic = current?.seed ?? '';
-            final sharedPassphrase = current?.passphrase ?? '';
-
-            // Determine which types are already existing in the group
-            final existing = widget.preselectedTypes ?? const <WalletType>{};
-            final rawToAdd = mergedTypes.where((type) => !existing.contains(type)).toList();
-
-
-            final excluded = <WalletType>[];
-            final toAdd = <WalletType>[];
-
-            for (final type in rawToAdd) {
-              if (!viewModel.isPassPhraseSupported(type) && sharedPassphrase.isNotEmpty) {
-                excluded.add(type);
-              } else {
-                toAdd.add(type);
-              }
-            }
-
-            if(excluded.isNotEmpty) {
-              await showPopUp<void>(
-                context: context,
-                builder: (dialogCtx) => AlertWithOneAction(
-                  key: const ValueKey('new_wallet_group_page_excluded_types_dialog_key'),
-                  buttonKey: const ValueKey('new_wallet_group_page_excluded_types_dialog_button_key'),
-                  alertTitle: S.current.alert_notice,
-                  alertContent:
-                  'The following wallet types cannot be added because they do not support passphrase protection\n'
-                      '${excluded.map((e) => walletTypeToDisplayName(e)).join(', ')}',
-                  buttonText: S.of(dialogCtx).ok,
-                  buttonAction: () => Navigator.of(dialogCtx).pop(),
-                ),
-              );
-            }
-
-            if (toAdd.isEmpty) {
-              if (mounted) setState(() => _isProcessing = false);
-              return;
-            }
-
-            // Pick an "existingType" to satisfy VM args
-            final existingType =
-                existing.isNotEmpty ? existing.first : mergedTypes.first;
-
-            final allTypes = <WalletType>{...existing, ...mergedTypes}.toList();
-            final args = WalletGroupArguments(
-              types: allTypes,
-              currentType: existingType,
-              mnemonic: sharedMnemonic, // reused from current wallet;
-            );
-
-            final groupVM = getIt<WalletGroupNewVM>(param1: args);
-
-            await groupVM.createRestWallets(
-              WalletGroupParams(
-                restTypes: toAdd,
-                sharedMnemonic: sharedMnemonic,
-                sharedPassphrase: sharedPassphrase,
-                isChildWallet: true,
-                groupKey: groupKey,
-              ),
+            await _createRestWalletsInGroup(
+              context: context,
+              groupKey: groupKey,
+              current: current,
+              allSelectedTypes: mergedTypes,
+              alreadyInGroup: widget.preselectedTypes ?? const <WalletType>{},
+              viewModel: viewModel,
             );
 
             if (mounted) setState(() => _isProcessing = false);
             if (context.mounted) Navigator.of(context).pop();
             return;
           }
-
 
           // Pure multi-wallet creation flow
           final arguments = WalletGroupArguments(
@@ -505,10 +452,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         return;
       }
 
-
       // Restoration flow
       if (!widget.isCreate) {
-
         // Single-wallet restoration flow
         if (mergedTypes.length == 1) {
           widget.onTypeSelected!(context, mergedTypes.first);
@@ -517,23 +462,22 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
         // Multi-wallet BIP39 restoration flow
         if (mergedTypes.length > 1 && onlyBIP39Selected(mergedTypes)) {
-
           if (widget.preselectedTypes == null ||
               widget.preselectedTypes!.isEmpty) {
             throw Exception('Original wallet type is not provided.');
           }
           final originalType = widget.preselectedTypes!.first;
 
-
           // 1) Restore the original wallet first
-          final Map<String, dynamic>? credentials = switch (widget.credentials) {
+          final Map<String, dynamic>? credentials =
+              switch (widget.credentials) {
             Map<String, dynamic> map => map,
             _ => null,
           };
 
-          final originalVM = getIt.get<WalletRestoreViewModel>(param1: originalType, param2: null);
+          final originalVM = getIt.get<WalletRestoreViewModel>(
+              param1: originalType, param2: null);
           await originalVM.create(options: credentials);
-
 
           // 2) After restore, the new wallet is current. Reuse its seed + groupKey (no seed in credentials).
           final current = viewModel.appStore.wallet;
@@ -545,62 +489,14 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             throw Exception(
                 'Could not resolve group key from the restored wallet.');
 
-          final sharedMnemonic = current.seed ?? '';
-          if (sharedMnemonic.isEmpty)
-            throw Exception(
-                'Shared mnemonic is unavailable from the restored wallet.');
-
-          final sharedPassphrase = current.passphrase ?? '';
-
-          // 3) Restore the rest of selected BIP39 chains in the same group
-          final rawToAdd = mergedTypes.where((t) => t != originalType).toList();
-
-
-          final excluded = <WalletType>[];
-          final toAdd = <WalletType>[];
-
-          for (final type in rawToAdd) {
-            if (!viewModel.isPassPhraseSupported(type) && sharedPassphrase.isNotEmpty) {
-              excluded.add(type);
-            } else {
-              toAdd.add(type);
-            }
-          }
-
-          if(excluded.isNotEmpty) {
-            await showPopUp<void>(
-              context: context,
-              builder: (dialogCtx) => AlertWithOneAction(
-                key: const ValueKey('new_wallet_group_page_excluded_types_dialog_key'),
-                buttonKey: const ValueKey('new_wallet_group_page_excluded_types_dialog_button_key'),
-                alertTitle: S.current.alert_notice,
-                alertContent:
-                'The following wallet types cannot be added because they do not support passphrase protection\n'
-                    '${excluded.map((e) => walletTypeToDisplayName(e)).join(', ')}',
-                buttonText: S.of(dialogCtx).ok,
-                buttonAction: () => Navigator.of(dialogCtx).pop(),
-              ),
-            );
-          }
-
-          if (toAdd.isNotEmpty) {
-            final args = WalletGroupArguments(
-              types: <WalletType>{...mergedTypes}.toList(),
-              currentType: originalType,
-              mnemonic: sharedMnemonic,
-            );
-            final groupVM = getIt<WalletGroupNewVM>(param1: args);
-
-            await groupVM.createRestWallets(
-              WalletGroupParams(
-                restTypes: toAdd,
-                sharedMnemonic: sharedMnemonic,
-                sharedPassphrase: sharedPassphrase,
-                isChildWallet: true,
-                groupKey: groupKey,
-              ),
-            );
-          }
+          await _createRestWalletsInGroup(
+            context: context,
+            groupKey: groupKey,
+            current: current,
+            allSelectedTypes: mergedTypes,
+            alreadyInGroup: widget.preselectedTypes ?? {},
+            viewModel: viewModel,
+          );
 
           if (context.mounted) {
             Navigator.of(context)
@@ -624,6 +520,83 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       if (mounted) setState(() => _isProcessing = false);
     }
   }
+
+  Future<void> _createRestWalletsInGroup({
+    required BuildContext context,
+    required String groupKey,
+    required WalletBase current,
+    required List<WalletType> allSelectedTypes,
+    required Set<WalletType> alreadyInGroup,
+    required NewWalletTypeViewModel viewModel,
+  }) async {
+    final sharedMnemonic = current.seed ?? '';
+    final sharedPassphrase = current.passphrase ?? '';
+
+    if (sharedMnemonic.isEmpty) {
+      throw Exception(
+          'Shared mnemonic is unavailable from the current wallet.');
+    }
+
+    final rawToAdd =
+        allSelectedTypes.where((t) => !alreadyInGroup.contains(t)).toList();
+
+    final excluded = <WalletType>[];
+    final toAdd = <WalletType>[];
+
+    for (final type in rawToAdd) {
+      final passphraseUnsupported = !viewModel.isPassPhraseSupported(type);
+      if (passphraseUnsupported && sharedPassphrase.isNotEmpty) {
+        excluded.add(type);
+      } else {
+        toAdd.add(type);
+      }
+    }
+
+    if (excluded.isNotEmpty) {
+      await showPopUp<void>(
+        context: context,
+        builder: (dialogCtx) => AlertWithOneAction(
+          key:
+              const ValueKey('new_wallet_group_page_excluded_types_dialog_key'),
+          buttonKey: const ValueKey(
+              'new_wallet_group_page_excluded_types_dialog_button_key'),
+          alertTitle: S.current.alert_notice,
+          alertContent:
+              'The following wallet types cannot be added because they do not support passphrase protection\n'
+              '${excluded.map((e) => walletTypeToDisplayName(e)).join(', ')}',
+          buttonText: S.of(dialogCtx).ok,
+          buttonAction: () => Navigator.of(dialogCtx).pop(),
+        ),
+      );
+    }
+
+    if (toAdd.isEmpty) {
+      return;
+    }
+
+    final existingType = alreadyInGroup.isNotEmpty
+        ? alreadyInGroup.first
+        : allSelectedTypes.first;
+
+    final args = WalletGroupArguments(
+      types: <WalletType>{...alreadyInGroup, ...allSelectedTypes}.toList(),
+      currentType: existingType,
+      mnemonic: sharedMnemonic, // reuse the same BIP-39 seed
+    );
+
+    final groupVM = getIt<WalletGroupNewVM>(param1: args);
+
+    await groupVM.createRestWallets(
+      WalletGroupParams(
+        restTypes: toAdd,
+        sharedMnemonic: sharedMnemonic,
+        sharedPassphrase: sharedPassphrase,
+        isChildWallet: true,
+        groupKey: groupKey,
+      ),
+    );
+  }
+
   Future<void> showInfoBottomSheet(MaterialThemeBase currentTheme) async {
     await showModalBottomSheet<void>(
       context: context,
@@ -680,7 +653,7 @@ class WalletGroupInfoBottomSheet extends StatelessWidget {
                   child: SingleChildScrollView(
                     controller: scrollController,
                     padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                     child: Column(
                       children: [
                         Image.asset(
@@ -699,19 +672,18 @@ class WalletGroupInfoBottomSheet extends StatelessWidget {
                 ),
                 SafeArea(
                   top: false,
-                  minimum:
-                  const EdgeInsets.fromLTRB(30, 12, 30, 24),
+                  minimum: const EdgeInsets.fromLTRB(30, 12, 30, 24),
                   child: SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: PrimaryButton(
-                      key: ValueKey('wallet_group_info_bottom_sheet_dismiss_button_key'),
-                      text: S.of(context).litecoin_mweb_dismiss,
-                      onPressed: () => Navigator.of(context).pop(),
-                      color: Theme.of(context).colorScheme.primary,
-                      textColor: Theme.of(context).colorScheme.onPrimary,
-                    )
-                  ),
+                      width: double.infinity,
+                      height: 48,
+                      child: PrimaryButton(
+                        key: ValueKey(
+                            'wallet_group_info_bottom_sheet_dismiss_button_key'),
+                        text: S.of(context).litecoin_mweb_dismiss,
+                        onPressed: () => Navigator.of(context).pop(),
+                        color: Theme.of(context).colorScheme.primary,
+                        textColor: Theme.of(context).colorScheme.onPrimary,
+                      )),
                 ),
               ],
             ),
