@@ -3,6 +3,7 @@ import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
@@ -30,7 +31,8 @@ abstract class WalletListViewModelBase with Store {
         multiWalletGroups = ObservableList<WalletGroup>(),
         singleWalletsList = ObservableList<WalletListItem>(),
         expansionTileStateTrack = ObservableMap<int, bool>(),
-        cachedBalances = ObservableList<BalanceCache>() {
+        cachedBalances = ObservableList<BalanceCache>(),
+        cacheUpdateStatuses = ObservableList<bool>() {
     setOrderType(_appStore.settingsStore.walletListOrder);
     updateList();
 
@@ -48,6 +50,9 @@ abstract class WalletListViewModelBase with Store {
 
   @observable
   ObservableList<BalanceCache> cachedBalances;
+
+  @observable
+  ObservableList<bool> cacheUpdateStatuses;
 
   // @observable
   // ObservableList<WalletGroup> walletGroups;
@@ -84,7 +89,6 @@ abstract class WalletListViewModelBase with Store {
         torOnly: _appStore.settingsStore.fiatApiMode == FiatApiMode.torOnly);
   }
 
-
   Future<void> _updateFiatStore() async {
     for (final wallet in wallets) {
       final currency = walletTypeToCryptoCurrency(wallet.type);
@@ -101,6 +105,16 @@ abstract class WalletListViewModelBase with Store {
     return calculateFiatAmount(cryptoAmount: cachedBalanceFor(currency), price: price);
   }
 
+  String totalFiatBalance() {
+    double ret = 0;
+
+    for (final wallet in wallets) {
+      ret += double.parse(fiatCachedBalanceFor(walletTypeToCryptoCurrency(wallet.type)));
+    }
+
+    return ret.toString();
+  }
+
   @computed
   bool get shouldRequireTOTP2FAForAccessingWallet =>
       _appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
@@ -108,6 +122,9 @@ abstract class WalletListViewModelBase with Store {
   @computed
   bool get shouldRequireTOTP2FAForCreatingNewWallets =>
       _appStore.settingsStore.shouldRequireTOTP2FAForCreatingNewWallets;
+
+  @computed
+  FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
 
   final AppStore _appStore;
   final WalletManager _walletManager;
@@ -145,12 +162,14 @@ abstract class WalletListViewModelBase with Store {
       wallets.clear();
       multiWalletGroups.clear();
       singleWalletsList.clear();
+      cacheUpdateStatuses.clear();
 
       final list = await WalletInfo.getAll();
 
       for (var info in list) {
         wallets.add(await convertWalletInfoToWalletListItem(info));
         cachedBalances.addAll(await BalanceCache.fromWalletId(info.internalId));
+        cacheUpdateStatuses.add(true);
       }
 
       //========== Split into shared seed groups and single wallets list
@@ -168,6 +187,22 @@ abstract class WalletListViewModelBase with Store {
       }
     } finally {
       isUpdating = false;
+    }
+  }
+
+  @action
+  Future<void> refreshCachedBalances() async {
+    for (final wallet in wallets) {
+      cacheUpdateStatuses[wallets.indexOf(wallet)] = false;
+
+      final tmpWallet = await _walletLoadingService.load(wallet.type, wallet.name);
+      await tmpWallet.startSync();
+      while (tmpWallet.syncStatus.progress() < 1.0) {
+        await Future.delayed(Duration(milliseconds: 100));
+      }
+      await tmpWallet.close();
+
+      cacheUpdateStatuses[wallets.indexOf(wallet)] = true;
     }
   }
 

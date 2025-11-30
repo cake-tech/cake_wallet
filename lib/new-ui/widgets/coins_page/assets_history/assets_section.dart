@@ -20,6 +20,9 @@ class AssetsSection extends StatelessWidget {
           name: "DummyCoin",
           amount: "0.000 DMC",
           amountFiat: "\$ 0.00",
+          // don't worry about this, it's mostly for wallets page
+          // unless you load each asset's balance separately for some reason?
+          showLoading: false,
         );
       },
     );

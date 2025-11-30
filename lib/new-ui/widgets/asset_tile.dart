@@ -1,4 +1,3 @@
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 
 class AssetTile extends StatelessWidget {
@@ -7,12 +6,14 @@ class AssetTile extends StatelessWidget {
       required this.iconPath,
       required this.name,
       required this.amount,
-      required this.amountFiat});
+      required this.amountFiat,
+      required this.showLoading});
 
   final String iconPath;
   final String name;
   final String amount;
   final String amountFiat;
+  final bool showLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -66,12 +67,14 @@ class AssetTile extends StatelessWidget {
                   ),
                 ],
               ),
-              Text(
-                amountFiat,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
+              showLoading
+                  ? CircularProgressIndicator()
+                  : Text(
+                      amountFiat,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
             ],
           ),
         ),
