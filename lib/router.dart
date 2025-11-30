@@ -256,9 +256,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.newWalletGroup:
       final args = settings.arguments as WalletGroupArguments;
-      final seedSettingsViewModel = getIt.get<SeedSettingsViewModel>();
       return handleRouteWithPlatformAwareness(
-            (_) => NewWalletGroupPage(getIt.get<WalletGroupNewVM>(param1: args),seedSettingsViewModel));
+            (_) => NewWalletGroupPage(getIt.get<WalletGroupNewVM>(param1: args)));
 
     case Routes.chooseHardwareWalletAccount:
       final arguments = settings.arguments as List<dynamic>;

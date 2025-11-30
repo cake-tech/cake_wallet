@@ -14,6 +14,22 @@ class AdvancedPrivacySettingsViewModel = AdvancedPrivacySettingsViewModelBase
 abstract class AdvancedPrivacySettingsViewModelBase with Store {
   AdvancedPrivacySettingsViewModelBase(this.type, this._settingsStore) : _addCustomNode = false;
 
+  static const hasPassphraseOptionWalletTypes = [
+    WalletType.bitcoin,
+    WalletType.litecoin,
+    WalletType.bitcoinCash,
+    WalletType.ethereum,
+    WalletType.polygon,
+    WalletType.base,
+    WalletType.arbitrum,
+    WalletType.tron,
+    WalletType.solana,
+    WalletType.monero,
+    WalletType.wownero,
+    WalletType.zano,
+    WalletType.dogecoin,
+  ];
+
   @computed
   ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
 
@@ -80,21 +96,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   bool get isNanoSeedTypeOptionsEnabled => !_isGroupCreation && [WalletType.nano].contains(type);
 
-  bool get hasPassphraseOption => _isGroupCreation || [
-        WalletType.bitcoin,
-        WalletType.litecoin,
-        WalletType.bitcoinCash,
-        WalletType.ethereum,
-        WalletType.polygon,
-        WalletType.base,
-        WalletType.arbitrum,
-        WalletType.tron,
-        WalletType.solana,
-        WalletType.monero,
-        WalletType.wownero,
-        WalletType.zano,
-        WalletType.dogecoin,
-      ].contains(type);
+  bool get hasPassphraseOption => _isGroupCreation || hasPassphraseOptionWalletTypes.contains(type);
 
   @computed
   bool get addCustomNode => _addCustomNode;

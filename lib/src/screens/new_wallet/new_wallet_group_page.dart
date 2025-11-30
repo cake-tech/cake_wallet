@@ -15,17 +15,15 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/new_wallet_group_view_model.dart';
-import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class NewWalletGroupPage extends BasePage {
-  NewWalletGroupPage(this._walletGroupVM, this._seedSettingsViewModel);
+  NewWalletGroupPage(this._walletGroupVM);
 
   final WalletGroupNewVM _walletGroupVM;
-  final SeedSettingsViewModel _seedSettingsViewModel;
 
   final welcomeImageLight = 'assets/images/wallet_group_empty_light.png';
   final welcomeImageDark = 'assets/images/wallet_group_empty_dark.png';
@@ -84,6 +82,26 @@ class _WalletNameFormState extends State<WalletNameForm> {
       if (state is ExecutedSuccessfullyState) {
         final payload = state.payload;
         final walletGroupParams = payload is WalletGroupParams ? payload : null;
+
+        final excludedTypes = walletGroupParams?.excludedTypes ?? [];
+
+
+        if (excludedTypes.isNotEmpty) {
+          final navContext = navigatorKey.currentContext ?? context;
+          await showPopUp<void>(
+            context: navContext,
+            builder: (_) => AlertWithOneAction(
+              key: const ValueKey('new_wallet_group_page_excluded_types_dialog_key'),
+              buttonKey: const ValueKey('new_wallet_group_page_excluded_types_dialog_button_key'),
+              alertTitle: S.current.alert_notice,
+              alertContent:
+              'The following wallet types were excluded from the group due to passphrase requirements:\n'
+                  '${excludedTypes.map((e) => walletTypeToDisplayName(e)).join(', ')}',
+              buttonText: S.of(navContext).ok,
+              buttonAction: () => Navigator.of(navContext).pop(),
+            ),
+          );
+        }
 
         Navigator.of(navigatorKey.currentContext ?? context)
             .pushNamed(Routes.preSeedPage);

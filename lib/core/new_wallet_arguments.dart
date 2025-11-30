@@ -28,12 +28,14 @@ class WalletGroupArguments {
 
 class WalletGroupParams {
   final List<WalletType> restTypes;
+  final List<WalletType> excludedTypes;
   final String sharedMnemonic;
   final String? sharedPassphrase;
   final bool isChildWallet;
   final String groupKey;
   const WalletGroupParams({
     required this.restTypes,
+    this.excludedTypes = const [],
     required this.sharedMnemonic,
     this.sharedPassphrase,
     required this.isChildWallet,

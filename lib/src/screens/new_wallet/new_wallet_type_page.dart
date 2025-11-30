@@ -11,6 +11,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_alert.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -427,11 +428,38 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
             // Determine which types are already existing in the group
             final existing = widget.preselectedTypes ?? const <WalletType>{};
-            final toAdd = mergedTypes.where((type) => !existing.contains(type)).toList();
+            final rawToAdd = mergedTypes.where((type) => !existing.contains(type)).toList();
+
+
+            final excluded = <WalletType>[];
+            final toAdd = <WalletType>[];
+
+            for (final type in rawToAdd) {
+              if (!viewModel.isPassPhraseSupported(type) && sharedPassphrase.isNotEmpty) {
+                excluded.add(type);
+              } else {
+                toAdd.add(type);
+              }
+            }
+
+            if(excluded.isNotEmpty) {
+              await showPopUp<void>(
+                context: context,
+                builder: (dialogCtx) => AlertWithOneAction(
+                  key: const ValueKey('new_wallet_group_page_excluded_types_dialog_key'),
+                  buttonKey: const ValueKey('new_wallet_group_page_excluded_types_dialog_button_key'),
+                  alertTitle: S.current.alert_notice,
+                  alertContent:
+                  'The following wallet types cannot be added because they do not support passphrase protection\n'
+                      '${excluded.map((e) => walletTypeToDisplayName(e)).join(', ')}',
+                  buttonText: S.of(dialogCtx).ok,
+                  buttonAction: () => Navigator.of(dialogCtx).pop(),
+                ),
+              );
+            }
 
             if (toAdd.isEmpty) {
               if (mounted) setState(() => _isProcessing = false);
-              if (context.mounted) Navigator.of(context).pop();
               return;
             }
 
@@ -522,10 +550,39 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             throw Exception(
                 'Shared mnemonic is unavailable from the restored wallet.');
 
-          final sharedPassphrase = current.passphrase;
+          final sharedPassphrase = current.passphrase ?? '';
 
           // 3) Restore the rest of selected BIP39 chains in the same group
-          final toAdd = mergedTypes.where((t) => t != originalType).toList();
+          final rawToAdd = mergedTypes.where((t) => t != originalType).toList();
+
+
+          final excluded = <WalletType>[];
+          final toAdd = <WalletType>[];
+
+          for (final type in rawToAdd) {
+            if (!viewModel.isPassPhraseSupported(type) && sharedPassphrase.isNotEmpty) {
+              excluded.add(type);
+            } else {
+              toAdd.add(type);
+            }
+          }
+
+          if(excluded.isNotEmpty) {
+            await showPopUp<void>(
+              context: context,
+              builder: (dialogCtx) => AlertWithOneAction(
+                key: const ValueKey('new_wallet_group_page_excluded_types_dialog_key'),
+                buttonKey: const ValueKey('new_wallet_group_page_excluded_types_dialog_button_key'),
+                alertTitle: S.current.alert_notice,
+                alertContent:
+                'The following wallet types cannot be added because they do not support passphrase protection\n'
+                    '${excluded.map((e) => walletTypeToDisplayName(e)).join(', ')}',
+                buttonText: S.of(dialogCtx).ok,
+                buttonAction: () => Navigator.of(dialogCtx).pop(),
+              ),
+            );
+          }
+
           if (toAdd.isNotEmpty) {
             final args = WalletGroupArguments(
               types: <WalletType>{...mergedTypes}.toList(),

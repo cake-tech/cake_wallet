@@ -14,21 +14,25 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:get_it/get_it.dart';
 
+import 'advanced_privacy_settings_view_model.dart';
+
 part 'new_wallet_group_view_model.g.dart';
 
 class WalletGroupNewVM = WalletGroupNewVMBase with _$WalletGroupNewVM;
 
 abstract class WalletGroupNewVMBase with Store {
-  WalletGroupNewVMBase(
-    this.appStore,
-    this.walletCreationService, {
-    required this.walletNewVMBuilder,
-    required this.args,
-  })  : state = InitialExecutionState(),
+  WalletGroupNewVMBase(this.appStore,
+      this.walletCreationService,
+      this.advancedPrivacySettingsViewModel, {
+        required this.walletNewVMBuilder,
+        required this.args,
+      })
+      : state = InitialExecutionState(),
         name = '';
 
   final AppStore appStore;
   final WalletCreationService walletCreationService;
+  final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
   final WalletNewVM Function(NewWalletArguments) walletNewVMBuilder;
   final WalletGroupArguments args;
 
@@ -58,6 +62,12 @@ abstract class WalletGroupNewVMBase with Store {
   @observable
   String? error;
 
+  bool isPassPhraseSupported(WalletType type) {
+    return AdvancedPrivacySettingsViewModelBase
+        .hasPassphraseOptionWalletTypes
+        .contains(type);
+  }
+
   Future<bool> nameExists(String name) => walletCreationService.exists(name);
 
   bool groupNameExists(String name) =>
@@ -73,7 +83,9 @@ abstract class WalletGroupNewVMBase with Store {
   }
 
   String _uniqueGroupName(String preferred) {
-    var base = preferred.trim().isEmpty ? 'Group' : preferred.trim();
+    var base = preferred
+        .trim()
+        .isEmpty ? 'Group' : preferred.trim();
     if (!groupNameExists(base)) return base;
 
     var i = 2;
@@ -99,10 +111,10 @@ abstract class WalletGroupNewVMBase with Store {
       if (!onlyBIP39Selected(types))
         throw 'Only BIP39-based wallet types are supported in a group.';
 
-      final restTypes = types.where((type) => type != currentType).toList();
-
       var groupNameCandidate =
-          name.trim().isEmpty ? await generateName() : name.trim();
+      name
+          .trim()
+          .isEmpty ? await generateName() : name.trim();
       final groupName = _uniqueGroupName(groupNameCandidate);
 
       final providedMnemonic = args.mnemonic;
@@ -149,11 +161,26 @@ abstract class WalletGroupNewVMBase with Store {
       final String? sharedPassphrase =
           args.passphrase ?? currentWallet.passphrase;
 
+      final restTypesRaw = types.where((type) => type != currentType).toList();
+
+      final excluded = <WalletType>[];
+      final restTypes = <WalletType>[];
+
+      for (final type in restTypesRaw) {
+        if (!isPassPhraseSupported(type) && sharedPassphrase != null &&
+            sharedPassphrase.isNotEmpty) {
+          excluded.add(type);
+        } else {
+          restTypes.add(type);
+        }
+      }
+
       await walletCreationService.setGroupNameForKey(groupKey, groupName);
 
       state = ExecutedSuccessfullyState(
         payload: WalletGroupParams(
           restTypes: restTypes,
+          excludedTypes: excluded,
           sharedMnemonic: sharedMnemonic,
           sharedPassphrase: sharedPassphrase,
           isChildWallet: true,

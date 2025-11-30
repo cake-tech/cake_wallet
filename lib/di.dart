@@ -453,12 +453,14 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletGroupNewVM, WalletGroupArguments, void>(
           (args, _) => WalletGroupNewVM(getIt.get<AppStore>(),
           getIt.get<WalletCreationService>(param1: WalletType.none),
+          getIt.get<AdvancedPrivacySettingsViewModel>(param1: WalletType.none),
           args: args,
           walletNewVMBuilder: (args) => getIt<WalletNewVM>(param1: args)));
 
 
   final walletList = await WalletInfo.getAll();
-  getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(walletList.isNotEmpty, getIt.get<AppStore>()));
+  getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(walletList.isNotEmpty, getIt.get<AppStore>(),
+      getIt.get<AdvancedPrivacySettingsViewModel>(param1: WalletType.none)));
 
 
   getIt.registerFactory<WalletManager>(

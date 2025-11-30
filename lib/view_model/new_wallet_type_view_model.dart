@@ -1,4 +1,5 @@
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -10,7 +11,7 @@ class NewWalletTypeViewModel = NewWalletTypeViewModelBase
     with _$NewWalletTypeViewModel;
 
 abstract class NewWalletTypeViewModelBase with Store {
-  NewWalletTypeViewModelBase(this.hasExisitingWallet, this.appStore) {
+  NewWalletTypeViewModelBase(this.hasExisitingWallet, this.appStore, this.advancedPrivacySettingsViewModel) {
     itemSelection = ObservableMap<WalletType, bool>.of({
       WalletType.monero: false,
       WalletType.bitcoin: false,
@@ -29,8 +30,16 @@ abstract class NewWalletTypeViewModelBase with Store {
 
   final bool hasExisitingWallet;
   final AppStore appStore;
+  final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
 
   late final ObservableMap<WalletType, bool> itemSelection;
+
+  bool isPassPhraseSupported(WalletType type) {
+    return AdvancedPrivacySettingsViewModelBase
+        .hasPassphraseOptionWalletTypes
+        .contains(type);
+  }
+
 
   @computed
   bool get hasAnySelected => selectedTypes.isNotEmpty;
