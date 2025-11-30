@@ -319,7 +319,7 @@ abstract class WalletListViewModelBase with Store {
     }
   }
 
-  Future<WalletListItem> convertWalletInfoToWalletListItem(WalletInfo info) async {
+  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) {
     return WalletListItem(
       name: info.name,
       type: info.type,
