@@ -32,7 +32,7 @@ abstract class WalletListViewModelBase with Store {
         singleWalletsList = ObservableList<WalletListItem>(),
         expansionTileStateTrack = ObservableMap<int, bool>(),
         cachedBalances = ObservableList<BalanceCache>(),
-        cacheUpdateStatuses = ObservableList<bool>() {
+        isBalanceCacheSynced = ObservableList<bool>() {
     setOrderType(_appStore.settingsStore.walletListOrder);
     updateList();
 
@@ -52,7 +52,7 @@ abstract class WalletListViewModelBase with Store {
   ObservableList<BalanceCache> cachedBalances;
 
   @observable
-  ObservableList<bool> cacheUpdateStatuses;
+  ObservableList<bool> isBalanceCacheSynced;
 
   // @observable
   // ObservableList<WalletGroup> walletGroups;
@@ -162,14 +162,14 @@ abstract class WalletListViewModelBase with Store {
       wallets.clear();
       multiWalletGroups.clear();
       singleWalletsList.clear();
-      cacheUpdateStatuses.clear();
+      isBalanceCacheSynced.clear();
 
       final list = await WalletInfo.getAll();
 
       for (var info in list) {
         wallets.add(await convertWalletInfoToWalletListItem(info));
         cachedBalances.addAll(await BalanceCache.fromWalletId(info.internalId));
-        cacheUpdateStatuses.add(true);
+        isBalanceCacheSynced.add(true);
       }
 
       //========== Split into shared seed groups and single wallets list
@@ -193,7 +193,7 @@ abstract class WalletListViewModelBase with Store {
   @action
   Future<void> refreshCachedBalances() async {
     for (final wallet in wallets) {
-      cacheUpdateStatuses[wallets.indexOf(wallet)] = false;
+      isBalanceCacheSynced[wallets.indexOf(wallet)] = false;
 
       final tmpWallet = await _walletLoadingService.load(wallet.type, wallet.name);
       await tmpWallet.startSync();
@@ -202,7 +202,7 @@ abstract class WalletListViewModelBase with Store {
       }
       await tmpWallet.close();
 
-      cacheUpdateStatuses[wallets.indexOf(wallet)] = true;
+      isBalanceCacheSynced[wallets.indexOf(wallet)] = true;
     }
   }
 

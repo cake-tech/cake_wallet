@@ -31,7 +31,7 @@ class NewWalletListPage extends StatelessWidget {
                         final currency = walletTypeToCryptoCurrency(wallet.type);
                         final balance = walletListViewModel.cachedBalanceFor(currency);
                         final fiatBalance = walletListViewModel.fiatCachedBalanceFor(currency);
-                        final cacheUpdateStatus = walletListViewModel.cacheUpdateStatuses[index];
+                        final cacheUpdateStatus = walletListViewModel.isBalanceCacheSynced[index];
 
                         return AssetTile(
                           iconPath: currency.iconPath!,
