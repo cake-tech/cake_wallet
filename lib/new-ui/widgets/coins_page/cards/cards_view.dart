@@ -69,10 +69,16 @@ class _CardsViewState extends State<CardsView> {
           child: Observer(builder: (_) {
             final account = widget.accountListViewModel?.accounts[index];
 
-            final walletBalance =
+            final walletBalanceRecord =
                 widget.dashboardViewModel.balanceViewModel.formattedBalances.elementAt(0);
             final walletCurrency =
-                widget.lightningMode ? walletBalance.secondAsset : walletBalance.asset;
+                widget.lightningMode ? walletBalanceRecord.secondAsset : walletBalanceRecord.asset;
+            final walletBalance = widget.lightningMode
+                ? walletBalanceRecord.secondAvailableBalance
+                : walletBalanceRecord.availableBalance;
+            final walletFiatBalance = widget.lightningMode
+                ? walletBalanceRecord.fiatSecondAvailableBalance
+                : walletBalanceRecord.fiatAvailableBalance;
 
             late final String accountName;
             late final String accountBalance;
@@ -84,22 +90,15 @@ class _CardsViewState extends State<CardsView> {
               accountBalance = account.balance ?? "0.00";
             }
 
-            // TODO get user-selected custom gradient if set, fallback to CryptoCurrency one if null
-            final gradient = LinearGradient(colors: [
-              walletCurrency.gradientStartColor,
-              walletCurrency.gradientEndColor,
-            ], begin: Alignment.topCenter, end: Alignment.bottomCenter);
-
             return BalanceCard(
               width: cardWidth,
               accountName: accountName,
               accountBalance: accountBalance,
-              balanceRecord: walletBalance,
-              selected: _selectedIndex == index,
-              gradient: gradient,
-              svgPath: walletCurrency.flatIconPath ?? "assets/new-ui/blank.svg",
-              lightningMode: widget.lightningMode,
-            );
+                assetName: walletCurrency.name,
+                balance: walletBalance,
+                fiatBalance: walletFiatBalance,
+                selected: _selectedIndex == index,
+                design: walletCurrency.cardDesign);
           }),
         ),
       ),

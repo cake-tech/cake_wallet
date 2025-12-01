@@ -2,18 +2,20 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/lightning_assets.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/card_customizer.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:flutter/material.dart';
-
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewHomePage extends StatefulWidget {
   NewHomePage({super.key, required this.dashboardViewModel}) {
-    this.accountListViewModel =
-    dashboardViewModel.balanceViewModel.hasAccounts ? getIt.get<MoneroAccountListViewModel>() : null;
+    this.accountListViewModel = dashboardViewModel.balanceViewModel.hasAccounts
+        ? getIt.get<MoneroAccountListViewModel>()
+        : null;
   }
 
   final DashboardViewModel dashboardViewModel;
@@ -57,11 +59,25 @@ class _NewHomePageState extends State<NewHomePage> {
                   });
                 },
               ),
-              WalletInfo(lightningMode: _lightningMode, usesHardwareWallet:
-              widget.dashboardViewModel.wallet.isHardwareWallet,
-                  name: widget.dashboardViewModel.wallet.name
+              WalletInfo(
+                lightningMode: _lightningMode,
+                usesHardwareWallet: widget.dashboardViewModel.wallet.isHardwareWallet,
+                name: widget.dashboardViewModel.wallet.name,
+                onCustomizeButtonTap: () {
+                  showCupertinoModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return Material(
+                          child: CardCustomizer(
+                            dashboardViewModel: widget.dashboardViewModel,
+                            accountListViewModel: widget.accountListViewModel,
+                          ),
+                        );
+                      });
+                },
               ),
-              CardsView(dashboardViewModel: widget.dashboardViewModel,
+              CardsView(
+                dashboardViewModel: widget.dashboardViewModel,
                 accountListViewModel: widget.accountListViewModel,
                 lightningMode: _lightningMode,
               ),
@@ -81,8 +97,12 @@ class _NewHomePageState extends State<NewHomePage> {
                   );
                 },
                 child: _lightningMode
-                    ? LightningAssets(dashboardViewModel: widget.dashboardViewModel,)
-                    : HistorySection(dashboardViewModel: widget.dashboardViewModel,),
+                    ? LightningAssets(
+                        dashboardViewModel: widget.dashboardViewModel,
+                      )
+                    : HistorySection(
+                        dashboardViewModel: widget.dashboardViewModel,
+                      ),
               ),
             ],
           ),
