@@ -355,11 +355,12 @@ abstract class OutputBase with Store {
   @action
   void _updateCryptoAmount() {
     try {
-      final crypto = double.parse(fiatAmount.replaceAll(',', '.')) /
-          _fiatConversationStore.prices[cryptoCurrencyHandler()]!;
-      final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
-      if (cryptoAmount != cryptoAmountTmp) {
-        cryptoAmount = cryptoAmountTmp;
+      final crypto = (double.parse(fiatAmount.replaceAll(',', '.')) /
+              _fiatConversationStore.prices[cryptoCurrencyHandler()]!)
+          .toStringAsFixed(cryptoCurrencyHandler().decimals);
+
+      if (cryptoAmount != crypto) {
+        cryptoAmount = crypto;
       }
     } catch (e) {
       cryptoAmount = '';
