@@ -426,10 +426,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final fromTag = _normalizedFromNetwork.isEmpty || _normalizedFromNetwork == fromCurrency.toUpperCase() || _normalizedFromNetwork == 'Mainnet'
           ? null : _normalizedFromNetwork;
 
-      print('fromCurrency: $fromCurrency, fromNetwork: $fromNetwork, normalized: $_normalizedFromNetwork, fromTag: $fromTag');
       final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
 
-      print('from: ${from?.title}, tag: ${from?.tag}');
       final toCurrency = responseJSON['ticker_to'] as String;
       final networkTo = responseJSON['network_to'] as String?;
       final _normalizedToNetwork = _normalizeNetworkType(networkTo ?? '');
