@@ -19,7 +19,6 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -42,8 +41,7 @@ class Output = OutputBase with _$Output;
 abstract class OutputBase with Store {
   OutputBase(
       this._wallet, this._settingsStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
-      : _cryptoNumberFormat = NumberFormat(cryptoNumberPattern),
-        key = UniqueKey(),
+      : key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
         cryptoFullBalance = '',
@@ -53,7 +51,6 @@ abstract class OutputBase with Store {
         extractedAddress = '',
         estimatedFee = '0.0',
         parsedAddress = ParsedAddress(addresses: []) {
-    _setCryptoNumMaximumFractionDigits();
     autorun((_) {
       final status = _wallet.syncStatus;
       printV("Sync status changed to $status. Recalculating fees");
@@ -289,7 +286,6 @@ abstract class OutputBase with Store {
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
-  final NumberFormat _cryptoNumberFormat;
 
   @action
   void setSendAll(String fullBalance) {
@@ -302,7 +298,6 @@ abstract class OutputBase with Store {
   void updateWallet(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> newWallet) {
     _wallet = newWallet;
-    _setCryptoNumMaximumFractionDigits();
   }
 
   @action
@@ -374,40 +369,6 @@ abstract class OutputBase with Store {
       fields['bip353_proof'] = parsedAddress.bip353DnsProof;
     }
     return fields;
-  }
-
-  void _setCryptoNumMaximumFractionDigits() {
-    var maximumFractionDigits = 0;
-
-    switch (_wallet.type) {
-      case WalletType.monero:
-      case WalletType.ethereum:
-      case WalletType.polygon:
-      case WalletType.base:
-      case WalletType.arbitrum:
-      case WalletType.solana:
-      case WalletType.tron:
-      case WalletType.haven:
-      case WalletType.zano:
-      case WalletType.nano:
-      case WalletType.decred:
-        maximumFractionDigits = 12;
-        break;
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
-      case WalletType.bitcoinCash:
-      case WalletType.dogecoin:
-        maximumFractionDigits = 8;
-        break;
-      case WalletType.wownero:
-        maximumFractionDigits = 11;
-        break;
-      case WalletType.none:
-      case WalletType.banano:
-        break;
-    }
-
-    _cryptoNumberFormat.maximumFractionDigits = maximumFractionDigits;
   }
 
   Future<void> fetchParsedAddress(BuildContext context) async {
