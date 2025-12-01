@@ -257,6 +257,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                       widget.privacySettingsViewModel.setDisableBulletin(value);
                     },
                   ),
+                  if (!widget.privacySettingsViewModel.isGroupCreation)
                   SettingsSwitcherCell(
                     title: S.current.add_custom_node,
                     value: widget.privacySettingsViewModel.addCustomNode,

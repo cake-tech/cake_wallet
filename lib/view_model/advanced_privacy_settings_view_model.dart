@@ -46,12 +46,12 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   final SettingsStore _settingsStore;
 
-  bool get _isGroupCreation => type == WalletType.none;
+  bool get isGroupCreation => type == WalletType.none;
 
   @computed
   bool get hasSeedPhraseLengthOption {
 
-    if (_isGroupCreation) return false; // group flow = BIP-39 only
+    if (isGroupCreation) return false; // group flow = BIP-39 only
 
     // convert to switch case so that it give a syntax error when adding a new wallet type
     // thus we don't forget about it
@@ -84,19 +84,19 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     }
   }
 
-  bool get isMoneroSeedTypeOptionsEnabled => !_isGroupCreation && [
+  bool get isMoneroSeedTypeOptionsEnabled => !isGroupCreation && [
         WalletType.monero,
         WalletType.wownero,
       ].contains(type);
 
-  bool get isBitcoinSeedTypeOptionsEnabled => !_isGroupCreation && [
+  bool get isBitcoinSeedTypeOptionsEnabled => !isGroupCreation && [
         WalletType.bitcoin,
         WalletType.litecoin,
       ].contains(type);
 
-  bool get isNanoSeedTypeOptionsEnabled => !_isGroupCreation && [WalletType.nano].contains(type);
+  bool get isNanoSeedTypeOptionsEnabled => !isGroupCreation && [WalletType.nano].contains(type);
 
-  bool get hasPassphraseOption => _isGroupCreation || hasPassphraseOptionWalletTypes.contains(type);
+  bool get hasPassphraseOption => isGroupCreation || hasPassphraseOptionWalletTypes.contains(type);
 
   @computed
   bool get addCustomNode => _addCustomNode;
@@ -106,7 +106,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   @computed
   bool get isPolySeed =>
-      _isGroupCreation
+      isGroupCreation
           ? false
           : _settingsStore.moneroSeedType == MoneroSeedType.polyseed;
 
