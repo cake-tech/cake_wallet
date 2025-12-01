@@ -385,7 +385,7 @@
   "exchange_result_write_down_ID": "*请复制或写下上方显示的 ID。",
   "exchange_result_write_down_trade_id": "请复制或写下交易编号以继续.",
   "exchange_sync_alert_content": "请等待，直到您的钱包同步",
-  "exchange_trade_result_confirm": "通过点击Cake Wallet的发送按钮，您将从钱包中发送 ${fetchingLabel} ${from} 到下方显示的地址。或者，您可以从外部钱包详细信息页面发送到地址/二维码。\n\n请按任意按钮继续或返回更改金额。",
+  "exchange_trade_result_confirm": "点击 Cake Wallet 中的“发送”按钮，您将从您的钱包 ${walletName} 向下方显示的地址发送 ${fetchingLabel} ${from}。您也可以从外部钱包详情页面向地址/二维码发送。请按任意按钮继续，或返回修改金额。",
   "expired": "已过期",
   "expires": "过期",
   "expiresOn": "到期",
