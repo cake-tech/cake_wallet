@@ -28,6 +28,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     WalletType.wownero,
     WalletType.zano,
     WalletType.dogecoin,
+    WalletType.nano,
   ];
 
   @computed
@@ -97,6 +98,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get isNanoSeedTypeOptionsEnabled => !isGroupCreation && [WalletType.nano].contains(type);
 
   bool get hasPassphraseOption => isGroupCreation || hasPassphraseOptionWalletTypes.contains(type);
+
+
+  bool get isnNnoStandardSeedsEnabled => _settingsStore.nanoSeedType != NanoSeedType.nanoStandard;
 
   @computed
   bool get addCustomNode => _addCustomNode;

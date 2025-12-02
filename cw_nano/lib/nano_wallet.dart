@@ -48,6 +48,7 @@ abstract class NanoWalletBase
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
+        _passphrase = passphrase ?? "",
         _derivationType = derivationInfo.derivationType!,
         _isTransactionUpdating = false,
         _encryptionFileUtils = encryptionFileUtils,
@@ -71,6 +72,7 @@ abstract class NanoWalletBase
 
   String _mnemonic;
   final String _password;
+  final String _passphrase;
   DerivationType _derivationType;
 
   final EncryptionFileUtils _encryptionFileUtils;
@@ -442,6 +444,7 @@ abstract class NanoWalletBase
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
       password: password,
+      passphrase: keysData.passphrase,
       mnemonic: keysData.mnemonic!,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
