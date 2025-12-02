@@ -4,8 +4,10 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/root_dir.dart';
@@ -15,12 +17,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
-import 'package:cake_wallet/utils/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
   static bool _hasError = false;
-  static const _coolDownDurationInDays = 7;
+  static const _coolDownDurationInDays =
+      bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode) ? 0 : 7;
   static File? _file;
 
   static Future<void> _saveException(String? error, StackTrace? stackTrace,
@@ -112,6 +114,8 @@ class ExceptionHandler {
   }
 
   static Future<void> onError(FlutterErrorDetails errorDetails) async {
+    if (await onLedgerError(errorDetails)) return;
+
     if (kDebugMode || kProfileMode) {
       FlutterError.presentError(errorDetails);
       printV(errorDetails.toString());
@@ -182,6 +186,58 @@ class ExceptionHandler {
     _hasError = false;
   }
 
+  static const List<String> _ledgerErrors = [
+    'Wrong Device Status',
+    'PlatformException(133, Failed to write: (Unknown Error: 133), null, null)',
+    'PlatformException(IllegalArgument, Unknown deviceId:',
+    'ServiceNotSupportedException(ConnectionType.ble, Required service not supported. Write characteristic: false, Notify characteristic: false)',
+    'Make sure no other program is communicating with the Ledger',
+    'Exception: 6e01', // Wrong App
+    'Exception: 6d02',
+    'Exception: 6511',
+    'Exception: 6e00',
+    'Exception: 6985',
+    'Exception: 5515',
+  ];
+
+  static bool isLedgerError(Object exception) =>
+      _ledgerErrors.any((element) => exception.toString().contains(element));
+
+  static Future<bool> onLedgerError(FlutterErrorDetails errorDetails) async {
+    if (!isLedgerError(errorDetails.exception)) return false;
+
+    String? interpretErrorCode(String errorCode) {
+      if (errorCode.contains("6985")) {
+        return S.current.ledger_error_tx_rejected_by_user;
+      } else if (errorCode.contains("5515")) {
+        return S.current.ledger_error_device_locked;
+      } else
+      if (["6e01", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
+        return S.current.ledger_error_wrong_app;
+      }
+      return null;
+    }
+
+    printV(errorDetails.exception);
+
+    if (navigatorKey.currentContext != null) {
+      await showPopUp<void>(
+        context: navigatorKey.currentContext!,
+        builder: (context) => AlertWithOneAction(
+          alertTitle: "Ledger Error",
+          alertContent:
+              interpretErrorCode(errorDetails.exception.toString()) ??
+                  S.of(context).ledger_connection_error,
+          buttonText: S.of(context).close,
+          buttonAction: () => Navigator.of(context).pop(),
+        ),
+      );
+    }
+
+    _hasError = false;
+    return true;
+  }
+
   /// Ignore User related errors or system errors
   static bool _ignoreError(String error) =>
       _ignoredErrors.any((element) => error.contains(element));
@@ -200,6 +256,7 @@ class ExceptionHandler {
     "Connection reset by peer",
     "Connection closed before full header was received",
     "Connection terminated during handshake",
+    "OS Error: Connection refused, errno = 61",
     "PERMISSION_NOT_GRANTED",
     "OS Error: Permission denied",
     "Failed host lookup:",
@@ -218,13 +275,24 @@ class ExceptionHandler {
     "invalid password",
     "NetworkImage._loadAsync",
     "SSLV3_ALERT_BAD_RECORD_MAC",
+    "PlatformException(already_active, File picker is already active",
+    // SVG-related errors
+    "SvgParser",
+    "SVG parsing error",
+    "Invalid SVG",
+    "SVG format error",
+    "SvgPicture",
     // Temporary ignored, More context: Flutter secure storage reads the values as null some times
     // probably when the device was locked and then opened on Cake
     // this is solved by a restart of the app
     // just ignoring until we find a solution to this issue or migrate from flutter secure storage
-    "core/auth_service.dart:64",
+    "core/auth_service.dart:92",
     "core/key_service.dart:14",
-    "core/wallet_loading_service.dart:131",
+    "Wallet is null",
+    "Wrong Device Status: 0x5515 (UNKNOWN)",
+    
+    "FocusScopeNode was used after being disposed",
+    "_getDismissibleFlushbar",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {

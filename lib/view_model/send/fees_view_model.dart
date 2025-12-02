@@ -1,5 +1,8 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -89,13 +92,18 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
       case WalletType.polygon:
         return transactionPriority == polygon!.getPolygonTransactionPrioritySlow();
+      case WalletType.base:
+        return transactionPriority == base!.getBaseTransactionPrioritySlow();
       case WalletType.decred:
         return transactionPriority == decred!.getDecredTransactionPrioritySlow();
+      case WalletType.dogecoin:
+        return transactionPriority == dogecoin!.getDogeCoinTransactionPrioritySlow();
       case WalletType.none:
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.arbitrum:
         return false;
     }
   }
@@ -113,13 +121,15 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type != WalletType.nano &&
       wallet.type != WalletType.banano &&
       wallet.type != WalletType.solana &&
-      wallet.type != WalletType.tron;
+      wallet.type != WalletType.tron &&
+      wallet.type != WalletType.arbitrum;
 
   @computed
   bool get isElectrumWallet =>
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.bitcoinCash;
+      wallet.type == WalletType.bitcoinCash ||
+      wallet.type == WalletType.dogecoin;
 
   String? get walletCurrencyName => wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
 
@@ -188,8 +198,14 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoinCash:
         _settingsStore.priority[wallet.type] = bitcoinCash!.getDefaultTransactionPriority();
         break;
+      case WalletType.dogecoin:
+        _settingsStore.priority[wallet.type] = dogecoin!.getDefaultTransactionPriority();
+        break;
       case WalletType.polygon:
         _settingsStore.priority[wallet.type] = polygon!.getDefaultTransactionPriority();
+        break;
+      case WalletType.base:
+        _settingsStore.priority[wallet.type] = base!.getDefaultTransactionPriority();
         break;
       default:
         break;

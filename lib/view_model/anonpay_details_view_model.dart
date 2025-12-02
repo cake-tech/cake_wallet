@@ -7,7 +7,7 @@ import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart
 import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -25,7 +25,7 @@ abstract class AnonpayDetailsViewModelBase with Store {
   AnonpayDetailsViewModelBase(
       {required this.anonPayApi,
       required AnonpayInvoiceInfo anonpayInvoiceInfo,
-      required this.settingsStore})
+      required this.themeStore})
       : items = ObservableList<StandartListItem>(),
         invoiceDetail = anonpayInvoiceInfo {
     _updateItems();
@@ -34,7 +34,7 @@ abstract class AnonpayDetailsViewModelBase with Store {
   }
 
   final AnonPayApi anonPayApi;
-  final SettingsStore settingsStore;
+  final ThemeStore themeStore;
   final AnonpayInvoiceInfo invoiceDetail;
 
   final ObservableList<StandartListItem> items;

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -24,17 +25,15 @@ import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
@@ -43,7 +42,6 @@ import 'package:cw_core/set_app_secure_native.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -59,6 +57,7 @@ abstract class SettingsStoreBase with Store {
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
       required bool initialShowAddressBookPopupEnabled,
+      required SyncStatusDisplayMode initialSyncStatusDisplayMode,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
@@ -68,6 +67,7 @@ abstract class SettingsStoreBase with Store {
       required NanoSeedType initialNanoSeedType,
       required bool initialAppSecure,
       required bool initialDisableTrade,
+      required bool initialDisableAutomaticExchangeStatusUpdates,
       required FilterListOrderType initialWalletListOrder,
       required FilterListOrderType initialContactListOrder,
       required bool initialDisableBulletin,
@@ -75,21 +75,23 @@ abstract class SettingsStoreBase with Store {
       required bool initialContactListAscending,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
+      required bool initialEnableDuressPin,
       required String initialTotpSecretKey,
       required bool initialUseTOTP2FA,
       required int initialFailedTokenTrial,
       required ExchangeApiMode initialExchangeStatus,
-      required ThemeBase initialTheme,
       required int initialPinLength,
       required String initialLanguageCode,
       required SyncMode initialSyncMode,
       required bool initialSyncAll,
+      required bool initialBuiltinTor,
       // required String initialCurrentLocale,
       required this.appVersion,
       required this.deviceName,
       required Map<WalletType, Node> nodes,
       required Map<WalletType, Node> powNodes,
       required this.shouldShowYatPopup,
+      required this.shouldShowDEuroDisclaimer,
       required this.shouldShowRepWarning,
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
@@ -108,6 +110,8 @@ abstract class SettingsStoreBase with Store {
       required this.sortBalanceBy,
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
+      required this.useBaseScan,
+      required this.useArbiScan,
       required this.usePolygonScan,
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
@@ -121,14 +125,17 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsOpenAlias,
       required this.lookupsENS,
       required this.lookupsWellKnown,
+      required this.usePayjoin,
+      required this.showPayjoinCard,
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
-      required this.silentPaymentsAlwaysScan,
       required this.mwebAlwaysScan,
       required this.mwebCardDisplay,
       required this.mwebEnabled,
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
+      required bool initialEnableAutomaticNodeSwitching,
+      required String initialBackgroundImage,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
@@ -136,6 +143,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
+      TransactionPriority? initialBaseTransactionPriority,
       TransactionPriority? initialBitcoinCashTransactionPriority,
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
@@ -153,12 +161,14 @@ abstract class SettingsStoreBase with Store {
         nanoSeedType = initialNanoSeedType,
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
+        enableDuressPin = initialEnableDuressPin,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
         totpSecretKey = initialTotpSecretKey,
         useTOTP2FA = initialUseTOTP2FA,
         numberOfFailedTokenTrials = initialFailedTokenTrial,
         isAppSecure = initialAppSecure,
         disableTradeOption = initialDisableTrade,
+        disableAutomaticExchangeStatusUpdates = initialDisableAutomaticExchangeStatusUpdates,
         disableBulletin = initialDisableBulletin,
         walletListOrder = initialWalletListOrder,
         contactListOrder = initialContactListOrder,
@@ -166,8 +176,8 @@ abstract class SettingsStoreBase with Store {
         contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
+        syncStatusDisplayMode = initialSyncStatusDisplayMode,
         exchangeStatus = initialExchangeStatus,
-        currentTheme = initialTheme,
         pinCodeLength = initialPinLength,
         languageCode = initialLanguageCode,
         shouldRequireTOTP2FAForAccessingWallet = initialShouldRequireTOTP2FAForAccessingWallet,
@@ -186,6 +196,9 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
+        currentBuiltinTor = initialBuiltinTor,
+        enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
+        backgroundImage = initialBackgroundImage,
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -215,6 +228,10 @@ abstract class SettingsStoreBase with Store {
 
     if (initialPolygonTransactionPriority != null) {
       priority[WalletType.polygon] = initialPolygonTransactionPriority;
+    }
+
+    if (initialBaseTransactionPriority != null) {
+      priority[WalletType.base] = initialBaseTransactionPriority;
     }
 
     if (initialBitcoinCashTransactionPriority != null) {
@@ -251,6 +268,11 @@ abstract class SettingsStoreBase with Store {
         (bool shouldShowYatPopup) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowYatPopup, shouldShowYatPopup));
 
+    reaction(
+        (_) => shouldShowDEuroDisclaimer,
+        (bool shouldShowDEuroDisclaimer) =>
+            sharedPreferences.setBool(PreferencesKey.shouldShowDEuroDisclaimer, shouldShowDEuroDisclaimer));
+
     reaction((_) => shouldShowRepWarning,
         (bool val) => sharedPreferences.setBool(PreferencesKey.shouldShowRepWarning, val));
 
@@ -278,6 +300,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.polygon:
           key = PreferencesKey.polygonTransactionPriority;
+          break;
+        case WalletType.base:
+          key = PreferencesKey.baseTransactionPriority;
           break;
         case WalletType.zano:
           key = PreferencesKey.zanoTransactionPriority;
@@ -310,6 +335,9 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => disableTradeOption,
         (bool disableTradeOption) => sharedPreferences.setBool(PreferencesKey.disableTradeOption, disableTradeOption));
+
+    reaction((_) => disableAutomaticExchangeStatusUpdates,
+        (bool disableAutomaticExchangeStatusUpdates) => sharedPreferences.setBool(PreferencesKey.disableAutomaticExchangeStatusUpdates, disableAutomaticExchangeStatusUpdates));
 
     reaction(
         (_) => disableBulletin,
@@ -361,9 +389,6 @@ abstract class SettingsStoreBase with Store {
         (FiatApiMode mode) =>
             sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, mode.serialize()));
 
-    reaction((_) => currentTheme,
-        (ThemeBase theme) => sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw));
-
     reaction(
         (_) => numberOfFailedTokenTrials,
         (int failedTokenTrail) =>
@@ -378,6 +403,11 @@ abstract class SettingsStoreBase with Store {
             (_) => showAddressBookPopupEnabled,
             (bool value) =>
             sharedPreferences.setBool(PreferencesKey.showAddressBookPopupEnabled, value));
+
+    reaction(
+            (_) => syncStatusDisplayMode,
+            (SyncStatusDisplayMode value) =>
+            sharedPreferences.setString(PreferencesKey.syncStatusDisplayMode, value.toJson()));
 
     reaction((_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(PreferencesKey.currentPinLength, pinLength));
@@ -406,6 +436,11 @@ abstract class SettingsStoreBase with Store {
       sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
     });
 
+    reaction((_) => currentBuiltinTor, (bool builtinTor) {
+      sharedPreferences.setBool(PreferencesKey.builtinTorKey, builtinTor);
+    });
+
+
     reaction(
         (_) => exchangeStatus,
         (ExchangeApiMode mode) =>
@@ -430,6 +465,16 @@ abstract class SettingsStoreBase with Store {
         (_) => usePolygonScan,
         (bool usePolygonScan) =>
             _sharedPreferences.setBool(PreferencesKey.usePolygonScan, usePolygonScan));
+
+    reaction(
+        (_) => useBaseScan,
+        (bool useBaseScan) =>
+            _sharedPreferences.setBool(PreferencesKey.useBaseScan, useBaseScan));
+      
+    reaction(
+        (_) => useArbiScan,
+        (bool useArbiScan) =>
+            _sharedPreferences.setBool(PreferencesKey.useArbiScan, useArbiScan));
 
     reaction((_) => useTronGrid,
         (bool useTronGrid) => _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
@@ -483,12 +528,28 @@ abstract class SettingsStoreBase with Store {
         (bool looksUpWellKnown) =>
             _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, looksUpWellKnown));
 
+    reaction(
+        (_) => usePayjoin,
+        (bool usePayjoin) =>
+            _sharedPreferences.setBool(PreferencesKey.usePayjoin, usePayjoin));
+
+    reaction(
+        (_) => showPayjoinCard,
+        (bool showPayjoinCard) => _sharedPreferences.setBool(
+            PreferencesKey.showPayjoinCard, showPayjoinCard));
+
     // secure storage keys:
     reaction(
         (_) => allowBiometricalAuthentication,
         (bool biometricalAuthentication) => secureStorage.write(
             key: SecureKey.allowBiometricalAuthenticationKey,
             value: biometricalAuthentication.toString()));
+
+    reaction(
+            (_) => enableDuressPin,
+            (bool enableDuressPin) => secureStorage.write(
+            key: SecureKey.enableDuressPin,
+            value: enableDuressPin.toString()));
 
     reaction(
         (_) => selectedCake2FAPreset,
@@ -572,11 +633,6 @@ abstract class SettingsStoreBase with Store {
     });
 
     reaction(
-        (_) => silentPaymentsAlwaysScan,
-        (bool silentPaymentsAlwaysScan) => _sharedPreferences.setBool(
-            PreferencesKey.silentPaymentsAlwaysScan, silentPaymentsAlwaysScan));
-
-    reaction(
         (_) => mwebAlwaysScan,
         (bool mwebAlwaysScan) =>
             _sharedPreferences.setBool(PreferencesKey.mwebAlwaysScan, mwebAlwaysScan));
@@ -598,6 +654,16 @@ abstract class SettingsStoreBase with Store {
         (_) => mwebNodeUri,
         (String mwebNodeUri) =>
             _sharedPreferences.setString(PreferencesKey.mwebNodeUri, mwebNodeUri));
+    
+    reaction(
+        (_) => enableAutomaticNodeSwitching,
+        (bool enableAutomaticNodeSwitching) => _sharedPreferences.setBool(
+            PreferencesKey.enableAutomaticNodeSwitching, enableAutomaticNodeSwitching));
+
+    reaction(
+        (_) => backgroundImage,
+        (String backgroundImage) => _sharedPreferences.setString(
+            PreferencesKey.backgroundImage, backgroundImage));
 
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
@@ -610,6 +676,8 @@ abstract class SettingsStoreBase with Store {
         _saveCurrentPowNode(change.newValue!, change.key!);
       }
     });
+
+
   }
 
   static const defaultPinLength = 4;
@@ -632,6 +700,9 @@ abstract class SettingsStoreBase with Store {
   bool shouldShowYatPopup;
 
   @observable
+  bool shouldShowDEuroDisclaimer;
+
+  @observable
   bool shouldShowRepWarning;
 
   @observable
@@ -639,6 +710,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool showAddressBookPopupEnabled;
+
+  @observable
+  SyncStatusDisplayMode syncStatusDisplayMode;
 
   @observable
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
@@ -671,6 +745,9 @@ abstract class SettingsStoreBase with Store {
   bool disableTradeOption;
 
   @observable
+  bool disableAutomaticExchangeStatusUpdates;
+
+  @observable
   FilterListOrderType contactListOrder;
 
   @observable
@@ -687,6 +764,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool allowBiometricalAuthentication;
+
+  @observable
+  bool enableDuressPin;
 
   @observable
   bool shouldRequireTOTP2FAForAccessingWallet;
@@ -731,9 +811,6 @@ abstract class SettingsStoreBase with Store {
   ExchangeApiMode exchangeStatus;
 
   @observable
-  ThemeBase currentTheme;
-
-  @observable
   int pinCodeLength;
 
   @observable
@@ -741,9 +818,6 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   SeedPhraseLength seedPhraseLength;
-
-  @computed
-  ThemeData get theme => currentTheme.themeData;
 
   @observable
   String languageCode;
@@ -765,6 +839,12 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool usePolygonScan;
+
+  @observable
+  bool useBaseScan;
+
+  @observable
+  bool useArbiScan;
 
   @observable
   bool useTronGrid;
@@ -803,10 +883,19 @@ abstract class SettingsStoreBase with Store {
   bool lookupsWellKnown;
 
   @observable
+  bool usePayjoin;
+
+  @observable
+  bool showPayjoinCard;
+
+  @observable
   SyncMode currentSyncMode;
 
   @observable
   bool currentSyncAll;
+
+  @observable
+  bool currentBuiltinTor;
 
   String appVersion;
 
@@ -817,9 +906,6 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool silentPaymentsCardDisplay;
-
-  @observable
-  bool silentPaymentsAlwaysScan;
 
   @observable
   bool mwebAlwaysScan;
@@ -835,6 +921,12 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   String mwebNodeUri;
+
+  @observable
+  bool enableAutomaticNodeSwitching;
+
+  @observable
+  String backgroundImage;
 
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
@@ -875,8 +967,7 @@ abstract class SettingsStoreBase with Store {
       required Box<Node> powNodeSource,
       required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
-      ThemeBase? initialTheme}) async {
+      BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final secureStorage = await getIt.get<SecureStorage>();
     final currentFiatCurrency = FiatCurrency.deserialize(
@@ -896,6 +987,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? litecoinTransactionPriority;
     TransactionPriority? ethereumTransactionPriority;
     TransactionPriority? polygonTransactionPriority;
+    TransactionPriority? baseTransactionPriority;
     TransactionPriority? bitcoinCashTransactionPriority;
     TransactionPriority? wowneroTransactionPriority;
     TransactionPriority? zanoTransactionPriority;
@@ -916,6 +1008,10 @@ abstract class SettingsStoreBase with Store {
     if (sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
       polygonTransactionPriority = polygon?.deserializePolygonTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority)!);
+    }
+    if (sharedPreferences.getInt(PreferencesKey.baseTransactionPriority) != null) {
+      baseTransactionPriority = base?.deserializeBaseTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       bitcoinCashTransactionPriority = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
@@ -943,6 +1039,7 @@ abstract class SettingsStoreBase with Store {
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
+    baseTransactionPriority ??= base?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
@@ -952,6 +1049,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final disableTradeOption = sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? false;
+    final disableAutomaticExchangeStatusUpdates = sharedPreferences.getBool(PreferencesKey.disableAutomaticExchangeStatusUpdates) ?? false;
     final disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? false;
     final walletListOrder =
         FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
@@ -969,19 +1067,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
+    final syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
+        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.eta.name);
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    final bool isNewInstall = sharedPreferences.getBool(PreferencesKey.isNewInstall) ?? true;
-    final int defaultTheme;
-    if (isNewInstall) {
-      defaultTheme = isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw;
-    } else {
-      defaultTheme = ThemeType.bright.index;
-    }
-    final savedTheme = initialTheme ??
-        ThemeList.deserialize(
-            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? defaultTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
@@ -996,6 +1086,8 @@ abstract class SettingsStoreBase with Store {
         : defaultSeedPhraseLength;
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     final usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
+    final useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? true;
+    final useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
@@ -1009,11 +1101,11 @@ abstract class SettingsStoreBase with Store {
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
     final lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
+    final usePayjoin = sharedPreferences.getBool(PreferencesKey.usePayjoin) ?? false;
+    final showPayjoinCard = sharedPreferences.getBool(PreferencesKey.showPayjoinCard) ?? true;
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
-    final silentPaymentsAlwaysScan =
-        sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
     final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
@@ -1021,6 +1113,9 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
     final mwebNodeUri = sharedPreferences.getString(PreferencesKey.mwebNodeUri) ??
         "ltc-electrum.cakewallet.com:9333";
+    final enableAutomaticNodeSwitching =
+        sharedPreferences.getBool(PreferencesKey.enableAutomaticNodeSwitching) ?? true;
+    final backgroundImage = sharedPreferences.getString(PreferencesKey.backgroundImage) ?? '';
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1038,6 +1133,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
+    final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
+    final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
@@ -1045,6 +1142,7 @@ abstract class SettingsStoreBase with Store {
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
+    final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
 
     /// get the selected node, if null, then use the default
     final moneroNode = nodeSource.get(nodeId) ??
@@ -1057,6 +1155,10 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == ethereumDefaultNodeUri);
     final polygonNode = nodeSource.get(polygonNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == polygonDefaultNodeUri);
+    final baseNode = nodeSource.get(baseNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == baseDefaultNodeUri);
+    final arbitrumNode = nodeSource.get(arbitrumNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == arbitrumDefaultNodeUri);
     final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == cakeWalletBitcoinCashDefaultNodeUri);
     final nanoNode = nodeSource.get(nanoNodeId) ??
@@ -1073,10 +1175,13 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
     final zanoNode = nodeSource.get(zanoNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
+    final dogecoinNode = nodeSource.get(dogecoinNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
+    final shouldShowDEuroDisclaimer = sharedPreferences.getBool(PreferencesKey.shouldShowDEuroDisclaimer) ?? true;
     final shouldShowRepWarning =
         sharedPreferences.getBool(PreferencesKey.shouldShowRepWarning) ?? true;
 
@@ -1127,6 +1232,14 @@ abstract class SettingsStoreBase with Store {
       nodes[WalletType.polygon] = polygonNode;
     }
 
+    if (baseNode != null) {
+      nodes[WalletType.base] = baseNode;
+    }
+
+    if (arbitrumNode != null) {
+      nodes[WalletType.arbitrum] = arbitrumNode;
+    }
+
     if (bitcoinCashElectrumServer != null) {
       nodes[WalletType.bitcoinCash] = bitcoinCashElectrumServer;
     }
@@ -1159,10 +1272,15 @@ abstract class SettingsStoreBase with Store {
       nodes[WalletType.decred] = decredNode;
     }
 
+    if (dogecoinNode != null) {
+      nodes[WalletType.dogecoin] = dogecoinNode;
+    }
+
     final savedSyncMode = SyncMode.all.firstWhere((element) {
       return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 2); // default to 2 - daily sync
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
+    final builtinTor = sharedPreferences.getBool(PreferencesKey.builtinTorKey) ?? false;
 
     // migrated to secure:
     final timeOutDuration = await SecureKey.getInt(
@@ -1179,6 +1297,13 @@ abstract class SettingsStoreBase with Store {
           secureStorage: secureStorage,
           sharedPreferences: sharedPreferences,
           key: SecureKey.allowBiometricalAuthenticationKey,
+        ) ??
+        false;
+
+    final enableDuressPin = await SecureKey.getBool(
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
+          key: SecureKey.enableDuressPin,
         ) ??
         false;
 
@@ -1262,6 +1387,7 @@ abstract class SettingsStoreBase with Store {
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
       initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
+      initialSyncStatusDisplayMode: syncStatusDisplayMode,
       nodes: nodes,
       powNodes: powNodes,
       appVersion: packageInfo.version,
@@ -1277,6 +1403,7 @@ abstract class SettingsStoreBase with Store {
       initialNanoSeedType: nanoSeedType,
       initialAppSecure: isAppSecure,
       initialDisableTrade: disableTradeOption,
+      initialDisableAutomaticExchangeStatusUpdates: disableAutomaticExchangeStatusUpdates,
       initialDisableBulletin: disableBulletin,
       initialWalletListOrder: walletListOrder,
       initialWalletListAscending: walletListAscending,
@@ -1284,12 +1411,12 @@ abstract class SettingsStoreBase with Store {
       initialContactListAscending: contactListAscending,
       initialFiatMode: currentFiatApiMode,
       initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+      initialEnableDuressPin: enableDuressPin,
       initialCake2FAPresetOptions: selectedCake2FAPreset,
       initialUseTOTP2FA: useTOTP2FA,
       initialTotpSecretKey: totpSecretKey,
       initialFailedTokenTrial: tokenTrialNumber,
       initialExchangeStatus: exchangeStatus,
-      initialTheme: savedTheme,
       actionlistDisplayMode: actionListDisplayMode,
       initialPinLength: pinLength,
       pinTimeOutDuration: pinCodeTimeOutDuration,
@@ -1299,6 +1426,8 @@ abstract class SettingsStoreBase with Store {
       pinNativeTokenAtTop: pinNativeTokenAtTop,
       useEtherscan: useEtherscan,
       usePolygonScan: usePolygonScan,
+      useBaseScan: useBaseScan,
+      useArbiScan: useArbiScan,
       useTronGrid: useTronGrid,
       useMempoolFeeAPI: useMempoolFeeAPI,
       defaultNanoRep: defaultNanoRep,
@@ -1311,14 +1440,17 @@ abstract class SettingsStoreBase with Store {
       lookupsOpenAlias: lookupsOpenAlias,
       lookupsENS: lookupsENS,
       lookupsWellKnown: lookupsWellKnown,
+      usePayjoin: usePayjoin,
+      showPayjoinCard: showPayjoinCard,
       customBitcoinFeeRate: customBitcoinFeeRate,
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
-      silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
       mwebAlwaysScan: mwebAlwaysScan,
       mwebCardDisplay: mwebCardDisplay,
       mwebEnabled: mwebEnabled,
       mwebNodeUri: mwebNodeUri,
       hasEnabledMwebBefore: hasEnabledMwebBefore,
+      initialEnableAutomaticNodeSwitching: enableAutomaticNodeSwitching,
+      initialBackgroundImage: backgroundImage,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialWowneroTransactionPriority: wowneroTransactionPriority,
       initialZanoTransactionPriority: zanoTransactionPriority,
@@ -1342,10 +1474,13 @@ abstract class SettingsStoreBase with Store {
           shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
       initialEthereumTransactionPriority: ethereumTransactionPriority,
       initialPolygonTransactionPriority: polygonTransactionPriority,
+      initialBaseTransactionPriority: baseTransactionPriority,
       initialSyncMode: savedSyncMode,
       initialSyncAll: savedSyncAll,
       shouldShowYatPopup: shouldShowYatPopup,
+      shouldShowDEuroDisclaimer: shouldShowDEuroDisclaimer,
       shouldShowRepWarning: shouldShowRepWarning,
+      initialBuiltinTor: builtinTor,
     );
   }
 
@@ -1390,6 +1525,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
       priority[WalletType.polygon] = polygon!.deserializePolygonTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority)!);
+    }
+    if (base != null &&
+        sharedPreferences.getInt(PreferencesKey.baseTransactionPriority) != null) {
+      priority[WalletType.base] = base!.deserializeBaseTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
     }
     if (bitcoinCash != null &&
         sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
@@ -1439,6 +1579,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     disableTradeOption = sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? disableTradeOption;
+    disableAutomaticExchangeStatusUpdates = sharedPreferences.getBool(PreferencesKey.disableAutomaticExchangeStatusUpdates) ?? disableAutomaticExchangeStatusUpdates;
     disableBulletin =
         sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? disableBulletin;
     walletListOrder =
@@ -1453,15 +1594,17 @@ abstract class SettingsStoreBase with Store {
     showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
+    syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
+        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.eta.name);
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    currentTheme = ThemeList.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
-            (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw));
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
+    enableAutomaticNodeSwitching =
+        sharedPreferences.getBool(PreferencesKey.enableAutomaticNodeSwitching) ??
+            enableAutomaticNodeSwitching;
     var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1472,6 +1615,8 @@ abstract class SettingsStoreBase with Store {
     languageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ?? languageCode;
     shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? shouldShowYatPopup;
+    shouldShowDEuroDisclaimer =
+        sharedPreferences.getBool(PreferencesKey.shouldShowDEuroDisclaimer) ?? shouldShowDEuroDisclaimer;
     shouldShowRepWarning =
         sharedPreferences.getBool(PreferencesKey.shouldShowRepWarning) ?? shouldShowRepWarning;
     sortBalanceBy = SortBalanceBy
@@ -1479,6 +1624,8 @@ abstract class SettingsStoreBase with Store {
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
+    useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? true;
+    useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
@@ -1495,8 +1642,6 @@ abstract class SettingsStoreBase with Store {
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
-    silentPaymentsAlwaysScan =
-        sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
     mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
@@ -1511,18 +1656,23 @@ abstract class SettingsStoreBase with Store {
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
+    final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
+    final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
+    final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final polygonNode = nodeSource.get(polygonNodeId);
+    final baseNode = nodeSource.get(baseNodeId);
+    final arbitrumNode = nodeSource.get(arbitrumNodeId);
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
@@ -1530,6 +1680,7 @@ abstract class SettingsStoreBase with Store {
     final wowneroNode = nodeSource.get(wowneroNodeId);
     final zanoNode = nodeSource.get(zanoNodeId);
     final decredNode = nodeSource.get(decredNodeId);
+    final dogecoinNode = nodeSource.get(dogecoinNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -1553,6 +1704,14 @@ abstract class SettingsStoreBase with Store {
 
     if (polygonNode != null) {
       nodes[WalletType.polygon] = polygonNode;
+    }
+
+    if (baseNode != null) {
+      nodes[WalletType.base] = baseNode;
+    }
+
+    if (arbitrumNode != null) {
+      nodes[WalletType.arbitrum] = arbitrumNode;
     }
 
     if (bitcoinCashNode != null) {
@@ -1582,6 +1741,10 @@ abstract class SettingsStoreBase with Store {
 
     if (decredNode != null) {
       nodes[WalletType.decred] = decredNode;
+    }
+
+    if (dogecoinNode != null) {
+      nodes[WalletType.dogecoin] = dogecoinNode;
     }
 
     // MIGRATED:
@@ -1711,6 +1874,12 @@ abstract class SettingsStoreBase with Store {
       case WalletType.polygon:
         await _sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
         break;
+      case WalletType.base:
+        await _sharedPreferences.setInt(PreferencesKey.currentBaseNodeIdKey, node.key as int);
+        break;
+      case WalletType.arbitrum:
+        await _sharedPreferences.setInt(PreferencesKey.currentArbitrumNodeIdKey, node.key as int);
+        break;
       case WalletType.solana:
         await _sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
         break;
@@ -1725,6 +1894,10 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.zano:
         await _sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);
+        break;
+      case WalletType.dogecoin:
+        await _sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.key as int);
+        break;
       default:
         break;
     }

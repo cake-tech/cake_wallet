@@ -9,10 +9,10 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class KryptonimBuyProvider extends BuyProvider {
@@ -20,7 +20,7 @@ class KryptonimBuyProvider extends BuyProvider {
       : super(
       wallet: wallet,
       isTestEnvironment: isTestEnvironment,
-      ledgerVM: null,
+      hardwareWalletVM: null,
       supportedCryptoList: supportedCryptoToFiatPairs(
           notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
       supportedFiatList: supportedFiatToCryptoPairs(
@@ -74,9 +74,14 @@ class KryptonimBuyProvider extends BuyProvider {
     });
 
     try {
-      final response = await http.post(url, headers: headers, body: body);
+      final response = await ProxyWrapper().post(
+        clearnetUri: url,
+        headers: headers,
+        body: body,
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 401) {
+        
         return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
         return {};
@@ -113,6 +118,7 @@ class KryptonimBuyProvider extends BuyProvider {
     required bool isBuyAction,
     required String walletAddress,
     PaymentType? paymentType,
+    String? customPaymentMethodType,
     String? countryCode,
   }) async {
     log('Kryptonim: Fetching quote: ${isBuyAction ? cryptoCurrency : fiatCurrency} -> ${isBuyAction ? fiatCurrency : cryptoCurrency}, amount: $amount');
@@ -149,7 +155,7 @@ class KryptonimBuyProvider extends BuyProvider {
 
     final selectedPaymentType =
         PaymentMethod.getPaymentTypeId(selectedPaymentMethod['payment_method'] as String?);
-    final quote = Quote.fromKryptonimJson(selectedPaymentMethod, isBuyAction, selectedPaymentType);
+    final quote = Quote.fromKryptonimJson(selectedPaymentMethod, isBuyAction, selectedPaymentType ?? PaymentType.unknown);
 
     quote.setFiatCurrency = fiatCurrency;
     quote.setCryptoCurrency = cryptoCurrency;
@@ -212,6 +218,8 @@ class KryptonimBuyProvider extends BuyProvider {
   String _normalizeBlockChain(CryptoCurrency cur) {
     String? blockchain = switch (cur.tag) {
       'ETH' => 'Ethereum',
+      'BASE' => 'Base',
+      'ARB' => 'Arbitrum',
       'POL' => 'Polygon',
       'AVAXC' => 'Avalanche',
       'SOL' => 'Solana',
@@ -223,6 +231,8 @@ class KryptonimBuyProvider extends BuyProvider {
         CryptoCurrency.btc => 'Bitcoin',
         CryptoCurrency.ltc => 'Litecoin',
         CryptoCurrency.eth => 'Ethereum',
+        CryptoCurrency.baseEth => 'Base',
+        CryptoCurrency.arbEth => 'Arbitrum',
         CryptoCurrency.maticpoly => 'Matic',
         _ => null,
       };

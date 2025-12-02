@@ -1,13 +1,11 @@
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_link_provider_cell.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
-import 'package:cake_wallet/themes/extensions/support_page_theme.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class SupportOtherLinksPage extends BasePage {
@@ -23,10 +21,8 @@ class SupportOtherLinksPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-
-    final iconColor = Theme.of(context).extension<SupportPageTheme>()!.iconColor;
-
-    final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
+    final isLightMode = Theme.of(context).colorScheme.brightness == Brightness.light;
+    final iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Container(
       child: Center(

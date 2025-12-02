@@ -1,8 +1,5 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class TransactionRow extends StatelessWidget {
   TransactionRow({
@@ -39,8 +36,9 @@ class TransactionRow extends StatelessWidget {
               height: 36,
               width: 36,
               decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).extension<TransactionTradeTheme>()!.rowsColor),
+                shape: BoxShape.circle,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
               child: Image.asset(direction == TransactionDirection.incoming
                   ? 'assets/images/down_arrow.png'
                   : 'assets/images/up_arrow.png'),
@@ -53,24 +51,28 @@ class TransactionRow extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Row(
-                        children: [
-                          Text(
-                            title,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                            )),
-                        ...tags.map((tag) => Row(children: [SizedBox(width: 8), TxTag(tag: tag)])),
-                      ],
-                    ),
-                    Text(formattedAmount,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                title,
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                  overflow: TextOverflow.fade,
+                                    ),
+                              ),
+                            ),
+                            ...tags
+                                .map((tag) => Row(children: [SizedBox(width: 8), TxTag(tag: tag)])),
+                          ],
                         ),
+                      ),
+                      Text(
+                        formattedAmount,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                       )
                     ],
                   ),
@@ -78,18 +80,19 @@ class TransactionRow extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text(formattedDate,
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context)
-                                  .extension<CakeTextTheme>()!
-                                  .dateSectionRowColor)),
+                      Text(
+                        formattedDate,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
                       Text(
                         formattedFiatAmount,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                       )
                     ],
                   ),
@@ -117,16 +120,16 @@ class TxTag extends StatelessWidget {
       padding: EdgeInsets.only(left: 6, right: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(8.5)),
-        color: Theme.of(context).extension<TransactionTradeTheme>()!.rowsColor,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
       ),
       alignment: Alignment.center,
       child: Text(
         tag.toLowerCase(),
-        style: TextStyle(
-          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-          fontSize: 9,
-          fontWeight: FontWeight.w600,
-        ),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+            ),
       ),
     );
   }

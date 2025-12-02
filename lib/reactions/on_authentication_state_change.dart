@@ -9,10 +9,13 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
@@ -40,7 +43,7 @@ void startAuthenticationStateChange(
     if (state == AuthenticationState.installed &&
         !SettingsStoreBase.walletPasswordDirectInput) {
       try {
-        if (!requireHardwareWalletConnection()) await loadCurrentWallet();
+        if (!(await requireHardwareWalletConnection())) await loadCurrentWallet();
       } catch (error, stack) {
         loginError = error;
         await ExceptionHandler.resetLastPopupDate();
@@ -53,24 +56,56 @@ void startAuthenticationStateChange(
     if ([AuthenticationState.allowed, AuthenticationState.allowedCreate]
         .contains(state)) {
       if (state == AuthenticationState.allowed &&
-          requireHardwareWalletConnection()) {
+          (await requireHardwareWalletConnection())) {
         await navigatorKey.currentState!.pushNamedAndRemoveUntil(
           Routes.connectDevices,
           (route) => false,
           arguments: ConnectDevicePageParams(
             walletType: WalletType.monero,
+            hardwareWalletType: HardwareWalletType.ledger,
             onConnectDevice: (context, ledgerVM) async {
-              monero!.setGlobalLedgerConnection(ledgerVM.connection);
+              if (ledgerVM is LedgerViewModel)
+                monero!.setGlobalLedgerConnection(ledgerVM.connection);
               showPopUp<void>(
                 context: context,
-                builder: (BuildContext context) => AlertWithOneAction(
-                    alertTitle: S.of(context).proceed_on_device,
-                    alertContent: S.of(context).proceed_on_device_description,
-                    buttonText: S.of(context).cancel,
-                    alertBarrierDismissible: false,
-                    buttonAction: () => Navigator.of(context).pop()),
+                builder: (context) => AlertWithOneAction(
+                  alertTitle: S.of(context).proceed_on_device,
+                  alertContent: S.of(context).proceed_on_device_description,
+                  buttonText: S.of(context).cancel,
+                  alertBarrierDismissible: false,
+                  buttonAction: () => Navigator.of(context).pop(),
+                ),
               );
-              await loadCurrentWallet();
+              bool tryOpening = true;
+              while (tryOpening) {
+                try {
+                  await loadCurrentWallet();
+                  tryOpening = false;
+                } on Exception catch (e) {
+                  final ledgerErrorMessage = ledgerVM.interpretErrorCode(e.toString());
+                  if (ledgerErrorMessage != null) {
+                    await showPopUp<void>(
+                      context: context,
+                      builder: (context) => AlertWithTwoActions(
+                        alertTitle: "Ledger Error",
+                        alertContent: ledgerErrorMessage,
+                        leftButtonText: S.of(context).try_again,
+                        alertBarrierDismissible: false,
+                        actionLeftButton: () => Navigator.of(context).pop(),
+                        rightButtonText: S.of(context).cancel,
+                        actionRightButton: () {
+                          tryOpening = false;
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    );
+                  } else {
+                    tryOpening = false;
+                    rethrow;
+                  }
+                }
+              }
+
               getIt.get<BottomSheetService>().showNext();
               await navigatorKey.currentState!
                   .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);

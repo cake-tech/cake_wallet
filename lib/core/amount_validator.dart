@@ -52,45 +52,38 @@ class AmountValidator extends TextValidator {
 class SymbolsAmountValidator extends TextValidator {
   SymbolsAmountValidator({required bool isAutovalidate})
       : super(
-      errorMessage: S.current.error_text_amount,
-      pattern: _pattern(),
-      isAutovalidate: isAutovalidate,
-      minLength: 0,
-      maxLength: 0);
+          errorMessage: S.current.error_text_amount,
+          pattern: _pattern(),
+          isAutovalidate: isAutovalidate,
+          minLength: 0,
+          maxLength: 0,
+        );
 
   static String _pattern() => '^([0-9]+([.\,][0-9]+)?|[.\,][0-9]+)\$';
 }
 
 class DecimalAmountValidator extends TextValidator {
-  DecimalAmountValidator({required Currency currency, required bool isAutovalidate })
+  DecimalAmountValidator({required Currency currency, required bool isAutovalidate})
       : super(
-            errorMessage: S.current.decimal_places_error,
-            pattern: _pattern(currency),
-            isAutovalidate: isAutovalidate,
-            minLength: 0,
-            maxLength: 0);
+          errorMessage: S.current.decimal_places_error,
+          pattern: _pattern(currency),
+          isAutovalidate: isAutovalidate,
+          minLength: 0,
+          maxLength: 0,
+        );
 
-  static String _pattern(Currency currency) {
-    switch (currency) {
-      case CryptoCurrency.xmr:
-        return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,12})\$';
-      case CryptoCurrency.btc:
-        return '^([0-9]+([.\,][0-9]{1,8})?|[.\,][0-9]{1,8})\$';
-      case CryptoCurrency.zano:
-        return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,18})\$';
-      default:
-        return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,12})\$';
-    }
-  }
+  static String _pattern(Currency currency) =>
+      '^([0-9]+([.\,][0-9]{1,${currency.decimals}})?|[.\,][0-9]{1,${currency.decimals}})\$';
 }
 
 class AllAmountValidator extends TextValidator {
   AllAmountValidator()
       : super(
-            errorMessage: S.current.error_text_amount,
-            pattern: S.current.all,
-            minLength: 0,
-            maxLength: 0);
+          errorMessage: S.current.error_text_amount,
+          pattern: S.current.all,
+          minLength: 0,
+          maxLength: 0,
+        );
 }
 
 class AmountMinValidator extends Validator<String> {

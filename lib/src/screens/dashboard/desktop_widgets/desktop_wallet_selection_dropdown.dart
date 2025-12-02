@@ -1,6 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -10,8 +9,6 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
-import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -33,35 +30,38 @@ class DesktopWalletSelectionDropDown extends StatefulWidget {
 }
 
 class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionDropDown> {
-  final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
-  final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
+  final moneroIcon = Image.asset('assets/images/crypto/monero.webp', height: 24, width: 24);
+  final bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.webp', height: 24, width: 24);
   final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
-  final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
-  final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
-  final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
-  final polygonIcon = Image.asset('assets/images/matic_icon.png', height: 24, width: 24);
-  final bitcoinCashIcon = Image.asset('assets/images/bch_icon.png', height: 24, width: 24);
-  final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
-  final bananoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
-  final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
-  final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
-  final wowneroIcon = Image.asset('assets/images/wownero_icon.png', height: 24, width: 24);
-  final zanoIcon = Image.asset('assets/images/zano_icon.png', height: 24, width: 24);
-  final decredIcon = Image.asset('assets/images/decred_icon.png', height: 24, width: 24);
+  final litecoinIcon = Image.asset('assets/images/crypto/litecoin.webp', height: 24, width: 24);
+  final havenIcon = Image.asset('assets/images/haven_logo.webp', height: 24, width: 24);
+  final ethereumIcon = Image.asset('assets/images/crypto/ethereum.webp', height: 24, width: 24);
+  final polygonIcon = Image.asset('assets/images/crypto/polygon.webp', height: 24, width: 24);
+  final bitcoinCashIcon = Image.asset('assets/images/crypto/bitcoin-cash.webp', height: 24, width: 24);
+  final baseIcon = Image.asset('assets/images/crypto/base_icon.webp', height: 24, width: 24);
+  final arbitrumIcon = Image.asset('assets/images/crypto/arbitrum.webp', height: 24, width: 24);
+  final nanoIcon = Image.asset('assets/images/crypto/nano.webp', height: 24, width: 24);
+  final bananoIcon = Image.asset('assets/images/crypto/nano.webp', height: 24, width: 24);
+  final solanaIcon = Image.asset('assets/images/crypto/solana.webp', height: 24, width: 24);
+  final tronIcon = Image.asset('assets/images/crypto/tron.webp', height: 24, width: 24);
+  final wowneroIcon = Image.asset('assets/images/crypto/wownero.webp', height: 24, width: 24);
+  final zanoIcon = Image.asset('assets/images/crypto/zano.webp', height: 24, width: 24);
+  final decredIcon = Image.asset('assets/images/crypto/decred.webp', height: 24, width: 24);
+  final dogeIcon = Image.asset('assets/images/crypto/dogecoin.webp', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
         'assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        color: Theme.of(context).colorScheme.onSurface,
       );
 
   Image _restoreWalletImage(BuildContext context) => Image.asset(
         'assets/images/restore_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        color: Theme.of(context).colorScheme.onSurface,
       );
 
   Flushbar<void>? _progressBar;
@@ -119,8 +119,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         onChanged: (item) {
           item?.onSelected();
         },
-        dropdownColor: themeData.extension<CakeMenuTheme>()!.backgroundColor,
-        style: TextStyle(color: themeData.extension<CakeTextTheme>()!.titleColor),
+        dropdownColor: themeData.colorScheme.surface,
+        style: themeData.textTheme.bodyMedium,
         selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
         value: selectedItem,
         underline: const SizedBox(),
@@ -184,7 +184,13 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return zanoIcon;
       case WalletType.decred:
         return decredIcon;
-      default:
+      case WalletType.dogecoin:
+        return dogeIcon;
+      case WalletType.base:
+        return baseIcon;
+      case WalletType.arbitrum:
+        return arbitrumIcon;
+      case WalletType.none:
         return nonWalletTypeIcon;
     }
   }
@@ -247,16 +253,11 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   void _navigateToRestoreWallet() {
-    if (isSingleCoin) {
-      Navigator.of(context)
-          .pushNamed(Routes.restoreWallet, arguments: widget.walletListViewModel.currentWalletType);
-    } else {
-      Navigator.of(context).pushNamed(Routes.restoreWalletType);
-    }
+    Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
   }
 
   void changeProcessText(String text) {
-    _progressBar = createBar<void>(text, duration: null)..show(context);
+    _progressBar = createBar<void>(text,context, duration: null)..show(context);
   }
 
   void hideProgressText() {

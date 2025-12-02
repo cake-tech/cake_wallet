@@ -1,14 +1,18 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:ens_dart/ens_dart.dart';
-import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 
 class EnsRecord {
+  
   static Future<String> fetchEnsAddress(String name, {WalletBase? wallet}) async {
+
     Web3Client? _client;
 
     if (wallet != null && wallet.type == WalletType.ethereum) {
@@ -19,8 +23,18 @@ class EnsRecord {
       _client = polygon!.getWeb3Client(wallet);
     }
 
+    if (wallet != null && wallet.type == WalletType.base) {
+      _client = base!.getWeb3Client(wallet);
+    }
+
+    if (wallet != null && wallet.type == WalletType.arbitrum) {
+      _client = arbitrum!.getWeb3Client(wallet);
+    }
+
     if (_client == null) {
-      _client = Web3Client("https://ethereum-rpc.publicnode.com", Client());
+      late final client = ProxyWrapper().getHttpIOClient();
+
+      _client = Web3Client("https://ethereum-rpc.publicnode.com", client);
     }
 
     try {
@@ -38,6 +52,8 @@ class EnsRecord {
             return await ens.withName(name).getCoinAddress(CoinType.XHV);
           case WalletType.ethereum:
           case WalletType.polygon:
+          case WalletType.base:
+          case WalletType.arbitrum:
           default:
             return (await ens.withName(name).getAddress()).hex;
         }

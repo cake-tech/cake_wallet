@@ -1,4 +1,4 @@
-import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class OptionTile extends StatelessWidget {
@@ -8,26 +8,39 @@ class OptionTile extends StatelessWidget {
     this.icon,
     required this.title,
     required this.description,
+    this.tag,
     super.key,
   }) : assert(image != null || icon != null);
 
   final VoidCallback onPressed;
-  final Image? image;
+  final Widget? image;
   final Icon? icon;
   final String title;
   final String description;
+  final String? tag;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.only(left: 6, right: 6),
       alignment: Alignment.center,
+      decoration: ShapeDecoration(
+        gradient: LinearGradient(
+          colors: [
+            context.customColors.cardGradientColorPrimary,
+            context.customColors.cardGradientColorSecondary,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      ),
       child: TextButton(
         style: TextButton.styleFrom(
-          backgroundColor: Theme.of(context).cardColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          padding: EdgeInsets.all(24)
+          side: BorderSide(width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
+          backgroundColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          padding: EdgeInsets.all(24),
         ),
         onPressed: onPressed,
         child: Row(
@@ -38,33 +51,41 @@ class OptionTile extends StatelessWidget {
             icon ?? image!,
             Expanded(
               child: Padding(
-                padding: EdgeInsets.only(left: 16),
+                padding: EdgeInsets.only(left: 20),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context)
-                            .extension<OptionTileTheme>()!
-                            .titleColor,
-                      ),
+                    Row(
+                      children: [
+                        ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: 220),
+                          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+                        ),
+                        if (tag != null)
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(style: BorderStyle.none),
+                              borderRadius: BorderRadius.circular(20),
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 5),
+                            margin: EdgeInsets.only(left: 5),
+                            child: Text(
+                              tag!,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                            ),
+                          )
+                      ],
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 5),
                       child: Text(
                         description,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: Theme.of(context)
-                              .extension<OptionTileTheme>()!
-                              .descriptionColor,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                       ),
                     )
                   ],

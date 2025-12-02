@@ -16,6 +16,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
@@ -52,7 +53,7 @@ abstract class WowneroWalletBase
     extends WalletBase<WowneroBalance, WowneroTransactionHistory, WowneroTransactionInfo>
     with Store {
   WowneroWalletBase(
-      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
+      {required WalletInfo walletInfo, required DerivationInfo derivationInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
           CryptoCurrency.wow: WowneroBalance(
               fullBalance: wownero_wallet.getFullBalance(accountIndex: 0),
@@ -65,7 +66,7 @@ abstract class WowneroWalletBase
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
         this.unspentCoinsInfo = unspentCoinsInfo,
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     transactionHistory = WowneroTransactionHistory();
     walletAddresses = WowneroWalletAddresses(walletInfo, transactionHistory);
 
@@ -174,6 +175,24 @@ abstract class WowneroWalletBase
   Future<void>? updateBalance() => null;
 
   @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check if the wallet is currently connected to the daemon
+      final isConnected = wownero_wallet.isConnectedSync();
+
+      if (!isConnected) {
+        return false; // It's not connected to daemon
+      }
+
+      // Check to get current node height to ensure daemon is responsive
+      final nodeHeight = await wownero_wallet.getNodeHeight();
+      return nodeHeight > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
   Future<void> close({bool shouldCleanup = false}) async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
@@ -183,6 +202,14 @@ abstract class WowneroWalletBase
 
   @override
   Future<void> connectToNode({required Node node}) async {
+    String socksProxy = node.socksProxyAddress ?? '';
+    printV("bootstrapped: ${CakeTor.instance!.bootstrapped}");
+    printV("     enabled: ${CakeTor.instance!.enabled}");
+    printV("        port: ${CakeTor.instance!.port}");
+    printV("     started: ${CakeTor.instance!.started}");
+    if (CakeTor.instance!.enabled) {
+      socksProxy = "127.0.0.1:${CakeTor.instance!.port}";
+    }
     try {
       syncStatus = ConnectingSyncStatus();
       await wownero_wallet.setupNode(
@@ -192,7 +219,7 @@ abstract class WowneroWalletBase
           useSSL: node.isSSL,
           isLightWallet: false,
           // FIXME: hardcoded value
-          socksProxyAddress: node.socksProxyAddress);
+          socksProxyAddress: socksProxy);
 
       wownero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();

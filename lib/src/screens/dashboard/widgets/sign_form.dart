@@ -2,6 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -44,7 +45,7 @@ class SignFormState extends State<SignForm> with AutomaticKeepAliveClientMixin {
 
   @override
   bool get wantKeepAlive => true;
-  
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -60,7 +61,8 @@ class SignFormState extends State<SignForm> with AutomaticKeepAliveClientMixin {
                     controller: messageController,
                     placeholder: S.current.message,
                     options: [AddressTextFieldOption.paste],
-                    buttonColor: Theme.of(context).hintColor,
+                    buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    fillColor: Theme.of(context).colorScheme.surface,
                   ),
                   if (widget.includeAddress) ...[
                     const SizedBox(height: 20),
@@ -70,11 +72,12 @@ class SignFormState extends State<SignForm> with AutomaticKeepAliveClientMixin {
                         AddressTextFieldOption.paste,
                         AddressTextFieldOption.walletAddresses
                       ],
-                      buttonColor: Theme.of(context).hintColor,
+                      buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       onSelectedContact: (contact) {
                         addressController.text = contact.address;
                       },
                       selectedCurrency: walletTypeToCryptoCurrency(widget.type),
+                      fillColor: Theme.of(context).colorScheme.surface,
                     ),
                   ],
                 ],

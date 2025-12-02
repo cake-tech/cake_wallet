@@ -1,121 +1,153 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/theme_classes/black_theme.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class SettingsThemeChoicesCell extends StatelessWidget {
   SettingsThemeChoicesCell(this._displaySettingsViewModel);
-
-  final items = ThemeList.all;
 
   final DisplaySettingsViewModel _displaySettingsViewModel;
 
   final double cellHeight = 25;
   final double cellWidth = 12;
-  final double cellRadius = 6;
+  final double cellRadius = 8;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(cellHeight),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                S.current.color_theme,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color:
-                      Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: cellHeight),
-          GridView.builder(
-              itemCount: items.length,
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisExtent: 75,
-                crossAxisSpacing: 20,
-              ),
-              itemBuilder: (context, index) {
-                final ThemeBase e = items[index];
-                final currentTheme = _displaySettingsViewModel.theme;
-                final isSelected = currentTheme == e;
+    return Observer(
+      builder: (context) {
+        final availableThemes = _displaySettingsViewModel.availableThemes;
+        final currentTheme = _displaySettingsViewModel.currentTheme;
+        final availableAccentColors = _displaySettingsViewModel.availableAccentColors;
+        final screenHeight = MediaQuery.of(context).size.height;
 
-                return Padding(
-                  padding: EdgeInsets.all(5),
-                  child: Semantics(
-                    label: e.toString(),
-                    selected: isSelected,
-                    child: GestureDetector(
-                      onTap: () {
-                        _displaySettingsViewModel.setTheme(e);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(cellRadius),
-                          border: isSelected
-                              ? Border.all(
-                                  color: Theme.of(context).primaryColor)
-                              : null,
-                          color: Theme.of(context)
-                              .extension<CakeTextTheme>()!
-                              .secondaryTextColor
-                              .withOpacity(
-                                  currentTheme.brightness == Brightness.light
-                                      ? 0.1
-                                      : 0.3),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: cellWidth, vertical: cellHeight),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(cellRadius),
-                                    bottomLeft: Radius.circular(cellRadius)),
-                                color: e.themeData.primaryColor,
-                              ),
+        final previewHeight = _getResponsivePreviewHeight(screenHeight);
+        final previewWidth = previewHeight * 0.6;
+
+        return Container(
+          height: getHeight(context, currentTheme, currentTheme.hasAccentColors),
+          padding: EdgeInsets.all(12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: availableThemes.length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    final MaterialThemeBase theme = availableThemes[index];
+                    final isSelected = _displaySettingsViewModel.isThemeSelected(theme);
+
+                    return Semantics(
+                      label: theme.toString(),
+                      selected: isSelected,
+                      child: GestureDetector(
+                        onTap: () {
+                          _displaySettingsViewModel.onThemeSelected(theme);
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(right: 24),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(cellRadius),
+                            border: isSelected
+                                ? Border.all(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    strokeAlign: BorderSide.strokeAlignOutside)
+                                : null,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(cellRadius),
+                            child: CakeImageWidget(
+                              imageUrl: _displaySettingsViewModel.getImageForTheme(theme),
+                              fit: BoxFit.cover,
+                              height: previewHeight,
+                              width: previewWidth,
                             ),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: cellWidth, vertical: cellHeight),
-                              decoration: BoxDecoration(
-                                color: e.themeData.colorScheme.background,
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: cellWidth, vertical: cellHeight),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(cellRadius),
-                                    bottomRight: Radius.circular(cellRadius)),
-                                color: e.themeData.cardColor,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
+                    );
+                  },
+                ),
+              ),
+              if (_displaySettingsViewModel.currentTheme.hasAccentColors) ...[
+                SizedBox(height: cellHeight),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      S.of(context).accent_color,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                  ),
-                );
-              }),
-        ],
-      ),
+                    Container(
+                      child: Row(
+                        children: availableAccentColors.map((accentColor) {
+                          final isSelected = _displaySettingsViewModel
+                              .isAccentColorSelected(accentColor.name.toLowerCase());
+                          return GestureDetector(
+                            onTap: () {
+                              _displaySettingsViewModel
+                                  .onAccentColorSelected(accentColor.name.toLowerCase());
+                            },
+                            child: Container(
+                              width: 26,
+                              height: 26,
+                              margin: EdgeInsets.only(right: 11),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                border: isSelected
+                                    ? Border.all(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        width: 3)
+                                    : null,
+                                color: accentColor.color,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              if (_displaySettingsViewModel.currentTheme is BlackTheme)
+                SettingsSwitcherCell(
+                  title: S.current.oled_mode,
+                  value: _displaySettingsViewModel.isBlackThemeOledEnabled,
+                  onValueChange: (_, bool value) {
+                    _displaySettingsViewModel.setBlackThemeOled(value);
+                  },
+                  padding: EdgeInsets.zero,
+                  switchBackgroundColor: currentTheme.colorScheme.secondaryContainer,
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
+
+  double getHeight(BuildContext context, MaterialThemeBase theme, bool hasAccentColors) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double baseHeight = (screenHeight * 0.25).clamp(150.0, screenHeight * 0.5);
+
+    if (hasAccentColors) {
+      baseHeight += (screenHeight * 0.05).clamp(35.0, 60.0);
+    }
+
+    if (theme is BlackTheme) {
+      baseHeight += (screenHeight * 0.08).clamp(48.0, 96.0);
+    }
+
+    return baseHeight;
+  }
+
+  double _getResponsivePreviewHeight(double screenHeight) =>
+      (screenHeight * 0.22).clamp(160.0, 240.0);
 }

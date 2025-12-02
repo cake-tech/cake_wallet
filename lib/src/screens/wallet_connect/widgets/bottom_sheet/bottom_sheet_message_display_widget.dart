@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class BottomSheetMessageDisplayWidget extends StatelessWidget {
@@ -20,14 +19,14 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
           children: [
             Text(
               isError ? S.current.error : S.current.successful,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
             IconButton(
-              color: Theme.of(context).appBarTheme.titleTextStyle!.color!,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               padding: const EdgeInsets.all(0.0),
               visualDensity: VisualDensity.compact,
               onPressed: () {
@@ -35,7 +34,10 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
                   Navigator.pop(context);
                 }
               },
-              icon: const Icon(Icons.close_sharp),
+              icon: Icon(
+                Icons.close_sharp,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -45,11 +47,9 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
             Expanded(
               child: Text(
                 message,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ),
           ],

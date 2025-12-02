@@ -1,12 +1,7 @@
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_verify_context_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
@@ -25,13 +20,10 @@ class WCRequestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentTheme = getIt.get<SettingsStore>().currentTheme;
-    
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         WCVerifyContextWidget(
-          currentTheme: currentTheme,
           verifyContext: verifyContext,
         ),
         const SizedBox(height: 8),
@@ -65,10 +57,8 @@ class WCRequestWidget extends StatelessWidget {
                       }
                     },
                 text: S.current.approve,
-                color: Theme.of(context).primaryColor,
-                textColor: currentTheme.type == ThemeType.dark
-                    ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                    : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
           ],

@@ -1,9 +1,9 @@
-import 'package:cake_wallet/core/new_wallet_arguments.dart';
-import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'dart:io';
 
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
@@ -11,13 +11,13 @@ import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_aler
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
@@ -40,19 +40,19 @@ class NewWalletTypePage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
-  };
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(
-        walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage,
+        walletImage: currentTheme.isDark ? walletTypeImage : walletTypeLightImage,
         isCreate: newWalletTypeArguments.isCreate,
         newWalletTypeViewModel: newWalletTypeViewModel,
         onTypeSelected: newWalletTypeArguments.onTypeSelected,
-        isHardwareWallet: newWalletTypeArguments.isHardwareWallet,
+        hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
       );
 }
 
@@ -62,14 +62,16 @@ class WalletTypeForm extends StatefulWidget {
     required this.isCreate,
     required this.newWalletTypeViewModel,
     this.onTypeSelected,
-    required this.isHardwareWallet,
+    this.hardwareWalletType,
   });
 
   final bool isCreate;
   final Image walletImage;
   final NewWalletTypeViewModel newWalletTypeViewModel;
   final void Function(BuildContext, WalletType)? onTypeSelected;
-  final bool isHardwareWallet;
+  final HardwareWalletType? hardwareWalletType;
+
+  bool get isHardwareWallet => hardwareWalletType != null;
 
   @override
   WalletTypeFormState createState() => WalletTypeFormState();
@@ -91,7 +93,9 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     types = filteredTypes = availableWalletTypes
         .where((element) =>
             !widget.isHardwareWallet ||
-            DeviceConnectionType.supportedConnectionTypes(element, Platform.isIOS).isNotEmpty)
+            DeviceConnectionType.supportedConnectionTypes(
+                    element, widget.hardwareWalletType!, Platform.isIOS)
+                .isNotEmpty)
         .toList();
     super.initState();
 
@@ -117,16 +121,14 @@ class WalletTypeFormState extends State<WalletTypeForm> {
               child: Text(
                 S.of(context).choose_wallet_currency,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                ),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(24, 24, 24, 12),
-              child: SearchBarWidget(searchController: searchController, borderRadius: 24),
+              child: SearchBarWidget(searchController: searchController),
             ),
             Expanded(
               child: ScrollableWithBottomSection(
@@ -151,7 +153,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                           isSelected: selected == type,
                           onTap: () => setState(() => selected = type),
                           deviceConnectionTypes: widget.isHardwareWallet
-                              ? DeviceConnectionType.supportedConnectionTypes(type, Platform.isIOS)
+                              ? DeviceConnectionType.supportedConnectionTypes(
+                                  type, widget.hardwareWalletType!, Platform.isIOS)
                               : [],
                         ),
                       ),
@@ -163,8 +166,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                   key: ValueKey('new_wallet_type_next_button_key'),
                   onPressed: () => onTypeSelected(),
                   text: S.of(context).seed_language_next,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
                   isDisabled: selected == null,
                 ),
               ),

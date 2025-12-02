@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_mode
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_connection_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_request_widget.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
@@ -112,7 +113,7 @@ class GoBackModalWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       height: 280.0,
       width: double.infinity,
       padding: const EdgeInsets.all(20.0),
@@ -120,18 +121,24 @@ class GoBackModalWidget extends StatelessWidget {
         children: [
           Icon(
             isSuccess ? Icons.check_circle_sharp : Icons.error_outline_sharp,
-            color: isSuccess ? Colors.green[100] : Colors.red[100],
+            color: isSuccess
+                ? CustomThemeColors.syncGreen
+                : Theme.of(context).colorScheme.errorContainer,
             size: 80.0,
           ),
           Text(
             title ?? S.current.connected,
-            style: TextStyle(
-              color: Theme.of(context).appBarTheme.titleTextStyle!.color!,
-              fontSize: 18.0,
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
-          Text(message ?? S.current.youCanGoBackToYourDapp),
+          Text(
+            message ?? S.current.youCanGoBackToYourDapp,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 16.0,
+                ),
+          ),
         ],
       ),
     );

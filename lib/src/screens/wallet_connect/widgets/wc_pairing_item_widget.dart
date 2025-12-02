@@ -1,7 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
@@ -28,53 +26,61 @@ class WCPairingItemWidget extends StatelessWidget {
         '$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
 
     return ListTile(
-      leading: CakeImageWidget(
-        imageUrl: metadata.icons.isNotEmpty ?  metadata.icons[0]: null,
-        displayOnError: CircleAvatar(
-          backgroundImage: AssetImage('assets/images/walletconnect_logo.png'),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      leading: SizedBox(
+        width: 60,
+        height: 60,
+        child: CakeImageWidget(
+          borderRadius: 8,
+          width: 60,
+          height: 60,
+          imageUrl: metadata.icons.isNotEmpty ? metadata.icons[0] : null,
+          errorWidget: CircleAvatar(
+            backgroundImage: AssetImage('assets/images/walletconnect_logo.png'),
+          ),
         ),
       ),
       title: Text(
         metadata.name,
-        style: TextStyle(
-          fontSize: 16.0,
-          fontWeight: FontWeight.w700,
-          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-        ),
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontSize: 16.0,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             metadata.url,
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
           Text(
             '${S.current.expiresOn}: $expiryDate',
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ],
       ),
-      trailing: Container(
-        height: 40,
+      trailing: SizedBox(
         width: 44,
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Theme.of(context).extension<ReceivePageTheme>()!.iconsBackgroundColor,
-        ),
-        child: Icon(
-          Icons.edit,
-          size: 14,
-          color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+        height: 40,
+        child: Container(
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          child: Icon(
+            Icons.edit,
+            size: 14,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
         ),
       ),
       onTap: onTap,

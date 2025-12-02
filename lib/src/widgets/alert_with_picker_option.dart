@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
 class AlertWithPickerOption extends BaseAlertDialog {
   AlertWithPickerOption(
@@ -46,12 +45,13 @@ class AlertWithPickerOption extends BaseAlertDialog {
         Text(
           contentText,
           textAlign: TextAlign.center,
-          style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-              fontFamily: 'Lato',
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-              decoration: TextDecoration.none),
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                 
+                color: Theme.of(context).colorScheme.onSurface,
+                decoration: TextDecoration.none,
+              ),
         ),
         const SizedBox(height: 4),
         Container(
@@ -75,35 +75,29 @@ class AlertWithPickerOption extends BaseAlertDialog {
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
-                      color: Theme.of(context).colorScheme.background),
+                      color: Theme.of(context).colorScheme.surface),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         displayKey,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'Lato',
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                          decoration: TextDecoration.none,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                              decoration: TextDecoration.none,
+                            ),
                       ),
                       Row(
                         children: [
                           Text(
                             displayValue,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Lato',
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                              decoration: TextDecoration.none,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                  decoration: TextDecoration.none,
+                                ),
                           ),
                           const SizedBox(width: 4),
                           Icon(
                             Icons.arrow_forward_ios,
                             size: 18,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ],
                       ),

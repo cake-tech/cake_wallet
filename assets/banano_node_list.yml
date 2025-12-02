@@ -3,3 +3,4 @@
   path: /api
   useSSL: true
   is_default: true
+  isEnabledForAutoSwitching: true

@@ -9,16 +9,22 @@ import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_status_section.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/copy_link_item.dart';
-import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+
+class AnonPayReceivePageArgs {
+  final AnonpayInfoBase invoiceInfo;
+  final String? qrImage;
+
+  AnonPayReceivePageArgs({required this.invoiceInfo, this.qrImage});
+}
 
 class AnonPayReceivePage extends BasePage {
-  final AnonpayInfoBase invoiceInfo;
+  AnonPayReceivePage({required this.args}) : invoiceInfo = args.invoiceInfo;
 
-  AnonPayReceivePage({required this.invoiceInfo});
+  final AnonPayReceivePageArgs args;
+  final AnonpayInfoBase invoiceInfo;
 
   @override
   String get title => S.current.receive;
@@ -38,20 +44,21 @@ class AnonPayReceivePage extends BasePage {
       children: [
         Text(
           title,
-          style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Lato',
-              color: titleColor(context)),
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
         ),
         Text(
           invoiceInfo is AnonpayInvoiceInfo
               ? ReceivePageOption.anonPayInvoice.toString()
               : ReceivePageOption.anonPayDonationLink.toString(),
-          style: TextStyle(
-              fontSize: 10.0,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).extension<QRCodeTheme>()!.qrCodeColor),
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                fontSize: 10.0,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
         )
       ],
     );
@@ -105,6 +112,7 @@ class AnonPayReceivePage extends BasePage {
                         arguments: QrViewData(
                           data: invoiceInfo.clearnetUrl,
                           version: qr.QrVersions.auto,
+                          embeddedImagePath: args.qrImage,
                         ));
                   });
                 },
@@ -118,12 +126,14 @@ class AnonPayReceivePage extends BasePage {
                         decoration: BoxDecoration(
                           border: Border.all(
                             width: 3,
-                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         child: QrImage(
                           data: invoiceInfo.clearnetUrl,
                           version: qr.QrVersions.auto,
+                          embeddedImagePath: args.qrImage,
+                          size: 230,
                         ),
                       ),
                     ),

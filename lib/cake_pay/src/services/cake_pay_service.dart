@@ -1,0 +1,123 @@
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
+
+class CakePayService {
+  CakePayService(this.secureStorage, this.cakePayApi);
+
+  /// `_v2` was added to log out users so they can login using the new backend
+  static const cakePayEmailStorageKey = 'cake_pay_email_v2';
+  static const cakePayUsernameStorageKey = 'cake_pay_username_v2';
+  static const cakePayUserTokenKey = 'cake_pay_user_token_v2';
+
+  static String get testCakePayApiKey => secrets.testCakePayApiKey;
+
+  static String get cakePayApiKey => secrets.cakePayApiKey;
+
+  static String get CSRFToken => secrets.CSRFToken;
+
+  static String get authorization => secrets.authorization;
+
+  final SecureStorage secureStorage;
+  final CakePayApi cakePayApi;
+
+  /// Get Vendors
+  Future<List<CakePayVendor>> getVendors({
+    required int page,
+    required String countryCode,
+    String? country,
+    String? search,
+    List<String>? vendorIds,
+    bool? giftCards,
+    bool? prepaidCards,
+    bool? onDemand,
+    bool? custom,
+  }) async {
+    final result = await cakePayApi.getVendors(
+        apiKey: cakePayApiKey,
+        page: page,
+        country: country,
+        countryCode: countryCode,
+        search: search,
+        vendorIds: vendorIds,
+        giftCards: giftCards,
+        prepaidCards: prepaidCards,
+        onDemand: onDemand,
+        custom: custom);
+    return result;
+  }
+
+  /// LogIn
+  Future<void> logIn(String email) async {
+    final userName = await cakePayApi.authenticateUser(email: email, apiKey: cakePayApiKey);
+    await secureStorage.write(key: cakePayEmailStorageKey, value: userName);
+    await secureStorage.write(key: cakePayUsernameStorageKey, value: userName);
+  }
+
+  /// Verify email
+  Future<void> verifyEmail(String code) async {
+    final email = (await secureStorage.read(key: cakePayEmailStorageKey))!;
+    final credentials =
+        await cakePayApi.verifyEmail(email: email, code: code, apiKey: cakePayApiKey);
+    await secureStorage.write(key: cakePayUserTokenKey, value: credentials.token);
+    await secureStorage.write(key: cakePayUsernameStorageKey, value: credentials.username);
+  }
+
+  Future<String?> getUserEmail() async {
+    return (await secureStorage.read(key: cakePayEmailStorageKey));
+  }
+
+  /// Check is user logged
+  Future<bool> isLogged() async {
+    final username = await secureStorage.read(key: cakePayUsernameStorageKey) ?? '';
+    final password = await secureStorage.read(key: cakePayUserTokenKey) ?? '';
+    return username.isNotEmpty && password.isNotEmpty;
+  }
+
+  /// Logout
+  Future<void> logout([String? email]) async {
+    await secureStorage.delete(key: cakePayUsernameStorageKey);
+    await secureStorage.delete(key: cakePayUserTokenKey);
+    if (email != null) {
+      await cakePayApi.logoutUser(email: email, apiKey: cakePayApiKey);
+    }
+  }
+
+  /// Purchase Gift Card
+  Future<CakePayOrder> createOrder({
+    required int cardId,
+    required String price,
+    required int quantity,
+    required bool confirmsNoVpn,
+    required bool confirmsVoidedRefund,
+    required bool confirmsTermsAgreed,
+  }) async {
+    final userEmail = (await secureStorage.read(key: cakePayEmailStorageKey))!;
+    final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
+    return await cakePayApi.createOrder(
+      apiKey: cakePayApiKey,
+      cardId: cardId,
+      price: price,
+      quantity: quantity,
+      token: token,
+      userEmail: userEmail,
+      confirmsNoVpn: confirmsNoVpn,
+      confirmsVoidedRefund: confirmsVoidedRefund,
+      confirmsTermsAgreed: confirmsTermsAgreed,
+    );
+  }
+
+  Future<CakePayOrder> findOrderById({required String orderId}) async {
+    final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
+    return await cakePayApi.getOrderById(orderId: orderId, token: token);
+  }
+
+  ///Simulate Purchase Gift Card
+  Future<String> simulatePayment({required String orderId}) async {
+    final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
+    return await cakePayApi.simulatePayment(
+        CSRFToken: CSRFToken, authorization: authorization, token: token, orderId: orderId);
+  }
+}

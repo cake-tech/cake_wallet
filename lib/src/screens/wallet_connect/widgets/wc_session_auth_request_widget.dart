@@ -1,7 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class WCSessionAuthRequestWidget extends StatelessWidget {
@@ -18,7 +17,7 @@ class WCSessionAuthRequestWidget extends StatelessWidget {
           child: SingleChildScrollView(child: child),
         ),
         const SizedBox(height: 16),
-        Row(
+        Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             PrimaryButton(
@@ -31,7 +30,7 @@ class WCSessionAuthRequestWidget extends StatelessWidget {
               color: Theme.of(context).colorScheme.error,
               textColor: Theme.of(context).colorScheme.onError,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(height: 8),
             PrimaryButton(
               onPressed: () {
                 if (Navigator.canPop(context)) {
@@ -39,10 +38,10 @@ class WCSessionAuthRequestWidget extends StatelessWidget {
                 }
               },
               text: S.current.sign_one,
-              color: Theme.of(context).primaryColor,
-              textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(height: 8),
             PrimaryButton(
               onPressed: () {
                 if (Navigator.canPop(context)) {
@@ -50,8 +49,8 @@ class WCSessionAuthRequestWidget extends StatelessWidget {
                 }
               },
               text: S.current.sign_all,
-              color: Theme.of(context).secondaryHeaderColor,
-              textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              textColor: Theme.of(context).colorScheme.onSecondaryContainer,
             ),
           ],
         ),

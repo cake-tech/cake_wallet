@@ -4,10 +4,10 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_mweb/mweb_ffi.dart';
+import 'package:cw_mweb/print_verbose.dart';
 import 'package:grpc/grpc.dart';
 import 'package:path_provider/path_provider.dart';
-import 'cw_mweb_platform_interface.dart';
 import 'mwebd.pbgrpc.dart';
 
 class CwMweb {
@@ -58,14 +58,11 @@ class CwMweb {
     String debugLogPath = "${appDir.path}/logs/debug.log";
     readFileWithTimer(debugLogPath);
 
-    _port = await CwMwebPlatform.instance.start(appDir.path, nodeUriOverride ?? ltcNodeUri);
+    _port = MWebFfi.instance.start(appDir.path, nodeUriOverride ?? ltcNodeUri);
     if (_port == null || _port == 0) {
       throw Exception("Failed to start server");
     }
     printV("Attempting to connect to server on port: $_port");
-
-    // wait for the server to finish starting up before we try to connect to it:
-    await Future.delayed(const Duration(seconds: 8));
 
     _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
       _rpcClient = null;
@@ -109,7 +106,7 @@ class CwMweb {
 
   static Future<void> stop() async {
     try {
-      await CwMwebPlatform.instance.stop();
+      MWebFfi.instance.stop();
       await cleanup();
     } on GrpcError catch (e) {
       printV('Caught grpc error: ${e.message}');
@@ -118,11 +115,9 @@ class CwMweb {
     }
   }
 
-  static Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) async {
+  static String? address(Uint8List scanSecret, Uint8List spendPub, int index) {
     try {
-      return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, index, index + 1))
-          ?.split(',')
-          .first;
+      return MWebFfi.instance.addresses(scanSecret, spendPub, index, index + 1).split(',').first;
     } on GrpcError catch (e) {
       printV('Caught grpc error: ${e.message}');
     } catch (e) {
@@ -131,15 +126,14 @@ class CwMweb {
     return null;
   }
 
-  static Future<List<String>?> addresses(
-      Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) async {
+  static List<String>? addresses(
+      Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) {
     try {
-      return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, fromIndex, toIndex))
-          ?.split(',');
+      return MWebFfi.instance.addresses(scanSecret, spendPub, fromIndex, toIndex).split(',');
     } on GrpcError catch (e) {
-      log('Caught grpc error: ${e.message}');
+      printV('Caught grpc error: ${e.message}');
     } catch (e) {
-      log("Error getting addresses: $e");
+      printV("Error getting addresses: $e");
     }
     return null;
   }
@@ -221,5 +215,46 @@ class CwMweb {
       printV("Error getting utxos: $e");
       rethrow;
     }
+  }
+
+  static Future<PsbtResponse> psbtCreate(PsbtCreateRequest request) async {
+    log("mweb.psbtCreate() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtCreate(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtResponse> psbtAddInput(PsbtAddInputRequest request) async {
+    log("mweb.psbtAddInput() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtAddInput(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtResponse> psbtAddRecipient(PsbtAddRecipientRequest request) async {
+    log("mweb.psbtAddRecipient() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtAddRecipient(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtGetRecipientsResponse> psbtGetRecipients(PsbtGetRecipientsRequest request) async {
+    log("mweb.psbtGetRecipients() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtGetRecipients(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<CreateResponse> psbtExtract(PsbtExtractRequest request) async {
+    log("mweb.psbtExtract() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtExtract(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+  static Future<PsbtResponse> psbtSign(PsbtSignRequest request) async {
+    printV("mweb.psbtSign() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtSign(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtResponse> psbtSignNonMweb(PsbtSignNonMwebRequest request) async {
+    printV("mweb.psbtSignNonMweb() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtSignNonMweb(request, options: CallOptions(timeout: TIMEOUT_DURATION));
   }
 }

@@ -15,7 +15,7 @@ Future<String?> presentQRScanner(BuildContext context) async {
   try {
     final result = await Navigator.of(context).push<String>(
       MaterialPageRoute(
-        builder:(context) {
+        builder: (context) {
           return BarcodeScannerSimple();
         },
       ),
@@ -67,7 +67,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
   void _handleBarcodeInternal(BarcodeCapture barcodes) {
     for (final barcode in barcodes.barcodes) {
       // don't handle unknown QR codes
-      if (barcode.rawValue?.trim().isEmpty??false == false) continue;
+      if (barcode.rawValue?.trim().isEmpty ?? false == false) continue;
       if (barcode.rawValue!.startsWith("ur:")) {
         if (urCodes.contains(barcode.rawValue)) continue;
         setState(() {
@@ -81,7 +81,8 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
           SchedulerBinding.instance.addPostFrameCallback((_) {
             Navigator.of(context).pop(ur.inputs.join("\n"));
           });
-        };
+        }
+        ;
       }
     }
     if (urCodes.isNotEmpty) return;
@@ -110,18 +111,21 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
           ToggleFlashlightButton(controller: ctrl),
         ],
       ),
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Stack(
         children: [
           MobileScanner(
             onDetect: _handleBarcode,
             controller: ctrl,
           ),
-          if (ur.inputs.length != 0) 
-            Center(child:
-              Text(
+          if (ur.inputs.length != 0)
+            Center(
+              child: Text(
                 "${ur.inputs.length}/${ur.count}",
-                style: Theme.of(context).textTheme.displayLarge?.copyWith(color: Colors.white)
+                style: Theme.of(context)
+                    .textTheme
+                    .displayLarge
+                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
           SizedBox(
@@ -157,7 +161,6 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
     return l;
   }
 }
-
 
 class ToggleFlashlightButton extends StatelessWidget {
   const ToggleFlashlightButton({required this.controller, super.key});
@@ -199,9 +202,9 @@ class ToggleFlashlightButton extends StatelessWidget {
               },
             );
           case TorchState.unavailable:
-            return const Icon(
+            return Icon(
               Icons.no_flash,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             );
         }
       },
@@ -326,16 +329,14 @@ class ProgressPainter extends CustomPainter {
     const fullAngle = 360.0;
     var startAngle = 0.0;
     for (int i = 0; i < urQrProgress.expectedPartCount.toInt(); i++) {
-      var sweepAngle =
-          (1 / urQrProgress.expectedPartCount) * fullAngle * pi / 180.0;
-      drawSector(canvas, urQrProgress.receivedPartIndexes.contains(i), rect,
-          startAngle, sweepAngle);
+      var sweepAngle = (1 / urQrProgress.expectedPartCount) * fullAngle * pi / 180.0;
+      drawSector(
+          canvas, urQrProgress.receivedPartIndexes.contains(i), rect, startAngle, sweepAngle);
       startAngle += sweepAngle;
     }
   }
 
-  void drawSector(Canvas canvas, bool isActive, Rect rect, double startAngle,
-      double sweepAngle) {
+  void drawSector(Canvas canvas, bool isActive, Rect rect, double startAngle, double sweepAngle) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8

@@ -1,30 +1,26 @@
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class GradientBackground extends StatelessWidget {
-  const GradientBackground({required this.scaffold});
+  const GradientBackground({required this.scaffold, super.key});
 
   final Widget scaffold;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        gradient: LinearGradient(
           colors: [
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .firstGradientBackgroundColor,
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .secondGradientBackgroundColor,
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .thirdGradientBackgroundColor,
+            Theme.of(context).colorScheme.surface,
+            context.customColors.backgroundGradientColor,
           ],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-        )),
-        child: scaffold);
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: scaffold,
+    );
   }
 }

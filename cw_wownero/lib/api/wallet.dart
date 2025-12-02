@@ -102,17 +102,35 @@ String getAddress({int accountIndex = 0, int addressIndex = 1}) {
   return addressCache[wptr!.address]![accountIndex]![addressIndex]!;
 }
 
-int getFullBalance({int accountIndex = 0}) =>
-    wownero.Wallet_balance(wptr!, accountIndex: accountIndex);
+int getFullBalance({int accountIndex = 0}) {
+  if (wptr == null) return 0;
+  return wownero.Wallet_balance(wptr!, accountIndex: accountIndex);
+}
+int getUnlockedBalance({int accountIndex = 0}) {
+  if (wptr == null) return 0;
+  return wownero.Wallet_unlockedBalance(wptr!, accountIndex: accountIndex);
+}
+int getCurrentHeight() {
+  if (wptr == null) return 0;
+  return wownero.Wallet_blockChainHeight(wptr!);
+}
 
-int getUnlockedBalance({int accountIndex = 0}) =>
-    wownero.Wallet_unlockedBalance(wptr!, accountIndex: accountIndex);
+int cachedNodeHeight = 0;
+int getNodeHeightSync() {
+  if (wptr == null) return 0;
+  (() async {
+    final wptrAddress = wptr!.address;
+    cachedNodeHeight = await Isolate.run(() async {
+      return wownero.Wallet_daemonBlockChainHeight(Pointer.fromAddress(wptrAddress));
+    });
+  })();
+  return cachedNodeHeight;
+}
 
-int getCurrentHeight() => wownero.Wallet_blockChainHeight(wptr!);
-
-int getNodeHeightSync() => wownero.Wallet_daemonBlockChainHeight(wptr!);
-
-bool isConnectedSync() => wownero.Wallet_connected(wptr!) != 0;
+bool isConnectedSync() {
+  if (wptr == null) return false;
+  return wownero.Wallet_connected(wptr!) != 0;
+}
 
 Future<bool> setupNodeSync(
     {required String address,
@@ -154,7 +172,7 @@ Future<bool> setupNodeSync(
 }
 
 void startRefreshSync() {
-  wownero.Wallet_refreshAsync(wptr!);
+  // wownero.Wallet_refreshAsync(wptr!);
   wownero.Wallet_startRefresh(wptr!);
 }
 

@@ -1,5 +1,3 @@
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class EditWalletButtonWidget extends StatelessWidget {
@@ -22,31 +20,21 @@ class EditWalletButtonWidget extends StatelessWidget {
       width: width,
       child: Row(
         children: [
-          GestureDetector(
-            onTap: onTap,
-            child: Center(
-              child: Container(
-                height: 40,
-                width: 44,
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).extension<ReceivePageTheme>()!.iconsBackgroundColor,
-                ),
-                child: Icon(
-                  Icons.edit,
-                  size: 14,
-                  color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
-                ),
-              ),
+          TextButton(
+            onPressed: onTap,
+            style: TextButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.surface, shape: CircleBorder()),
+            child: Icon(
+              Icons.edit,
+              size: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           if (isGroup) ...{
-            SizedBox(width: 6),
             Icon(
               isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
               size: 24,
-              color: Theme.of(context).extension<FilterTheme>()!.titlesColor,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           },
         ],

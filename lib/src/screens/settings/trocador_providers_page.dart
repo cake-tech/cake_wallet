@@ -38,8 +38,8 @@ class TrocadorProvidersPage extends BasePage {
                 leading: Badge(
                   title: 'KYC \nRATING',
                   subTitle: providerRatings[providerName] ?? 'N/A',
-                  textColor: Colors.white,
-                  backgroundColor: Theme.of(context).primaryColor,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
                 onValueChange: (BuildContext _, value) =>
                     trocadorProvidersViewModel.toggleProviderState(providerName),
@@ -53,7 +53,11 @@ class TrocadorProvidersPage extends BasePage {
 }
 
 class Badge extends StatelessWidget {
-  Badge({required this.textColor, required this.backgroundColor, required this.title, required this.subTitle});
+  Badge(
+      {required this.textColor,
+      required this.backgroundColor,
+      required this.title,
+      required this.subTitle});
 
   final String title;
   final String subTitle;
@@ -78,11 +82,11 @@ class Badge extends StatelessWidget {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 7,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: textColor,
+                        fontSize: 7,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 VerticalDivider(
                   color: textColor,
@@ -90,11 +94,10 @@ class Badge extends StatelessWidget {
                 ),
                 Text(
                   subTitle,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: textColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ],
             ),

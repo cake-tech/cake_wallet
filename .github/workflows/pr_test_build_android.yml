@@ -7,9 +7,9 @@ defaults:
     shell: bash
 jobs:
   PR_test_build:
-    runs-on: linux-amd64
+    runs-on: [Linux, amd64, android]
     container:
-      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
@@ -98,8 +98,8 @@ jobs:
           else
             echo "const backupKeychainSalt = '${{ secrets.BACKUP_KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
           fi
-          echo "const changeNowApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const changeNowApiKeyDesktop = '${{ secrets.CHANGE_NOW_API_KEY_DESKTOP }}';" >> lib/.secrets.g.dart
+          echo "const changeNowCakeWalletApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const changeNowMoneroApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const wyreSecretKey = '${{ secrets.WYRE_SECRET_KEY }}';" >> lib/.secrets.g.dart
           echo "const wyreApiKey = '${{ secrets.WYRE_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const wyreAccountId = '${{ secrets.WYRE_ACCOUNT_ID }}';" >> lib/.secrets.g.dart
@@ -113,6 +113,7 @@ jobs:
           echo "const ioniaClientId = '${{ secrets.IONIA_CLIENT_ID }}';" >> lib/.secrets.g.dart
           echo "const twitterBearerToken = '${{ secrets.TWITTER_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const trocadorApiKey = '${{ secrets.TROCADOR_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const trocadorMoneroApiKey = '${{ secrets.TROCADOR_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const trocadorExchangeMarkup = '${{ secrets.TROCADOR_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
           echo "const anonPayReferralCode = '${{ secrets.ANON_PAY_REFERRAL_CODE }}';" >> lib/.secrets.g.dart
           echo "const fiatApiKey = '${{ secrets.FIAT_API_KEY }}';" >> lib/.secrets.g.dart
@@ -124,7 +125,8 @@ jobs:
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const nowNodesApiKey = '${{ secrets.EVM_NOWNODES_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const chatwootWebsiteToken = '${{ secrets.CHATWOOT_WEBSITE_TOKEN }}';" >> lib/.secrets.g.dart
-          echo "const exolixApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const exolixCakeWalletApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const exolixMoneroApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const robinhoodApplicationId = '${{ secrets.ROBINHOOD_APPLICATION_ID }}';" >> lib/.secrets.g.dart
           echo "const exchangeHelperApiKey = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
@@ -132,6 +134,7 @@ jobs:
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
@@ -155,16 +158,21 @@ jobs:
           echo "const litecoinTestWalletSeeds =  '${{ secrets.LITECOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const bitcoinCashTestWalletSeeds =  '${{ secrets.BITCOIN_CASH_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const polygonTestWalletSeeds = '${{ secrets.POLYGON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const baseTestWalletSeeds = '${{ secrets.BASE_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const arbitrumTestWalletSeeds = '${{ secrets.ARBITRUM_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const solanaTestWalletSeeds = '${{ secrets.SOLANA_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const tronTestWalletSeeds = '${{ secrets.TRON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const nanoTestWalletSeeds =  '${{ secrets.NANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const wowneroTestWalletSeeds = '${{ secrets.WOWNERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const zanoTestWalletSeeds = '${{ secrets.ZANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const moneroTestWalletReceiveAddress = '${{ secrets.MONERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const bitcoinTestWalletReceiveAddress =  '${{ secrets.BITCOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const ethereumTestWalletReceiveAddress =  '${{ secrets.ETHEREUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const litecoinTestWalletReceiveAddress =  '${{ secrets.LITECOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const bitcoinCashTestWalletReceiveAddress = '${{ secrets.BITCOIN_CASH_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const polygonTestWalletReceiveAddress =  '${{ secrets.POLYGON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const baseTestWalletReceiveAddress =  '${{ secrets.BASE_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const arbitrumTestWalletReceiveAddress =  '${{ secrets.ARBITRUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const solanaTestWalletReceiveAddress =  '${{ secrets.SOLANA_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const tronTestWalletReceiveAddress =  '${{ secrets.TRON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
@@ -175,34 +183,7 @@ jobs:
           echo "const chainflipAffiliateFee = '${{ secrets.CHAINFLIP_AFFILIATE_FEE }}';" >> lib/.secrets.g.dart
           echo "const kryptonimApiKey = '${{ secrets.KRYPTONIM_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const walletGroupSalt = '${{ secrets.WALLET_GROUP_SALT }}';" >> lib/.secrets.g.dart
-
-      - name: prepare monero_c and cache
-        run: |
-          export MONEROC_HASH=$(cat scripts/prepare_moneroc.sh | grep 'git checkout' | xargs | awk '{ print $3 }')
-          echo MONEROC_HASH=$MONEROC_HASH >> /etc/environment
-          mkdir -p "$MONEROC_CACHE_DIR_ROOT/moneroc-$MONEROC_HASH/monero_c"
-          pushd scripts
-            ln -s "$MONEROC_CACHE_DIR_ROOT/moneroc-$MONEROC_HASH/monero_c"
-            ./prepare_moneroc.sh
-          popd
-          pushd scripts/monero_c
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/built" || true
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/built" || true
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/built" || true
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/sources" || true
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/sources" || true
-            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/sources" || true
-
-            rm -rf "$PWD/contrib/depends/built" "$PWD/monero/contrib/depends/built" "$PWD/wownero/contrib/depends/built"
-            rm -rf "$PWD/contrib/depends/sources" "$PWD/monero/contrib/depends/sources" "$PWD/wownero/contrib/depends/sources"
-            mkdir -p contrib/depends || true
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/built" "$PWD/contrib/depends/built"
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/built" "$PWD/monero/contrib/depends/built"
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/built" "$PWD/wownero/contrib/depends/built"
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/sources" "$PWD/contrib/depends/sources"
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/sources" "$PWD/monero/contrib/depends/sources"
-            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/sources" "$PWD/wownero/contrib/depends/sources"
-          popd
+          echo "const swapsXyzApiKey = '${{ secrets.SWAPSXYZ_API_KEY }}';" >> lib/.secrets.g.dart
 
       - name: Generate KeyStore
         run: |
@@ -216,6 +197,34 @@ jobs:
           popd
           cp /opt/generic_cache/key.jks android/app
 
+      - name: Fetch prebuilt Torch
+        run: |
+          set -x -e
+          pushd scripts
+            wget https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.17/torch_dart-v1.0.17.tar.gz -O torch_dart.tar.gz
+            mkdir torch_dart
+            pushd torch_dart
+              tar -xzf ../torch_dart.tar.gz
+            popd
+            rm ./torch_dart.tar.gz
+          popd
+
+      - name: Fetch prebuilt Reown
+        run: |
+          set -x -e
+          pushd scripts
+            # cleaning
+            rm -rf reown_flutter
+            rm -f reown_flutter.tar.gz
+            
+            wget https://github.com/cake-tech/reown_flutter/releases/download/v0.0.4/reown_flutter-v0.0.4.tar.gz -O reown_flutter.tar.gz
+            mkdir reown_flutter
+            pushd reown_flutter
+              tar -xzf ../reown_flutter.tar.gz
+            popd
+            rm ./reown_flutter.tar.gz
+          popd
+
       - name: Execute Build and Setup Commands
         run: |
           pushd scripts/android
@@ -225,9 +234,19 @@ jobs:
 
       - name: Build monero_c
         run: |
-          pushd scripts/android/
-            source ./app_env.sh cakewallet
-            ./build_monero_all.sh
+          mkdir -p scripts/monero_c
+          pushd scripts/monero_c
+            wget https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.0-RC9/release-bundle.zip
+            unzip release-bundle.zip
+            rm release-bundle.zip
+            unxz -fv release/*/*.xz 
+          popd
+
+      - name: Build Bitbox Flutter
+        run: |
+          set -x -e
+          pushd scripts
+            ./build_bitbox_flutter.sh
           popd
 
       - name: Install Flutter dependencies
@@ -240,8 +259,7 @@ jobs:
           export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
           echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
           pushd scripts/android
-            gomobile init;
-            ./build_mwebd.sh --dont-install
+            ./build_mwebd.sh
           popd
 
       - name: Build Decred
@@ -253,6 +271,11 @@ jobs:
 
       - name: Build generated code
         run: |
+          flutter --version
+          flutter clean
+          rm -rf .dart_tool
+          rm pubspec.lock
+          flutter pub get
           ./model_generator.sh async
 
       - name: Generate key properties
@@ -289,16 +312,19 @@ jobs:
           set -x
           apk_file=$(ls build/app/outputs/flutter-apk/test-apk/${BRANCH_NAME}.apk || exit 1)
           echo "APK_FILE=$apk_file" >> $GITHUB_ENV
+      - name: Write BRANCH_NAME to env
+        run: echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
 
-      - name: Upload artifact to slack
-        if: ${{ !contains(env.message, 'skip slack') }}
-        continue-on-error: true
-        uses: adrey/slack-file-upload-action@1.0.5
+      - name: Upload to slack step
+        uses: vaporif/slack-file-upload-action@v1
         with:
           token: ${{ secrets.SLACK_APP_TOKEN }}
-          path: ${{ env.APK_FILE }}
-          channel: ${{ secrets.SLACK_APK_CHANNEL }}
           initial_comment: ${{ env.message }}
+          files: >
+            [
+              {"file": "${{ env.APK_FILE }}", "filename": "${{ env.BRANCH_NAME }}.apk"}
+            ]
+          channel_id: ${{ secrets.SLACK_APK_CHANNEL }}
 
       - name: cleanup
         run: rm -rf build/app/outputs/flutter-apk/test-apk/
@@ -308,3 +334,10 @@ jobs:
         with:
           path: ${{ github.workspace }}/build/app/outputs/flutter-apk
           name: "android apk"
+      
+      - name: 16KB align
+        run: |
+          cd build/app/outputs/flutter-apk
+          for i in arm64-v8a x86_64; do
+            ../../../../scripts/android/check_16kb_align.sh app-$i-release.apk
+          done

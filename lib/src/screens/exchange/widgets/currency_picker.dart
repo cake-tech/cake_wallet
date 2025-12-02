@@ -31,27 +31,19 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   CurrencyPickerState(this.items)
       : isSearchBarActive = false,
         textFieldValue = '',
-        appBarTextStyle = TextStyle(
-            fontSize: 20,
-            fontFamily: 'Lato',
-            backgroundColor: Colors.transparent,
-            color: Colors.white),
         pickerItemsList = <PickerItem<CryptoCurrency>>[];
 
   List<PickerItem<Currency>> pickerItemsList;
   List<Currency> items;
   bool isSearchBarActive;
   String textFieldValue;
-  TextStyle appBarTextStyle;
 
   bool currencySearchBySubstring(Currency currency, String subString) {
-    return currency.name.toLowerCase().contains(subString.toLowerCase()) ||
-        (currency.tag != null
-            ? currency.tag!.toLowerCase().contains(subString.toLowerCase())
-            : false) ||
-        (currency.fullName != null
-            ? currency.fullName!.toLowerCase().contains(subString.toLowerCase())
-            : false);
+    final query = subString.toLowerCase();
+    return currency.name.toLowerCase().contains(query) ||
+        currency.toString().toLowerCase().contains(query) ||
+        (currency.tag != null ? currency.tag!.toLowerCase().contains(query) : false) ||
+        (currency.fullName != null ? currency.fullName!.toLowerCase().contains(query) : false);
   }
 
   @override

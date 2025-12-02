@@ -11,8 +11,9 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:http/http.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class SimpleSwapExchangeProvider extends ExchangeProvider {
   SimpleSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
@@ -48,7 +49,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   @override
   Future<bool> checkIsAvailable() async {
     final uri = Uri.https(apiAuthority, getEstimatePath, <String, String>{'api_key': apiKey});
-    final response = await get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
 
     return !(response.statusCode == 403);
   }
@@ -66,7 +67,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     };
     final uri = Uri.https(apiAuthority, rangePath, params);
 
-    final response = await get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
 
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -87,12 +89,13 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -104,14 +107,66 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
         'fixed': isFixedRateMode.toString()
       };
       final uri = Uri.https(apiAuthority, getEstimatePath, params);
-      final response = await get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
 
-      if (response.body == "null") return 0.00;
-
+      if (response.body == "null") {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception('Null response body'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+            'params': params,
+            'url': uri.toString(),
+          },
+        );
+        return 0.00;
+      }
+      
       final data = json.decode(response.body) as String;
+      final rate = double.parse(data) / amount;
 
-      return double.parse(data) / amount;
-    } catch (_) {
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'params': params,
+          'url': uri.toString(),
+        },
+        responseData: {
+          'data': data,
+          'rate': rate,
+          'statusCode': response.statusCode,
+          'responseBody': response.body,
+        },
+      );
+
+      return rate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       return 0.00;
     }
   }
@@ -134,15 +189,58 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     };
     final uri = Uri.https(apiAuthority, createExchangePath, params);
 
-    final response = await post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
+    
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       if (response.statusCode == 400) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['message'] as String;
 
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: TradeNotCreatedException(description, description: error),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'body': body,
+            'url': uri.toString(),
+          },
+        );
+
         throw TradeNotCreatedException(description, description: error);
       }
+
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: TradeNotCreatedException(description),
+        stackTrace: StackTrace.current,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'body': body,
+          'url': uri.toString(),
+        },
+      );
 
       throw TradeNotCreatedException(description);
     }
@@ -154,6 +252,33 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final settleAddress = responseJSON['user_refund_address'] as String;
     final extraId = responseJSON['extra_id_from'] as String?;
     final receiveAmount = responseJSON['amount_to'] as String?;
+
+    ExchangeProviderLogger.logSuccess(
+      provider: description,
+      function: 'createTrade',
+      requestData: {
+        'from': request.fromCurrency.title,
+        'to': request.toCurrency.title,
+        'fromAmount': request.fromAmount,
+        'toAmount': request.toAmount,
+        'toAddress': request.toAddress,
+        'refundAddress': request.refundAddress,
+        'isFixedRateMode': isFixedRateMode,
+        'isSendAll': isSendAll,
+        'body': body,
+        'url': uri.toString(),
+      },
+      responseData: {
+        'id': id,
+        'inputAddress': inputAddress,
+        'payoutAddress': payoutAddress,
+        'settleAddress': settleAddress,
+        'extraId': extraId,
+        'receiveAmount': receiveAmount,
+        'statusCode': response.statusCode,
+        'responseJSON': responseJSON,
+      },
+    );
 
     return Trade(
       id: id,
@@ -169,6 +294,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       payoutAddress: payoutAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 
@@ -176,8 +303,9 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     final params = {'api_key': apiKey, 'id': id};
     final uri = Uri.https(apiAuthority, getExchangePath, params);
-    final response = await get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
+    
     if (response.statusCode == 404) {
       throw TradeNotFoundException(id, provider: description);
     }
@@ -204,14 +332,16 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: id,
-      from: CryptoCurrency.fromString(fromCurrency),
-      to: CryptoCurrency.fromString(toCurrency),
+      from: CryptoCurrency.safeParseCurrencyFromString(fromCurrency),
+      to: CryptoCurrency.safeParseCurrencyFromString(toCurrency),
       extraId: extraId,
       provider: description,
       inputAddress: inputAddress,
       amount: expectedSendAmount,
       state: TradeState.deserialize(raw: status),
       payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
     );
   }
 

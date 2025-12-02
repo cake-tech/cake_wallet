@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,7 +56,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
 
   @override
   Widget build(BuildContext context) => TextField(
-      style: textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+  style: Theme.of(context).textTheme.titleMedium!,
       enableInteractiveSelection: false,
       textAlign: TextAlign.center,
       textAlignVertical: TextAlignVertical.bottom,
@@ -73,19 +72,15 @@ class _NumberTextFieldState extends State<NumberTextField> {
           counterText: '',
           isDense: true,
           filled: true,
-          suffixIconConstraints: BoxConstraints(
-              maxHeight: widget.arrowsHeight,
-              maxWidth: widget.arrowsWidth + widget.contentPadding.right),
-          prefixIconConstraints: BoxConstraints(
-              maxHeight: widget.arrowsHeight,
-              maxWidth: widget.arrowsWidth + widget.contentPadding.left),
+          suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+          prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
           prefixIcon: Material(
               type: MaterialType.transparency,
               child: InkWell(
                   child: Container(
                     width: widget.arrowsWidth,
                       alignment: Alignment.bottomCenter,
-                      child: Icon(Icons.arrow_left_outlined, size: widget.arrowsWidth)),
+                      child: Icon(Icons.keyboard_arrow_left_outlined ,size: widget.arrowsWidth)),
                   onTap: _canGoDown ? () => _update(false) : null)),
           suffixIcon: Material(
               type: MaterialType.transparency,
@@ -93,7 +88,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
                   child: Container(
                     width: widget.arrowsWidth,
                     alignment: Alignment.bottomCenter,
-                      child: Icon(Icons.arrow_right_outlined, size: widget.arrowsWidth)),
+                      child: Icon(Icons.keyboard_arrow_right_outlined, size: widget.arrowsWidth)),
                   onTap: _canGoUp ? () => _update(true) : null))),
       maxLines: 1,
       onChanged: (value) {

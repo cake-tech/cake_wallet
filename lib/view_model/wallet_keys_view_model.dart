@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
@@ -20,7 +21,7 @@ class WalletKeysViewModel = WalletKeysViewModelBase with _$WalletKeysViewModel;
 
 abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(this._appStore)
-      : title = S.current.wallet_keys,
+      : title = '${walletTypeToString(_appStore.wallet!.type)} ${S.current.wallet_keys}',
         _wallet = _appStore.wallet!,
         _walletName = _appStore.wallet!.type.name,
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
@@ -48,6 +49,8 @@ abstract class WalletKeysViewModelBase with Store {
     }
   }
 
+  bool get isBitcoin => _wallet.type == WalletType.bitcoin;
+
   final ObservableList<StandartListItem> items;
 
   final String title;
@@ -65,8 +68,7 @@ abstract class WalletKeysViewModelBase with Store {
   bool get isLegacySeedOnly =>
       [WalletType.monero, WalletType.wownero].contains(_wallet.type) &&
       _wallet.seed != null &&
-      !(Polyseed.isValidSeed(_wallet.seed!) ||
-          _wallet.seed!.split(' ').length == 12);
+      !(Polyseed.isValidSeed(_wallet.seed!) || _wallet.seed!.split(' ').length == 12);
 
   String get legacySeed {
     if ((_wallet.type == WalletType.monero || _wallet.type == WalletType.wownero) &&
@@ -124,6 +126,8 @@ abstract class WalletKeysViewModelBase with Store {
         break;
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
         items.addAll([
@@ -162,18 +166,26 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
+        if (_wallet.type == WalletType.bitcoin) {
+          keys = bitcoin!.getSilentPaymentKeys(_appStore.wallet!);
+        }
+
+        final electrumKeys = bitcoin!.getWalletKeys(_appStore.wallet!);
+
+        items.addAll([
+          if ((electrumKeys['wif'] ?? '').isNotEmpty)
+            StandartListItem(title: "WIF", value: electrumKeys['wif']!),
+          if ((electrumKeys['privateKey'] ?? '').isNotEmpty)
+            StandartListItem(title: S.current.private_key, value: electrumKeys['privateKey']!),
+          if (electrumKeys['publicKey'] != null)
+            StandartListItem(title: S.current.public_key, value: electrumKeys['publicKey']!),
+          if (electrumKeys['xpub'] != null)
+            StandartListItem(title: "xPub", value: electrumKeys['xpub']!),
+        ]);
+        break;
       case WalletType.none:
       case WalletType.haven:
-        //   final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
-        //
-        //   items.addAll([
-        //     if (keys['wif'] != null)
-        //       StandartListItem(title: "WIF", value: keys['wif']!),
-        //     if (keys['privateKey'] != null)
-        //       StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
-        //     if (keys['publicKey'] != null)
-        //       StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
-        //   ]);
         break;
     }
 
@@ -242,6 +254,10 @@ abstract class WalletKeysViewModelBase with Store {
         return 'banano-wallet';
       case WalletType.polygon:
         return 'polygon-wallet';
+      case WalletType.base:
+        return 'base-wallet';
+      case WalletType.arbitrum:
+        return 'arbitrum-wallet';
       case WalletType.solana:
         return 'solana-wallet';
       case WalletType.tron:
@@ -252,6 +268,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'zano-wallet';
       case WalletType.decred:
         return 'decred-wallet';
+      case WalletType.dogecoin:
+        return 'dogecoin-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()}');
     }

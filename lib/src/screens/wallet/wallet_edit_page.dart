@@ -1,7 +1,8 @@
+import 'dart:async';
+
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/routes.dart';
@@ -11,6 +12,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -72,11 +74,12 @@ class WalletEditPage extends BasePage {
                         child: Container(
                           padding: EdgeInsets.only(right: 8.0),
                           child: LoadingPrimaryButton(
-                              isDisabled: isLoading,
-                              onPressed: () => _removeWallet(context),
-                              text: S.of(context).delete,
-                              color: Palette.red,
-                              textColor: Colors.white),
+                            isDisabled: isLoading,
+                            onPressed: () => _removeWallet(context),
+                            text: S.of(context).delete,
+                            color: Theme.of(context).colorScheme.errorContainer,
+                            textColor: Theme.of(context).colorScheme.onErrorContainer,
+                          ),
                         ),
                       ),
                     Flexible(
@@ -86,7 +89,7 @@ class WalletEditPage extends BasePage {
                           onPressed: () async {
                             if (_formKey.currentState?.validate() ?? false) {
                               if (!pageArguments.isWalletGroup &&
-                                  pageArguments.walletNewVM!
+                                  await pageArguments.walletNewVM!
                                       .nameExists(walletEditViewModel.newName)) {
                                 showPopUp<void>(
                                   context: context,
@@ -142,8 +145,8 @@ class WalletEditPage extends BasePage {
                             }
                           },
                           text: S.of(context).save,
-                          color: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
                           isDisabled: walletEditViewModel.newName.isEmpty || isLoading,
                         ),
                       ),
@@ -176,20 +179,22 @@ class WalletEditPage extends BasePage {
     bool confirmed = false;
 
     await showPopUp<void>(
-        context: context,
-        builder: (BuildContext dialogContext) {
-          return AlertWithTwoActions(
-              alertTitle: S.of(context).delete_wallet,
-              alertContent:
-                  S.of(context).delete_wallet_confirm_message(pageArguments.editingWallet.name),
-              leftButtonText: S.of(context).cancel,
-              rightButtonText: S.of(context).delete,
-              actionLeftButton: () => Navigator.of(dialogContext).pop(),
-              actionRightButton: () {
-                confirmed = true;
-                Navigator.of(dialogContext).pop();
-              });
-        });
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertWithTwoActions(
+          alertTitle: S.of(context).delete_wallet,
+          alertContent:
+              S.of(context).delete_wallet_confirm_message(pageArguments.editingWallet.name),
+          leftButtonText: S.of(context).cancel,
+          rightButtonText: S.of(context).delete,
+          actionLeftButton: () => Navigator.of(dialogContext).pop(),
+          actionRightButton: () {
+            confirmed = true;
+            Navigator.of(dialogContext).pop();
+          },
+        );
+      },
+    );
 
     if (confirmed) {
       Navigator.of(context).pop();
@@ -211,13 +216,16 @@ class WalletEditPage extends BasePage {
   }
 
   void changeProcessText(BuildContext context, String text) {
-    _progressBar = createBar<void>(text, duration: null)..show(context);
+    _progressBar = createBar<void>(text, context, duration: null)..show(context);
   }
 
   Future<void> hideProgressText() async {
-    await Future.delayed(Duration(milliseconds: 50), () {
-      _progressBar?.dismiss();
-      _progressBar = null;
-    });
+    try {
+      await Future.delayed(Duration(milliseconds: 250));
+      await _progressBar?.dismiss();
+    } catch (e) {
+      printV(e);
+    }
+    _progressBar = null;
   }
 }

@@ -107,7 +107,13 @@ abstract class SupportViewModelBase with Store {
                 lightIcon: 'assets/images/robinhood_light.png',
                 linkTitle: S.current.submit_request,
                 link: 'https://robinhood.com/contact')
-          ]
+          ],
+          LinkListItem(
+              title: 'Kryptonim',
+              icon: 'assets/images/kryptonim_dark.png',
+              lightIcon: 'assets/images/kryptonim_light.png',
+              linkTitle: 'contact@support.kryptonim.com',
+              link: 'mailto:contact@support.kryptonim.com'),
         ];
 
   final docsUrl = 'https://docs.cakewallet.com';
@@ -127,6 +133,8 @@ abstract class SupportViewModelBase with Store {
   String get fiatApiMode => _settingsStore.fiatApiMode.title;
 
   String get walletType => _appStore.wallet?.type.name ?? 'Unknown';
+
+  String get walletSyncState => _appStore.wallet?.syncStatus.toString() ?? 'Unknown';
 
   List<SettingsListItem> items;
 }

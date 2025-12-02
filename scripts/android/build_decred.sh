@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 CW_DECRED_DIR=$(realpath ../..)/cw_decred
 LIBWALLET_PATH="${PWD}/decred/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
-LIBWALLET_VERSION="dba5327d35cb5d5d1ff113b780869deee154511f"
+LIBWALLET_VERSION="05f8d7374999400fe4d525eb365c39b77d307b14"
 
 if [[ -e $LIBWALLET_PATH ]]; then
     rm -fr $LIBWALLET_PATH || true
@@ -69,6 +69,7 @@ do
         rm -fr ./build
     fi
 
+    export CGO_LDFLAGS="-O2 -g -s -w -Wl,-z,max-page-size=16384"
 	CLANG_PATH="${NDK_BIN_PATH}/${TRIPLET}${ANDROID_API_VERSION}-clang"
     CGO_ENABLED=1 GOOS=android GOARCH=${TARGET} CC=${CLANG_PATH} CXX=${CLANG_PATH}++ \
         go build -v -buildmode=c-shared -o ./build/${TRIPLET}-libdcrwallet.so ./cgo

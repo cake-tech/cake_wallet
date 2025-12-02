@@ -78,6 +78,7 @@ abstract class WalletKitServiceBase with Store {
         description: 'Cake Wallet',
         url: 'https://cakewallet.com',
         icons: ['https://cakewallet.com/assets/image/cake_logo.png'],
+        redirect: Redirect(native: 'cakewallet://'),
       ),
     );
 
@@ -200,6 +201,13 @@ abstract class WalletKitServiceBase with Store {
                   data: [chainKeys.first.publicKey],
                 ),
               );
+            }
+          } on ReownSignError catch (e) {
+            if (e.code == 6) {
+              try {
+                await deletePairing(topic: session.pairingTopic);
+              } catch (_) {}
+              _refreshPairings();
             }
           } catch (_) {}
         }

@@ -1,11 +1,40 @@
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/sync_status.dart';
 
-String syncStatusTitle(SyncStatus syncStatus) {
+String syncStatusTitle(SyncStatus syncStatus, SyncStatusDisplayMode syncStatusDisplayMode) {
   if (syncStatus is SyncingSyncStatus) {
-    return syncStatus.blocksLeft == 1
-        ? S.current.block_remaining
-        : S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+    // Show blocks remaining for the first 3 seconds, then switch to percentage
+    if (syncStatus.shouldShowBlocksRemaining()) {
+      if (syncStatus.blocksLeft == 1) {
+        return S.current.block_remaining;
+      }
+      return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+    }
+
+    // After 3 seconds, show percentage-based display
+    // Don't show ETA for very few blocks (less than 100) to avoid inconsistency
+    if (syncStatus.blocksLeft < 100) {
+      return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+    }
+
+    if (syncStatus.blocksLeft == 1) {
+      return S.current.block_remaining;
+    }
+
+    // Check user preference for sync status display
+    if (syncStatusDisplayMode == SyncStatusDisplayMode.eta) {
+      // Get ETA with placeholder while gathering data
+      String eta = syncStatus.getFormattedEtaWithPlaceholder() ?? '';
+
+      if (eta.isEmpty) {
+        return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+      } else {
+        return "${syncStatus.formattedProgress()} - ${S.current.eta} $eta";
+      }
+    } else {
+      return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+    }
   }
 
   if (syncStatus is SyncedTipSyncStatus) {

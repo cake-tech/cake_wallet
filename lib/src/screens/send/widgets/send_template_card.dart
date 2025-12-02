@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/template_view_model.dart';
@@ -8,7 +7,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
@@ -16,11 +14,12 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:mobx/mobx.dart';
 
 class SendTemplateCard extends StatelessWidget {
-  SendTemplateCard(
-      {super.key,
-      required this.template,
-      required this.index,
-      required this.sendTemplateViewModel});
+  SendTemplateCard({
+    super.key,
+    required this.template,
+    required this.index,
+    required this.sendTemplateViewModel,
+  });
 
   final TemplateViewModel template;
   final int index;
@@ -41,74 +40,77 @@ class SendTemplateCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-          borderRadius:
-              BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-          gradient: LinearGradient(colors: [
-            Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-            Theme.of(context).extension<SendPageTheme>()!.secondGradientColor
-          ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+        color: Theme.of(context).colorScheme.surfaceContainer,
+      ),
       child: Column(
         children: <Widget>[
           Padding(
             padding: EdgeInsets.fromLTRB(24, 90, 24, 32),
             child: Column(
               children: <Widget>[
+                SizedBox(height: 32),
                 if (index == 0)
                   BaseTextFormField(
-                      controller: _nameController,
-                      hintText: sendTemplateViewModel.recipients.length > 1
-                          ? S.of(context).template_name
-                          : S.of(context).send_name,
-                      borderColor:
-                          Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                      textStyle:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
-                      placeholderTextStyle: TextStyle(
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
+                    contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    hasUnderlineBorder: true,
+                    controller: _nameController,
+                    hintText: sendTemplateViewModel.recipients.length > 1
+                        ? S.of(context).template_name
+                        : S.of(context).send_name,
+                    textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.w500,
-                          fontSize: 14),
-                      validator: sendTemplateViewModel.templateValidator),
+                        ),
+                    placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                    validator: sendTemplateViewModel.templateValidator,
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  ),
                 Padding(
                   padding: EdgeInsets.only(top: 20),
-                  child: Observer(builder: (context) {
-                    return AddressTextField(
-                      selectedCurrency: template.selectedCurrency,
-                      controller: _addressController,
-                      onURIScanned: (uri) {
-                        final paymentRequest = PaymentRequest.fromUri(uri);
-                        _addressController.text = paymentRequest.address;
-                        _cryptoAmountController.text = paymentRequest.amount;
-                      },
-                      options: [
-                        AddressTextFieldOption.paste,
-                        AddressTextFieldOption.qrCode,
-                        AddressTextFieldOption.addressBook
-                      ],
-                      onPushPasteButton: (context) async {
-                        template.output.resetParsedAddress();
-                        await template.output.fetchParsedAddress(context);
-                      },
-                      onPushAddressBookButton: (context) async {
-                        template.output.resetParsedAddress();
-                        await template.output.fetchParsedAddress(context);
-                      },
-                      buttonColor:
-                          Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-                      borderColor:
-                          Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                      textStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                      hintStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
-                      ),
-                      validator: sendTemplateViewModel.addressValidator,
-                    );
-                  }),
+                  child: Observer(
+                    builder: (context) {
+                      return AddressTextField(
+                        hasUnderlineBorder: true,
+                        contentPadding: EdgeInsets.symmetric(vertical: 8),
+                        selectedCurrency: template.selectedCurrency,
+                        controller: _addressController,
+                        onURIScanned: (uri) {
+                          final paymentRequest = PaymentRequest.fromUri(uri);
+                          _addressController.text = paymentRequest.address;
+                          _cryptoAmountController.text = paymentRequest.amount;
+                        },
+                        options: [
+                          AddressTextFieldOption.paste,
+                          AddressTextFieldOption.qrCode,
+                          AddressTextFieldOption.addressBook
+                        ],
+                        onPushPasteButton: (context) async {
+                          template.output.resetParsedAddress();
+                          await template.output.fetchParsedAddress(context);
+                        },
+                        onPushAddressBookButton: (context) async {
+                          template.output.resetParsedAddress();
+                          await template.output.fetchParsedAddress(context);
+                        },
+                        buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                        hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                        validator: sendTemplateViewModel.addressValidator,
+                        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      );
+                    },
+                  ),
                 ),
                 Focus(
                   onFocusChange: (hasFocus) {
@@ -117,19 +119,23 @@ class SendTemplateCard extends StatelessWidget {
                   child: Column(
                     children: [
                       Observer(
-                          builder: (context) => CurrencyAmountTextField(
-                              selectedCurrency: template.selectedCurrency.title,
-                              amountFocusNode: _cryptoAmountFocus,
-                              amountController: _cryptoAmountController,
-                              isSelected: template.isCryptoSelected,
-                              tag: template.selectedCurrency.tag,
-                              isPickerEnable: sendTemplateViewModel.hasMultipleTokens,
-                              onTapPicker: () => _presentPicker(context),
-                              currencyValueValidator: sendTemplateViewModel.amountValidator,
-                              isAmountEditable: true)),
-                      Divider(
-                          height: 1,
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor)
+                        builder: (context) => CurrencyAmountTextField(
+                          hasUnderlineBorder: true,
+                          borderWidth: 0.0,
+                          selectedCurrency: template.selectedCurrency.title,
+                          selectedCurrencyDecimals: template.selectedCurrency.decimals,
+                          amountFocusNode: _cryptoAmountFocus,
+                          amountController: _cryptoAmountController,
+                          isSelected: template.isCryptoSelected,
+                          tag: template.selectedCurrency.tag,
+                          isPickerEnable: sendTemplateViewModel.hasMultipleTokens,
+                          onTapPicker: () => _presentPicker(context),
+                          currencyValueValidator: sendTemplateViewModel.amountValidator,
+                          isAmountEditable: true,
+                          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        ),
+                      ),
+                      Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
                     ],
                   ),
                 ),
@@ -140,16 +146,20 @@ class SendTemplateCard extends StatelessWidget {
                   child: Column(
                     children: [
                       Observer(
-                          builder: (context) => CurrencyAmountTextField(
-                              selectedCurrency: sendTemplateViewModel.fiatCurrency,
-                              amountFocusNode: _fiatAmountFocus,
-                              amountController: _fiatAmountController,
-                              isSelected: !template.isCryptoSelected,
-                              hintText: '0.00',
-                              isAmountEditable: true)),
-                      Divider(
-                          height: 1,
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor)
+                        builder: (context) => CurrencyAmountTextField(
+                          hasUnderlineBorder: true,
+                          borderWidth: 0.0,
+                          selectedCurrency: sendTemplateViewModel.fiatCurrency,
+                          selectedCurrencyDecimals: sendTemplateViewModel.fiatCurrencyDecimals,
+                          amountFocusNode: _fiatAmountFocus,
+                          amountController: _fiatAmountController,
+                          isSelected: !template.isCryptoSelected,
+                          hintText: '0.00',
+                          isAmountEditable: true,
+                          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        ),
+                      ),
+                      Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
                     ],
                   ),
                 ),

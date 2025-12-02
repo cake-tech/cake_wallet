@@ -29,7 +29,10 @@ class PendingNanoTransaction with PendingTransaction {
   }
 
   @override
-  String get feeFormatted => "0";
+  String get feeFormatted => "$feeFormattedValue XNO";
+
+  @override
+  String get feeFormattedValue => "0";
 
   @override
   Future<void> commit() async {
@@ -39,7 +42,7 @@ class PendingNanoTransaction with PendingTransaction {
   }
   
   @override
-  Future<String?> commitUR() {
+  Future<Map<String, String>> commitUR() {
     throw UnimplementedError();
   }
 }

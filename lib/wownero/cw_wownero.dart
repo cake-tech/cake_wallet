@@ -315,9 +315,8 @@ class CWWownero extends Wownero {
   }
 
   @override
-  WalletService createWowneroWalletService(
-          Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) =>
-      WowneroWalletService(walletInfoSource, unspentCoinSource);
+  WalletService createWowneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
+      WowneroWalletService(unspentCoinSource);
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
@@ -365,5 +364,21 @@ class CWWownero extends Wownero {
   @override
   Map<String, List<int>> debugCallLength() {
     return wownero_wallet_api.debugCallLength();
+  }
+
+  @override
+  Future<void> backupSeeds(Box<HavenSeedStore> havenSeedStore) async {
+    final wallets = await WalletInfo.selectList('type = ?', [WalletType.wownero.index]);
+    final unspentCoinsInfo = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+    for (final w in wallets) {
+      final walletService = WowneroWalletService(unspentCoinsInfo);
+      final flutterSecureStorage = secureStorageShared;
+      final keyService = KeyService(flutterSecureStorage);
+      final password = await keyService.getWalletPassword(walletName: w.name);
+      final wallet = await walletService.openWallet(w.name, password);
+      await havenSeedStore.add(HavenSeedStore(id: wallet.id, seed: wallet.seed));
+      wallet.close();
+    }
+    await havenSeedStore.flush();
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class ActionButton extends StatelessWidget {
   ActionButton({
@@ -22,6 +21,11 @@ class ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
       onPressed: () {
         if (route?.isNotEmpty ?? false) {
           Navigator.of(context, rootNavigator: true).pushNamed(route!);
@@ -29,33 +33,32 @@ class ActionButton extends StatelessWidget {
           onClick?.call();
         }
       },
-      child: Container(
-        color: Colors.transparent,
-        padding: EdgeInsets.only(top: 5, bottom: 4, left: 0, right: 0),
-        alignment: alignment,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          //mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle),
-              child: image,
-            ),
-            SizedBox(height: 4),
-            Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.visible,
-              style: TextStyle(
-                  fontSize: 9,
-                  color: textColor ??
-                      Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor),
-              textAlign: TextAlign.center,
-            )
-          ],
+      child: SizedBox.expand(
+        child: Container(
+          color: Colors.transparent,
+          alignment: alignment,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              image,
+              const SizedBox(height: 4),
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.fade,
+                  softWrap: false,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: textColor ??
+                            Theme.of(context).colorScheme.onSurface,
+                      ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

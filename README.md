@@ -1,10 +1,8 @@
 <div align="center">
 
-![logo](.github/assets/Logo_CakeWallet.png)
+![logo](.github/assets/cake-wallet-gh-header-2.svg)
 
 </div>
-
-![devices](.github/assets/devices.png)
 
 <div align="center">
 
@@ -27,6 +25,8 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Litecoin (LTC)
 * Bitcoin Cash (BCH)
 * Polygon (POL)
+* Base (BASE)
+* Arbitrum (ARB)
 * Solana (SOL)
 * Tron (TRX)
 * Nano (XNO)
@@ -74,7 +74,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 
 ### Ethereum Specific Features
 
-* Store ETH and all ERc-20 tokens
+* Store ETH and all ERC-20 tokens
 * Add custom tokens by contract address
 * Enable or disable Etherscan for transaction history
 

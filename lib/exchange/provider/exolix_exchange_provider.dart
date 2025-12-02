@@ -9,14 +9,16 @@ import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ExolixExchangeProvider extends ExchangeProvider {
   ExolixExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
-  static final apiKey = secrets.exolixApiKey;
+  static final apiKey = isMoneroOnly ? secrets.exolixMoneroApiKey : secrets.exolixCakeWalletApiKey;
   static const apiBaseUrl = 'exolix.com';
   static const transactionsPath = '/api/v2/transactions';
   static const ratePath = '/api/v2/rate';
@@ -86,8 +88,9 @@ class ExolixExchangeProvider extends ExchangeProvider {
     // Maximum of 2 attempts to fetch limits
     for (int i = 0; i < 2; i++) {
       final uri = Uri.https(apiBaseUrl, ratePath, params);
-      final response = await get(uri);
-
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
+      
       if (response.statusCode == 200) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final minAmount = responseJSON['minAmount'];
@@ -109,12 +112,13 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -133,16 +137,68 @@ class ExolixExchangeProvider extends ExchangeProvider {
         params['amount'] = amount.toString();
 
       final uri = Uri.https(apiBaseUrl, ratePath, params);
-      final response = await get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 200) {
         final message = responseJSON['message'] as String?;
+        
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception(message ?? 'Unknown error'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+            'params': params,
+            'url': uri.toString(),
+          },
+        );
+        
         throw Exception(message);
       }
 
-      return responseJSON['rate'] as double;
-    } catch (e) {
+      final rate = responseJSON['rate'] as double;
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'params': params,
+          'url': uri.toString(),
+        },
+        responseData: {
+          'rate': rate,
+          'statusCode': response.statusCode,
+          'responseJSON': responseJSON,
+        },
+      );
+
+      return rate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       printV(e.toString());
       return 0.0;
     }
@@ -172,17 +228,61 @@ class ExolixExchangeProvider extends ExchangeProvider {
       body['amount'] = request.fromAmount;
 
     final uri = Uri.https(apiBaseUrl, transactionsPath);
-    final response = await post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
+    
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final errors = responseJSON['errors'] as Map<String, String>;
       final errorMessage = errors.values.join(', ');
+      
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: Exception(errorMessage),
+        stackTrace: StackTrace.current,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'body': body,
+          'url': uri.toString(),
+        },
+      );
+      
       throw Exception(errorMessage);
     }
 
-    if (response.statusCode != 200 && response.statusCode != 201)
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: Exception('Unexpected http status: ${response.statusCode}'),
+        stackTrace: StackTrace.current,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'body': body,
+          'url': uri.toString(),
+        },
+      );
       throw Exception('Unexpected http status: ${response.statusCode}');
+    }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
@@ -192,6 +292,34 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final payoutAddress = responseJSON['withdrawalAddress'] as String;
     final amount = responseJSON['amount'].toString();
     final receiveAmount = responseJSON['amountTo']?.toString();
+
+    ExchangeProviderLogger.logSuccess(
+      provider: description,
+      function: 'createTrade',
+      requestData: {
+        'from': request.fromCurrency.title,
+        'to': request.toCurrency.title,
+        'fromAmount': request.fromAmount,
+        'toAmount': request.toAmount,
+        'toAddress': request.toAddress,
+        'refundAddress': request.refundAddress,
+        'isFixedRateMode': isFixedRateMode,
+        'isSendAll': isSendAll,
+        'body': body,
+        'url': uri.toString(),
+      },
+      responseData: {
+        'id': id,
+        'inputAddress': inputAddress,
+        'refundAddress': refundAddress,
+        'extraId': extraId,
+        'payoutAddress': payoutAddress,
+        'amount': amount,
+        'receiveAmount': receiveAmount,
+        'statusCode': response.statusCode,
+        'responseJSON': responseJSON,
+      },
+    );
 
     return Trade(
       id: id,
@@ -206,6 +334,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       receiveAmount: receiveAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       isSendAll: isSendAll,
     );
   }
@@ -214,8 +344,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     final findTradeByIdPath = '$transactionsPath/$id';
     final uri = Uri.https(apiBaseUrl, findTradeByIdPath);
-    final response = await get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
     if (response.statusCode == 404) throw TradeNotFoundException(id, provider: description);
 
     if (response.statusCode == 400) {
@@ -230,8 +360,19 @@ class ExolixExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected http status: ${response.statusCode}');
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+    // Parsing 'from' currency
     final coinFrom = responseJSON['coinFrom']['coinCode'] as String;
+    final coinFromNetwork = responseJSON['coinFrom']['network'] as String?;
+    final fromTag = coinFrom == coinFromNetwork ? null : coinFromNetwork;
+    final from = CryptoCurrency.safeParseCurrencyFromString(coinFrom, tag: fromTag);
+
+    // Parsing 'to' currency
     final coinTo = responseJSON['coinTo']['coinCode'] as String;
+    final coinToNetwork = responseJSON['coinTo']['network'] as String?;
+    final toTag = coinTo == coinToNetwork ? null : coinToNetwork;
+    final to = CryptoCurrency.safeParseCurrencyFromString(coinTo, tag: toTag);
+
     final inputAddress = responseJSON['depositAddress'] as String;
     final amount = responseJSON['amount'].toString();
     final status = responseJSON['status'] as String;
@@ -241,15 +382,18 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     return Trade(
         id: id,
-        from: CryptoCurrency.fromString(coinFrom),
-        to: CryptoCurrency.fromString(coinTo),
+        from: from,
+        to: to,
         provider: description,
         inputAddress: inputAddress,
         amount: amount,
         state: TradeState.deserialize(raw: _prepareStatus(status)),
         extraId: extraId,
         outputTransaction: outputTransaction,
-        payoutAddress: payoutAddress);
+        payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '${coinFrom.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
+      userCurrencyToRaw: '${coinTo.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
+    );
   }
 
   String _getRateType(bool isFixedRate) => isFixedRate ? 'fixed' : 'float';

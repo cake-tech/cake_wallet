@@ -1,0 +1,12 @@
+-
+  uri: arbitrum.nownodes.io
+  is_default: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: arbitrum.drpc.org
+  useSSL: true
+-
+  uri: arbitrum-one-rpc.publicnode.com
+  useSSL: true
+  isEnabledForAutoSwitching: true

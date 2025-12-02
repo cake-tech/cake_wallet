@@ -3,6 +3,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -25,7 +26,8 @@ abstract class AppStoreBase with Store {
       {required this.authenticationStore,
       required this.walletList,
       required this.settingsStore,
-      required this.nodeListStore});
+      required this.nodeListStore,
+      required this.themeStore});
 
   AuthenticationStore authenticationStore;
 
@@ -37,6 +39,8 @@ abstract class AppStoreBase with Store {
   SettingsStore settingsStore;
 
   NodeListStore nodeListStore;
+
+  ThemeStore themeStore;
 
   @action
   Future<void> changeCurrentWallet(
@@ -51,8 +55,8 @@ abstract class AppStoreBase with Store {
       getIt.get<WalletKitService>().create();
       await getIt.get<WalletKitService>().init();
     }
-    getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
-    getIt
+    await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
+    await getIt
         .get<SharedPreferences>()
         .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
   }

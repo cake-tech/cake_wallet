@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +24,11 @@ class RestoreFromBackupPage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
-  };
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget body(BuildContext context) {
@@ -52,7 +53,7 @@ class RestoreFromBackupPage extends BasePage {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
         child: Padding(
-          padding: EdgeInsets.only(bottom: 24, left: 24, right: 24),
+          padding: EdgeInsets.only(bottom: 24, left: 8, right: 8),
           child: Column(
             children: [
               Expanded(
@@ -61,15 +62,17 @@ class RestoreFromBackupPage extends BasePage {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        TextFormField(
+                        BaseTextFormField(
                           obscureText: true,
                           enableSuggestions: false,
                           autocorrect: false,
-                          decoration:
-                              InputDecoration(hintText: S.of(context).enter_backup_password),
+                          hintText: S.of(context).enter_backup_password,
                           keyboardType: TextInputType.visiblePassword,
                           controller: textEditingController,
-                          style: TextStyle(fontSize: 26, color: Colors.black),
+                          textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                fontSize: 26,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                         ),
                         Observer(
                           builder: (_) {
@@ -81,22 +84,20 @@ class RestoreFromBackupPage extends BasePage {
                                     children: [
                                       Text(
                                         "File Name: ",
-                                        style: TextStyle(
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Lato',
-                                          color: titleColor(context),
-                                        ),
+                                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
+                                              color: titleColor(context),
+                                            ),
                                       ),
                                       Expanded(
                                         child: Text(
                                           restoreFromBackupViewModel.filePath.split("/").last,
-                                          style: TextStyle(
-                                            fontSize: 18.0,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'Lato',
-                                            color: titleColor(context),
-                                          ),
+                                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                                fontSize: 18.0,
+                                                fontWeight: FontWeight.bold,
+                                                color: titleColor(context),
+                                              ),
                                         ),
                                       ),
                                     ],
@@ -120,8 +121,8 @@ class RestoreFromBackupPage extends BasePage {
                       child: PrimaryButton(
                         onPressed: () => presentFilePicker(),
                         text: S.of(context).select_backup_file,
-                        color: Colors.grey,
-                        textColor: Colors.white,
+                        color: Theme.of(context).colorScheme.error,
+                        textColor: Theme.of(context).colorScheme.onError,
                       ),
                     ),
                     SizedBox(width: 20),
@@ -129,11 +130,12 @@ class RestoreFromBackupPage extends BasePage {
                       child: Observer(
                         builder: (_) {
                           return LoadingPrimaryButton(
-                              isLoading: restoreFromBackupViewModel.state is IsExecutingState,
-                              onPressed: () => onImportHandler(context),
-                              text: S.of(context).import,
-                              color: Theme.of(context).primaryColor,
-                              textColor: Colors.white);
+                            isLoading: restoreFromBackupViewModel.state is IsExecutingState,
+                            onPressed: () => onImportHandler(context),
+                            text: S.of(context).import,
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
+                          );
                         },
                       ),
                     ),
@@ -171,8 +173,19 @@ class RestoreFromBackupPage extends BasePage {
 
       return;
     }
-
-    await restoreFromBackupViewModel.import(textEditingController.text);
+    try {
+      await restoreFromBackupViewModel.import(textEditingController.text);
+    } catch (e) {
+      await showPopUp<void>(
+        context: context,
+        builder: (_) {
+          return AlertWithOneAction(
+              alertTitle: S.current.error,
+              alertContent: e.toString(),
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop());
+        });
+    }
     textEditingController.text = '';
   }
 }

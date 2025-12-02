@@ -25,7 +25,7 @@ import 'package:cw_solana/solana_transaction_history.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/solana_wallet_addresses.dart';
-import 'package:cw_solana/spl_token.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -43,6 +43,7 @@ abstract class SolanaWalletBase
     with Store, WalletKeysFile {
   SolanaWalletBase({
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     String? mnemonic,
     String? privateKey,
     required String password,
@@ -57,7 +58,7 @@ abstract class SolanaWalletBase
         walletAddresses = SolanaWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, SolanaBalance>.of(
             {CryptoCurrency.sol: initialBalance ?? SolanaBalance(BigInt.zero.toDouble())}),
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = SolanaTransactionHistory(
       walletInfo: walletInfo,
@@ -225,8 +226,12 @@ abstract class SolanaWalletBase
 
     await _updateBalance();
 
-    final CryptoCurrency transactionCurrency =
-        balance.keys.firstWhere((element) => element.title == solCredentials.currency.title);
+    final transactionCurrency = balance.keys.firstWhere(
+            (currency) =>
+        currency.title == credentials.currency.title &&
+            currency.tag == credentials.currency.tag,
+        orElse: () => throw Exception(
+            'Currency ${credentials.currency.title} ${credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
@@ -292,6 +297,14 @@ abstract class SolanaWalletBase
   @override
   Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async => {};
 
+  @override
+  Future<void> updateTransactionsHistory() async {
+    await Future.wait([
+      _updateNativeSOLTransactions(),
+      _updateSPLTokenTransactions(),
+    ]);
+  }
+
   void updateTransactions(List<SolanaTransactionModel> updatedTx) {
     _addTransactionsToTransactionHistory(updatedTx);
   }
@@ -306,27 +319,36 @@ abstract class SolanaWalletBase
 
   /// Fetches the SPL Tokens transactions linked to the token account Public Key
   Future<void> _updateSPLTokenTransactions() async {
-    // List<SolanaTransactionModel> splTokenTransactions = [];
+    final tokens = balance.keys.whereType<SPLToken>().toList(growable: false);
+    if (tokens.isEmpty) return;
 
-    // Make a copy of keys to avoid concurrent modification
-    var tokenKeys = List<CryptoCurrency>.from(balance.keys);
+    const int batchSize = 5;
 
-    for (var token in tokenKeys) {
-      if (token is SPLToken) {
-        final tokenTxs = await _client.getSPLTokenTransfers(
-          mintAddress: token.mintAddress,
-          splTokenSymbol: token.symbol,
-          splTokenDecimal: token.decimal,
-          privateKey: _solanaPrivateKey,
-          onUpdate: updateTransactions,
-        );
+    for (var i = 0; i < tokens.length; i += batchSize) {
+      final batch = tokens.sublist(
+        i,
+        i + batchSize > tokens.length ? tokens.length : i + batchSize,
+      );
+      final results = await Future.wait(
+        batch.map((token) async {
+          try {
+            return await _client.getSPLTokenTransfers(
+              mintAddress: token.mintAddress,
+              splTokenSymbol: token.symbol,
+              splTokenDecimal: token.decimal,
+              privateKey: _solanaPrivateKey,
+              onUpdate: updateTransactions,
+            );
+          } catch (_) {
+            return <SolanaTransactionModel>[];
+          }
+        }),
+      );
 
-        // splTokenTransactions.addAll(tokenTxs);
-        await _addTransactionsToTransactionHistory(tokenTxs);
+      for (final list in results) {
+        await _addTransactionsToTransactionHistory(list);
       }
     }
-
-    // await _addTransactionsToTransactionHistory(splTokenTransactions);
   }
 
   Future<void> _addTransactionsToTransactionHistory(
@@ -376,6 +398,13 @@ abstract class SolanaWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
+
+      // Verify node health before attempting to sync
+      final isHealthy = await checkNodeHealth();
+      if (!isHealthy) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
 
       await Future.wait([
         _updateBalance(),
@@ -434,8 +463,11 @@ abstract class SolanaWalletBase
       );
     }
 
+    final derivationInfo = await walletInfo.getDerivationInfo();
+
     return SolanaWallet(
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       password: password,
       passphrase: keysData.passphrase,
       mnemonic: keysData.mnemonic,
@@ -458,18 +490,37 @@ abstract class SolanaWalletBase
   }
 
   Future<void> _fetchSPLTokensBalances() async {
-    for (var token in splTokensBox.values) {
-      if (token.enabled) {
+    // Remove disabled tokens first to keep state clean
+    for (var token in splTokensBox.values.where((t) => !t.enabled)) {
+      balance.remove(token);
+    }
+
+    final enabledTokens = splTokensBox.values.where((t) => t.enabled).toList(growable: false);
+    if (enabledTokens.isEmpty) return;
+
+    const int batchSize = 5;
+
+    for (var i = 0; i < enabledTokens.length; i += batchSize) {
+      final batch = enabledTokens.sublist(
+        i,
+        i + batchSize > enabledTokens.length ? enabledTokens.length : i + batchSize,
+      );
+
+      final results = await Future.wait(batch.map((token) async {
         try {
-          final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, solanaAddress) ??
-              balance[token] ??
-              SolanaBalance(0.0);
-          balance[token] = tokenBalance;
+          final fetched = await _client.getSplTokenBalance(token.mintAddress, solanaAddress);
+          return MapEntry(token, fetched);
         } catch (e) {
           printV('Error fetching spl token (${token.symbol}) balance ${e.toString()}');
+          return MapEntry<SPLToken, SolanaBalance?>(token, null);
         }
-      } else {
-        balance.remove(token);
+      }));
+
+      for (final entry in results) {
+        final token = entry.key;
+        final fetchedBalance = entry.value;
+        final currentBalance = balance[token] ?? SolanaBalance(0.0);
+        balance[token] = fetchedBalance ?? currentBalance;
       }
     }
   }
@@ -477,13 +528,36 @@ abstract class SolanaWalletBase
   @override
   Future<void>? updateBalance() async => await _updateBalance();
 
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check native balance
+      await _client.getBalance(solanaAddress, throwOnError: true);
+
+      // Check USDC token balance
+      const usdcMintAddress = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+      await _client.getSplTokenBalance(usdcMintAddress, solanaAddress, throwOnError: true);
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   List<SPLToken> get splTokenCurrencies => splTokensBox.values.toList();
 
   void addInitialTokens() {
     final initialSPLTokens = DefaultSPLTokens().initialSPLTokens;
 
     for (var token in initialSPLTokens) {
-      splTokensBox.put(token.mintAddress, token);
+      if (!splTokensBox.containsKey(token.mintAddress)) {
+        splTokensBox.put(token.mintAddress, token);
+      } else {
+        // update existing token
+        final existingToken = splTokensBox.get(token.mintAddress);
+        splTokensBox.put(
+            token.mintAddress, SPLToken.copyWith(token, enabled: existingToken!.enabled));
+      }
     }
   }
 
@@ -554,6 +628,7 @@ abstract class SolanaWalletBase
       _updateBalance();
       _updateNativeSOLTransactions();
       _updateSPLTokenTransactions();
+      _getEstimatedFees();
     });
   }
 
@@ -563,9 +638,9 @@ abstract class SolanaWalletBase
     final messageBytes = utf8.encode(message);
 
     // Sign the message bytes with the wallet's private key
-    final signature = (_solanaPrivateKey.sign(messageBytes)).toString();
+    final signature = (_solanaPrivateKey.sign(messageBytes));
 
-    return HEX.encode(utf8.encode(signature)).toUpperCase();
+    return Base58Encoder.encode(signature);
   }
 
   List<List<int>> bytesFromSigString(String signatureString) {

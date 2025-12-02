@@ -1,7 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -58,7 +57,7 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
   @override
   Widget content(BuildContext context) {
     return Card(
-      color: Theme.of(context).dialogBackgroundColor,
+      color: Theme.of(context).colorScheme.surface,
       elevation: 0.0,
       margin: EdgeInsets.zero,
       child: Column(
@@ -70,47 +69,37 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           SizedBox(height: 16),
-          TextField(
+          BaseTextFormField(
             controller: controller,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-            ),
-            decoration: InputDecoration(
-              suffixIcon: Container(
-                width: 24,
-                height: 24,
-                padding: EdgeInsets.only(top: 0),
-                child: Semantics(
-                  label: S.of(context).paste,
-                  child: InkWell(
-                    onTap: () => _pasteWalletConnectURI(),
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(6)),
-                      ),
-                      child: Image.asset(
-                        'assets/images/paste_ios.png',
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      ),
+            textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+            suffixIcon: Container(
+              width: 24,
+              height: 24,
+              padding: EdgeInsets.only(top: 0),
+              child: Semantics(
+                label: S.of(context).paste,
+                child: InkWell(
+                  onTap: () => _pasteWalletConnectURI(),
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(6)),
+                    ),
+                    child: Image.asset(
+                      'assets/images/paste_ios.png',
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
               ),
-              hintText: S.current.enterWalletConnectURI,
-              border: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                ),
-              ),
-              hintStyle: TextStyle(
-                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-              ),
             ),
+            hintText: S.current.enterWalletConnectURI,
+            placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),
@@ -123,7 +112,7 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
       width: 300,
       height: 52,
       padding: EdgeInsets.only(left: 12, right: 12),
-      color: Theme.of(context).dialogBackgroundColor,
+      color: Theme.of(context).colorScheme.surface,
       child: ButtonTheme(
         minWidth: double.infinity,
         child: TextButton(
@@ -133,12 +122,12 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
           child: Text(
             S.current.confirm,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).primaryColor,
-              decoration: TextDecoration.none,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.primary,
+                  decoration: TextDecoration.none,
+                ),
           ),
         ),
       ),

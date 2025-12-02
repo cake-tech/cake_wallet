@@ -1,17 +1,25 @@
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/coins_info.dart';
-import 'package:monero/monero.dart' as monero;
 
 class MoneroUnspent extends Unspent {
-  static Future<MoneroUnspent> fromUnspent(String address, String hash, String keyImage, int value, bool isFrozen, bool isUnlocked) async {
+  static MoneroUnspent fromUnspent({
+    required String address,
+    required String hash,
+    required String keyImage,
+    required int value,
+    required bool isFrozen,
+    required bool isUnlocked,
+    required bool isSpent,
+  }) {
     return MoneroUnspent(
         address: address,
         hash: hash,
         keyImage: keyImage,
         value: value,
         isFrozen: isFrozen,
-        isUnlocked: isUnlocked);
+        isUnlocked: isUnlocked,
+        isSpent: isSpent);
   }
 
   MoneroUnspent(
@@ -20,7 +28,8 @@ class MoneroUnspent extends Unspent {
       required String keyImage,
       required int value,
       required bool isFrozen,
-      required this.isUnlocked})
+      required this.isUnlocked,
+      required this.isSpent})
       : super(address, hash, value, 0, keyImage) {
     _frozen = isFrozen;
   }
@@ -47,4 +56,18 @@ class MoneroUnspent extends Unspent {
   bool get isFrozen => _frozen;
 
   final bool isUnlocked;
+  final bool isSpent;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'address': address,
+      'hash': hash,
+      'keyImage': keyImage,
+      'value': value,
+      'isFrozen': isFrozen,
+      'isUnlocked': isUnlocked,
+      'isChange': isChange,
+      'isSpent': isSpent,
+    };
+  }
 }

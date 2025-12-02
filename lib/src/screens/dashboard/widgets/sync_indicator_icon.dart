@@ -1,19 +1,20 @@
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
+import 'package:flutter_svg/svg.dart';
 
 class SyncIndicatorIcon extends StatelessWidget {
   SyncIndicatorIcon(
       {this.boolMode = true,
       this.isSynced = false,
       this.value = waiting,
-      this.size = 6.0});
+      this.size = 6.0,
+      this.showTorIcon = false});
 
   final bool boolMode;
   final bool isSynced;
   final String value;
   final double size;
+  final bool showTorIcon;
 
   static const String waiting = 'waiting';
   static const String actionRequired = 'action required';
@@ -28,37 +29,39 @@ class SyncIndicatorIcon extends StatelessWidget {
     Color indicatorColor;
 
     if (boolMode) {
-      indicatorColor = isSynced
-          ? PaletteDark.brightGreen
-          : Theme.of(context).extension<SyncIndicatorTheme>()!.notSyncedIconColor;
+      indicatorColor = isSynced ? CustomThemeColors.syncGreen : CustomThemeColors.syncYellow;
     } else {
       switch (value.toLowerCase()) {
-        case waiting:
-          indicatorColor = Colors.red;
-          break;
         case actionRequired:
-          indicatorColor =
-              Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor;
+          indicatorColor = Theme.of(context).colorScheme.surfaceContainer;
           break;
         case created:
-          indicatorColor = PaletteDark.brightGreen;
-          break;
-        case fetching:
-          indicatorColor = Colors.red;
-          break;
         case finished:
         case success:
         case complete:
-          indicatorColor = PaletteDark.brightGreen;
+          indicatorColor = CustomThemeColors.syncGreen;
           break;
+        case waiting:
+        case fetching:
         default:
-          indicatorColor = Colors.red;
+          indicatorColor = Theme.of(context).colorScheme.errorContainer;
       }
     }
     return Container(
-        height: size,
-        width: size,
-        decoration:
-            BoxDecoration(shape: BoxShape.circle, color: indicatorColor));
+      height: size,
+      width: size,
+      decoration: showTorIcon
+          ? null
+          : BoxDecoration(
+              shape: BoxShape.circle,
+              color: indicatorColor,
+            ),
+      child: showTorIcon
+          ? SvgPicture.asset(
+              "assets/images/tor.svg",
+              color: indicatorColor,
+            )
+          : null,
+    );
   }
 }

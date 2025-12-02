@@ -10,6 +10,8 @@ import 'package:cake_wallet/utils/package_info.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 
 enum BackupVersion {
@@ -142,7 +144,7 @@ class BackupMetadata {
 }
 
 class BackupServiceV3 extends $BackupService {
-  BackupServiceV3(super.secureStorage, super.walletInfoSource, super.transactionDescriptionBox, super.keyService, super.sharedPreferences);
+  BackupServiceV3(super.secureStorage, super.transactionDescriptionBox, super.keyService, super.sharedPreferences);
 
   static BackupVersion get currentVersion => BackupVersion.v3;
 
@@ -177,7 +179,7 @@ class BackupServiceV3 extends $BackupService {
         final archive = ZipDecoder().decodeStream(inputStream);
         final metadataFile = archive.findFile('metadata.json');
         if (metadataFile == null) {
-          throw Exception('Invalid v3 backup: missing metadata.json');
+          return BackupVersion.unknown;
         }
         final metadataBytes = metadataFile.rawContent!.readBytes();
         final metadataString = utf8.decode(metadataBytes);
@@ -188,7 +190,7 @@ class BackupServiceV3 extends $BackupService {
         }
       }
 
-      throw Exception('Invalid backup file: unknown version');
+      return BackupVersion.unknown;
     } finally {
       raf.closeSync();
     }
@@ -305,12 +307,42 @@ class BackupServiceV3 extends $BackupService {
 
     // Continue importing the backup the old way
     await super.verifyWallets();
+    await verifyHardwareWallets(password);
     await super.importKeychainDumpV2(password);
     await super.importPreferencesDump();
     await super.importTransactionDescriptionDump();
 
     // Delete decrypted data file
     decryptedData.deleteSync();
+  }
+
+  Future<void> verifyHardwareWallets(String password,
+      {String keychainSalt = secrets.backupKeychainSalt}) async {
+    final appDir = await getAppDir();
+    final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
+    final decryptedKeychainDumpFileData = await decryptV2(
+        keychainDumpFile.readAsBytesSync(), '$keychainSalt$password');
+    final keychainJSON = json.decode(utf8.decode(decryptedKeychainDumpFileData))
+        as Map<String, dynamic>;
+    final keychainWalletsInfo = keychainJSON['wallets'] as List;
+
+    final expectedHardwareWallets = keychainWalletsInfo
+        .where((e) =>
+            (e as Map<String, dynamic>).containsKey("hardwareWalletType") &&
+            e["hardwareWalletType"] != null)
+        .toList();
+
+    for (final expectedHardwareWallet in expectedHardwareWallets) {
+      final info = expectedHardwareWallet as Map<String, dynamic>;
+      final actualWalletInfo = await WalletInfo.get(info['name'] as String, WalletType.values.firstWhere((e) => e.toString() == info['type'] as String));
+      if (actualWalletInfo != null &&
+          info["hardwareWalletType"] !=
+              actualWalletInfo.hardwareWalletType?.index) {
+        actualWalletInfo.hardwareWalletType =
+            HardwareWalletType.values[info["hardwareWalletType"] as int];
+        await actualWalletInfo.save();
+      }
+    }
   }
 
   Future<File> exportBackupFileV3(String password, {String nonce = secrets.backupSalt}) async {

@@ -17,24 +17,22 @@ import 'package:cake_wallet/src/widgets/adaptable_page_view.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/simple_checkbox.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -51,10 +49,14 @@ class SendPage extends BasePage {
   SendPage({
     required this.sendViewModel,
     required this.authService,
+    required this.paymentViewModel,
+    required this.walletSwitcherViewModel,
     this.initialPaymentRequest,
   }) : _formKey = GlobalKey<FormState>();
 
   final SendViewModel sendViewModel;
+  final PaymentViewModel paymentViewModel;
+  final WalletSwitcherViewModel walletSwitcherViewModel;
   final AuthService authService;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
@@ -87,11 +89,10 @@ class SendPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor(context),
+      color: Theme.of(context).colorScheme.primary,
       size: 16,
     );
-    final _closeButton =
-        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+    final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -105,7 +106,7 @@ class SendPage extends BasePage {
             label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+                overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? _closeButton : _backButton,
@@ -143,25 +144,29 @@ class SendPage extends BasePage {
   }
 
   @override
-  Widget trailing(context) => Observer(builder: (_) {
-        return sendViewModel.isBatchSending
-            ? TrailButton(
-                caption: S.of(context).remove,
-                onPressed: () {
-                  var pageToJump = (controller.page?.round() ?? 0) - 1;
-                  pageToJump = pageToJump > 0 ? pageToJump : 0;
-                  final output = _defineCurrentOutput();
-                  sendViewModel.removeOutput(output);
-                  controller.jumpToPage(pageToJump);
-                })
-            : TrailButton(
-                caption: S.of(context).clear,
-                onPressed: () {
-                  final output = _defineCurrentOutput();
-                  _formKey.currentState?.reset();
-                  output.reset();
-                });
-      });
+  Widget trailing(context) => Observer(
+        builder: (_) {
+          return sendViewModel.isBatchSending
+              ? TrailButton(
+                  caption: S.of(context).remove,
+                  onPressed: () {
+                    var pageToJump = (controller.page?.round() ?? 0) - 1;
+                    pageToJump = pageToJump > 0 ? pageToJump : 0;
+                    final output = _defineCurrentOutput();
+                    sendViewModel.removeOutput(output);
+                    controller.jumpToPage(pageToJump);
+                  },
+                )
+              : TrailButton(
+                  caption: S.of(context).clear,
+                  onPressed: () {
+                    final output = _defineCurrentOutput();
+                    _formKey.currentState?.reset();
+                    output.reset();
+                  },
+                );
+        },
+      );
 
   @override
   Widget body(BuildContext context) {
@@ -173,26 +178,38 @@ class SendPage extends BasePage {
       for (var output in sendViewModel.outputs) {
         var cryptoAmountFocus = FocusNode();
         var fiatAmountFocus = FocusNode();
-        sendCards.add(SendCard(
-          currentTheme: currentTheme,
-          key: output.key,
-          output: output,
-          sendViewModel: sendViewModel,
-          initialPaymentRequest: initialPaymentRequest,
-          cryptoAmountFocus: cryptoAmountFocus,
-          fiatAmountFocus: fiatAmountFocus,
-        ));
-        keyboardActions.add(KeyboardActionsItem(
-            focusNode: cryptoAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()]));
-        keyboardActions.add(KeyboardActionsItem(
-            focusNode: fiatAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()]));
+        sendCards.add(
+          SendCard(
+            currentTheme: currentTheme,
+            key: output.key,
+            output: output,
+            sendViewModel: sendViewModel,
+            paymentViewModel: paymentViewModel,
+            walletSwitcherViewModel: walletSwitcherViewModel,
+            initialPaymentRequest: initialPaymentRequest,
+            cryptoAmountFocus: cryptoAmountFocus,
+            fiatAmountFocus: fiatAmountFocus,
+          ),
+        );
+        keyboardActions.add(
+          KeyboardActionsItem(
+            focusNode: cryptoAmountFocus,
+            toolbarButtons: [(_) => KeyboardDoneButton()],
+          ),
+        );
+        keyboardActions.add(
+          KeyboardActionsItem(
+            focusNode: fiatAmountFocus,
+            toolbarButtons: [(_) => KeyboardDoneButton()],
+          ),
+        );
       }
       return Stack(
         children: [
           KeyboardActions(
             config: KeyboardActionsConfig(
               keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
-              keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+              keyboardBarColor: Theme.of(context).colorScheme.surface,
               nextFocus: false,
               actions: keyboardActions,
             ),
@@ -236,17 +253,18 @@ class SendPage extends BasePage {
                                           controller: controller,
                                           count: count,
                                           effect: ScrollingDotsEffect(
-                                              spacing: 6.0,
-                                              radius: 6.0,
-                                              dotWidth: 6.0,
-                                              dotHeight: 6.0,
-                                              dotColor: Theme.of(context)
-                                                  .extension<SendPageTheme>()!
-                                                  .indicatorDotColor,
-                                              activeDotColor: Theme.of(context)
-                                                  .extension<SendPageTheme>()!
-                                                  .templateBackgroundColor),
-                                        ))
+                                            spacing: 6.0,
+                                            radius: 6.0,
+                                            dotWidth: 6.0,
+                                            dotHeight: 6.0,
+                                            dotColor: Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withOpacity(0.4),
+                                            activeDotColor: Theme.of(context).colorScheme.primary,
+                                          ),
+                                        ),
+                                      )
                                     : Offstage();
                               },
                             ),
@@ -358,20 +376,6 @@ class SendPage extends BasePage {
                   bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
                   bottomSection: Column(
                     children: [
-                      if (sendViewModel.hasCurrecyChanger)
-                        Observer(
-                          builder: (_) => Padding(
-                            padding: EdgeInsets.only(bottom: 12),
-                            child: PrimaryButton(
-                              key: ValueKey('send_page_change_asset_button_key'),
-                              onPressed: () => presentCurrencyPicker(context),
-                              text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
-                              color: Colors.transparent,
-                              textColor:
-                                  Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
-                            ),
-                          ),
-                        ),
                       if (sendViewModel.sendTemplateViewModel.hasMultiRecipient)
                         Padding(
                             padding: EdgeInsets.only(bottom: 12),
@@ -385,12 +389,9 @@ class SendPage extends BasePage {
                               },
                               text: S.of(context).add_receiver,
                               color: Colors.transparent,
-                              textColor:
-                                  Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+                              textColor: Theme.of(context).colorScheme.onSurfaceVariant,
                               isDottedBorder: true,
-                              borderColor: Theme.of(context)
-                                  .extension<SendPageTheme>()!
-                                  .templateDottedBorderColor,
+                              borderColor: Theme.of(context).colorScheme.outline,
                             )),
                       Observer(
                         builder: (_) {
@@ -421,18 +422,21 @@ class SendPage extends BasePage {
                               }
 
                               if (sendViewModel.wallet.isHardwareWallet) {
-                                if (!sendViewModel.ledgerViewModel!.isConnected) {
+                                if (!sendViewModel.hardwareWalletViewModel!.isConnected) {
                                   await Navigator.of(context).pushNamed(Routes.connectDevices,
                                       arguments: ConnectDevicePageParams(
                                         walletType: sendViewModel.walletType,
+                                        hardwareWalletType:
+                                            sendViewModel.wallet.walletInfo.hardwareWalletType!,
                                         onConnectDevice: (BuildContext context, _) {
-                                          sendViewModel.ledgerViewModel!
-                                              .setLedger(sendViewModel.wallet);
+                                          sendViewModel.hardwareWalletViewModel!
+                                              .initWallet(sendViewModel.wallet);
                                           Navigator.of(context).pop();
                                         },
                                       ));
                                 } else {
-                                  sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                                  sendViewModel.hardwareWalletViewModel!
+                                      .initWallet(sendViewModel.wallet);
                                 }
                               }
 
@@ -443,7 +447,7 @@ class SendPage extends BasePage {
                                 }
                                 if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
                                   await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
-                                      arguments: 'export-outputs');
+                                      arguments: monero!.exportOutputsUR(sendViewModel.wallet));
                                   await Future.delayed(
                                       Duration(seconds: 1)); // wait for monero to refresh the state
                                 }
@@ -463,14 +467,14 @@ class SendPage extends BasePage {
                                 },
                               );
                             },
-                            text: S.of(context).send,
-                            color: Theme.of(context).primaryColor,
-                            textColor: Colors.white,
+                            text: _sendButtonText(context),
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
                             isLoading: sendViewModel.state is IsExecutingState ||
                                 sendViewModel.state is TransactionCommitting ||
                                 sendViewModel.state is IsAwaitingDeviceResponseState ||
                                 sendViewModel.state is LoadingTemplateExecutingState,
-                            isDisabled: !sendViewModel.isReadyForSend,
+                            isDisabled: !sendViewModel.isReadyForSend || sendViewModel.state is ExecutedSuccessfullyState,
                           );
                         },
                       )
@@ -507,19 +511,23 @@ class SendPage extends BasePage {
       }
 
       if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                    key: ValueKey('send_page_send_failure_dialog_key'),
-                    buttonKey: ValueKey('send_page_send_failure_dialog_button_key'),
-                    alertTitle: S.of(context).error,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
-        });
+                  key: ValueKey('send_page_send_failure_dialog_key'),
+                  buttonKey: ValueKey('send_page_send_failure_dialog_button_key'),
+                  alertTitle: S.of(context).error,
+                  alertContent: state.error,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop(),
+                );
+              },
+            );
+          },
+        );
       }
 
       if (state is IsExecutingState) {
@@ -555,9 +563,11 @@ class SendPage extends BasePage {
               isScrollControlled: true,
               builder: (BuildContext bottomSheetContext) {
                 return ConfirmSendingBottomSheet(
-                  key: ValueKey('send_page_confirm_sending_dialog_key'),
+                  key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
-                  currentTheme: currentTheme,
+                  accessibleNavigationModeSlideActionButtonText: S.of(bottomSheetContext).send,
+                  footerType: FooterType.slideActionButton,
+                  isSlideActionEnabled: sendViewModel.isReadyForSend,
                   walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,
@@ -570,7 +580,7 @@ class SendPage extends BasePage {
                   feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: sendViewModel.outputs,
-                  onSlideComplete: () async {
+                  onSlideActionComplete: () async {
                     Navigator.of(bottomSheetContext).pop(true);
                     sendViewModel.commitTransaction(context);
                   },
@@ -604,20 +614,42 @@ class SendPage extends BasePage {
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
-              return showContactSheet &&
-                      sendViewModel.ocpRequest == null
+              return showContactSheet && sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
-                      currentTheme: currentTheme,
-                      showDontAskMeCheckbox: true,
-                      onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
+                      footerType: FooterType.doubleActionButton,
                       titleText: S.of(bottomSheetContext).transaction_sent,
-                      contentImage: 'assets/images/contact_icon.svg',
-                      contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      contentImage: 'assets/images/contact.png',
+                      contentImageColor: Theme.of(context).colorScheme.onSurface,
                       content: S.of(bottomSheetContext).add_contact_to_address_book,
-                      isTwoAction: true,
-                      leftButtonText: 'No',
-                      rightButtonText: 'Yes',
-                      actionLeftButton: () {
+                      leftActionButtonKey:
+                          ValueKey('send_page_add_contact_bottom_sheet_no_button_key'),
+                      rightActionButtonKey:
+                          ValueKey('send_page_add_contact_bottom_sheet_yes_button_key'),
+                      bottomActionPanel: Padding(
+                        padding: const EdgeInsets.only(left: 34.0),
+                        child: Row(
+                          children: [
+                            SimpleCheckbox(
+                                onChanged: (value) =>
+                                    sendViewModel.setShowAddressBookPopup(!value)),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Don’t ask me next time',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontFamily: 'Lato',
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).textTheme.titleLarge!.color,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      doubleActionLeftButtonText: 'No',
+                      doubleActionRightButtonText: 'Yes',
+                      onLeftActionButtonPressed: () {
                         Navigator.of(bottomSheetContext).pop();
                         if (context.mounted) {
                           Navigator.of(context)
@@ -626,7 +658,7 @@ class SendPage extends BasePage {
                         RequestReviewHandler.requestReview();
                         newContactAddress = null;
                       },
-                      actionRightButton: () {
+                      onRightActionButtonPressed: () {
                         Navigator.of(bottomSheetContext).pop();
                         RequestReviewHandler.requestReview();
                         if (context.mounted) {
@@ -637,12 +669,12 @@ class SendPage extends BasePage {
                       },
                     )
                   : InfoBottomSheet(
-                      currentTheme: currentTheme,
+                      footerType: FooterType.singleActionButton,
                       titleText: S.of(bottomSheetContext).transaction_sent,
-                      contentImage: 'assets/images/birthday_cake.svg',
-                      actionButtonText: S.of(bottomSheetContext).close,
-                      actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
-                      actionButton: () {
+                      contentImage: 'assets/images/birthday_cake.png',
+                      singleActionButtonText: S.of(bottomSheetContext).close,
+                      singleActionButtonKey: ValueKey('send_page_transaction_sent_button_key'),
+                      onSingleActionButtonPressed: () {
                         Navigator.of(bottomSheetContext).pop();
                         Future.delayed(Duration.zero, () {
                           if (context.mounted) {
@@ -674,27 +706,43 @@ class SendPage extends BasePage {
         });
       }
 
-      if (state is IsAwaitingDeviceResponseState) {
+      if (state is IsDeviceSigningResponseState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) return;
 
           showModalBottomSheet<void>(
             context: context,
             isDismissible: false,
-            builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
-              currentTheme: currentTheme,
-              titleText: S.of(bottomSheetContext).proceed_on_device,
-              contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
-              contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-              content: S.of(bottomSheetContext).proceed_on_device_description,
-              isTwoAction: false,
-              actionButtonText: S.of(context).cancel,
-              actionButton: () {
-                sendViewModel.state = InitialExecutionState();
-                Navigator.of(bottomSheetContext).pop();
-              },
-            ),
+            builder: (context) {
+              dialogContext = context;
+              return LoadingBottomSheet(titleText: S.of(context).processing_signed_tx);
+            },
           );
+        });
+      }
+
+      if (state is IsAwaitingDeviceResponseState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+
+          showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (context) {
+                dialogContext = context;
+                return InfoBottomSheet(
+                  footerType: FooterType.singleActionButton,
+                  titleText: S.of(context).proceed_on_device,
+                  contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
+                  contentImageColor: Theme.of(context).colorScheme.onSurface,
+                  content: S.of(context).proceed_on_device_description,
+                  singleActionButtonText: S.of(context).cancel,
+                  onSingleActionButtonPressed: () {
+                    sendViewModel.state = InitialExecutionState();
+                    Navigator.of(context).pop();
+                  },
+                );
+              });
         });
       }
     });
@@ -741,24 +789,11 @@ class SendPage extends BasePage {
         });
   }
 
-  void presentCurrencyPicker(BuildContext context) async {
-    await showPopUp<CryptoCurrency>(
-        builder: (_) => Picker(
-              items: sendViewModel.currencies,
-              displayItem: (Object item) => item.toString(),
-              selectedAtIndex:
-                  sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
-              title: S.of(context).please_select,
-              mainAxisAlignment: MainAxisAlignment.center,
-              onItemSelected: (CryptoCurrency cur) => sendViewModel.selectedCryptoCurrency = cur,
-            ),
-        context: context);
-  }
-
   bool isRegularElectrumAddress(String address) {
     final supportedTypes = [CryptoCurrency.btc, CryptoCurrency.ltc, CryptoCurrency.bch];
     final excludedPatterns = [
-      RegExp(AddressValidator.silentPaymentAddressPattern),
+      RegExp(AddressValidator.silentPaymentAddressPatternMainnet),
+      RegExp(AddressValidator.silentPaymentAddressPatternTestnet),
       RegExp(AddressValidator.mWebAddressPattern)
     ];
 
@@ -783,5 +818,16 @@ class SendPage extends BasePage {
     }
 
     return isValid;
+  }
+
+  String _sendButtonText(BuildContext context) {
+    if (!sendViewModel.isReadyForSend) {
+      return S.of(context).synchronizing;
+    }
+    if (sendViewModel.payjoinUri != null) {
+      return S.of(context).send_payjoin;
+    } else {
+      return S.of(context).send;
+    }
   }
 }

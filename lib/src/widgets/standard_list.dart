@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:flutter/material.dart';
@@ -22,16 +21,15 @@ class StandardListRow extends StatelessWidget {
     final leading = buildLeading(context);
     final trailing = buildTrailing(context);
     return Container(
-        height: 56,
-        padding: EdgeInsets.only(left: 12, right: 12),
+      height: 56,
+      padding: EdgeInsets.only(left: 12, right: 12),
       child: TextButton(
         onPressed: () => onTap?.call(context),
         style: ButtonStyle(
-          //backgroundColor: MaterialStateProperty.all(Theme.of(context).cardColor),
-          shape: MaterialStateProperty.all(
+          //backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.surfaceContainer),
+          shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)
-              ),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
             ),
           ),
         ),
@@ -58,11 +56,10 @@ class StandardListRow extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-                color: titleColor(context),
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: titleColor(context),
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
+                  ),
             ),
           )
         ],
@@ -72,9 +69,8 @@ class StandardListRow extends StatelessWidget {
 
   Widget? buildTrailing(BuildContext context) => null;
 
-  Color titleColor(BuildContext context) => isSelected
-      ? Theme.of(context).primaryColor
-      : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
+  Color titleColor(BuildContext context) =>
+      isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface;
 }
 
 class SectionHeaderListRow extends StatelessWidget {
@@ -84,7 +80,7 @@ class SectionHeaderListRow extends StatelessWidget {
         Container(
           width: double.infinity,
           height: 40,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
         ),
         //StandardListSeparator(padding: EdgeInsets.only(left: 24))
       ]);

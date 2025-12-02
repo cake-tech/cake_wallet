@@ -12,18 +12,13 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import '../../../../themes/extensions/cake_text_theme.dart';
-import '../../../../themes/extensions/transaction_trade_theme.dart';
-import '../../../../themes/theme_base.dart';
 
 class ExchangeTradeCardItemWidget extends StatelessWidget {
   ExchangeTradeCardItemWidget({
     required this.isReceiveDetailsCard,
     required this.exchangeTradeViewModel,
-    required this.currentTheme,
     Key? key,
   })  : feesViewModel = exchangeTradeViewModel.feesViewModel,
         output = exchangeTradeViewModel.output;
@@ -32,7 +27,6 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
   final bool isReceiveDetailsCard;
   final FeesViewModel feesViewModel;
   final ExchangeTradeViewModel exchangeTradeViewModel;
-  final ThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +34,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
       'assets/images/copy_content.png',
       height: 16,
       width: 16,
-      color: Theme.of(context).extension<SendPageTheme>()!.estimatedFeeColor,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
 
     return Container(
@@ -54,7 +48,6 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
               .where((item) => item.isReceiveDetail == isReceiveDetailsCard)
               .map(
                 (item) => TradeItemRowWidget(
-                  currentTheme: currentTheme,
                   title: item.title,
                   value: item.data,
                   isCopied: item.isCopied,
@@ -67,7 +60,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
               FeeSelectionWidget(
                 feesViewModel: feesViewModel,
                 output: output,
-                onTap: () => pickTransactionPriority(context),
+                onTap: () => pickTransactionPriority(context, output),
               ),
             if (exchangeTradeViewModel.sendViewModel.hasCoinControl)
               CoinControlWidget(
@@ -82,7 +75,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
     );
   }
 
-  Future<void> pickTransactionPriority(BuildContext context) async {
+  Future<void> pickTransactionPriority(BuildContext context, Output output) async {
     final items = priorityForWalletType(feesViewModel.walletType);
     final selectedItem = items.indexOf(feesViewModel.transactionPriority);
     final customItemIndex = feesViewModel.getCustomPriorityIndex(items);
@@ -109,10 +102,10 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               sliderValue: customFeeRate,
               onSliderChanged: (double newValue) => setState(() => customFeeRate = newValue),
-              onItemSelected: (TransactionPriority priority) {
+              onItemSelected: (TransactionPriority priority) async {
                 feesViewModel.setTransactionPriority(priority);
                 setState(() => selectedIdx = items.indexOf(priority));
-
+                await output.calculateEstimatedFee();
                 if (feesViewModel.isLowFee) {
                   _showFeeAlert(context);
                 }
@@ -154,27 +147,17 @@ class TradeItemRowWidget extends StatelessWidget {
   final String value;
   final bool isCopied;
   final Image copyImage;
-  final ThemeBase currentTheme;
 
   const TradeItemRowWidget({
     required this.title,
     required this.value,
     required this.isCopied,
     required this.copyImage,
-    required this.currentTheme,
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-
-    final hintTextColor = currentTheme == ThemeType.bright
-        ? Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor
-        : Colors.white.withAlpha(175);
-
-    final mainTextColor = currentTheme == ThemeType.bright
-        ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
-        : Colors.white;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: GestureDetector(
@@ -189,8 +172,8 @@ class TradeItemRowWidget extends StatelessWidget {
           value: value,
           image: isCopied ? copyImage : null,
           color: Colors.transparent,
-          hintTextColor: hintTextColor,
-          mainTextColor: mainTextColor,
+          hintTextColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          mainTextColor: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );
@@ -222,11 +205,10 @@ class FeeSelectionWidget extends StatelessWidget {
             children: <Widget>[
               Text(
                 S.of(context).send_estimated_fee,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,23 +218,20 @@ class FeeSelectionWidget extends StatelessWidget {
                     children: [
                       Text(
                         '${output.estimatedFee} ${feesViewModel.currency}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                       ),
                       if (!feesViewModel.isFiatDisabled)
                         Padding(
                           padding: EdgeInsets.only(top: 5),
                           child: Text(
                             '${output.estimatedFeeFiatAmount} ${feesViewModel.fiat.title}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color:
-                                  Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                           ),
                         ),
                     ],
@@ -262,7 +241,7 @@ class FeeSelectionWidget extends StatelessWidget {
                     child: Icon(
                       Icons.arrow_forward_ios,
                       size: 12,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -293,16 +272,15 @@ class CoinControlWidget extends StatelessWidget {
           children: [
             Text(
               S.of(context).coin_control,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
             Icon(
               Icons.arrow_forward_ios,
               size: 12,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ],
         ),

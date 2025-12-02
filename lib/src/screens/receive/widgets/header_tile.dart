@@ -1,5 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -31,72 +31,60 @@ class _HeaderTileState extends State<HeaderTile> {
 
   @override
   Widget build(BuildContext context) {
-    final searchIcon = Icon( Icons.search,
-        color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor);
+    final searchIcon = Icon(Icons.search, color: Theme.of(context).colorScheme.primary);
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      color: Theme.of(context).extension<ReceivePageTheme>()!.tilesBackgroundColor,
+      color: Theme.of(context).colorScheme.surface,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           _isSearchActive
               ? Expanded(
-                  child: TextField(
+                  child: BaseTextFormField(
                     onChanged: (value) {
                       widget.walletAddressListViewModel.updateSearchText(value);
                       widget.onSearchCallback?.call();
                     },
-                    cursorColor: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
+                    cursorColor: Theme.of(context).colorScheme.onSurface,
                     cursorWidth: 0.5,
-                    decoration: InputDecoration(
-                      hintText: '${S.of(context).search}...',
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      hintStyle: TextStyle(
+                    isDense: true,
+                    hintText: '${S.of(context).search}...',
+                    contentPadding: EdgeInsets.all(4),
+                    placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor),
-                      border: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Theme.of(context).dividerColor),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Theme.of(context).dividerColor),
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Theme.of(context).dividerColor),
-                      ),
-                    ),
+                        ),
                     autofocus: true,
                   ),
                 )
               : Text(
                   widget.title,
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
           Row(
             children: [
               if (widget.showSearchButton)
                 GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isSearchActive = !_isSearchActive;
-                        widget.walletAddressListViewModel.updateSearchText('');
-                      });
-                    },
-                    child: Container(
-                      height: 32,
-                      width: 32,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context)
-                              .extension<ReceivePageTheme>()!
-                              .iconsBackgroundColor),
-                      child: searchIcon,
-                    )),
+                  onTap: () {
+                    setState(() {
+                      _isSearchActive = !_isSearchActive;
+                      widget.walletAddressListViewModel.updateSearchText('');
+                    });
+                  },
+                  child: Container(
+                    height: 32,
+                    width: 32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                    ),
+                    child: searchIcon,
+                  ),
+                ),
               const SizedBox(width: 8),
               if (widget.showTrailingButton)
                 GestureDetector(
@@ -105,9 +93,9 @@ class _HeaderTileState extends State<HeaderTile> {
                     height: 32,
                     width: 32,
                     decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color:
-                            Theme.of(context).extension<ReceivePageTheme>()!.iconsBackgroundColor),
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                    ),
                     child: widget.trailingIcon,
                   ),
                 ),

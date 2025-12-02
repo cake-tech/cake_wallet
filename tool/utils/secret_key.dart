@@ -12,8 +12,8 @@ class SecretKey {
     SecretKey('shortKey', () => hex.encode(encrypt.Key.fromSecureRandom(12).bytes)),
     SecretKey('backupSalt', () => hex.encode(encrypt.Key.fromSecureRandom(8).bytes)),
     SecretKey('backupKeychainSalt', () => hex.encode(encrypt.Key.fromSecureRandom(12).bytes)),
-    SecretKey('changeNowApiKey', () => ''),
-    SecretKey('changeNowApiKeyDesktop', () => ''),
+    SecretKey('changeNowCakeWalletApiKey', () => ''),
+    SecretKey('changeNowMoneroApiKey', () => ''),
     SecretKey('wyreSecretKey', () => ''),
     SecretKey('wyreApiKey', () => ''),
     SecretKey('wyreAccountId', () => ''),
@@ -26,12 +26,14 @@ class SecretKey {
     SecretKey('onramperApiKey', () => ''),
     SecretKey('ioniaClientId', () => ''),
     SecretKey('trocadorApiKey', () => ''),
+    SecretKey('trocadorMoneroApiKey', () => ''),
     SecretKey('trocadorExchangeMarkup', () => ''),
     SecretKey('twitterBearerToken', () => ''),
     SecretKey('anonPayReferralCode', () => ''),
     SecretKey('fiatApiKey', () => ''),
     SecretKey('chatwootWebsiteToken', () => ''),
-    SecretKey('exolixApiKey', () => ''),
+    SecretKey('exolixCakeWalletApiKey', () => ''),
+    SecretKey('exolixMoneroApiKey', () => ''),
     SecretKey('robinhoodApplicationId', () => ''),
     SecretKey('exchangeHelperApiKey', () => ''),
     SecretKey('walletConnectProjectId', () => ''),
@@ -53,8 +55,9 @@ class SecretKey {
     SecretKey('litecoinTestWalletSeeds', () => ''),
     SecretKey('bitcoinCashTestWalletSeeds', () => ''),
     SecretKey('polygonTestWalletSeeds', () => ''),
+    SecretKey('baseTestWalletSeeds', () => ''),
+    SecretKey('arbitrumTestWalletSeeds', () => ''),
     SecretKey('solanaTestWalletSeeds', () => ''),
-    SecretKey('polygonTestWalletSeeds', () => ''),
     SecretKey('tronTestWalletSeeds', () => ''),
     SecretKey('nanoTestWalletSeeds', () => ''),
     SecretKey('wowneroTestWalletSeeds', () => ''),
@@ -64,6 +67,8 @@ class SecretKey {
     SecretKey('litecoinTestWalletReceiveAddress', () => ''),
     SecretKey('bitcoinCashTestWalletReceiveAddress', () => ''),
     SecretKey('polygonTestWalletReceiveAddress', () => ''),
+    SecretKey('baseTestWalletReceiveAddress', () => ''),
+    SecretKey('arbitrumTestWalletReceiveAddress', () => ''),
     SecretKey('solanaTestWalletReceiveAddress', () => ''),
     SecretKey('tronTestWalletReceiveAddress', () => ''),
     SecretKey('nanoTestWalletReceiveAddress', () => ''),
@@ -79,6 +84,7 @@ class SecretKey {
     SecretKey('chainflipAffiliateFee', () => ''),
     SecretKey('kryptonimApiKey', () => ''),
     SecretKey('walletGroupSalt', () => hex.encode(encrypt.Key.fromSecureRandom(16).bytes)),
+    SecretKey('swapsXyzApiKey', () => ''),
   ];
 
   static final evmChainsSecrets = [
@@ -92,6 +98,7 @@ class SecretKey {
     SecretKey('ankrApiKey', () => ''),
     SecretKey('nowNodesApiKey', () => ''),
     SecretKey('chainStackApiKey', () => ''),
+    SecretKey('moralisApiKey', () => ''),
   ];
 
   static final nanoSecrets = [

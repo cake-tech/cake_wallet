@@ -5,8 +5,8 @@ class CWTron extends Tron {
   List<String> getTronWordList(String language) => EVMChainMnemonics.englishWordlist;
 
   @override
-  WalletService createTronWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      TronWalletService(walletInfoSource, client: TronClient(), isDirect: isDirect);
+  WalletService createTronWalletService(bool isDirect) =>
+      TronWalletService(client: TronClient(), isDirect: isDirect);
 
   @override
   WalletCredentials createTronNewWalletCredentials({
@@ -137,5 +137,11 @@ class CWTron extends Tron {
   @override
   List<String> getDefaultTokenContractAddresses() {
     return DefaultTronTokens().initialTronTokens.map((e) => e.contractAddress).toList();
+  }
+
+  @override
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
+    final tronWallet = wallet as TronWallet;
+    return tronWallet.tronTokenCurrencies.any((element) => element.contractAddress == contractAddress);
   }
 }

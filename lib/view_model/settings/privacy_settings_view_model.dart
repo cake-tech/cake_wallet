@@ -1,9 +1,13 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
+import 'package:cake_wallet/base/base.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -32,20 +36,19 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setAutoGenerateSubaddresses(bool value) {
     _wallet.isEnabledAutoGenerateSubaddress = value;
-    if (value) {
-      _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.enabled;
-    } else {
-      _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.disabled;
-    }
+    _settingsStore.autoGenerateSubaddressStatus =
+        value ? AutoGenerateSubaddressStatus.enabled : AutoGenerateSubaddressStatus.disabled;
   }
 
-  bool get isAutoGenerateSubaddressesVisible =>
-      _wallet.type == WalletType.monero ||
-      _wallet.type == WalletType.wownero ||
-      _wallet.type == WalletType.bitcoin ||
-      _wallet.type == WalletType.litecoin ||
-      _wallet.type == WalletType.bitcoinCash ||
-      _wallet.type == WalletType.decred;
+  bool get isAutoGenerateSubaddressesVisible => [
+        WalletType.monero,
+        WalletType.wownero,
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+        WalletType.dogecoin,
+        WalletType.decred
+      ].contains(_wallet.type);
 
   bool get isMoneroWallet => _wallet.type == WalletType.monero;
 
@@ -62,6 +65,10 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get disableTradeOption => _settingsStore.disableTradeOption;
 
   @computed
+  bool get disableAutomaticExchangeStatusUpdates =>
+      _settingsStore.disableAutomaticExchangeStatusUpdates;
+
+  @computed
   bool get disableBulletin => _settingsStore.disableBulletin;
 
   @computed
@@ -69,6 +76,12 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @computed
   bool get usePolygonScan => _settingsStore.usePolygonScan;
+
+  @computed
+  bool get useBaseScan => _settingsStore.useBaseScan;
+
+  @computed
+  bool get useArbiScan => _settingsStore.useArbiScan;
 
   @computed
   bool get useTronGrid => _settingsStore.useTronGrid;
@@ -100,13 +113,22 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
 
+  @computed
+  bool get usePayjoin => _settingsStore.usePayjoin;
+
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
 
+  bool get canUseBaseScan => _wallet.type == WalletType.base;
+
+  bool get canUseArbiScan => _wallet.type == WalletType.arbitrum;
+
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
   bool get canUseMempoolFeeAPI => _wallet.type == WalletType.bitcoin;
+
+  bool get canUsePayjoin => _wallet.type == WalletType.bitcoin && DeviceInfo.instance.isMobile;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>
@@ -125,6 +147,10 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setDisableTradeOption(bool value) => _settingsStore.disableTradeOption = value;
 
   @action
+  void setDisableAutomaticExchangeStatusUpdates(bool value) =>
+      _settingsStore.disableAutomaticExchangeStatusUpdates = value;
+
+  @action
   void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
 
   @action
@@ -141,7 +167,7 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setLookupsWellKnown(bool value) => _settingsStore.lookupsWellKnown = value;
-  
+
   @action
   void setLookupsYatService(bool value) => _settingsStore.lookupsYatService = value;
 
@@ -164,13 +190,29 @@ abstract class PrivacySettingsViewModelBase with Store {
   }
 
   @action
+  void setUseBaseScan(bool value) {
+    _settingsStore.useBaseScan = value;
+    base!.updateBaseScanUsageState(_wallet, value);
+  }
+
+  @action
   void setUseTronGrid(bool value) {
     _settingsStore.useTronGrid = value;
     tron!.updateTronGridUsageState(_wallet, value);
   }
 
   @action
-  void setUseMempoolFeeAPI(bool value) {
-    _settingsStore.useMempoolFeeAPI = value;
+  void setUseArbiScan(bool value) {
+    _settingsStore.useArbiScan = value;
+    arbitrum!.updateArbitrumScanUsageState(_wallet, value);
+  }
+
+  @action
+  void setUseMempoolFeeAPI(bool value) => _settingsStore.useMempoolFeeAPI = value;
+
+  @action
+  void setUsePayjoin(bool value) {
+    _settingsStore.usePayjoin = value;
+    bitcoin!.updatePayjoinState(_wallet, value);
   }
 }

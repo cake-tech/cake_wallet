@@ -11,27 +11,30 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class RobinhoodBuyProvider extends BuyProvider {
-  RobinhoodBuyProvider(
-      {required WalletBase wallet, bool isTestEnvironment = false, LedgerViewModel? ledgerVM})
-      : super(
-      wallet: wallet,
-      isTestEnvironment: isTestEnvironment,
-      ledgerVM: ledgerVM,
-      supportedCryptoList: supportedCryptoToFiatPairs(
-          notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
-      supportedFiatList: supportedFiatToCryptoPairs(
-          notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
+  RobinhoodBuyProvider({
+    required WalletBase wallet,
+    bool isTestEnvironment = false,
+    HardwareWalletViewModel? hardwareWalletVM,
+  }) : super(
+          wallet: wallet,
+          isTestEnvironment: isTestEnvironment,
+          hardwareWalletVM: hardwareWalletVM,
+          supportedCryptoList: supportedCryptoToFiatPairs(
+              notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+          supportedFiatList: supportedFiatToCryptoPairs(
+              notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto),
+        );
 
   static const _baseUrl = 'applink.robinhood.com';
   static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
@@ -69,7 +72,8 @@ class RobinhoodBuyProvider extends BuyProvider {
     final uri = Uri.https(_apiBaseUrl, '$_assetsPath', {'applicationId': _applicationId});
 
     try {
-      final response = await http.get(uri, headers: {'accept': 'application/json'});
+      final response =
+          await ProxyWrapper().get(clearnetUri: uri, headers: {'accept': 'application/json'});
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -101,14 +105,24 @@ class RobinhoodBuyProvider extends BuyProvider {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
-        return await wallet.signMessage(message);
+      case WalletType.dogecoin:
+        return wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
-        return await wallet.signMessage(message, address: wallet.walletAddresses.address);
-      default:
+        return wallet.signMessage(message, address: wallet.walletAddresses.address);
+      case WalletType.monero:
+      case WalletType.none:
+      case WalletType.haven:
+      case WalletType.nano:
+      case WalletType.banano:
+      case WalletType.wownero:
+      case WalletType.zano:
+      case WalletType.decred:
         throw Exception("Wallet Type ${wallet.type.name} is not available for Robinhood");
     }
   }
@@ -122,10 +136,12 @@ class RobinhoodBuyProvider extends BuyProvider {
 
     final uri = Uri.https(_cIdBaseUrl, "/api/robinhood");
 
-    var response = await http.post(uri,
-        headers: {'Content-Type': 'application/json'},
-        body: json
-            .encode({'valid_until': valid_until, 'wallet': walletAddress, 'signature': signature}));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: {'Content-Type': 'application/json'},
+      body: json
+          .encode({'valid_until': valid_until, 'wallet': walletAddress, 'signature': signature}),
+    );
 
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['connectId'] as String;
@@ -155,16 +171,17 @@ class RobinhoodBuyProvider extends BuyProvider {
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
     if (wallet.isHardwareWallet) {
-      if (!ledgerVM!.isConnected) {
+      if (!hardwareWalletVM!.isConnected) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
                 walletType: wallet.walletInfo.type,
-                onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
-                  ledgerVM.setLedger(wallet);
+                hardwareWalletType: wallet.walletInfo.hardwareWalletType!,
+                onConnectDevice: (context, hwwVM) {
+                  hwwVM.initWallet(wallet);
                   Navigator.of(context).pop();
                 }));
       } else {
-        ledgerVM!.setLedger(wallet);
+        hardwareWalletVM!.initWallet(wallet);
       }
     }
 
@@ -173,14 +190,13 @@ class RobinhoodBuyProvider extends BuyProvider {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
       await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: "Robinhood Connect",
-                alertContent: e.toString(),
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
+        context: context,
+        builder: (context) => AlertWithOneAction(
+            alertTitle: "Robinhood Connect",
+            alertContent: '${S.of(context).buy_provider_unavailable}: $e',
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.of(context).pop()),
+      );
     }
   }
 
@@ -192,6 +208,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
+      String? customPaymentMethodType,
       String? countryCode}) async {
     String? paymentMethod;
 
@@ -218,7 +235,8 @@ class RobinhoodBuyProvider extends BuyProvider {
         Uri.https('api.robinhood.com', '/catpay/v1/${cryptoCurrency.title}/quote/', queryParams);
 
     try {
-      final response = await http.get(uri, headers: {'accept': 'application/json'});
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'accept': 'application/json'});
+      
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 200) {
@@ -267,7 +285,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       case 'bank_transfer':
         return PaymentType.bankTransfer;
       default:
-        return PaymentType.all;
+        return PaymentType.unknown;
     }
   }
 }

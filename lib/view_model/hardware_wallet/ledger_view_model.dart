@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
@@ -9,11 +10,13 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
-import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as sdk;
@@ -24,19 +27,14 @@ part 'ledger_view_model.g.dart';
 
 class LedgerViewModel = LedgerViewModelBase with _$LedgerViewModel;
 
-abstract class LedgerViewModelBase with Store {
-  // late final Ledger ledger;
+abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
   late final sdk.LedgerInterface ledgerPlusBLE;
   late final sdk.LedgerInterface ledgerPlusUSB;
 
   bool get _doesSupportHardwareWallets {
-    if (!DeviceInfo.instance.isMobile) {
-      return false;
-    }
-
     if (isMoneroOnly) {
       return DeviceConnectionType.supportedConnectionTypes(
-              WalletType.monero, Platform.isIOS)
+              WalletType.monero, HardwareWalletType.ledger, Platform.isIOS)
           .isNotEmpty;
     }
 
@@ -45,8 +43,8 @@ abstract class LedgerViewModelBase with Store {
 
   LedgerViewModelBase() {
     if (_doesSupportHardwareWallets) {
-      reaction((_) => bleIsEnabled, (_) {
-        if (bleIsEnabled) _initBLE();
+      reaction((_) => isBleEnabled, (_) {
+        if (isBleEnabled) _initBLE();
       });
       updateBleState();
 
@@ -56,15 +54,24 @@ abstract class LedgerViewModelBase with Store {
     }
   }
 
+  @override
+  HardwareWalletType get hardwareWalletType => HardwareWalletType.ledger;
+
+  @override
   @observable
-  bool bleIsEnabled = false;
+  bool isBleEnabled = false;
+
+  @override
+  bool get hasBluetooth => true;
 
   bool _bleIsInitialized = false;
 
   Future<void> _initBLE() async {
-    if (bleIsEnabled && !_bleIsInitialized) {
+    if (isBleEnabled && !_bleIsInitialized) {
       ledgerPlusBLE = sdk.LedgerInterface.ble(
         onPermissionRequest: (_) async {
+          if (Platform.isMacOS) return true;
+
           Map<Permission, PermissionStatus> statuses = await [
             Permission.bluetoothScan,
             Permission.bluetoothConnect,
@@ -79,24 +86,33 @@ abstract class LedgerViewModelBase with Store {
     }
   }
 
+  @override
   Future<void> updateBleState() async {
     final bleState = await sdk.UniversalBle.getBluetoothAvailabilityState();
 
     final newState = bleState == sdk.AvailabilityState.poweredOn;
 
-    if (newState != bleIsEnabled) bleIsEnabled = newState;
+    if (newState != isBleEnabled) isBleEnabled = newState;
   }
 
-  Stream<sdk.LedgerDevice> scanForBleDevices() => ledgerPlusBLE.scan();
+  @override
+  Stream<HardwareWalletDevice> scanForBleDevices() =>
+      ledgerPlusBLE.scan().map((d) => LedgerHardwareWalletDevice(d));
 
-  Stream<sdk.LedgerDevice> scanForUsbDevices() => ledgerPlusUSB.scan();
+  @override
+  Future<List<HardwareWalletDevice>> getAllUsbDevices() => ledgerPlusUSB.devices
+      .then((devices) => devices.map((d) => LedgerHardwareWalletDevice(d)).toList());
 
+  @override
   Future<void> stopScanning() async {
     if (_bleIsInitialized) await ledgerPlusBLE.stopScanning();
     if (!Platform.isIOS) await ledgerPlusUSB.stopScanning();
   }
 
-  Future<void> connectLedger(sdk.LedgerDevice device, WalletType type) async {
+  @override
+  Future<bool> connectDevice(HardwareWalletDevice device, WalletType type) async {
+    if (!(device is LedgerHardwareWalletDevice)) return false;
+    if (_isConnecting) return false;
     _isConnecting = true;
     _connectingWalletType = type;
     if (isConnected) {
@@ -105,22 +121,30 @@ abstract class LedgerViewModelBase with Store {
       } catch (_) {}
     }
 
-    final ledger = device.connectionType == sdk.ConnectionType.ble
+    final ledger = device.connectionType == HardwareWalletConnectionType.ble
         ? ledgerPlusBLE
         : ledgerPlusUSB;
 
     if (_connectionChangeSubscription == null) {
-      _connectionChangeSubscription =
-          ledger.deviceStateChanges.listen(_connectionChangeListener);
+      _connectionChangeSubscription = ledger
+          .deviceStateChanges
+          .listen(_connectionChangeListener);
     }
 
-    _connection = await ledger.connect(device);
+    try {
+      _connection = await ledger.connect(device.device);
+      _isConnecting = false;
+      return true;
+    } catch (e) {
+      printV(e);
+    }
     _isConnecting = false;
+    return false;
   }
 
   StreamSubscription<sdk.BleConnectionState>? _connectionChangeSubscription;
   sdk.LedgerConnection? _connection;
-  bool _isConnecting = true;
+  bool _isConnecting = false;
   WalletType? _connectingWalletType;
 
   void _connectionChangeListener(sdk.BleConnectionState event) {
@@ -134,6 +158,7 @@ abstract class LedgerViewModelBase with Store {
           Routes.connectDevices,
           arguments: ConnectDevicePageParams(
             walletType: WalletType.monero,
+            hardwareWalletType: HardwareWalletType.ledger,
             allowChangeWallet: true,
             isReconnect: true,
             onConnectDevice: (context, ledgerVM) async {
@@ -147,38 +172,63 @@ abstract class LedgerViewModelBase with Store {
     }
   }
 
+  @override
   bool get isConnected => _connection != null && !(_connection!.isDisconnected);
 
   sdk.LedgerConnection get connection => _connection!;
 
-  void setLedger(WalletBase wallet) {
+  @override
+  Future<void> initWallet(WalletBase wallet) async {
     switch (wallet.type) {
       case WalletType.monero:
         return monero!.setLedgerConnection(wallet, connection);
       case WalletType.bitcoin:
+        return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.litecoin:
-        return bitcoin!.setLedgerConnection(wallet, connection);
+        return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
-        return ethereum!.setLedgerConnection(wallet, connection);
+        return ethereum!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.polygon:
-        return polygon!.setLedgerConnection(wallet, connection);
+        return polygon!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }
   }
 
-  String? interpretErrorCode(String errorCode) {
-    switch (errorCode) {
-      case "6985":
-        return S.current.ledger_error_tx_rejected_by_user;
-      case "5515":
-        return S.current.ledger_error_device_locked;
-      case "6d02": // UNKNOWN_APDU
-      case "6511":
-      case "6e00":
-        return S.current.ledger_error_wrong_app;
+  @override
+  HardwareWalletService getHardwareWalletService(WalletType type) {
+    switch (type) {
+      case WalletType.bitcoin:
+        return bitcoin!.getLedgerHardwareWalletService(connection, true);
+      case WalletType.litecoin:
+        return bitcoin!.getLedgerHardwareWalletService(connection, false);
+      case WalletType.ethereum:
+        return ethereum!.getLedgerHardwareWalletService(connection);
+      case WalletType.polygon:
+        return polygon!.getLedgerHardwareWalletService(connection);
       default:
-        return null;
+        throw UnimplementedError();
     }
+  }
+
+
+  @override
+  String? interpretErrorCode(String error) {
+    if (error.contains("Make sure no other program is communicating with the Ledger")) {
+      return error;
+    }
+
+    var errorRegex = RegExp(r'(?:0x\S*?|[0-9a-f]{4})(?= )').firstMatch(error.toString());
+
+    String errorCode = errorRegex?.group(0).toString().replaceAll("0x", "") ?? "";
+    if (errorCode.contains("6985")) {
+      return S.current.ledger_error_tx_rejected_by_user;
+    } else if (errorCode.contains("5515")) {
+      return S.current.ledger_error_device_locked;
+    } else
+    if (["6e01", "6a87", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
+      return S.current.ledger_error_wrong_app;
+    }
+    return null;
   }
 }

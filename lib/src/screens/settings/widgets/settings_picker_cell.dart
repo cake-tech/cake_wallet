@@ -1,6 +1,5 @@
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 
@@ -55,11 +54,10 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
     return Text(
       displayItem?.call(selectedItem) ?? selectedItem.toString(),
       textAlign: TextAlign.right,
-      style: TextStyle(
-        fontSize: 14.0,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
-      ),
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
     );
   }
 }

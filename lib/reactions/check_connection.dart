@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/utils/tor.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -25,7 +26,7 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
     try {
       final connectivityResult = await (Connectivity().checkConnectivity());
 
-      if (connectivityResult == ConnectivityResult.none) {
+      if (connectivityResult.contains(ConnectivityResult.none)) {
         wallet.syncStatus = FailedSyncStatus();
         return;
       }
@@ -36,6 +37,10 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
         final alive = await settingsStore.getCurrentNode(wallet.type).requestNode();
 
         if (alive) {
+          if (settingsStore.currentBuiltinTor) {
+            await ensureTorStarted(context: null);
+          }
+      
           await wallet.connectToNode(node: settingsStore.getCurrentNode(wallet.type));
         }
       }

@@ -1,4 +1,7 @@
+import 'package:cake_wallet/arbitrum/arbitrum.dart';
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
@@ -32,12 +35,11 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   WalletNewVMBase(
     AppStore appStore,
     WalletCreationService walletCreationService,
-    Box<WalletInfo> walletInfoSource,
     this.advancedPrivacySettingsViewModel,
     SeedSettingsViewModel seedSettingsViewModel, {
     required this.newWalletArguments,
   })  : selectedMnemonicLanguage = '',
-        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+        super(appStore, walletCreationService, seedSettingsViewModel,
             type: newWalletArguments!.type, isRecovery: false);
 
   final NewWalletArguments? newWalletArguments;
@@ -89,8 +91,29 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           mnemonic: newWalletArguments!.mnemonic,
           passphrase: passphrase,
         );
+      case WalletType.base:
+        return base!.createBaseNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          mnemonic: newWalletArguments!.mnemonic,
+          passphrase: passphrase,
+        );
+      case WalletType.arbitrum:
+        return arbitrum!.createArbitrumNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          mnemonic: newWalletArguments!.mnemonic,
+          passphrase: passphrase,
+        );
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+          mnemonic: newWalletArguments!.mnemonic,
+        );
+      case WalletType.dogecoin:
+        return dogecoin!.createDogeCoinNewWalletCredentials(
           name: name,
           password: walletPassword,
           passphrase: passphrase,

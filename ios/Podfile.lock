@@ -1,4 +1,6 @@
 PODS:
+  - bitbox_flutter (0.0.1):
+    - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
   - CryptoSwift (1.8.4)
@@ -43,6 +45,7 @@ PODS:
   - DKPhotoGallery/Resource (0.0.19):
     - SDWebImage
     - SwiftyGif
+  - dnssec_proof (0.0.1)
   - fast_scanner (5.1.1):
     - Flutter
   - file_picker (0.0.1):
@@ -66,6 +69,8 @@ PODS:
     - Flutter
   - fluttertoast (0.0.2):
     - Flutter
+  - image_picker_ios (0.0.1):
+    - Flutter
   - in_app_review (2.0.0):
     - Flutter
   - integration_test (0.0.1):
@@ -76,14 +81,15 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - payjoin_flutter (0.23.0)
   - permission_handler_apple (9.3.0):
     - Flutter
   - reown_yttrium (0.0.1):
     - Flutter
     - YttriumWrapper (= 0.8.35)
-  - SDWebImage (5.20.0):
-    - SDWebImage/Core (= 5.20.0)
-  - SDWebImage/Core (5.20.0)
+  - SDWebImage (5.21.2):
+    - SDWebImage/Core (= 5.21.2)
+  - SDWebImage/Core (5.21.2)
   - sensitive_clipboard (0.0.1):
     - Flutter
   - share_plus (0.0.1):
@@ -93,7 +99,37 @@ PODS:
     - FlutterMacOS
   - sp_scanner (0.0.1):
     - Flutter
+  - sqflite_darwin (0.0.4):
+    - Flutter
+    - FlutterMacOS
+  - sqlite3 (3.50.4):
+    - sqlite3/common (= 3.50.4)
+  - sqlite3/common (3.50.4)
+  - sqlite3/dbstatvtab (3.50.4):
+    - sqlite3/common
+  - sqlite3/fts5 (3.50.4):
+    - sqlite3/common
+  - sqlite3/math (3.50.4):
+    - sqlite3/common
+  - sqlite3/perf-threadsafe (3.50.4):
+    - sqlite3/common
+  - sqlite3/rtree (3.50.4):
+    - sqlite3/common
+  - sqlite3/session (3.50.4):
+    - sqlite3/common
+  - sqlite3_flutter_libs (0.0.1):
+    - Flutter
+    - FlutterMacOS
+    - sqlite3 (~> 3.50.4)
+    - sqlite3/dbstatvtab
+    - sqlite3/fts5
+    - sqlite3/math
+    - sqlite3/perf-threadsafe
+    - sqlite3/rtree
+    - sqlite3/session
   - SwiftyGif (5.4.5)
+  - torch_dart (0.0.1):
+    - Flutter
   - uni_links (0.0.1):
     - Flutter
   - universal_ble (0.0.1):
@@ -106,6 +142,7 @@ PODS:
   - YttriumWrapper (0.8.35)
 
 DEPENDENCIES:
+  - bitbox_flutter (from `.symlinks/plugins/bitbox_flutter/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
   - cw_decred (from `.symlinks/plugins/cw_decred/ios`)
@@ -113,6 +150,7 @@ DEPENDENCIES:
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
+  - dnssec_proof (from `.symlinks/plugins/dnssec_proof/ios`)
   - fast_scanner (from `.symlinks/plugins/fast_scanner/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
@@ -122,16 +160,21 @@ DEPENDENCIES:
   - flutter_mailer (from `.symlinks/plugins/flutter_mailer/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - payjoin_flutter (from `.symlinks/plugins/payjoin_flutter/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - reown_yttrium (from `.symlinks/plugins/reown_yttrium/ios`)
   - sensitive_clipboard (from `.symlinks/plugins/sensitive_clipboard/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sp_scanner (from `.symlinks/plugins/sp_scanner/ios`)
+  - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
+  - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/darwin`)
+  - torch_dart (from `.symlinks/plugins/torch_dart/ios`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
   - universal_ble (from `.symlinks/plugins/universal_ble/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -144,10 +187,13 @@ SPEC REPOS:
     - DKPhotoGallery
     - OrderedSet
     - SDWebImage
+    - sqlite3
     - SwiftyGif
     - YttriumWrapper
 
 EXTERNAL SOURCES:
+  bitbox_flutter:
+    :path: ".symlinks/plugins/bitbox_flutter/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   cw_decred:
@@ -160,6 +206,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/device_info_plus/ios"
   devicelocale:
     :path: ".symlinks/plugins/devicelocale/ios"
+  dnssec_proof:
+    :path: ".symlinks/plugins/dnssec_proof/ios"
   fast_scanner:
     :path: ".symlinks/plugins/fast_scanner/ios"
   file_picker:
@@ -178,6 +226,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   fluttertoast:
     :path: ".symlinks/plugins/fluttertoast/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
   in_app_review:
     :path: ".symlinks/plugins/in_app_review/ios"
   integration_test:
@@ -186,6 +236,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  payjoin_flutter:
+    :path: ".symlinks/plugins/payjoin_flutter/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   reown_yttrium:
@@ -198,6 +250,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sp_scanner:
     :path: ".symlinks/plugins/sp_scanner/ios"
+  sqflite_darwin:
+    :path: ".symlinks/plugins/sqflite_darwin/darwin"
+  sqlite3_flutter_libs:
+    :path: ".symlinks/plugins/sqlite3_flutter_libs/darwin"
+  torch_dart:
+    :path: ".symlinks/plugins/torch_dart/ios"
   uni_links:
     :path: ".symlinks/plugins/uni_links/ios"
   universal_ble:
@@ -208,6 +266,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
+  bitbox_flutter: 506f80b961ddf646b0d80cef9f6eadaab96d91b0
   connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
   cw_decred: 9c0e1df74745b51a1289ec5e91fb9e24b68fa14a
@@ -217,6 +276,7 @@ SPEC CHECKSUMS:
   devicelocale: 35ba84dc7f45f527c3001535d8c8d104edd5d926
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
+  dnssec_proof: d461cac7bd3301eb7447f87936745a0c1ae0a67e
   fast_scanner: 44c00940355a51258cd6c2085734193cd23d95bc
   file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
@@ -226,19 +286,25 @@ SPEC CHECKSUMS:
   flutter_mailer: 2ef5a67087bc8c6c4cefd04a178bf1ae2c94cd83
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
   fluttertoast: 21eecd6935e7064cc1fcb733a4c5a428f3f24f0f
-  in_app_review: a31b5257259646ea78e0e35fc914979b0031d011
+  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
+  in_app_review: 436034b18594851a7328d7f1c2ed5ec235b79cfc
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  payjoin_flutter: d9d4c8aa16bd5dfedb9b21d0edc8199e0187d96e
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   reown_yttrium: c0e87e5965fa60a3559564cc35cffbba22976089
-  SDWebImage: 73c6079366fea25fa4bb9640d5fb58f0893facd8
+  SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a
   sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sp_scanner: eaa617fa827396b967116b7f1f43549ca62e9a12
+  sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
+  sqlite3: 73513155ec6979715d3904ef53a8d68892d4032b
+  sqlite3_flutter_libs: 86f82662868ee26ff3451f73cac9c5fc2a1f57fa
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
+  torch_dart: d2cf778332cc6e6a3b362dcf45e4dde52bc34e35
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   universal_ble: cf52a7b3fd2e7c14d6d7262e9fdadb72ab6b88a6
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe

@@ -4,7 +4,7 @@ import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_monero/api/account_list.dart' as account_list;
-import 'package:monero/monero.dart' as monero;
+import 'package:monero/src/monero.dart';
 
 part 'monero_account_list.g.dart';
 
@@ -50,32 +50,32 @@ abstract class MoneroAccountListBase with Store {
   List<Account> getAll() {
     final allAccounts = account_list.getAllAccount();
     final currentCount = allAccounts.length;
-    cachedAccounts[account_list.wptr!.address] ??= [];
+    cachedAccounts[account_list.currentWallet!.ffiAddress()] ??= [];
     
-    if (cachedAccounts[account_list.wptr!.address]!.length == currentCount) {
-      return cachedAccounts[account_list.wptr!.address]!;
+    if (cachedAccounts[account_list.currentWallet!.ffiAddress()]!.length == currentCount) {
+      return cachedAccounts[account_list.currentWallet!.ffiAddress()]!;
     }
     
-    cachedAccounts[account_list.wptr!.address] = allAccounts.map((accountRow) {
-        final balance = monero.SubaddressAccountRow_getUnlockedBalance(accountRow);
+    cachedAccounts[account_list.currentWallet!.ffiAddress()] = allAccounts.map((accountRow) {
+        final balance = accountRow.getUnlockedBalance();
 
         return Account(
-          id: monero.SubaddressAccountRow_getRowId(accountRow),
-          label: monero.SubaddressAccountRow_getLabel(accountRow),
-          balance: moneroAmountToString(amount: monero.Wallet_amountFromString(balance)),
+          id: accountRow.getRowId(),
+          label: accountRow.getLabel(),
+          balance: moneroAmountToString(amount: account_list.currentWallet!.amountFromString(balance)),
         );
       }).toList();
     
-    return cachedAccounts[account_list.wptr!.address]!;
+    return cachedAccounts[account_list.currentWallet!.ffiAddress()]!;
   }
 
-  Future<void> addAccount({required String label}) async {
-    await account_list.addAccount(label: label);
+  void addAccount({required String label}) {
+    account_list.addAccount(label: label);
     update();
   }
 
-  Future<void> setLabelAccount({required int accountIndex, required String label}) async {
-    await account_list.setLabelForAccount(accountIndex: accountIndex, label: label);
+  void setLabelAccount({required int accountIndex, required String label}) {
+    account_list.setLabelForAccount(accountIndex: accountIndex, label: label);
     update();
   }
 

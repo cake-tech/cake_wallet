@@ -39,6 +39,7 @@ abstract class NanoWalletBase
     with Store, WalletKeysFile {
   NanoWalletBase({
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required String mnemonic,
     required String password,
     NanoBalance? initialBalance,
@@ -47,7 +48,7 @@ abstract class NanoWalletBase
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
-        _derivationType = walletInfo.derivationInfo!.derivationType!,
+        _derivationType = derivationInfo.derivationType!,
         _isTransactionUpdating = false,
         _encryptionFileUtils = encryptionFileUtils,
         _client = NanoClient(),
@@ -56,7 +57,7 @@ abstract class NanoWalletBase
           CryptoCurrency.nano: initialBalance ??
               NanoBalance(currentBalance: BigInt.zero, receivableBalance: BigInt.zero)
         }),
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = NanoTransactionHistory(
       walletInfo: walletInfo,
@@ -261,6 +262,8 @@ abstract class NanoWalletBase
     }
   }
 
+  Future<void> updateTransactionsHistory() async => await updateTransactions();
+
   Future<bool> updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
@@ -431,11 +434,13 @@ abstract class NanoWalletBase
       derivationType = DerivationType.bip39;
     }
 
-    walletInfo.derivationInfo ??= DerivationInfo(derivationType: derivationType);
-    walletInfo.derivationInfo!.derivationType ??= derivationType;
+    final derivationInfo = await walletInfo.getDerivationInfo();
+    derivationInfo.derivationType ??= derivationType;
+    derivationInfo.save();
 
     return NanoWallet(
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       password: password,
       mnemonic: keysData.mnemonic!,
       initialBalance: balance,
@@ -518,7 +523,18 @@ abstract class NanoWalletBase
     return _client.getN2Reps();
   }
 
+  @override
   Future<void>? updateBalance() async => await _updateBalance();
+
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      await _client.getAccountInfo(_publicAddress!, throwOnError: true);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {

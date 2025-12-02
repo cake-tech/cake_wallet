@@ -6,7 +6,8 @@ import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
+import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -14,34 +15,35 @@ import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MoonPayProvider extends BuyProvider {
   MoonPayProvider({
-    required SettingsStore settingsStore,
+    required AppStore appStore,
     required WalletBase wallet,
     bool isTestEnvironment = false,
   })  : baseSellUrl = isTestEnvironment ? _baseSellTestUrl : _baseSellProductUrl,
         baseBuyUrl = isTestEnvironment ? _baseBuyTestUrl : _baseBuyProductUrl,
-        this._settingsStore = settingsStore,
+        this._appStore = appStore,
         super(
           wallet: wallet,
           isTestEnvironment: isTestEnvironment,
-          ledgerVM: null,
+          hardwareWalletVM: null,
           supportedCryptoList: supportedCryptoToFiatPairs(
               notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
           supportedFiatList: supportedFiatToCryptoPairs(
               notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
-  final SettingsStore _settingsStore;
+  final AppStore _appStore;
 
   static const _baseSellTestUrl = 'sell-sandbox.moonpay.com';
   static const _baseSellProductUrl = 'sell.moonpay.com';
@@ -86,14 +88,11 @@ class MoonPayProvider extends BuyProvider {
 
   static String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
 
-  static String themeToMoonPayTheme(ThemeBase theme) {
+  static String themeToMoonPayTheme(MaterialThemeBase theme) {
     switch (theme.type) {
-      case ThemeType.bright:
       case ThemeType.light:
         return 'light';
       case ThemeType.dark:
-        return 'dark';
-      case ThemeType.oled:
         return 'dark';
     }
   }
@@ -101,9 +100,12 @@ class MoonPayProvider extends BuyProvider {
   Future<String> getMoonpaySignature(String query) async {
     final uri = Uri.https(_cIdBaseUrl, "/api/moonpay");
 
-    final response = await post(uri,
-        headers: {'Content-Type': 'application/json', 'x-api-key': _exchangeHelperApiKey},
-        body: json.encode({'query': query}));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: {'Content-Type': 'application/json', 'x-api-key': _exchangeHelperApiKey},
+      body: json.encode({'query': query}),
+    );
+    
 
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['signature'] as String;
@@ -123,7 +125,11 @@ class MoonPayProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, path, params);
 
     try {
-      final response = await get(url, headers: {'accept': 'application/json'});
+      final response = await ProxyWrapper().get(
+        clearnetUri: url,
+        headers: {'accept': 'application/json'},
+      );
+      
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
@@ -162,6 +168,7 @@ class MoonPayProvider extends BuyProvider {
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
+      String? customPaymentMethodType,
       String? countryCode}) async {
     String? paymentMethod;
 
@@ -193,8 +200,8 @@ class MoonPayProvider extends BuyProvider {
     final path = '$_currenciesPath/$formattedCryptoCurrency$quotePath';
     final url = Uri.https(_baseUrl, path, params);
     try {
-      final response = await get(url);
-
+      final response = await ProxyWrapper().get(clearnetUri: url);
+      
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
 
@@ -236,9 +243,9 @@ class MoonPayProvider extends BuyProvider {
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
     final Map<String, String> params = {
-      'theme': themeToMoonPayTheme(_settingsStore.currentTheme),
-      'language': _settingsStore.languageCode,
-      'colorCode': _settingsStore.currentTheme.type == ThemeType.dark
+      'theme': themeToMoonPayTheme(_appStore.themeStore.currentTheme),
+      'language': _appStore.settingsStore.languageCode,
+      'colorCode': _appStore.themeStore.currentTheme.isDark
           ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
       'baseCurrencyCode': isBuyAction ? quote.fiatCurrency.name : quote.cryptoCurrency.name,
@@ -259,7 +266,6 @@ class MoonPayProvider extends BuyProvider {
     try {
       final uri = await requestMoonPayUrl(
           walletAddress: cryptoCurrencyAddress,
-          settingsStore: _settingsStore,
           isBuyAction: isBuyAction,
           amount: amount.toString(),
           params: params);
@@ -288,7 +294,6 @@ class MoonPayProvider extends BuyProvider {
 
   Future<Uri> requestMoonPayUrl({
     required String walletAddress,
-    required SettingsStore settingsStore,
     required bool isBuyAction,
     required Map<String, String> params,
     String? amount,
@@ -310,7 +315,8 @@ class MoonPayProvider extends BuyProvider {
   Future<Order> findOrderById(String id) async {
     final url = _apiUrl + _transactionsSuffix + '/$id' + '?apiKey=' + _apiKey;
     final uri = Uri.parse(url);
-    final response = await get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
 
     if (response.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Transaction $id is not found!');
@@ -325,7 +331,8 @@ class MoonPayProvider extends BuyProvider {
 
     return Order(
         id: id,
-        provider: BuyProviderDescription.moonPay,
+        source: OrderSourceDescription.buy,
+        buyProvider: BuyProviderDescription.moonPay,
         transferId: id,
         state: state,
         createdAt: createdAt,
@@ -410,7 +417,7 @@ class MoonPayProvider extends BuyProvider {
       case 'yellow_card_bank_transfer':
         return PaymentType.yellowCardBankTransfer;
       default:
-        return PaymentType.all;
+        return PaymentType.unknown;
     }
   }
 }

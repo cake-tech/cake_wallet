@@ -8,6 +8,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:path/path.dart';
 import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -17,9 +18,8 @@ class DecredWalletService extends WalletService<
     DecredRestoreWalletFromSeedCredentials,
     DecredRestoreWalletFromPubkeyCredentials,
     DecredRestoreWalletFromHardwareCredentials> {
-  DecredWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
+  DecredWalletService(this.unspentCoinsInfoSource);
 
-  final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final seedRestorePath = "m/44'/42'";
   static final seedRestorePathTestnet = "m/44'/1'";
@@ -57,47 +57,103 @@ class DecredWalletService extends WalletService<
   @override
   Future<DecredWallet> create(DecredNewWalletCredentials credentials, {bool? isTestnet}) async {
     await this.init();
+    final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
+    final network = isTestnet == true ? testnet : mainnet;
     final config = {
       "name": credentials.walletInfo!.name,
-      "datadir": credentials.walletInfo!.dirPath,
+      "datadir": dirPath,
       "pass": credentials.password!,
-      "net": isTestnet == true ? testnet : mainnet,
+      "net": network,
       "unsyncedaddrs": true,
     };
     await libwallet!.createWallet(jsonEncode(config));
-    final di = DerivationInfo(
-        derivationPath: isTestnet == true ? seedRestorePathTestnet : seedRestorePath);
-    credentials.walletInfo!.derivationInfo = di;
-    final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
+    final di = await credentials.walletInfo!.getDerivationInfo();
+    di.derivationPath = isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
+    await di.save();
+    credentials.walletInfo!.save();
+    credentials.walletInfo!.network = network;
+    // ios will move our wallet directory when updating. Since we must
+    // recalculate the new path every time we open the wallet, ensure this path
+    // is not used. An older wallet will have a directory here which is a
+    // condition for moving the wallet when opening, so this must be kept blank
+    // going forward.
+    credentials.walletInfo!.dirPath = "";
+    credentials.walletInfo!.path = "";
+    final wallet = DecredWallet(credentials.walletInfo!, di, credentials.password!,
         this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
     await wallet.init();
     return wallet;
   }
 
+  void copyDirectorySync(Directory source, Directory destination) {
+    /// create destination folder if not exist
+    if (!destination.existsSync()) {
+      destination.createSync(recursive: true);
+    }
+
+    /// get all files from source (recursive: false is important here)
+    source.listSync(recursive: false).forEach((entity) {
+      final newPath = destination.path + Platform.pathSeparator + basename(entity.path);
+      if (entity is File) {
+        entity.rename(newPath);
+      } else if (entity is Directory) {
+        copyDirectorySync(entity, Directory(newPath));
+      }
+    });
+  }
+
+  Future<void> moveWallet(String fromPath, String toPath) async {
+    final oldWalletDir = new Directory(fromPath);
+    final newWalletDir = new Directory(toPath);
+    copyDirectorySync(oldWalletDir, newWalletDir);
+    // It would be ideal to delete the old directory here, but ios will error
+    // sometimes with "OS Error: No such file or directory, errno = 2" even
+    // after checking if it exists.
+  }
+
   @override
   Future<DecredWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
-    final network = walletInfo.derivationInfo?.derivationPath == seedRestorePathTestnet ||
-            walletInfo.derivationInfo?.derivationPath == pubkeyRestorePathTestnet
-        ? testnet
-        : mainnet;
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    final di = await walletInfo.getDerivationInfo();
+    if (walletInfo.network == null || walletInfo.network == "") {
+      walletInfo.network = di.derivationPath == seedRestorePathTestnet ||
+              di.derivationPath == pubkeyRestorePathTestnet
+          ? testnet
+          : mainnet;
+      walletInfo.save();
+    }
 
     await this.init();
-    final walletDirExists = Directory(walletInfo.dirPath).existsSync();
-    if (!walletDirExists) {
-      walletInfo.dirPath = await pathForWalletDir(name: name, type: getType());
+
+    // Cake wallet version 4.27.0 and earlier gave a wallet dir that did not
+    // match the name. Move those to the correct place.
+    final dirPath = await pathForWalletDir(name: name, type: getType());
+    if (walletInfo.path != "") {
+      // On ios the stored dir no longer exists. We can only trust the basename.
+      // dirPath may already be updated and lost the basename, so look at path.
+      final randomBasename = basename(walletInfo.path);
+      final oldDir = await pathForWalletDir(name: randomBasename, type: getType());
+      if (oldDir != dirPath) {
+        await this.moveWallet(oldDir, dirPath);
+      }
+      // Clear the path so this does not trigger again.
+      walletInfo.dirPath = "";
+      walletInfo.path = "";
+      await walletInfo.save();
     }
 
     final config = {
-      "name": walletInfo.name,
-      "datadir": walletInfo.dirPath,
-      "net": network,
+      "name": name,
+      "datadir": dirPath,
+      "net": walletInfo.network,
       "unsyncedaddrs": true,
     };
     await libwallet!.loadWallet(jsonEncode(config));
     final wallet =
-        DecredWallet(walletInfo, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
+        DecredWallet(walletInfo, di, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
     await wallet.init();
     return wallet;
   }
@@ -105,51 +161,66 @@ class DecredWalletService extends WalletService<
   @override
   Future<void> remove(String wallet) async {
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
-    final network = currentWalletInfo.derivationInfo?.derivationPath == seedRestorePathTestnet ||
-            currentWalletInfo.derivationInfo?.derivationPath == pubkeyRestorePathTestnet
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    final di = await currentWalletInfo.getDerivationInfo();
+    final network = di.derivationPath == seedRestorePathTestnet ||
+            di.derivationPath == pubkeyRestorePathTestnet
         ? testnet
         : mainnet;
+    currentWalletInfo.network = network;
+    currentWalletInfo.save();
+    if (libwallet == null) {
+      libwallet = await Libwallet.spawn();
+      libwallet!.initLibdcrwallet("", "err");
+    }
     final currentWallet = DecredWallet(
-        currentWalletInfo, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
+        currentWalletInfo, di, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
 
     await currentWallet.renameWalletFiles(newName);
 
-    final newDirPath = await pathForWalletDir(name: newName, type: getType());
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
-    newWalletInfo.dirPath = newDirPath;
-    newWalletInfo.network = network;
+    newWalletInfo.dirPath = "";
+    newWalletInfo.path = "";
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    await newWalletInfo.save();
   }
 
   @override
   Future<DecredWallet> restoreFromSeed(DecredRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
     await this.init();
+    final network = isTestnet == true ? testnet : mainnet;
+    final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
     final config = {
       "name": credentials.walletInfo!.name,
-      "datadir": credentials.walletInfo!.dirPath,
+      "datadir": dirPath,
       "pass": credentials.password!,
       "mnemonic": credentials.mnemonic,
-      "net": isTestnet == true ? testnet : mainnet,
+      "net": network,
       "unsyncedaddrs": true,
     };
     await libwallet!.createWallet(jsonEncode(config));
-    final di = DerivationInfo(
-        derivationPath: isTestnet == true ? seedRestorePathTestnet : seedRestorePath);
-    credentials.walletInfo!.derivationInfo = di;
-    final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
+    final di = await credentials.walletInfo!.getDerivationInfo();
+    di.derivationPath = isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
+    await di.save();
+    credentials.walletInfo!.network = network;
+    credentials.walletInfo!.dirPath = "";
+    credentials.walletInfo!.path = "";
+    final wallet = DecredWallet(credentials.walletInfo!, di, credentials.password!,
         this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
     await wallet.init();
     return wallet;
@@ -161,18 +232,23 @@ class DecredWalletService extends WalletService<
   Future<DecredWallet> restoreFromKeys(DecredRestoreWalletFromPubkeyCredentials credentials,
       {bool? isTestnet}) async {
     await this.init();
+    final network = isTestnet == true ? testnet : mainnet;
+    final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
     final config = {
       "name": credentials.walletInfo!.name,
-      "datadir": credentials.walletInfo!.dirPath,
+      "datadir": dirPath,
       "pubkey": credentials.pubkey,
-      "net": isTestnet == true ? testnet : mainnet,
+      "net": network,
       "unsyncedaddrs": true,
     };
     await libwallet!.createWatchOnlyWallet(jsonEncode(config));
-    final di = DerivationInfo(
-        derivationPath: isTestnet == true ? pubkeyRestorePathTestnet : pubkeyRestorePath);
-    credentials.walletInfo!.derivationInfo = di;
-    final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
+    final di = await credentials.walletInfo!.getDerivationInfo();
+    di.derivationPath = isTestnet == true ? pubkeyRestorePathTestnet : pubkeyRestorePath;
+    await di.save();
+    credentials.walletInfo!.network = network;
+    credentials.walletInfo!.dirPath = "";
+    credentials.walletInfo!.path = "";
+    final wallet = DecredWallet(credentials.walletInfo!, di, credentials.password!,
         this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
     await wallet.init();
     return wallet;

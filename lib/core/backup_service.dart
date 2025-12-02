@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/themes/utils/theme_list.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -24,7 +24,7 @@ import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_backup/backup.dart' as cake_backup;
 
 class $BackupService {
-  $BackupService(this._secureStorage, this.walletInfoSource, this.transactionDescriptionBox,
+  $BackupService(this._secureStorage, this.transactionDescriptionBox,
       this.keyService, this.sharedPreferences)
       : cipher = Cryptography.instance.chacha20Poly1305Aead(),
         correctWallets = <WalletInfo>[];
@@ -37,7 +37,6 @@ class $BackupService {
   final Cipher cipher;
   final SecureStorage _secureStorage;
   final SharedPreferences sharedPreferences;
-  final Box<WalletInfo> walletInfoSource;
   final Box<TransactionDescription> transactionDescriptionBox;
   final KeyService keyService;
   List<WalletInfo> correctWallets;
@@ -83,7 +82,7 @@ class $BackupService {
     outer:
     for (var file in zip.files) {
       final filename = file.name;
-      for (var ignore in ignoreFiles) { 
+      for (var ignore in ignoreFiles) {
         if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
           printV("ignoring backup file: $filename");
           continue outer;
@@ -110,25 +109,12 @@ class $BackupService {
   }
 
   Future<void> verifyWallets() async {
-    final walletInfoSource = await _reloadHiveWalletInfoBox();
-    correctWallets =
-        walletInfoSource.values.where((info) => availableWalletTypes.contains(info.type)).toList();
+    await performHiveMigration(); // for backups made before sqlite migration
+    correctWallets = (await WalletInfo.getAll()).where((info) => availableWalletTypes.contains(info.type)).toList();
 
     if (correctWallets.isEmpty) {
-      throw Exception('Correct wallets not detected');
+      printV('Correct wallets not detected');
     }
-  }
-
-  Future<Box<WalletInfo>> _reloadHiveWalletInfoBox() async {
-    final appDir = await getAppDir();
-    await CakeHive.close();
-    CakeHive.init(appDir.path);
-
-    if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
-      CakeHive.registerAdapter(WalletInfoAdapter());
-    }
-
-    return await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
   }
 
   Future<void> importTransactionDescriptionDump() async {
@@ -145,7 +131,7 @@ class $BackupService {
         MapEntry(key, TransactionDescription.fromJson(value as Map<String, dynamic>)));
     var box = transactionDescriptionBox;
     if (!box.isOpen) {
-      final transactionDescriptionsBoxKey = 
+      final transactionDescriptionsBoxKey =
         await getEncryptionKey(secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
       box = await CakeHive.openBox<TransactionDescription>(
         TransactionDescription.boxName,
@@ -191,12 +177,16 @@ class $BackupService {
     String currentWalletName = data[PreferencesKey.currentWalletName] as String;
     int currentWalletType = data[PreferencesKey.currentWalletType] as int;
 
-    final isCorrentCurrentWallet = correctWallets
+    final isCorrectCurrentWallet = correctWallets
         .any((info) => info.name == currentWalletName && info.type.index == currentWalletType);
 
-    if (!isCorrentCurrentWallet) {
-      currentWalletName = correctWallets.first.name;
-      currentWalletType = serializeToInt(correctWallets.first.type);
+    try {
+      if (!isCorrectCurrentWallet) {
+        currentWalletName = correctWallets.first.name;
+        currentWalletType = serializeToInt(correctWallets.first.type);
+      }
+    } catch (e) {
+
     }
 
     if (DeviceInfo.instance.isDesktop) {
@@ -251,6 +241,25 @@ class $BackupService {
       await importWalletKeychainInfo(info);
     });
 
+    if (keychainJSON['_all'] is Map<String, dynamic>) {
+      for (var key in (keychainJSON['_all'] as Map<String, dynamic>).keys) {
+        try {
+          if (!key.startsWith('MONERO_WALLET_')) continue;
+          final decodedPassword = decodeWalletPassword(
+              password: keychainJSON['_all'][key].toString());
+          final walletName = key.split('_WALLET_')[1];
+          final walletType = key.split('_WALLET_')[0].toLowerCase();
+          await importWalletKeychainInfo({
+            'name': walletName,
+            'type': "WalletType.$walletType",
+            'password': decodedPassword,
+          });
+        } catch (e) {
+          printV('Error importing wallet ($key) password: $e');
+        }
+      }
+    }
+
     keychainDumpFile.deleteSync();
   }
 
@@ -264,18 +273,20 @@ class $BackupService {
   Future<Uint8List> exportKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final wallets = await Future.wait(walletInfoSource.values.map((walletInfo) async {
+    final wallets = await Future.wait((await WalletInfo.getAll()).map((walletInfo) async {
       try {
         return {
           'name': walletInfo.name,
           'type': walletInfo.type.toString(),
-          'password': await keyService.getWalletPassword(walletName: walletInfo.name)
+          'password': await keyService.getWalletPassword(walletName: walletInfo.name),
+          'hardwareWalletType': walletInfo.hardwareWalletType?.index,
         };
       } catch (e) {
         return {
           'name': walletInfo.name,
           'type': walletInfo.type.toString(),
-          'password': ''
+          'password': '',
+          'hardwareWalletType': walletInfo.hardwareWalletType?.index,
         };
       }
     }));

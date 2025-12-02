@@ -1,5 +1,6 @@
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -74,6 +75,12 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.polygon:
         _addPolygonListItems(tx, dateFormat);
         break;
+      case WalletType.base:
+        _addBaseListItems(tx, dateFormat);
+        break;
+      case WalletType.arbitrum:
+        _addArbitrumListItems(tx, dateFormat);
+        break;
       case WalletType.solana:
         _addSolanaListItems(tx, dateFormat);
         break;
@@ -89,9 +96,12 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.decred:
         _addDecredListItems(tx, dateFormat);
         break;
+      case WalletType.dogecoin:
+        _addDogecoinListItems(tx, dateFormat);
+        break;
       case WalletType.none:
       case WalletType.banano:
-      break;
+        break;
     }
 
     final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
@@ -194,6 +204,12 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://explorer.zano.org/transaction/${txId}';
       case WalletType.decred:
         return 'https://${wallet.isTestnet ? "testnet" : "dcrdata"}.decred.org/tx/${txId.split(':')[0]}';
+      case WalletType.dogecoin:
+        return 'https://blockchair.com/dogecoin/transaction/${txId}';
+      case WalletType.base:
+        return 'https://basescan.org/tx/${txId}';
+      case WalletType.arbitrum:
+        return 'https://arbiscan.io/tx/${txId}';
       case WalletType.none:
         return '';
     }
@@ -207,6 +223,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'mempool.space';
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
         return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
@@ -228,13 +245,22 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'explorer.zano.org';
       case WalletType.decred:
         return S.current.view_transaction_on + 'dcrdata.decred.org';
+      case WalletType.base:
+        return S.current.view_transaction_on + 'basescan.org';
+      case WalletType.arbitrum:
+        return S.current.view_transaction_on + 'arbiscan.io';
       case WalletType.none:
         return '';
     }
   }
 
   void _addMoneroListItems(TransactionInfo tx, DateFormat dateFormat) {
-    final key = tx.additionalInfo['key'] as String?;
+    final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
+    final description = transactionDescriptionBox.values.firstWhere(
+        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+        orElse: () => TransactionDescription(id: descriptionKey));
+
+    final key = tx.additionalInfo['key'] as String? ?? description.transactionKey;
     final accountIndex = tx.additionalInfo['accountIndex'] as int;
     final addressIndex = tx.additionalInfo['addressIndex'] as int;
     final feeFormatted = tx.feeFormatted();
@@ -338,6 +364,27 @@ abstract class TransactionDetailsViewModelBase with Store {
           key: ValueKey('standard_list_item_transaction_details_fee_key'),
         ),
     ];
+
+    if (wallet.type == WalletType.bitcoin && tx.direction == TransactionDirection.incoming) {
+      try {
+        final addresses = bitcoin!.getTransactionAddresses(wallet, tx);
+
+        if (addresses != null) {
+          isRecipientAddressShown = true;
+          for (final address in addresses) {
+            _items.add(
+              StandartListItem(
+                title: S.current.transaction_details_recipient_address,
+                value: address,
+                key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        printV(e.toString());
+      }
+    }
 
     items.addAll(_items);
   }
@@ -492,6 +539,106 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addPolygonListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(
+        title: S.current.transaction_details_transaction_id,
+        value: tx.txHash,
+        key: ValueKey('standard_list_item_transaction_details_id_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_date,
+        value: dateFormat.format(tx.date),
+        key: ValueKey('standard_list_item_transaction_details_date_key'),
+      ),
+      StandartListItem(
+        title: S.current.confirmations,
+        value: tx.confirmations.toString(),
+        key: ValueKey('standard_list_item_transaction_confirmations_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_height,
+        value: '${tx.height}',
+        key: ValueKey('standard_list_item_transaction_details_height_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_amount,
+        value: tx.amountFormatted(),
+        key: ValueKey('standard_list_item_transaction_details_amount_key'),
+      ),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(
+          title: S.current.transaction_details_fee,
+          value: tx.feeFormatted()!,
+          key: ValueKey('standard_list_item_transaction_details_fee_key'),
+        ),
+      if (showRecipientAddress && tx.to != null && tx.direction == TransactionDirection.outgoing)
+        StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: tx.to!,
+          key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+        ),
+      if (tx.direction == TransactionDirection.incoming && tx.from != null)
+        StandartListItem(
+          title: S.current.transaction_details_source_address,
+          value: tx.from!,
+          key: ValueKey('standard_list_item_transaction_details_source_address_key'),
+        ),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addBaseListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(
+        title: S.current.transaction_details_transaction_id,
+        value: tx.txHash,
+        key: ValueKey('standard_list_item_transaction_details_id_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_date,
+        value: dateFormat.format(tx.date),
+        key: ValueKey('standard_list_item_transaction_details_date_key'),
+      ),
+      StandartListItem(
+        title: S.current.confirmations,
+        value: tx.confirmations.toString(),
+        key: ValueKey('standard_list_item_transaction_confirmations_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_height,
+        value: '${tx.height}',
+        key: ValueKey('standard_list_item_transaction_details_height_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_amount,
+        value: tx.amountFormatted(),
+        key: ValueKey('standard_list_item_transaction_details_amount_key'),
+      ),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(
+          title: S.current.transaction_details_fee,
+          value: tx.feeFormatted()!,
+          key: ValueKey('standard_list_item_transaction_details_fee_key'),
+        ),
+      if (showRecipientAddress && tx.to != null && tx.direction == TransactionDirection.outgoing)
+        StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: tx.to!,
+          key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+        ),
+      if (tx.direction == TransactionDirection.incoming && tx.from != null)
+        StandartListItem(
+          title: S.current.transaction_details_source_address,
+          value: tx.from!,
+          key: ValueKey('standard_list_item_transaction_details_source_address_key'),
+        ),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addArbitrumListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [
       StandartListItem(
         title: S.current.transaction_details_transaction_id,
@@ -707,6 +854,51 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addDecredListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(
+        title: S.current.transaction_details_transaction_id,
+        value: tx.txHash,
+        key: ValueKey('standard_list_item_transaction_details_id_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_date,
+        value: dateFormat.format(tx.date),
+        key: ValueKey('standard_list_item_transaction_details_date_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_height,
+        value: '${tx.height}',
+        key: ValueKey('standard_list_item_transaction_details_height_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_amount,
+        value: tx.amountFormatted(),
+        key: ValueKey('standard_list_item_transaction_details_amount_key'),
+      ),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(
+          title: S.current.transaction_details_fee,
+          value: tx.feeFormatted()!,
+          key: ValueKey('standard_list_item_transaction_details_fee_key'),
+        ),
+      if (showRecipientAddress && tx.to != null)
+        StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: tx.to!,
+          key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+        ),
+      if (tx.from != null)
+        StandartListItem(
+          title: S.current.transaction_details_source_address,
+          value: tx.from!,
+          key: ValueKey('standard_list_item_transaction_details_source_address_key'),
+        ),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addDogecoinListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [
       StandartListItem(
         title: S.current.transaction_details_transaction_id,

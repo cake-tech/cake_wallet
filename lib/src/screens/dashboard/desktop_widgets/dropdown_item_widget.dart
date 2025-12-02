@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class DropDownItemWidget extends StatelessWidget {
@@ -21,11 +20,7 @@ class DropDownItemWidget extends StatelessWidget {
           Flexible(
             child: Text(
               title,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),

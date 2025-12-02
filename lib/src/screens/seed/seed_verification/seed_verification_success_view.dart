@@ -1,36 +1,38 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 class SeedVerificationSuccessView extends StatelessWidget {
-  const SeedVerificationSuccessView({required this.imageColor, super.key});
+  const SeedVerificationSuccessView({required this.currentTheme, super.key});
 
-  final Color imageColor;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
-    final image = Image.asset('assets/images/seed_verified.png', color: imageColor);
-
     return Center(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ConstrainedBox(
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
-            child: AspectRatio(
-              aspectRatio: 1.8,
-              child: image,
-            ),
+              child: CakeImageWidget(
+                height: 200,
+                imageUrl: currentTheme.isDark
+                    ? 'assets/images/seed_verified_dark.png'
+                    : 'assets/images/seed_verified_light.png',
+              ),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 40),
           Text(
             S.current.seed_verified,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-            ),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
           SizedBox(height: 48),
           RichText(
@@ -38,19 +40,19 @@ class SeedVerificationSuccessView extends StatelessWidget {
               children: [
                 TextSpan(
                   text: '${S.current.seed_verified_subtext} ',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 16,
+                      ),
                 ),
                 TextSpan(
                   text: S.current.seed_display_path,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
                 ),
               ],
             ),
@@ -63,8 +65,8 @@ class SeedVerificationSuccessView extends StatelessWidget {
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
             text: S.current.open_wallet,
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
           ),
           SizedBox(height: 16),
         ],

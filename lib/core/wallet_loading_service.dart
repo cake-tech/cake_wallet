@@ -32,23 +32,28 @@ class WalletLoadingService {
 
   Future<void> renameWallet(WalletType type, String name, String newName,
       {String? password}) async {
-    final walletService = walletServiceFactory.call(type);
-    final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+    try {
+      final walletService = walletServiceFactory.call(type);
+      final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
 
-    // Save the current wallet's password to the new wallet name's key
-    await keyService.saveWalletPassword(walletName: newName, password: walletPassword);
-    // Delete previous wallet name from keyService to keep only new wallet's name
-    // otherwise keeps duplicate (old and new names)
-    await keyService.deleteWalletPassword(walletName: name);
+      // Save the current wallet's password to the new wallet name's key
+      await keyService.saveWalletPassword(walletName: newName, password: walletPassword);
 
-    await walletService.rename(name, walletPassword, newName);
+      await walletService.rename(name, walletPassword, newName);
+      // Delete previous wallet name from keyService to keep only new wallet's name
+      // otherwise keeps duplicate (old and new names)
+      await keyService.deleteWalletPassword(walletName: name);
 
-    // set shared preferences flag based on previous wallet name
-    if (type == WalletType.monero) {
-      final oldNameKey = PreferencesKey.moneroWalletUpdateV1Key(name);
-      final isPasswordUpdated = sharedPreferences.getBool(oldNameKey) ?? false;
-      final newNameKey = PreferencesKey.moneroWalletUpdateV1Key(newName);
-      await sharedPreferences.setBool(newNameKey, isPasswordUpdated);
+      // set shared preferences flag based on previous wallet name
+      if (type == WalletType.monero) {
+        final oldNameKey = PreferencesKey.moneroWalletUpdateV1Key(name);
+        final isPasswordUpdated = sharedPreferences.getBool(oldNameKey) ?? false;
+        final newNameKey = PreferencesKey.moneroWalletUpdateV1Key(newName);
+        await sharedPreferences.setBool(newNameKey, isPasswordUpdated);
+      }
+    } catch (error, stack) {
+      await ExceptionHandler.resetLastPopupDate();
+      await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
     }
   }
 
@@ -68,7 +73,10 @@ class WalletLoadingService {
       return wallet;
     } catch (error, stack) {
       await ExceptionHandler.resetLastPopupDate();
+      final isLedgerError = await ExceptionHandler.isLedgerError(error);
+      if (isLedgerError || await requireHardwareWalletConnection(type, name)) rethrow;
       await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+
 
       // try fetching the seeds of the corrupted wallet to show it to the user
       String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
@@ -79,9 +87,8 @@ class WalletLoadingService {
       }
 
       // try opening another wallet that is not corrupted to give user access to the app
-      final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
       WalletBase? wallet;
-      for (var walletInfo in walletInfoSource.values) {
+      for (var walletInfo in await WalletInfo.getAll()) {
         try {
           final walletService = walletServiceFactory.call(walletInfo.type);
           final walletPassword = await keyService.getWalletPassword(walletName: walletInfo.name);
@@ -123,7 +130,11 @@ class WalletLoadingService {
               alertContent: S.of(context).corrupted_seed_notice,
               leftButtonText: S.of(context).cancel,
               rightButtonText: S.of(context).show_seed,
-              actionLeftButton: () => Navigator.of(context).pop(),
+              actionLeftButton: () {
+                if (context.mounted && Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
               actionRightButton: () => showSeedsPopup(context, msg),
             );
         });
@@ -183,8 +194,8 @@ class WalletLoadingService {
     return "\n\n$type ($name): ${await walletService.getSeeds(name, password, type)}";
   }
 
-  bool requireHardwareWalletConnection(WalletType type, String name) {
+  Future<bool> requireHardwareWalletConnection(WalletType type, String name) async {
     final walletService = walletServiceFactory.call(type);
-    return walletService.requireHardwareWalletConnection(name);
+    return await walletService.requireHardwareWalletConnection(name);
   }
 }

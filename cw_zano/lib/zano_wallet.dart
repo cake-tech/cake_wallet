@@ -59,9 +59,8 @@ abstract class ZanoWalletBase
   String get password => _password;
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) {
-    throw UnimplementedError();
-  }
+  Future<String> signMessage(String message, {String? address = null}) =>
+      super.signMessage(message, address: address);
 
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address = null}) {
@@ -106,14 +105,14 @@ abstract class ZanoWalletBase
   /// number of transactions in each request
   static final int _txChunkSize = (pow(2, 32) - 1).toInt();
 
-  ZanoWalletBase(WalletInfo walletInfo, String password)
+  ZanoWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo, String password)
       : balance = ObservableMap.of({CryptoCurrency.zano: ZanoBalance.empty()}),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         walletAddresses = ZanoWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     transactionHistory = ZanoTransactionHistory();
     if (!CakeHive.isAdapterRegistered(ZanoAsset.typeId)) {
       CakeHive.registerAdapter(ZanoAssetAdapter());
@@ -130,7 +129,7 @@ abstract class ZanoWalletBase
   }
 
   static Future<ZanoWallet> create({required WalletCredentials credentials}) async {
-    final wallet = ZanoWallet(credentials.walletInfo!, credentials.password!);
+    final wallet = ZanoWallet(credentials.walletInfo!, await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
     await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
     final createWalletResult = await wallet.createWallet(path, credentials.password!);
@@ -147,7 +146,7 @@ abstract class ZanoWalletBase
 
   static Future<ZanoWallet> restore(
       {required ZanoRestoreWalletFromSeedCredentials credentials}) async {
-    final wallet = ZanoWallet(credentials.walletInfo!, credentials.password!);
+    final wallet = ZanoWallet(credentials.walletInfo!, await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
     await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
     final createWalletResult = await wallet.restoreWalletFromSeed(
@@ -167,13 +166,13 @@ abstract class ZanoWalletBase
       {required String name, required String password, required WalletInfo walletInfo}) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
     if (ZanoWalletApi.openWalletCache[path] != null) {
-      final wallet = ZanoWallet(walletInfo, password);
+      final wallet = ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password);
       await wallet.parseCreateWalletResult(ZanoWalletApi.openWalletCache[path]!).then((_) {
         unawaited(wallet.init(ZanoWalletApi.openWalletCache[path]!.wi.address));
       });
       return wallet;
     } else {
-      final wallet = ZanoWallet(walletInfo, password);
+      final wallet = ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password);
       await wallet.initWallet();
       final createWalletResult = await wallet.loadWallet(path, password);
       await wallet.parseCreateWalletResult(createWalletResult).then((_) {
@@ -410,6 +409,17 @@ abstract class ZanoWalletBase
 
   @override
   Future<void>? updateBalance() => null;
+
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      final status = await getWalletStatus();
+    
+      return status.isDaemonConnected;
+    } catch (_) {
+      return false;
+    }
+  }
 
   Future<void> updateTransactions() async {
     try {

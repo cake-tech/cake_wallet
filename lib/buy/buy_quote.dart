@@ -1,6 +1,7 @@
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/exchange/limits.dart';
@@ -50,6 +51,7 @@ class Quote extends SelectableOption {
     this.rampName,
     this.rampIconPath,
     this.limits,
+    this.customPaymentMethodType,
   }) : super(title: provider.isAggregator ? rampName ?? '' : provider.title);
 
   final double rate;
@@ -68,14 +70,17 @@ class Quote extends SelectableOption {
   bool _isBestRate = false;
   bool isBuyAction;
   Limits? limits;
+  String? customPaymentMethodType;
 
   late FiatCurrency _fiatCurrency;
   late CryptoCurrency _cryptoCurrency;
 
-
   bool get isSelected => _isSelected;
+
   bool get isBestRate => _isBestRate;
+
   FiatCurrency get fiatCurrency => _fiatCurrency;
+
   CryptoCurrency get cryptoCurrency => _cryptoCurrency;
 
   @override
@@ -93,22 +98,19 @@ class Quote extends SelectableOption {
   List<String> get badges => recommendations.map((e) => e.title).toList();
 
   @override
-  String get topLeftSubTitle =>
-      this.rate > 0 ? '1 $cryptoName = ${rate.toStringAsFixed(2)} $fiatName' : '';
+  String get topLeftSubTitle => this.rate > 0
+      ? '1 ${cryptoCurrency.toString()} = ${formatWithCommas(rate.toStringAsFixed(2))} ${fiatCurrency.toString()}'
+      : '';
 
   @override
   String get bottomLeftSubTitle {
     if (limits != null) {
       final min = limits!.min;
       final max = limits!.max;
-      return 'min: ${min} ${fiatCurrency.toString()} | max: ${max == double.infinity ? '' : '${max} ${fiatCurrency.toString()}'}';
+      return 'min: ${formatWithCommas(min?.toString())} ${fiatCurrency.toString()} | max: ${max == double.infinity ? '' : '${formatWithCommas(max?.toString())} ${fiatCurrency.toString()}'}';
     }
     return '';
   }
-
-  String get fiatName => isBuyAction ? fiatCurrency.toString() : cryptoCurrency.toString();
-
-  String get cryptoName => isBuyAction ? cryptoCurrency.toString() : fiatCurrency.toString();
 
   @override
   String? get topRightSubTitle => '';
@@ -124,13 +126,17 @@ class Quote extends SelectableOption {
   String get formatedFee => '$feeAmount ${isBuyAction ? fiatCurrency : cryptoCurrency}';
 
   set setIsSelected(bool isSelected) => _isSelected = isSelected;
+
   set setIsBestRate(bool isBestRate) => _isBestRate = isBestRate;
+
   set setFiatCurrency(FiatCurrency fiatCurrency) => _fiatCurrency = fiatCurrency;
+
   set setCryptoCurrency(CryptoCurrency cryptoCurrency) => _cryptoCurrency = cryptoCurrency;
+
   set setLimits(Limits limits) => this.limits = limits;
 
   factory Quote.fromOnramperJson(Map<String, dynamic> json, bool isBuyAction,
-      Map<String, dynamic> metaData, PaymentType paymentType) {
+      Map<String, dynamic> metaData, PaymentType paymentType, String? customPaymentMethodType) {
     final rate = _toDouble(json['rate']) ?? 0.0;
     final networkFee = _toDouble(json['networkFee']) ?? 0.0;
     final transactionFee = _toDouble(json['transactionFee']) ?? 0.0;
@@ -183,9 +189,10 @@ class Quote extends SelectableOption {
       rampName: rampName,
       rampIconPath: rampIconPath,
       paymentType: paymentType,
+      customPaymentMethodType: customPaymentMethodType,
       quoteId: json['quoteId'] as String? ?? '',
       recommendations: enumRecommendations,
-      provider: ProvidersHelper.getProviderByType(ProviderType.onramper)!,
+      provider: ProvidersHelper.getProviderByType(ProviderType.onramper),
       isBuyAction: isBuyAction,
       limits: Limits(min: minLimit, max: maxLimit),
     );
@@ -220,7 +227,7 @@ class Quote extends SelectableOption {
       paymentType: paymentType,
       recommendations: [],
       quoteId: json['signature'] as String? ?? '',
-      provider: ProvidersHelper.getProviderByType(ProviderType.moonpay)!,
+      provider: ProvidersHelper.getProviderByType(ProviderType.moonpay),
       isBuyAction: isBuyAction,
       limits: Limits(min: minLimit, max: maxLimit),
     );
@@ -245,7 +252,7 @@ class Quote extends SelectableOption {
       payout: _toDouble(json['payout']) ?? 0.0,
       paymentType: paymentType,
       recommendations: [ProviderRecommendation.lowKyc],
-      provider: ProvidersHelper.getProviderByType(ProviderType.dfx)!,
+      provider: ProvidersHelper.getProviderByType(ProviderType.dfx),
       isBuyAction: isBuyAction,
       limits: Limits(min: minVolume, max: maxVolume),
     );
@@ -267,7 +274,7 @@ class Quote extends SelectableOption {
       payout: _toDouble(json['cryptoAmount']) ?? 0.0,
       paymentType: paymentType,
       recommendations: [],
-      provider: ProvidersHelper.getProviderByType(ProviderType.robinhood)!,
+      provider: ProvidersHelper.getProviderByType(ProviderType.robinhood),
       isBuyAction: isBuyAction,
       limits: Limits(min: 0.0, max: double.infinity),
     );
@@ -283,7 +290,7 @@ class Quote extends SelectableOption {
       payout: quotes['payout'] as double? ?? 0.0,
       paymentType: paymentType,
       recommendations: [],
-      provider: ProvidersHelper.getProviderByType(ProviderType.meld)!,
+      provider: ProvidersHelper.getProviderByType(ProviderType.meld),
       isBuyAction: isBuyAction,
       limits: Limits(min: 0.0, max: double.infinity),
     );
@@ -292,7 +299,7 @@ class Quote extends SelectableOption {
   factory Quote.fromKryptonimJson(
       Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType) {
     final fees = json['fees'] as Map<String, dynamic>;
-    final rate = _toDouble(json['rate']) ?? 0.0;
+    // final rate = _toDouble(json['rate']) ?? 0.0;
     final limits = json['limits'] as Map<String, dynamic>;
     final minLimit = _toDouble(limits['min_amount']) ?? 0.0;
     final maxLimit = _toDouble(limits['max_amount']) ?? double.infinity;
@@ -300,14 +307,14 @@ class Quote extends SelectableOption {
     final amount = _toDouble(json['amount']) ?? 0.0;
     final calculatedRate = amount / convertedAmount;
     return Quote(
-        rate:  calculatedRate,
+        rate: calculatedRate,
         feeAmount: _toDouble(fees['totalFee']) ?? 0.0,
         networkFee: _toDouble(fees['network_fee']) ?? 0.0,
         transactionFee: _toDouble(fees['operation_fee']) ?? 0.0,
         payout: _toDouble(json['amount']) ?? 0.0,
         paymentType: paymentType,
         recommendations: [],
-        provider: ProvidersHelper.getProviderByType(ProviderType.kriptonim)!,
+        provider: ProvidersHelper.getProviderByType(ProviderType.kriptonim),
         isBuyAction: isBuyAction,
         limits: Limits(min: minLimit, max: maxLimit));
   }
@@ -324,5 +331,6 @@ class Quote extends SelectableOption {
   }
 
   @override
-  String toString() => 'Quote: rate: $rate, feeAmount: $feeAmount, networkFee: $networkFee, transactionFee: $transactionFee, payout: $payout, paymentType: $paymentType, provider: $provider, quoteId: $quoteId, recommendations: $recommendations, isBuyAction: $isBuyAction, rampId: $rampId, rampName: $rampName, rampIconPath: $rampIconPath, [limits: min: ${limits?.min}, max: ${limits?.max}]';
+  String toString() =>
+      'Quote: rate: $rate, feeAmount: $feeAmount, networkFee: $networkFee, transactionFee: $transactionFee, payout: $payout, paymentType: $paymentType, provider: $provider, quoteId: $quoteId, recommendations: $recommendations, isBuyAction: $isBuyAction, rampId: $rampId, rampName: $rampName, rampIconPath: $rampIconPath, [limits: min: ${limits?.min}, max: ${limits?.max}]';
 }

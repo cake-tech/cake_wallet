@@ -1,18 +1,20 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/address_theme.dart';
 
 class SettingsChoicesCell extends StatelessWidget {
-  const SettingsChoicesCell(this.choicesListItem, {Key? key}) : super(key: key);
+  const SettingsChoicesCell(this.choicesListItem,
+      {this.useGenericColor = true, this.padding, Key? key})
+      : super(key: key);
 
   final ChoicesListItem<dynamic> choicesListItem;
+  final bool useGenericColor;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.background,
-      padding: EdgeInsets.only(left: 24, right: 24, top: 16, bottom: 16),
+      color: useGenericColor ? Theme.of(context).colorScheme.surface : null,
+      padding: padding ?? EdgeInsets.only(left: 24, right: 24, top: 16, bottom: 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -22,11 +24,7 @@ class SettingsChoicesCell extends StatelessWidget {
               children: [
                 Text(
                   choicesListItem.title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
             ),
@@ -35,8 +33,15 @@ class SettingsChoicesCell extends StatelessWidget {
           Center(
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
+                borderRadius: BorderRadius.circular(10),
+                border: useGenericColor
+                    ? null
+                    : Border.all(
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        width: 1.5,
+                      ),
+                color:
+                    useGenericColor ? Theme.of(context).colorScheme.surfaceContainerHighest : null,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -50,18 +55,18 @@ class SettingsChoicesCell extends StatelessWidget {
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: isSelected ? Theme.of(context).primaryColor : null,
+                          borderRadius: BorderRadius.circular(10),
+                          color: isSelected ? Theme.of(context).colorScheme.primary : null,
                         ),
                         child: Center(
                           child: Text(
                             choicesListItem.displayItem.call(e),
-                            style: TextStyle(
-                              color: isSelected
-                                  ? Colors.white
-                                  : Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                ),
                           ),
                         ),
                       ),

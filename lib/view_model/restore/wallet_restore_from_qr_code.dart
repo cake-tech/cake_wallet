@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -29,6 +31,8 @@ class WalletRestoreFromQRCode {
     'litecoin_wallet': WalletType.litecoin,
     'ethereum-wallet': WalletType.ethereum,
     'polygon-wallet': WalletType.polygon,
+    'base-wallet': WalletType.base,
+    'arbitrum-wallet': WalletType.arbitrum,
     'nano-wallet': WalletType.nano,
     'nano_wallet': WalletType.nano,
     'bitcoincash': WalletType.bitcoinCash,
@@ -47,12 +51,18 @@ class WalletRestoreFromQRCode {
     'decred': WalletType.decred,
     'decred-wallet': WalletType.decred,
     'decred_wallet': WalletType.decred,
+    'dogecoin': WalletType.dogecoin,
+    'dogecoin-wallet': WalletType.dogecoin,
+    'dogecoin_wallet': WalletType.dogecoin
   };
 
   static WalletType? _extractWalletType(String code) {
     final sortedKeys = _walletTypeMap.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
 
     final extracted = sortedKeys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
+
+    if (code.startsWith("xpub")) return WalletType.bitcoin;
+    if (code.startsWith("zpub")) return WalletType.bitcoin;
 
     if (extracted == null) {
       // Special case for view-only monero wallet
@@ -74,7 +84,10 @@ class WalletRestoreFromQRCode {
   static String? _extractAddressFromUrl(String rawString, WalletType type) {
     try {
       return AddressResolver.extractAddressByType(
-          raw: rawString, type: walletTypeToCryptoCurrency(type));
+        raw: rawString,
+        type: walletTypeToCryptoCurrency(type),
+        requireSurroundingWhitespaces: false,
+      );
     } catch (_) {
       return null;
     }
@@ -98,12 +111,14 @@ class WalletRestoreFromQRCode {
 
   static Future<RestoredWallet> scanQRCodeForRestoring(BuildContext context) async {
     String? code = await presentQRScanner(context);
-    if (code == null) throw Exception("Unexpected scan QR code value: aborted");
+    if (code == null) throw Exception("QR scan is cancelled");
     if (code.isEmpty) throw Exception('Unexpected scan QR code value: value is empty');
+
+    if (code.startsWith("[")) code = code.substring(code.indexOf("]") + 1);
 
     String formattedUri = '';
     WalletType? walletType = _extractWalletType(code);
-
+    final prefix = code.startsWith('xpub') ? 'xpub' : code.startsWith('zpub') ? 'zpub' : '????';
     if (walletType == null) {
       await _specifyWalletAssets(context, "Can't determine wallet type, please pick it manually");
       walletType =
@@ -114,11 +129,15 @@ class WalletRestoreFromQRCode {
 
       formattedUri = seedPhrase != null
           ? '$walletType:?seed=$seedPhrase'
-          : throw Exception('Failed to determine valid seed phrase');
+          : code.startsWith(prefix) 
+            ? '$walletType:?$prefix=$code' 
+            : throw Exception('Failed to determine valid seed phrase');
     } else {
       final index = code.indexOf(':');
       final query = code.substring(index + 1).replaceAll('?', '&');
-      formattedUri = '$walletType:?$query';
+      formattedUri = code.startsWith(prefix) 
+        ? '$walletType:?$prefix=$code' 
+        :'$walletType:?$query';
     }
 
     final uri = Uri.parse(formattedUri);
@@ -155,6 +174,11 @@ class WalletRestoreFromQRCode {
       throw Exception('Unexpected restore mode: tx_payment_id is invalid');
     }
 
+    if (credentials.containsKey("xpub") ||
+        credentials.containsKey("zpub")) {
+      return WalletRestoreMode.keys;
+    }
+
     if (credentials['seed'] != null) {
       final seedValue = credentials['seed'] as String;
       final words = SeedValidator.getWordList(type: type, language: 'english');
@@ -186,15 +210,7 @@ class WalletRestoreFromQRCode {
           : throw Exception('Unexpected restore mode: spend_key or view_key is invalid');
     }
 
-    if (type == WalletType.ethereum && credentials.containsKey('private_key')) {
-      final privateKey = credentials['private_key'] as String;
-      if (privateKey.isEmpty) {
-        throw Exception('Unexpected restore mode: private_key');
-      }
-      return WalletRestoreMode.keys;
-    }
-
-    if (type == WalletType.polygon && credentials.containsKey('private_key')) {
+    if (isEVMCompatibleChain(type) && credentials.containsKey('private_key')) {
       final privateKey = credentials['private_key'] as String;
       if (privateKey.isEmpty) {
         throw Exception('Unexpected restore mode: private_key');

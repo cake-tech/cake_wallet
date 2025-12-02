@@ -116,14 +116,14 @@ max: slowest execution (% of frame)
 
   @override
   void initState() {
-    _buildWidgets();
     super.initState();
+    Future.delayed(Duration.zero).then((_) => _buildWidgets());
   }
 
   SelectableText cw(String text, Color? color) {
     return SelectableText(
       text,
-      style: TextStyle(color: color),
+      style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: color),
     );
   }
 
@@ -160,7 +160,7 @@ max: slowest execution (% of frame)
           child: ListTile(
             title: Text(
               key,
-              style: TextStyle(color: perfc(np)),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: perfc(np)),
             ),
             subtitle: Column(
               mainAxisSize: MainAxisSize.min,

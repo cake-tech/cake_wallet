@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'package:cake_wallet/buy/buy_exception.dart';
+import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:http/http.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
@@ -19,7 +21,7 @@ class WyreBuyProvider extends BuyProvider {
         super(
           wallet: wallet,
           isTestEnvironment: isTestEnvironment,
-          ledgerVM: null,
+          hardwareWalletVM: null,
           supportedCryptoList: supportedCryptoToFiatPairs(
               notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
           supportedFiatList: supportedFiatToCryptoPairs(
@@ -73,18 +75,21 @@ class WyreBuyProvider extends BuyProvider {
       'referrerAccountId': _accountId,
       'lockFields': ['amount', 'sourceCurrency', 'destCurrency', 'dest']
     };
-    final response = await post(uri,
-        headers: {
-          'Authorization': 'Bearer $_secretKey',
-          'Content-Type': 'application/json',
-          'cache-control': 'no-cache'
-        },
-        body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: {
+        'Authorization': 'Bearer $_secretKey',
+        'Content-Type': 'application/json',
+        'cache-control': 'no-cache'
+      },
+      body: json.encode(body),
+    );
 
     if (response.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Url $url is not found!');
     }
 
+    
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final urlFromResponse = responseJSON['url'] as String;
     return urlFromResponse;
@@ -101,18 +106,21 @@ class WyreBuyProvider extends BuyProvider {
       'country': _countryCode
     };
     final uri = Uri.parse(quoteUrl);
-    final response = await post(uri,
-        headers: {
-          'Authorization': 'Bearer $_secretKey',
-          'Content-Type': 'application/json',
-          'cache-control': 'no-cache'
-        },
-        body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: {
+        'Authorization': 'Bearer $_secretKey',
+        'Content-Type': 'application/json',
+        'cache-control': 'no-cache'
+      },
+      body: json.encode(body),
+    );
 
     if (response.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Quote is not found!');
     }
 
+    
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final sourceAmount = responseJSON['sourceAmount'] as double;
     final destAmount = responseJSON['destAmount'] as double;
@@ -125,8 +133,7 @@ class WyreBuyProvider extends BuyProvider {
   Future<Order> findOrderById(String id) async {
     final orderUrl = baseApiUrl + _ordersSuffix + '/$id';
     final orderUri = Uri.parse(orderUrl);
-    final orderResponse = await get(orderUri);
-
+    final orderResponse = await ProxyWrapper().get(clearnetUri: orderUri);
     if (orderResponse.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Order $id is not found!');
     }
@@ -142,8 +149,7 @@ class WyreBuyProvider extends BuyProvider {
 
     final transferUrl = baseApiUrl + _transferSuffix + transferId + _trackSuffix;
     final transferUri = Uri.parse(transferUrl);
-    final transferResponse = await get(transferUri);
-
+    final transferResponse = await ProxyWrapper().get(clearnetUri: transferUri);
     if (transferResponse.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Transfer $transferId is not found!');
     }
@@ -153,7 +159,8 @@ class WyreBuyProvider extends BuyProvider {
 
     return Order(
         id: id,
-        provider: BuyProviderDescription.wyre,
+        source: OrderSourceDescription.buy,
+        buyProvider: BuyProviderDescription.wyre,
         transferId: transferId,
         from: from,
         to: to,

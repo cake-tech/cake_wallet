@@ -4,8 +4,8 @@ class CWSolana extends Solana {
   @override
   List<String> getSolanaWordList(String language) => SolanaMnemonics.englishWordlist;
 
-  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      SolanaWalletService(walletInfoSource, isDirect);
+  WalletService createSolanaWalletService(bool isDirect) =>
+      SolanaWalletService(isDirect);
 
   @override
   WalletCredentials createSolanaNewWalletCredentials({
@@ -154,5 +154,11 @@ class CWSolana extends Solana {
   @override
   List<String> getDefaultTokenContractAddresses() {
     return DefaultSPLTokens().initialSPLTokens.map((e) => e.mintAddress).toList();
+  }
+
+  @override
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
+    final solanaWallet = wallet as SolanaWallet;
+    return solanaWallet.splTokenCurrencies.any((element) => element.mintAddress == contractAddress);
   }
 }

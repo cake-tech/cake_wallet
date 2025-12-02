@@ -9,8 +9,12 @@ import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -64,6 +68,41 @@ class SecurityBackupPage extends BasePage {
                     }
                   });
             }),
+          if (FeatureFlag.duressPinEnabled)
+            Observer(builder: (_) {
+              return SettingsSwitcherCell(
+                  key: ValueKey('security_backup_page_duress_pin_button_key'),
+                  title: 'Duress PIN',
+                  value: _securitySettingsViewModel.enableDuressPin,
+                  onValueChange: (BuildContext context, bool value) {
+                    _authService.authenticateAction(context, route: Routes.securityBackupDuressPin,
+                        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+                      if (isAuthenticatedSuccessfully) {
+                        if (!value) {
+                          _securitySettingsViewModel.setEnableDuressPin(value);
+                          _securitySettingsViewModel.clearDuressPin();
+                          return;
+                        }
+                        final res = await _showDuressPinDescription(context);
+                        if (res) {
+                          final confirmation = await _showDuressPinConfirmation(context);
+
+                          if (confirmation) {
+                            Navigator.of(context).pushNamed(
+                              Routes.setupDuressPin,
+                              arguments: (PinCodeState<PinCodeWidget> pinCtx, String _) async {
+                                pinCtx.close();
+                                _securitySettingsViewModel.setEnableDuressPin(true);
+                              },
+                            );
+                          }
+                        }
+                      }
+                    },
+                        conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                            .shouldRequireTOTP2FAForAllSecurityAndBackupSettings);
+                  });
+            }),
           Observer(builder: (_) {
             return SettingsPickerCell<PinCodeRequiredDuration>(
               key: ValueKey('security_backup_page_require_pin_after_button_key'),
@@ -114,8 +153,8 @@ class SecurityBackupPage extends BasePage {
               key: ValueKey('security_backup_page_sign_and_verify'),
               title: S.current.sign_verify_title,
               handler: (_) => Navigator.of(context).pushNamed(Routes.signPage)
-            //_securitySettingsViewModel.pinCodeRequiredDuration,
-          ),
+              //_securitySettingsViewModel.pinCodeRequiredDuration,
+              ),
           Observer(
             builder: (context) {
               return SettingsCellWithArrow(
@@ -138,4 +177,28 @@ class SecurityBackupPage extends BasePage {
       ),
     );
   }
+}
+
+Future<bool> _showDuressPinDescription(BuildContext context) async {
+  final ok = await showPopUp<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertWithOneAction(
+          alertTitle: S.of(context).alert_notice,
+          alertContent: S.current.duress_pin_description,
+          buttonText: S.of(context).ok,
+          buttonAction: () => Navigator.of(context).pop(true)));
+  return ok ?? false;
+}
+
+Future<bool> _showDuressPinConfirmation(BuildContext context) async {
+  final ok = await showPopUp<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertWithTwoActions(
+          alertTitle: S.of(context).confirm,
+          alertContent: S.current.did_you_back_up_seeds,
+          leftButtonText: S.current.no,
+          rightButtonText: S.current.yes,
+          actionLeftButton: () => Navigator.of(context).pop(false),
+          actionRightButton: () => Navigator.of(context).pop(true)));
+  return ok ?? false;
 }

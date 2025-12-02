@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -11,9 +10,10 @@ import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class SideShiftExchangeProvider extends ExchangeProvider {
   SideShiftExchangeProvider() : super(pairList: supportedPairs(_notSupported));
@@ -60,8 +60,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async {
     const url = apiBaseUrl + permissionPath;
     final uri = Uri.parse(url);
-    final response = await get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error']['message'] as String;
@@ -90,7 +90,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         "$apiBaseUrl$rangePath/${fromCurrency.title.toLowerCase()}-$fromNetwork/${toCurrency.title.toLowerCase()}-$toNetwork";
 
     final uri = Uri.parse(url);
-    final response = await get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
 
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -119,12 +120,13 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -137,22 +139,85 @@ class SideShiftExchangeProvider extends ExchangeProvider {
           "$apiBaseUrl$rangePath/$fromCurrency-$depositNetwork/$toCurrency-$settleNetwork?amount=$amount";
 
       final uri = Uri.parse(url);
-      final response = await get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 500) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error']['message'] as String;
 
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception('SideShift Internal Server Error: $error'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+            'url': url,
+          },
+        );
+
         throw Exception('SideShift Internal Server Error: $error');
       }
 
       if (response.statusCode != 200) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception('Unexpected http status: ${response.statusCode}'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+            'url': url,
+          },
+        );
+
         throw Exception('Unexpected http status: ${response.statusCode}');
       }
 
-      return double.parse(responseJSON['rate'] as String);
-    } catch (e) {
+      final rate = double.parse(responseJSON['rate'] as String);
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'url': url,
+        },
+        responseData: {
+          'rate': rate,
+          'statusCode': response.statusCode,
+        },
+      );
+
+      return rate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       printV(e.toString());
       return 0.00;
     }
@@ -186,15 +251,58 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final headers = {'Content-Type': 'application/json'};
 
     final uri = Uri.parse(url);
-    final response = await post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
+    
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error']['message'] as String;
 
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: TradeNotCreatedException(description, description: error),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'url': url,
+            'body': body,
+          },
+        );
+
         throw TradeNotCreatedException(description, description: error);
       }
+
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: TradeNotCreatedException(description),
+        stackTrace: StackTrace.current,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'url': url,
+          'body': body,
+        },
+      );
 
       throw TradeNotCreatedException(description);
     }
@@ -205,6 +313,31 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final settleAddress = responseJSON['settleAddress'] as String;
     final depositAmount = responseJSON['depositAmount'] as String?;
     final depositMemo = responseJSON['depositMemo'] as String?;
+
+    ExchangeProviderLogger.logSuccess(
+      provider: description,
+      function: 'createTrade',
+      requestData: {
+        'from': request.fromCurrency.title,
+        'to': request.toCurrency.title,
+        'fromAmount': request.fromAmount,
+        'toAmount': request.toAmount,
+        'toAddress': request.toAddress,
+        'refundAddress': request.refundAddress,
+        'isFixedRateMode': isFixedRateMode,
+        'isSendAll': isSendAll,
+        'url': url,
+        'body': body,
+      },
+      responseData: {
+        'id': id,
+        'inputAddress': inputAddress,
+        'settleAddress': settleAddress,
+        'depositAmount': depositAmount,
+        'depositMemo': depositMemo,
+        'statusCode': response.statusCode,
+      },
+    );
 
     return Trade(
       id: id,
@@ -219,7 +352,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       payoutAddress: settleAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
-      extraId: depositMemo
+      extraId: depositMemo,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 
@@ -227,8 +362,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     final url = apiBaseUrl + orderPath + '/' + id;
     final uri = Uri.parse(url);
-    final response = await get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
     if (response.statusCode == 404) {
       throw TradeNotFoundException(id, provider: description);
     }
@@ -246,7 +381,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['depositCoin'] as String;
+    final fromNetwork = responseJSON['depositNetwork'] as String?;
     final toCurrency = responseJSON['settleCoin'] as String;
+    final toNetwork = responseJSON['settleNetwork'] as String?;
     final inputAddress = responseJSON['depositAddress'] as String;
     final expectedSendAmount = responseJSON['depositAmount'] as String?;
     final status = responseJSON['status'] as String?;
@@ -258,15 +395,18 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     return Trade(
         id: id,
-        from: CryptoCurrency.fromString(fromCurrency),
-        to: CryptoCurrency.fromString(toCurrency),
+        from: CryptoCurrency.safeParseCurrencyFromString(fromCurrency),
+        to: CryptoCurrency.safeParseCurrencyFromString(toCurrency),
         provider: description,
         inputAddress: inputAddress,
         amount: expectedSendAmount ?? '',
         state: TradeState.deserialize(raw: status ?? 'created'),
         expiredAt: expiredAt,
         payoutAddress: settleAddress,
-        extraId: depositMemo);
+        extraId: depositMemo,
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(fromNetwork ?? ''),
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(toNetwork ?? ''),
+    );
   }
 
   Future<String> _createQuote(TradeRequest request) async {
@@ -281,7 +421,12 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       'depositNetwork': _networkFor(request.fromCurrency),
     };
     final uri = Uri.parse(url);
-    final response = await post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
+    
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {
@@ -319,8 +464,10 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return 'tron';
       case 'LN':
         return 'lightning';
-      case 'POLY':
+      case 'POL':
         return 'polygon';
+      case 'ARB':
+        return 'arbitrum';
       case 'ZEC':
         return 'zcash';
       case 'AVAXC':
@@ -328,5 +475,18 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       default:
         return tag.toLowerCase();
     }
+  }
+
+  String _normalizeNetworkType(String network) {
+    return switch (network) {
+      'ethereum' => 'ETH',
+      'tron' => 'TRX',
+      'lightning' => 'LN',
+      'polygon' => 'POL',
+      'arbitrum' => 'ARB',
+      'zcash' => 'ZEC',
+      'avax' => 'AVAXC',
+      _ => network,
+    };
   }
 }

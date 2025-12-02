@@ -103,6 +103,15 @@
                 <data android:scheme="decred" />
                 <data android:scheme="decred-wallet" />
                 <data android:scheme="decred_wallet" />
+                <data android:scheme="dogecoin" />
+                <data android:scheme="dogecoin-wallet" />
+                <data android:scheme="dogecoin_wallet" />
+                <data android:scheme="base" />
+                <data android:scheme="base-wallet" />
+                <data android:scheme="base_wallet" />
+                <data android:scheme="arbitrum" />
+                <data android:scheme="arbitrum-wallet" />
+                <data android:scheme="arbitrum_wallet" />
             </intent-filter>
             <!-- nano-gpt link scheme -->
             <intent-filter android:autoVerify="true">
@@ -111,6 +120,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="nano-gpt" />
             </intent-filter>
+
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
         </activity>
         <meta-data
                 android:name="flutterEmbedding"

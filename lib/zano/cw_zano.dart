@@ -109,8 +109,8 @@ class CWZano extends Zano {
   // }
 
   @override
-  WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource) {
-    return ZanoWalletService(walletInfoSource);
+  WalletService createZanoWalletService() {
+    return ZanoWalletService();
   }
 
   @override
@@ -135,5 +135,11 @@ class CWZano extends Zano {
   @override
   Map<String, List<int>> debugCallLength() {
     return api.debugCallLength();
+  }
+
+  @override
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
+    final zanoWallet = wallet as ZanoWallet;
+    return zanoWallet.zanoAssets.values.any((element) => element?.assetId == contractAddress);
   }
 }

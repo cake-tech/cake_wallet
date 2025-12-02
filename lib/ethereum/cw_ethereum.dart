@@ -4,8 +4,8 @@ class CWEthereum extends Ethereum {
   @override
   List<String> getEthereumWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      EthereumWalletService(walletInfoSource, isDirect, client: EthereumClient());
+  WalletService createEthereumWalletService(bool isDirect) =>
+      EthereumWalletService(isDirect, client: EthereumClient());
 
   @override
   WalletCredentials createEthereumNewWalletCredentials({
@@ -67,8 +67,7 @@ class CWEthereum extends Ethereum {
   @override
   String getPublicKey(WalletBase wallet) {
     final privateKeyInUnitInt = (wallet as EthereumWallet).evmChainPrivateKey;
-    final publicKey = privateKeyInUnitInt.address.hex;
-    return publicKey;
+    return privateKeyInUnitInt.address.hex;
   }
 
   @override
@@ -138,29 +137,24 @@ class CWEthereum extends Ethereum {
   }
 
   @override
-  List<Erc20Token> getERC20Currencies(WalletBase wallet) {
-    final ethereumWallet = wallet as EthereumWallet;
-    return ethereumWallet.erc20Currencies;
-  }
+  List<Erc20Token> getERC20Currencies(WalletBase wallet) =>
+      (wallet as EthereumWallet).erc20Currencies;
 
   @override
-  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token) async {
-    await (wallet as EthereumWallet).addErc20Token(token as Erc20Token);
-  }
+  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token) =>
+      (wallet as EthereumWallet).addErc20Token(token as Erc20Token);
 
   @override
-  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token) async =>
-      await (wallet as EthereumWallet).deleteErc20Token(token as Erc20Token);
+  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token) =>
+      (wallet as EthereumWallet).deleteErc20Token(token as Erc20Token);
 
   @override
-  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token) async =>
-      await (wallet as EthereumWallet).removeTokenTransactionsInHistory(token as Erc20Token);
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token) =>
+      (wallet as EthereumWallet).removeTokenTransactionsInHistory(token as Erc20Token);
 
   @override
-  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
-    final ethereumWallet = wallet as EthereumWallet;
-    return await ethereumWallet.getErc20Token(contractAddress, 'eth');
-  }
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) =>
+      (wallet as EthereumWallet).getErc20Token(contractAddress, 'eth');
 
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
@@ -177,39 +171,113 @@ class CWEthereum extends Ethereum {
   }
 
   @override
-  void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) {
-    (wallet as EthereumWallet).updateScanProviderUsageState(isEnabled);
-  }
+  void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) =>
+      (wallet as EthereumWallet).updateScanProviderUsageState(isEnabled);
 
   @override
-  Web3Client? getWeb3Client(WalletBase wallet) {
-    return (wallet as EthereumWallet).getWeb3Client();
-  }
+  Web3Client? getWeb3Client(WalletBase wallet) => (wallet as EthereumWallet).getWeb3Client();
 
+  @override
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
-  void setLedgerConnection(
-      WalletBase wallet, ledger.LedgerConnection connection) {
-    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials)
-        .setLedgerConnection(
-            connection, wallet.walletInfo.derivationInfo?.derivationPath);
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
+    if (service is EVMChainLedgerService) {
+      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedgerConnection(
+          service.ledgerConnection, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
+    } else if (service is EVMChainBitboxService) {
+      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
+          .setBitbox(service.manager, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
+    } else if (service is EVMChainTrezorService) {
+      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials).setTrezorConnect(
+          service.connect, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
+    }
   }
 
   @override
-  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
-      {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.connection);
-    try {
-      return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } catch (err) {
-      printV(err);
-      throw err;
-    }
-  }
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
+      EVMChainLedgerService(connection);
+
+  @override
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager) =>
+      EVMChainBitboxService(manager);
+
+  @override
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect) =>
+      EVMChainTrezorService(connect);
 
   @override
   List<String> getDefaultTokenContractAddresses() {
     return DefaultEthereumErc20Tokens().initialErc20Tokens.map((e) => e.contractAddress).toList();
   }
+
+  @override
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
+    final ethereumWallet = wallet as EthereumWallet;
+    return ethereumWallet.erc20Currencies
+        .any((element) => element.contractAddress.toLowerCase() == contractAddress.toLowerCase());
+  }
+
+  @override
+  Future<bool> isApprovalRequired(
+          WalletBase wallet, String tokenContract, String spender, BigInt requiredAmount) =>
+      (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
+
+  @override
+  Future<PendingTransaction> createTokenApproval(WalletBase wallet, BigInt amount, String spender,
+          CryptoCurrency token, TransactionPriority priority) =>
+      (wallet as EVMChainWallet).createApprovalTransaction(
+          amount, spender, token, priority as EVMChainTransactionPriority, "ETH");
+
+  @override
+  Future<PendingTransaction> createRawCallDataTransaction(WalletBase wallet, String to,
+          String dataHex, BigInt valueWei, TransactionPriority priority) =>
+      (wallet as EVMChainWallet).createCallDataTransaction(
+          to, dataHex, valueWei, priority as EVMChainTransactionPriority);
+
+  // Integrations
+  @override
+  Future<BigInt> getDEuroSavingsBalance(WalletBase wallet) =>
+      DEuro(wallet as EthereumWallet).savingsBalance;
+
+  @override
+  Future<BigInt> getDEuroAccruedInterest(WalletBase wallet) =>
+      DEuro(wallet as EthereumWallet).accruedInterest;
+
+  @override
+  Future<BigInt> getDEuroInterestRate(WalletBase wallet) =>
+      DEuro(wallet as EthereumWallet).interestRate;
+
+  @override
+  Future<BigInt> getDEuroSavingsApproved(WalletBase wallet) =>
+      DEuro(wallet as EthereumWallet).approvedBalance;
+
+  @override
+  Future<PendingTransaction> addDEuroSaving(
+          WalletBase wallet, BigInt amount, TransactionPriority priority) =>
+      DEuro(wallet as EthereumWallet)
+          .depositSavings(amount, priority as EVMChainTransactionPriority);
+
+  @override
+  Future<PendingTransaction> removeDEuroSaving(
+          WalletBase wallet, BigInt amount, TransactionPriority priority) =>
+      DEuro(wallet as EthereumWallet)
+          .withdrawSavings(amount, priority as EVMChainTransactionPriority);
+
+  @override
+  Future<PendingTransaction> reinvestDEuroInterest(
+          WalletBase wallet, TransactionPriority priority) =>
+      DEuro(wallet as EthereumWallet).reinvestInterest(priority as EVMChainTransactionPriority);
+
+  @override
+  Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority) =>
+      DEuro(wallet as EthereumWallet).enableSavings(priority as EVMChainTransactionPriority);
+
+  @override
+  String? getEthereumNativeEstimatedFee(WalletBase wallet) =>
+      (wallet as EVMChainWallet).nativeTxEstimatedFee;
+
+  @override
+  String? getEthereumERC20EstimatedFee(WalletBase wallet) =>
+      (wallet as EVMChainWallet).erc20TxEstimatedFee;
 }

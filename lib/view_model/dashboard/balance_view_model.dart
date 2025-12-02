@@ -54,7 +54,7 @@ abstract class BalanceViewModelBase with Store {
   BalanceViewModelBase(
       {required this.appStore, required this.settingsStore, required this.fiatConvertationStore})
       : isReversing = false,
-        isShowCard = appStore.wallet!.walletInfo.isShowIntroCakePayCard,
+        isShowCard = appStore.wallet?.walletInfo.isShowIntroCakePayCard ?? false,
         wallet = appStore.wallet! {
     reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
@@ -166,6 +166,8 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
         return S.current.xmr_full_balance;

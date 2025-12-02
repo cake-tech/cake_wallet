@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_expandab
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
@@ -104,8 +105,9 @@ class RBFDetailsPage extends BasePage {
                       text: S.of(context).send,
                       isLoading:
                           transactionDetailsViewModel.sendViewModel.state is IsExecutingState,
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
+                  isDisabled: transactionDetailsViewModel.sendViewModel.state is ExecutedSuccessfullyState,
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
                     ))),
       ],
     );
@@ -119,7 +121,6 @@ class RBFDetailsPage extends BasePage {
     }
 
     reaction((_) => transactionDetailsViewModel.sendViewModel.state, (ExecutionState state) {
-
       if (state is! IsExecutingState &&
           loadingBottomSheetContext != null &&
           loadingBottomSheetContext!.mounted) {
@@ -179,9 +180,9 @@ class RBFDetailsPage extends BasePage {
       }
 
       if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (context.mounted) {
-            showModalBottomSheet<void>(
+            final result = await showModalBottomSheet<bool>(
               context: context,
               isDismissible: false,
               isScrollControlled: true,
@@ -189,18 +190,25 @@ class RBFDetailsPage extends BasePage {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('rbf_confirm_sending_bottom_sheet'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
-                  currentTheme: currentTheme,
+                  isSlideActionEnabled: transactionDetailsViewModel.sendViewModel.isReadyForSend,
                   walletType: transactionDetailsViewModel.sendViewModel.walletType,
-                  titleIconPath: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+                  titleIconPath:
+                      transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-                  fiatAmountValue: transactionDetailsViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                  amountValue:
+                      transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                  fiatAmountValue: transactionDetailsViewModel
+                      .sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: S.of(bottomSheetContext).send_fee,
-                  feeValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                  feeFiatAmount: transactionDetailsViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  feeValue:
+                      transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                  feeFiatAmount: transactionDetailsViewModel
+                      .sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: transactionDetailsViewModel.sendViewModel.outputs,
-                  onSlideComplete: () async {
+                  footerType: FooterType.slideActionButton,
+                  accessibleNavigationModeSlideActionButtonText: S.of(context).send,
+                  onSlideActionComplete: () async {
                     Navigator.of(bottomSheetContext).pop();
                     await transactionDetailsViewModel.sendViewModel.commitTransaction(context);
                     try {
@@ -211,6 +219,9 @@ class RBFDetailsPage extends BasePage {
                 );
               },
             );
+            if (result == null) {
+              transactionDetailsViewModel.sendViewModel.dismissTransaction();
+            }
           }
         });
       }

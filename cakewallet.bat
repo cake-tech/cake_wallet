@@ -1,5 +1,5 @@
 @echo off
-set cw_win_app_config=--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron
+set cw_win_app_config=--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --dogecoin --base
 set cw_root=%cd%
 set cw_archive_name=Cake Wallet.zip
 set cw_archive_path=%cw_root%\%cw_archive_name%
@@ -24,7 +24,7 @@ IF NOT EXIST "%secrets_file_path%" (
 ) ELSE (echo === Using previously/already generated secrets file: %secrets_file_path% ===)
 
 echo === Generating mobx models ===
-for /d %%i in (cw_core cw_monero cw_bitcoin cw_ethereum cw_evm cw_polygon cw_nano cw_bitcoin_cash cw_solana cw_tron .) do (
+for /d %%i in (cw_core cw_monero cw_bitcoin cw_ethereum cw_evm cw_polygon cw_nano cw_bitcoin_cash cw_solana cw_tron cw_base cw_arbitrum.) do (
     cd %%i
     call flutter pub get > nul
     call dart run build_runner build --delete-conflicting-outputs > nul

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +37,7 @@ class VerifyFormState extends State<VerifyForm> with AutomaticKeepAliveClientMix
   void dispose() {
     super.dispose();
   }
-  
+
   @override
   bool get wantKeepAlive => true;
 
@@ -53,13 +54,15 @@ class VerifyFormState extends State<VerifyForm> with AutomaticKeepAliveClientMix
               controller: messageController,
               placeholder: S.current.message,
               options: [AddressTextFieldOption.paste],
-              buttonColor: Theme.of(context).hintColor,
+              buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              fillColor: Theme.of(context).colorScheme.surface,
             ),
             const SizedBox(height: 20),
             AddressTextField(
               controller: addressController,
               options: [AddressTextFieldOption.paste, AddressTextFieldOption.walletAddresses],
-              buttonColor: Theme.of(context).hintColor,
+              buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              fillColor: Theme.of(context).colorScheme.surface,
               onSelectedContact: (contact) {
                 addressController.text = contact.address;
               },
@@ -70,7 +73,8 @@ class VerifyFormState extends State<VerifyForm> with AutomaticKeepAliveClientMix
               controller: signatureController,
               placeholder: S.current.signature,
               options: [AddressTextFieldOption.paste],
-              buttonColor: Theme.of(context).hintColor,
+              buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              fillColor: Theme.of(context).colorScheme.surface,
             ),
           ],
         ),

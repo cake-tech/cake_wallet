@@ -3,7 +3,6 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/enter_wallet_connect_uri_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -34,9 +33,13 @@ class WalletConnectConnectionsView extends StatelessWidget {
 
     final query = actualLinkList[1];
 
-    final uri = Uri.decodeComponent(query);
+    final decoded = Uri.decodeComponent(query).trim();
 
-    final uriData = Uri.parse(uri);
+    final sanitized = decoded.startsWith('@') ? decoded.substring(1) : decoded;
+
+    final uriData = Uri.tryParse(sanitized);
+
+    if (uriData == null || (uriData.scheme.isEmpty)) return;
 
     await walletKitService.pairWithUri(uriData);
   }
@@ -89,7 +92,25 @@ class WCPairingsWidget extends BasePage {
     if (walletConnectURI == null) return _invalidUriToast(context, S.current.nullURIError);
 
     log('_onFoundUri: $walletConnectURI');
-    final Uri uriData = Uri.parse(walletConnectURI);
+    // Accept either a raw WC URI or a full URL containing `uri=` parameter
+    String input = walletConnectURI.trim();
+
+    if (input.contains('uri=')) {
+      final parts = input.split('uri=');
+      if (parts.length > 1) {
+        input = Uri.decodeComponent(parts.last);
+      }
+    }
+
+    // Some scanners may prefix with '@', strip it
+    if (input.startsWith('@')) {
+      input = input.substring(1);
+    }
+    final Uri? uriData = Uri.tryParse(input);
+    final bool hasValidScheme = uriData != null && uriData.scheme.isNotEmpty;
+    if (!hasValidScheme) {
+      return _invalidUriToast(context, S.current.invalid_input);
+    }
     await walletKitService.pairWithUri(uriData);
   }
 
@@ -121,17 +142,17 @@ class WCPairingsWidget extends BasePage {
                   SizedBox(height: 24),
                   Text(
                     S.current.connectWalletPrompt,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                   ),
                   SizedBox(height: 16),
                   PrimaryButton(
                     text: S.current.newConnection,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
                     onPressed: () => _onScanQrCode(context, walletKit),
                   ),
                   SizedBox(height: 4),
@@ -142,11 +163,7 @@ class WCPairingsWidget extends BasePage {
                     },
                     child: Text(
                       'Click to paste WalletConnect Link',
-                      style: TextStyle(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.normal,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
                 ],
@@ -160,11 +177,11 @@ class WCPairingsWidget extends BasePage {
                   child: Text(
                     S.current.activeConnectionsPrompt,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                   ),
                 ),
                 replacement: ListView.builder(

@@ -1,5 +1,5 @@
 class Destination {
-  final BigInt amount;     // transfered as string
+  final BigInt amount;     // transferred as string
   final String address;
   final String assetId;
 

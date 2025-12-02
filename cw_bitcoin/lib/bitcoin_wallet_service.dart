@@ -5,7 +5,9 @@ import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
@@ -19,13 +21,13 @@ import 'package:bip39/bip39.dart' as bip39;
 class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
-    BitcoinRestoreWalletFromWIFCredentials,
+    BitcoinWalletFromKeysCredentials,
     BitcoinRestoreWalletFromHardware> {
-  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
+  BitcoinWalletService(this.unspentCoinsInfoSource,
+      this.payjoinSessionSource, this.isDirect);
 
-  final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
-  final bool alwaysScan;
+  final Box<PayjoinSession> payjoinSessionSource;
   final bool isDirect;
 
   @override
@@ -37,7 +39,13 @@ class BitcoinWalletService extends WalletService<
     credentials.walletInfo?.network = network.value;
 
     final String mnemonic;
-    switch ( credentials.walletInfo?.derivationInfo?.derivationType) {
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    derivationInfo.derivationType = credentials.derivationInfo?.derivationType ?? derivationInfo.derivationType;
+    derivationInfo.derivationPath = credentials.derivationInfo?.derivationPath ?? derivationInfo.derivationPath;
+    derivationInfo.description = credentials.derivationInfo?.description ?? derivationInfo.description;
+    derivationInfo.scriptType = credentials.derivationInfo?.scriptType ?? derivationInfo.scriptType;
+    await derivationInfo.save();
+    switch (derivationInfo.derivationType) {
       case DerivationType.bip39:
         final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
@@ -48,6 +56,7 @@ class BitcoinWalletService extends WalletService<
         mnemonic = await generateElectrumMnemonic();
         break;
     }
+    await derivationInfo.save();
 
     final wallet = await BitcoinWalletBase.create(
       mnemonic: mnemonic,
@@ -55,6 +64,7 @@ class BitcoinWalletService extends WalletService<
       passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
+      payjoinBox: payjoinSessionSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -71,15 +81,17 @@ class BitcoinWalletService extends WalletService<
 
   @override
   Future<BitcoinWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
     try {
       final wallet = await BitcoinWalletBase.open(
         password: password,
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
+        payjoinBox: payjoinSessionSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -92,7 +104,7 @@ class BitcoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
+        payjoinBox: payjoinSessionSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -103,9 +115,11 @@ class BitcoinWalletService extends WalletService<
   @override
   Future<void> remove(String wallet) async {
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
 
     final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
           (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
@@ -119,14 +133,16 @@ class BitcoinWalletService extends WalletService<
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
     final currentWallet = await BitcoinWalletBase.open(
       password: password,
       name: currentName,
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      alwaysScan: alwaysScan,
+      payjoinBox: payjoinSessionSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -137,7 +153,7 @@ class BitcoinWalletService extends WalletService<
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    await newWalletInfo.save();
   }
 
   @override
@@ -145,16 +161,22 @@ class BitcoinWalletService extends WalletService<
       {bool? isTestnet}) async {
     final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
-    credentials.walletInfo?.derivationInfo?.derivationPath =
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    derivationInfo.derivationPath =
         credentials.hwAccountData.derivationPath;
-
+    
+    final xpub = convertAnyToXpub(credentials.hwAccountData.xpub!);
+    
+    await credentials.walletInfo!.save();
     final wallet = await BitcoinWallet(
       password: credentials.password!,
-      xpub: credentials.hwAccountData.xpub,
+      xpub: xpub,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: derivationInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      payjoinBox: payjoinSessionSource,
     );
     await wallet.save();
     await wallet.init();
@@ -162,9 +184,28 @@ class BitcoinWalletService extends WalletService<
   }
 
   @override
-  Future<BitcoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials,
-          {bool? isTestnet}) async =>
-      throw UnimplementedError();
+  Future<BitcoinWallet> restoreFromKeys(BitcoinWalletFromKeysCredentials credentials,
+      {bool? isTestnet}) async {
+    final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+
+    final xpub = convertAnyToXpub(credentials.xpub);
+
+    final wallet = await BitcoinWallet(
+      password: credentials.password!,
+      xpub: xpub,
+      walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      networkParam: network,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      payjoinBox: payjoinSessionSource,
+    );
+
+    await wallet.save();
+    await wallet.init();
+    return wallet;
+  }
 
   @override
   Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
@@ -182,6 +223,7 @@ class BitcoinWalletService extends WalletService<
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
+      payjoinBox: payjoinSessionSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );

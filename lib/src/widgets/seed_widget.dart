@@ -1,8 +1,6 @@
 import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -80,78 +78,114 @@ class SeedWidgetState extends State<SeedWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-          Stack(children: [
-            SizedBox(height: 35),
-            if (_showPlaceholder)
-              Positioned(
-                  top: 10,
-                  left: 0,
-                  child: Text(S.of(context).enter_seed_phrase,
-                      style: TextStyle(fontSize: 16.0, color: Theme.of(context).hintColor))),
-            Padding(
-                padding: EdgeInsets.only(right: 40, top: 10),
-                child: ValidatableAnnotatedEditableText(
-                  key: widget.seedTextFieldKey,
-                  cursorColor: Colors.blue,
-                  backgroundCursorColor: Colors.blue,
-                  validStyle: TextStyle(
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      backgroundColor: Colors.transparent,
-                      fontWeight: FontWeight.normal,
-                      fontSize: 16),
-                  invalidStyle: TextStyle(
-                      fontSize: 16,
-                      color: Colors.red,
-                      fontWeight: FontWeight.normal,
-                      backgroundColor: Colors.transparent),
-                  focusNode: focusNode,
-                  controller: controller,
-                  words: words,
-                  normalizeSeed: normalizeSeed,
-                  textStyle: TextStyle(
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      backgroundColor: Colors.transparent,
-                      fontWeight: FontWeight.normal,
-                      fontSize: 16),
-                )),
-            Positioned(
-                top: 0,
-                right: 8,
-                child: Container(
-                    width: 32,
-                    height: 32,
-                    child: InkWell(
-                      key: widget.pasteButtonKey,
-                      onTap: () async => _pasteText(),
-                      child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).hintColor,
-                              borderRadius: BorderRadius.all(Radius.circular(6))),
-                          child: Image.asset('assets/images/paste_ios.png',
-                              color: Theme.of(context)
-                                  .extension<SendPageTheme>()!
-                                  .textFieldButtonIconColor)),
-                    )))
-          ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
           Container(
-              margin: EdgeInsets.only(top: 15),
-              height: 1.0,
-              color: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor),
-        ]));
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 12, right: 8, top: 8, bottom: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Stack(
+                          children: [
+                            Container(
+                              constraints: BoxConstraints(minHeight: 40),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: ValidatableAnnotatedEditableText(
+                                  key: widget.seedTextFieldKey,
+                                  cursorColor: Theme.of(context).colorScheme.primary,
+                                  backgroundCursorColor: Theme.of(context).colorScheme.primary,
+                                  validStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    backgroundColor: Colors.transparent,
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 16,
+                                  ),
+                                  invalidStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                        color: Theme.of(context).colorScheme.errorContainer,
+                                        backgroundColor: Colors.transparent,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 16,
+                                      ),
+                                  focusNode: focusNode,
+                                  controller: controller,
+                                  words: words,
+                                  normalizeSeed: normalizeSeed,
+                                  textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        backgroundColor: Colors.transparent,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 16,
+                                      ),
+                                ),
+                              ),
+                            ),
+                            if (_showPlaceholder)
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      S.of(context).enter_seed_phrase,
+                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            fontSize: 16,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 32,
+                        height: 32,
+                        child: InkWell(
+                          key: widget.pasteButtonKey,
+                          onTap: () async => _pasteText(),
+                          child: Container(
+                            padding: EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(6),
+                              ),
+                            ),
+                            child: Image.asset(
+                              'assets/images/paste_ios.png',
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _pasteText() async {
-    final value = await Clipboard.getData('text/plain');
+    final value = (await Clipboard.getData('text/plain'))?.text?.trim();
 
-    if (value?.text?.isNotEmpty ?? false) {
+    if (value?.isNotEmpty ?? false) {
       setState(() {
         _showPlaceholder = false;
-        controller.text = value!.text!;
+        controller.text = value!;
       });
     }
   }

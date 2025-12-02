@@ -3,12 +3,11 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/grouped_wallet_expansion_tile.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/theme_type_images.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -34,13 +33,13 @@ class WalletGroupsDisplayBody extends StatelessWidget {
   });
 
   final WalletGroupsDisplayViewModel walletGroupsDisplayViewModel;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
             Expanded(
@@ -49,7 +48,9 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                   builder: (context) {
                     return Column(
                       children: [
+                        SizedBox(height: 48),
                         if (walletGroupsDisplayViewModel.hasNoFilteredWallet) ...{
+                          SizedBox(height: 16),
                           WalletGroupEmptyStateWidget(
                             currentTheme: currentTheme,
                           ),
@@ -127,8 +128,8 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                   text: walletGroupsDisplayViewModel.hasNoFilteredWallet
                       ? S.of(context).create_new_seed
                       : S.of(context).seed_language_next,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
                   isDisabled: !walletGroupsDisplayViewModel.hasNoFilteredWallet
                       ? (walletGroupsDisplayViewModel.selectedWalletGroup == null &&
                           walletGroupsDisplayViewModel.selectedSingleWallet == null)
@@ -136,7 +137,7 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(height: 32),
+            SizedBox(height: 24),
           ],
         ),
       ),
@@ -159,14 +160,19 @@ class WalletGroupsDisplayBody extends StatelessWidget {
 class WalletGroupEmptyStateWidget extends StatelessWidget {
   const WalletGroupEmptyStateWidget({required this.currentTheme, super.key});
 
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Image.asset(currentTheme.type.walletGroupImage, scale: 1.8),
-        SizedBox(height: 32),
+        CakeImageWidget(
+          imageUrl: currentTheme.isDark
+              ? 'assets/images/wallet_group_empty_dark.png'
+              : 'assets/images/wallet_group_empty_light.png',
+          height: 200,
+        ),
+        SizedBox(height: 60),
         Text.rich(
           TextSpan(
             children: [
@@ -175,18 +181,18 @@ class WalletGroupEmptyStateWidget extends StatelessWidget {
               ),
               TextSpan(
                 text: '${S.of(context).create_new_seed} ',
-                style: TextStyle(fontWeight: FontWeight.w700),
+                style:
+                    Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w700),
               ),
               TextSpan(text: S.of(context).wallet_group_empty_state_text_two),
             ],
           ),
           textAlign: TextAlign.center,
-          style: TextStyle(
-            height: 1.5,
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                height: 1.5,
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
         ),
       ],
     );

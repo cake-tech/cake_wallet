@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:flutter/material.dart';
@@ -32,27 +31,24 @@ class SeedVerificationStepView extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: '${S.current.seed_position_question_one} ',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: questionTextColor,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: questionTextColor,
+                            ),
                       ),
                       TextSpan(
                         text: '${getOrdinal(walletSeedViewModel.currentWordIndex + 1)} ',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: questionTextColor,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: questionTextColor,
+                            ),
                       ),
                       TextSpan(
                         text: S.current.seed_position_question_two,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: questionTextColor,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: questionTextColor,
+                            ),
                       ),
                     ],
                   ),
@@ -69,6 +65,7 @@ class SeedVerificationStepView extends StatelessWidget {
                   children: walletSeedViewModel.currentOptions.map(
                     (option) {
                       return GestureDetector(
+                        key: ValueKey('seed_verification_option_${option}_button_key'),
                         onTap: () async {
                           if (walletSeedViewModel.wrongEntries > 2) return;
 
@@ -93,15 +90,15 @@ class SeedVerificationStepView extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: Theme.of(context).cardColor,
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
                           ),
                           child: Text(
                             option,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
-                            ),
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  height: 1.2,
+                                  fontWeight: FontWeight.w800,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                           ),
                         ),
                       );

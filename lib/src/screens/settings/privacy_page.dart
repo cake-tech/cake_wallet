@@ -49,6 +49,14 @@ class PrivacyPage extends BasePage {
                       _privacySettingsViewModel.setExchangeApiMode(mode),
                 ),
               ),
+              if (_privacySettingsViewModel.canUsePayjoin)
+                SettingsSwitcherCell(
+                  title: S.of(context).use_payjoin,
+                  value: _privacySettingsViewModel.usePayjoin,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUsePayjoin(value);
+                  },
+                ),
               SettingsSwitcherCell(
                   title: S.current.settings_save_recipient_address,
                   value: _privacySettingsViewModel.shouldSaveRecipientAddress,
@@ -67,36 +75,63 @@ class PrivacyPage extends BasePage {
                 ),
               if (DeviceInfo.instance.isMobile)
                 SettingsSwitcherCell(
-                    title: S.current.prevent_screenshots,
-                    value: _privacySettingsViewModel.isAppSecure,
-                    onValueChange: (BuildContext _, bool value) {
-                      _privacySettingsViewModel.setIsAppSecure(value);
-                    }),
-              SettingsSwitcherCell(
-                  title: S.current.disable_exchange_option,
-                  value: _privacySettingsViewModel.disableTradeOption,
+                  title: S.current.prevent_screenshots,
+                  value: _privacySettingsViewModel.isAppSecure,
                   onValueChange: (BuildContext _, bool value) {
-                    _privacySettingsViewModel.setDisableTradeOption(value);
-                  }),
+                    _privacySettingsViewModel.setIsAppSecure(value);
+                  },
+                ),
               SettingsSwitcherCell(
-                  title: S.current.disable_bulletin,
-                  value: _privacySettingsViewModel.disableBulletin,
-                  onValueChange: (BuildContext _, bool value) {
-                    _privacySettingsViewModel.setDisableBulletin(value);
-                  }),
+                title: S.current.disable_buy,
+                value: _privacySettingsViewModel.disableTradeOption,
+                onValueChange: (BuildContext _, bool value) {
+                  _privacySettingsViewModel.setDisableTradeOption(value);
+                },
+              ),
+              SettingsSwitcherCell(
+                title: S.current.disable_automatic_exchange_status_updates,
+                value: _privacySettingsViewModel.disableAutomaticExchangeStatusUpdates,
+                onValueChange: (BuildContext _, bool value) {
+                  _privacySettingsViewModel.setDisableAutomaticExchangeStatusUpdates(value);
+                },
+              ),
+              SettingsSwitcherCell(
+                title: S.current.disable_bulletin,
+                value: _privacySettingsViewModel.disableBulletin,
+                onValueChange: (BuildContext _, bool value) {
+                  _privacySettingsViewModel.setDisableBulletin(value);
+                },
+              ),
               if (_privacySettingsViewModel.canUseEtherscan)
                 SettingsSwitcherCell(
-                    title: S.current.etherscan_history,
-                    value: _privacySettingsViewModel.useEtherscan,
-                    onValueChange: (BuildContext _, bool value) {
-                      _privacySettingsViewModel.setUseEtherscan(value);
-                    }),
+                  title: S.current.etherscan_history,
+                  value: _privacySettingsViewModel.useEtherscan,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseEtherscan(value);
+                  },
+                ),
               if (_privacySettingsViewModel.canUsePolygonScan)
                 SettingsSwitcherCell(
                   title: S.current.polygonscan_history,
                   value: _privacySettingsViewModel.usePolygonScan,
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setUsePolygonScan(value);
+                  },
+                ),
+              if (_privacySettingsViewModel.canUseBaseScan)
+                SettingsSwitcherCell(
+                  title: S.current.basescan_history,
+                  value: _privacySettingsViewModel.useBaseScan,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseBaseScan(value);
+                  },
+                ),
+              if (_privacySettingsViewModel.canUseArbiScan)
+                SettingsSwitcherCell(
+                  title: S.current.arbiscan_history,
+                  value: _privacySettingsViewModel.useArbiScan,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseArbiScan(value);
                   },
                 ),
               if (_privacySettingsViewModel.canUseTronGrid)

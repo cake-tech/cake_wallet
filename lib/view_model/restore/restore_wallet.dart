@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
+import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class RestoredWallet {
@@ -8,9 +9,12 @@ class RestoredWallet {
       {required this.restoreMode,
       required this.type,
       required this.address,
+      this.name,
       this.txId,
       this.spendKey,
       this.viewKey,
+      this.scanSecret,
+      this.spendPubkey,
       this.mnemonicSeed,
       this.passphrase,
       this.txAmount,
@@ -21,10 +25,13 @@ class RestoredWallet {
 
   final WalletRestoreMode restoreMode;
   final WalletType type;
+  final String? name;
   final String? address;
   final String? txId;
   final String? spendKey;
   final String? viewKey;
+  final String? scanSecret;
+  final String? spendPubkey;
   final String? mnemonicSeed;
   final String? passphrase;
   final String? txAmount;
@@ -35,23 +42,35 @@ class RestoredWallet {
 
   factory RestoredWallet.fromKey(Map<String, dynamic> json) {
     try {
-    final codeParsed = jsonDecode(json['raw_qr'].toString());
+      final codeParsed = jsonDecode(json['raw_qr'].toString());
       if (codeParsed["version"] == 0) {
         json['address'] = codeParsed["primaryAddress"];
         json['view_key'] = codeParsed["privateViewKey"];
         json['height'] = codeParsed["restoreHeight"].toString();
+        json['label'] = codeParsed["label"];
       }
     } catch (e) {
       // fine, we don't care, it is only for monero anyway
     }
+    if (json['ltub'] != null) {
+      json['xpub'] = convertLtubToXpub(json['ltub'] as String);
+    }
+    if (json['zpub'] != null) {
+      json['xpub'] = convertZpubToXpub(json['zpub'] as String);
+    }
+    json['xpub'] = convertAnyToXpub(json['xpub'] as String);
+    json['view_key'] ??= json['xpub'];
     final height = json['height'] as String?;
     return RestoredWallet(
+      name: json['label'] as String?,
       restoreMode: json['mode'] as WalletRestoreMode,
       type: json['type'] as WalletType,
       address: json['address'] as String?,
       spendKey: json['spend_key'] as String?,
       viewKey: json['view_key'] as String?,
-      height: height != null ? int.tryParse(height)??0 : 0,
+      scanSecret: json['scan_secret'] as String?,
+      spendPubkey: json['spend_pubkey'] as String?,
+      height: height != null ? int.tryParse(height) ?? 0 : 0,
       privateKey: json['private_key'] as String?,
     );
   }

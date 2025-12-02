@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -25,6 +26,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         login = '',
         password = '',
         trusted = false,
+        isEnabledForAutoSwitching = false,
         useSocksProxy = false,
         socksProxyAddress = '';
 
@@ -56,15 +58,20 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool trusted;
 
   @observable
+  bool isEnabledForAutoSwitching;
+
+  @observable
   bool useSocksProxy;
+
+  @computed
+  bool get usesEmbeddedProxy => CakeTor.instance!.started;
 
   @observable
   String socksProxyAddress;
 
   @computed
   bool get isReady =>
-      (address.isNotEmpty && port.isNotEmpty) ||
-      _walletType == WalletType.decred; // Allow an empty address.
+      (address.isNotEmpty) || _walletType == WalletType.decred; // Allow an empty address.
 
   bool get hasAuthCredentials =>
       _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
@@ -73,6 +80,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     switch (_walletType) {
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.banano:
       case WalletType.nano:
@@ -85,6 +94,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.bitcoin:
+      case WalletType.dogecoin:
       case WalletType.zano:
       case WalletType.decred:
         return false;
@@ -114,6 +124,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     password = '';
     useSSL = false;
     trusted = false;
+    isEnabledForAutoSwitching = false;
     useSocksProxy = false;
     socksProxyAddress = '';
   }
@@ -140,6 +151,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setTrusted(bool val) => trusted = val;
 
   @action
+  void setIsEnabledForAutoSwitching(bool val) => isEnabledForAutoSwitching = val;
+
+  @action
   void setSocksProxy(bool val) => useSocksProxy = val;
 
   @action
@@ -155,6 +169,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         password: password,
         useSSL: useSSL,
         trusted: trusted,
+        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
         socksProxyAddress: socksProxyAddress);
     try {
       state = IsExecutingState();
@@ -186,6 +201,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         password: password,
         useSSL: useSSL,
         trusted: trusted,
+        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
         socksProxyAddress: socksProxyAddress);
     try {
       connectionState = IsExecutingState();
@@ -222,6 +238,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Unexpected scan QR code value: value is empty');
       }
 
+      if (code.startsWith("monero_node:")) code = code.replaceFirst("monero_node:", "tcp://");
       if (!code.contains('://')) code = 'tcp://$code';
 
       final uri = Uri.tryParse(code);
@@ -229,13 +246,30 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Invalid QR code: Unable to parse or missing host.');
       }
 
-      final userInfo = uri.userInfo;
-      final rpcUser = userInfo.length == 2 ? userInfo[0] : '';
-      final rpcPassword = userInfo.length == 2 ? userInfo[1] : '';
+      final queryParams = uri.queryParameters;
       final ipAddress = uri.host;
-      final port = uri.hasPort ? uri.port.toString() : '';
       final path = uri.path;
-      final queryParams = uri.queryParameters; // Currently not used
+      final userInfo = uri.userInfo;
+      var port = uri.hasPort ? uri.port.toString() : '';
+      var rpcUser = userInfo.length == 2 ? userInfo[0] : '';
+      var rpcPassword = userInfo.length == 2 ? userInfo[1] : '';
+
+      if (rpcUser.isEmpty && rpcPassword.isEmpty) {
+        rpcUser = queryParams['username'] ?? '';
+        rpcPassword = queryParams['password'] ?? '';
+      }
+
+      if (port.isEmpty) {
+        port = queryParams['port'] ?? '';
+      }
+
+      if (queryParams['protocol'] == 'https') {
+        setSSL(true);
+      }
+
+      if (queryParams['trusted'] == 'true') {
+        setTrusted(true);
+      }
 
       await Future.delayed(Duration(milliseconds: 345));
 

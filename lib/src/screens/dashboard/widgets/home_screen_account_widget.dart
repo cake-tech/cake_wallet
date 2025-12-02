@@ -1,6 +1,5 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 
@@ -13,14 +12,12 @@ class HomeScreenAccountWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async  {
-        await showPopUp<void>(
-    context: context,
-    builder: (_) => getIt.get<MoneroAccountListPage>());
-    },
+      onTap: () async {
+        await showPopUp<void>(context: context, builder: (_) => getIt.get<MoneroAccountListPage>());
+      },
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: EdgeInsets.only(top: 25, bottom: 25, left: 25, right: 0),
+        padding: EdgeInsets.all(25.0),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -32,35 +29,36 @@ class HomeScreenAccountWidget extends StatelessWidget {
                 Container(
                   child: Text(
                     walletName ?? '',
-                    style: TextStyle(
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Lato',
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                    ),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                   ),
                 ),
                 SizedBox(
                   height: 5.0,
                 ),
-                Container(
-                  child: Text(
-                    accountName ?? '',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Lato',
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                Row(
+                  children: [
+                    Padding(padding: EdgeInsets.only(left: 20)),
+                    Container(
+                      child: Text(
+                        accountName ?? '',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
                     ),
-                  ),
+                    Container(
+                      child: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
-            Container(
-              child: Icon(
-                Icons.keyboard_arrow_down,
-                color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-              ),
             ),
           ],
         ),

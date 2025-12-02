@@ -5,14 +5,16 @@ import 'package:cake_wallet/core/open_crypto_pay/exceptions.dart';
 import 'package:cake_wallet/core/open_crypto_pay/lnurl.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:http/http.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class OpenCryptoPayService {
   static bool isOpenCryptoPayQR(String value) =>
       value.toLowerCase().contains("lightning=lnurl") ||
       value.toLowerCase().startsWith("lnurl");
 
-  final Client _httpClient = Client();
+  static bool requiresClientCommit(CryptoCurrency currency) =>
+      [CryptoCurrency.xmr, CryptoCurrency.zano, CryptoCurrency.sol].contains(currency) ||
+      currency.tag == "SOL";
 
   Future<String> commitOpenCryptoPayRequest(
     String txHex, {
@@ -27,26 +29,24 @@ class OpenCryptoPayService {
     queryParams['quote'] = request.quote;
     queryParams['asset'] = asset.title;
     queryParams['method'] = _getMethod(asset);
-    queryParams['hex'] = txHex;
     queryParams['tx'] = txId;
+    if (txHex.isNotEmpty) queryParams['hex'] = txHex;
 
     final response =
-        await _httpClient.get(Uri.https(uri.authority, uri.path, queryParams));
+        await ProxyWrapper().get(clearnetUri: Uri.https(uri.authority, uri.path, queryParams));
 
+    final body = jsonDecode(response.body) as Map;
     if (response.statusCode == 200) {
-      final body = jsonDecode(response.body) as Map;
-
       if (body.keys.contains("txId")) return body["txId"] as String;
       throw OpenCryptoPayException(body.toString());
     }
-    throw OpenCryptoPayException(
-        "Unexpected status code ${response.statusCode} ${response.body}");
+    throw OpenCryptoPayException("${response.statusCode}: ${body["message"]}");
   }
 
   Future<void> cancelOpenCryptoPayRequest(OpenCryptoPayRequest request) async {
     final uri = Uri.parse(request.callbackUrl.replaceAll("/cb/", "/cancel/"));
 
-    await _httpClient.delete(uri);
+    await ProxyWrapper().delete(clearnetUri: uri);
   }
 
   Future<OpenCryptoPayRequest> getOpenCryptoPayInvoice(String lnUrl) async {
@@ -73,7 +73,7 @@ class OpenCryptoPayService {
 
   Future<(_OpenCryptoPayQuote, Map<String, List<OpenCryptoPayQuoteAsset>>)>
       _getOpenCryptoPayParams(Uri uri) async {
-    final response = await _httpClient.get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
 
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body) as Map;
@@ -120,7 +120,7 @@ class OpenCryptoPayService {
     queryParams['method'] = _getMethod(asset);
 
     final response =
-        await _httpClient.get(Uri.https(uri.authority, uri.path, queryParams));
+        await ProxyWrapper().get(clearnetUri: Uri.https(uri.authority, uri.path, queryParams));
 
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body) as Map;
@@ -162,6 +162,12 @@ class OpenCryptoPayService {
         return "Ethereum";
       case "POL":
         return "Polygon";
+      case "ARB":
+        return "Arbitrum";
+      case "TRX":
+        return "Tron";
+      case "SOL":
+        return "Solana";
       default:
         return asset.fullName!;
     }
@@ -174,11 +180,9 @@ class _OpenCryptoPayQuote {
   final String id;
   final DateTime expiration;
 
-  _OpenCryptoPayQuote(
-      this.callbackUrl, this.displayName, this.id, this.expiration);
+  _OpenCryptoPayQuote(this.callbackUrl, this.displayName, this.id, this.expiration);
 
-  _OpenCryptoPayQuote.fromJson(
-      this.callbackUrl, this.displayName, Map<String, dynamic> json)
+  _OpenCryptoPayQuote.fromJson(this.callbackUrl, this.displayName, Map<String, dynamic> json)
       : id = json['id'] as String,
         expiration = DateTime.parse(json['expiration'] as String);
 }

@@ -1,303 +1,604 @@
+
 name: Automated Integration Tests
 
-on:
- # pull_request:
- #   branches: [main, CW-659-Transaction-History-Automated-Tests]
- workflow_dispatch:
-   inputs:
-     branch:
-       description: "Branch name to build"
-       required: true
-       default: "main"
-
+# Temporarily disabled - uncomment to re-enable
+on: 
+  # push:
+  # pull_request:
+  #   branches: [main]
+  workflow_dispatch:  # This is to manually trigger if needed
+defaults:
+  run:
+    shell: bash
 jobs:
- Automated_integration_test:
-   runs-on: ubuntu-24.04
-   strategy:
-     fail-fast: false
-     matrix:
-       api-level: [29]
-       # arch: [x86, x86_64]
-   env:
-     STORE_PASS: test@cake_wallet
-     KEY_PASS: test@cake_wallet
-     PR_NUMBER: ${{ github.event.number }}
+  Automated_integration_test:
+    runs-on: linux-amd64
+    timeout-minutes: 90
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.0-go1.24.1-ruststablenightly
+      env:
+        STORE_PASS: test@cake_wallet
+        KEY_PASS: test@cake_wallet
+        MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        ANDROID_AVD_HOME: /root/.android/avd
+      volumes:
+        - /opt/cw_cache_android/root/.cache:/root/.cache
+        - /opt/cw_cache_android/root/.android/avd/:/root/.android/avd
+        - /opt/cw_cache_android/root/.ccache:/root/.ccache
+        - /opt/cw_cache_android/root/.pub-cache/:/root/.pub-cache
+        - /opt/cw_cache_android/root/.gradle/:/root/.gradle
+        - /opt/cw_cache_android/root/.android/:/root/.android
+        - /opt/cw_cache_android/root/go/pkg:/root/go/pkg
+        - /opt/cw_cache_android/opt/generic_cache:/opt/generic_cache
+        - /dev/kvm:/dev/kvm
+    strategy:
+      matrix:
+        api-level: [29]
 
-   steps:
-     - name: is pr
-       if: github.event_name == 'pull_request'
-       run: echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: configure git
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@cakewallet.com"
+          git config --global user.name "CakeWallet CI"
+      - name: Get the full commit message
+        run: |
+          FULL_MESSAGE="$(git log -1 --pretty=%B)"
+          echo "message<<EOF" >> $GITHUB_ENV
+          echo "$FULL_MESSAGE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-     - name: is not pr
-       if: github.event_name != 'pull_request'
-       run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
+      - name: Add secrets
+        run: |
+          touch lib/.secrets.g.dart
+          touch cw_evm/lib/.secrets.g.dart
+          touch cw_solana/lib/.secrets.g.dart
+          touch cw_core/lib/.secrets.g.dart
+          touch cw_nano/lib/.secrets.g.dart
+          touch cw_tron/lib/.secrets.g.dart
+          if [[ "x${{ secrets.SALT }}" == "x" ]];
+          then
+            echo "const salt = '954f787f12622067f7e548d9450c3832';" > lib/.secrets.g.dart
+          else
+            echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.KEY_CHAIN_SALT }}" == "x" ]];
+          then
+            echo "const keychainSalt = '2d2beba777dbf7dff7013b7a';" >> lib/.secrets.g.dart
+          else
+            echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.KEY }}" == "x" ]];
+          then
+            echo "const key = '638e98820ec10a2945e968435c9397a3';" >> lib/.secrets.g.dart
+          else
+            echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.WALLET_SALT }}" == "x" ]];
+          then
+            echo "const walletSalt = '8f7f1b70';" >> lib/.secrets.g.dart
+          else
+            echo "const walletSalt = '${{ secrets.WALLET_SALT }}';" >> lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.SHORT_KEY }}" == "x" ]];
+          then
+            echo "const shortKey = '653f270c2c152bc7ec864afe';" >> lib/.secrets.g.dart
+          else
+            echo "const shortKey = '${{ secrets.SHORT_KEY }}';" >> lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.BACKUP_SALT }}" == "x" ]];
+          then
+            echo "const backupSalt = 'bf630d24ff0b6f60';" >> lib/.secrets.g.dart
+          else
+            echo "const backupSalt = '${{ secrets.BACKUP_SALT }}';" >> lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.BACKUP_KEY_CHAIN_SALT }}" == "x" ]];
+          then
+            echo "const backupKeychainSalt = 'bf630d24ff0b6f60';" >> lib/.secrets.g.dart
+          else
+            echo "const backupKeychainSalt = '${{ secrets.BACKUP_KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
+          fi
+          echo "const changeNowCakeWalletApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const changeNowMoneroApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const wyreSecretKey = '${{ secrets.WYRE_SECRET_KEY }}';" >> lib/.secrets.g.dart
+          echo "const wyreApiKey = '${{ secrets.WYRE_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const wyreAccountId = '${{ secrets.WYRE_ACCOUNT_ID }}';" >> lib/.secrets.g.dart
+          echo "const moonPayApiKey = '${{ secrets.MOON_PAY_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const moonPaySecretKey = '${{ secrets.MOON_PAY_SECRET_KEY }}';" >> lib/.secrets.g.dart
+          echo "const sideShiftAffiliateId = '${{ secrets.SIDE_SHIFT_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
+          echo "const simpleSwapApiKey = '${{ secrets.SIMPLE_SWAP_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const simpleSwapApiKeyDesktop = '${{ secrets.SIMPLE_SWAP_API_KEY_DESKTOP }}';" >> lib/.secrets.g.dart
+          echo "const onramperApiKey = '${{ secrets.ONRAMPER_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const anypayToken = '${{ secrets.ANY_PAY_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const ioniaClientId = '${{ secrets.IONIA_CLIENT_ID }}';" >> lib/.secrets.g.dart
+          echo "const twitterBearerToken = '${{ secrets.TWITTER_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const trocadorApiKey = '${{ secrets.TROCADOR_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const trocadorMoneroApiKey = '${{ secrets.TROCADOR_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const trocadorExchangeMarkup = '${{ secrets.TROCADOR_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
+          echo "const anonPayReferralCode = '${{ secrets.ANON_PAY_REFERRAL_CODE }}';" >> lib/.secrets.g.dart
+          echo "const fiatApiKey = '${{ secrets.FIAT_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const nowNodesApiKey = '${{ secrets.EVM_NOWNODES_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const chatwootWebsiteToken = '${{ secrets.CHATWOOT_WEBSITE_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const exolixCakeWalletApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const exolixMoneroApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const robinhoodApplicationId = '${{ secrets.ROBINHOOD_APPLICATION_ID }}';" >> lib/.secrets.g.dart
+          echo "const exchangeHelperApiKey = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
+          echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
+          echo "const CSRFToken = '${{ secrets.CSRF_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const swapTradeExchangeMarkup = '${{ secrets.SWAPTRADE_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
+          echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const meldTestApiKey = '${{ secrets.MELD_TEST_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const meldTestPublicKey = '${{ secrets.MELD_TEST_PUBLIC_KEY}}';" >> lib/.secrets.g.dart
+          echo "const letsExchangeBearerToken = '${{ secrets.LETS_EXCHANGE_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const letsExchangeAffiliateId = '${{ secrets.LETS_EXCHANGE_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
+          echo "const stealthExBearerToken = '${{ secrets.STEALTH_EX_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const stealthExAdditionalFeePercent = '${{ secrets.STEALTH_EX_ADDITIONAL_FEE_PERCENT }}';" >> lib/.secrets.g.dart
+          # for tests
+          echo "const moneroTestWalletSeeds ='${{ secrets.MONERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const moneroLegacyTestWalletSeeds = '${{ secrets.MONERO_LEGACY_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinTestWalletSeeds = '${{ secrets.BITCOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const ethereumTestWalletSeeds = '${{ secrets.ETHEREUM_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const litecoinTestWalletSeeds =  '${{ secrets.LITECOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinCashTestWalletSeeds =  '${{ secrets.BITCOIN_CASH_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const polygonTestWalletSeeds = '${{ secrets.POLYGON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const baseTestWalletSeeds = '${{ secrets.BASE_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const arbitrumTestWalletSeeds = '${{ secrets.ARBITRUM_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const solanaTestWalletSeeds = '${{ secrets.SOLANA_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const solanaTestWalletSeeds2 = '${{ secrets.SOLANA_TEST_WALLET_SEEDS2 }}';" >> lib/.secrets.g.dart
+          echo "const tronTestWalletSeeds = '${{ secrets.TRON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const nanoTestWalletSeeds =  '${{ secrets.NANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const wowneroTestWalletSeeds = '${{ secrets.WOWNERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const zanoTestWalletSeeds = '${{ secrets.ZANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const decredTestWalletSeeds = '${{ secrets.DECRED_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const moneroTestWalletReceiveAddress = '${{ secrets.MONERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinTestWalletReceiveAddress =  '${{ secrets.BITCOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const ethereumTestWalletReceiveAddress =  '${{ secrets.ETHEREUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const litecoinTestWalletReceiveAddress =  '${{ secrets.LITECOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinCashTestWalletReceiveAddress = '${{ secrets.BITCOIN_CASH_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const polygonTestWalletReceiveAddress =  '${{ secrets.POLYGON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const baseTestWalletReceiveAddress =  '${{ secrets.BASE_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const arbitrumTestWalletReceiveAddress =  '${{ secrets.ARBITRUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const solanaTestWalletReceiveAddress =  '${{ secrets.SOLANA_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const tronTestWalletReceiveAddress =  '${{ secrets.TRON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const wowneroTestWalletReceiveAddress = '${{ secrets.WOWNERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const zanoTestWalletReceiveAddress = '${{ secrets.ZANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const decredTestWalletReceiveAddress = '${{ secrets.DECRED_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const moneroTestWalletBlockHeight =  '${{ secrets.MONERO_TEST_WALLET_BLOCK_HEIGHT }}';" >> lib/.secrets.g.dart
+          # end of test secrets
+          echo "const chainflipApiKey = '${{ secrets.CHAINFLIP_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const chainflipAffiliateFee = '${{ secrets.CHAINFLIP_AFFILIATE_FEE }}';" >> lib/.secrets.g.dart
+          echo "const kryptonimApiKey = '${{ secrets.KRYPTONIM_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const walletGroupSalt = '${{ secrets.WALLET_GROUP_SALT }}';" >> lib/.secrets.g.dart
+          echo "const swapsXyzApiKey = '${{ secrets.SWAPSXYZ_API_KEY }}';" >> lib/.secrets.g.dart
 
-     - name: Free Disk Space (Ubuntu)
-       uses: insightsengineering/disk-space-reclaimer@v1
-       with:
-         tools-cache: true
-         android: false
-         dotnet: true
-         haskell: true
-         large-packages: true
-         swap-storage: true
-         docker-images: true
+      - name: prepare monero_c and cache
+        run: |
+          export MONEROC_HASH=$(cat scripts/prepare_moneroc.sh | grep 'git checkout' | xargs | awk '{ print $3 }')
+          echo MONEROC_HASH=$MONEROC_HASH >> /etc/environment
+          mkdir -p "$MONEROC_CACHE_DIR_ROOT/moneroc-$MONEROC_HASH/monero_c"
+          pushd scripts
+            ln -s "$MONEROC_CACHE_DIR_ROOT/moneroc-$MONEROC_HASH/monero_c"
+            ./prepare_moneroc.sh
+          popd
+          pushd scripts/monero_c
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/built" || true
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/built" || true
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/built" || true
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/sources" || true
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/sources" || true
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/sources" || true
 
-     - uses: actions/checkout@v2
-     - uses: actions/setup-java@v2
-       with:
-         distribution: "temurin"
-         java-version: "17"
-     - name: Configure placeholder git details
-       run: |
-         git config --global user.email "CI@cakewallet.com"
-         git config --global user.name "Cake Github Actions"
-     - name: Flutter action
-       uses: subosito/flutter-action@v1
-       with:
-         flutter-version: "3.27.4"
-         channel: stable
+            rm -rf "$PWD/contrib/depends/built" "$PWD/monero/contrib/depends/built" "$PWD/wownero/contrib/depends/built"
+            rm -rf "$PWD/contrib/depends/sources" "$PWD/monero/contrib/depends/sources" "$PWD/wownero/contrib/depends/sources"
+            mkdir -p contrib/depends || true
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/built" "$PWD/contrib/depends/built"
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/built" "$PWD/monero/contrib/depends/built"
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/built" "$PWD/wownero/contrib/depends/built"
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/sources" "$PWD/contrib/depends/sources"
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/sources" "$PWD/monero/contrib/depends/sources"
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/sources" "$PWD/wownero/contrib/depends/sources"
+          popd
 
-     - name: Install package dependencies
-       run: |
-         sudo apt update
-         sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
+      - name: Generate KeyStore
+        run: |
+          pushd /opt/generic_cache
+            if [[ ! -f key.jks ]];
+            then
+              keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
+            else
+              echo "$PWD/key.jks exist, not generating"
+            fi
+          popd
+          cp /opt/generic_cache/key.jks android/app
 
-     - name: Execute Build and Setup Commands
-       run: |
-         sudo mkdir -p /opt/android
-         sudo chown $USER /opt/android
-         cd /opt/android
-         -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-         cargo install cargo-ndk
-         git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
-         cd cake_wallet/scripts/android/
-         ./install_ndk.sh
-         source ./app_env.sh cakewallet
-         chmod +x pubspec_gen.sh
-         ./app_config.sh
+      - name: Execute Build and Setup Commands
+        run: |
+          pushd scripts/android
+            source ./app_env.sh cakewallet
+            ./app_config.sh
+          popd
 
-     - name: Cache Externals
-       id: cache-externals
-       uses: actions/cache@v3
-       with:
-         path: |
-           /opt/android/cake_wallet/cw_haven/android/.cxx
-           /opt/android/cake_wallet/scripts/monero_c/release
-         key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
+      - name: Build monero_c
+        run: |
+          pushd scripts/android/
+            source ./app_env.sh cakewallet
+            ./build_monero_all.sh
+          popd
 
-     - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
-       name: Generate Externals
-       run: |
-         cd /opt/android/cake_wallet/scripts/android/
-         source ./app_env.sh cakewallet
-         ./build_monero_all.sh
+      - name: Install Flutter dependencies
+        run: |
+          flutter pub get
 
-     - name: Install Flutter dependencies
-       run: |
-         cd /opt/android/cake_wallet
-         flutter pub get
+      - name: Build mwebd
+        run: |
+          set -x -e
+          export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
+          echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
+          pushd scripts/android
+            gomobile init;
+            ./build_mwebd.sh
+          popd
 
+      - name: Build Decred
+        run: |
+          set -x -e
+          pushd scripts/android
+            ./build_decred.sh
+          popd
 
-     - name: Install go and gomobile
-       run: |
-         # install go > 1.23:
-         wget https://go.dev/dl/go1.23.1.linux-amd64.tar.gz
-         sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
-         export PATH=$PATH:/usr/local/go/bin
-         export PATH=$PATH:~/go/bin
-         go install golang.org/x/mobile/cmd/gomobile@latest
-         gomobile init
+      - name: Build generated code
+        run: |
+          flutter --version
+          flutter clean
+          rm -rf .dart_tool
+          rm pubspec.lock
+          flutter pub get
+          ./model_generator.sh async
 
-     - name: Build mwebd
-       run: |
-         # paths are reset after each step, so we need to set them again:
-         export PATH=$PATH:/usr/local/go/bin
-         export PATH=$PATH:~/go/bin
-         cd /opt/android/cake_wallet/scripts/android/
-         ./build_mwebd.sh --dont-install
+      - name: Generate key properties
+        run: |
+          dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
 
-     - name: Generate KeyStore
-       run: |
-         cd /opt/android/cake_wallet/android/app
-         keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
+      - name: Generate localization
+        run: |
+          dart run tool/generate_localization.dart
 
-     - name: Generate key properties
-       run: |
-         cd /opt/android/cake_wallet
-         flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
+      - name: Rename app
+        run: |
+          sanitized_branch_name=${BRANCH_NAME#origin/}  # Remove 'origin/' prefix if it exists
+          sanitized_branch_name=${sanitized_branch_name:0:16}  # Take only the first 16 characters
+          sanitized_branch_name=$(echo "$sanitized_branch_name" | tr '[:upper:]' '[:lower:]')  # Convert to lowercase
+          sanitized_branch_name=$(echo "$sanitized_branch_name" | sed 's/[^a-z0-9]//g')  # Remove all special characters
 
-     - name: Generate localization
-       run: |
-         cd /opt/android/cake_wallet
-         flutter packages pub run tool/generate_localization.dart
+          echo -e "id=com.cakewallet.test_${sanitized_branch_name}\nname=${BRANCH_NAME}" > android/app.properties
+  
+      - name: Build
+        run: |
+          flutter build apk --dart-define=hasDevOptions=true --release --split-per-abi
 
-     - name: Build generated code
-       run: |
-         cd /opt/android/cake_wallet
-         ./model_generator.sh
+      - name: Rename apk file
+        run: |
+          sanitized_branch_name=$(grep '^id=' android/app.properties | cut -d'=' -f2 | sed 's/com\.cakewallet\.test_//')
+          cd build/app/outputs/flutter-apk
+          mkdir test-apk
+          
+          cp app-arm64-v8a-release.apk test-apk/${sanitized_branch_name}.apk
+          cp app-x86_64-release.apk test-apk/${sanitized_branch_name}_x86.apk
+          echo "APK files created: test-apk/${sanitized_branch_name}.apk and test-apk/${sanitized_branch_name}_x86.apk"
 
-     - name: Add secrets
-       run: |
-         cd /opt/android/cake_wallet
-         touch lib/.secrets.g.dart
-         touch cw_evm/lib/.secrets.g.dart
-         touch cw_solana/lib/.secrets.g.dart
-         touch cw_core/lib/.secrets.g.dart
-         touch cw_nano/lib/.secrets.g.dart
-         touch cw_tron/lib/.secrets.g.dart
-         echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
-         echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
-         echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
-         echo "const walletSalt = '${{ secrets.WALLET_SALT }}';" >> lib/.secrets.g.dart
-         echo "const shortKey = '${{ secrets.SHORT_KEY }}';" >> lib/.secrets.g.dart
-         echo "const backupSalt = '${{ secrets.BACKUP_SALT }}';" >> lib/.secrets.g.dart
-         echo "const backupKeychainSalt = '${{ secrets.BACKUP_KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
-         echo "const changeNowApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const changeNowApiKeyDesktop = '${{ secrets.CHANGE_NOW_API_KEY_DESKTOP }}';" >> lib/.secrets.g.dart
-         echo "const wyreSecretKey = '${{ secrets.WYRE_SECRET_KEY }}';" >> lib/.secrets.g.dart
-         echo "const wyreApiKey = '${{ secrets.WYRE_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const wyreAccountId = '${{ secrets.WYRE_ACCOUNT_ID }}';" >> lib/.secrets.g.dart
-         echo "const moonPayApiKey = '${{ secrets.MOON_PAY_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const moonPaySecretKey = '${{ secrets.MOON_PAY_SECRET_KEY }}';" >> lib/.secrets.g.dart
-         echo "const sideShiftAffiliateId = '${{ secrets.SIDE_SHIFT_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
-         echo "const simpleSwapApiKey = '${{ secrets.SIMPLE_SWAP_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const simpleSwapApiKeyDesktop = '${{ secrets.SIMPLE_SWAP_API_KEY_DESKTOP }}';" >> lib/.secrets.g.dart
-         echo "const onramperApiKey = '${{ secrets.ONRAMPER_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const anypayToken = '${{ secrets.ANY_PAY_TOKEN }}';" >> lib/.secrets.g.dart
-         echo "const ioniaClientId = '${{ secrets.IONIA_CLIENT_ID }}';" >> lib/.secrets.g.dart
-         echo "const twitterBearerToken = '${{ secrets.TWITTER_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
-         echo "const trocadorApiKey = '${{ secrets.TROCADOR_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const trocadorExchangeMarkup = '${{ secrets.TROCADOR_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
-         echo "const anonPayReferralCode = '${{ secrets.ANON_PAY_REFERRAL_CODE }}';" >> lib/.secrets.g.dart
-         echo "const fiatApiKey = '${{ secrets.FIAT_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
-         echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
-         echo "const chatwootWebsiteToken = '${{ secrets.CHATWOOT_WEBSITE_TOKEN }}';" >> lib/.secrets.g.dart
-         echo "const exolixApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const robinhoodApplicationId = '${{ secrets.ROBINHOOD_APPLICATION_ID }}';" >> lib/.secrets.g.dart
-         echo "const exchangeHelperApiKey = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
-         echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
-         echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
-         echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
-         echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
-         echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
-         echo "const CSRFToken = '${{ secrets.CSRF_TOKEN }}';" >> lib/.secrets.g.dart
-         echo "const swapTradeExchangeMarkup = '${{ secrets.SWAPTRADE_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
-         echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
-         echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
-         echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
-         echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
-         echo "const meldTestApiKey = '${{ secrets.MELD_TEST_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const meldTestPublicKey = '${{ secrets.MELD_TEST_PUBLIC_KEY}}';" >> lib/.secrets.g.dart
-         echo "const letsExchangeBearerToken = '${{ secrets.LETS_EXCHANGE_TOKEN }}';" >> lib/.secrets.g.dart
-         echo "const letsExchangeAffiliateId = '${{ secrets.LETS_EXCHANGE_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
-         echo "const stealthExBearerToken = '${{ secrets.STEALTH_EX_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
-         echo "const stealthExAdditionalFeePercent = '${{ secrets.STEALTH_EX_ADDITIONAL_FEE_PERCENT }}';" >> lib/.secrets.g.dart
-         echo "const moneroTestWalletSeeds ='${{ secrets.MONERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
-         echo "const moneroLegacyTestWalletSeeds = '${{ secrets.MONERO_LEGACY_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
-         echo "const bitcoinTestWalletSeeds = '${{ secrets.BITCOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
-         echo "const ethereumTestWalletSeeds = '${{ secrets.ETHEREUM_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
-         echo "const litecoinTestWalletSeeds =  '${{ secrets.LITECOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
-         echo "const bitcoinCashTestWalletSeeds =  '${{ secrets.BITCOIN_CASH_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
-         echo "const polygonTestWalletSeeds = '${{ secrets.POLYGON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
-         echo "const solanaTestWalletSeeds = '${{ secrets.SOLANA_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
-         echo "const tronTestWalletSeeds = '${{ secrets.TRON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
-         echo "const nanoTestWalletSeeds =  '${{ secrets.NANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
-         echo "const wowneroTestWalletSeeds = '${{ secrets.WOWNERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
-         echo "const moneroTestWalletReceiveAddress = '${{ secrets.MONERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-         echo "const bitcoinTestWalletReceiveAddress =  '${{ secrets.BITCOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-         echo "const ethereumTestWalletReceiveAddress =  '${{ secrets.ETHEREUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-         echo "const litecoinTestWalletReceiveAddress =  '${{ secrets.LITECOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-         echo "const bitcoinCashTestWalletReceiveAddress = '${{ secrets.BITCOIN_CASH_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-         echo "const polygonTestWalletReceiveAddress =  '${{ secrets.POLYGON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-         echo "const solanaTestWalletReceiveAddress =  '${{ secrets.SOLANA_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-         echo "const tronTestWalletReceiveAddress =  '${{ secrets.TRON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-         echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-         echo "const wowneroTestWalletReceiveAddress = '${{ secrets.WOWNERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-         echo "const moneroTestWalletBlockHeight =  '${{ secrets.MONERO_TEST_WALLET_BLOCK_HEIGHT }}';" >> lib/.secrets.g.dart
-         # end of test secrets
-         echo "const chainflipApiKey = '${{ secrets.CHAINFLIP_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const chainflipAffiliateFee = '${{ secrets.CHAINFLIP_AFFILIATE_FEE }}';" >> lib/.secrets.g.dart
-         echo "const walletGroupSalt = '${{ secrets.WALLET_GROUP_SALT }}';" >> lib/.secrets.g.dart
+      - name: Find APK file
+        id: find_apk
+        run: |
+          set -x
+          # Read the sanitized branch name from the app.properties file
+          sanitized_branch_name=$(grep '^id=' android/app.properties | cut -d'=' -f2 | sed 's/com\.cakewallet\.test_//')
+          
+          echo "Looking for APK file: build/app/outputs/flutter-apk/test-apk/${sanitized_branch_name}.apk"
+          ls -la build/app/outputs/flutter-apk/test-apk/ || echo "test-apk directory not found"
+          apk_file=$(ls build/app/outputs/flutter-apk/test-apk/${sanitized_branch_name}.apk || exit 1)
+          echo "APK_FILE=$apk_file" >> $GITHUB_ENV
+          echo "APK file found: $apk_file"
+          ls -la "$apk_file"
 
-     - name: Rename app
-       run: |
-         echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+      - name: 🔍 Debug System Environment
+        run: |
+          echo "=== System Information ==="
+          uname -a
+          echo "=== Container Info ==="
+          cat /proc/version || echo "Cannot read /proc/version"
+          echo "=== KVM Device Check ==="
+          ls -la /dev/kvm || echo "KVM device not found"
+          echo "=== udev Status ==="
+          which udevadm || echo "udevadm not found"
+          echo "=== Current User ==="
+          whoami
+          echo "=== Groups ==="
+          groups
+          echo "=== Environment ==="
+          env | grep -E "(HOME|USER|PATH)" | sort
 
-     - name: Build
-       run: |
-         cd /opt/android/cake_wallet
-         flutter build apk --release --split-per-abi
+      - name: 🧹 Clean up existing emulators
+        run: |
+          echo "=== Cleaning up existing emulators ==="
+          # Kill any existing emulator processes
+          pkill -f emulator || echo "No emulator processes found"
+          # Kill any existing adb processes
+          pkill -f adb || echo "No adb processes found"
+          # Wait a moment for processes to terminate
+          sleep 2
+          # Start adb server fresh
+          adb start-server || echo "Failed to start adb server"
+          # Kill adb server to ensure clean state
+          adb kill-server || echo "Failed to kill adb server"
+          echo "=== Cleanup complete ==="
 
-     # - name: Rename apk file
-     #   run: |
-     #     cd /opt/android/cake_wallet/build/app/outputs/flutter-apk
-     #     mkdir test-apk
-     #     cp app-arm64-v8a-release.apk test-apk/${{env.BRANCH_NAME}}.apk
-     #     cp app-x86_64-release.apk test-apk/${{env.BRANCH_NAME}}_x86.apk
+      - name: 🔍 Verify AVD Configuration
+        run: |
+          echo "=== AVD Configuration Check ==="
+          
+          # Check if AVD directory exists
+          echo "Checking AVD directory..."
+          ls -la ~/.android/avd/ || echo "AVD directory not found"
+          
+          # List available AVDs
+          echo "Available AVDs:"
+          emulator -list-avds || echo "Failed to list AVDs"
+          
+          # Check Android SDK location
+          echo "Android SDK location:"
+          echo $ANDROID_HOME
+          echo $ANDROID_SDK_ROOT
+          
+          # Check emulator binary
+          echo "Emulator binary:"
+          which emulator || echo "Emulator not found in PATH"
+          emulator -version || echo "Failed to get emulator version"
+          
+          echo "=== AVD Check Complete ==="
 
-     # - name: Upload Artifact
-     #   uses: kittaakos/upload-artifact-as-is@v0
-     #   with:
-     #     path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/
+      - name: 🦾 Enable KVM
+        run: |
+            echo "=== KVM Setup and Verification ==="
+            
+            # Check if KVM device exists
+            if [ -e /dev/kvm ]; then
+                echo "✅ KVM device found at /dev/kvm"
+                
+                # Check current permissions
+                echo "Current KVM permissions:"
+                ls -la /dev/kvm
+                
+                # Set proper permissions
+                sudo chmod 666 /dev/kvm || echo "⚠️ Failed to set KVM permissions"
+                
+                # Verify permissions were set
+                if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+                    echo "✅ KVM is readable and writable"
+                else
+                    echo "⚠️ KVM permissions may not be optimal"
+                fi
+                
+                # Test KVM functionality
+                echo "Testing KVM functionality..."
+                if command -v kvm-ok >/dev/null 2>&1; then
+                    if kvm-ok 2>/dev/null; then
+                        echo "✅ KVM is working properly"
+                    else
+                        echo "⚠️ KVM check failed, but continuing..."
+                    fi
+                else
+                    echo "ℹ️ kvm-ok command not available, testing manually..."
+                    # Manual KVM test
+                    if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+                        echo "✅ KVM device is accessible"
+                    fi
+                fi
+                
+                # Try to create udev rules (may fail in container, that's OK)
+                echo "Setting up udev rules..."
+                sudo mkdir -p /etc/udev/rules.d || echo "⚠️ Could not create udev directory"
+                echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules || echo "⚠️ Could not create udev rule"
+                
+                # Try to reload udev rules (will likely fail in container, that's OK)
+                sudo udevadm control --reload-rules || echo "ℹ️ udevadm control failed (expected in container)"
+                sudo udevadm trigger --name-match=kvm || echo "ℹ️ udevadm trigger failed (expected in container)"
+                
+            else
+                echo "❌ KVM device not found at /dev/kvm"
+                echo "This will cause the emulator to run in software mode (slower)"
+            fi
+            
+            # Check system resources
+            echo "=== System Resources ==="
+            echo "Memory:"
+            free -h
+            echo "Disk space:"
+            df -h
+            echo "CPU cores:"
+            nproc
+            echo "KVM module loaded:"
+            lsmod | grep kvm || echo "KVM module not loaded (may be built-in)"
+            
+            echo "=== KVM Setup Complete ==="
 
-     # - name: Send Test APK
-     #   continue-on-error: true
-     #   uses: adrey/slack-file-upload-action@1.0.5
-     #   with:
-     #     token: ${{ secrets.SLACK_APP_TOKEN }}
-     #     path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/${{env.BRANCH_NAME}}.apk
-     #     channel: ${{ secrets.SLACK_APK_CHANNEL }}
-     #     title: "${{ env.BRANCH_NAME }}.apk"
-     #     filename: ${{ env.BRANCH_NAME }}.apk
-     #     initial_comment: ${{ github.event.head_commit.message }}
+      - name: 🦾 Cache gradle
+        uses: gradle/actions/setup-gradle@v3
 
-     - name: 🦾 Enable KVM
-       run: |
-           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-           sudo udevadm control --reload-rules
-           sudo udevadm trigger --name-match=kvm
+      - name: 🦾 Cache AVD
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+            path: |
+                ~/.android/avd/*
+                ~/.android/adb*
+            key: avd-${{ matrix.api-level }}
 
-     - name: 🦾 Cache gradle
-       uses: gradle/actions/setup-gradle@v3
+      - name: 🔧 Prepare emulator utilities
+        run: |
+          # Create a helper script for emulator readiness checks
+          cat > /tmp/emulator_ready.sh << 'EOF'
+          #!/bin/bash
+          
+          echo "=== Emulator Readiness Check ==="
+          
+          # Wait for boot completion
+          echo "1. Checking boot completion..."
+          timeout 300 bash -c 'until adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do sleep 5; echo "  Waiting for boot completion..."; done'
+          if [ $? -eq 0 ]; then
+              echo "✅ Boot completed"
+          else
+              echo "❌ Boot completion timeout"
+              echo "⚠️ Continuing anyway..."
+          fi
+          
+          # Wait for input service
+          echo "2. Checking input service..."
+          timeout 60 bash -c 'until adb shell service list 2>/dev/null | grep -q "input"; do sleep 2; echo "  Waiting for input service..."; done'
+          if [ $? -eq 0 ]; then
+              echo "✅ Input service ready"
+          else
+              echo "❌ Input service timeout"
+              echo "⚠️ Continuing anyway..."
+          fi
+          
+          # Wait for package manager
+          echo "3. Checking package manager..."
+          timeout 60 bash -c 'until adb shell pm list packages 2>/dev/null >/dev/null; do sleep 2; echo "  Waiting for package manager..."; done'
+          if [ $? -eq 0 ]; then
+              echo "✅ Package manager ready"
+          else
+              echo "❌ Package manager timeout"
+              echo "⚠️ Continuing anyway..."
+          fi
+          
+          # Wait for settings service
+          echo "4. Checking settings service..."
+          timeout 60 bash -c 'until adb shell settings get global window_animation_scale 2>/dev/null >/dev/null; do sleep 2; echo "  Waiting for settings service..."; done'
+          if [ $? -eq 0 ]; then
+              echo "✅ Settings service ready"
+          else
+              echo "❌ Settings service timeout"
+              echo "⚠️ Continuing anyway..."
+          fi
+          
+          echo "✅ Emulator readiness check completed"
+          EOF
+          
+          chmod +x /tmp/emulator_ready.sh
 
-     - name: 🦾 Cache AVD
-       uses: actions/cache@v4
-       id: avd-cache
-       with:
-           path: |
-               ~/.android/avd/*
-               ~/.android/adb*
-           key: avd-${{ matrix.api-level }}
+      - name: 🦾 Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+            api-level: ${{ matrix.api-level }}
+            force-avd-creation: false
+            # arch: ${{ matrix.arch }}
+            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024 -no-snapshot-save
+            working-directory: ${{ github.workspace }}
+            disable-animations: false
+            script: |
+                echo "=== AVD Snapshot Generation ==="
+                
+                # Use the helper script to ensure emulator is fully ready
+                /tmp/emulator_ready.sh
+                
+                # Manually disable animations with error handling
+                echo "Disabling animations manually..."
+                adb shell settings put global window_animation_scale 0.0 || echo "Failed to disable window animations"
+                adb shell settings put global transition_animation_scale 0.0 || echo "Failed to disable transition animations"
+                adb shell settings put global animator_duration_scale 0.0 || echo "Failed to disable animator duration"
+                
+                echo "=== Checking emulator status before termination ==="
+                adb devices || echo "ADB devices check failed"
+                echo "=== AVD snapshot generation complete ==="
 
-     - name: 🦾 Create AVD and generate snapshot for caching
-       if: steps.avd-cache.outputs.cache-hit != 'true'
-       uses: reactivecircus/android-emulator-runner@v2
-       with:
-           api-level: ${{ matrix.api-level }}
-           force-avd-creation: false
-           # arch: ${{ matrix.arch }}
-           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-           working-directory: /opt/android/cake_wallet
-           disable-animations: false
-           script: echo "Generated AVD snapshot for caching."
+      - name: 🚀 Integration tests on Android Emulator
+        timeout-minutes: 60
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+            api-level: ${{ matrix.api-level }}
+            force-avd-creation: false
+            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024 -no-snapshot-save
+            disable-animations: false
+            working-directory: ${{ github.workspace }}
+            script: |
+                echo "=== Pre-test Environment Check ==="
+                pwd
+                ls -la integration_test_runner.sh || echo "integration_test_runner.sh not found"
+                
+                echo "=== Emulator Status Check ==="
+                adb devices
+                
+                echo "=== Emulator Info ==="
+                adb shell getprop ro.build.version.release || echo "Failed to get Android version"
+                adb shell getprop ro.product.model || echo "Failed to get device model"
+                
+                echo "=== Checking Emulator Performance ==="
+                adb shell cat /proc/cpuinfo | grep -i "model name" | head -1 || echo "Could not check CPU info"
+                adb shell cat /proc/meminfo | grep -i "memtotal" || echo "Could not check memory info"
+                
+                echo "=== Checking Emulator Process ==="
+                ps aux | grep emulator | grep -v grep || echo "Emulator process not found in ps output"
+                
+                echo "=== Making script executable ==="
+                chmod a+rx integration_test_runner.sh
+                
+                echo "=== Running integration tests ==="
+                
+                echo "Final emulator readiness check..."
+                /tmp/emulator_ready.sh || echo "Emulator readiness check failed, but continuing..."
+                
+                echo "Disabling animations for test performance..."
+                adb shell settings put global window_animation_scale 0.0 || echo "Failed to disable window animations"
+                adb shell settings put global transition_animation_scale 0.0 || echo "Failed to disable transition animations"
+                adb shell settings put global animator_duration_scale 0.0 || echo "Failed to disable animator duration"
+                
+                echo "Starting integration test runner..."
+                ./integration_test_runner.sh
+                TEST_EXIT_CODE=$?
+                
+                if [ $TEST_EXIT_CODE -eq 0 ]; then
+                    echo "Integration tests completed successfully"
+                else
+                    echo "Integration tests failed with exit code $TEST_EXIT_CODE"
+                fi
 
-     - name: 🚀 Integration tests on Android Emulator
-       uses: reactivecircus/android-emulator-runner@v2
-       with:
-           api-level: ${{ matrix.api-level }}
-           force-avd-creation: false
-           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-           disable-animations: true
-           working-directory: /opt/android/cake_wallet
-           script: |
-               chmod a+rx integration_test_runner.sh
-               ./integration_test_runner.sh
+      - name: 🧹 Post-test cleanup
+        if: always()
+        run: |
+            echo "=== Post-test cleanup ==="
+            # Kill any remaining emulator processes
+            pkill -f emulator || echo "No emulator processes to kill"
+            # Kill any remaining adb processes
+            pkill -f adb || echo "No adb processes to kill"
+            # Wait for processes to terminate
+            sleep 2
+            # Check for any remaining processes
+            ps aux | grep -E "(emulator|adb)" | grep -v grep || echo "No remaining emulator/adb processes"
+            echo "=== Cleanup complete ==="
+      - name: cleanup
+        run: rm -rf build/app/outputs/flutter-apk/test-apk/

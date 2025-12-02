@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:path/path.dart' as p;
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_decred/amount_format.dart';
 import 'package:cw_decred/pending_transaction.dart';
 import 'package:cw_decred/transaction_credentials.dart';
@@ -23,7 +26,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -35,7 +37,7 @@ class DecredWallet = DecredWalletBase with _$DecredWallet;
 
 abstract class DecredWalletBase
     extends WalletBase<DecredBalance, DecredTransactionHistory, DecredTransactionInfo> with Store {
-  DecredWalletBase(WalletInfo walletInfo, String password, Box<UnspentCoinsInfo> unspentCoinsInfo,
+  DecredWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo, String password, Box<UnspentCoinsInfo> unspentCoinsInfo,
       Libwallet libwallet, Function() closeLibwallet)
       : _password = password,
         _libwallet = libwallet,
@@ -43,15 +45,15 @@ abstract class DecredWalletBase
         this.syncStatus = NotConnectedSyncStatus(),
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.watchingOnly =
-            walletInfo.derivationInfo?.derivationPath == DecredWalletService.pubkeyRestorePath ||
-                walletInfo.derivationInfo?.derivationPath ==
+            derivationInfo.derivationPath == DecredWalletService.pubkeyRestorePath ||
+                derivationInfo.derivationPath ==
                     DecredWalletService.pubkeyRestorePathTestnet,
         this.balance = ObservableMap.of({CryptoCurrency.dcr: DecredBalance.zero()}),
-        this.isTestnet = walletInfo.derivationInfo?.derivationPath ==
+        this.isTestnet = derivationInfo.derivationPath ==
                 DecredWalletService.seedRestorePathTestnet ||
-            walletInfo.derivationInfo?.derivationPath ==
+            derivationInfo.derivationPath ==
                 DecredWalletService.pubkeyRestorePathTestnet,
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     walletAddresses = DecredWalletAddresses(walletInfo, libwallet);
     transactionHistory = DecredTransactionHistory();
 
@@ -306,9 +308,10 @@ abstract class DecredWalletBase
       persistantPeer = addr;
       await _libwallet.closeWallet(walletInfo.name);
       final network = isTestnet ? "testnet" : "mainnet";
+      final dirPath = await pathForWalletDir(name: walletInfo.name, type: WalletType.decred);
       final config = {
         "name": walletInfo.name,
-        "datadir": walletInfo.dirPath,
+        "datadir": dirPath,
         "net": network,
         "unsyncedaddrs": true,
       };
@@ -591,6 +594,9 @@ abstract class DecredWalletBase
   }
 
   @override
+  Future<bool> checkNodeHealth() async => await checkSync();
+
+  @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError;
 
   Future<void> renameWalletFiles(String newWalletName) async {
@@ -602,7 +608,25 @@ abstract class DecredWalletBase
       throw "wallet already exists at $newDirPath";
     }
 
-    await Directory(currentDirPath).rename(newDirPath);
+    final sourceDir = Directory(currentDirPath);
+    final targetDir = Directory(newDirPath);
+
+    if (!targetDir.existsSync()) {
+      await targetDir.create(recursive: true);
+    }
+
+    await for (final entity in sourceDir.list(recursive: true)) {
+      final relativePath = entity.path.substring(sourceDir.path.length + 1);
+      final targetPath = p.join(targetDir.path, relativePath);
+
+      if (entity is File) {
+        await entity.rename(targetPath);
+      } else if (entity is Directory) {
+        await Directory(targetPath).create(recursive: true);
+      }
+    }
+
+    await sourceDir.delete(recursive: true);
   }
 
   @override

@@ -88,8 +88,12 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
         _subaddressList.subaddresses.forEach((subaddress) {
           addressesMap[subaddress.address] = subaddress.label;
           addressInfos[account.id] ??= [];
-          addressInfos[account.id]?.add(AddressInfo(
-              address: subaddress.address, label: subaddress.label, accountIndex: account.id));
+          addressInfos[account.id]?.add(WalletInfoAddressInfo(
+              walletInfoId: walletInfo.internalId,
+              mapKey: account.id,
+              accountIndex: account.id,
+              address: subaddress.address,
+              label: subaddress.label));
         });
       });
 

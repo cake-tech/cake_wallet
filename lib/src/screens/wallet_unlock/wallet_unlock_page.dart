@@ -3,9 +3,8 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/cupertino.dart';
@@ -52,7 +51,8 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
       if (state is IsExecutingState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           // null duration to make it indefinite until its disposed
-          _authBar = createBar<void>(S.of(context).authentication, duration: null)..show(context);
+          _authBar = createBar<void>(S.of(context).authentication, context, duration: null)
+            ..show(context);
         });
       }
 
@@ -90,7 +90,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
   @override
   void changeProcessText(String text) {
     dismissFlushBar(_authBar);
-    _progressBar = createBar<void>(text, duration: null)..show(_key.currentContext!);
+    _progressBar = createBar<void>(text, context, duration: null)..show(_key.currentContext!);
   }
 
   @override
@@ -136,12 +136,16 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                     height: 37,
                     width: 37,
                     child: InkWell(
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: () {
+                        if (context.mounted && Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                      },
                       child: _backArrowImageDarkTheme,
                     ),
                   ))
               : Container(),
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           border: null),
       resizeToAvoidBottomInset: false,
       body: Center(
@@ -161,45 +165,30 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                     Text(
                       widget.walletUnlockViewModel.walletName,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                     ),
                     SizedBox(height: 24),
                     Form(
-                      child: TextFormField(
+                      child: BaseTextFormField(
                         key: ValueKey('enter_wallet_password'),
                         onChanged: (value) => null,
                         controller: _passwordController,
                         textAlign: TextAlign.center,
                         obscureText: true,
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        ),
-                        decoration: InputDecoration(
-                          hintStyle: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
-                          ),
-                          hintText: S.of(context).enter_wallet_password,
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
-                              width: 1.0,
+                        textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
-                              width: 1.0,
-                            ),
-                          ),
-                        ),
+                        placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                        hintText: S.of(context).enter_wallet_password,
                       ),
                     ),
                   ],
@@ -210,25 +199,25 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                 padding: EdgeInsets.only(bottom: 24),
                 child: Observer(
                   builder: (_) => LoadingPrimaryButton(
-                      onPressed: () async {
-                        if (widget.authPasswordHandler != null) {
-                          try {
-                            await widget
-                                .authPasswordHandler!(widget.walletUnlockViewModel.password);
-                            widget.walletUnlockViewModel.success();
-                          } catch (e) {
-                            widget.walletUnlockViewModel.failure(e);
-                          }
-                          return;
+                    onPressed: () async {
+                      if (widget.authPasswordHandler != null) {
+                        try {
+                          await widget.authPasswordHandler!(widget.walletUnlockViewModel.password);
+                          widget.walletUnlockViewModel.success();
+                        } catch (e) {
+                          widget.walletUnlockViewModel.failure(e);
                         }
+                        return;
+                      }
 
-                        widget.walletUnlockViewModel.unlock();
-                      },
-                      text: S.of(context).unlock,
-                      color: Colors.green,
-                      textColor: Colors.white,
-                      isLoading: widget.walletUnlockViewModel.state is IsExecutingState,
-                      isDisabled: widget.walletUnlockViewModel.state is IsExecutingState),
+                      widget.walletUnlockViewModel.unlock();
+                    },
+                    text: S.of(context).unlock,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                    isLoading: widget.walletUnlockViewModel.state is IsExecutingState,
+                    isDisabled: widget.walletUnlockViewModel.state is IsExecutingState,
+                  ),
                 ),
               ),
             ],

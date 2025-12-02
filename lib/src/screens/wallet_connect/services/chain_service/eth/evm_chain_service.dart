@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:reown_walletkit/reown_walletkit.dart';
 
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
@@ -41,7 +41,7 @@ class EvmChainServiceImpl {
   }) : ethClient = web3Client ??
             Web3Client(
               appStore.settingsStore.getCurrentNode(appStore.wallet!.type).uri.toString(),
-              http.Client(),
+              ProxyWrapper().getHttpIOClient(),
             ) {
     for (final event in EventsConstants.allEvents) {
       walletKit.registerEventEmitter(
@@ -379,16 +379,21 @@ class EvmChainServiceImpl {
         topic: topic,
         response: response,
       );
+
+      if (session == null) return;
+
       MethodsUtils.handleRedirect(
         topic,
-        session!.peer.metadata.redirect,
+        session.peer.metadata.redirect,
         response.error?.message,
         response.error == null,
       );
     } on ReownSignError catch (error) {
+      if (session == null) return;
+
       MethodsUtils.handleRedirect(
         topic,
-        session!.peer.metadata.redirect,
+        session.peer.metadata.redirect,
         error.message,
       );
     }
@@ -489,68 +494,76 @@ class EvmChainServiceImpl {
       final typedData = jsonDecode(data[1] as String) as Map<String, dynamic>;
 
       // Extracting domain details.
-      final domain = typedData['domain'] ?? {} as Map<String, dynamic>;
+      final domain = typedData['domain'] as Map<String, dynamic>? ?? {};
       final domainName = domain['name']?.toString() ?? '';
+      final version = domain['version']?.toString() ?? '';
+      final chainId = domain['chainId']?.toString() ?? '';
       final verifyingContract = domain['verifyingContract']?.toString() ?? '';
 
-      final chainId = domain['chainId']?.toString() ?? '';
-      final chainName = getChainNameBasedOnWalletType(appStore.wallet!.type);
-
-      // Get the primary type.
+      // Get the primary type and types
       final primaryType = typedData['primaryType']?.toString() ?? '';
+      final types = typedData['types']  as Map<String, dynamic>? ?? {};
+      final message = typedData['message'] as Map<String, dynamic>? ?? {};
 
-      // Extracting message details.
-      final message = typedData['message'] ?? {} as Map<String, dynamic>;
-      final details = message['details'] ?? {} as Map<String, dynamic>;
-      final amount = details['amount']?.toString() ?? '';
-      final expirationRaw = details['expiration']?.toString() ?? '';
-      final nonce = details['nonce']?.toString() ?? '';
+      // Build a readable message based on the primary type and its structure
+      String messageDetails = '';
 
-      final tokenAddress = details['token']?.toString() ?? '';
-      final token = await getTokenDetails(tokenAddress, chainName);
-
-      final spender = message['spender']?.toString() ?? '';
-      final sigDeadlineRaw = message['sigDeadline']?.toString() ?? '';
-
-      // Converting expiration and sigDeadline from Unix time (seconds) to DateTime.
-      DateTime? expirationDate;
-      DateTime? sigDeadlineDate;
-      try {
-        if (expirationRaw.isNotEmpty) {
-          final int expirationInt = int.parse(expirationRaw);
-          expirationDate = DateTime.fromMillisecondsSinceEpoch(expirationInt * 1000);
-        }
-        if (sigDeadlineRaw.isNotEmpty) {
-          final int sigDeadlineInt = int.parse(sigDeadlineRaw);
-          sigDeadlineDate = DateTime.fromMillisecondsSinceEpoch(sigDeadlineInt * 1000);
-        }
-      } catch (e) {
-        // Parsing failed; we leave dates as null.
+      if (types.containsKey(primaryType)) {
+        final typeFields = types[primaryType] as List<dynamic>;
+        messageDetails = _formatMessageFields(message, typeFields, types);
+      } else {
+        // For unknown types, show the raw message
+        messageDetails = message.toString();
       }
 
-      final permitData = {
-        'domainName': domainName,
-        'chainId': chainId,
-        'verifyingContract': verifyingContract,
-        'primaryType': primaryType,
-        'token': token,
-        'amount': amount,
-        'expiration': expirationDate,
-        'nonce': nonce,
-        'spender': spender,
-        'sigDeadline': sigDeadlineDate,
-      };
-
-      return 'Domain: ${permitData['domainName']}'
-          'Chain ID: ${permitData['chainId']}'
-          'Verifying Contract: ${permitData['verifyingContract']}'
-          'Primary Type: ${permitData['primaryType']}'
-          'Token: ${permitData['token']}'
-          'Expiration: ${permitData['expiration'] != null ? permitData['expiration'] : 'N/A'}'
-          'Spender: ${permitData['spender']}'
-          'Signature Deadline: ${permitData['sigDeadline'] != null ? permitData['sigDeadline'] : 'N/A'}';
+      return '''Domain Name: $domainName
+Version: $version
+Chain ID: $chainId
+Verifying Contract: $verifyingContract
+Primary Type: $primaryType\n
+Message:
+$messageDetails''';
     }
-    return '';
+    return 'Invalid typed data format';
+  }
+
+  String _formatMessageFields(
+      Map<String, dynamic> message, List<dynamic> fields, Map<String, dynamic> types) {
+    final buffer = StringBuffer();
+
+    for (var field in fields) {
+      final fieldName = _toCamelCase(field['name'] as String);
+      final fieldType = field['type'] as String;
+      final value = message[field['name'] as String];
+
+      if (value == null) continue;
+
+      if (types.containsKey(fieldType)) {
+        // Handle nested types
+        final nestedFields = types[fieldType] as List<dynamic>;
+        if (fieldType == 'Person') {
+          // Special formatting for Person type
+          final name = value['name'] as String;
+          final wallet = value['wallet'] as String;
+          buffer.writeln('$fieldName: $name ($wallet)');
+        } else {
+          // For other nested types, format each field
+          final formattedValue =
+              _formatMessageFields(value as Map<String, dynamic>, nestedFields, types);
+          buffer.writeln('$fieldName: $formattedValue');
+        }
+      } else {
+        // Handle primitive types
+        buffer.writeln('$fieldName: $value');
+      }
+    }
+
+    return buffer.toString();
+  }
+
+  String _toCamelCase(String input) {
+    if (input.isEmpty) return input;
+    return input[0].toUpperCase() + input.substring(1).toLowerCase();
   }
 
   Future<String> getTokenDetails(String contractAddress, String chainName) async {
@@ -563,14 +576,15 @@ class EvmChainServiceImpl {
       },
     );
 
-    final response = await http.get(
-      uri,
+    final response = await ProxyWrapper().get(
+      clearnetUri: uri,
       headers: {
         "Accept": "application/json",
         "X-API-Key": secrets.moralisApiKey,
       },
     );
 
+    
     final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
 
     final symbol = (decodedResponse['symbol'] ?? '') as String;

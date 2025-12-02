@@ -21,6 +21,7 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
     required this.to,
     required this.from,
     this.evmSignatureName,
+    this.contractAddress,
   })  : amount = ethAmount.toInt(),
         fee = ethFee.toInt();
 
@@ -40,6 +41,7 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
   final String? to;
   final String? from;
   final String? evmSignatureName;
+  final String? contractAddress;
 
   //! Getter to be overridden in child classes
   String get feeCurrency;
@@ -59,7 +61,7 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
   @override
   String feeFormatted() {
     final amount = (ethFee / BigInt.from(10).pow(18)).toString();
-    return '${amount.substring(0, min(10, amount.length))} $feeCurrency';
+    return '${amount.substring(0, min(18, amount.length))} $feeCurrency';
   }
 
   Map<String, dynamic> toJson() => {
@@ -76,5 +78,6 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
         'to': to,
         'from': from,
         'evmSignatureName': evmSignatureName,
+        'contractAddress': contractAddress,
       };
 }

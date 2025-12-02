@@ -1,7 +1,8 @@
+import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -39,7 +40,7 @@ class ExchangeTradeExternalSendPage extends BasePage {
       'assets/images/copy_content.png',
       height: 16,
       width: 16,
-      color: Theme.of(context).extension<SendPageTheme>()!.estimatedFeeColor,
+      color: Theme.of(context).colorScheme.primary,
     );
     return Container(
       child: ScrollableWithBottomSection(
@@ -52,14 +53,7 @@ class ExchangeTradeExternalSendPage extends BasePage {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-                    gradient: LinearGradient(
-                      colors: [
-                        Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-                        Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
                   ),
                   padding: EdgeInsets.fromLTRB(24, 110, 24, 32),
                   child: Column(
@@ -70,22 +64,41 @@ class ExchangeTradeExternalSendPage extends BasePage {
                           Spacer(flex: 3),
                           Flexible(
                             flex: 6,
-                            child: Center(
-                              child: AspectRatio(
-                                aspectRatio: 1.0,
-                                child: Container(
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      width: 3,
-                                      color: Theme.of(context)
-                                          .extension<ExchangePageTheme>()!
-                                          .qrCodeColor,
+                            child: GestureDetector(
+                              onTap: () {
+                                BrightnessUtil.changeBrightnessForFunction(
+                                  () async {
+                                    await Navigator.pushNamed(
+                                      context,
+                                      Routes.fullscreenQR,
+                                      arguments: QrViewData(
+                                        embeddedImagePath: exchangeTradeViewModel.qrImage,
+                                        data: exchangeTradeViewModel.paymentUri?.toString() ??
+                                            exchangeTradeViewModel.trade.inputAddress ??
+                                            fetchingLabel,
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Center(
+                                child: AspectRatio(
+                                  aspectRatio: 1.0,
+                                  child: Container(
+                                    padding: EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        width: 3,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
                                     ),
-                                  ),
-                                  child: QrImage(
-                                    data:
-                                        exchangeTradeViewModel.trade.inputAddress ?? fetchingLabel,
+                                    child: QrImage(
+                                      data: exchangeTradeViewModel.paymentUri?.toString() ??
+                                          exchangeTradeViewModel.trade.inputAddress ??
+                                          fetchingLabel,
+                                      embeddedImagePath: exchangeTradeViewModel.qrImage,
+                                      size: 230,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -99,7 +112,8 @@ class ExchangeTradeExternalSendPage extends BasePage {
                           .where((item) => item.isExternalSendDetail)
                           .map(
                             (item) => TradeItemRowWidget(
-                              currentTheme: currentTheme,
+                              key: ValueKey(
+                                  'exchange_trade_external_send_page_send_item_${item.title}_key'),
                               title: item.title,
                               value: item.data,
                               isCopied: true,
@@ -128,8 +142,8 @@ class ExchangeTradeExternalSendPage extends BasePage {
                       Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                     text: S.current.continue_text,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
                   )
                 : Offstage();
           },

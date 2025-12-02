@@ -39,14 +39,14 @@ class CWMoneroAccountList extends MoneroAccountList {
   @override
   Future<void> addAccount(Object wallet, {required String label}) async {
     final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.walletAddresses.accountList.addAccount(label: label);
+    moneroWallet.walletAddresses.accountList.addAccount(label: label);
   }
 
   @override
   Future<void> setLabelAccount(Object wallet,
       {required int accountIndex, required String label}) async {
     final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.walletAddresses.accountList
+    moneroWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
   }
 }
@@ -346,9 +346,8 @@ class CWMonero extends Monero {
   }
 
   @override
-  WalletService createMoneroWalletService(
-          Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) =>
-      MoneroWalletService(walletInfoSource, unspentCoinSource);
+  WalletService createMoneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
+      MoneroWalletService(unspentCoinSource);
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
@@ -365,7 +364,7 @@ class CWMonero extends Monero {
   @override
   Map<String, String> pendingTransactionInfo(Object transaction) {
     final ptx = transaction as PendingMoneroTransaction;
-    return {'id': ptx.id, 'hex': ptx.hex, 'key': ptx.txKey};
+    return {'id': ptx.id, 'hex': ptx.hex};
   }
 
   @override
@@ -399,9 +398,9 @@ class CWMonero extends Monero {
   }
 
   @override
-  String exportOutputsUR(Object wallet, bool all) {
+  Map<String, String> exportOutputsUR(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
-    return moneroWallet.exportOutputsUR(all);
+    return moneroWallet.exportOutputsUR();
   }
 
   @override
@@ -416,11 +415,12 @@ class CWMonero extends Monero {
   }
 
   @override
-  void setLedgerConnection(Object wallet, ledger.LedgerConnection connection) {
+  Future<void> setLedgerConnection(Object wallet, ledger.LedgerConnection connection) async {
     final moneroWallet = wallet as MoneroWallet;
-    moneroWallet.setLedgerConnection(connection);
+    await moneroWallet.setLedgerConnection(connection);
   }
 
+  @override
   void resetLedgerConnection() {
     disableLedgerExchange();
   }
@@ -428,8 +428,10 @@ class CWMonero extends Monero {
   @override
   void setGlobalLedgerConnection(ledger.LedgerConnection connection) {
     gLedger = connection;
-    keepAlive(connection);
   }
+
+  @override
+  String? getLastLedgerCommand() => latestLedgerCommand;
 
   bool isViewOnly() {
     return isViewOnlyBySpendKey(null);
@@ -439,5 +441,9 @@ class CWMonero extends Monero {
   Map<String, List<int>> debugCallLength() {
     return monero_wallet_api.debugCallLength();
   }
-  
+
+  @override
+  Map<String, dynamic> getWalletCacheDebug() {
+    return monero_wallet_api.getWalletCacheDebug();
+  }
 }

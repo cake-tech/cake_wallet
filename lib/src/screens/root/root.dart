@@ -1,21 +1,28 @@
 import 'dart:async';
 import 'dart:io';
+
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/socket_health_logger.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:mobx/mobx.dart';
+import 'package:trezor_connect/trezor_connect.dart';
 import 'package:uni_links/uni_links.dart';
-import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 
 class Root extends StatefulWidget {
   Root({
@@ -26,6 +33,9 @@ class Root extends StatefulWidget {
     required this.navigatorKey,
     required this.authService,
     required this.linkViewModel,
+    required this.tradeMonitor,
+    required this.nodeSwitchingService,
+    required this.trezorConnect,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
@@ -34,6 +44,9 @@ class Root extends StatefulWidget {
   final AuthService authService;
   final Widget child;
   final LinkViewModel linkViewModel;
+  final TradeMonitor tradeMonitor;
+  final NodeSwitchingService nodeSwitchingService;
+  final TrezorConnect trezorConnect;
 
   @override
   RootState createState() => RootState();
@@ -101,6 +114,11 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
     widget.linkViewModel.currentLink = uri;
 
+    if (uri.toString().startsWith(widget.trezorConnect.callbackBackUri)) {
+      widget.trezorConnect.handleCallback(uri);
+      return;
+    }
+
     bool requireAuth = await widget.authService.requireAuth();
 
     if (!requireAuth && widget.authenticationStore.state == AuthenticationState.allowed) {
@@ -136,8 +154,18 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           setState(() => _setInactive(true));
         }
 
+        if (widget.appStore.wallet?.type == WalletType.bitcoin) {
+          bitcoin!.stopPayjoinSessions(widget.appStore.wallet!);
+        }
+
+        widget.tradeMonitor.stopTradeMonitoring();
+
         break;
       case AppLifecycleState.resumed:
+
+        // Reset inactive state when app resumes
+        if (_isInactive) setState(() => _setInactive(false));
+
         widget.authService.requireAuth().then((value) {
           if (mounted) {
             setState(() {
@@ -145,9 +173,60 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             });
           }
         });
+        if (widget.appStore.wallet?.type == WalletType.bitcoin &&
+            widget.appStore.settingsStore.usePayjoin) {
+          bitcoin!.resumePayjoinSessions(widget.appStore.wallet!);
+        }
+
+        widget.tradeMonitor.resumeTradeMonitoring();
+
+        // Trigger node health check when app resumes
+        widget.nodeSwitchingService.performHealthCheck();
+
+        // Electrum Wallet socket health check and reconnection flow
+        final wallet = widget.appStore.wallet;
+        if (wallet != null && isElectrumWallet(wallet.type)) {
+          SocketHealthLogger().logHealthCheck(
+            walletType: wallet.type,
+            walletName: wallet.name,
+            syncStatus: wallet.syncStatus.toString(),
+            wasReconnected: false,
+            trigger: 'app_resume',
+          );
+
+          wallet.checkSocketHealth().then((isHealthy) {
+            SocketHealthLogger().logHealthCheck(
+              walletType: wallet.type,
+              walletName: wallet.name,
+              isHealthy: isHealthy,
+              syncStatus: wallet.syncStatus.toString(),
+              wasReconnected: true,
+              trigger: 'app_resume_socket_health_check',
+            );
+          });
+        }
+
         break;
       default:
         break;
+    }
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    // Only handle theme changes when the app is active (not in background)
+    if (_isInactive) return;
+
+    if (widget.appStore.themeStore.themeMode == ThemeMode.system) {
+      Future.delayed(Duration(milliseconds: Platform.isIOS ? 500 : 0), () {
+        // Double-check that app is still active before applying theme change
+        if (_isInactive) return;
+
+        final systemTheme = widget.appStore.themeStore.getThemeFromSystem();
+        if (widget.appStore.themeStore.currentTheme != systemTheme) {
+          widget.appStore.themeStore.setTheme(systemTheme);
+        }
+      });
     }
   }
 
@@ -212,6 +291,16 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       _postFrameCallback = false;
       _setInactive(false);
     });
+
+    // Apply any missed theme changes after successful authentication
+    if (widget.appStore.themeStore.themeMode == ThemeMode.system) {
+      Future.delayed(Duration(milliseconds: 100), () {
+        final systemTheme = widget.appStore.themeStore.getThemeFromSystem();
+        if (widget.appStore.themeStore.currentTheme != systemTheme) {
+          widget.appStore.themeStore.setTheme(systemTheme);
+        }
+      });
+    }
   }
 
   void _setInactive(bool value) {

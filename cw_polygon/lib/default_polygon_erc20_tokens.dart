@@ -32,6 +32,13 @@ class DefaultPolygonErc20Tokens {
       enabled: true,
     ),
     Erc20Token(
+      name: "Decentralized Euro",
+      symbol: "DEURO",
+      contractAddress: "0xC2ff25dD99e467d2589b2c26EDd270F220F14E47",
+      decimal: 18,
+      enabled: true,
+    ),
+    Erc20Token(
       name: "Avalanche Token",
       symbol: "AVAX",
       contractAddress: "0x2C89bbc92BD86F8075d1DEcc58C7F4E0107f286b",
@@ -70,13 +77,17 @@ class DefaultPolygonErc20Tokens {
 
   List<Erc20Token> get initialPolygonErc20Tokens => _defaultTokens.map((token) {
         String? iconPath;
-        try {
-          iconPath = CryptoCurrency.all
-              .firstWhere((element) =>
-                  element.title.toUpperCase() == token.symbol.split(".").first.toUpperCase())
-              .iconPath;
-        } catch (_) {}
+        if (token.iconPath?.isEmpty ?? true) {
+          try {
+            iconPath = CryptoCurrency.all
+                .firstWhere((element) =>
+                    element.title.toUpperCase() == token.symbol.split(".").first.toUpperCase())
+                .iconPath;
+          } catch (_) {}
+        } else {
+          iconPath = token.iconPath;
+        }
 
-        return Erc20Token.copyWith(token, iconPath, 'POLY');
+        return Erc20Token.copyWith(token, icon: iconPath, tag: 'POL');
       }).toList();
 }

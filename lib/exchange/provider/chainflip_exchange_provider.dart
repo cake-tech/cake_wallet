@@ -12,7 +12,8 @@ import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ChainflipExchangeProvider extends ExchangeProvider {
   ChainflipExchangeProvider({required this.tradesStore})
@@ -37,7 +38,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
   static const _baseURL = 'chainflip-broker.io';
   static const _assetsPath = '/assets';
-  static const _quotePath = '/quote-native';
+  static const _quotePath = '/quotes-native';
   static const _swapPath = '/swap';
   static const _txInfoPath = '/status-by-deposit-channel';
   static const _affiliateBps = secrets.chainflipAffiliateFee;
@@ -69,6 +70,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
+
+    try {
     final assetId = _normalizeCurrency(from);
 
     final assetsResponse = await _getAssets();
@@ -78,16 +81,23 @@ class ChainflipExchangeProvider extends ExchangeProvider {
             (asset) => asset['id'] == assetId,
             orElse: () => null)?['minimalAmountNative'] ?? '0';
 
+    if (minAmount == '0') throw Exception('No rates found for $from to $to');
+
     return Limits(min: _amountFromNative(minAmount.toString(), from));
+    } catch (e) {
+      printV(e.toString());
+      throw Exception('Chainflip failed to fetch limits');
+    }
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     // TODO: It seems this rate is getting cached, and re-used for different amounts, can we not do this?
 
     try {
@@ -106,8 +116,41 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       final expectedAmountOut =
           quoteResponse['egressAmountNative'] as String? ?? '0';
 
-      return _amountFromNative(expectedAmountOut, to) / amount;
-    } catch (e) {
+      final rate = _amountFromNative(expectedAmountOut, to) / amount;
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'quoteParams': quoteParams,
+        },
+        responseData: {
+          'expectedAmountOut': expectedAmountOut,
+          'rate': rate,
+          'quoteResponse': quoteResponse,
+        },
+      );
+
+      return rate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       printV(e.toString());
       return 0.0;
     }
@@ -145,9 +188,40 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         'retryDurationInBlocks': '150'
       };
 
+      if (quoteResponse.containsKey('numberOfChunks') && quoteResponse.containsKey('chunkIntervalBlocks')) {
+        swapParams.addAll({
+          'numberOfChunks': quoteResponse['numberOfChunks'].toString(),
+          'chunkIntervalBlocks': quoteResponse['chunkIntervalBlocks'].toString(),
+        });
+      }
+
       final swapResponse = await _openDepositChannel(swapParams);
 
       final id = '${swapResponse['issuedBlock']}-${swapResponse['network'].toString().toUpperCase()}-${swapResponse['channelId']}';
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'createTrade',
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'quoteParams': quoteParams,
+          'swapParams': swapParams,
+        },
+        responseData: {
+          'id': id,
+          'inputAddress': swapResponse['address'].toString(),
+          'estimatedPrice': estimatedPrice,
+          'minimumPrice': minimumPrice,
+          'swapResponse': swapResponse,
+        },
+      );
 
       return Trade(
           id: id,
@@ -160,8 +234,26 @@ class ChainflipExchangeProvider extends ExchangeProvider {
           receiveAmount: request.toAmount,
           state: TradeState.waiting,
           payoutAddress: request.toAddress,
+          userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+          userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
           isSendAll: isSendAll);
-    } catch (e) {
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+        },
+      );
       printV(e.toString());
       rethrow;
     }
@@ -192,6 +284,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       final refundAmount = status['refundEgress']?['amount']?.toString() ?? '0.0';
       final isRefund = status['refundEgress'] != null;
       final amount = isRefund ? refundAmount : receiveAmount;
+
+      final from = status['sourceAsset'].toString();
+      final to = status['destinationAsset'].toString();
       
       final newTrade = Trade(
           id: id,
@@ -203,7 +298,10 @@ class ChainflipExchangeProvider extends ExchangeProvider {
           state: currentState,
           payoutAddress: status['destinationAddress'].toString(),
           outputTransaction: status['swapEgress']?['transactionReference']?.toString(),
-          isRefund: isRefund);
+          isRefund: isRefund,
+        userCurrencyFromRaw: '${from.toUpperCase()}' + '_',
+        userCurrencyToRaw: '${to.toUpperCase()}' + '_',
+      );
 
       // Find trade and update receiveAmount with the real value received
       final storedTrade = _getStoredTrade(id);
@@ -266,16 +364,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<Map<String, dynamic>> _getAssets() async =>
       _getRequest(_assetsPath, {});
 
-  Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async =>
-      _getRequest(_quotePath, params);
-
   Future<Map<String, dynamic>> _openDepositChannel(Map<String, String> params) async =>
       _getRequest(_swapPath, params);
 
   Future<Map<String, dynamic>> _getRequest(String path, Map<String, String> params) async {
     final uri = Uri.https(_baseURL, path, params);
 
-    final response = await http.get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
 
     if ((response.statusCode != 200) || (response.body.contains('error'))) {
       throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
@@ -284,10 +379,31 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     return json.decode(response.body) as Map<String, dynamic>;
   }
 
+  Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
+    final uri = Uri.https(_baseURL, _quotePath, params);
+
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+
+    if ((response.statusCode != 200) || (response.body.contains('error'))) {
+      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+    }
+
+    final quotes = json.decode(response.body) as List<Map<String, dynamic>>;
+
+    Map<String, dynamic> highestQuote = quotes.reduce((current, next) {
+      double currentAmount = current['egressAmount'] as double;
+      double nextAmount = next['egressAmount'] as double;
+
+      return currentAmount > nextAmount ? current : next;
+    });
+
+    return highestQuote;
+  }
+
   Future<Map<String, dynamic>?> _getStatus(Map<String, String> params) async {
     final uri = Uri.https(_baseURL, _txInfoPath, params);
 
-    final response = await http.get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
 
     if (response.statusCode == 404) return null;
 
