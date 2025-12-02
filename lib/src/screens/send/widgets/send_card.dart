@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
@@ -194,6 +195,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     PaymentRequest paymentRequest,
     PaymentFlowResult result,
   ) async {
+    if (!context.mounted) {
+      return;
+    }
+
     await showModalBottomSheet<void>(
       context: context,
       isDismissible: true,
@@ -227,6 +232,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     WalletSwitcherViewModel walletSwitcherViewModel,
     PaymentRequest paymentRequest,
   ) async {
+    if (!context.mounted) {
+      return;
+    }
+
     await showModalBottomSheet<void>(
       context: context,
       isDismissible: true,
@@ -536,13 +545,36 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         FutureBuilder<String>(
                           future: sendViewModel.sendingBalance,
                           builder: (context, snapshot) {
-                            return Text(
-                              snapshot.data ??
-                                  sendViewModel.balance, // default to balance while loading
-                              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
+                            return GestureDetector(
+                              onTap: () {
+                                sendViewModel.balanceViewModel
+                                    .switchBalanceValue();
+                              },
+                              child: Observer(builder: (_) {
+                                final hidden = sendViewModel
+                                        .balanceViewModel.displayMode ==
+                                    BalanceDisplayMode.hiddenBalance;
+                                return Text(
+                                  hidden
+                                      ? S.of(context).show_balance_send_page
+                                      : (snapshot.data ??
+                                          sendViewModel.balance),
+                                  // default to balance while loading
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: hidden
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                      ),
+                                );
+                              }),
                             );
                           },
                         )

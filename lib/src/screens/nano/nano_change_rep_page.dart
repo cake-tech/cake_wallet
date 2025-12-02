@@ -194,7 +194,6 @@ class NanoChangeRepPage extends BasePage {
                   buttonText: S.of(context).ok,
                   buttonAction: () => Navigator.pop(context));
             });
-        throw e;
       }
     }
   }

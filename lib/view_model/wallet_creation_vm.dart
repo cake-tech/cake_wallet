@@ -17,7 +17,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
 
@@ -65,9 +64,24 @@ abstract class WalletCreationVMBase with Store {
 
   Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
 
+  bool _isCreating = false;
   Future<void> create({dynamic options}) async {
+    try {
+      if (_isCreating) {
+        printV("not creating because we don't feel like doing so");
+        return;
+      }
+      _isCreating = true;
+      await _create(options: options);
+    } finally {
+      _isCreating = false;
+    }
+  }
+
+  Future<void> _create({dynamic options}) async {
     final type = this.type;
     try {
+
       state = IsExecutingState();
       if (name.isEmpty) {
         name = await generateName();
@@ -94,7 +108,7 @@ abstract class WalletCreationVMBase with Store {
       final diId = await di!.save();
       credentials.derivationInfo = di;
 
-      final walletInfo = WalletInfo.external(
+      credentials.walletInfo = WalletInfo.external(
         id: WalletBase.idFor(name, type),
         name: name,
         type: type,
@@ -109,16 +123,14 @@ abstract class WalletCreationVMBase with Store {
         hardwareWalletType: credentials.hardwareWalletType,
       );
 
-      credentials.walletInfo = walletInfo;
-      // await walletInfo.save();
-      printV("derivationInfo: ${(await walletInfo.getDerivationInfo()).toJson()}");
+      printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
       final wallet = await process(credentials);
 
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
-      walletInfo.isNonSeedWallet = isNonSeedWallet;
-      walletInfo.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
-      walletInfo.address = wallet.walletAddresses.address;
-      await walletInfo.save();
+      credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
+      credentials.walletInfo!.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
+      credentials.walletInfo!.address = wallet.walletAddresses.address;
+      await credentials.walletInfo!.save();
       await _appStore.changeCurrentWallet(wallet);
       _appStore.authenticationStore.allowedCreate();
       state = ExecutedSuccessfullyState();

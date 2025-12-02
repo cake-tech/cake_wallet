@@ -1,11 +1,12 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/entities/ens_record.dart';
 import 'package:cake_wallet/entities/lnurlpay_record.dart';
+import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
-import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/entities/wellknown_record.dart';
 import 'package:cake_wallet/entities/zano_alias.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
@@ -17,7 +18,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'bip_353_record.dart';
@@ -194,6 +194,17 @@ class AddressResolver {
     });
   }
 
+  static String extractUnstoppableDomain(String raw) {
+    // sort by length to avoid matching shorter tld instead of longer
+    final domains = List<String>.from(unstoppableDomains)..sort((a, b) => b.length.compareTo(a.length));
+    for (final tld in domains) {
+      final pattern = RegExp(r'([A-Za-z0-9-]+)\.' + RegExp.escape(tld), caseSensitive: false);
+      final match = pattern.firstMatch(raw);
+      if (match != null) return match.group(0)!;
+    }
+    return '';
+  }
+
   bool isEmailFormat(String address) {
     final RegExp emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -229,19 +240,81 @@ class AddressResolver {
                 name: text,
                 profileImageUrl: twitterUser.profileImageUrl,
                 profileName: twitterUser.name);
+          } else {
+            final domain = extractUnstoppableDomain(twitterUser.description);
+            if (domain.isNotEmpty) {
+              final parsedAddressFromDomain = await resolve(context, domain, currency);
+              if (parsedAddressFromDomain.addresses.isNotEmpty &&
+                  parsedAddressFromDomain.addresses.first != domain) {
+                return ParsedAddress(
+                  addresses: parsedAddressFromDomain.addresses,
+                  name: text,
+                  profileImageUrl: twitterUser.profileImageUrl,
+                  profileName: twitterUser.name,
+                  parseFrom: ParseFrom.twitter,
+                );
+              }
+
+            }
+
+          }
+
+          final addressFromLocation = extractAddressByType(
+              raw: twitterUser.location,
+              type: CryptoCurrency.fromString(ticker,
+                  walletCurrency: wallet.currency), requireSurroundingWhitespaces: false);
+          if (addressFromLocation != null && addressFromLocation.isNotEmpty) {
+            return ParsedAddress.fetchTwitterAddress(
+                address: addressFromLocation,
+                name: text,
+                profileImageUrl: twitterUser.profileImageUrl,
+                profileName: twitterUser.name);
+          } else {
+            final domain = extractUnstoppableDomain(twitterUser.location);
+            if (domain.isNotEmpty) {
+              final parsedAddressFromDomain = await resolve(context, domain, currency);
+              if (parsedAddressFromDomain.addresses.isNotEmpty &&
+                  parsedAddressFromDomain.addresses.first != domain) {
+                return ParsedAddress(
+                  addresses: parsedAddressFromDomain.addresses,
+                  name: text,
+                  profileImageUrl: twitterUser.profileImageUrl,
+                  profileName: twitterUser.name,
+                  parseFrom: ParseFrom.twitter,
+                );
+              }
+
+            }
+
           }
 
           final pinnedTweet = twitterUser.pinnedTweet?.text;
           if (pinnedTweet != null) {
             final addressFromPinnedTweet = extractAddressByType(
                 raw: pinnedTweet,
-                type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency));
+                type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency),
+                requireSurroundingWhitespaces: false);
             if (addressFromPinnedTweet != null) {
               return ParsedAddress.fetchTwitterAddress(
                   address: addressFromPinnedTweet,
                   name: text,
                   profileImageUrl: twitterUser.profileImageUrl,
                   profileName: twitterUser.name);
+            } else {
+              final domain = extractUnstoppableDomain(pinnedTweet);
+              if (domain.isNotEmpty) {
+                final parsedAddressFromDomain = await resolve(context, domain, currency);
+                if (parsedAddressFromDomain.addresses.isNotEmpty &&
+                    parsedAddressFromDomain.addresses.first != domain) {
+                  return ParsedAddress(
+                    addresses: parsedAddressFromDomain.addresses,
+                    name: text,
+                    profileImageUrl: twitterUser.profileImageUrl,
+                    profileName: twitterUser.name,
+                    parseFrom: ParseFrom.twitter,
+                  );
+                }
+              }
             }
           }
         }
@@ -259,7 +332,7 @@ class AddressResolver {
               await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
 
           if (mastodonUser != null) {
-            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency);
+            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency, requireSurroundingWhitespaces: false);
 
             if (addressFromBio != null && addressFromBio.isNotEmpty) {
               return ParsedAddress.fetchMastodonAddress(
@@ -274,7 +347,8 @@ class AddressResolver {
               if (pinnedPosts.isNotEmpty) {
                 final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
                 String? addressFromPinnedPost =
-                    extractAddressByType(raw: userPinnedPostsText, type: currency);
+                    extractAddressByType(raw: userPinnedPostsText, type: currency,
+                        requireSurroundingWhitespaces: false);
 
                 if (addressFromPinnedPost != null && addressFromPinnedPost.isNotEmpty) {
                   return ParsedAddress.fetchMastodonAddress(

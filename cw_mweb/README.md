@@ -1,15 +1,13 @@
 # cw_mweb
 
-A new Flutter plugin project.
+MimbleWimble Extension Blocks (MWEB) integration bridge for Cake Wallet modules that support MWEB-enabled chains.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+- Dart platform interface and method-channel implementation.
+- Protobuf stubs for `mwebd` interactions (`mwebd.pb*.dart`).
+- Provides a uniform API surface for MWEB-capable coins.
 
-For help getting started with Flutter development, view the
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Usage
 
+Import `cw_mweb` and use the platform interface to interact with an MWEB daemon/binding. See the chain-specific modules for concrete usage.

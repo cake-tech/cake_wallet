@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cw_mweb/generated_bindings.g.dart';
+import 'package:cw_mweb/print_verbose.dart';
 import 'package:ffi/ffi.dart';
 
 String libPath = (() {
@@ -24,12 +25,19 @@ class MWebFfi {
     final chain = "".toNativeUtf8().cast<Char>();
     final dataDir_ = dataDir.toNativeUtf8().cast<Char>();
     final nodeUri_ = nodeUri.toNativeUtf8().cast<Char>();
+    final errMsgPtr = calloc<Pointer<Char>>();
 
-    final port = lib.StartServer(chain, dataDir_, nodeUri_);
+    final port = lib.StartServer(chain, dataDir_, nodeUri_, errMsgPtr);
+    if (port == 0) {
+      final errMsg = errMsgPtr.value.cast<Utf8>().toDartString();
+      printV('Error starting server: $errMsg');
+      calloc.free(errMsgPtr.value);
+    }
 
     calloc.free(chain);
     calloc.free(dataDir_);
     calloc.free(nodeUri_);
+    calloc.free(errMsgPtr);
 
     return port;
   }

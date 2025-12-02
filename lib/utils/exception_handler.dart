@@ -286,12 +286,13 @@ class ExceptionHandler {
     // probably when the device was locked and then opened on Cake
     // this is solved by a restart of the app
     // just ignoring until we find a solution to this issue or migrate from flutter secure storage
-    "core/auth_service.dart:64",
+    "core/auth_service.dart:92",
     "core/key_service.dart:14",
     "Wallet is null",
     "Wrong Device Status: 0x5515 (UNKNOWN)",
     
     "FocusScopeNode was used after being disposed",
+    "_getDismissibleFlushbar",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
