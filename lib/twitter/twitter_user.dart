@@ -4,6 +4,7 @@ class TwitterUser {
       required this.username,
       required this.name,
       required this.description,
+      required this.location,
       required this.profileImageUrl,
       this.pinnedTweet});
 
@@ -11,6 +12,7 @@ class TwitterUser {
   final String username;
   final String name;
   final String description;
+  final String location;
   final String profileImageUrl;
   final Tweet? pinnedTweet;
 
@@ -22,6 +24,7 @@ class TwitterUser {
       username: json['data']['username'] as String? ?? '',
       name: json['data']['name'] as String,
       description: json['data']['description'] as String? ?? '',
+      location: json['data']['location'] as String? ?? '',
       profileImageUrl: scaledProfileImageUrl,
       pinnedTweet: pinnedTweet,
     );

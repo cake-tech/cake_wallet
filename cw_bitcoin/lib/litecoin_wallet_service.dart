@@ -20,7 +20,7 @@ import 'package:path_provider/path_provider.dart';
 class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
-    BitcoinRestoreWalletFromWIFCredentials,
+    LitecoinWalletFromKeysCredentials,
     BitcoinRestoreWalletFromHardware> {
   LitecoinWalletService(this.unspentCoinsInfoSource, this.isDirect);
 
@@ -186,9 +186,26 @@ class LitecoinWalletService extends WalletService<
   }
 
   @override
-  Future<LitecoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials,
-          {bool? isTestnet}) async =>
-      throw UnimplementedError();
+  Future<LitecoinWallet> restoreFromKeys(LitecoinWalletFromKeysCredentials credentials,
+          {bool? isTestnet}) async {
+    final network = isTestnet == true ? LitecoinNetwork.testnet : LitecoinNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+
+    final wallet = await LitecoinWallet(
+      password: credentials.password!,
+      xpub: credentials.xpub,
+      scanSecretOverride: credentials.scanSecret,
+      spendPubkeyOverride: credentials.spendPubkey,
+      walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
+
+    await wallet.save();
+    await wallet.init();
+    return wallet;
+  }
 
   @override
   Future<LitecoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,

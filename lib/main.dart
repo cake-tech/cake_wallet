@@ -96,6 +96,12 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     } catch (e) {
       printV("Failed to initialize tor: $e");
     }
+    
+    try {
+      await linuxSymlinkSharedPreferences();
+    } catch (e) { 
+      printV("Failed to symlink linux preferences: $e");
+    }
 
     await initializeAppAtRoot();
 
@@ -260,7 +266,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 53,
+    initialMigrationVersion: 54,
   );
 }
 

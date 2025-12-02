@@ -46,6 +46,7 @@ dependencies:
       ref: cake-update-v2
   sqflite: ^2.4.1
   sqflite_common_ffi: ^2.3.4+4
+  sqlite3_flutter_libs: 0.5.40
 
 dev_dependencies:
   flutter_test:
@@ -63,7 +64,7 @@ dependency_overrides:
 
 # The following section is specific to Flutter.
 flutter:
-    uses-material-design: true
+  uses-material-design: true
 
   # To add assets to your package, add an assets section, like this:
   # assets:
