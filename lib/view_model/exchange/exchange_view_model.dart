@@ -528,7 +528,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ) ??
         initialAmountByAssets(isFixedRateMode ? receiveCurrency : depositCurrency);
 
-    print(amount);
     final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
       final limits = _providerLimits[provider];
 
