@@ -1,10 +1,11 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/entities/ens_record.dart';
+import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
-import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/entities/wellknown_record.dart';
 import 'package:cake_wallet/entities/zano_alias.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
@@ -16,7 +17,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'bip_353_record.dart';
@@ -243,7 +243,8 @@ class AddressResolver {
             final domain = extractUnstoppableDomain(twitterUser.description);
             if (domain.isNotEmpty) {
               final parsedAddressFromDomain = await resolve(context, domain, currency);
-              if (parsedAddressFromDomain.addresses.isNotEmpty) {
+              if (parsedAddressFromDomain.addresses.isNotEmpty &&
+                  parsedAddressFromDomain.addresses.first != domain) {
                 return ParsedAddress(
                   addresses: parsedAddressFromDomain.addresses,
                   name: text,
@@ -271,7 +272,8 @@ class AddressResolver {
             final domain = extractUnstoppableDomain(twitterUser.location);
             if (domain.isNotEmpty) {
               final parsedAddressFromDomain = await resolve(context, domain, currency);
-              if (parsedAddressFromDomain.addresses.isNotEmpty) {
+              if (parsedAddressFromDomain.addresses.isNotEmpty &&
+                  parsedAddressFromDomain.addresses.first != domain) {
                 return ParsedAddress(
                   addresses: parsedAddressFromDomain.addresses,
                   name: text,
@@ -301,7 +303,8 @@ class AddressResolver {
               final domain = extractUnstoppableDomain(pinnedTweet);
               if (domain.isNotEmpty) {
                 final parsedAddressFromDomain = await resolve(context, domain, currency);
-                if (parsedAddressFromDomain.addresses.isNotEmpty) {
+                if (parsedAddressFromDomain.addresses.isNotEmpty &&
+                    parsedAddressFromDomain.addresses.first != domain) {
                   return ParsedAddress(
                     addresses: parsedAddressFromDomain.addresses,
                     name: text,
