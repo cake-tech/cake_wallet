@@ -1,6 +1,4 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/amount_parsing_proxy.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
@@ -157,7 +155,7 @@ class TransactionsPage extends StatelessWidget {
                                 ),
                                 currency: "BTC",
                                 state: item.status,
-                                amount: getIt<AmountParsingProxy>()
+                                amount: dashboardViewModel.appStore.amountParsingProxy
                                     .getCryptoString(session.amount.toInt(), CryptoCurrency.btc),
                                 createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
                                 isSending: session.isSenderSession,

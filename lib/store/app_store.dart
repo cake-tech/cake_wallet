@@ -1,4 +1,5 @@
 
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -41,6 +42,9 @@ abstract class AppStoreBase with Store {
   NodeListStore nodeListStore;
 
   ThemeStore themeStore;
+
+  AmountParsingProxy get amountParsingProxy =>
+      AmountParsingProxy(settingsStore.displayAmountsInSatoshi);
 
   @action
   Future<void> changeCurrentWallet(

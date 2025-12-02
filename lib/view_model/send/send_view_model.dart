@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
-import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
@@ -11,7 +10,6 @@ import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
@@ -94,7 +92,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   SendViewModelBase(
-    AppStore appStore,
+    this._appStore,
     this.sendTemplateViewModel,
     this._fiatConversationStore,
     this.balanceViewModel,
@@ -105,22 +103,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.feesViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),
-        currencies = appStore.wallet!.balance.keys.toList(),
-        selectedCryptoCurrency = appStore.wallet!.currency,
-        hasMultipleTokens = isEVMCompatibleChain(appStore.wallet!.type) ||
-            appStore.wallet!.type == WalletType.solana ||
-            appStore.wallet!.type == WalletType.tron ||
-            appStore.wallet!.type == WalletType.zano,
+        currencies = _appStore.wallet!.balance.keys.toList(),
+        selectedCryptoCurrency = _appStore.wallet!.currency,
+        hasMultipleTokens = isEVMCompatibleChain(_appStore.wallet!.type) ||
+            [WalletType.solana, WalletType.tron, WalletType.zano].contains(_appStore.wallet!.type),
         outputs = ObservableList<Output>(),
-        _settingsStore = appStore.settingsStore,
-        fiatFromSettings = appStore.settingsStore.fiatCurrency,
-        super(appStore: appStore) {
-    outputs
-        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+        fiatFromSettings = _appStore.settingsStore.fiatCurrency,
+        super(appStore: _appStore) {
+    outputs.add(Output(wallet, _appStore, _fiatConversationStore, () => selectedCryptoCurrency));
 
-    unspentCoinsListViewModel.initialSetup().then((_) {
-      unspentCoinsListViewModel.resetUnspentCoinsInfoSelections();
-    });
+    unspentCoinsListViewModel
+        .initialSetup()
+        .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
   }
 
   PendingTransaction? _pendingApprovalTx;
@@ -141,16 +135,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get isMwebAvailable => wallet.currency == CryptoCurrency.ltc && balanceViewModel.mwebEnabled;
 
   bool get isEVMWallet => isEVMCompatibleChain(walletType);
-  @action
-  void setShowAddressBookPopup(bool value) {
-    _settingsStore.showAddressBookPopupEnabled = value;
-  }
 
   @action
-  void addOutput() {
-    outputs
-        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
-  }
+  void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
+
+  @action
+  void addOutput() =>
+      outputs.add(Output(wallet, _appStore, _fiatConversationStore, () => selectedCryptoCurrency));
 
   @action
   void removeOutput(Output output) {
@@ -241,7 +232,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   CryptoCurrency get currency => wallet.currency;
 
   String get feeCurrencySymbol =>
-      getIt<AmountParsingProxy>().useSatoshi(currency) ? "SATS" : currency.toString();
+      _appStore.amountParsingProxy.useSatoshi(currency) ? "SATS" : currency.toString();
 
   Validator<String> amountValidator(Output output) => AmountValidator(
         currency: walletTypeToCryptoCurrency(wallet.type),
@@ -274,7 +265,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return balanceViewModel.balances.values.first.availableBalance;
     }
 
-    return getIt<AmountParsingProxy>().getCryptoString(
+    return _appStore.amountParsingProxy.getCryptoString(
         wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance, selectedCryptoCurrency);
   }
 
@@ -304,7 +295,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoin:
         final sendingBalance =
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
-        return getIt<AmountParsingProxy>()
+        return _appStore.amountParsingProxy
             .getCryptoString(sendingBalance, walletTypeToCryptoCurrency(walletType));
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -384,7 +375,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
-  final SettingsStore _settingsStore;
+  final AppStore _appStore;
+  SettingsStore get _settingsStore => _appStore.settingsStore;
   final SendTemplateViewModel sendTemplateViewModel;
   final BalanceViewModel balanceViewModel;
   final ContactListViewModel contactListViewModel;

@@ -1,8 +1,6 @@
 import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
-import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/decred/decred.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -11,13 +9,13 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -30,17 +28,17 @@ class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem({
     required this.transaction,
     required this.balanceViewModel,
-    required this.settingsStore,
+    required AppStore appStore,
     required super.key,
-  });
+  }) : _appStore = appStore;
 
   final TransactionInfo transaction;
   final BalanceViewModel balanceViewModel;
-  final SettingsStore settingsStore;
+  final AppStore _appStore;
 
   double get price => balanceViewModel.price;
 
-  FiatCurrency get fiatCurrency => settingsStore.fiatCurrency;
+  FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
 
   BalanceDisplayMode get displayMode => balanceViewModel.displayMode;
 
@@ -56,7 +54,7 @@ class TransactionListItem extends ActionListItem with Keyable {
     if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
     if (balanceViewModel.wallet.type == WalletType.bitcoin) {
       final isLightning = (transaction.additionalInfo["isLightning"] as bool?) ?? false;
-      return getIt<AmountParsingProxy>().getCryptoString(
+      return _appStore.amountParsingProxy.getCryptoString(
           transaction.amount, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc);
     }
     return transaction.amountFormatted();

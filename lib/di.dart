@@ -554,7 +554,6 @@ Future<void> setup({
       _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
-      getIt.get<AppStore>().settingsStore,
       getIt.get<SharedPreferences>(),
       getIt.get<ContactListViewModel>(),
       getIt.get<UnspentCoinsListViewModel>(),
@@ -830,7 +829,7 @@ Future<void> setup({
 
   getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(
       getIt.get<AppStore>().wallet!,
-      getIt.get<AppStore>().settingsStore,
+      getIt.get<AppStore>(),
       getIt.get<SendTemplateStore>(),
       getIt.get<FiatConversionStore>()));
 
@@ -1307,7 +1306,7 @@ Future<void> setup({
           transactionInfo: transactionInfo,
           transactionDescriptionBox: _transactionDescriptionBox,
           wallet: wallet,
-          settingsStore: getIt.get<SettingsStore>(),
+          appStore: getIt.get<AppStore>(),
           sendViewModel: getIt.get<SendViewModel>(),
           canReplaceByFee: canReplaceByFee,
         );
@@ -1447,7 +1446,7 @@ Future<void> setup({
       wallet: wallet!,
       unspentCoinsInfo: _unspentCoinsInfoSource,
       fiatConversationStore: getIt.get<FiatConversionStore>(),
-      settingsStore: getIt.get<SettingsStore>(),
+      appStore: getIt.get<AppStore>(),
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
     );
   });

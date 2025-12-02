@@ -1,11 +1,9 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/amount_parsing_proxy.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
@@ -34,10 +32,10 @@ abstract class UnspentCoinsListViewModelBase with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     this.coinTypeToSpendFrom = UnspentCoinType.any,
     required FiatConversionStore fiatConversationStore,
-    required SettingsStore settingsStore,
+    required AppStore appStore,
   })  : _unspentCoinsInfo = unspentCoinsInfo,
         _fiatConversationStore = fiatConversationStore,
-        _settingsStore = settingsStore,
+        _appStore = appStore,
         items = ObservableList<UnspentCoinsItem>(),
         _originalState = {};
 
@@ -45,8 +43,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
   final FiatConversionStore _fiatConversationStore;
-  final SettingsStore _settingsStore;
   final UnspentCoinType coinTypeToSpendFrom;
+  final AppStore _appStore;
 
   @observable
   ObservableList<UnspentCoinsItem> items;
@@ -60,10 +58,10 @@ abstract class UnspentCoinsListViewModelBase with Store {
   bool get isAllSelected => items.every((element) => element.isFrozen || element.isSending);
 
   @computed
-  FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
+  FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
 
   @computed
-  bool get isFiatDisabled => _settingsStore.fiatApiMode == FiatApiMode.disabled;
+  bool get isFiatDisabled => _appStore.settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
   Map<String, String> get fiatAmounts {
@@ -207,14 +205,14 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
             if (existingItem == null) return null;
 
-            final symbol = getIt<AmountParsingProxy>().useSatoshi(wallet.currency)
+            final symbol = _appStore.amountParsingProxy.useSatoshi(wallet.currency)
                 ? "SATS"
                 : wallet.currency.title;
 
             return UnspentCoinsItem(
               address: elem.address,
               amount:
-                  '${getIt<AmountParsingProxy>().getCryptoString(elem.value, wallet.currency)} $symbol',
+                  '${_appStore.amountParsingProxy.getCryptoString(elem.value, wallet.currency)} $symbol',
               hash: elem.hash,
               isFrozen: existingItem.isFrozen,
               note: existingItem.note,

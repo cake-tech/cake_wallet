@@ -1,7 +1,6 @@
 import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
@@ -16,6 +15,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
@@ -40,8 +40,7 @@ const String cryptoNumberPattern = '0.0';
 class Output = OutputBase with _$Output;
 
 abstract class OutputBase with Store {
-  OutputBase(
-      this._wallet, this._settingsStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
+  OutputBase(this._wallet, this._appStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
       : key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
@@ -61,8 +60,8 @@ abstract class OutputBase with Store {
   }
 
   Key key;
-  
-  bool get useSatoshi => getIt<AmountParsingProxy>().useSatoshi(cryptoCurrencyHandler());
+
+  bool get useSatoshi => _appStore.amountParsingProxy.useSatoshi(cryptoCurrencyHandler());
 
   @observable
   String fiatAmount;
@@ -113,7 +112,7 @@ abstract class OutputBase with Store {
           case WalletType.litecoin:
           case WalletType.bitcoinCash:
           case WalletType.dogecoin:
-            _amount = getIt<AmountParsingProxy>()
+            _amount = _appStore.amountParsingProxy
                 .parseCryptoString(_cryptoAmount, cryptoCurrencyHandler())
                 .toInt();
             break;
@@ -193,7 +192,7 @@ abstract class OutputBase with Store {
                 _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
           }
 
-          estimatedFee = getIt<AmountParsingProxy>().getCryptoString(fee, cryptoCurrencyHandler());
+          estimatedFee = _appStore.amountParsingProxy.getCryptoString(fee, cryptoCurrencyHandler());
           break;
         case WalletType.solana:
           estimatedFee = solana!.getEstimateFees(_wallet).toString();
@@ -271,7 +270,7 @@ abstract class OutputBase with Store {
           : cryptoCurrencyHandler();
 
       final cryptoAmount =
-          double.parse(getIt<AmountParsingProxy>().getCryptoInputAmount(estimatedFee, currency));
+          double.parse(_appStore.amountParsingProxy.getCryptoInputAmount(estimatedFee, currency));
 
       return calculateFiatAmountRaw(
           price: _fiatConversationStore.prices[currency]!, cryptoAmount: cryptoAmount);
@@ -280,12 +279,16 @@ abstract class OutputBase with Store {
     }
   }
 
-  WalletType get walletType => _wallet.type;
-  final CryptoCurrency Function() cryptoCurrencyHandler;
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
-  final SettingsStore _settingsStore;
+
+  WalletType get walletType => _wallet.type;
+
+  final CryptoCurrency Function() cryptoCurrencyHandler;
   final FiatConversionStore _fiatConversationStore;
+  final AppStore _appStore;
+
+  SettingsStore get _settingsStore => _appStore.settingsStore;
 
   @action
   void setSendAll(String fullBalance) {
@@ -339,7 +342,7 @@ abstract class OutputBase with Store {
           sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.');
 
       cryptoAmount_ =
-          getIt<AmountParsingProxy>().getCryptoInputAmount(cryptoAmount_, cryptoCurrencyHandler());
+          _appStore.amountParsingProxy.getCryptoInputAmount(cryptoAmount_, cryptoCurrencyHandler());
 
       final fiat = calculateFiatAmount(
           price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
@@ -360,8 +363,8 @@ abstract class OutputBase with Store {
           .toStringAsFixed(cryptoCurrencyHandler().decimals);
 
       if (cryptoAmount != crypto) {
-        cryptoAmount = getIt<AmountParsingProxy>()
-            .getCryptoOutputAmount(crypto, cryptoCurrencyHandler());
+        cryptoAmount =
+            _appStore.amountParsingProxy.getCryptoOutputAmount(crypto, cryptoCurrencyHandler());
       }
     } catch (e) {
       cryptoAmount = '';
@@ -400,7 +403,7 @@ extension OutputCopyWith on Output {
   }) {
     final clone = Output(
       _wallet,
-      _settingsStore,
+      _appStore,
       _fiatConversationStore,
       cryptoCurrencyHandler,
     );

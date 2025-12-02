@@ -1,5 +1,4 @@
-import 'package:cake_wallet/core/amount_parsing_proxy.dart';
-import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -19,7 +18,6 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_expandable_list_item.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
@@ -37,18 +35,19 @@ class TransactionDetailsViewModel = TransactionDetailsViewModelBase
     with _$TransactionDetailsViewModel;
 
 abstract class TransactionDetailsViewModelBase with Store {
-  TransactionDetailsViewModelBase(
-      {required this.transactionInfo,
-      required this.transactionDescriptionBox,
-      required this.wallet,
-      required this.settingsStore,
-      required this.sendViewModel,
-      this.canReplaceByFee = false})
-      : items = [],
+  TransactionDetailsViewModelBase({
+    required this.transactionInfo,
+    required this.transactionDescriptionBox,
+    required this.wallet,
+    required AppStore appStore,
+    required this.sendViewModel,
+    this.canReplaceByFee = false,
+  })  : items = [],
         RBFListItems = [],
         newFee = 0,
         isRecipientAddressShown = false,
-        showRecipientAddress = settingsStore.shouldSaveRecipientAddress {
+        _appStore = appStore,
+        showRecipientAddress = appStore.settingsStore.shouldSaveRecipientAddress {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
@@ -162,9 +161,9 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   final TransactionInfo transactionInfo;
   final Box<TransactionDescription> transactionDescriptionBox;
-  final SettingsStore settingsStore;
   final WalletBase wallet;
   final SendViewModel sendViewModel;
+  final AppStore _appStore;
 
   final List<TransactionDetailsListItem> items;
   final List<TransactionDetailsListItem> RBFListItems;
@@ -335,10 +334,10 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addElectrumListItems(TransactionInfo tx, DateFormat dateFormat) {
     final isLightning = (tx.additionalInfo["isLightning"] as bool?) ?? false;
-    final amountFormatted = getIt<AmountParsingProxy>()
+    final amountFormatted = _appStore.amountParsingProxy
         .getCryptoString(tx.amount, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc);
     final feeFormatted = (tx.fee != null)
-        ? getIt<AmountParsingProxy>()
+        ? _appStore.amountParsingProxy
             .getCryptoString(tx.fee!, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc)
         : "";
 
@@ -781,7 +780,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         value: bitcoin!.formatterBitcoinAmountToString(amount: newFee) +
             ' ${walletTypeToCryptoCurrency(wallet.type)}',
         items: priorityForWalletType(wallet.type),
-        customValue: settingsStore.customBitcoinFeeRate.toDouble(),
+        customValue: _appStore.settingsStore.customBitcoinFeeRate.toDouble(),
         maxValue: maxCustomFeeRate,
         selectedIdx: selectedItem,
         customItemIndex: customItemIndex ?? 0,

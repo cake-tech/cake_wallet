@@ -5,10 +5,8 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/buy/sell_buy_states.dart';
-import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -83,7 +81,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   double get amount {
     final formattedFiatAmount = double.tryParse(fiatAmount);
     var formattedCryptoAmount = double.tryParse(
-        getIt<AmountParsingProxy>().getCryptoInputAmount(cryptoAmount, cryptoCurrency));
+        _appStore.amountParsingProxy.getCryptoInputAmount(cryptoAmount, cryptoCurrency));
 
     return isBuyAction
         ? formattedFiatAmount ?? 200.0
@@ -169,7 +167,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       : null;
 
   @computed
-  bool get useSatoshi => getIt<AmountParsingProxy>().useSatoshi(cryptoCurrency);
+  bool get useSatoshi => _appStore.amountParsingProxy.useSatoshi(cryptoCurrency);
 
   @action
   void reset() {
@@ -225,7 +223,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       final amount = enteredAmount / bestRateQuote!.rate;
 
       _cryptoNumberFormat.maximumFractionDigits = cryptoCurrency.decimals;
-      cryptoAmount = getIt<AmountParsingProxy>().getCryptoOutputAmount(
+      cryptoAmount = _appStore.amountParsingProxy.getCryptoOutputAmount(
         _cryptoNumberFormat.format(amount).replaceAll(RegExp('\\,'), ''),
         cryptoCurrency,
       );
@@ -236,7 +234,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @action
   Future<void> changeCryptoAmount({required String amount}) async {
-    cryptoAmount = getIt<AmountParsingProxy>().getCryptoInputAmount(amount, cryptoCurrency);
+    cryptoAmount = _appStore.amountParsingProxy.getCryptoInputAmount(amount, cryptoCurrency);
 
     if (amount.isEmpty) {
       fiatAmount = '';
