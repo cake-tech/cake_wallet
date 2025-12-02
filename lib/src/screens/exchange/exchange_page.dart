@@ -734,6 +734,7 @@ class ExchangePage extends BasePage {
           exchangeViewModel.depositAddress =
               await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
         },
+        useSatoshis: exchangeViewModel.useSatoshiDeposit,
       ),
     );
 
@@ -781,6 +782,7 @@ class ExchangePage extends BasePage {
           exchangeViewModel.receiveAddress =
               await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
         },
+        useSatoshis: exchangeViewModel.useSatoshisReceive,
       ),
     );
 

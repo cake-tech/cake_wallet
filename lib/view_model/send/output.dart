@@ -1,6 +1,7 @@
 import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
@@ -24,7 +25,6 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/format_fixed.dart';
-import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -61,6 +61,8 @@ abstract class OutputBase with Store {
   }
 
   Key key;
+  
+  bool get useSatoshi => getIt<AmountParsingProxy>().useSatoshi(cryptoCurrencyHandler());
 
   @observable
   String fiatAmount;
@@ -92,9 +94,6 @@ abstract class OutputBase with Store {
   bool get isParsedAddress =>
       parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
 
-  @computed
-  bool get useSatoshis => walletType == WalletType.bitcoin && _settingsStore.preferBalanceInSats;
-
   @observable
   String? stealthAddress;
 
@@ -114,11 +113,9 @@ abstract class OutputBase with Store {
           case WalletType.litecoin:
           case WalletType.bitcoinCash:
           case WalletType.dogecoin:
-            if (useSatoshis) {
-              _amount = int.parse(_cryptoAmount);
-            } else {
-              _amount = bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
-            }
+            _amount = getIt<AmountParsingProxy>()
+                .parseCryptoString(_cryptoAmount, cryptoCurrencyHandler())
+                .toInt();
             break;
           case WalletType.decred:
             _amount = decred!.formatterStringDoubleToDecredAmount(_cryptoAmount);
@@ -196,9 +193,7 @@ abstract class OutputBase with Store {
                 _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
           }
 
-          estimatedFee = useSatoshis
-              ? "$fee"
-              : walletTypeToCryptoCurrency(_wallet.type).formatAmount(BigInt.from(fee));
+          estimatedFee = getIt<AmountParsingProxy>().getCryptoString(fee, cryptoCurrencyHandler());
           break;
         case WalletType.solana:
           estimatedFee = solana!.getEstimateFees(_wallet).toString();
@@ -275,10 +270,8 @@ abstract class OutputBase with Store {
           ? _wallet.currency
           : cryptoCurrencyHandler();
 
-      var cryptoAmount = double.parse(estimatedFee);
-      if (useSatoshis) {
-        cryptoAmount = double.parse(currency.formatAmount(BigInt.parse(estimatedFee)));
-      }
+      final cryptoAmount =
+          double.parse(getIt<AmountParsingProxy>().getCryptoInputAmount(estimatedFee, currency));
 
       return calculateFiatAmountRaw(
           price: _fiatConversationStore.prices[currency]!, cryptoAmount: cryptoAmount);
@@ -342,12 +335,11 @@ abstract class OutputBase with Store {
   @action
   void _updateFiatAmount() {
     try {
-      var cryptoAmount_ = sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.');
+      var cryptoAmount_ =
+          sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.');
 
-      if (useSatoshis) {
-        cryptoAmount_ =
-            walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.parse(cryptoAmount_));
-      }
+      cryptoAmount_ =
+          getIt<AmountParsingProxy>().getCryptoInputAmount(cryptoAmount_, cryptoCurrencyHandler());
 
       final fiat = calculateFiatAmount(
           price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
@@ -368,7 +360,8 @@ abstract class OutputBase with Store {
           .toStringAsFixed(cryptoCurrencyHandler().decimals);
 
       if (cryptoAmount != crypto) {
-        cryptoAmount = getIt<AmountProxyParser>.p.  crypto;
+        cryptoAmount = getIt<AmountParsingProxy>()
+            .getCryptoOutputAmount(crypto, cryptoCurrencyHandler());
       }
     } catch (e) {
       cryptoAmount = '';

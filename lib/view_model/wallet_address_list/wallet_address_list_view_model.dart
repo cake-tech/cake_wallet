@@ -3,9 +3,11 @@ import 'dart:core';
 
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/payment_uris.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -89,10 +91,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   Currency selectedCurrency;
 
   @computed
-  int get selectedCurrencyDecimals => useSatoshis ? 0 : selectedCurrency.decimals;
+  int get selectedCurrencyDecimals => useSatoshi ? 0 : selectedCurrency.decimals;
 
   @computed
-  bool get useSatoshis => selectedCurrency == CryptoCurrency.btc && _settingsStore.preferBalanceInSats;
+  bool get useSatoshi =>
+      selectedCurrency is CryptoCurrency &&
+      getIt<AmountParsingProxy>().useSatoshi(selectedCurrency as CryptoCurrency);
 
   @observable
   String searchText = '';
@@ -200,7 +204,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (isElectrumWallet) {
-      final useSatoshi = wallet.type == WalletType.bitcoin && _settingsStore.preferBalanceInSats;
       if (bitcoin!.hasSelectedSilentPayments(wallet)) {
         final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
           final isPrimary = address.id == 0;
@@ -211,9 +214,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             name: address.name,
             address: address.address,
             txCount: address.txCount,
-            balance: useSatoshi
-                ? "${address.balance}"
-                : walletTypeToCryptoCurrency(type).formatAmount(BigInt.from(address.balance)),
+            balance: getIt<AmountParsingProxy>()
+                .getCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
             isChange: address.isChange,
           );
         });
@@ -228,9 +230,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             name: address.name,
             address: address.address,
             txCount: address.txCount,
-            balance: useSatoshi
-                ? "${address.balance}"
-                : walletTypeToCryptoCurrency(type).formatAmount(BigInt.from(address.balance)),
+            balance: getIt<AmountParsingProxy>()
+                .getCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
             isChange: address.isChange,
             isOneTimeReceiveAddress: true,
           );
@@ -246,9 +247,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
               name: subaddress.name,
               address: subaddress.address,
               txCount: subaddress.txCount,
-              balance: useSatoshi
-                  ? "${subaddress.balance}"
-                  : walletTypeToCryptoCurrency(type).formatAmount(BigInt.from(subaddress.balance)),
+              balance: getIt<AmountParsingProxy>()
+                  .getCryptoString(subaddress.balance, walletTypeToCryptoCurrency(type)),
               isChange: subaddress.isChange);
         });
 

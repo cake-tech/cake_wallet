@@ -8,7 +8,7 @@ class AmountParsingProxy {
 
   /// [getCryptoInputAmount] turns the input [amount] into the canonical representation of [cryptoCurrency]
   String getCryptoInputAmount(String amount, CryptoCurrency cryptoCurrency) {
-    if (_requiresConversion(cryptoCurrency)) {
+    if (useSatoshi(cryptoCurrency) && amount.isNotEmpty) {
       return cryptoCurrency.formatAmount(BigInt.parse(amount));
     }
 
@@ -17,14 +17,32 @@ class AmountParsingProxy {
 
   /// [getCryptoOutputAmount] turns the input [amount] into the preferred representation of [cryptoCurrency]
   String getCryptoOutputAmount(String amount, CryptoCurrency cryptoCurrency) {
-    if (_requiresConversion(cryptoCurrency)) {
+    if (useSatoshi(cryptoCurrency) && amount.isNotEmpty) {
       return cryptoCurrency.parseAmount(amount).toString();
     }
 
     return amount;
   }
 
-  bool _requiresConversion(CryptoCurrency cryptoCurrency) =>
+  /// [getCryptoStringRepresentation] turns the input [amount] into the preferred representation of [cryptoCurrency]
+  String getCryptoString(int amount, CryptoCurrency cryptoCurrency) {
+    if (useSatoshi(cryptoCurrency)) {
+      return "$amount";
+    }
+
+    return cryptoCurrency.formatAmount(BigInt.from(amount));
+  }
+
+  /// [parseCryptoString] turns the input [string] into a `BigInt presentation of the [cryptoCurrency]
+  BigInt parseCryptoString(String amount, CryptoCurrency cryptoCurrency) {
+    if (useSatoshi(cryptoCurrency)) {
+      return BigInt.parse(amount);
+    }
+
+    return cryptoCurrency.parseAmount(amount);
+  }
+
+  bool useSatoshi(CryptoCurrency cryptoCurrency) =>
       ([CryptoCurrency.btc, CryptoCurrency.btcln].contains(cryptoCurrency) &&
           displayMode == BitcoinAmountDisplayMode.satoshi) ||
       (CryptoCurrency.btcln == cryptoCurrency &&

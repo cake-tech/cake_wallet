@@ -1,6 +1,8 @@
 import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/base/base.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -52,8 +54,11 @@ class TransactionListItem extends ActionListItem with Keyable {
 
   String get formattedCryptoAmount {
     if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
-    if (balanceViewModel.wallet.type == WalletType.bitcoin && settingsStore.preferBalanceInSats)
-      return "${transaction.amount}";
+    if (balanceViewModel.wallet.type == WalletType.bitcoin) {
+      final isLightning = (transaction.additionalInfo["isLightning"] as bool?) ?? false;
+      return getIt<AmountParsingProxy>().getCryptoString(
+          transaction.amount, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc);
+    }
     return transaction.amountFormatted();
   }
 

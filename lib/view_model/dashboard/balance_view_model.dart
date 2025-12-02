@@ -1,4 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -327,11 +329,7 @@ abstract class BalanceViewModelBase with Store {
   String _getFormattedCryptoAmount(CryptoCurrency cryptoCurrency, int? amount) {
     if (amount == null) return "";
 
-    if (settingsStore.preferBalanceInSats && cryptoCurrency == CryptoCurrency.btc) {
-      return "$amount";
-    }
-
-    return cryptoCurrency.formatAmount(BigInt.from(amount));
+    return getIt<AmountParsingProxy>().getCryptoString(amount, cryptoCurrency);
   }
 
   @computed

@@ -6,9 +6,11 @@ import 'dart:developer';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -370,6 +372,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @observable
   double bestRate = 0.0;
 
+  @computed
+  bool get useSatoshiDeposit => getIt<AmountParsingProxy>().useSatoshi(depositCurrency);
+
+  @computed
+  bool get useSatoshisReceive => getIt<AmountParsingProxy>().useSatoshi(receiveCurrency);
+
   late Timer bestRateSync;
 
   final FiatConversionStore fiatConversionStore;
@@ -436,7 +444,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       return;
     }
 
-    final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
+    final _enteredAmount = double.tryParse(getIt<AmountParsingProxy>()
+            .getCryptoInputAmount(amount.replaceAll(',', '.'), receiveCurrency)) ??
+        0;
 
     if (bestRate == 0) {
       depositAmount = S.current.fetching;
@@ -444,12 +454,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       await calculateBestRate();
     }
 
-    _cryptoNumberFormat.maximumFractionDigits = depositMaxDigits;
-
-    depositAmount = _cryptoNumberFormat
-        .format(_enteredAmount / bestRate)
-        .toString()
-        .replaceAll(RegExp('\\,'), '');
+    final amount_ = _enteredAmount / bestRate;
+    _cryptoNumberFormat.maximumFractionDigits = receiveMaxDigits;
+    receiveAmount = getIt<AmountParsingProxy>().getCryptoOutputAmount(
+        _cryptoNumberFormat.format(amount_).replaceAll(RegExp('\\,'), ''), depositCurrency);
   }
 
   @action
@@ -479,7 +487,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     /// as it should remain exactly what the user set
     if (isFixedRateMode) return;
 
-    final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
+    final _enteredAmount = double.tryParse(getIt<AmountParsingProxy>()
+            .getCryptoInputAmount(amount.replaceAll(',', '.'), depositCurrency)) ??
+        0;
 
     /// in case the best rate was not calculated yet
     if (bestRate == 0) {
@@ -488,12 +498,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       await calculateBestRate();
     }
 
+    final amount_ = _enteredAmount * bestRate;
     _cryptoNumberFormat.maximumFractionDigits = receiveMaxDigits;
-
-    receiveAmount = _cryptoNumberFormat
-        .format(bestRate * _enteredAmount)
-        .toString()
-        .replaceAll(RegExp('\\,'), '');
+    receiveAmount = getIt<AmountParsingProxy>().getCryptoOutputAmount(
+        _cryptoNumberFormat.format(amount_).replaceAll(RegExp('\\,'), ''), receiveCurrency);
   }
 
   bool checkIfInputMeetsMinOrMaxCondition(String input) {
@@ -513,9 +521,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       bestRate = 0.0;
       return;
     }
-    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ??
+    final amount = double.tryParse(
+          getIt<AmountParsingProxy>().getCryptoInputAmount(
+              isFixedRateMode ? receiveAmount : depositAmount,
+              isFixedRateMode ? receiveCurrency : depositCurrency),
+        ) ??
         initialAmountByAssets(isFixedRateMode ? receiveCurrency : depositCurrency);
 
+    print(amount);
     final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
       final limits = _providerLimits[provider];
 
@@ -639,7 +652,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   Future<void> createTrade() async {
     if (isSendAllEnabled) {
       await calculateDepositAllAmount();
-      final amount = double.tryParse(depositAmount);
+      final amount = double.tryParse(getIt<AmountParsingProxy>()
+          .getCryptoInputAmount(depositAmount.replaceAll(',', '.'), depositCurrency));
 
       if (limits.min != null && amount != null && amount < limits.min!) {
         tradeState = TradeIsCreatedFailure(
@@ -678,8 +692,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         final request = TradeRequest(
           fromCurrency: depositCurrency,
           toCurrency: receiveCurrency,
-          fromAmount: depositAmount.replaceAll(',', '.'),
-          toAmount: receiveAmount.replaceAll(',', '.'),
+          fromAmount: getIt<AmountParsingProxy>()
+              .getCryptoInputAmount(depositAmount.replaceAll(',', '.'), depositCurrency),
+          toAmount: getIt<AmountParsingProxy>()
+              .getCryptoInputAmount(receiveAmount.replaceAll(',', '.'), receiveCurrency),
           refundAddress: depositAddress,
           toAddress: receiveAddress,
           isFixedRate: isFixedRateMode,

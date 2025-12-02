@@ -283,7 +283,7 @@ class QRWidget extends StatelessWidget {
 
   String get _currencyName {
     if (addressListViewModel.selectedCurrency is CryptoCurrency) {
-      if (addressListViewModel.useSatoshis) return "SATS";
+      if (addressListViewModel.useSatoshi) return "SATS";
       return (addressListViewModel.selectedCurrency as CryptoCurrency).title.toUpperCase();
     }
     return addressListViewModel.selectedCurrency.name.toUpperCase();

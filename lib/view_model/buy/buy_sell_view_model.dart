@@ -5,14 +5,15 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/buy/sell_buy_states.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
@@ -80,16 +81,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   double get amount {
-    final formattedFiatAmount = double.tryParse(fiatAmount) ?? 200.0;
-    var formattedCryptoAmount = double.tryParse(cryptoAmount);
-
-    if (useSatoshis && cryptoAmount.isNotEmpty) {
-      formattedCryptoAmount =
-          double.tryParse(cryptoCurrency.formatAmount(BigInt.parse(cryptoAmount)));
-    }
+    final formattedFiatAmount = double.tryParse(fiatAmount);
+    var formattedCryptoAmount = double.tryParse(
+        getIt<AmountParsingProxy>().getCryptoInputAmount(cryptoAmount, cryptoCurrency));
 
     return isBuyAction
-        ? formattedFiatAmount
+        ? formattedFiatAmount ?? 200.0
         : formattedCryptoAmount ?? (cryptoCurrency == CryptoCurrency.btc ? 0.001 : 1);
   }
 
@@ -151,10 +148,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   bool skipIsReadyToTradeReaction = false;
 
   @computed
-  bool get useSatoshis =>
-      _appStore.settingsStore.preferBalanceInSats && cryptoCurrency == CryptoCurrency.btc;
-
-  @computed
   bool get isReadyToTrade {
     final hasSelectedQuote = selectedQuote != null;
     final hasSelectedPaymentMethod = selectedPaymentMethod != null;
@@ -174,6 +167,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   String? get buySellQuoteFailedError => buySellQuotState is BuySellQuotFailed
       ? (buySellQuotState as BuySellQuotFailed).errorMessage
       : null;
+
+  @computed
+  bool get useSatoshi => getIt<AmountParsingProxy>().useSatoshi(cryptoCurrency);
 
   @action
   void reset() {
@@ -227,17 +223,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (bestRateQuote != null) {
       final amount = enteredAmount / bestRateQuote!.rate;
-      if (useSatoshis) {
-        cryptoAmount = cryptoCurrency
-            .parseAmount(amount.toString().withMaxDecimals(cryptoCurrency.decimals))
-            .toString();
-      } else {
-        _cryptoNumberFormat.maximumFractionDigits = cryptoCurrency.decimals;
-        cryptoAmount = _cryptoNumberFormat
-            .format(enteredAmount / bestRateQuote!.rate)
-            .toString()
-            .replaceAll(RegExp('\\,'), '');
-      }
+
+      _cryptoNumberFormat.maximumFractionDigits = cryptoCurrency.decimals;
+      cryptoAmount = getIt<AmountParsingProxy>().getCryptoOutputAmount(
+        _cryptoNumberFormat.format(amount).replaceAll(RegExp('\\,'), ''),
+        cryptoCurrency,
+      );
     } else {
       await calculateBestRate();
     }
@@ -245,16 +236,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @action
   Future<void> changeCryptoAmount({required String amount}) async {
-    cryptoAmount = amount;
+    cryptoAmount = getIt<AmountParsingProxy>().getCryptoInputAmount(amount, cryptoCurrency);
 
     if (amount.isEmpty) {
       fiatAmount = '';
       cryptoAmount = '';
       return;
-    }
-
-    if (useSatoshis) {
-      amount = cryptoCurrency.formatAmount(BigInt.parse(amount));
     }
 
     final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;

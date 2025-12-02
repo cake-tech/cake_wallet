@@ -1,5 +1,8 @@
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -331,14 +334,13 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addElectrumListItems(TransactionInfo tx, DateFormat dateFormat) {
-
-    String amountFormatted = tx.amountFormatted();
-    String? feeFormatted = tx.feeFormatted();
-
-    if (wallet.type == WalletType.bitcoin && settingsStore.preferBalanceInSats){
-      amountFormatted = "${tx.amount}";
-      if (tx.fee != null) feeFormatted = "${tx.fee}";
-    }
+    final isLightning = (tx.additionalInfo["isLightning"] as bool?) ?? false;
+    final amountFormatted = getIt<AmountParsingProxy>()
+        .getCryptoString(tx.amount, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc);
+    final feeFormatted = (tx.fee != null)
+        ? getIt<AmountParsingProxy>()
+            .getCryptoString(tx.fee!, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc)
+        : "";
 
     final _items = [
       StandartListItem(
@@ -369,7 +371,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       if (tx.feeFormatted()?.isNotEmpty ?? false)
         StandartListItem(
           title: S.current.transaction_details_fee,
-          value: feeFormatted!,
+          value: feeFormatted,
           key: ValueKey('standard_list_item_transaction_details_fee_key'),
         ),
     ];

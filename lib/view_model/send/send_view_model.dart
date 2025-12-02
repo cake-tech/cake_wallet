@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
@@ -10,6 +11,7 @@ import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
@@ -239,9 +241,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   CryptoCurrency get currency => wallet.currency;
 
   String get feeCurrencySymbol =>
-      wallet.currency == CryptoCurrency.btc && _settingsStore.preferBalanceInSats
-          ? "SATS"
-          : currency.toString();
+      getIt<AmountParsingProxy>().useSatoshi(currency) ? "SATS" : currency.toString();
 
   Validator<String> amountValidator(Output output) => AmountValidator(
         currency: walletTypeToCryptoCurrency(wallet.type),
@@ -273,11 +273,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
-    if (walletType == WalletType.bitcoin && _settingsStore.preferBalanceInSats) {
-      return "${wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance}";
-    }
 
-    return selectedCryptoCurrency.formatAmount(BigInt.from(wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance));
+    return getIt<AmountParsingProxy>().getCryptoString(
+        wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance, selectedCryptoCurrency);
   }
 
   @action
@@ -304,10 +302,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
-        final sendingBalance = await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
-        if (_settingsStore.preferBalanceInSats)
-          return sendingBalance.toString();
-        return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
+        final sendingBalance =
+            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
+        return getIt<AmountParsingProxy>()
+            .getCryptoString(sendingBalance, walletTypeToCryptoCurrency(walletType));
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
