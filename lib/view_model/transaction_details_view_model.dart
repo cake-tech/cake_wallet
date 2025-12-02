@@ -59,6 +59,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         if (!canReplaceByFee) _checkForRBF(tx);
         break;
       case WalletType.litecoin:
+        _addLitecoinListItems(tx, dateFormat);
       case WalletType.bitcoinCash:
         _addElectrumListItems(tx, dateFormat);
         break;
@@ -393,6 +394,30 @@ abstract class TransactionDetailsViewModelBase with Store {
         printV(e.toString());
       }
     }
+
+    items.addAll(_items);
+  }
+
+  void _addLitecoinListItems(TransactionInfo tx, DateFormat dateFormat) {
+    _addElectrumListItems(tx, dateFormat);
+
+    bool isMweb = bitcoin!.txIsMweb(tx);
+
+    final _items = [
+      if (isMweb)
+        BlockExplorerListItem(
+          title: S.current.view_in_block_explorer,
+          value: S.current.view_transaction_on + 'mwebexplorer.com',
+          onTap: () async {
+            try {
+              final uri = Uri.parse('https://www.mwebexplorer.com/blocks/block/${tx.height}');
+              if (await canLaunchUrl(uri))
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+            } catch (e) {}
+          },
+          key: ValueKey('block_explorer_list_item_mweb_wallet_type_key'),
+        ),
+    ];
 
     items.addAll(_items);
   }

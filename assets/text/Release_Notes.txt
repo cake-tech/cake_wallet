@@ -1,5 +1,5 @@
 Improve wallets performance
-Litecoin and MWEB support in Cupcake
+Litecoin and MWEB support in Cupcake Android
 Ethereum and EVM chains enhancements
 Improved EVM fee estimation
 Improvements for AnyPay

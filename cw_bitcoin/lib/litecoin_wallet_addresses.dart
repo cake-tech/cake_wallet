@@ -70,7 +70,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
-    printV("aaaaaa");
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       return null;
     }
@@ -189,7 +188,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         if (!element.isSending || element.isFrozen) {
           return;
         }
-        if (element.address.contains("mweb")) {
+        if (element.address.startsWith("ltcmweb")) {
           comesFromMweb = true;
         }
       });
