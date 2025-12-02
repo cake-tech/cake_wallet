@@ -397,8 +397,6 @@ Future<void> setup({
       AnonpayTransactionsStore(anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
   getIt.registerSingleton<SeedSettingsStore>(SeedSettingsStore());
 
-  getIt.registerFactory(() => AmountParsingProxy(getIt<SettingsStore>().displayAmountsInSatoshi));
-
   getIt.registerFactoryParam<HardwareWalletViewModel, HardwareWalletType, void>((type, _) {
     switch(type) {
       case HardwareWalletType.bitbox: return getIt<BitboxViewModel>();
