@@ -1,4 +1,3 @@
-import 'package:cw_core/card_design.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
 
@@ -13,14 +12,12 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     this.tag,
     this.enabled = false,
     this.isPotentialScam = false,
-    this.cardDesign = CardDesign.genericDefault,
   }) : super(title: title, raw: raw);
 
   final String name;
   final String? tag;
   final String? fullName;
   final String? iconPath;
-  final CardDesign cardDesign;
   @override
   final int decimals;
   final bool enabled;
@@ -150,8 +147,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       raw: 4,
       name: 'btc',
       iconPath: 'assets/images/crypto/bitcoin.webp',
-      decimals: 8,
-      cardDesign: CardDesign.btc);
+    decimals: 8,
+  );
   static const dai = CryptoCurrency(title: 'DAI', tag: 'ETH', fullName: 'Dai', raw: 5, name: 'dai', iconPath: 'assets/images/crypto/dai.webp', decimals: 18);
   static const dash = CryptoCurrency(title: 'DASH', fullName: 'Dash', raw: 6, name: 'dash', iconPath: 'assets/images/dash_icon.png', decimals: 8);
   static const eos = CryptoCurrency(title: 'EOS', fullName: 'EOS', raw: 7, name: 'eos', iconPath: 'assets/images/eos_icon.png', decimals: 4);
@@ -161,8 +158,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       raw: 8,
       name: 'eth',
       iconPath: 'assets/images/crypto/ethereum.webp',
-      decimals: 18,
-      cardDesign: CardDesign.eth);
+    decimals: 18,
+  );
   static const ltc = CryptoCurrency(title: 'LTC', fullName: 'Litecoin', raw: 9, name: 'ltc', iconPath: 'assets/images/crypto/litecoin.webp', decimals: 8);
   static const nano = CryptoCurrency(title: 'XNO', fullName: 'Nano', raw: 10, name: 'xno', iconPath: 'assets/images/crypto/nano.webp', decimals: 30);
   static const trx = CryptoCurrency(title: 'TRX', fullName: 'TRON', raw: 11, name: 'trx', iconPath: 'assets/images/crypto/tron.webp', decimals: 6);
@@ -226,8 +223,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       raw: 62,
       name: 'btcln',
       iconPath: 'assets/images/crypto/bitcoin.webp',
-      decimals: 8,
-      cardDesign: CardDesign.btcln);
+    decimals: 8,
+  );
   static const shib = CryptoCurrency(title: 'SHIB', tag: 'ETH', fullName: 'Shiba Inu', raw: 63, name: 'shib', iconPath: 'assets/images/shib_icon.png', decimals: 18);
   static const aave = CryptoCurrency(title: 'AAVE', tag: 'ETH', fullName: 'Aave', raw: 64, name: 'aave', iconPath: 'assets/images/aave_icon.png', decimals: 18);
   static const arb = CryptoCurrency(title: 'ARB', fullName: 'Arbitrum', raw: 65, name: 'arb', iconPath: 'assets/images/arb_icon.png', decimals: 18);

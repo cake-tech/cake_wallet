@@ -1,17 +1,19 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
+
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
-import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
+import 'package:cake_wallet/core/reset_service.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
-import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/template.dart';
@@ -20,49 +22,48 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/reactions/bootstrap.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/test_asset_bundles.dart';
 import 'package:cake_wallet/themes/utils/theme_provider.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
-import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/db/sqlite.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/utils/tor/abstract.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/window_size.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
-import 'package:cw_core/root_dir.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cw_core/window_size.dart';
 import 'package:logging/logging.dart';
-import 'package:cake_wallet/core/trade_monitor.dart';
-import 'package:cake_wallet/core/reset_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trezor_connect/trezor_connect.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -266,7 +267,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 53,
+    initialMigrationVersion: 54,
   );
 }
 
