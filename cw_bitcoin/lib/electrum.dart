@@ -338,6 +338,32 @@ class ElectrumClient {
   Future<dynamic> getTweaks({required int height}) async =>
       await callWithTimeout(method: 'blockchain.tweaks.subscribe', params: [height, 1, false]);
 
+  Future<dynamic> getSilentpaymentsSubscribe(
+    String scanPrivateKey,
+    String spendPublicKey,
+    int chainTip,
+  ) async {
+    return callWithTimeout(
+      method: 'blockchain.silentpayments.subscribe',
+      params: [scanPrivateKey, spendPublicKey, chainTip],
+    );
+  }
+
+  BehaviorSubject<Map<String, dynamic>>? silentpaymentsSubscribe(
+      String scanPrivateKey, String spendPublicKey,
+      {int? start, List<int>? labels}) {
+    return subscribe<Map<String, dynamic>>(
+      id: 'blockchain.silentpayments.subscribe',
+      method: 'blockchain.silentpayments.subscribe',
+      params: [scanPrivateKey, spendPublicKey, start ?? 0, labels ?? []],
+    );
+  }
+
+  Future<dynamic> silentpaymentsUnsubscribe(String scanPrivateKey, String spendPublicKey) async =>
+      await callWithTimeout(
+          method: 'blockchain.silentpayments.unsubscribe',
+          params: [scanPrivateKey, spendPublicKey]);
+
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
         if (result is double) {
@@ -552,7 +578,11 @@ class ElectrumClient {
         break;
       case 'blockchain.tweaks.subscribe':
         final params = request['params'] as List<dynamic>;
-        _tasks[_tasks.keys.first]?.subject?.add(params.last);
+        _tasks[method]?.subject?.add(params.last);
+        break;
+      case 'blockchain.silentpayments.subscribe':
+        final params = request['params'] as Map<String, dynamic>;
+        _tasks[method]?.subject?.add(params);
         break;
       default:
         break;
@@ -572,7 +602,7 @@ class ElectrumClient {
 
   void _handleResponse(Map<String, dynamic> response) {
     final method = response['method'];
-    final id = response['id'] as String?;
+    final id = response['id'].toString();
     final result = response['result'];
 
     try {
