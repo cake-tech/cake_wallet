@@ -1,14 +1,22 @@
 # cw_core
 
-A new Flutter package project.
+Core abstractions and shared types for Cake Wallet modules.
 
-## Getting Started
+## Highlights
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+- Wallet primitives: `WalletBase`, `WalletService`, `WalletInfo`, `WalletAddresses`.
+- Transaction primitives: `TransactionInfo`, `TransactionHistoryBase`, directions/priorities.
+- Currency models: `CryptoCurrency`, `Erc20Token`, SPL/TRON token types.
+- Persistence helpers: Hive adapters, path helpers (`pathForWallet`), encrypted storage utils.
+- Node representation (`Node`) and sync status types.
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+## Usage
+
+Extend `WalletBase` for a new chain and provide a `WalletService` implementation to create/open/restore wallets.
+
+```dart
+class MyChainWallet extends WalletBase<MyBalance, MyHistory, MyTxInfo> { /* ... */ }
+class MyChainWalletService extends WalletService<New, FromSeed, FromKeys, FromHardware> { /* ... */ }
+```
+
+See the chain modules (e.g., `cw_bitcoin`, `cw_evm`) for complete examples.
