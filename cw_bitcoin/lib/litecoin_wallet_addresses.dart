@@ -188,7 +188,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         if (!element.isSending || element.isFrozen) {
           return;
         }
-        if (element.address.contains("mweb")) {
+        if (element.address.startsWith("ltcmweb")) {
           comesFromMweb = true;
         }
       });
