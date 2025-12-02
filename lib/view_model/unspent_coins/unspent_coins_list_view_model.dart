@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -76,7 +77,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       final formatted = formatAmountToString(item.value);
       final cryptoAmount = double.tryParse(formatted.replaceAll(',', '')) ?? 0.0;
       final fiatValue = price * cryptoAmount;
-      result[item.hash] = fiatCurrency.title + ' ' + fiatValue.toStringAsFixed(2);
+      result[item.hash] = '${fiatCurrency.title} ${fiatValue.toStringAsFixed(2)}';
     }
 
     return result;
@@ -125,17 +126,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
     }
   }
 
-  String formatAmountToString(int fullBalance) {
-    if (wallet.type == WalletType.monero)
-      return monero!.formatterMoneroAmountToString(amount: fullBalance);
-    if (wallet.type == WalletType.wownero)
-      return wownero!.formatterWowneroAmountToString(amount: fullBalance);
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type))
-      return bitcoin!.formatterBitcoinAmountToString(amount: fullBalance);
-    if (wallet.type == WalletType.decred)
-      return decred!.formatterDecredAmountToString(amount: fullBalance);
-    return '';
-  }
+  String formatAmountToString(int fullBalance) =>
+      wallet.currency.formatAmount(BigInt.from(fullBalance));
 
   Future<void> _updateUnspents() async {
     if (wallet.type == WalletType.monero) {
@@ -211,13 +203,18 @@ abstract class UnspentCoinsListViewModelBase with Store {
         .map((elem) {
           try {
             final existingItem = _unspentCoinsInfo.values
-                .firstWhereOrNull((item) => item.walletId == wallet.id && item == elem);;
+                .firstWhereOrNull((item) => item.walletId == wallet.id && item == elem);
 
             if (existingItem == null) return null;
 
+            final symbol = getIt<AmountParsingProxy>().useSatoshi(wallet.currency)
+                ? "SATS"
+                : wallet.currency.title;
+
             return UnspentCoinsItem(
               address: elem.address,
-              amount: '${formatAmountToString(elem.value)} ${wallet.currency.title}',
+              amount:
+                  '${getIt<AmountParsingProxy>().getCryptoString(elem.value, wallet.currency)} $symbol',
               hash: elem.hash,
               isFrozen: existingItem.isFrozen,
               note: existingItem.note,
@@ -268,9 +265,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
   void setIsDisposing(bool value) => isDisposing = value;
 
   @action
-  void updateWallet(WalletBase newWallet) {
-    wallet = newWallet;
-  }
+  void updateWallet(WalletBase newWallet) => wallet = newWallet;
 
   @action
   Future<void> dispose() async {
