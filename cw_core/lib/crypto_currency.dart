@@ -3,9 +3,9 @@ import 'dart:ui';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/parse_fixed.dart';
-
-import 'format_fixed.dart';
+import 'package:flutter/material.dart';
 
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implements Currency {
   const CryptoCurrency({
