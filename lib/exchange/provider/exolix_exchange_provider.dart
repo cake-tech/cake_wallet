@@ -365,7 +365,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final coinFrom = responseJSON['coinFrom']['coinCode'] as String;
     final coinFromNetwork = responseJSON['coinFrom']['network'] as String?;
     final _normalizedFromNetwork = _normalizeNetworkType(coinFromNetwork ?? '');
-    final fromTag = coinFrom == _normalizedFromNetwork ? null : coinFromNetwork;
+    final fromTag = coinFrom.toUpperCase() == _normalizedFromNetwork.toUpperCase() ? null : coinFromNetwork;
     final from = CryptoCurrency.safeParseCurrencyFromString(coinFrom, tag: fromTag);
 
     // Parsing 'to' currency
