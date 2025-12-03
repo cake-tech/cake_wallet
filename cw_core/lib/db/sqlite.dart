@@ -1,20 +1,23 @@
-
 import 'dart:io';
 
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-late Database db; 
+late Database db;
 
 Future<void> initDb({String? pathOverride}) async {
-  if (Platform.isLinux || Platform.isWindows) { 
+  if (Platform.isLinux || Platform.isWindows) {
     databaseFactory = databaseFactoryFfi;
   }
-  db = await openDatabase(
-    pathOverride ?? "cake.db",
-    version: 1,
-    onCreate: (Database db, int version) async {
+  db = await openDatabase(pathOverride ?? "cake.db", version: 1,
+      onOpen: (Database db) async {
+    try {
       await db.execute(
-        '''
+          'ALTER TABLE WalletInfo ADD COLUMN isLWSEnabled INTEGER DEFAULT (0) NOT NULL');
+    } catch (e) {
+      // Column already exists, ignore error
+    }
+  }, onCreate: (Database db, int version) async {
+    await db.execute('''
 CREATE TABLE WalletInfo (
 	walletInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	id TEXT NOT NULL,
@@ -40,8 +43,7 @@ CREATE TABLE WalletInfo (
 );
 ''');
 
-      await db.execute(
-        '''
+    await db.execute('''
 CREATE TABLE WalletInfoDerivationInfo (
 	walletInfoDerivationInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	address TEXT NOT NULL,
@@ -54,8 +56,7 @@ CREATE TABLE WalletInfoDerivationInfo (
 );
 ''');
 
-      await db.execute(
-        '''
+    await db.execute('''
 CREATE TABLE WalletInfoAddress (
 	walletInfoAddressId INTEGER PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER,
@@ -65,8 +66,7 @@ CREATE TABLE WalletInfoAddress (
 );
 ''');
 
-      await db.execute(
-        '''
+    await db.execute('''
 CREATE TABLE WalletInfoAddressInfo (
 	walletInfoAddressInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER NOT NULL,
@@ -78,8 +78,7 @@ CREATE TABLE WalletInfoAddressInfo (
 );
 ''');
 
-      await db.execute(
-        '''
+    await db.execute('''
 CREATE TABLE "WalletInfoAddressMap" (
 	walletInfoAddressMapId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER NOT NULL,
@@ -87,10 +86,8 @@ CREATE TABLE "WalletInfoAddressMap" (
 	addressValue TEXT NOT NULL,
 	CONSTRAINT WalletInfoAddress_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
-        '''
-      );
-    }
-  );
+        ''');
+  });
 }
 
 Future<Map<String, dynamic>> dumpDb() async {
@@ -105,7 +102,8 @@ Future<Map<String, dynamic>> dumpDb() async {
 }
 
 Future<List<String>> _getTableNames() async {
-  final tableNames = await db.rawQuery('SELECT name FROM sqlite_master WHERE type = "table"');
+  final tableNames =
+      await db.rawQuery('SELECT name FROM sqlite_master WHERE type = "table"');
   return tableNames.map((e) => (e["name"]).toString()).toList();
 }
 
