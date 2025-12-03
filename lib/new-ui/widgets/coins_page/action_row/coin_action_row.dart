@@ -1,9 +1,13 @@
+import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -12,7 +16,9 @@ import '../../../pages/scan_page.dart';
 import 'coin_action_button.dart';
 
 class CoinActionRow extends StatelessWidget {
-  const CoinActionRow({super.key});
+  const CoinActionRow({super.key, this.lightningMode = false});
+
+  final bool lightningMode;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +39,9 @@ class CoinActionRow extends StatelessWidget {
                   builder: (context) => SendPage(),
                 );
               } else {
-                Navigator.of(context).pushNamed(Routes.send);
+                Map<String, dynamic>? args;
+                if (lightningMode) args = {'coinTypeToSpendFrom' : UnspentCoinType.lightning};
+                Navigator.of(context).pushNamed(Routes.send, arguments: args);
               }
             },
           ),
@@ -76,29 +84,38 @@ class CoinActionRow extends StatelessWidget {
           CoinActionButton(
             icon: SvgPicture.asset("assets/new-ui/scan.svg"),
             label: "Scan",
-            action: () async {
-              if (FeatureFlag.hasNewUiExtraPages) {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (context) => FractionallySizedBox(
-                    heightFactor: 0.9,
-                    child: ScanPage(),
-                  ),
-                );
-              } else {
-                final code = await presentQRScanner(context);
-
-                if (code == null) return;
-                if (code.isEmpty) return;
-                final uri = Uri.tryParse(code);
-                if (uri == null) return;
-                rootKey.currentState?.handleDeepLinking(uri);
-              };
-            },
+            action: () => _onPressedScan(context),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _onPressedScan(BuildContext context) async {
+    if (FeatureFlag.hasNewUiExtraPages) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => FractionallySizedBox(
+          heightFactor: 0.9,
+          child: ScanPage(),
+        ),
+      );
+    } else {
+      final code = await presentQRScanner(context);
+
+      if (code == null || code.isEmpty) return;
+
+      if (SendViewModelBase.isLightningInvoice(code) ||
+          OpenCryptoPayService.isOpenCryptoPayQR(code)) {
+        Navigator.of(context).pushNamed(Routes.send,
+            arguments: {"paymentRequest": PaymentRequest(code, "", "", "", "")});
+        return;
+      }
+
+      final uri = Uri.tryParse(code);
+      if (uri == null) return;
+      rootKey.currentState?.handleDeepLinking(uri);
+    };
   }
 }

@@ -30,6 +30,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required super.isHardwareWallet,
     required this.mwebHd,
     required this.mwebEnabled,
+    required this.scanSecretOverride,
+    required this.spendPubkeyOverride,
     super.initialAddresses,
     super.initialMwebAddresses,
     super.initialRegularAddressIndex,
@@ -47,10 +49,16 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   List<String> mwebAddrs = [];
   bool generating = false;
 
-  List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+  final String? scanSecretOverride;
+  final String? spendPubkeyOverride;
 
-  List<int> get spendPubkey =>
-      mwebHd!.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
+  List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
+      ? hex.decode(scanSecretOverride!)
+      : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ?? List.filled(32, 0);
+
+  List<int> get spendPubkey => (spendPubkeyOverride != null && spendPubkeyOverride?.isNotEmpty == true)
+      ? hex.decode(spendPubkeyOverride!)
+      : mwebHd?.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed ?? List.filled(32, 0);
 
   @override
   Future<void> init() async {
@@ -66,6 +74,10 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      return null;
+    }
+    if ((scanSecret.length < 1 || scanSecret.reduce((a, b) => a + b) == 0) &&
+       (spendPubkey.length < 1 || spendPubkey.reduce((a, b) => a + b) == 0)) {
       return null;
     }
 
@@ -98,7 +110,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
     // ensure mweb addresses are up to date:
     // This is the Case if the Litecoin Wallet is a hardware Wallet
-    if (mwebHd == null) return;
+    if (mwebHd == null && scanSecretOverride == null) return;
 
     if (mwebAddresses.length < mwebAddrs.length) {
       List<BitcoinAddressRecord> addressRecords = mwebAddrs
@@ -130,6 +142,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     BitcoinAddressType? addressType,
   }) {
     if (addressType == SegwitAddresType.mweb) {
+      if (mwebAddrs.length == 0) {
+        return "";
+      }
       return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
@@ -176,7 +191,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         if (!element.isSending || element.isFrozen) {
           return;
         }
-        if (element.address.contains("mweb")) {
+        if (element.address.startsWith("ltcmweb")) {
           comesFromMweb = true;
         }
       });

@@ -111,7 +111,7 @@ class WalletRestoreFromQRCode {
 
   static Future<RestoredWallet> scanQRCodeForRestoring(BuildContext context) async {
     String? code = await presentQRScanner(context);
-    if (code == null) throw Exception("Unexpected scan QR code value: aborted");
+    if (code == null) throw Exception("QR scan is cancelled");
     if (code.isEmpty) throw Exception('Unexpected scan QR code value: value is empty');
 
     if (code.startsWith("[")) code = code.substring(code.indexOf("]") + 1);

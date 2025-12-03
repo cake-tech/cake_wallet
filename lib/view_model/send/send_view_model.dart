@@ -73,6 +73,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @override
   void onWalletChange(wallet) {
     currencies = wallet.balance.keys.toList();
+    if (coinTypeToSpendFrom == UnspentCoinType.lightning)
     selectedCryptoCurrency = wallet.currency;
     hasMultipleTokens = isEVMCompatibleChain(wallet.type) ||
         [WalletType.solana, WalletType.tron, WalletType.zano].contains(wallet.type);
@@ -180,7 +181,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     try {
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[selectedCryptoCurrency]!,
+          price: _fiatConversationStore.prices[_fiatConversationStore.prices.keys
+              .firstWhere((k) => k.titleAndTagEqual(selectedCryptoCurrency))],
           cryptoAmount: pendingTransaction!.amountFormatted);
       return fiat;
     } catch (_) {
@@ -254,6 +256,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
+
+    if (walletType == WalletType.bitcoin && coinTypeToSpendFrom == UnspentCoinType.lightning) {
+      return wallet.balance[selectedCryptoCurrency]!.formattedSecondAvailableBalance;
+    }
     return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
   }
 
@@ -281,6 +287,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
+        if (coinTypeToSpendFrom == UnspentCoinType.lightning) return balance;
+        return wallet.formatCryptoAmount(
+            (await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom)).toString());
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
@@ -326,7 +335,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       .toList();
 
   @computed
-  bool get hasCoinControl => [
+  bool get hasCoinControl =>
+      [
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.monero,
@@ -334,7 +344,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         WalletType.decred,
         WalletType.bitcoinCash,
         WalletType.dogecoin
-      ].contains(wallet.type);
+      ].contains(wallet.type) &&
+      coinTypeToSpendFrom != UnspentCoinType.lightning;
+
+  @computed
+  bool get hasFees => feesViewModel.hasFees && coinTypeToSpendFrom != UnspentCoinType.lightning;
 
   @computed
   bool get isElectrumWallet => [
@@ -476,7 +490,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return null;
   }
 
-  bool isLightningInvoice(String txt) {
+  static bool isLightningInvoice(String txt) {
     final RegExp lightningInvoiceRegex = RegExp(
         r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt)[a-z0-9]+$',
         caseSensitive: false);

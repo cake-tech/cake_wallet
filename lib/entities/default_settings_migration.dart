@@ -10,8 +10,9 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
-import 'package:cake_wallet/entities/node_list.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -555,18 +556,9 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentArbitrumNodeIdKey,
           );
           break;
-        case 54:
-          await db.execute('''
-CREATE TABLE BalanceCardStyleSettings (
-  walletInfoId INTEGER,
-  accountIndex INTEGER DEFAULT -1,
-  gradientIndex INTEGER DEFAULT -1,
-  useSpecialDesign BOOLEAN DEFAULT FALSE,
-  backgroundImagePath TEXT DEFAULT "",
-  PRIMARY KEY (walletInfoId, accountIndex),
-  FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
-);
-''');
+         case 54:
+          await _backupWowneroSeeds(havenSeedStore);
+          break;
 
         default:
           break;
@@ -750,6 +742,12 @@ Future<void> disableServiceStatusFiatDisabled(SharedPreferences sharedPreference
   if (currentFiat == FiatApiMode.disabled.raw || currentFiat == FiatApiMode.torOnly.raw) {
     await sharedPreferences.setBool(PreferencesKey.disableBulletinKey, true);
   }
+}
+
+Future<void> _backupWowneroSeeds(Box<HavenSeedStore> havenSeedStore) async {
+  final future = wownero?.backupSeeds(havenSeedStore);
+  if (future != null) await future;
+  return;
 }
 
 Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {

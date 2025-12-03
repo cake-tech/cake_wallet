@@ -8,15 +8,16 @@ import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 
 class SetupPinCodePage extends BasePage {
-  SetupPinCodePage(this.pinCodeViewModel, {this.onSuccessfulPinSetup})
+  SetupPinCodePage(this.pinCodeViewModel,{this.onSuccessfulPinSetup, this.isDuressPin = false})
       : pinCodeStateKey = GlobalKey<PinCodeState>();
 
   final SetupPinCodeViewModel pinCodeViewModel;
   final void Function(PinCodeState<PinCodeWidget>, String)? onSuccessfulPinSetup;
+  final bool isDuressPin;
   final GlobalKey<PinCodeState> pinCodeStateKey;
 
   @override
-  String get title => S.current.setup_pin;
+  String get title => isDuressPin ? S.current.durres_PIN : S.current.setup_pin;
 
   @override
   Widget body(BuildContext context) => PinCodeWidget(
@@ -53,8 +54,10 @@ class SetupPinCodePage extends BasePage {
               builder: (BuildContext context) {
                 return AlertWithOneAction(
                   buttonKey: ValueKey('setup_pin_code_success_button_key'),
-                  alertTitle: S.current.setup_pin,
-                  alertContent: S.of(context).setup_successful,
+                  alertTitle: isDuressPin ? S.current.durres_PIN : S.current.setup_pin,
+                  alertContent: isDuressPin
+                      ? S.current.durres_PIN_set_up_successfully
+                      : S.current.setup_successful,
                   buttonText: S.of(context).ok,
                   buttonAction: () {
                     Navigator.of(context).pop();
@@ -68,14 +71,13 @@ class SetupPinCodePage extends BasePage {
                 );
               });
         } catch (e) {
-          // FIXME: Add translation for alert content text.
           await showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                  alertTitle: S.current.setup_pin,
+                  alertTitle: isDuressPin ? S.current.durres_PIN : S.current.setup_pin,
                   alertContent:
-                      'Setup pin is failed with error: ${e.toString()}',
+                      '${S.current.setup_pin_is_failed} ${e.toString()}',
                   buttonText: S.of(context).ok,
                   buttonAction: () => Navigator.of(context).pop(),
                   alertBarrierDismissible: false,
@@ -83,7 +85,29 @@ class SetupPinCodePage extends BasePage {
               });
         }
       },
-      onChangedPin: (String pin) => pinCodeViewModel.pinCode = pin,
+      onChangedPin: (String pin) async {
+        try {
+          await pinCodeViewModel.setPinCode(pin);
+        } catch (e) {
+          await showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                alertTitle: S.current.durres_PIN,
+                alertContent: e.toString(),
+                buttonText: S.of(context).ok,
+                buttonAction: () {
+                  Navigator.of(context).pop();
+                },
+                alertBarrierDismissible: false,
+              );
+            },
+          );
+
+          pinCodeStateKey.currentState?.reset();
+          pinCodeViewModel.reset();
+        }
+      },
       onChangedPinLength: (int length) =>
           pinCodeViewModel.pinCodeLength = length,
       initialPinLength: pinCodeViewModel.pinCodeLength);

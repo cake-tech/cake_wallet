@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -65,8 +66,14 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     required super.type,
     String? scriptHash,
     required super.network,
-  }) : scriptHash = scriptHash ??
-            (network != null ? BitcoinAddressUtils.scriptHash(address, network: network) : null);
+  })  {
+    try {
+      this.scriptHash = scriptHash ??
+        (network != null ? BitcoinAddressUtils.scriptHash(address, network: network!) : null);
+    } catch (e) {
+      printV(e);
+    }
+}
 
   factory BitcoinAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
     final decoded = json.decode(jsonSource) as Map;
@@ -92,7 +99,11 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 
   String getScriptHash(BasedUtxoNetwork network) {
     if (scriptHash != null) return scriptHash!;
-    scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
+    try {
+      scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
+    } catch (e) {
+      return '';
+    }
     return scriptHash!;
   }
 

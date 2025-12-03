@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
@@ -151,6 +152,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
     if (uri.contains('@') || paymentRequest.address.contains('@')) return;
 
+    if (OpenCryptoPayService.isOpenCryptoPayQR(uri)) {
+      sendViewModel.createOpenCryptoPayTransaction(uri);
+      return;
+    }
+
     try {
       final result = await paymentViewModel.processAddress(uri);
 
@@ -194,6 +200,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     PaymentRequest paymentRequest,
     PaymentFlowResult result,
   ) async {
+    if (!context.mounted) {
+      return;
+    }
+
     await showModalBottomSheet<void>(
       context: context,
       isDismissible: true,
@@ -227,6 +237,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     WalletSwitcherViewModel walletSwitcherViewModel,
     PaymentRequest paymentRequest,
   ) async {
+    if (!context.mounted) {
+      return;
+    }
+
     await showModalBottomSheet<void>(
       context: context,
       isDismissible: true,
@@ -415,15 +429,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   focusNode: addressFocusNode,
                   controller: addressController,
                   onURIScanned: (uri) async {
-                    if (OpenCryptoPayService.isOpenCryptoPayQR(uri.toString())) {
-                      sendViewModel.createOpenCryptoPayTransaction(uri.toString());
-                    } else {
-                      // Process the payment through the new flow
-                      await _handlePaymentFlow(
-                        uri.toString(),
-                        PaymentRequest.fromUri(uri),
-                      );
-                    }
+                    // Process the payment through the new flow
+                    await _handlePaymentFlow(
+                      uri.toString(),
+                      PaymentRequest.fromUri(uri),
+                    );
                   },
                   options: [
                     AddressTextFieldOption.paste,
@@ -536,13 +546,36 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         FutureBuilder<String>(
                           future: sendViewModel.sendingBalance,
                           builder: (context, snapshot) {
-                            return Text(
-                              snapshot.data ??
-                                  sendViewModel.balance, // default to balance while loading
-                              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
+                            return GestureDetector(
+                              onTap: () {
+                                sendViewModel.balanceViewModel
+                                    .switchBalanceValue();
+                              },
+                              child: Observer(builder: (_) {
+                                final hidden = sendViewModel
+                                        .balanceViewModel.displayMode ==
+                                    BalanceDisplayMode.hiddenBalance;
+                                return Text(
+                                  hidden
+                                      ? S.of(context).show_balance_send_page
+                                      : (snapshot.data ??
+                                          sendViewModel.balance),
+                                  // default to balance while loading
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: hidden
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                      ),
+                                );
+                              }),
                             );
                           },
                         )
@@ -588,7 +621,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       ),
                 ),
               ),
-              if (sendViewModel.feesViewModel.hasFees)
+              if (sendViewModel.hasFees)
                 Observer(
                   builder: (_) => GestureDetector(
                     key: ValueKey('send_page_select_fee_priority_button_key'),
@@ -819,7 +852,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.resetParsedAddress();
         output.address = address;
 
-        if (sendViewModel.isLightningInvoice(address)) {
+        if (SendViewModelBase.isLightningInvoice(address)) {
           sendViewModel.createTransaction();
         }
       }

@@ -14,6 +14,7 @@ class FeatureFlag {
       bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode);
   static const bool hasBitcoinViewOnly = true;
   static const bool customBackgroundEnabled = false;
+  static const bool duressPinEnabled = true;
   static const bool hasNewUi = true;
   static const bool hasNewUiExtraPages = false;
 }
