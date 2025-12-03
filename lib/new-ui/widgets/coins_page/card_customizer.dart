@@ -79,6 +79,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
+                spacing: 8.0,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Account name"),
@@ -110,42 +111,47 @@ class _CardCustomizerState extends State<CardCustomizer> {
                   color: Theme.of(context).colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    spacing: 4.0,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Card style"),
-                      Container(
-                        height: 90,
-                        child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: availableDesigns.length,
-                            separatorBuilder: (context, index) {
-                              return SizedBox(width: 8.0);
-                            },
-                            itemBuilder: (context, index) {
-                              return Material(
-                                borderRadius: BorderRadius.circular(16),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(16),
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedDesignIndex = index;
-                                    });
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          spacing: 8.0,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Card style"),
+                            Container(
+                              height: 90,
+                              child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: availableDesigns.length,
+                                  separatorBuilder: (context, index) {
+                                    return SizedBox(width: 8.0);
                                   },
-                                  child: BalanceCard(
-                                    width: 140,
-                                    selected: false,
-                                    showBuyActions: false,
-                                    design: availableDesigns[index],
-                                  ),
-                                ),
-                              );
-                            }),
+                                  itemBuilder: (context, index) {
+                                    return Material(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(16),
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedDesignIndex = index;
+                                          });
+                                        },
+                                        child: BalanceCard(
+                                          width: 140,
+                                          selected: false,
+                                          showBuyActions: false,
+                                          design: availableDesigns[index],
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                            ),
+                          ],
+                        )
                       ),
-                      SizedBox(height: 12.0),
                       Container(
                         decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.surfaceContainerHigh,
@@ -158,7 +164,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                             children: [
                               Text("Color"),
                               Container(
-                                height: 24,
+                                height: 32,
                                 child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: CardDesign.allGradients.length,
@@ -175,14 +181,14 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                               });
                                             },
                                             child: Container(
-                                              width: 24,
-                                              height: 24,
+                                              width: 32,
+                                              height: 32,
                                               decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.circular(99999999),
                                                   border: Border.all(
                                                       color:
-                                                          Theme.of(context).colorScheme.onSurface,
-                                                      width: _selectedColorIndex == index ? 1 : 0),
+                                                      _selectedColorIndex == index ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.surfaceContainerHigh,
+                                                      width: 1.5),
                                                   gradient: CardDesign.allGradients[index]),
                                             ),
                                           ),
@@ -197,9 +203,8 @@ class _CardCustomizerState extends State<CardCustomizer> {
                     ],
                   ),
                 )),
-          ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
