@@ -105,16 +105,16 @@ class _CardCustomizerState extends State<CardCustomizer> {
             design: selectedDesign,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Column(
                           spacing: 8.0,
@@ -150,59 +150,59 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                   }),
                             ),
                           ],
-                        )
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(16)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            spacing: 8.0,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Color"),
-                              Container(
-                                height: 32,
-                                child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: CardDesign.allGradients.length,
-                                    itemBuilder: (context, index) {
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                                        child: Material(
+                        )),
+                    Container(
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                          borderRadius: BorderRadius.circular(16)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          spacing: 8.0,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Color"),
+                            Container(
+                              height: 32,
+                              child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: CardDesign.allGradients.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                                      child: Material(
+                                        borderRadius: BorderRadius.circular(999999999),
+                                        child: InkWell(
                                           borderRadius: BorderRadius.circular(999999999),
-                                          child: InkWell(
-                                            borderRadius: BorderRadius.circular(999999999),
-                                            onTap: () {
-                                              setState(() {
-                                                _selectedColorIndex = index;
-                                              });
-                                            },
-                                            child: Container(
-                                              width: 32,
-                                              height: 32,
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(99999999),
-                                                  border: Border.all(
-                                                      color:
-                                                      _selectedColorIndex == index ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.surfaceContainerHigh,
-                                                      width: 1.5),
-                                                  gradient: CardDesign.allGradients[index]),
-                                            ),
+                                          onTap: () {
+                                            setState(() {
+                                              _selectedColorIndex = index;
+                                            });
+                                          },
+                                          child: Container(
+                                            width: 32,
+                                            height: 32,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(99999999),
+                                                border: Border.all(
+                                                    color: _selectedColorIndex == index
+                                                        ? Theme.of(context).colorScheme.onSurface
+                                                        : Theme.of(context).colorScheme.surfaceContainerHigh,
+                                                    width: 1.5),
+                                                gradient: CardDesign.allGradients[index]),
                                           ),
                                         ),
-                                      );
-                                    }),
-                              )
-                            ],
-                          ),
+                                      ),
+                                    );
+                                  }),
+                            )
+                          ],
                         ),
-                      )
-                    ],
-                  ),
-                )),
+                      ),
+                    )
+                  ],
+                ),
+              )),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
