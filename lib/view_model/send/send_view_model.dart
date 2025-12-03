@@ -490,7 +490,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return null;
   }
 
-  bool isLightningInvoice(String txt) {
+  static bool isLightningInvoice(String txt) {
     final RegExp lightningInvoiceRegex = RegExp(
         r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt)[a-z0-9]+$',
         caseSensitive: false);
