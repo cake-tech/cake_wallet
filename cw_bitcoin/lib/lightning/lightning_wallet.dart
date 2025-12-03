@@ -228,6 +228,7 @@ class LightningWallet {
         isPending: payment.status == PaymentStatus.pending,
         date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
         confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
+        additionalInfo: {"isLightning": true},
       );
     }
 

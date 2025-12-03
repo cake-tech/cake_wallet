@@ -65,7 +65,7 @@ class _NewHomePageState extends State<NewHomePage> {
                 accountListViewModel: widget.accountListViewModel,
                 lightningMode: _lightningMode,
               ),
-              CoinActionRow(),
+              CoinActionRow(lightningMode: _lightningMode),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 transitionBuilder: (child, animation) {

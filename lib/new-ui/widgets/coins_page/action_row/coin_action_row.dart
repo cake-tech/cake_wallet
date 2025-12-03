@@ -4,6 +4,7 @@ import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -12,7 +13,9 @@ import '../../../pages/scan_page.dart';
 import 'coin_action_button.dart';
 
 class CoinActionRow extends StatelessWidget {
-  const CoinActionRow({super.key});
+  const CoinActionRow({super.key, this.lightningMode = false});
+
+  final bool lightningMode;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +36,9 @@ class CoinActionRow extends StatelessWidget {
                   builder: (context) => SendPage(),
                 );
               } else {
-                Navigator.of(context).pushNamed(Routes.send);
+                Map<String, dynamic>? args;
+                if (lightningMode) args = {'coinTypeToSpendFrom' : UnspentCoinType.lightning};
+                Navigator.of(context).pushNamed(Routes.send, arguments: args);
               }
             },
           ),

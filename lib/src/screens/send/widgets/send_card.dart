@@ -620,7 +620,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       ),
                 ),
               ),
-              if (sendViewModel.feesViewModel.hasFees)
+              if (sendViewModel.hasFees)
                 Observer(
                   builder: (_) => GestureDetector(
                     key: ValueKey('send_page_select_fee_priority_button_key'),
