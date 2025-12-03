@@ -42,6 +42,7 @@ class LightningWallet {
       lnurlDomain: lnurlDomain,
       apiKey: apiKey,
       privateEnabledDefault: true,
+      maxDepositClaimFee: Fee.rate(satPerVbyte: BigInt.from(5))
     );
 
     final connectRequest = ConnectRequest(
