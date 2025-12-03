@@ -372,7 +372,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final coinTo = responseJSON['coinTo']['coinCode'] as String;
     final coinToNetwork = responseJSON['coinTo']['network'] as String?;
     final _normalizedToNetwork = _normalizeNetworkType(coinToNetwork ?? '');
-    final toTag = coinTo == _normalizedToNetwork ? null : coinToNetwork;
+    final toTag = coinTo.toUpperCase() == _normalizedToNetwork.toUpperCase() ? null : coinToNetwork;
     final to = CryptoCurrency.safeParseCurrencyFromString(coinTo, tag: toTag);
 
     final inputAddress = responseJSON['depositAddress'] as String;
