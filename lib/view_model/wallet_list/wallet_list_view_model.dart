@@ -197,6 +197,7 @@ abstract class WalletListViewModelBase with Store {
       isBalanceCacheSynced[wallets.indexOf(wallet)] = false;
 
       final tmpWallet = await _walletLoadingService.load(wallet.type, wallet.name);
+      await tmpWallet.connectToNode(node: _appStore.settingsStore.getCurrentNode(tmpWallet.type));
       await tmpWallet.startSync();
       while (tmpWallet.syncStatus.progress() < 1.0) {
         await Future.delayed(Duration(milliseconds: 100));
