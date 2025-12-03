@@ -6,6 +6,7 @@ class BalanceCard extends StatelessWidget {
   const BalanceCard(
       {super.key,
       required this.width,
+        this.borderRadius = 20,
       this.selected = false,
       this.accountName = "",
       this.accountBalance = "",
@@ -16,6 +17,7 @@ class BalanceCard extends StatelessWidget {
       this.showBuyActions = true});
 
   final double width;
+  final double borderRadius;
   final String accountBalance;
   final String accountName;
   final String balance;
@@ -41,10 +43,9 @@ class BalanceCard extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      decoration: BoxDecoration(
-        border: Border.all(color: Color(0x77FFFFFF), width: 1),
-        gradient: design.gradient,
-        borderRadius: BorderRadius.circular(20),
+      decoration: ShapeDecoration(
+          gradient: design.gradient,
+          shape: RoundedSuperellipseBorder(side: BorderSide(color: Color(0x77FFFFFF), width: 1), borderRadius: BorderRadiusGeometry.circular(borderRadius))
       ),
       child: Stack(
         children: [
