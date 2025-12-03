@@ -258,7 +258,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     if (walletType == WalletType.bitcoin && coinTypeToSpendFrom == UnspentCoinType.lightning) {
-      print(wallet.balance[selectedCryptoCurrency]!.formattedSecondAvailableBalance);
       return wallet.balance[selectedCryptoCurrency]!.formattedSecondAvailableBalance;
     }
     return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
