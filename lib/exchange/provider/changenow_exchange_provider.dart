@@ -283,14 +283,14 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final fromCurrency = responseJSON['fromCurrency'] as String;
     final fromNetwork = responseJSON['fromNetwork'] as String?;
     final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
-    final fromTag = fromCurrency == _normalizedFromNetwork ? null : _normalizedFromNetwork;
+    final fromTag = fromCurrency.toUpperCase() == _normalizedFromNetwork.toUpperCase() ? null : _normalizedFromNetwork;
     final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
 
     // Parsing 'to' currency
     final toCurrency = responseJSON['toCurrency'] as String;
     final toNetwork = responseJSON['toNetwork'] as String?;
     final _normalizedToNetwork = _normalizeNetworkType(toNetwork ?? '');
-    final toTag = toCurrency == _normalizedToNetwork ? null : _normalizedToNetwork;
+    final toTag = toCurrency.toUpperCase() == _normalizedToNetwork.toUpperCase() ? null : _normalizedToNetwork;
     final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
 
     final inputAddress = responseJSON['payinAddress'] as String;
@@ -326,6 +326,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     switch (currency) {
       case CryptoCurrency.usdt:
         return 'btc';
+      case CryptoCurrency.arb:
+        return 'arbitrum';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : currency.title.toLowerCase();
     }
@@ -360,6 +362,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     return switch (network.toUpperCase()) {
       'POLY' => 'MATIC',
       'AVAXC' => 'CCHAIN',
+      'ARBITRUM' => 'ARB',
       _ => network,
     };
   }
