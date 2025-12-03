@@ -523,6 +523,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       'TRC20' => 'TRX',
       'BEP20' => 'BSC',
       'LIGHTNING' => 'LN',
+      'MATIC' => 'POL',
       _ => network,
     };
   }
