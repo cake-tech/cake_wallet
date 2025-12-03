@@ -364,13 +364,15 @@ class ExolixExchangeProvider extends ExchangeProvider {
     // Parsing 'from' currency
     final coinFrom = responseJSON['coinFrom']['coinCode'] as String;
     final coinFromNetwork = responseJSON['coinFrom']['network'] as String?;
-    final fromTag = coinFrom == coinFromNetwork ? null : coinFromNetwork;
+    final _normalizedFromNetwork = _normalizeNetworkType(coinFromNetwork ?? '');
+    final fromTag = coinFrom == _normalizedFromNetwork ? null : coinFromNetwork;
     final from = CryptoCurrency.safeParseCurrencyFromString(coinFrom, tag: fromTag);
 
     // Parsing 'to' currency
     final coinTo = responseJSON['coinTo']['coinCode'] as String;
     final coinToNetwork = responseJSON['coinTo']['network'] as String?;
-    final toTag = coinTo == coinToNetwork ? null : coinToNetwork;
+    final _normalizedToNetwork = _normalizeNetworkType(coinToNetwork ?? '');
+    final toTag = coinTo == _normalizedToNetwork ? null : coinToNetwork;
     final to = CryptoCurrency.safeParseCurrencyFromString(coinTo, tag: toTag);
 
     final inputAddress = responseJSON['depositAddress'] as String;
@@ -415,6 +417,13 @@ class ExolixExchangeProvider extends ExchangeProvider {
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : currency.title;
     }
+  }
+
+  String _normalizeNetworkType(String network) {
+    return switch (network.toUpperCase()) {
+      'ARBITRUM' => 'ARB',
+      _ => network,
+    };
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
