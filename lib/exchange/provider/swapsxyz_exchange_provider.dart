@@ -746,7 +746,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   Chain _findChainByCurrency(CryptoCurrency cur, List<Chain> chains) {
     final network = _normalizeCakeNetwork(cur.tag ?? cur.title);
     return chains.firstWhere(
-      (c) => c.name.toUpperCase() == network,
+      (c) {
+        return c.name.toUpperCase() == network;
+      },
       orElse: () => throw Exception('Unsupported chain for ${cur.title}'),
     );
   }
@@ -764,6 +766,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       'KAS' => 'KASPA',
       'TON' => 'TONCOIN',
       'BCH' => 'BITCOIN CASH',
+      'ARB' => 'ARBITRUM',
       _ => network.toUpperCase(),
     };
   }
