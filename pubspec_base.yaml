@@ -59,6 +59,7 @@ dependencies:
   another_flushbar: ^1.12.29
   archive: ^4.0.3
   cryptography: ^2.0.5
+  skeletonizer: ^2.1.1
   file_picker:
     git:
       url: https://github.com/cake-tech/flutter_file_picker.git

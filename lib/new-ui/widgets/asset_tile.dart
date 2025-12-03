@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class AssetTile extends StatelessWidget {
   const AssetTile(
@@ -57,24 +58,28 @@ class AssetTile extends StatelessWidget {
                         name,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      Text(
-                        amount,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      Skeletonizer(
+                        enabled: showLoading,
+                        child: Text(
+                          amount,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ],
               ),
-              showLoading
-                  ? CircularProgressIndicator()
-                  : Text(
-                      amountFiat,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
+              Skeletonizer(
+                enabled: showLoading,
+                child: Text(
+                  amountFiat,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

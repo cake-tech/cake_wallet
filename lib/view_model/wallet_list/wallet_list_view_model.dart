@@ -195,7 +195,9 @@ abstract class WalletListViewModelBase with Store {
   Future<void> refreshCachedBalances() async {
     for (final wallet in wallets) {
       isBalanceCacheSynced[wallets.indexOf(wallet)] = false;
+    }
 
+    for (final wallet in wallets) {
       final tmpWallet = await _walletLoadingService.load(wallet.type, wallet.name);
       await tmpWallet.connectToNode(node: _appStore.settingsStore.getCurrentNode(tmpWallet.type));
       await tmpWallet.startSync();
