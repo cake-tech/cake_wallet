@@ -235,12 +235,14 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       final depositAmount = responseJSON['deposit_amount'] as String;
       final receiveAmount = responseJSON['withdrawal_amount'] as String;
       final status = responseJSON['status'] as String;
+
+      // We ignore the created_at from response and use DateTime.now() instead
       final createdAtString = responseJSON['created_at'] as String;
       final expiredAtTimestamp = responseJSON['expired_at'] as int;
       final extraId = responseJSON['deposit_extra_id'] as String?;
 
-      final createdAt = DateTime.parse(createdAtString).toLocal();
-      final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000).toLocal();
+      final createdAt = DateTime.now();
+      final expiredAt = createdAt.add(Duration(minutes: 30));
 
       CryptoCurrency fromCurrency;
       if (request.fromCurrency.tag != null && request.fromCurrency.title == from) {
@@ -370,8 +372,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final depositAmount = responseJSON['deposit_amount'] as String;
     final receiveAmount = responseJSON['withdrawal_amount'] as String;
     final status = responseJSON['status'] as String;
+
+    // We ignore the created_at from response and use DateTime.now() instead
     final createdAtString = responseJSON['created_at'] as String;
     final expiredAtTimestamp = responseJSON['expired_at'] as int;
+
     final extraId = responseJSON['deposit_extra_id'] as String?;
 
     final createdAt = DateTime.parse(createdAtString).toLocal();
@@ -388,8 +393,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       amount: depositAmount,
       receiveAmount: receiveAmount,
       state: TradeState.deserialize(raw: status),
-      createdAt: createdAt,
-      expiredAt: expiredAt,
       isRefund: status == 'refund',
       extraId: extraId,
       userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
