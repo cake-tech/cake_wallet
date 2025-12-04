@@ -63,8 +63,15 @@ class CwMweb {
       throw Exception("Failed to start server");
     }
     printV("Attempting to connect to server on port: $_port");
+    dynamic address = '127.0.0.1';
+    int? port = _port;
+    if (_port == -1) {
+      address = InternetAddress("${appDir.path}/mwebd.sock", type: InternetAddressType.unix);
+      port = 443;
+    }
+    printV("address: $address");
 
-    _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
+    _clientChannel = ClientChannel(address, port: port!, channelShutdownHandler: () {
       _rpcClient = null;
       printV("Channel is shutting down!");
     },
