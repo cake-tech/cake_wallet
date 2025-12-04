@@ -59,7 +59,7 @@ class CoinActionRow extends StatelessWidget {
                   ),
                 );
               } else {
-                Navigator.of(context).pushNamed(Routes.receive);
+                Navigator.of(context).pushNamed(Routes.addressPage);
               }
             },
           ),
