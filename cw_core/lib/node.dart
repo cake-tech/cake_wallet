@@ -87,6 +87,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(11, defaultValue: false)
   bool isEnabledForAutoSwitching;
 
+  @HiveField(12)
+  bool? isFrigate;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
