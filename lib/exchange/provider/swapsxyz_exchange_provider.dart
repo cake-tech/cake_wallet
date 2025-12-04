@@ -19,6 +19,13 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
   static const List<CryptoCurrency> _notSupported = [];
 
+  static final List<CryptoCurrency> _notSupportedAsSourceToken = [
+    CryptoCurrency.sol,
+    ...CryptoCurrency.all.where(
+          (c) => (c.tag ?? '').toUpperCase() == 'SOL',
+    ),
+  ];
+
   static final _apiKey = secrets.swapsXyzApiKey;
   static const _baseUrl = 'api-v2.swaps.xyz';
   static const _getChainList = 'api/getChainList';
@@ -198,6 +205,15 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode,
       required bool isReceiveAmount}) async {
     try {
+
+      if(_notSupportedAsSourceToken.contains(from)) {
+        printV(
+            'fetchRate: source token ${from.title} is not supported as source token');
+        return 0.0;
+      }
+
+
+
       final chains = await _geSupportedChain();
       if (chains.isEmpty) return 0.0;
 
