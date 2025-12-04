@@ -434,7 +434,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
           return currency.tag!;
       }
     }
-    return currency.title;
+
+    return _normalizeTitleToNetwork(currency.title);
   }
 
   String _normalizeNetworkType(String network) {
@@ -442,7 +443,15 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       'ERC20' => 'ETH',
       'TRC20' => 'TRX',
       'BEP20' => 'BSC',
+      'ARBITRUM' => 'ARB',
       _ => network,
+    };
+  }
+
+  String _normalizeTitleToNetwork(String title) {
+    return switch (title.toUpperCase()) {
+      'ARB' => 'ARBITRUM',
+      _ => title,
     };
   }
 
