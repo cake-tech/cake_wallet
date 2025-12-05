@@ -27,7 +27,6 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -115,6 +114,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://scan.chainflip.io/channels/${trade.id}';
       case ExchangeProviderDescription.xoSwap:
         return  'https://orders.xoswap.com/${trade.id}';
+      case ExchangeProviderDescription.swapsXyz:
+        return  'https://scan.swaps.xyz/transactions/${trade.id}';
     }
     return null;
   }
