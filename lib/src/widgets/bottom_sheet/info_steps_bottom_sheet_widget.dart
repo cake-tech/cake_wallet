@@ -102,10 +102,8 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
               child: PrimaryButton(
                 text: S.of(context).close,
                 color: context.currentTheme.colorScheme.primary,
-                textColor: context.currentTheme.isDark
-                        ? context.currentTheme.colorScheme.onPrimary
-                        : context.currentTheme.colorScheme.onPrimary,
-                onPressed: () => Navigator.of(context).pop(),
+                    textColor: context.currentTheme.colorScheme.onPrimary,
+                    onPressed: () => Navigator.of(context).pop(),
               ),
             )
           ],
