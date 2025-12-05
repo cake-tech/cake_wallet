@@ -13,10 +13,12 @@ import 'package:permission_handler/permission_handler.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
 
-class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase with _$NodeCreateOrEditViewModel;
+class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
+    with _$NodeCreateOrEditViewModel;
 
 abstract class NodeCreateOrEditViewModelBase with Store {
-  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore)
+  NodeCreateOrEditViewModelBase(
+      this._nodeSource, this._walletType, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         useSSL = false,
@@ -28,7 +30,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         trusted = false,
         isEnabledForAutoSwitching = false,
         useSocksProxy = false,
-        socksProxyAddress = '';
+        socksProxyAddress = '',
+        isLWSEnabled = false;
 
   @observable
   ExecutionState state;
@@ -69,12 +72,21 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @observable
   String socksProxyAddress;
 
+  @observable
+  bool isLWSEnabled;
+
   @computed
   bool get isReady =>
-      (address.isNotEmpty) || _walletType == WalletType.decred; // Allow an empty address.
+      (address.isNotEmpty) ||
+      _walletType == WalletType.decred; // Allow an empty address.
 
   bool get hasAuthCredentials =>
-      _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
+      _walletType == WalletType.monero ||
+      _walletType == WalletType.wownero ||
+      _walletType == WalletType.haven;
+
+  @computed
+  bool get hasLWSSupport => _walletType == WalletType.monero;
 
   bool get hasPathSupport {
     switch (_walletType) {
@@ -151,13 +163,17 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setTrusted(bool val) => trusted = val;
 
   @action
-  void setIsEnabledForAutoSwitching(bool val) => isEnabledForAutoSwitching = val;
+  void setIsEnabledForAutoSwitching(bool val) =>
+      isEnabledForAutoSwitching = val;
 
   @action
   void setSocksProxy(bool val) => useSocksProxy = val;
 
   @action
   void setSocksProxyAddress(String val) => socksProxyAddress = val;
+
+  @action
+  void setIsLWSEnabled(bool val) => isLWSEnabled = val;
 
   @action
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
@@ -238,7 +254,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Unexpected scan QR code value: value is empty');
       }
 
-      if (code.startsWith("monero_node:")) code = code.replaceFirst("monero_node:", "tcp://");
+      if (code.startsWith("monero_node:"))
+        code = code.replaceFirst("monero_node:", "tcp://");
       if (!code.contains('://')) code = 'tcp://$code';
 
       final uri = Uri.tryParse(code);
