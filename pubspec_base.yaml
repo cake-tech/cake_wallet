@@ -88,6 +88,9 @@ dependencies:
   shared_preferences_android: ^2.4.8
   url_launcher_android: 6.3.14
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
+  bloc: ^9.0.0
+  flutter_bloc: ^9.1.0
+  equatable: ^2.0.0
   sensitive_clipboard:
     git:
       url: https://github.com/cake-tech/sensitive_clipboard

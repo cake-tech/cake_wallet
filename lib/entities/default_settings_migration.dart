@@ -12,12 +12,10 @@ import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
-import 'package:cw_core/cake_hive.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/node.dart';
@@ -560,6 +558,19 @@ Future<void> defaultSettingsMigration(
           break;
          case 54:
           await _backupWowneroSeeds(havenSeedStore);
+          break;
+        case 55:
+          await db.execute('''
+CREATE TABLE BalanceCardStyleSettings (
+  walletInfoId INTEGER,
+  accountIndex INTEGER DEFAULT -1,
+  gradientIndex INTEGER DEFAULT -1,
+  useSpecialDesign BOOLEAN DEFAULT FALSE,
+  backgroundImagePath TEXT DEFAULT "",
+  PRIMARY KEY (walletInfoId, accountIndex),
+  FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
+);
+''');
           break;
 
         default:

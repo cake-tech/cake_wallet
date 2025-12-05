@@ -320,7 +320,7 @@ abstract class DashboardViewModelBase with Store {
       });
     }
 
-    _loadCardDesigns();
+    loadCardDesigns();
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
@@ -332,49 +332,52 @@ abstract class DashboardViewModelBase with Store {
 
   bool _isTransactionDisposerCallbackRunning = false;
 
-  void _loadCardDesigns() async {
-    final accountStyleSettings =
-        await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
+  final Completer<void> _designsLoaded = Completer<void>();
 
-    late final int numAccounts;
-    if (wallet.type == WalletType.monero) {
-      numAccounts = monero!.getAccountList(wallet).accounts.length;
-    } else if (wallet.type == WalletType.wownero) {
-      numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
+  Future<void> get designsLoaded => _designsLoaded.future;
+
+  Future<void> loadCardDesigns() async {
+    if (cardDesigns.isNotEmpty) {
+      return;
     } else {
-      numAccounts = 1;
-    }
+      final accountStyleSettings =
+          await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
 
-    for (int i = 0; i < numAccounts; i++) {
-      final setting = accountStyleSettings
-          .where((e) => e.accountIndex == (balanceViewModel.hasAccounts ? i : -1))
-          .firstOrNull;
-
-      if (setting == null) {
-        cardDesigns.add(CardDesign.forCurrency(wallet.currency));
-      } else if (setting.backgroundImagePath.isNotEmpty) {
-        cardDesigns.add(CardDesign(
-          imagePath: setting.backgroundImagePath,
-        ));
-      } else if (setting.useSpecialDesign) {
-        cardDesigns.add(CardDesign.forCurrencySpecial(wallet.currency));
-      } else if (setting.gradientIndex != -1) {
-        cardDesigns.add(CardDesign.forCurrency(wallet.currency)
-            .withGradient(CardDesign.allGradients[setting.gradientIndex]));
+      late final int numAccounts;
+      if (wallet.type == WalletType.monero) {
+        numAccounts = monero!.getAccountList(wallet).accounts.length;
+      } else if (wallet.type == WalletType.wownero) {
+        numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
       } else {
-        printV("somehow, the user saved the design settings with literally no customization?");
-        cardDesigns.add(CardDesign.forCurrency(wallet.currency));
+        numAccounts = 1;
       }
+
+      for (int i = 0; i < numAccounts; i++) {
+        final setting = accountStyleSettings
+            .where((e) => e.accountIndex == (balanceViewModel.hasAccounts ? i : -1))
+            .firstOrNull;
+
+        if (setting == null) {
+          cardDesigns.add(CardDesign.forCurrency(wallet.currency));
+        } else if (setting.backgroundImagePath.isNotEmpty) {
+          cardDesigns.add(CardDesign(
+            imagePath: setting.backgroundImagePath,
+          ));
+        } else if (setting.useSpecialDesign) {
+          cardDesigns.add(CardDesign.forCurrencySpecial(wallet.currency));
+        } else if (setting.gradientIndex != -1) {
+          cardDesigns.add(CardDesign.forCurrency(wallet.currency)
+              .withGradient(CardDesign.allGradients[setting.gradientIndex]));
+        } else {
+          printV("somehow, the user saved the design settings with literally no customization?");
+          cardDesigns.add(CardDesign.forCurrency(wallet.currency));
+        }
+      }
+      printV("loaded card designs.");
+      _designsLoaded.complete();
     }
   }
 
-  void saveCardDesigns() {
-    for (int i = 0; i < cardDesigns.length; i++) {
-      BalanceCardStyleSettings.fromCardDesign(
-              wallet.walletInfo.internalId, (balanceViewModel.hasAccounts ? i : -1), cardDesigns[i])
-          .insert();
-    }
-  }
 
   void _transactionDisposerCallback(int _) async {
     // Simple check to prevent the callback from being called multiple times in the same frame

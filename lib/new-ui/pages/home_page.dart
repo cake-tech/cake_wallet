@@ -1,8 +1,9 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/lightning_assets.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/card_customizer.dart';
+import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
@@ -10,6 +11,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NewHomePage extends StatefulWidget {
   NewHomePage({super.key, required this.dashboardViewModel}) {
@@ -68,9 +70,14 @@ class _NewHomePageState extends State<NewHomePage> {
                       context: context,
                       builder: (context) {
                         return Material(
-                          child: CardCustomizer(
-                            dashboardViewModel: widget.dashboardViewModel,
-                            accountListViewModel: widget.accountListViewModel,
+                          child: BlocProvider(
+                            create: (context) => CardCustomizerBloc(
+                                widget.dashboardViewModel, widget.accountListViewModel),
+                            child: CardCustomizer(
+                              cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
+                                  widget.dashboardViewModel.wallet.currency.name,
+                              cryptoName: widget.dashboardViewModel.wallet.currency.name,
+                            ),
                           ),
                         );
                       });

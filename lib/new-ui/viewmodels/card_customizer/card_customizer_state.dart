@@ -1,0 +1,37 @@
+part of 'card_customizer_bloc.dart';
+
+sealed class CardCustomizerState {
+  final int selectedDesignIndex;
+  final int selectedColorIndex;
+  final String accountName;
+  final int accountIndex;
+  final List<CardDesign> availableDesigns;
+
+  CardCustomizerState(
+    this.selectedDesignIndex,
+    this.selectedColorIndex,
+    this.availableDesigns,
+    this.accountName,
+    this.accountIndex,
+  );
+
+  CardDesign get selectedDesign {
+    if (availableDesigns[selectedDesignIndex].backgroundType == CardDesignBackgroundTypes.svgIcon) {
+      return availableDesigns[selectedDesignIndex].withGradient(selectedColor);
+    } else {
+      return availableDesigns[selectedDesignIndex];
+    }
+  }
+
+  Gradient get selectedColor => CardDesign.allGradients[selectedColorIndex];
+}
+
+final class CardCustomizerInitial extends CardCustomizerState {
+  CardCustomizerInitial(
+    int selectedDesignIndex,
+    int selectedColorIndex,
+    List<CardDesign> availableDesigns,
+    String accountName,
+    int accountIndex,
+  ) : super(selectedDesignIndex, selectedColorIndex, availableDesigns, accountName, accountIndex);
+}

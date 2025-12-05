@@ -67,7 +67,7 @@ class BalanceCard extends StatelessWidget {
                         children: [
                           Text(
                             accountName,
-                            style: TextStyle(color: design.colors.textColor, fontSize: 20),
+                            style: TextStyle(color: design.colors.textColor, fontSize: 16),
                           ),
                           AnimatedOpacity(
                             opacity: selected ? 0 : 1,
@@ -99,7 +99,7 @@ class BalanceCard extends StatelessWidget {
                       ),
                       Text(
                         fiatBalance,
-                        style: TextStyle(color: design.colors.textColorSecondary, fontSize: 20),
+                        style: TextStyle(color: design.colors.textColorSecondary, fontSize: 16),
                       ),
                     ],
                   )
