@@ -2,14 +2,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'base_bottom_sheet_widget.dart';
 
 class InfoStep {
-  final String title;
+  final String iconPath;
   final String description;
 
-  const InfoStep(this.title, this.description);
+  const InfoStep(this.iconPath, this.description);
 }
 
 class InfoStepsBottomSheet extends BaseBottomSheet {
@@ -26,76 +27,88 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
             maxHeight: 900);
 
   @override
-  Widget contentWidget(BuildContext context) => SizedBox(
-        height: 500,
-        child: Column(
+  Widget contentWidget(BuildContext context) => SafeArea(
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
           children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: steps
-                      .map((step) => Container(
-                            margin: EdgeInsets.only(bottom: 15, left: 20, right: 20),
-                            padding: EdgeInsets.all(10),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Theme.of(context).cardColor,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(left: 16),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(
-                                          step.title,
-                                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w500,
-                                                color: context.currentTheme.colorScheme.onSurface,
-                                              ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(top: 5),
-                                          child: Text(
-                                            step.description,
-                                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                                  color: context
-                                                      .currentTheme.colorScheme.onSurfaceVariant,
-                                                ),
-                                          ),
-                                        )
-                                      ],
-                                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 28.0),
+                  child: Column(
+                    children: steps
+                        .map((step) => Column(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(10),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    color: Theme.of(context).colorScheme.surfaceContainer,
                                   ),
-                                )
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child: Column(
+                                            spacing: 10.0,
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              SvgPicture.asset(
+                                                step.iconPath,
+                                                colorFilter: ColorFilter.mode(
+                                                    Theme.of(context).colorScheme.onSurfaceVariant,
+                                                    BlendMode.srcIn),
+                                              ),
+                                              Text(
+                                                step.description,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium!
+                                                    .copyWith(
+                                                        color: context
+                                                            .currentTheme.colorScheme.onSurface,
+                                                        fontWeight: FontWeight.w400),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                if (step != steps.last)
+                                  Container(
+                                    width: 5,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.surfaceContainer),
+                                  )
                               ],
-                            ),
-                          ))
-                      .toList(),
-                ),
-              ),
+                            ))
+                        .toList(),
+                  ),
             ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: PrimaryButton(
                 text: S.of(context).close,
                 color: context.currentTheme.colorScheme.primary,
-                textColor: context.currentTheme.isDark
-                    ? context.currentTheme.colorScheme.onSurfaceVariant
-                    : context.currentTheme.colorScheme.onPrimary,
-                onPressed: () => Navigator.of(context).pop(),
+                    textColor: context.currentTheme.colorScheme.onPrimary,
+                    onPressed: () => Navigator.of(context).pop(),
               ),
             )
           ],
+        ),
+          ),
         ),
       );
 
