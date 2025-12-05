@@ -1,92 +1,86 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 // Get the deno tool at https://github.com/cake-tech/lws-interface-cli-deno.git
 final dio = Dio();
 final isDebug = true;
 // TODO: Pull isDebug from where Cake does it
 
-// Configure Dio to ignore bad certificates
-Dio createDio({required String baseUrl, bool trustSelfSigned = false}) {
-  // initialize dio
-  final dio = Dio()..options.baseUrl = baseUrl;
-  // allow self-signed certificate
-  (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-    final client = HttpClient();
-    client.badCertificateCallback = (cert, host, port) => trustSelfSigned;
-    return client;
-  };
-  return dio;
-}
-
 // A basic implementation of a Monero LWS client in Dart
 // Technically, addresses and viewkeys aren't strings, but let's go with
 // String for a first pass
 class MoneroLightweightWalletServiceClient {
-  String? lwsDaemonAddress;
-  Dio dio;
+  String lwsDaemonAddress;
 
   // Construct an instance of this class
-  MoneroLightweightWalletServiceClient({Dio? dio, String? lwsDaemonAddress})
-      : lwsDaemonAddress = lwsDaemonAddress ?? "https://127.0.0.1:8443",
-        dio = dio ?? Dio();
+  MoneroLightweightWalletServiceClient(String lwsDaemonAddress, String port) : lwsDaemonAddress = lwsDaemonAddress ?? "127.0.0.1";
 
   // deno run --unsafely-ignore-certificate-errors --allow-net index.js --host https://127.0.0.1:8443 login --address 43zxvpcj5Xv9SEkNXbMCG7LPQStHMpFCQCmkmR4u5nzjWwq5Xkv5VmGgYEsHXg4ja2FGRD5wMWbBVMijDTqmmVqm93wHGkg --view_key 7bea1907940afdd480eff7c4bcadb478a0fbb626df9e3ed74ae801e18f53e104 --
-  Future<Response> login(
+  Future<dynamic> login(
     String address,
     String viewKey,
-    String createAccountIfDoesntExist,
-    String generated_locally,
+    bool createAccountIfDoesntExist,
+    bool generated_locally,
   ) async {
-    Response response;
-    String Uri = "${lwsDaemonAddress}/login";
+    Uri url = Uri(
+      scheme: 'https',
+      host: '192.168.0.184',
+      port: 8443,
+      path: '/login',
+    );
     try {
-      response = await dio.post(
-        Uri,
-        data: {
-          'address': address,
-          'view_key': viewKey,
-          'create_account':
-              true, // TODO: verify - I think this creates new accounts
-          'generated_locally': true,
-        },
-      );
+      final data = json.encode({
+        'address': address,
+        'view_key': viewKey,
+        'create_account': createAccountIfDoesntExist, // TODO: verify - I think this creates new accounts
+        'generated_locally': generated_locally
+      });
+      final response = await ProxyWrapper().post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
+      // On success, returns a code 200 with the following object: {"new_address":true,"generated_locally":true}
+
+      return response;
     } on DioException catch (e) {
       if (e.response != null) {
-        switch (e.response!.statusCode) {
-          case 400:
-            print('Bad Request: ${e.response!.data}');
-            break;
-          case 401:
-            print('Unauthorized: ${e.response!.data}');
-            // Potentially refresh token or redirect to login
-            break;
-          case 403:
-            print(
-              'Approval: your account is pending approval from the administrator. Try again later',
-            );
-            break;
-          case 422:
-            print(
-              'Error: Make sure your address / viewkey is properly set in your request. ${e.response!.data}',
-            );
-            break;
-          case 501:
-            print(
-              'This server does not allow account creations: ${e.response!.data}',
-            );
-            break;
-          default:
-            print(
-              'Unhandled HTTP Error: ${e.response!.statusCode} - ${e.response!.data}',
-            );
-        }
-        rethrow;
+        // print("Received response from lws");
+        // print("e.response.statusCode: ${e.response!.statusCode}");
+        // switch (e.response!.statusCode) {
+        //   case 400:
+        //     print('Bad Request: ${e.response!.data}');
+        //     break;
+        //   case 401:
+        //     print('Unauthorized: ${e.response!.data}');
+        //     // Potentially refresh token or redirect to login
+        //     break;
+        //   case 403:
+        //     print(
+        //       'Either your account awaits approval, or doesn\'t exist on the server',
+        //     );
+        //     break;
+        //   case 422:
+        //     print(
+        //       'Error: Make sure your address / viewkey is properly set in your request. ${e.response!.data}',
+        //     );
+        //     break;
+        //   case 501:
+        //     print(
+        //       'This server does not allow account creations: ${e.response!.data}',
+        //     );
+        //     break;
+        //   default:
+        //     print(
+        //       'Unhandled HTTP Error: ${e.response!.statusCode} - ${e.response!.data}',
+        //     );
+        // }
+
+        // print(e.response!.data);
+        // rethrow;
       }
     }
-    throw (Exception('An unexpected error occurred during login'));
+    // throw (Exception('An unexpected error occurred during login'));
   }
 
   //   // Now I need to use dio to craft a request to send to 127.0.0.1
@@ -158,14 +152,34 @@ class MoneroLightweightWalletServiceClient {
   // Note that this endpoint may or may not return a rates field with fiat rates
   // This is dependant on the LWS server configuration.
 
-  Future<Response> get_address_info(String address, String viewKey) async {
+  Future<dynamic> get_address_info(String address, String viewKey) async {
     Response response;
-    String Uri = "${this.lwsDaemonAddress}/get_address_info";
     try {
-      response = await dio.post(
-        Uri,
-        data: {'address': address, 'view_key': viewKey},
+      Uri url = Uri(
+        scheme: 'https',
+        host: '192.168.0.184',
+        port: 8443,
+        path: '/get_address_info',
       );
+
+      // final body = const {
+      //   "address": address,
+      //   "viewKey": viewKey,
+      //   // "createAccountIfDoesntExist": "true",
+      //   // "generated_locally": "true",
+      // };
+      // response = await dio.post(
+      //   Uri,
+      //   data: {'address': address, 'view_key': viewKey},
+      // );
+      // return response;
+      //final data = json.encode({'address': address, 'view_key': viewKey});
+      // print("Override mitm?");
+      // returns {"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3553384,"scanned_block_height":3553384,"start_height":3542413,"transaction_height":3558148,"blockchain_height":3558148}
+      //{"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3558387,"scanned_block_height":3558387,"start_height":3558271,"transaction_height":3558387,"blockchain_height":3558387}
+      // {"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3558389,"scanned_block_height":3558389,"start_height":3558349,"transaction_height":3558389,"blockchain_height":3558389}
+      final data = json.encode({'address': '47QinGb37esXtgWjw6oHhqUkdyUSRMZiEHsUJUt7X3qZb6o6NuYVEBz2mevwkeinLPT9Zj6amjhsSb37FQ3ycLNdLTZKeTh', 'view_key': 'f7afa147a354965aef24163e21687a0acb9fbeedb97b26dfc8885c8661e89f0b'});
+      final response = await ProxyWrapper().post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
       return response;
     } on DioException catch (e) {
       print('Error: $e');
@@ -180,37 +194,57 @@ class MoneroLightweightWalletServiceClient {
   so a list of candidate spends is returned. 
 
   We will obviously need to do that specific calculation ourselves.
+  Returns a JSON object with following format:   
+  Basically gives us address_information details, then a list of transactions
+  {"total_received":"59969279000","scanned_height":3558755,"scanned_block_height":3558755,"start_height":3558271,"transaction_height":3558755,"blockchain_height":3558755,
+  "transactions":
+  [{"id":0,"hash":"6feaa9afc64c61283321353239fe62edf21b17cfd1eac4f48d6580b0cd23f197","timestamp":"2025-12-04T21:00:50Z","total_received":"59969279000","total_sent":"0","fee":"30720000","unlock_time":0,"height":3558393,"payment_id":"4d36cde641ebd9e9","coinbase":false,"mempool":false,"mixin":15,
+  "recipient":{"maj_i":0,"min_i":0}},{"id":1,"hash":"e854cf6090e9a8807ba564da1d55cb1c2299e3a43df9620cb8f257a2bc84e161","timestamp":"2025-12-04T21:42:03Z","total_received":"0","total_sent":"59969279000","fee":"0","unlock_time":0,"height":3558408,"coinbase":false,"mempool":false,"mixin":15,"recipient":{"maj_i":0,"min_i":0},"spent_outputs":[{"amount":"59969279000","key_image":"171ac2d6f526372871f4431732b770a4b3206a92d94b2b17ca8adec0259a0df1","tx_pub_key":"ecc2f54b93d4363e6ff17def4d7cd863a568a9e270117ff4fb0540db1ccb5f51","out_index":1,"mixin":
+  
   */
-  Future<Response> getAddressTxs(String address, String viewKey) async {
-    Response response;
-    String Uri = "${this.lwsDaemonAddress}/get_address_txs";
-    try {
-      response = await dio.post(
-        Uri,
-        data: {'address': address, 'view_key': viewKey},
-      );
-      // Return a response to the invoking function to store wallet transaction
-      // data based on what we receive here
-      return response;
-    } on DioException catch (e) {
-      if (e.response != null) {
-        switch (e.response!.statusCode) {
-          case 403:
-            print('Your address is not authorised');
-            break;
-          case 422:
-            print(
-              'Error: Make sure your address / viewkey is properly set in your request. ${e.response!.data}',
-            );
-            break;
-          default:
-            print('Error: ${e.response!.data}');
-        }
-      } else {
-        print("Error: Network connection error");
-      }
-      rethrow;
-    }
+
+  Future<dynamic> get_address_txs(String address, String viewKey) async {
+    Uri url = Uri(
+      scheme: 'https',
+      host: '192.168.0.184',
+      port: 8443,
+      path: '/get_address_txs',
+    );
+    // the following account has transaction records we could use
+    final data = json.encode({'address': address, 'view_key': viewKey});
+    final response = await ProxyWrapper().post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
+    return response;
+    // Response response;
+    // String Uri = "${this.lwsDaemonAddress}/get_address_txs";
+    // final address = '47Cw9RboPr9DRmvA7WnrzxZrAGh9gy6a2U2wqrbqwZaHjV1FbtX5VH288NmjdmGCqLYL1kQyJSfGxWRwJCAQg9upUxNGRde';
+    // final viewKey = '59710f89795362d36e9ad1e7dcf9611d594686ed7089d27bdeaaee10803f9502';
+    // try {
+    //   response = await dio.post(
+    //     Uri,
+    //     data: {'address': address, 'view_key': viewKey},
+    //   );
+    //   // Return a response to the invoking function to store wallet transaction
+    //   // data based on what we receive here
+    //   return response;
+    // } on DioException catch (e) {
+    //   if (e.response != null) {
+    //     switch (e.response!.statusCode) {
+    //       case 403:
+    //         print('Your address is not authorised');
+    //         break;
+    //       case 422:
+    //         print(
+    //           'Error: Make sure your address / viewkey is properly set in your request. ${e.response!.data}',
+    //         );
+    //         break;
+    //       default:
+    //         print('Error: ${e.response!.data}');
+    //     }
+    //   } else {
+    //     print("Error: Network connection error");
+    //   }
+    //   rethrow;
+    // }
   }
 
   /* Selects random outputs to use in a ring signature of a new transaction. */
