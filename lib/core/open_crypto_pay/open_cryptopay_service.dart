@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cake_wallet/core/open_crypto_pay/exceptions.dart';
-import 'package:cake_wallet/core/open_crypto_pay/lnurl.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class OpenCryptoPayService {

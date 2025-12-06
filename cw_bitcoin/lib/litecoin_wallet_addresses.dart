@@ -5,9 +5,11 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -53,6 +55,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
       ? hex.decode(scanSecretOverride!)
       : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ?? List.filled(32, 0);
+
   List<int> get spendPubkey => (spendPubkeyOverride != null && spendPubkeyOverride?.isNotEmpty == true)
       ? hex.decode(spendPubkeyOverride!)
       : mwebHd?.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed ?? List.filled(32, 0);
@@ -222,5 +225,20 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     final addresses = receiveAddresses
         .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
     return addresses.first.address;
+  }
+
+  @override
+  List<ReceivePageOption> get receivePageOptions {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows || isHardwareWallet) {
+      return [
+        ...BitcoinReceivePageOption.allLitecoin
+            .where((element) => element != BitcoinReceivePageOption.mweb),
+        ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+      ];
+    }
+    return [
+      ...BitcoinReceivePageOption.allLitecoin,
+      ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+    ];
   }
 }
