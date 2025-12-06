@@ -1329,8 +1329,7 @@ abstract class ElectrumWalletBase
           network: network,
           hasChange: estimatedTx.hasChange,
           isSendAll: estimatedTx.isSendAll,
-          hasTaprootInputs: false,
-          // ToDo: (Konsti) Support Taproot,
+          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot,
           isViewOnly: false,
         )..addListener((transaction) async {
             transactionHistory.addOne(transaction);
@@ -3171,7 +3170,6 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
                 // NOTE: scanOutputs, from sp_scanner package, called from rust here
                 final scanResult = scanOutputs([outputPubkeys.keys.toList()], tweak, receiver);
 
-                print(scanResult);
                 if (scanResult.isEmpty) return;
 
                 if (addToWallet[receiver.BSpend] == null) {
