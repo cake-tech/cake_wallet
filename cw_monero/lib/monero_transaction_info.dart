@@ -1,13 +1,12 @@
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/monero_amount_format.dart';
-import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/format_amount.dart';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/transaction_info.dart';
 
 class MoneroTransactionInfo extends TransactionInfo {
-  MoneroTransactionInfo(this.txHash, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee,
-      this.confirmations) :
-      id = "${txHash}_${amount}_${accountIndex}_${addressIndex}";
+  MoneroTransactionInfo(this.txHash, this.height, this.direction, this.date, this.isPending,
+      this.amount, this.accountIndex, this.addressIndex, this.fee, this.confirmations)
+      : id = "${txHash}_${amount}_${accountIndex}_${addressIndex}";
 
   final String id;
   final String txHash;
@@ -25,8 +24,7 @@ class MoneroTransactionInfo extends TransactionInfo {
   String? _fiatAmount;
 
   @override
-  String amountFormatted() =>
-      '${formatAmount(moneroAmountToString(amount: amount))} XMR';
+  String amountFormatted() => '${CryptoCurrency.xmr.formatAmount(BigInt.from(amount))} XMR';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -35,6 +33,5 @@ class MoneroTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() =>
-      '${formatAmount(moneroAmountToString(amount: fee))} XMR';
+  String feeFormatted() => '${CryptoCurrency.xmr.formatAmount(BigInt.from(fee))} XMR';
 }

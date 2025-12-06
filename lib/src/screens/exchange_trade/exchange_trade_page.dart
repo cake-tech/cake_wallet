@@ -280,42 +280,40 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 context: context,
                 isDismissible: false,
                 isScrollControlled: true,
-                builder: (BuildContext bottomSheetContext) {
+                builder: (bottomSheetContext) {
+                  final sendVM = widget.exchangeTradeViewModel.sendViewModel;
+
                   return ConfirmSendingBottomSheet(
                     key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
                     footerType: FooterType.slideActionButton,
-                    isSlideActionEnabled: widget.exchangeTradeViewModel.sendViewModel.isReadyForSend,
-                    walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
+                    isSlideActionEnabled: sendVM.isReadyForSend,
+                    walletType: sendVM.walletType,
                     titleText: S.of(bottomSheetContext).confirm_transaction,
-                    titleIconPath:
-                        widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
-                    currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
+                    titleIconPath: sendVM.selectedCryptoCurrency.iconPath,
+                    currencyTitle:
+                        sendVM.amountParsingProxy.getCryptoSymbol(sendVM.selectedCryptoCurrency),
                     amount: S.of(bottomSheetContext).send_amount,
-                    amountValue: amountValue,
-                    fiatAmountValue: widget
-                        .exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
-                    fee:
-                        isEVMCompatibleChain(widget.exchangeTradeViewModel.sendViewModel.walletType)
-                            ? S.of(bottomSheetContext).send_estimated_fee
-                            : S.of(bottomSheetContext).send_fee,
-                    feeValue: widget
-                        .exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
-                        .pendingTransactionFeeFiatAmountFormatted,
-                    outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
+                    amountValue: sendVM.amountParsingProxy
+                        .getCryptoOutputAmount(amountValue, sendVM.selectedCryptoCurrency),
+                    fiatAmountValue: sendVM.pendingTransactionFiatAmountFormatted,
+                    fee: isEVMCompatibleChain(sendVM.walletType)
+                        ? S.of(bottomSheetContext).send_estimated_fee
+                        : S.of(bottomSheetContext).send_fee,
+                    feeValue: sendVM.amountParsingProxy.getCryptoOutputAmount(
+                        sendVM.pendingTransaction!.feeFormatted, sendVM.selectedCryptoCurrency),
+                    feeFiatAmount: sendVM.pendingTransactionFeeFiatAmountFormatted,
+                    outputs: sendVM.outputs,
                     onSlideActionComplete: () async {
-                      if (bottomSheetContext.mounted) {
-                        Navigator.of(bottomSheetContext).pop(true);
-                      }
-                      widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
+                      if (bottomSheetContext.mounted) Navigator.of(bottomSheetContext).pop(true);
+
+                      sendVM.commitTransaction(context);
                       widget.exchangeTradeViewModel.registerSwapsXyzTransaction();
                     },
                   );
                 },
               );
 
-              if  (result == null) widget.exchangeTradeViewModel.sendViewModel.dismissTransaction();
-
+              if (result == null) widget.exchangeTradeViewModel.sendViewModel.dismissTransaction();
             }
           });
         }

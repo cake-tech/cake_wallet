@@ -570,14 +570,19 @@ class SendPage extends BasePage {
                   isSlideActionEnabled: sendViewModel.isReadyForSend,
                   walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
-                  currency: sendViewModel.selectedCryptoCurrency,
+                  currencyTitle: sendViewModel.amountParsingProxy
+                      .getCryptoSymbol(sendViewModel.selectedCryptoCurrency),
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: sendViewModel.pendingTransaction!.amountFormatted,
+                  amountValue: sendViewModel.amountParsingProxy.getCryptoOutputAmount(
+                      sendViewModel.pendingTransaction!.amountFormatted,
+                      sendViewModel.selectedCryptoCurrency),
                   fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: isEVMCompatibleChain(sendViewModel.walletType)
                       ? S.of(bottomSheetContext).send_estimated_fee
                       : S.of(bottomSheetContext).send_fee,
-                  feeValue: sendViewModel.pendingTransaction!.feeFormatted,
+                  feeValue: sendViewModel.amountParsingProxy.getCryptoOutputAmount(
+                      sendViewModel.pendingTransaction!.feeFormatted,
+                      sendViewModel.selectedCryptoCurrency),
                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: sendViewModel.outputs,
                   onSlideActionComplete: () async {

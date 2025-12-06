@@ -43,7 +43,6 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -230,7 +229,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -260,7 +259,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -274,7 +273,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('${_wallet.type.name}_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -362,7 +361,7 @@ abstract class DashboardViewModelBase with Store {
       transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
             transaction: tx,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
           )));
     } finally {
@@ -973,7 +972,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -1025,7 +1024,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -1045,7 +1044,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
           ),
         ),

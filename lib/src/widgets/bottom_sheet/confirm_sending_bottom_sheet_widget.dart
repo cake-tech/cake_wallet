@@ -5,7 +5,6 @@ import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +22,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     VoidCallback? onSlideActionComplete,
     bool isSlideActionEnabled = true,
     String? accessibleNavigationModeSlideActionButtonText,
-    required this.currency,
+    required this.currencyTitle,
     this.paymentId,
     this.paymentIdValue,
     this.expirationTime,
@@ -54,7 +53,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                 accessibleNavigationModeSlideActionButtonText,
             key: key);
 
-  final CryptoCurrency currency;
+  final String currencyTitle;
   final String? paymentId;
   final String? paymentIdValue;
   final String? expirationTime;
@@ -127,7 +126,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
             ),
           StandardTile(
             itemTitle: amount,
-            itemValue: '$amountValue ${currency.title}',
+            itemValue: '$amountValue $currencyTitle',
             itemTitleTextStyle: itemTitleTextStyle,
             itemSubTitle: fiatAmountValue,
             itemSubTitleTextStyle: itemSubTitleTextStyle,
@@ -159,7 +158,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                   final batchContactTitle =
                       '${index + 1}/${outputs.length} - ${contactName.isEmpty ? 'Address' : contactName}';
                   final _address = item.isParsedAddress ? item.extractedAddress : item.address;
-                  final _amount = item.cryptoAmount.replaceAll(',', '.') + ' ${currency.title}';
+                  final _amount = '${item.cryptoAmount.replaceAll(',', '.')} $currencyTitle';
                   return isBatchSending || (contactName.isNotEmpty && !isCakePayName)
                       ? ExpansionAddressTile(
                           contactType: isOpenCryptoPay ? 'Open CryptoPay' : S.of(context).contact,
@@ -194,7 +193,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                     contactType: 'Change',
                     name: S.of(context).send_change_to_you,
                     address: change!.address,
-                    amount: change!.amount + ' ${currency.title}',
+                    amount: '${change!.amount} $currencyTitle',
                     isBatchSending: true,
                     walletType: walletType,
                     itemTitleTextStyle: itemTitleTextStyle,

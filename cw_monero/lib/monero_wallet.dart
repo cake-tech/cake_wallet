@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -34,6 +35,9 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @computed
   bool get shouldShowMarketPlaceInDashboard => _settingsStore.shouldShowMarketPlaceInDashboard;
+
+  @computed
+  BitcoinAmountDisplayMode get displayAmountsInSatoshi => _settingsStore.displayAmountsInSatoshi;
 
   @computed
   MaterialThemeBase get currentTheme => _themeStore.currentTheme;
@@ -102,6 +106,9 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;
+
+  @action
+  void setDisplayAmountsInSatoshi(BitcoinAmountDisplayMode value) => _settingsStore.displayAmountsInSatoshi = value;
 
   @action
   void setShouldDisplayBalance(bool value) {

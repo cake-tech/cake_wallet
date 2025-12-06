@@ -194,7 +194,8 @@ class RBFDetailsPage extends BasePage {
                   walletType: transactionDetailsViewModel.sendViewModel.walletType,
                   titleIconPath:
                       transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
-                  currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
+                  currencyTitle:
+                      transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.title,
                   amount: S.of(bottomSheetContext).send_amount,
                   amountValue:
                       transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,

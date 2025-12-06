@@ -506,8 +506,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 sendAllButtonKey: ValueKey('send_page_send_all_button_key'),
                 currencyAmountTextFieldWidgetKey:
                     ValueKey('send_page_crypto_currency_amount_textfield_widget_key'),
-                selectedCurrency: sendViewModel.selectedCryptoCurrency.title,
-                selectedCurrencyDecimals: sendViewModel.selectedCryptoCurrency.decimals,
+                selectedCurrency: output.useSatoshi ? "SATS" : sendViewModel.selectedCryptoCurrency.title,
+                selectedCurrencyDecimals: output.useSatoshi ? 0 : sendViewModel.selectedCryptoCurrency.decimals,
                 amountFocusNode: widget.cryptoAmountFocus,
                 amountController: cryptoAmountController,
                 isAmountEditable: true,
@@ -648,9 +648,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      output.estimatedFee.toString() +
-                                          ' ' +
-                                          sendViewModel.currency.toString(),
+                                      '${output.estimatedFee} ${sendViewModel.feeCurrencySymbol}',
                                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -660,9 +658,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                       child: sendViewModel.isFiatDisabled
                                           ? const SizedBox(height: 14)
                                           : Text(
-                                              output.estimatedFeeFiatAmount +
-                                                  ' ' +
-                                                  sendViewModel.fiat.title,
+                                              '${output.estimatedFeeFiatAmount} ${sendViewModel.fiat.title}',
                                               style:
                                                   Theme.of(context).textTheme.bodySmall!.copyWith(
                                                         fontWeight: FontWeight.w600,
@@ -726,7 +722,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     ),
                   ),
                 ),
-              if (sendViewModel.currency == CryptoCurrency.ltc && sendViewModel.isMwebEnabled)
+              if (sendViewModel.isMwebAvailable)
                 Observer(
                   builder: (_) => Padding(
                     padding: EdgeInsets.only(top: 14),
