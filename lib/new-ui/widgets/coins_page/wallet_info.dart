@@ -3,11 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class WalletInfo extends StatelessWidget {
-  const WalletInfo({super.key, required this.lightningMode, required this.name, required this.usesHardwareWallet});
+  const WalletInfo(
+      {super.key,
+      required this.lightningMode,
+      required this.name,
+      required this.usesHardwareWallet,
+      required this.onCustomizeButtonTap});
 
   final bool lightningMode;
   final String name;
   final bool usesHardwareWallet;
+  final VoidCallback onCustomizeButtonTap;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +49,11 @@ class WalletInfo extends StatelessWidget {
         ),
         Text(name, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
         SizedBox(width: 8),
-        ModernButton.svg(size: 24, onPressed: (){}, svgPath: "assets/new-ui/3dots.svg",)
+        ModernButton.svg(
+          size: 24,
+          onPressed: onCustomizeButtonTap,
+          svgPath: "assets/new-ui/3dots.svg",
+        )
       ],
     );
   }

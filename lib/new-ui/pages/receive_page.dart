@@ -37,7 +37,12 @@ class _ReceivePageState extends State<ReceivePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(height: 12),
-            ReceiveTopBar(),
+            ModalTopBar(
+                title: "Receive",
+                leadingIcon: Icon(Icons.close),
+                trailingIcon: Icon(Icons.share),
+                onLeadingPressed: () => Navigator.of(context).pop(),
+                onTrailingPressed: () {}),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
