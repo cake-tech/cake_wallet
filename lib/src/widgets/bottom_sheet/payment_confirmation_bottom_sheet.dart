@@ -123,7 +123,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
                       child: Image.asset(
                         walletTypeToCryptoCurrency(
                           paymentViewModel.detectedWalletType!,
-                          chainId: paymentViewModel.detectedChainId ?? 1,
+                          chainId: paymentViewModel.detectedChainId,
                         ).iconPath!,
                         width: 32,
                         height: 32,
@@ -157,7 +157,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
                 Image.asset(
                   walletTypeToCryptoCurrency(
                     paymentViewModel.detectedWalletType!,
-                    chainId: paymentViewModel.detectedChainId ?? 1,
+                    chainId: paymentViewModel.detectedChainId,
                   ).iconPath!,
                   width: 118,
                   height: 118,
