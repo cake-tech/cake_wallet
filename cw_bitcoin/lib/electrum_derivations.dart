@@ -1,5 +1,10 @@
 import 'package:cw_core/wallet_info.dart';
 
+const SILENT_PAYMENTS_SCAN_PATH = "m/352'/0'/0'/1'/0";
+const SILENT_PAYMENTS_SPEND_PATH = "m/352'/0'/0'/0'/0";
+const SILENT_PAYMENTS_SCAN_PATH_TESTNET = "m/352'/1'/0'/1'/0";
+const SILENT_PAYMENTS_SPEND_PATH_TESTNET = "m/352'/1'/0'/0'/0";
+
 Map<DerivationType, List<DerivationInfo>> electrum_derivations = {
   DerivationType.electrum: [
     DerivationInfo(
