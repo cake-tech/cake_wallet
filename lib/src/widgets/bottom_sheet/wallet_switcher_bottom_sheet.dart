@@ -1,3 +1,4 @@
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,7 @@ class _WalletSwitcherContent extends StatelessWidget {
       builder: (context, snapshot) => Observer(
         builder: (_) {
           final List<WalletInfo> wallets = (snapshot.data ?? []);
-      
+
           if (viewModel.isProcessing) {
             return Container(
               height: 200,
@@ -68,7 +69,7 @@ class _WalletSwitcherContent extends StatelessWidget {
               ),
             );
           }
-      
+
           return Container(
             height: 400,
             child: Column(
@@ -79,7 +80,7 @@ class _WalletSwitcherContent extends StatelessWidget {
                     itemCount: wallets.length,
                     itemBuilder: (context, index) {
                       final wallet = wallets[index];
-      
+
                       return InkWell(
                         onTap: () {
                           viewModel.selectWallet(wallet);
@@ -97,7 +98,12 @@ class _WalletSwitcherContent extends StatelessWidget {
                           child: Row(
                             children: [
                               Image.asset(
-                                walletTypeToCryptoCurrency(wallet.type).iconPath!,
+                                walletTypeToCryptoCurrency(
+                                  wallet.type,
+                                  chainId: wallet.type == WalletType.evm
+                                      ? evm!.getChainIdByWalletType(wallet.type)
+                                      : null,
+                                ).iconPath!,
                                 width: 32,
                                 height: 32,
                               ),

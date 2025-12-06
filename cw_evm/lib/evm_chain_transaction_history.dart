@@ -3,21 +3,25 @@ import 'dart:core';
 import 'dart:developer';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
+import 'package:cw_evm/utils/evm_chain_utils.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 
 part 'evm_chain_transaction_history.g.dart';
 
-abstract class EVMChainTransactionHistory = EVMChainTransactionHistoryBase
-    with _$EVMChainTransactionHistory;
+class EVMChainTransactionHistory = EVMChainTransactionHistoryBase with _$EVMChainTransactionHistory;
 
 abstract class EVMChainTransactionHistoryBase
     extends TransactionHistoryBase<EVMChainTransactionInfo> with Store {
-  EVMChainTransactionHistoryBase(
-      {required this.walletInfo, required String password, required this.encryptionFileUtils})
-      : _password = password {
+  EVMChainTransactionHistoryBase({
+    required this.walletInfo,
+    required String password,
+    required this.encryptionFileUtils,
+    required this.getCurrentChainId,
+  }) : _password = password {
     transactions = ObservableMap<String, EVMChainTransactionInfo>();
   }
 
@@ -26,13 +30,17 @@ abstract class EVMChainTransactionHistoryBase
   final WalletInfo walletInfo;
   final EncryptionFileUtils encryptionFileUtils;
 
-  //! Method to be overridden by all child classes
+  /// Function to get the current chain ID (allows transaction history to use correct file)
+  final int Function() getCurrentChainId;
 
-  String getTransactionHistoryFileName();
+  /// Get transaction history file name based on current chain ID
+  String getTransactionHistoryFileName() {
+    return EVMChainUtils.getTransactionHistoryFileName(getCurrentChainId());
+  }
 
-  EVMChainTransactionInfo getTransactionInfo(Map<String, dynamic> val);
-
-  //! Common methods across all child classes
+  EVMChainTransactionInfo getTransactionInfo(Map<String, dynamic> val) {
+    return EVMChainTransactionInfo.fromJson(val, getCurrentChainId());
+  }
 
   Future<void> init() async {
     clear();
@@ -45,7 +53,19 @@ abstract class EVMChainTransactionHistoryBase
     try {
       final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
       String path = '$dirPath/$transactionsHistoryFileNameForWallet';
-      final data = json.encode({'transactions': transactions});
+
+      // Filter transactions by current chainId before saving
+      // This ensures we only save transactions for the current chain, preventing
+      // transactions from other chains from being saved to the wrong file
+      final currentChainId = getCurrentChainId();
+      final filteredTransactions = <String, EVMChainTransactionInfo>{};
+      for (final entry in transactions.entries) {
+        if (entry.value.chainId == currentChainId) {
+          filteredTransactions[entry.key] = entry.value;
+        }
+      }
+
+      final data = json.encode({'transactions': filteredTransactions});
       await encryptionFileUtils.write(path: path, password: _password, data: data);
     } catch (e, s) {
       log('Error while saving ${walletInfo.type.name} transaction history: ${e.toString()}');
@@ -54,11 +74,27 @@ abstract class EVMChainTransactionHistoryBase
   }
 
   @override
-  void addOne(EVMChainTransactionInfo transaction) => transactions[transaction.id] = transaction;
+  void addOne(EVMChainTransactionInfo transaction) {
+    if (transaction.chainId == getCurrentChainId()) {
+      transactions[transaction.id] = transaction;
+    }
+  }
 
   @override
-  void addMany(Map<String, EVMChainTransactionInfo> transactions) =>
-      this.transactions.addAll(transactions);
+  void addMany(Map<String, EVMChainTransactionInfo> transactionsToAdd) {
+    final currentChainId = getCurrentChainId();
+
+    // First, remove any transactions that don't match the current chainId
+    // This prevents transactions from other chains from persisting in the map
+    transactions.removeWhere((key, value) => value.chainId != currentChainId);
+
+    // Then add/update transactions for the current chain
+    for (final entry in transactionsToAdd.entries) {
+      if (entry.value.chainId == currentChainId) {
+        transactions[entry.key] = entry.value;
+      }
+    }
+  }
 
   Future<Map<String, dynamic>> _read() async {
     final transactionsHistoryFileNameForWallet = getTransactionHistoryFileName();

@@ -24,11 +24,13 @@ class SignPage extends BasePage {
     _pages.add(SignForm(
       key: signFormKey,
       type: signViewModel.wallet.type,
+      chainId: signViewModel.wallet.chainId,
       includeAddress: signViewModel.signIncludesAddress,
     ));
     _pages.add(VerifyForm(
       key: verifyFormKey,
       type: signViewModel.wallet.type,
+      chainId: signViewModel.wallet.chainId,
     ));
   }
 

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/view_model/send/template_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -44,8 +45,12 @@ abstract class SendTemplateViewModelBase with Store {
     recipients.remove(recipient);
   }
 
-  AmountValidator get amountValidator =>
-      AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
+  AmountValidator get amountValidator => AmountValidator(
+        currency: walletTypeToCryptoCurrency(
+          _wallet.type,
+          chainId: _wallet.chainId,
+        ),
+      );
 
   AddressValidator get addressValidator =>
       AddressValidator(type: _wallet.currency, isTestnet: _wallet.isTestnet);

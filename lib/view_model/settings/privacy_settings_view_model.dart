@@ -1,10 +1,7 @@
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -180,19 +177,19 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setUseEtherscan(bool value) {
     _settingsStore.useEtherscan = value;
-    ethereum!.updateEtherscanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
   void setUsePolygonScan(bool value) {
     _settingsStore.usePolygonScan = value;
-    polygon!.updatePolygonScanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
   void setUseBaseScan(bool value) {
     _settingsStore.useBaseScan = value;
-    base!.updateBaseScanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
@@ -204,7 +201,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setUseArbiScan(bool value) {
     _settingsStore.useArbiScan = value;
-    arbitrum!.updateArbitrumScanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
