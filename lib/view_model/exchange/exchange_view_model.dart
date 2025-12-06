@@ -216,7 +216,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         LetsExchangeExchangeProvider(),
         StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
-        SwapsXyzExchangeProvider(),
+        // SwapsXyzExchangeProvider(),
         TrocadorExchangeProvider(
             useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
       ];

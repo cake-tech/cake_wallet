@@ -356,6 +356,17 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       return null;
     }
 
+
+    // Try for native currency with same title and tag
+    if (tag == null || tag.isEmpty) {
+      final match = CryptoCurrency.all.firstWhereOrNull(
+            (e) =>
+        e.title.toUpperCase() == raw.toUpperCase() && (e.tag == raw.toUpperCase()),
+      );
+
+      if (match != null) return match;
+    }
+
     try {
       return CryptoCurrency.fromString(raw, walletCurrency: walletCurrency);
     } catch (_) {}
