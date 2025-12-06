@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
@@ -21,6 +23,7 @@ class LinkViewModel {
   final AuthenticationStore authenticationStore;
   final GlobalKey<NavigatorState> navigatorKey;
   Uri? currentLink;
+  bool readyToOpenPage = false;
 
   bool get _isValidPaymentUri => currentLink?.path.isNotEmpty ?? false;
   bool get isWalletConnectLink => currentLink?.authority == 'wc';
@@ -93,7 +96,16 @@ class LinkViewModel {
     } catch (_) {}
   }
 
+  Future<void> markReadyToOpenPage() async {
+    readyToOpenPage = true;
+    await handleLink();
+  }
+
   Future<void> handleLink() async {
+    if (!readyToOpenPage) {
+      return;
+    }
+
     String? route = getRouteToGo();
     dynamic args = getRouteArgs();
     if (route != null) {
