@@ -11,7 +11,6 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -899,6 +898,13 @@ abstract class ElectrumWalletBase
       throw BitcoinTransactionNoDustException();
     }
 
+    // if mweb isn't enabled, don't consider spending mweb coins:
+    if (this is LitecoinWallet) {
+      var mwebEnabled = (this as LitecoinWallet).mwebEnabled;
+      if (!mwebEnabled) {
+        coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+      }
+    }
 
     // If there is only one output, and the amount to send is more than the max spendable amount
     // then it is actually a send all transaction
@@ -2442,6 +2448,7 @@ abstract class ElectrumWalletBase
 
   Future<ElectrumBalance> fetchBalances() async {
     final addresses = walletAddresses.allAddresses
+        .where((address) => address.address.isNotEmpty)
         .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
         .toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];

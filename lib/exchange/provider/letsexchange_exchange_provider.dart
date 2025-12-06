@@ -235,12 +235,14 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       final depositAmount = responseJSON['deposit_amount'] as String;
       final receiveAmount = responseJSON['withdrawal_amount'] as String;
       final status = responseJSON['status'] as String;
+
+      // We ignore the created_at from response and use DateTime.now() instead
       final createdAtString = responseJSON['created_at'] as String;
       final expiredAtTimestamp = responseJSON['expired_at'] as int;
       final extraId = responseJSON['deposit_extra_id'] as String?;
 
-      final createdAt = DateTime.parse(createdAtString).toLocal();
-      final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000).toLocal();
+      final createdAt = DateTime.now();
+      final expiredAt = createdAt.add(Duration(minutes: 30));
 
       CryptoCurrency fromCurrency;
       if (request.fromCurrency.tag != null && request.fromCurrency.title == from) {
@@ -348,30 +350,42 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       throw Exception('LetsExchange fetch trade failed: ${response.body}');
     }
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final from = responseJSON['coin_from'] as String;
+
+    // Parsing 'from' currency
+    final fromCurrency = responseJSON['coin_from'] as String;
     final fromNetwork = responseJSON['coin_from_network'] as String?;
-    final to = responseJSON['coin_to'] as String;
+    final normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
+    final fromTag = fromCurrency == normalizedFromNetwork ? null : normalizedFromNetwork;
+    final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
+
+    // Parsing 'to' currency
+    final toCurrency = responseJSON['coin_to'] as String;
     final toNetwork = responseJSON['coin_to_network'] as String?;
+    final normalizedToNetwork = _normalizeNetworkType(toNetwork ?? '');
+    final toTag = toCurrency == normalizedToNetwork ? null : normalizedToNetwork;
+    final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
+
+
     final payoutAddress = responseJSON['withdrawal'] as String;
     final depositAddress = responseJSON['deposit'] as String;
     final refundAddress = responseJSON['return'] as String;
     final depositAmount = responseJSON['deposit_amount'] as String;
     final receiveAmount = responseJSON['withdrawal_amount'] as String;
     final status = responseJSON['status'] as String;
+
+    // We ignore the created_at from response and use DateTime.now() instead
     final createdAtString = responseJSON['created_at'] as String;
     final expiredAtTimestamp = responseJSON['expired_at'] as int;
+
     final extraId = responseJSON['deposit_extra_id'] as String?;
 
     final createdAt = DateTime.parse(createdAtString).toLocal();
     final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000).toLocal();
 
-    final normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
-    final normalizedToNetwork = _normalizeNetworkType(toNetwork ?? '');
-
     return Trade(
       id: id,
-      from: CryptoCurrency.safeParseCurrencyFromString(from),
-      to: CryptoCurrency.safeParseCurrencyFromString(to),
+      from: from,
+      to: to,
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: payoutAddress,
@@ -379,12 +393,10 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       amount: depositAmount,
       receiveAmount: receiveAmount,
       state: TradeState.deserialize(raw: status),
-      createdAt: createdAt,
-      expiredAt: expiredAt,
       isRefund: status == 'refund',
       extraId: extraId,
-      userCurrencyFromRaw: '$from' + '_' + normalizedFromNetwork,
-      userCurrencyToRaw: '$to' + '_' + '$normalizedToNetwork',
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
     );
   }
 
@@ -425,7 +437,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
           return currency.tag!;
       }
     }
-    return currency.title;
+
+    return _normalizeTitleToNetwork(currency.title);
   }
 
   String _normalizeNetworkType(String network) {
@@ -433,7 +446,15 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       'ERC20' => 'ETH',
       'TRC20' => 'TRX',
       'BEP20' => 'BSC',
+      'ARBITRUM' => 'ARB',
       _ => network,
+    };
+  }
+
+  String _normalizeTitleToNetwork(String title) {
+    return switch (title.toUpperCase()) {
+      'ARB' => 'ARBITRUM',
+      _ => title,
     };
   }
 
