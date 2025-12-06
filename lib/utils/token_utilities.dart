@@ -234,7 +234,11 @@ class TokenUtilities {
   }
 
   static Future<List<CryptoCurrency>> getAvailableTokensForNetwork(WalletType network) async {
-    final baseCurrency = walletTypeToCryptoCurrency(network);
+    final baseCurrency = walletTypeToCryptoCurrency(
+      network,
+      chainId: network == WalletType.evm ? evm!.getChainIdByWalletType(network) : null,
+    );
+    
     final allTokens = <CryptoCurrency>[];
     final addedAddresses = <String>{};
 

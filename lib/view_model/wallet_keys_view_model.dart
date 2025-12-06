@@ -34,7 +34,7 @@ abstract class WalletKeysViewModelBase with Store {
     reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
       _populateKeysItems();
     });
-    
+
     if (isEVMCompatibleChain(_wallet.type)) {
       reaction((_) {
         final wallet = _appStore.wallet;
@@ -46,7 +46,8 @@ abstract class WalletKeysViewModelBase with Store {
         final wallet = _appStore.wallet;
         if (wallet != null && isEVMCompatibleChain(wallet.type)) {
           final currentChain = evm!.getCurrentChain(wallet);
-          _title = '${currentChain?.name ?? walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
+          _title =
+              '${currentChain?.name ?? walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
         }
       });
     }
@@ -66,14 +67,11 @@ abstract class WalletKeysViewModelBase with Store {
       }
     }
   }
-  
+
   static String _getInitialTitle(WalletBase wallet) {
-    if (isEVMCompatibleChain(wallet.type)) {
-      final currentChain = evm!.getCurrentChain(wallet);
-      return '${currentChain?.name ?? walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
-    } else {
-      return '${walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
-    }
+    if (isEVMCompatibleChain(wallet.type)) return 'EVM ${S.current.wallet_keys}';
+
+    return '${walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
   }
 
   bool get isBitcoin => _wallet.type == WalletType.bitcoin;
@@ -82,9 +80,9 @@ abstract class WalletKeysViewModelBase with Store {
 
   @observable
   String _title;
-  
+
   String get title => _title;
-  
+
   final WalletBase _wallet;
   final String _walletName;
   final AppStore _appStore;

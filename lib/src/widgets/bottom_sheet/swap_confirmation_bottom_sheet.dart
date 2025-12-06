@@ -170,8 +170,10 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                       bottom: -4,
                       right: -4,
                       child: CakeImageWidget(
-                        imageUrl: walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!)
-                            .iconPath!,
+                        imageUrl: walletTypeToCryptoCurrency(
+                          widget.paymentFlowResult.walletType!,
+                          chainId: widget.paymentFlowResult.chainId,
+                        ).iconPath!,
                         width: 16,
                         height: 16,
                       ),

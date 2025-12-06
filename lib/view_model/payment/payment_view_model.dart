@@ -16,14 +16,21 @@ part 'payment_view_model.g.dart';
 class PaymentViewModel = PaymentViewModelBase with _$PaymentViewModel;
 
 abstract class PaymentViewModelBase with Store {
-  PaymentViewModelBase({
-    required this.appStore,
-  });
+  PaymentViewModelBase({required this.appStore});
 
   final AppStore appStore;
 
   @observable
   WalletType? detectedWalletType;
+
+  @computed
+  int? get detectedChainId {
+    if (detectedWalletType == null) return null;
+
+    if (!isEVMCompatibleChain(detectedWalletType!)) return null;
+
+    return evm!.getChainIdByWalletType(detectedWalletType!);
+  }
 
   @observable
   bool isProcessing = false;
@@ -88,6 +95,7 @@ class PaymentFlowResult {
   final PaymentFlowType type;
   final String? message;
   final WalletInfo? wallet;
+  final int? chainId;
   final List<WalletInfo> wallets;
   final WalletType? walletType;
   final AddressDetectionResult? addressDetectionResult;
@@ -96,6 +104,7 @@ class PaymentFlowResult {
     required this.type,
     this.message,
     this.wallet,
+    this.chainId,
     this.wallets = const [],
     this.walletType,
     this.addressDetectionResult,
@@ -112,6 +121,7 @@ class PaymentFlowResult {
         type: PaymentFlowType.evmNetworkSelection,
         addressDetectionResult: addressDetectionResult,
         walletType: addressDetectionResult.detectedWalletType,
+        chainId: evm!.getChainIdByWalletType(addressDetectionResult.detectedWalletType!),
         wallets: compatibleWallets ?? [],
         wallet: wallet,
       );
@@ -129,6 +139,7 @@ class PaymentFlowResult {
           type: PaymentFlowType.singleWallet,
           wallet: wallet,
           walletType: wallet.type,
+          chainId: evm!.getChainIdByWalletType(wallet.type),
           addressDetectionResult: addressDetectionResult);
 
   /// Multiple compatible wallets available
@@ -138,7 +149,8 @@ class PaymentFlowResult {
           type: PaymentFlowType.multipleWallets,
           wallets: wallets,
           walletType: wallets.first.type,
-          addressDetectionResult: addressDetectionResult);
+          addressDetectionResult: addressDetectionResult,
+          chainId: evm!.getChainIdByWalletType(wallets.first.type));
 
   /// No compatible wallets available
   factory PaymentFlowResult.noWallets(
@@ -146,7 +158,8 @@ class PaymentFlowResult {
       PaymentFlowResult._(
           type: PaymentFlowType.noWallets,
           walletType: walletType,
-          addressDetectionResult: addressDetectionResult);
+          addressDetectionResult: addressDetectionResult,
+          chainId: evm!.getChainIdByWalletType(walletType));
 
   /// Error occurred
   factory PaymentFlowResult.error(String message) =>
@@ -162,11 +175,10 @@ class PaymentFlowResult {
     }
     if (walletType != null) {
       if (isEVMCompatibleChain(walletType!)) {
-        final chainId = evm!.getChainIdByWalletType(walletType!);
         return walletTypeToCryptoCurrency(walletType!, chainId: chainId);
       }
 
-      return walletTypeToCryptoCurrency(walletType!);
+      return walletTypeToCryptoCurrency(walletType!, chainId: chainId);
     }
     return null;
   }

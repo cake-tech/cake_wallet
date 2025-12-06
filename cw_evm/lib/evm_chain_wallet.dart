@@ -122,6 +122,9 @@ abstract class EVMChainWalletBase
 
   late EVMChainClient _client;
 
+  @override
+  int? get chainId => selectedChainId;
+
   /// Currently selected chain ID for this wallet
   @observable
   int selectedChainId;

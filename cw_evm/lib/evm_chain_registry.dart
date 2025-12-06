@@ -6,7 +6,9 @@ import 'package:cw_evm/utils/network_chain_utils.dart';
 class EvmChainRegistry {
   static final EvmChainRegistry _instance = EvmChainRegistry._internal();
   factory EvmChainRegistry() => _instance;
-  EvmChainRegistry._internal();
+  EvmChainRegistry._internal() {
+    initialize();
+  }
 
   final Map<int, ChainConfig> _chains = {};
   final Map<WalletType, int> _walletTypeToChainId = {};
@@ -196,10 +198,6 @@ class EvmChainRegistry {
 
   List<ChainConfig> getAllChains() => _chains.values.toList();
 
-  List<WalletType> getRegisteredWalletTypes() {
-    if (!_initialized) {
-      initialize();
-    }
-    return _walletTypeToChainId.keys.toList();
-  }
+  List<WalletType> getRegisteredWalletTypes() =>
+      _walletTypeToChainId.keys.toList();
 }

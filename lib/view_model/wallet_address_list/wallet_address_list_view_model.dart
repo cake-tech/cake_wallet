@@ -205,7 +205,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             address: address.address,
             txCount: address.txCount,
             balance: AmountConverter.amountIntToString(
-                walletTypeToCryptoCurrency(type), address.balance),
+              walletTypeToCryptoCurrency(type),
+              address.balance,
+            ),
             isChange: address.isChange,
           );
         });
@@ -221,7 +223,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             address: address.address,
             txCount: address.txCount,
             balance: AmountConverter.amountIntToString(
-                walletTypeToCryptoCurrency(type), address.balance),
+              walletTypeToCryptoCurrency(type),
+              address.balance,
+            ),
             isChange: address.isChange,
             isOneTimeReceiveAddress: true,
           );
@@ -238,7 +242,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
               address: subaddress.address,
               txCount: subaddress.txCount,
               balance: AmountConverter.amountIntToString(
-                  walletTypeToCryptoCurrency(type), subaddress.balance),
+                walletTypeToCryptoCurrency(type),
+                subaddress.balance,
+              ),
               isChange: subaddress.isChange);
         });
 

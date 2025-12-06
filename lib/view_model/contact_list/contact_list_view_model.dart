@@ -49,7 +49,7 @@ abstract class ContactListViewModelBase with Store {
               name,
               walletTypeToCryptoCurrency(
                 info.type,
-                chainId: info.type == WalletType.evm ? 1 : null,
+                chainId: info.type == WalletType.evm ? evm!.getChainIdByWalletType(info.type) : null,
               ),
               walletType: info.type,
             ));
@@ -65,7 +65,7 @@ abstract class ContactListViewModelBase with Store {
             name,
             walletTypeToCryptoCurrency(
               info.type,
-              chainId: info.type == WalletType.evm ? 1 : null,
+              chainId: info.type == WalletType.evm ? evm!.getChainIdByWalletType(info.type) : null,
             ),
             walletType: info.type,
           ));
@@ -82,7 +82,7 @@ abstract class ContactListViewModelBase with Store {
                 info.type,
                 isTestnet:
                     info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
-                chainId: info.type == WalletType.evm ? 1 : null,
+                chainId: info.type == WalletType.evm ? evm!.getChainIdByWalletType(info.type) : null,
               ),
               walletType: info.type,
             ));
@@ -97,7 +97,7 @@ abstract class ContactListViewModelBase with Store {
                   : null),
           walletTypeToCryptoCurrency(
             info.type,
-            chainId: info.type == WalletType.evm ? 1 : null,
+            chainId: info.type == WalletType.evm ? evm!.getChainIdByWalletType(info.type) : null,
           ),
           walletType: info.type,
         ));

@@ -189,6 +189,11 @@ class CWEVM extends EVM {
     final nativeCurrency = evmWallet.currency;
     final nativeCurrencyTitle = nativeCurrency.title;
 
+    if (transaction.tokenSymbol == CryptoCurrency.maticpoly.title ||
+        transaction.tokenSymbol == "MATIC") {
+      return CryptoCurrency.maticpoly;
+    }
+
     if (transaction.tokenSymbol == nativeCurrencyTitle) {
       return nativeCurrency;
     }
