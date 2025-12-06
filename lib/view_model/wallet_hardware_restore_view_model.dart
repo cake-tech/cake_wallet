@@ -54,7 +54,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   Future<void> getNextAvailableAccounts(int limit) async {
     try {
       final service = await hardwareWalletVM.getHardwareWalletService(type);
-      List<HardwareAccountData> accounts = await service
+      final accounts = await service
           .getAvailableAccounts(index: _nextIndex, limit: limit);
 
       availableAccounts.addAll(accounts);
@@ -66,7 +66,6 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     }
 
     isLoadingMoreAccounts = false;
-    _nextIndex += limit;
   }
 
   @override
