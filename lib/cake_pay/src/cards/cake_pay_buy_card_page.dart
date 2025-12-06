@@ -617,13 +617,18 @@ class CakePayBuyCardPage extends BasePage {
                   expirationTime: cakePayBuyCardViewModel.formattedRemainingTime,
                   walletType: _sendViewModel.walletType,
                   titleIconPath: _sendViewModel.selectedCryptoCurrency.iconPath,
-                  currency: _sendViewModel.selectedCryptoCurrency,
+                  currencyTitle: _sendViewModel.amountParsingProxy
+                      .getCryptoSymbol(_sendViewModel.selectedCryptoCurrency),
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: _sendViewModel.pendingTransaction!.amountFormatted,
+                  amountValue: _sendViewModel.amountParsingProxy.getCryptoOutputAmount(
+                      _sendViewModel.pendingTransaction!.amountFormatted,
+                      _sendViewModel.selectedCryptoCurrency),
                   quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
                   fiatAmountValue: _sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: S.of(bottomSheetContext).send_fee,
-                  feeValue: _sendViewModel.pendingTransaction!.feeFormatted,
+                  feeValue: _sendViewModel.amountParsingProxy.getCryptoOutputAmount(
+                      _sendViewModel.pendingTransaction!.feeFormatted,
+                      _sendViewModel.selectedCryptoCurrency),
                   feeFiatAmount: _sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: displayingOutputs,
                   footerType: FooterType.slideActionButton,

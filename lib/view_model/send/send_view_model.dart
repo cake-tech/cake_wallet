@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
@@ -231,8 +232,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   CryptoCurrency get currency => wallet.currency;
 
-  String get feeCurrencySymbol =>
-      _appStore.amountParsingProxy.useSatoshi(currency) ? "SATS" : currency.toString();
+  String get feeCurrencySymbol => _appStore.amountParsingProxy.getCryptoSymbol(currency);
 
   Validator<String> amountValidator(Output output) => AmountValidator(
         currency: walletTypeToCryptoCurrency(wallet.type),
@@ -384,6 +384,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   final FeesViewModel feesViewModel;
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
+
+  AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   @observable
   bool hasMultipleTokens;

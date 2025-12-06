@@ -33,7 +33,16 @@ class AmountParsingProxy {
     return cryptoCurrency.formatAmount(BigInt.from(amount));
   }
 
-  /// [parseCryptoString] turns the input [string] into a `BigInt presentation of the [cryptoCurrency]
+  /// [getCryptoStringFromDouble] turns the input [amount] into the preferred representation of [cryptoCurrency] and
+  String getCryptoStringFromDouble(double amount, CryptoCurrency cryptoCurrency) {
+    if (useSatoshi(cryptoCurrency)) {
+      return "$amount";
+    }
+
+    return cryptoCurrency.formatAmount(BigInt.from(amount));
+  }
+
+  /// [parseCryptoString] turns the input [string] into a `BigInt` presentation of the [cryptoCurrency]
   BigInt parseCryptoString(String amount, CryptoCurrency cryptoCurrency) {
     if (useSatoshi(cryptoCurrency)) {
       return BigInt.parse(amount);
@@ -41,6 +50,10 @@ class AmountParsingProxy {
 
     return cryptoCurrency.parseAmount(amount);
   }
+
+  /// [getCryptoSymbol] returns the correct Symbol related to the presentation
+  String getCryptoSymbol(CryptoCurrency cryptoCurrency) =>
+      useSatoshi(cryptoCurrency) ? "SATS" : cryptoCurrency.title;
 
   bool useSatoshi(CryptoCurrency cryptoCurrency) =>
       ([CryptoCurrency.btc, CryptoCurrency.btcln].contains(cryptoCurrency) &&

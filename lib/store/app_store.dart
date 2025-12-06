@@ -23,12 +23,18 @@ part 'app_store.g.dart';
 class AppStore = AppStoreBase with _$AppStore;
 
 abstract class AppStoreBase with Store {
-  AppStoreBase(
-      {required this.authenticationStore,
-      required this.walletList,
-      required this.settingsStore,
-      required this.nodeListStore,
-      required this.themeStore});
+  AppStoreBase({
+    required this.authenticationStore,
+    required this.walletList,
+    required this.settingsStore,
+    required this.nodeListStore,
+    required this.themeStore,
+  }) : _amountParsingProxy = AmountParsingProxy(settingsStore.displayAmountsInSatoshi) {
+    reaction(
+      (_) => settingsStore.displayAmountsInSatoshi,
+      (value) => _amountParsingProxy = AmountParsingProxy(value),
+    );
+  }
 
   AuthenticationStore authenticationStore;
 
@@ -43,8 +49,8 @@ abstract class AppStoreBase with Store {
 
   ThemeStore themeStore;
 
-  AmountParsingProxy get amountParsingProxy =>
-      AmountParsingProxy(settingsStore.displayAmountsInSatoshi);
+  AmountParsingProxy _amountParsingProxy;
+  AmountParsingProxy get amountParsingProxy => _amountParsingProxy;
 
   @action
   Future<void> changeCurrentWallet(

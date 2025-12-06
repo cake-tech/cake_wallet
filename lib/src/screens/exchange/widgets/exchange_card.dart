@@ -138,7 +138,6 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
   }
 
   void changeLimits({String? min, String? max}) {
-
     setState(() {
       _min = min;
       _max = max;

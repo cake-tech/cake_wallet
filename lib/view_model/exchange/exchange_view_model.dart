@@ -453,8 +453,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     final amount_ = _enteredAmount / bestRate;
-    _cryptoNumberFormat.maximumFractionDigits = receiveMaxDigits;
-    receiveAmount = _appStore.amountParsingProxy.getCryptoOutputAmount(
+    _cryptoNumberFormat.maximumFractionDigits = depositMaxDigits;
+    depositAmount = _appStore.amountParsingProxy.getCryptoOutputAmount(
         _cryptoNumberFormat.format(amount_).replaceAll(RegExp('\\,'), ''), depositCurrency);
   }
 

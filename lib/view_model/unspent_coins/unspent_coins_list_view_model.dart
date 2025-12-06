@@ -205,9 +205,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
             if (existingItem == null) return null;
 
-            final symbol = _appStore.amountParsingProxy.useSatoshi(wallet.currency)
-                ? "SATS"
-                : wallet.currency.title;
+            final symbol = _appStore.amountParsingProxy.getCryptoSymbol(wallet.currency);
 
             return UnspentCoinsItem(
               address: elem.address,
