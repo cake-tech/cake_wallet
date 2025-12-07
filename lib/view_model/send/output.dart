@@ -358,9 +358,10 @@ abstract class OutputBase with Store {
   @action
   void _updateCryptoAmount() {
     try {
+      final decimals = min(20, cryptoCurrencyHandler().decimals);
       final crypto = (double.parse(fiatAmount.replaceAll(',', '.')) /
               _fiatConversationStore.prices[cryptoCurrencyHandler()]!)
-          .toStringAsFixed(cryptoCurrencyHandler().decimals);
+          .toStringAsFixed(decimals);
 
       if (cryptoAmount != crypto) {
         cryptoAmount =
