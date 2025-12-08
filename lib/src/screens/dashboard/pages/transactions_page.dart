@@ -173,18 +173,22 @@ class TransactionsPage extends StatelessWidget {
                               return tradeFrom != null && tradeTo != null
                                   ? Observer(
                                       builder: (_) => TradeRow(
-                                          key: item.key,
-                                          onTap: () => Navigator.of(context)
-                                              .pushNamed(Routes.tradeDetails, arguments: trade),
-                                          swapState: trade.state,
-                                          provider: trade.provider,
-                                          from: tradeFrom,
-                                          to: tradeTo,
-                                          createdAtFormattedDate: trade.createdAt != null
-                                              ? DateFormat('HH:mm').format(trade.createdAt!)
-                                              : null,
-                                          formattedAmount: item.tradeFormattedAmount,
-                                          formattedReceiveAmount: item.tradeFormattedReceiveAmount),
+                                        key: item.key,
+                                        onTap: () => Navigator.of(context)
+                                            .pushNamed(Routes.tradeDetails, arguments: trade),
+                                        swapState: trade.state,
+                                        provider: trade.provider,
+                                        title: "$tradeFrom → $tradeTo",
+                                        fromSymbol: dashboardViewModel.appStore.amountParsingProxy
+                                            .getCryptoSymbol(tradeFrom),
+                                        toSymbol: dashboardViewModel.appStore.amountParsingProxy
+                                            .getCryptoSymbol(tradeTo),
+                                        createdAtFormattedDate: trade.createdAt != null
+                                            ? DateFormat("HH:mm").format(trade.createdAt!)
+                                            : null,
+                                        formattedAmount: item.tradeFormattedAmount,
+                                        formattedReceiveAmount: item.tradeFormattedReceiveAmount,
+                                      ),
                                     )
                                   : Container();
                             }

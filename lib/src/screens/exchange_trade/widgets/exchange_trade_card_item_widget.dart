@@ -217,7 +217,7 @@ class FeeSelectionWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '${output.estimatedFee} ${feesViewModel.currency}',
+                        '${output.estimatedFee} ${feesViewModel.amountParsingProxy.getCryptoSymbol(feesViewModel.currency)}',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: Theme.of(context).colorScheme.onSurface,

@@ -17,6 +17,8 @@ class AmountParsingProxy {
 
   /// [getCryptoOutputAmount] turns the input [amount] into the preferred representation of [cryptoCurrency]
   String getCryptoOutputAmount(String amount, CryptoCurrency cryptoCurrency) {
+    print(cryptoCurrency == CryptoCurrency.btc);
+    print(cryptoCurrency);
     if (useSatoshi(cryptoCurrency) && amount.isNotEmpty) {
       return cryptoCurrency.parseAmount(amount).toString();
     }
