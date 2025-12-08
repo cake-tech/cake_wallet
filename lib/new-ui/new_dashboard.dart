@@ -36,7 +36,7 @@ class _NewDashboardState extends State<NewDashboard> {
         children: [
           MultiBlocProvider(providers: [
             BlocProvider<CardCustomizerBloc>(
-              create: (_) => CardCustomizerBloc(widget.dashboardViewModel.wallet),
+              create: (_) => getIt.get<CardCustomizerBloc>(),
             )
           ], child: widget.dashboardPageWidgets[_selectedPage]),
           NewMainNavBar(

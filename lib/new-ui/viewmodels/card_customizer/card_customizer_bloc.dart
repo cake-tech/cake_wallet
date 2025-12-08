@@ -1,10 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
 import "package:cw_core/wallet_type.dart";
 import 'package:flutter/src/painting/gradient.dart';
 import 'package:meta/meta.dart';
