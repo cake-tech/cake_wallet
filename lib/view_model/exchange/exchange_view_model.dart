@@ -55,7 +55,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -80,8 +79,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     this.unspentCoinsListViewModel,
     this.feesViewModel,
     this.fiatConversionStore,
-  )   : _cryptoNumberFormat = NumberFormat(),
-        isSendAllEnabled = false,
+  )   : isSendAllEnabled = false,
         isFixedRateMode = false,
         isReceiveAmountEntered = false,
         depositAmount = '',
@@ -356,8 +354,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @observable
   ObservableList<CryptoCurrency> depositCurrencies;
 
-  final NumberFormat _cryptoNumberFormat;
-
   final AppStore _appStore;
   SettingsStore get _settingsStore => _appStore.settingsStore;
 
@@ -453,9 +449,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     final amount_ = _enteredAmount / bestRate;
-    _cryptoNumberFormat.maximumFractionDigits = depositMaxDigits;
     depositAmount = _appStore.amountParsingProxy.getCryptoOutputAmount(
-        _cryptoNumberFormat.format(amount_).replaceAll(RegExp('\\,'), ''), depositCurrency);
+        amount_.toString().withMaxDecimals(depositCurrency.decimals), depositCurrency);
   }
 
   @action
@@ -465,9 +460,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (price == null || price == 0.0) return;
 
     final crypto = _enteredAmount / price;
-    final receiveAmountTmp = _cryptoNumberFormat.format(crypto);
+    final receiveAmountTmp = crypto.toString().withMaxDecimals(receiveCurrency.decimals);
     if (receiveAmount != receiveAmountTmp) {
-      changeReceiveAmount(amount: receiveAmountTmp.withMaxDecimals(receiveCurrency.decimals));
+      changeReceiveAmount(amount: receiveAmountTmp);
     }
   }
 
@@ -497,9 +492,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     final amount_ = _enteredAmount * bestRate;
-    _cryptoNumberFormat.maximumFractionDigits = receiveMaxDigits;
     receiveAmount = _appStore.amountParsingProxy.getCryptoOutputAmount(
-        _cryptoNumberFormat.format(amount_).replaceAll(RegExp('\\,'), ''), receiveCurrency);
+        amount_.toString().withMaxDecimals(receiveCurrency.decimals), receiveCurrency);
   }
 
   bool checkIfInputMeetsMinOrMaxCondition(String input) {
