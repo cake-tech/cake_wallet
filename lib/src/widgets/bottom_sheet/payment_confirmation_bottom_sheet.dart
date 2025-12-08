@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class PaymentConfirmationBottomSheet extends BaseBottomSheet {
@@ -19,6 +20,7 @@ class PaymentConfirmationBottomSheet extends BaseBottomSheet {
     required this.onSelectWallet,
     required this.onChangeWallet,
     required this.onSwap,
+    this.onSwitchNetwork,
   }) : super(
           titleText: '',
           footerType: FooterType.none,
@@ -32,6 +34,7 @@ class PaymentConfirmationBottomSheet extends BaseBottomSheet {
   final VoidCallback onSelectWallet;
   final VoidCallback onChangeWallet;
   final VoidCallback onSwap;
+  final VoidCallback? onSwitchNetwork;
 
   @override
   Widget contentWidget(BuildContext context) {
@@ -43,6 +46,7 @@ class PaymentConfirmationBottomSheet extends BaseBottomSheet {
       onSelectWallet: onSelectWallet,
       onChangeWallet: onChangeWallet,
       onSwap: onSwap,
+      onSwitchNetwork: onSwitchNetwork,
     );
   }
 }
@@ -56,6 +60,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
     required this.onSelectWallet,
     required this.onChangeWallet,
     required this.onSwap,
+    this.onSwitchNetwork,
   });
 
   final PaymentFlowResult paymentFlowResult;
@@ -65,6 +70,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
   final VoidCallback onSelectWallet;
   final VoidCallback onChangeWallet;
   final VoidCallback onSwap;
+  final VoidCallback? onSwitchNetwork;
 
   /// Checks if the given address is a MWEB or SP (Silent Payment) address
   bool _isMwebOrSpAddress(String address) {
@@ -101,6 +107,13 @@ class _PaymentConfirmationContent extends StatelessWidget {
 
         final isMwebOrSpAddress =
             _isMwebOrSpAddress(paymentFlowResult.addressDetectionResult?.address ?? '');
+
+        final isEVMChainMismatch = paymentFlowResult.type == PaymentFlowType.evmNetworkSelection &&
+            paymentFlowResult.wallet != null &&
+            isEVMCompatibleChain(paymentViewModel.currentWalletType);
+
+        final otherWalletsCount = paymentFlowResult.wallets.length;
+        final hasMultipleOtherWallets = otherWalletsCount > 1;
 
         return Container(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -187,7 +200,36 @@ class _PaymentConfirmationContent extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 72),
-              if (hasAtLeastOneWallet) ...[
+              if (isEVMChainMismatch) ...[
+                // EVM Chain Mismatch: Show Switch Network, Change/Switch Wallet, and Swap
+                if (!isMwebOrSpAddress) ...[
+                  PrimaryButton(
+                    onPressed: onSwap,
+                    text: '${S.current.swap} $currentWalletName',
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                if (onSwitchNetwork != null) ...[
+                  PrimaryButton(
+                    onPressed: onSwitchNetwork,
+                    text: 'Switch Network',
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                if (hasAtLeastOneWallet) ...[
+                  PrimaryButton(
+                    onPressed: hasMultipleOtherWallets ? onSelectWallet : onChangeWallet,
+                    text: S.current.switch_wallet,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ] else if (hasAtLeastOneWallet) ...[
                 if (!isMwebOrSpAddress) ...[
                   PrimaryButton(
                     onPressed: onSwap,

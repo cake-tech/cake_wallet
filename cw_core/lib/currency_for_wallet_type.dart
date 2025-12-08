@@ -71,3 +71,20 @@ CryptoCurrency getCryptoCurrencyByChainId(int chainId) {
       return CryptoCurrency.eth;
   }
 }
+
+/// Get chainId from CryptoCurrency for EVM chains
+/// Returns null if currency is not an EVM chain
+int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
+  switch (currency) {
+    case CryptoCurrency.eth:
+      return 1;
+    case CryptoCurrency.maticpoly:
+      return 137;
+    case CryptoCurrency.baseEth:
+      return 8453;
+    case CryptoCurrency.arbEth:
+      return 42161;
+    default:
+      return null;
+  }
+}

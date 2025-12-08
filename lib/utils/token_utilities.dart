@@ -233,43 +233,6 @@ class TokenUtilities {
     return 1;
   }
 
-  static Future<List<CryptoCurrency>> getAvailableTokensForNetwork(WalletType network) async {
-    final baseCurrency = walletTypeToCryptoCurrency(
-      network,
-      chainId: network == WalletType.evm ? evm!.getChainIdByWalletType(network) : null,
-    );
-    
-    final allTokens = <CryptoCurrency>[];
-    final addedAddresses = <String>{};
-
-    allTokens.add(baseCurrency);
-
-    for (final currency in CryptoCurrency.all) {
-      // For EVM networks: ETH has no tag, POL/BASE have tags
-      // Match by tag for POL/BASE, match by title==tag for ETH
-      final matches = (baseCurrency.tag == null && baseCurrency.title == currency.tag) ||
-          (baseCurrency.tag != null &&
-              currency.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase());
-
-      if (matches && _shouldAddToken(allTokens, currency, addedAddresses)) {
-        allTokens.add(currency);
-      }
-    }
-
-    // Add user tokens that don't already exist
-    final userTokens = await _getUserTokensForNetwork(baseCurrency);
-    for (final token in userTokens) {
-      if (_shouldAddToken(allTokens, token, addedAddresses)) {
-        allTokens.add(token);
-        if (token is Erc20Token) {
-          addedAddresses.add(token.contractAddress.toLowerCase());
-        }
-      }
-    }
-
-    return allTokens;
-  }
-
   static bool _shouldAddToken(
     List<CryptoCurrency> existingTokens,
     CryptoCurrency token,
@@ -294,14 +257,52 @@ class TokenUtilities {
         (a.tag?.toUpperCase() == b.tag?.toUpperCase());
   }
 
-  static Future<List<CryptoCurrency>> _getUserTokensForNetwork(CryptoCurrency baseCurrency) async {
-    final tokens = await TokenUtilities.loadAllUniqueEvmTokens();
+  static Future<List<CryptoCurrency>> getAvailableTokensForChainId(int chainId) async {
+    // Get native currency for the chain
+    final baseCurrency = getCryptoCurrencyByChainId(chainId);
+    final allTokens = <CryptoCurrency>[];
+    final addedAddresses = <String>{};
 
-    return tokens.where((token) {
-      // Match by tag, except for ETH which has no tag - match by title instead
-      if (baseCurrency.tag == null) return token.tag == baseCurrency.title;
+    allTokens.add(baseCurrency);
 
-      return token.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase();
-    }).toList();
+    // Add currencies that match this chain
+    for (final currency in CryptoCurrency.all) {
+      final matches = (baseCurrency.tag == null && baseCurrency.title == currency.tag) ||
+          (baseCurrency.tag != null &&
+              currency.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase());
+
+      if (matches && _shouldAddToken(allTokens, currency, addedAddresses)) {
+        allTokens.add(currency);
+      }
+    }
+
+    // Add user tokens for this chain
+    final userTokens = await _getUserTokensForChainId(chainId);
+    for (final token in userTokens) {
+      if (_shouldAddToken(allTokens, token, addedAddresses)) {
+        allTokens.add(token);
+        if (token is Erc20Token) {
+          addedAddresses.add(token.contractAddress.toLowerCase());
+        }
+      }
+    }
+
+    return allTokens;
+  }
+
+  static Future<List<CryptoCurrency>> _getUserTokensForChainId(int chainId) async {
+    final allWi = await WalletInfo.getAll();
+    final evmWallets = allWi.where((w) => isEVMCompatibleChain(w.type));
+
+    final tokens = <Erc20Token>[];
+    for (final wallet in evmWallets) {
+      final box = await _openEvmTokensBoxFor(wallet, chainId);
+
+      for (final t in box.values.where((t) => t.enabled)) {
+        tokens.add(t);
+      }
+    }
+
+    return tokens.cast<CryptoCurrency>();
   }
 }
