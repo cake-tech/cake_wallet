@@ -1,13 +1,13 @@
 import 'dart:async';
 
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info_legacy.dart' as wiLegacy;
 import 'package:cw_core/wallet_type.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:cw_core/cake_hive.dart';
-import 'package:cw_core/wallet_info_legacy.dart' as wiLegacy;
 
 Future<void> performHiveMigration() async {
   try {
@@ -380,6 +380,10 @@ class BalanceCardStyleSettings {
       where: "walletInfoId = ? AND accountIndex = ?",
       whereArgs: [walletInfoId, accountIndex],
     );
+
+    if (json.isEmpty) {
+      return null;
+    }
 
     return fromJson(json.first);
   }

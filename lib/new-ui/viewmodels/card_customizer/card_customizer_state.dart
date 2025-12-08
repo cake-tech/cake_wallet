@@ -35,3 +35,8 @@ final class CardCustomizerInitial extends CardCustomizerState {
     int accountIndex,
   ) : super(selectedDesignIndex, selectedColorIndex, availableDesigns, accountName, accountIndex);
 }
+
+final class CardCustomizerSaved extends CardCustomizerState {
+  CardCustomizerSaved(super.selectedDesignIndex, super.selectedColorIndex, super.availableDesigns,
+      super.accountName, super.accountIndex);
+}

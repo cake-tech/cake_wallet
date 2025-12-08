@@ -332,15 +332,13 @@ abstract class DashboardViewModelBase with Store {
 
   bool _isTransactionDisposerCallbackRunning = false;
 
-  final Completer<void> _designsLoaded = Completer<void>();
-
-  Future<void> get designsLoaded => _designsLoaded.future;
 
   Future<void> loadCardDesigns() async {
     if (cardDesigns.isNotEmpty) {
-      return;
-    } else {
-      final accountStyleSettings =
+      cardDesigns.clear();
+    }
+
+    final accountStyleSettings =
           await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
 
       late final int numAccounts;
@@ -374,8 +372,6 @@ abstract class DashboardViewModelBase with Store {
         }
       }
       printV("loaded card designs.");
-      _designsLoaded.complete();
-    }
   }
 
 
