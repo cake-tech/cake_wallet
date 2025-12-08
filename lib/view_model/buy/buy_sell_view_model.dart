@@ -157,7 +157,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   @computed
-  bool get isBuySellQuotFailed => buySellQuotState is BuySellQuotFailed;
+  bool get isBuySellQuoteFailed => buySellQuotState is BuySellQuotFailed;
+
+  @computed
+  String? get buySellQuoteFailedError => buySellQuotState is BuySellQuotFailed
+      ? (buySellQuotState as BuySellQuotFailed).errorMessage
+      : null;
 
   @action
   void reset() {
@@ -201,10 +206,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
-    if (!isReadyToTrade && !isBuySellQuotFailed) {
+    if (!isReadyToTrade && !isBuySellQuoteFailed) {
       cryptoAmount = S.current.fetching;
       return;
-    } else if (isBuySellQuotFailed) {
+    } else if (isBuySellQuoteFailed) {
       cryptoAmount = '';
       return;
     }
@@ -232,10 +237,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
-    if (!isReadyToTrade && !isBuySellQuotFailed) {
+    if (!isReadyToTrade && !isBuySellQuoteFailed) {
       fiatAmount = S.current.fetching;
       return;
-    } else if (isBuySellQuotFailed) {
+    } else if (isBuySellQuoteFailed) {
       fiatAmount = '';
       return;
     }
@@ -478,12 +483,20 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @action
   Future<void> launchTrade(BuildContext context) async {
     final provider = selectedQuote!.provider;
-    await provider.launchProvider(
-      context: context,
-      quote: selectedQuote!,
-      amount: amount,
-      isBuyAction: isBuyAction,
-      cryptoCurrencyAddress: cryptoCurrencyAddress,
-    );
+    try {
+      await provider.launchProvider(
+        context: context,
+        quote: selectedQuote!,
+        amount: amount,
+        isBuyAction: isBuyAction,
+        cryptoCurrencyAddress: cryptoCurrencyAddress,
+      );
+    } catch (e) {
+      if (e.toString().contains("403")) {
+        buySellQuotState = BuySellQuotFailed(errorMessage: "Using Tor is not supported");
+      } else {
+        buySellQuotState = BuySellQuotFailed(errorMessage: "Something went wrong please try again later");
+      }
+    }
   }
 }

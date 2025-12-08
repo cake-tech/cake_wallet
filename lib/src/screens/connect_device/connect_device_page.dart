@@ -165,6 +165,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     switch (deviceType) {
       case HardwareWalletDeviceType.ledgerNanoX:
         return 'assets/images/hardware_wallet/ledger_nano_x.png';
+      case HardwareWalletDeviceType.ledgerNanoGen5:
+        return 'assets/images/hardware_wallet/device_ledger_nano_gen_5.svg';
       case HardwareWalletDeviceType.ledgerStax:
         return 'assets/images/hardware_wallet/ledger_stax.png';
       case HardwareWalletDeviceType.ledgerFlex:
@@ -317,10 +319,14 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       builder: (BuildContext bottomSheetContext) => InfoStepsBottomSheet(
         titleText: S.of(context).how_to_connect,
         steps: [
-          InfoStep('${S.of(context).step} 1', S.of(context).connect_hw_info_step_1),
-          InfoStep('${S.of(context).step} 2', S.of(context).connect_hw_info_step_2),
-          InfoStep('${S.of(context).step} 3', S.of(context).connect_hw_info_step_3),
-          InfoStep('${S.of(context).step} 4', S.of(context).connect_hw_info_step_4),
+          InfoStep('assets/images/wallet_connect_step_icons/step1_power.svg',
+              S.of(context).connect_hw_info_step_1),
+          InfoStep('assets/images/wallet_connect_step_icons/step2_connect.svg',
+              S.of(context).connect_hw_info_step_2),
+          InfoStep('assets/images/wallet_connect_step_icons/step3_unlock.svg',
+              S.of(context).connect_hw_info_step_3),
+          InfoStep('assets/images/wallet_connect_step_icons/step4_select.svg',
+              S.of(context).connect_hw_info_step_4),
         ],
       ),
     );

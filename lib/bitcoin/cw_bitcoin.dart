@@ -29,6 +29,22 @@ class CWBitcoin extends Bitcoin {
           name: name, password: password, xpub: xpub, hardwareWalletType: hardwareWalletType);
 
   @override
+  WalletCredentials createLitecoinWalletFromKeys({
+    required String name,
+    required String password,
+    required String xpub,
+    required String scanSecret,
+    required String spendPubkey,
+  }) =>
+      LitecoinWalletFromKeysCredentials(
+        name: name,
+        password: password,
+        xpub: xpub,
+        scanSecret: scanSecret,
+        spendPubkey: spendPubkey,
+      );
+
+  @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
           {required String name,
           required String password,
@@ -260,17 +276,14 @@ class CWBitcoin extends Bitcoin {
   }
 
   WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource,
       Box<UnspentCoinsInfo> unspentCoinSource,
       Box<PayjoinSession> payjoinSessionSource,
       bool isDirect) {
-    return BitcoinWalletService(
-        walletInfoSource, unspentCoinSource, payjoinSessionSource, isDirect);
+    return BitcoinWalletService(unspentCoinSource, payjoinSessionSource, isDirect);
   }
 
-  WalletService createLitecoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource, isDirect);
+  WalletService createLitecoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+    return LitecoinWalletService(unspentCoinSource, isDirect);
   }
 
   @override
@@ -537,7 +550,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
     (wallet as ElectrumWallet).hardwareWalletService = service;
   }
 
@@ -769,6 +782,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<void> commitPsbtUR(Object wallet, List<String> urCodes) {
+    if (wallet is LitecoinWallet) return wallet.commitPsbtUR(urCodes);
     final _wallet = wallet as BitcoinWalletBase;
     return _wallet.commitPsbtUR(urCodes);
   }

@@ -282,6 +282,17 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
+    case Routes.setupDuressPin:
+      Function(PinCodeState<PinCodeWidget>, String)? callback;
+
+      if (settings.arguments is Function(PinCodeState<PinCodeWidget>, String)) {
+        callback = settings.arguments as Function(PinCodeState<PinCodeWidget>, String);
+      }
+
+      return handleRouteWithPlatformAwareness(
+        (_) => getIt.get<SetupPinCodePage>(param1: callback, param2: true),
+      );
+
     case Routes.restoreOptions:
       if (SettingsStoreBase.walletPasswordDirectInput) {
         return createRoute(RouteSettings(name: Routes.restoreWalletType));
@@ -548,6 +559,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<SecurityBackupPage>(),
       );
+
+    case Routes.securityBackupDuressPin:
+      return handleRouteWithPlatformAwareness(
+            (context) => getIt.get<SecurityBackupPage>(),
+      );
+
 
     case Routes.privacyPage:
       return handleRouteWithPlatformAwareness(

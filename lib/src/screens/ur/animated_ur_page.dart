@@ -68,7 +68,7 @@ class AnimatedURPage extends BasePage {
             .contains(urQrType)) ...{
           Spacer(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.all(16.0),
             child: SizedBox(
               width: double.maxFinite,
               child: PrimaryButton(

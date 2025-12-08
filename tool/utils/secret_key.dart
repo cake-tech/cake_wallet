@@ -56,6 +56,7 @@ class SecretKey {
     SecretKey('bitcoinCashTestWalletSeeds', () => ''),
     SecretKey('polygonTestWalletSeeds', () => ''),
     SecretKey('baseTestWalletSeeds', () => ''),
+    SecretKey('arbitrumTestWalletSeeds', () => ''),
     SecretKey('solanaTestWalletSeeds', () => ''),
     SecretKey('tronTestWalletSeeds', () => ''),
     SecretKey('nanoTestWalletSeeds', () => ''),
@@ -67,6 +68,7 @@ class SecretKey {
     SecretKey('bitcoinCashTestWalletReceiveAddress', () => ''),
     SecretKey('polygonTestWalletReceiveAddress', () => ''),
     SecretKey('baseTestWalletReceiveAddress', () => ''),
+    SecretKey('arbitrumTestWalletReceiveAddress', () => ''),
     SecretKey('solanaTestWalletReceiveAddress', () => ''),
     SecretKey('tronTestWalletReceiveAddress', () => ''),
     SecretKey('nanoTestWalletReceiveAddress', () => ''),
@@ -96,6 +98,7 @@ class SecretKey {
     SecretKey('ankrApiKey', () => ''),
     SecretKey('nowNodesApiKey', () => ''),
     SecretKey('chainStackApiKey', () => ''),
+    SecretKey('moralisApiKey', () => ''),
   ];
 
   static final nanoSecrets = [

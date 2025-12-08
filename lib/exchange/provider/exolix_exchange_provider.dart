@@ -360,10 +360,21 @@ class ExolixExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected http status: ${response.statusCode}');
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+    // Parsing 'from' currency
     final coinFrom = responseJSON['coinFrom']['coinCode'] as String;
     final coinFromNetwork = responseJSON['coinFrom']['network'] as String?;
+    final _normalizedFromNetwork = _normalizeNetworkType(coinFromNetwork ?? '');
+    final fromTag = coinFrom.toUpperCase() == _normalizedFromNetwork.toUpperCase() ? null : coinFromNetwork;
+    final from = CryptoCurrency.safeParseCurrencyFromString(coinFrom, tag: fromTag);
+
+    // Parsing 'to' currency
     final coinTo = responseJSON['coinTo']['coinCode'] as String;
     final coinToNetwork = responseJSON['coinTo']['network'] as String?;
+    final _normalizedToNetwork = _normalizeNetworkType(coinToNetwork ?? '');
+    final toTag = coinTo.toUpperCase() == _normalizedToNetwork.toUpperCase() ? null : coinToNetwork;
+    final to = CryptoCurrency.safeParseCurrencyFromString(coinTo, tag: toTag);
+
     final inputAddress = responseJSON['depositAddress'] as String;
     final amount = responseJSON['amount'].toString();
     final status = responseJSON['status'] as String;
@@ -373,8 +384,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     return Trade(
         id: id,
-        from: CryptoCurrency.safeParseCurrencyFromString(coinFrom),
-        to: CryptoCurrency.safeParseCurrencyFromString(coinTo),
+        from: from,
+        to: to,
         provider: description,
         inputAddress: inputAddress,
         amount: amount,
@@ -382,8 +393,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
         extraId: extraId,
         outputTransaction: outputTransaction,
         payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${coinFrom.toUpperCase()}' + '_' + '${coinFromNetwork ?? ''}',
-      userCurrencyToRaw: '${coinTo.toUpperCase()}' + '_' + '${coinToNetwork ?? ''}',
+      userCurrencyFromRaw: '${coinFrom.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
+      userCurrencyToRaw: '${coinTo.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
     );
   }
 
@@ -406,6 +417,13 @@ class ExolixExchangeProvider extends ExchangeProvider {
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : currency.title;
     }
+  }
+
+  String _normalizeNetworkType(String network) {
+    return switch (network.toUpperCase()) {
+      'ARBITRUM' => 'ARB',
+      _ => network,
+    };
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {

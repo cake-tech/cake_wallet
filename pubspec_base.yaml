@@ -119,7 +119,7 @@ dependencies:
   trezor_connect:
     git:
       url: https://github.com/cake-tech/trezor_connect
-      ref: 59b3ceec158d3393b20d0c596cab2abcc62ac8e4
+      ref: d1242cea90f84b00200e7bcab914a5af750e23fb
   bitbox_flutter:
     path: ./scripts/bitbox_flutter
   hashlib: 1.19.2
@@ -191,8 +191,8 @@ dependency_overrides:
   ffi: 2.1.0
   ledger_flutter_plus:
     git:
-      url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: 60817d4b20144f9da9029f5034790272795b9d38
+      url: https://github.com/cake-tech/ledger-flutter-plus
+      ref: 5237e5b3d5f07696eefd0aaee9c32478ed399d20
   ledger_usb_plus:
     git:
       url: https://github.com/konstantinullrich/ledger-usb-plus
@@ -222,6 +222,8 @@ flutter:
     - assets/images/hardware_wallet/
     - assets/images/crypto/
     - assets/images/stocks/
+    - assets/images/main_actions/
+    - assets/images/wallet_connect_step_icons/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
@@ -238,6 +240,7 @@ flutter:
     - assets/decred_node_list.yml
     - assets/dogecoin_electrum_server_list.yml
     - assets/base_node_list.yml
+    - assets/arbitrum_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

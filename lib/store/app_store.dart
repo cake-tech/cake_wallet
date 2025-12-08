@@ -58,8 +58,8 @@ abstract class AppStoreBase with Store {
       getIt.get<WalletKitService>().create();
       await getIt.get<WalletKitService>().init();
     }
-    getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
-    getIt
+    await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
+    await getIt
         .get<SharedPreferences>()
         .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
   }

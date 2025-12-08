@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
@@ -170,10 +169,10 @@ abstract class CakePayBuyCardViewModelBase with Store {
           from: CakePayOrder.getCurrencyCodeFromPaymentMethod(selectedPaymentMethod!),
           to: order!.fiatCurrencyCode,
           createdAt: DateTime.now(),
-          amount: paymentData.amount ?? '',
+          amount: paymentData.amount,
           receiveAmount: order!.totalReceiveAmount,
           quantity: order!.quantity.toString(),
-          receiveAddress: paymentData.address ?? '',
+          receiveAddress: paymentData.address,
           source: OrderSourceDescription.order,
           giftCardProvider: OrderProviderDescription.cakePay,
           walletId: sendViewModel.wallet.id);

@@ -1,7 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-
+import 'package:collection/collection.dart';
+import 'package:crypto/crypto.dart';
+import 'package:cw_bitcoin/address_from_output.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/mweb_utxo.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_mweb/mwebd.pbgrpc.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
@@ -51,6 +61,9 @@ import 'package:mobx/mobx.dart';
 import 'package:pointycastle/ecc/api.dart';
 import 'package:pointycastle/ecc/curves/secp256k1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ur/cbor_lite.dart';
+import 'package:ur/ur.dart';
+import 'package:ur/ur_decoder.dart';
 
 part 'litecoin_wallet.g.dart';
 
@@ -60,11 +73,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   LitecoinWalletBase({
     required String password,
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required EncryptionFileUtils encryptionFileUtils,
     Uint8List? seedBytes,
     String? mnemonic,
     String? xpub,
+    this.scanSecretOverride,
+    this.spendPubkeyOverride,
     String? passphrase,
     String? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -80,6 +96,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           passphrase: passphrase,
           xpub: xpub,
           walletInfo: walletInfo,
+          derivationInfo: derivationInfo,
           unspentCoinsInfo: unspentCoinsInfo,
           network: LitecoinNetwork.mainnet,
           initialAddresses: initialAddresses,
@@ -92,6 +109,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (seedBytes != null) {
       mwebHd =
           Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/1000'") as Bip32Slip10Secp256k1;
+      mwebEnabled = alwaysScan ?? false;
+    } else if (scanSecretOverride != null && spendPubkeyOverride != null) {
+      mwebHd = null;
       mwebEnabled = alwaysScan ?? false;
     } else {
       mwebHd = null;
@@ -108,6 +128,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       network: network,
       mwebHd: mwebHd,
       mwebEnabled: mwebEnabled,
+      scanSecretOverride: scanSecretOverride,
+      spendPubkeyOverride: spendPubkeyOverride,
       isHardwareWallet: walletInfo.isHardwareWallet,
     );
     autorun((_) {
@@ -160,14 +182,21 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   bool get hasRescan => true;
 
-  List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
 
-  List<int> get spendSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
+  final String? scanSecretOverride;
+  final String? spendPubkeyOverride;
+  List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
+      ? hex.decode(scanSecretOverride!)
+      : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ?? List.filled(32, 0);
+
+  List<int> get spendSecret =>
+      mwebHd?.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw ?? List.filled(32, 0);
 
   static Future<LitecoinWallet> create(
       {required String mnemonic,
       required String password,
       required WalletInfo walletInfo,
+      required DerivationInfo derivationInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required EncryptionFileUtils encryptionFileUtils,
       String? passphrase,
@@ -179,7 +208,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       Map<String, int>? initialChangeAddressIndex}) async {
     late Uint8List seedBytes;
 
-    switch (walletInfo.derivationInfo?.derivationType) {
+    switch (derivationInfo.derivationType) {
       case DerivationType.bip39:
         seedBytes = await bip39.mnemonicToSeed(
           mnemonic,
@@ -195,6 +224,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       mnemonic: mnemonic,
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialMwebAddresses: initialMwebAddresses,
@@ -207,6 +237,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       addressPageType: addressPageType,
     );
   }
+
+  @override
+  WalletKeysData get walletKeysData =>
+      WalletKeysData(mnemonic: seed, xPub: xpub, passphrase: passphrase, scanSecret: scanSecretOverride, spendPubkey: spendPubkeyOverride);
 
   static Future<LitecoinWallet> open({
     required String name,
@@ -245,18 +279,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       );
     }
 
-    walletInfo.derivationInfo ??= DerivationInfo();
-
+    final derivationInfo = await walletInfo.getDerivationInfo();
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
-    walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
+    derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
+    derivationInfo.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
     final mnemonic = keysData.mnemonic;
     final passphrase = keysData.passphrase;
 
     if (mnemonic != null) {
-      switch (walletInfo.derivationInfo?.derivationType) {
+      switch (derivationInfo.derivationType) {
         case DerivationType.bip39:
           seedBytes = await bip39.mnemonicToSeed(
             mnemonic,
@@ -269,12 +302,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           break;
       }
     }
+    await derivationInfo.save();
 
     return LitecoinWallet(
       mnemonic: keysData.mnemonic,
       xpub: keysData.xPub,
+      scanSecretOverride: keysData.scanSecret,
+      spendPubkeyOverride: keysData.spendPubkey,
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses,
       initialMwebAddresses: snp?.mwebAddresses,
@@ -849,6 +886,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (unspent.vout == 0) {
         unspent.isChange = true;
       }
+
+      // printV("unspent: $unspent ${unspent.vout} ${utxo.value}");
       mwebUnspentCoins.add(unspent);
     });
 
@@ -1059,27 +1098,77 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return fee.toInt() + feeIncrease;
   }
 
+  Future<Uint8List> buildPsbt(PendingBitcoinTransaction transaction, bool isMweb) async {
+    final List<TxInput> inputs = [];
+    final List<TxOut> txouts = [];
+    for (final utxo in transaction.utxos) {
+      if (utxo.utxo.scriptType != SegwitAddresType.mweb) {
+        inputs.add(utxo.utxo.toInput());
+        txouts.add(TxOut(value: Int64(utxo.utxo.value.toInt()),
+                         pkScript: utxo.ownerDetails.address.toScriptPubKey().toBytes()));
+      }
+    }
+    var resp = await CwMweb.psbtCreate(PsbtCreateRequest(
+      rawTx: inputs.isEmpty ? null : BtcTransaction(
+        inputs: inputs,
+        outputs: isMweb ? [] : transaction.outputs,
+      ).toBytes(),
+      witnessUtxo: txouts,
+    ));
+    for (final utxo in transaction.utxos) {
+      if (utxo.utxo.scriptType == SegwitAddresType.mweb) {
+        resp = await CwMweb.psbtAddInput(PsbtAddInputRequest(
+          psbtB64: resp.psbtB64,
+          scanSecret: scanSecret,
+          outputId: utxo.utxo.txHash,
+          addressIndex: utxo.utxo.vout,
+        ));
+      }
+    }
+    if (isMweb) for (final output in transaction.outputs) {
+      var address = addressFromOutputScript(output.scriptPubKey, LitecoinNetwork.mainnet);
+      if (output.scriptPubKey.getAddressType() == SegwitAddresType.mweb) {
+        address = SegwitBech32Encoder.encode("ltcmweb", 0, output.scriptPubKey.toBytes());
+      }
+      resp = await CwMweb.psbtAddRecipient(PsbtAddRecipientRequest(
+        psbtB64: resp.psbtB64,
+        recipient: PsbtRecipient(address: address, value: Int64(output.amount.toInt())),
+        feeRatePerKb: Int64.parseInt(transaction.feeRate) * 1000,
+      ));
+    }
+    return base64.decode(resp.psbtB64);
+  }
+
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
-      var tx = await super.createTransaction(credentials) as PendingBitcoinTransaction;
+      var creds;
+      if (!mwebEnabled) {
+        BitcoinTransactionCredentials btcCreds = (credentials as BitcoinTransactionCredentials);
+        // sets unspent coin type to nonMweb:
+        creds = BitcoinTransactionCredentials(
+          btcCreds.outputs,
+          priority: btcCreds.priority,
+          feeRate: btcCreds.feeRate,
+          coinTypeToSpendFrom: UnspentCoinType.nonMweb,
+        );
+      } else {
+        creds = credentials;
+      }
+      var tx = await super.createTransaction(creds as Object) as PendingBitcoinTransaction;
       tx.isMweb = mwebEnabled;
 
       if (!mwebEnabled) {
         tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
                 .getChangeAddress(coinTypeToSpendFrom: UnspentCoinType.nonMweb))
             .address;
+
+        if (tx.shouldCommitUR()) {
+          tx.unsignedPsbt = await buildPsbt(tx, false);
+        }
         return tx;
       }
       await waitForMwebAddresses();
-
-      final resp = await CwMweb.create(CreateRequest(
-        rawTx: hex.decode(tx.hex),
-        scanSecret: scanSecret,
-        spendSecret: spendSecret,
-        feeRatePerKb: Int64.parseInt(tx.feeRate) * 1000,
-      ));
-      final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
 
       // check if the transaction doesn't contain any mweb inputs or outputs:
       final transactionCredentials = credentials as BitcoinTransactionCredentials;
@@ -1092,17 +1181,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         final address = output.address.toLowerCase();
         final extractedAddress = output.extractedAddress?.toLowerCase();
 
-        if (address.contains("mweb")) {
+        if (address.startsWith("ltcmweb")) {
           hasMwebOutput = true;
         }
-        if (!address.contains("mweb")) {
+        if (!address.startsWith("ltcmweb")) {
           hasRegularOutput = true;
         }
         if (extractedAddress != null && extractedAddress.isNotEmpty) {
-          if (extractedAddress.contains("mweb")) {
+          if (extractedAddress.startsWith("ltcmweb")) {
             hasMwebOutput = true;
           }
-          if (!extractedAddress.contains("mweb")) {
+          if (!extractedAddress.startsWith("ltcmweb")) {
             hasRegularOutput = true;
           }
         }
@@ -1112,6 +1201,26 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       for (final utxo in tx.utxos) {
         if (utxo.utxo.scriptType == SegwitAddresType.mweb) {
           hasMwebInput = true;
+
+        } else {
+          // check if any of the inputs of this transaction are hog-ex:
+          // this list is only non-mweb inputs:
+          bool isHogEx = true;
+
+          final coin = unspentCoins
+              .firstWhere((coin) => coin.hash == utxo.utxo.txHash && coin.vout == utxo.utxo.vout);
+
+          // TODO: detect actual hog-ex inputs
+
+          if (!isHogEx) {
+            continue;
+          }
+
+          int confirmations = coin.confirmations ?? 0;
+          if (confirmations < 6) {
+            throw Exception(
+                "A transaction input has less than 6 confirmations, please try again later.");
+          }
         }
       }
 
@@ -1127,29 +1236,24 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           .address;
       if (isRegular) {
         tx.isMweb = false;
+        if (tx.shouldCommitUR()) {
+          tx.unsignedPsbt = await buildPsbt(tx, false);
+        }
         return tx;
       }
 
-      // check if any of the inputs of this transaction are hog-ex:
-      // this list is only non-mweb inputs:
-      tx2.inputs.forEach((txInput) {
-        bool isHogEx = true;
+      if (tx.shouldCommitUR()) {
+        tx.unsignedPsbt = await buildPsbt(tx, true);
+        return tx;
+      }
 
-        final utxo = unspentCoins
-            .firstWhere((utxo) => utxo.hash == txInput.txId && utxo.vout == txInput.txIndex);
-
-        // TODO: detect actual hog-ex inputs
-
-        if (!isHogEx) {
-          return;
-        }
-
-        int confirmations = utxo.confirmations ?? 0;
-        if (confirmations < 6) {
-          throw Exception(
-              "A transaction input has less than 6 confirmations, please try again later.");
-        }
-      });
+      final resp = await CwMweb.create(CreateRequest(
+        rawTx: hex.decode(tx.hex),
+        scanSecret: scanSecret,
+        spendSecret: spendSecret,
+        feeRatePerKb: Int64.parseInt(tx.feeRate) * 1000,
+      ));
+      final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
 
       tx.hexOverride = tx2
           .copyWith(
@@ -1172,31 +1276,109 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           .toHex();
       tx.outputAddresses = resp.outputId;
 
-      return tx
-        ..addListener((transaction) async {
-          final addresses = <String>{};
-          transaction.inputAddresses?.forEach((id) async {
-            final utxo = mwebUtxosBox.get(id);
-            // await mwebUtxosBox.delete(id); // gets deleted in checkMwebUtxosSpent
-            if (utxo == null) return;
-            // mark utxo as spent so we add it to the unconfirmed balance (as negative):
-            utxo.spent = true;
-            await mwebUtxosBox.put(id, utxo);
-            final addressRecord = walletAddresses.allAddresses
-                .firstWhere((addressRecord) => addressRecord.address == utxo.address);
-            if (!addresses.contains(utxo.address)) {
-              addresses.add(utxo.address);
-            }
-            addressRecord.balance -= utxo.value.toInt();
-          });
-          transaction.inputAddresses?.addAll(addresses);
-          printV("isPegIn: $isPegIn, isPegOut: $isPegOut");
-          transaction.additionalInfo["isPegIn"] = isPegIn;
-          transaction.additionalInfo["isPegOut"] = isPegOut;
-          transactionHistory.addOne(transaction);
-          await updateUnspent();
-          await updateBalance();
-        });
+      addTransactionListener(tx, [], isPegIn, isPegOut);
+      return tx;
+    } catch (e, s) {
+      printV(e);
+      printV(s);
+      if (e.toString().contains("commit failed")) {
+        printV(e);
+        throw Exception("Transaction commit failed (no peers responded), please try again.");
+      }
+      rethrow;
+    }
+  }
+
+  void addTransactionListener(PendingBitcoinTransaction tx,
+    List<String> inputAddresses, bool isPegIn, bool isPegOut) {
+    tx.addListener((transaction) async {
+      final addresses = <String>{};
+      transaction.inputAddresses?.addAll(inputAddresses);
+      transaction.inputAddresses?.forEach((id) async {
+        final utxo = mwebUtxosBox.get(id);
+        // await mwebUtxosBox.delete(id); // gets deleted in checkMwebUtxosSpent
+        if (utxo == null) return;
+        // mark utxo as spent so we add it to the unconfirmed balance (as negative):
+        utxo.spent = true;
+        await mwebUtxosBox.put(id, utxo);
+        final addressRecord = walletAddresses.allAddresses
+            .firstWhere((addressRecord) => addressRecord.address == utxo.address);
+        if (!addresses.contains(utxo.address)) {
+          addresses.add(utxo.address);
+        }
+        addressRecord.balance -= utxo.value.toInt();
+      });
+      transaction.inputAddresses?.addAll(addresses);
+      printV("isPegIn: $isPegIn, isPegOut: $isPegOut");
+      transaction.additionalInfo["isPegIn"] = isPegIn;
+      transaction.additionalInfo["isPegOut"] = isPegOut;
+      transactionHistory.addOne(transaction);
+      await updateUnspent();
+      await updateBalance();
+    });
+  }
+
+  Future<void> commitPsbtUR(List<String> urCodes) async {
+    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    bool isUr = urCodes.any((str) {
+      return str.startsWith("ur:psbt/");
+    });
+    if (!isUr) return;
+
+    final ur = URDecoder();
+    for (final inp in urCodes) {
+      ur.receivePart(inp);
+    }
+    final result = ur.result as UR;
+    final psbtB64 = base64Encode(CBORDecoder(result.cbor).decodeBytes().$1);
+
+    final resp = await CwMweb.psbtGetRecipients(PsbtGetRecipientsRequest(psbtB64: psbtB64));
+
+    bool hasMwebInput = false;
+    bool hasMwebOutput = false;
+    bool hasRegularOutput = false;
+
+    for (final recipient in resp.recipient) {
+      if (recipient.address.contains("mweb")) {
+        hasMwebOutput = true;
+      } else {
+        hasRegularOutput = true;
+      }
+    }
+
+    for (final address in resp.inputAddress) {
+      try {
+        LitecoinAddress(address);
+      } catch (_) {
+        hasMwebInput = true;
+      }
+    }
+
+    bool isPegIn = !hasMwebInput && hasMwebOutput;
+    bool isPegOut = hasMwebInput && hasRegularOutput;
+    bool isRegular = !hasMwebInput && !hasMwebOutput;
+
+    final resp2 = await CwMweb.psbtExtract(PsbtExtractRequest(psbtB64: psbtB64));
+
+    final btcTx = BtcTransaction.fromRaw(hex.encode(resp2.rawTx));
+
+    final tx = PendingBitcoinTransaction(
+      btcTx,
+      type,
+      electrumClient: electrumClient,
+      amount: 0,
+      fee: resp.fee.toInt(),
+      feeRate: "",
+      network: network,
+      hasChange: resp.recipient.length > 1,
+      isMweb: !isRegular,
+      isViewOnly: false,
+    );
+    tx.outputAddresses = resp2.outputId;
+    addTransactionListener(tx, resp.inputAddress, isPegIn, isPegOut);
+
+    try {
+      await tx.commit();
     } catch (e, s) {
       printV(e);
       printV(s);
