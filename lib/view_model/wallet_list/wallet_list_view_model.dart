@@ -2,13 +2,12 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:mobx/mobx.dart';
 
 part 'wallet_list_view_model.g.dart';
 
@@ -78,6 +77,7 @@ abstract class WalletListViewModelBase with Store {
     // await _appStore.wallet?.close(shouldCleanup: !switchingToSameWalletType);
     final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
     await _appStore.changeCurrentWallet(wallet);
+    updateList();
   }
 
   FilterListOrderType? get orderType => _appStore.settingsStore.walletListOrder;
