@@ -47,7 +47,7 @@ class LinkViewModel {
         case 'send':
           return Routes.send;
         case 'receive':
-          return Routes.receive;
+          return Routes.addressPage;
         default:
           return null;
       }
@@ -142,11 +142,21 @@ class LinkViewModel {
           await _errorToast(S.current.nano_gpt_thanks_message, fontSize: 14);
         }
       }
+
+      // Quick actions must reset navigation to Dashboard → TargetPage
+      if (isQuickActionLink) {
+        currentLink = null;
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          route,
+          ModalRoute.withName(Routes.dashboard),
+          arguments: args,
+        );
+        return;
+      }
+
+      // Normal navigation flow
       currentLink = null;
-      navigatorKey.currentState?.pushNamed(
-        route,
-        arguments: args,
-      );
+      navigatorKey.currentState?.pushNamed(route, arguments: args);
     }
   }
 }

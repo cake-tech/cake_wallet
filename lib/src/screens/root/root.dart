@@ -136,7 +136,9 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
     bool requireAuth = await widget.authService.requireAuth();
 
-    if (!requireAuth && widget.authenticationStore.state == AuthenticationState.allowed) {
+    if (!requireAuth &&
+        (widget.authenticationStore.state == AuthenticationState.allowed ||
+            widget.authenticationStore.state == AuthenticationState.allowedCreate)) {
       _navigateToDeepLinkScreen();
       return;
     }
@@ -144,7 +146,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     _deepLinksReactionDisposer = reaction(
       (_) => widget.authenticationStore.state,
       (AuthenticationState state) {
-        if (state == AuthenticationState.allowed) {
+        if (state == AuthenticationState.allowed || state == AuthenticationState.allowedCreate) {
           if (widget.appStore.wallet == null) {
             waitForWalletInstance(context);
           } else {
