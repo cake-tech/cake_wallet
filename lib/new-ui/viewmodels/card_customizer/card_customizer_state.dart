@@ -23,6 +23,14 @@ sealed class CardCustomizerState {
     }
   }
 
+  CardCustomizerState copyWith({
+    int? selectedDesignIndex,
+    int? selectedColorIndex,
+    List<CardDesign>? availableDesigns,
+    String? accountName,
+    int? accountIndex,
+  });
+
   Gradient get selectedColor => CardDesign.allGradients[selectedColorIndex];
 }
 
@@ -34,9 +42,41 @@ final class CardCustomizerInitial extends CardCustomizerState {
     String accountName,
     int accountIndex,
   ) : super(selectedDesignIndex, selectedColorIndex, availableDesigns, accountName, accountIndex);
+
+  CardCustomizerInitial copyWith({
+    int? selectedDesignIndex,
+    int? selectedColorIndex,
+    List<CardDesign>? availableDesigns,
+    String? accountName,
+    int? accountIndex,
+  }) {
+    return CardCustomizerInitial(
+      selectedDesignIndex ?? this.selectedDesignIndex,
+      selectedColorIndex ?? this.selectedColorIndex,
+      availableDesigns ?? this.availableDesigns,
+      accountName ?? this.accountName,
+      accountIndex ?? this.accountIndex,
+    );
+  }
 }
 
 final class CardCustomizerSaved extends CardCustomizerState {
   CardCustomizerSaved(super.selectedDesignIndex, super.selectedColorIndex, super.availableDesigns,
       super.accountName, super.accountIndex);
+
+  @override
+  CardCustomizerState copyWith(
+      {int? selectedDesignIndex,
+      int? selectedColorIndex,
+      List<CardDesign>? availableDesigns,
+      String? accountName,
+      int? accountIndex}) {
+    return CardCustomizerSaved(
+      selectedDesignIndex ?? this.selectedDesignIndex,
+      selectedColorIndex ?? this.selectedColorIndex,
+      availableDesigns ?? this.availableDesigns,
+      accountName ?? this.accountName,
+      accountIndex ?? this.accountIndex,
+    );
+  }
 }

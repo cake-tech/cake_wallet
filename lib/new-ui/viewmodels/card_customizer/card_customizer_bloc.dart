@@ -91,13 +91,11 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   }
 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {
-    emit(CardCustomizerInitial(event.newDesignIndex, state.selectedColorIndex,
-        state.availableDesigns, state.accountName, state.accountIndex));
+    emit(state.copyWith(selectedDesignIndex: event.newDesignIndex));
   }
 
   void _onColorSelected(ColorSelected event, Emitter<CardCustomizerState> emit) {
-    emit(CardCustomizerInitial(state.selectedDesignIndex, event.newColorIndex,
-        state.availableDesigns, state.accountName, state.accountIndex));
+    emit(state.copyWith(selectedColorIndex: event.newColorIndex));
   }
 
   void _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) {
