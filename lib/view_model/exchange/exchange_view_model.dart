@@ -799,11 +799,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             wallet.type == WalletType.litecoin ? UnspentCoinType.nonMweb : UnspentCoinType.any,
       );
 
-      changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
+      changeDepositAmount(
+          amount: _appStore.amountParsingProxy.getCryptoString(amount, wallet.currency));
     } else if (wallet.type == WalletType.monero) {
       final amount = await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any);
 
-      changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
+      changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.from(amount)));
     }
   }
 

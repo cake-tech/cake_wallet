@@ -580,9 +580,10 @@ class SendPage extends BasePage {
                   fee: isEVMCompatibleChain(sendViewModel.walletType)
                       ? S.of(bottomSheetContext).send_estimated_fee
                       : S.of(bottomSheetContext).send_fee,
-                  feeValue: sendViewModel.amountParsingProxy.getCryptoOutputAmount(
-                      sendViewModel.pendingTransaction!.feeFormatted,
-                      sendViewModel.selectedCryptoCurrency),
+                  feeValue: "${sendViewModel.amountParsingProxy.getCryptoOutputAmount(
+                      sendViewModel.pendingTransaction!.feeFormattedValue,
+                      sendViewModel.selectedCryptoCurrency)} ${sendViewModel.amountParsingProxy
+                      .getCryptoSymbol(sendViewModel.wallet.currency)}",
                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: sendViewModel.outputs,
                   onSlideActionComplete: () async {
