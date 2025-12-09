@@ -79,6 +79,12 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                       );
                     },
                     separatorBuilder: (context, index) {
+                      if ((widget.receiveOptionViewModel.selectedReceiveOption ==
+                              commonOptions[index]) ||
+                          (index != commonOptions.length - 1 &&
+                              widget.receiveOptionViewModel.selectedReceiveOption ==
+                                  commonOptions[index + 1])) return Container();
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 36.0),
                         child: HorizontalSectionDivider(),
@@ -159,7 +165,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
 
                               return ReceiveAddressTypeRow(
                                 option: opt,
-                                roundedTop: index == 0,
+                                roundedTop: false,
                                 roundedBottom: index == otherOptions.length - 1,
                                 selected:
                                     widget.receiveOptionViewModel.selectedReceiveOption == opt,
@@ -170,6 +176,12 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                               );
                             },
                             separatorBuilder: (context, index) {
+                              if ((widget.receiveOptionViewModel.selectedReceiveOption ==
+                                      otherOptions[index]) ||
+                                  (index != otherOptions.length - 1 &&
+                                      widget.receiveOptionViewModel.selectedReceiveOption ==
+                                          otherOptions[index + 1])) return Container();
+
                               return Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 27.0),
                                 child: HorizontalSectionDivider(),
