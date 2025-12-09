@@ -15,9 +15,12 @@ final isDebug = true;
 // String for a first pass
 class MoneroLightweightWalletServiceClient {
   String lwsDaemonAddress;
+  String port;
 
   // Construct an instance of this class
-  MoneroLightweightWalletServiceClient(String lwsDaemonAddress, String port) : lwsDaemonAddress = lwsDaemonAddress;
+  MoneroLightweightWalletServiceClient(String lwsDaemonAddress, String port)
+      : lwsDaemonAddress = lwsDaemonAddress,
+        port = port;
 
   // deno run --unsafely-ignore-certificate-errors --allow-net index.js --host https://127.0.0.1:8443 login --address 43zxvpcj5Xv9SEkNXbMCG7LPQStHMpFCQCmkmR4u5nzjWwq5Xkv5VmGgYEsHXg4ja2FGRD5wMWbBVMijDTqmmVqm93wHGkg --view_key 7bea1907940afdd480eff7c4bcadb478a0fbb626df9e3ed74ae801e18f53e104 --
   Future<dynamic> login(
@@ -28,7 +31,7 @@ class MoneroLightweightWalletServiceClient {
   ) async {
     Uri url = Uri(
       scheme: 'https',
-      host: '192.168.0.184',
+      host: lwsDaemonAddress,
       port: 8443,
       path: '/login',
     );
@@ -158,8 +161,8 @@ class MoneroLightweightWalletServiceClient {
     try {
       Uri url = Uri(
         scheme: 'https',
-        host: '192.168.0.184',
-        port: 8443,
+        host: lwsDaemonAddress,
+        port: int.parse(port),
         path: '/get_address_info',
       );
 
@@ -206,13 +209,13 @@ class MoneroLightweightWalletServiceClient {
   
   */
 
-  Future<dynamic> get_address_txs(String address, String viewKey) async {
+  Future<List<dynamic>> get_address_txs(String address, String viewKey) async {
     Response response;
     try {
       Uri url = Uri(
         scheme: 'https',
-        host: '192.168.0.184',
-        port: 8443,
+        host: lwsDaemonAddress,
+        port: int.parse(port),
         path: '/get_address_txs',
       );
 
@@ -230,6 +233,35 @@ class MoneroLightweightWalletServiceClient {
       return transactions;
     } catch (e) {
       print(e);
+      rethrow;
+    }
+  }
+
+  Future<List<dynamic>> get_unspent_outs(String address, String viewKey) async {
+    Response response;
+    try {
+      Uri url = Uri(
+        scheme: 'https',
+        host: lwsDaemonAddress,
+        port: int.parse(port),
+        path: '/get_unspent_outs',
+      );
+
+      address = "45mrNgxwbBmDjGsrYCrvRtJcd5XEW6YKuJojxE9Zr1jHckwTZ1tstti4EaM6GgrAFtZnSks2qYwqNVxPrMjgEL2SMXbfmJw";
+      viewKey = "dc4e4c9509ed0c6def1f6fbfe6ac45f08636e8f2610949e4419d821297aa3a00";
+      // );
+      // // the following account has transaction records we could use
+      final data = json.encode({'address': address, 'view_key': viewKey});
+      final response = await ProxyWrapper().post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
+
+      final jsonData = json.decode(response.body);
+      final transactions = jsonData['transactions'];
+
+      print(jsonData);
+      return transactions;
+    } catch (e) {
+      print(e);
+      rethrow;
     }
     //return response;
     // Response response;

@@ -9,7 +9,7 @@ import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'dart:math' as math;
 import 'package:convert/convert.dart';
-
+import 'package:cw_monero/api-lws/monero_lws_dart.dart';
 import 'package:crypto/crypto.dart';
 
 part 'node.g.dart';
@@ -33,6 +33,7 @@ class Node extends HiveObject with Keyable {
     if (uri != null) {
       uriRaw = uri;
     }
+    // Construct proper URI for lws here
     print("------------------");
     print("login: $login");
     print("password: $password");
@@ -41,8 +42,8 @@ class Node extends HiveObject with Keyable {
     print("socksProxyAddress: $socksProxyAddress");
     print("path: $path");
     print("isEnabledForAutoSwitching: $isEnabledForAutoSwitching");
+    print("isLWSEnabledField: $isLWSEnabledField");
     print("type: $type");
-
     print("------------------");
     if (type != null) {
       this.type = type;
@@ -158,7 +159,7 @@ class Node extends HiveObject with Keyable {
   Future<bool> requestNode() async {
     try {
       switch (type) {
-        case WalletType.monero:
+        case WalletType.monero: // This may be a candidate for splitting up LWS requests from Monero requests?
         case WalletType.haven:
         case WalletType.wownero:
           return requestMoneroNode();
@@ -211,9 +212,46 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestMoneroNode({String methodName = 'get_info'}) async {
+  // TODO: KB: Where do we determine which nodetype to call?
+  // Should we be using our subclass to call an entirely different node?
+  // For now, do I just get this working?
+  // We should be handling this elsewhere. We shouldn't need to invoke this and then return early
+  // just based on if data / a field is enabled. It should only run when a wallet is LWS enabled.
+  // This is going to need to vary depending on how we've subclassed our node object, I reckon?
+  Future<bool> requestMoneroNode({String methodName = 'get_info', String? address, String? viewKey}) async {
+    // TODO: We should honour using a proxy to communicate with the Monero server
     if (useSocksProxy) {
       return await requestNodeWithProxy();
+    }
+
+    // Is lws enabled on this node?
+    print("isLWSEnabledField: ");
+    print(isLWSEnabledField);
+
+    if (isLWSEnabledField == true) {
+      try {
+        print("Do LWS attempt, then if successful, retrieve transactions and plug into DB");
+        print("Then do formatting for the transactions to match Transaction Input");
+        print("Finally plug get_address_info into balance");
+
+        address = "47Cw9RboPr9DRmvA7WnrzxZrAGh9gy6a2U2wqrbqwZaHjV1FbtX5VH288NmjdmGCqLYL1kQyJSfGxWRwJCAQg9upUxNGRde";
+        viewKey = "59710f89795362d36e9ad1e7dcf9611d594686ed7089d27bdeaaee10803f9502";
+        var response;
+        MoneroLightweightWalletServiceClient lwsClient = MoneroLightweightWalletServiceClient(lwsDaemonAddress: '192.168.0.141', port: '8443');
+        response = await lwsClient.get_address_txs(address, viewKey);
+        print(response);
+        // response in this case now returns Future<List<String>> to address length issue
+        for (var i = 0; i < (response.length as int); i++) {
+          print(response[i]);
+          // We've isolated every single transaction here
+          // What's left is to map these transactions to MoneroTransactionInfo for the current wallet
+        }
+      } catch (e) {
+        print("Failed");
+        print(e);
+        return false;
+      }
+      return true;
     }
 
     final path = '/json_rpc';
