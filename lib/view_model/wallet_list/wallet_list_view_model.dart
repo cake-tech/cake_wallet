@@ -10,6 +10,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 
+
 part 'wallet_list_view_model.g.dart';
 
 class WalletListViewModel = WalletListViewModelBase with _$WalletListViewModel;
