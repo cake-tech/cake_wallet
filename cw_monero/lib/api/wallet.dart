@@ -170,6 +170,7 @@ int getNodeHeightSync() {
         cachedNodeHeight = await Isolate.run(() async {
           return monero.Wallet_daemonBlockChainHeight(Pointer.fromAddress(wptrAddress));
         });
+      } catch (_) {
       } finally {
         isHeightRefreshing = false;
       }
