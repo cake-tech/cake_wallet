@@ -78,6 +78,7 @@ abstract class WalletListViewModelBase with Store {
     // await _appStore.wallet?.close(shouldCleanup: !switchingToSameWalletType);
     final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
     await _appStore.changeCurrentWallet(wallet);
+    updateList();
   }
 
   FilterListOrderType? get orderType => _appStore.settingsStore.walletListOrder;

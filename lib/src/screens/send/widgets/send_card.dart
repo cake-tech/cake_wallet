@@ -299,7 +299,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     PaymentRequest paymentRequest,
     PaymentFlowResult result,
   ) async {
-    if (context.mounted && Navigator.of(context).canPop()) {
+    if (mounted && Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     }
 
