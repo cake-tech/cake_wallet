@@ -784,8 +784,12 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.sendAll = false;
       }
 
-      if (amount != output.cryptoAmount) {
-        output.setCryptoAmount(amount);
+      final cAmount = sendViewModel.amountParsingProxy
+          .getCryptoOutputAmount(output.cryptoAmount, sendViewModel.selectedCryptoCurrency);
+      if (amount != cAmount) {
+        final newAmount = sendViewModel.amountParsingProxy
+            .getCryptoInputAmount(amount, sendViewModel.selectedCryptoCurrency);
+        output.setCryptoAmount(newAmount);
       }
     });
 
@@ -815,7 +819,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.setSendAll(await sendViewModel.sendingBalance);
       }
 
-      output.setCryptoAmount(cryptoAmountController.text);
+      output.setCryptoAmount(sendViewModel.amountParsingProxy
+          .getCryptoInputAmount(cryptoAmountController.text, sendViewModel.selectedCryptoCurrency));
     });
 
     reaction((_) => output.fiatAmount, (String amount) {
@@ -829,8 +834,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.sendAll = false;
       }
 
-      if (amount != cryptoAmountController.text) {
-        cryptoAmountController.text = amount;
+      final cryptoAmount = sendViewModel.amountParsingProxy
+          .getCryptoInputAmount(cryptoAmountController.text, sendViewModel.selectedCryptoCurrency);
+      if (amount != cryptoAmount) {
+        cryptoAmountController.text = sendViewModel.amountParsingProxy
+            .getCryptoOutputAmount(amount, sendViewModel.selectedCryptoCurrency);
       }
     });
 

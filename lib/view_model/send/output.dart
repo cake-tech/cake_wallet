@@ -322,10 +322,9 @@ abstract class OutputBase with Store {
   }
 
   @action
+  /// [setCryptoAmount] always takes in the canonical representation eg. Bitcoin and not Sats
   void setCryptoAmount(String amount) {
-    if (amount.toUpperCase() != S.current.all) {
-      sendAll = false;
-    }
+    if (amount.toUpperCase() != S.current.all) sendAll = false;
 
     cryptoAmount = amount;
     _updateFiatAmount();
@@ -342,9 +341,6 @@ abstract class OutputBase with Store {
     try {
       var cryptoAmount_ =
           sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.');
-
-      cryptoAmount_ =
-          _appStore.amountParsingProxy.getCryptoInputAmount(cryptoAmount_, cryptoCurrencyHandler());
 
       final fiat = calculateFiatAmount(
           price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
@@ -365,10 +361,7 @@ abstract class OutputBase with Store {
               _fiatConversationStore.prices[cryptoCurrencyHandler()]!)
           .toStringAsFixed(decimals);
 
-      if (cryptoAmount != crypto) {
-        cryptoAmount =
-            _appStore.amountParsingProxy.getCryptoOutputAmount(crypto, cryptoCurrencyHandler());
-      }
+      if (cryptoAmount != crypto) cryptoAmount = crypto;
     } catch (e) {
       cryptoAmount = '';
     }
