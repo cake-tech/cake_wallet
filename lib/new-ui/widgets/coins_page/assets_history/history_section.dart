@@ -1,5 +1,6 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_trade_tile.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
@@ -33,7 +34,10 @@ class HistorySection extends StatelessWidget {
               final transaction = item.transaction;
               final transactionType = dashboardViewModel.getTransactionType(transaction);
 
-              return HistoryTile(
+              return GestureDetector(
+                onTap: () => Navigator.of(context)
+                    .pushNamed(Routes.transactionDetails, arguments: transaction),
+                child: HistoryTile(
                   title: item.formattedTitle + item.formattedStatus + transactionType,
                   date: DateFormatter.convertDateTimeToReadableString(item.date),
                   amount: item.formattedCryptoAmount,
@@ -42,7 +46,9 @@ class HistorySection extends StatelessWidget {
                   roundedTop: !(prevItem is TransactionListItem || prevItem is TradeListItem),
                   bottomSeparator: nextItem is TransactionListItem || nextItem is TradeListItem,
                   direction: item.transaction.direction,
-                  pending: item.transaction.isPending);
+                  pending: item.transaction.isPending,
+                ),
+              );
             } else if (item is TradeListItem) {
               final trade = item.trade;
 

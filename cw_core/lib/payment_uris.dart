@@ -66,7 +66,7 @@ class LightningPaymentRequest extends PaymentURI {
   final String? bolt11Invoice;
 
   @override
-  String toString() => bolt11Invoice ?? lnURL;
+  String toString() => bolt11Invoice ?? "$scheme:$lnURL";
 }
 
 class LitecoinURI extends PaymentURI {
