@@ -114,8 +114,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     return Limits(
       min: coinJson['minimum'] as double?,
-      // TODO: remove hardcoded value and call `api/new_rate` when Trocador adds min and max to it
-      max: from == CryptoCurrency.zano ? 2600 : coinJson['maximum'] as double?,
+      max: coinJson['maximum'] as double?,
     );
   }
 
@@ -276,7 +275,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       throw Exception('No available provider is enabled');
     }
 
-    params['provider'] = _provider.first as String;
+    final provider = _provider.first as String;
+    // TODO : Remove this workaround when Trocador fixes BitcoinVN provider issue
+    params['provider'] = provider == 'BitcoinVN' ? '' : provider;
 
     final uri = await _getUri(createTradePath, params);
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
@@ -523,6 +524,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       'TRC20' => 'TRX',
       'BEP20' => 'BSC',
       'LIGHTNING' => 'LN',
+      'MATIC' => 'POL',
       _ => network,
     };
   }
