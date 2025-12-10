@@ -112,8 +112,13 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   @override
-  PaymentURI getPaymentUri(String amount) =>
-      BitcoinURI(address: address, amount: amount, pjUri: payjoinEndpoint ?? '');
+  PaymentURI getPaymentUri(String amount) {
+    if (addressPageType is LightningAddressType && lightningWallet != null) {
+      final lnUrl = getLnurlOfLightningAddress(address);
+      return LightningPaymentRequest(address: address, lnURL: lnUrl, amount: amount);
+    }
+    return BitcoinURI(address: address, amount: amount, pjUri: payjoinEndpoint ?? '');
+  }
 
   Future<PaymentURI> getPaymentRequestUri(String amount) async {
     if (addressPageType is LightningAddressType && lightningWallet != null) {

@@ -820,10 +820,14 @@ Future<void> setup({
 
   getIt.registerFactory<ReceivePage>(
       () => ReceivePage(addressListViewModel: getIt.get<WalletAddressListViewModel>()));
-  getIt.registerFactory<AddressPage>(() => AddressPage(
-      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-      dashboardViewModel: getIt.get<DashboardViewModel>(),
-      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>()));
+
+  getIt.registerFactory<AddressPage>(
+    () => AddressPage(
+      addressListViewModel: getIt<WalletAddressListViewModel>(),
+      dashboardViewModel: getIt<DashboardViewModel>(),
+      receiveOptionViewModel: getIt<ReceiveOptionViewModel>(),
+    ),
+  );
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
       (WalletAddressListItem? item, _) =>

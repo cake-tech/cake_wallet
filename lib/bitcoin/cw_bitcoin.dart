@@ -340,6 +340,11 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  BitcoinReceivePageOption getBitcoinLightningReceivePageOption() => BitcoinReceivePageOption.lightning;
+  @override
+  BitcoinReceivePageOption getBitcoinSegwitPageOption() => BitcoinReceivePageOption.p2wpkh;
+
+  @override
   Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node}) async {
     if (await checkIfMnemonicIsElectrum2(mnemonic)) {

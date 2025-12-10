@@ -440,9 +440,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (context) => getIt.get<ReceivePage>());
 
     case Routes.addressPage:
-      return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<AddressPage>(),
-      );
+      return handleRouteWithPlatformAwareness((_) => getIt<AddressPage>());
 
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
