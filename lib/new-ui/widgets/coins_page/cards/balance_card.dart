@@ -1,3 +1,5 @@
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -84,7 +86,7 @@ class BalanceCard extends StatelessWidget {
                 ),
                 Text(
                   lightningMode
-                      ? balanceRecord.fiatSecondAdditionalBalance
+                      ? balanceRecord.fiatSecondAvailableBalance
                       : balanceRecord.fiatAvailableBalance,
                   style: TextStyle(color: Colors.black45, fontSize: 20),
                 ),
@@ -95,23 +97,26 @@ class BalanceCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Color(0x44FFFFFF),
-                    borderRadius: BorderRadius.circular(10000000),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: Text(
-                          "Buy",
-                          style: TextStyle(color: Colors.black, fontSize: 16),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pushNamed(Routes.buySellPage, arguments: false),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Color(0x44FFFFFF),
+                      borderRadius: BorderRadius.circular(10000000),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: Text(
+                            S.of(context).buy,
+                            style: TextStyle(color: Colors.black, fontSize: 16),
+                          ),
                         ),
-                      ),
-                      Icon(Icons.arrow_forward, color: Colors.black45),
-                    ],
+                        Icon(Icons.arrow_forward, color: Colors.black45),
+                      ],
+                    ),
                   ),
                 ),
                 SvgPicture.asset(
