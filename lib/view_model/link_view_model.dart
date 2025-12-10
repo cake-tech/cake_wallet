@@ -28,6 +28,8 @@ class LinkViewModel {
   bool get _isValidPaymentUri => currentLink?.path.isNotEmpty ?? false;
   bool get isWalletConnectLink => currentLink?.authority == 'wc';
   bool get isNanoGptLink => currentLink?.scheme == 'nano-gpt';
+  bool get isQuickActionLink =>
+      currentLink?.scheme == 'cakewallet' && currentLink?.host == 'quickaction';
 
   String? getRouteToGo() {
     if (isWalletConnectLink) {
@@ -36,6 +38,19 @@ class LinkViewModel {
         return null;
       }
       return Routes.walletConnectConnectionsListing;
+    }
+
+    // Check for a quick action first.
+    if (isQuickActionLink) {
+      final action = currentLink!.pathSegments.isNotEmpty ? currentLink!.pathSegments.first : null;
+      switch (action) {
+        case 'send':
+          return Routes.send;
+        case 'receive':
+          return Routes.addressPage;
+        default:
+          return null;
+      }
     }
 
     if (authenticationStore.state == AuthenticationState.uninitialized) {
@@ -63,6 +78,10 @@ class LinkViewModel {
   dynamic getRouteArgs() {
     if (isWalletConnectLink) {
       return currentLink;
+    }
+
+    if (isQuickActionLink) {
+      return null;
     }
 
     if (isNanoGptLink) {
@@ -113,16 +132,31 @@ class LinkViewModel {
         return;
       }
 
+      // Prevent navigating to the same route again.
+      if (appStore.currentRouteName == route) {
+        return;
+      }
+
       if (isNanoGptLink) {
         if (route == Routes.buySellPage || route == Routes.exchange) {
           await _errorToast(S.current.nano_gpt_thanks_message, fontSize: 14);
         }
       }
+
+      // Quick actions must reset navigation to Dashboard → TargetPage
+      if (isQuickActionLink) {
+        currentLink = null;
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          route,
+          ModalRoute.withName(Routes.dashboard),
+          arguments: args,
+        );
+        return;
+      }
+
+      // Normal navigation flow
       currentLink = null;
-      navigatorKey.currentState?.pushNamed(
-        route,
-        arguments: args,
-      );
+      navigatorKey.currentState?.pushNamed(route, arguments: args);
     }
   }
 }
