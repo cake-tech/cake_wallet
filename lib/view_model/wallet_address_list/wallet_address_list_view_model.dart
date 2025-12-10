@@ -33,7 +33,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 
 part 'wallet_address_list_view_model.g.dart';
@@ -47,7 +46,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     required this.fiatConversionStore,
   })  : _baseItems = <ListItem>[],
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
-        _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
         hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven]
             .contains(appStore.wallet!.type),
         amount = '',
@@ -63,10 +61,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
     hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven].contains(wallet.type);
   }
-
-  static const String _cryptoNumberPattern = '0.00000000';
-
-  final NumberFormat _cryptoNumberFormat;
 
   final FiatConversionStore fiatConversionStore;
   final AppStore _appStore;
@@ -129,7 +123,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.haven:
         return HavenURI(amount: amount, address: address.address);
       case WalletType.bitcoin:
-        return BitcoinURI(amount: amount, address: address.address, pjUri: payjoinEndpoint);
+        final amount_ = _appStore.amountParsingProxy.getCryptoInputAmount(amount, CryptoCurrency.btc);
+        return BitcoinURI(amount: amount_, address: address.address, pjUri: payjoinEndpoint);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: address.address);
       case WalletType.ethereum:
@@ -596,7 +591,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     try {
       final crypto = double.parse(_rawAmount.replaceAll(',', '.')) / fiatRate;
-      final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
+      final cryptoAmountTmp = _appStore.amountParsingProxy
+          .getCryptoOutputAmount(crypto.toStringAsFixed(8), cryptoCurrency);
       if (amount != cryptoAmountTmp) {
         amount = cryptoAmountTmp;
       }
