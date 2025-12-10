@@ -136,6 +136,11 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
     bool requireAuth = await widget.authService.requireAuth();
 
+
+    if (widget.authenticationStore.state == AuthenticationState.allowedCreate) {
+      requireAuth = false;
+    }
+
     if (!requireAuth &&
         (widget.authenticationStore.state == AuthenticationState.allowed ||
             widget.authenticationStore.state == AuthenticationState.allowedCreate)) {
