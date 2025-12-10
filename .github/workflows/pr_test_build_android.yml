@@ -1,6 +1,6 @@
 name: Cake Wallet Android
 
-on: [pull_request]
+on: [pull_request_target]
 
 defaults:
   run:
@@ -8,6 +8,7 @@ defaults:
 jobs:
   PR_test_build:
     runs-on: [Linux, amd64, android]
+    environment: external_contributors
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
       env:
