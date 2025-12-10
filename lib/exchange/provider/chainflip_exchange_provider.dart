@@ -388,7 +388,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
     }
 
-    final quotes = json.decode(response.body) as List<Map<String, dynamic>>;
+    final List<dynamic> jsonList = json.decode(response.body) as List<dynamic>;
+    final List<Map<String, dynamic>> quotes =
+    jsonList.map((e) => e as Map<String, dynamic>).toList();
 
     Map<String, dynamic> highestQuote = quotes.reduce((current, next) {
       double currentAmount = current['egressAmount'] as double;
