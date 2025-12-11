@@ -2,11 +2,11 @@ name: Cake Wallet Android
 
 on: [push]
 
-defaults:
-  run:
-    shell: bash
 jobs:
   debug-context:
+    defaults:
+      run:
+        shell: bash
     runs-on: [Linux, amd64, forlinux]
     steps:
       - name: "1. Diagnostic Dump"
