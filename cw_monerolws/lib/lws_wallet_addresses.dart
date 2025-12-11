@@ -4,20 +4,19 @@ import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
-import 'package:cw_monero/api/wallet.dart';
-import 'package:cw_monero/monero_account_list.dart';
-import 'package:cw_monero/monero_subaddress_list.dart';
-import 'package:cw_monero/monero_transaction_history.dart';
+import 'package:cw_monerolws/api/subaddress_list.dart' as subaddress_list;
+import 'package:cw_monerolws/api/wallet.dart';
+import 'package:cw_monerolws/monero_account_list.dart';
+import 'package:cw_monerolws/monero_subaddress_list.dart';
+import 'package:cw_monerolws/monero_transaction_history.dart';
 import 'package:mobx/mobx.dart';
 
-part 'monero_wallet_addresses.g.dart';
+part 'lws_wallet_addresses.g.dart';
 
 class MoneroWalletAddresses = MoneroWalletAddressesBase with _$MoneroWalletAddresses;
 
 abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
-  MoneroWalletAddressesBase(
-      WalletInfo walletInfo, MoneroTransactionHistory moneroTransactionHistory)
+  MoneroWalletAddressesBase(WalletInfo walletInfo, MoneroTransactionHistory moneroTransactionHistory)
       : accountList = MoneroAccountList(),
         _moneroTransactionHistory = moneroTransactionHistory,
         subaddressList = MoneroSubaddressList(),
@@ -34,24 +33,24 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   String get latestAddress {
-    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
-    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    var addressIndex = subaddress_list.numSubaddresses(account?.id ?? 0) - 1;
+    var address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
     while (hiddenAddresses.contains(address)) {
       addressIndex++;
-      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
-      subaddressList.update(accountIndex: account?.id??0);
+      address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
+      subaddressList.update(accountIndex: account?.id ?? 0);
     }
     return address;
   }
 
   @override
   String get addressForExchange {
-    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
-    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
-    while (hiddenAddresses.contains(address) || manualAddresses.contains(address) || subaddress_list.getRawLabel(accountIndex: account?.id??0, addressIndex: addressIndex).isNotEmpty) {
+    var addressIndex = subaddress_list.numSubaddresses(account?.id ?? 0) - 1;
+    var address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
+    while (hiddenAddresses.contains(address) || manualAddresses.contains(address) || subaddress_list.getRawLabel(accountIndex: account?.id ?? 0, addressIndex: addressIndex).isNotEmpty) {
       addressIndex++;
-      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
-      subaddressList.update(accountIndex: account?.id??0);
+      address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
+      subaddressList.update(accountIndex: account?.id ?? 0);
     }
     return address;
   }
@@ -89,12 +88,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
         _subaddressList.subaddresses.forEach((subaddress) {
           addressesMap[subaddress.address] = subaddress.label;
           addressInfos[account.id] ??= [];
-          addressInfos[account.id]?.add(WalletInfoAddressInfo(
-              walletInfoId: walletInfo.internalId,
-              mapKey: account.id,
-              accountIndex: account.id,
-              address: subaddress.address,
-              label: subaddress.label));
+          addressInfos[account.id]?.add(WalletInfoAddressInfo(walletInfoId: walletInfo.internalId, mapKey: account.id, accountIndex: account.id, address: subaddress.address, label: subaddress.label));
         });
       });
 
@@ -124,9 +118,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   void updateSubaddressList({required int accountIndex}) {
     subaddressList.update(accountIndex: accountIndex);
-    address = subaddressList.subaddresses.isNotEmpty
-        ? subaddressList.subaddresses.first.address
-        : getAddress();
+    address = subaddressList.subaddresses.isNotEmpty ? subaddressList.subaddresses.first.address : getAddress();
   }
 
   Future<void> updateUsedSubaddress() async {
@@ -139,20 +131,15 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     });
   }
 
-  Future<void> updateUnusedSubaddress(
-      {required int accountIndex, required String defaultLabel}) async {
-    await subaddressList.updateWithAutoGenerate(
-        accountIndex: accountIndex,
-        defaultLabel: defaultLabel,
-        usedAddresses: usedAddresses.toList());
+  Future<void> updateUnusedSubaddress({required int accountIndex, required String defaultLabel}) async {
+    await subaddressList.updateWithAutoGenerate(accountIndex: accountIndex, defaultLabel: defaultLabel, usedAddresses: usedAddresses.toList());
     subaddress = (subaddressList.subaddresses.isEmpty) ? Subaddress(id: 0, address: address, label: defaultLabel, balance: '0', txCount: 0) : subaddressList.subaddresses.last;
-    if (num.tryParse(subaddress!.balance??'0') != 0) {
-      getAddress(accountIndex: accountIndex, addressIndex: (subaddress?.id??0)+1);
+    if (num.tryParse(subaddress!.balance ?? '0') != 0) {
+      getAddress(accountIndex: accountIndex, addressIndex: (subaddress?.id ?? 0) + 1);
     }
     address = subaddress!.address;
   }
 
   @override
-  bool containsAddress(String address) =>
-      addressInfos[account?.id ?? 0]?.any((it) => it.address == address) ?? false;
+  bool containsAddress(String address) => addressInfos[account?.id ?? 0]?.any((it) => it.address == address) ?? false;
 }

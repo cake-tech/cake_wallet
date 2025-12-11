@@ -1,6 +1,6 @@
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_monero/api/coins_info.dart';
+import 'package:cw_monerolws/api/coins_info.dart';
 
 class MoneroUnspent extends Unspent {
   static MoneroUnspent fromUnspent({
@@ -12,25 +12,10 @@ class MoneroUnspent extends Unspent {
     required bool isUnlocked,
     required bool isSpent,
   }) {
-    return MoneroUnspent(
-        address: address,
-        hash: hash,
-        keyImage: keyImage,
-        value: value,
-        isFrozen: isFrozen,
-        isUnlocked: isUnlocked,
-        isSpent: isSpent);
+    return MoneroUnspent(address: address, hash: hash, keyImage: keyImage, value: value, isFrozen: isFrozen, isUnlocked: isUnlocked, isSpent: isSpent);
   }
 
-  MoneroUnspent(
-      {required String address,
-      required String hash,
-      required String keyImage,
-      required int value,
-      required bool isFrozen,
-      required this.isUnlocked,
-      required this.isSpent})
-      : super(address, hash, value, 0, keyImage) {
+  MoneroUnspent({required String address, required String hash, required String keyImage, required int value, required bool isFrozen, required this.isUnlocked, required this.isSpent}) : super(address, hash, value, 0, keyImage) {
     _frozen = isFrozen;
   }
 

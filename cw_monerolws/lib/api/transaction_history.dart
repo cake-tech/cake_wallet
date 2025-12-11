@@ -3,19 +3,18 @@ import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_monero/api/account_list.dart';
-import 'package:cw_monero/api/exceptions/creation_transaction_exception.dart';
-import 'package:cw_monero/api/monero_output.dart';
-import 'package:cw_monero/api/structs/pending_transaction.dart';
-import 'package:cw_monero/api/wallet.dart';
-import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
+import 'package:cw_monerolws/api/account_list.dart';
+import 'package:cw_monerolws/api/exceptions/creation_transaction_exception.dart';
+import 'package:cw_monerolws/api/monero_output.dart';
+import 'package:cw_monerolws/api/structs/pending_transaction.dart';
+import 'package:cw_monerolws/api/wallet.dart';
+import 'package:cw_monerolws/exceptions/monero_transaction_creation_exception.dart';
 import 'package:ffi/ffi.dart';
-import 'package:monero/src/monero.dart';
-import 'package:monero/monero.dart' as monero;
-import 'package:monero/src/wallet2.dart';
+import 'package:monero/src/monero.dart'; // // imported from git
+import 'package:monerolws/monerolws.dart' as monero_lws; // add to pubspec
+import 'package:monero/src/wallet2.dart'; // imported from git
 import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
 import 'package:mutex/mutex.dart';
-
 
 Map<int, Map<String, String>> txKeys = {};
 String getTxKey(String txId) {
@@ -55,7 +54,7 @@ int countOfTransactions() => txhistory!.count();
 
 Future<List<Transaction>> getAllTransactions() async {
   List<Transaction> dummyTxs = [];
-  
+
   await txHistoryMutex.acquire();
   txhistory ??= currentWallet!.history();
   final startAddress = txhistory!.ffiAddress() * currentWallet!.ffiAddress();
@@ -78,29 +77,27 @@ Future<List<Transaction>> getAllTransactions() async {
   }
   txHistoryMutex.release();
   final accts = currentWallet!.numSubaddressAccounts();
-  for (var i = 0; i < accts; i++) {  
+  for (var i = 0; i < accts; i++) {
     final fullBalance = currentWallet!.balance(accountIndex: i);
     final availBalance = currentWallet!.unlockedBalance(accountIndex: i);
     if (fullBalance > availBalance) {
       if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isEmpty) {
-        dummyTxs.add(
-          Transaction.dummy(
-            displayLabel: "",
-            description: "",
-            fee: 0,
-            confirmations: 0,
-            blockheight: 0,
-            accountIndex: i,
-            addressIndex: 0,
-            addressIndexList: [0],
-            paymentId: "",
-            amount: fullBalance - availBalance,
-            isSpend: false,
-            hash: "pending",
-            key: "",
-            txInfo: DummyTransaction(),
-          )..timeStamp = DateTime.now()
-        );
+        dummyTxs.add(Transaction.dummy(
+          displayLabel: "",
+          description: "",
+          fee: 0,
+          confirmations: 0,
+          blockheight: 0,
+          accountIndex: i,
+          addressIndex: 0,
+          addressIndexList: [0],
+          paymentId: "",
+          amount: fullBalance - availBalance,
+          isSpend: false,
+          hash: "pending",
+          key: "",
+          txInfo: DummyTransaction(),
+        )..timeStamp = DateTime.now());
       }
     }
   }
@@ -127,14 +124,7 @@ Future<Transaction> getTransaction(String txId) async {
   return txDart;
 }
 
-Future<PendingTransactionDescription> createTransactionSync(
-    {required String address,
-    required String paymentId,
-    required int priorityRaw,
-    String? amount,
-    int accountIndex = 0,
-    List<String> preferredInputs = const []}) async {
-
+Future<PendingTransactionDescription> createTransactionSync({required String address, required String paymentId, required int priorityRaw, String? amount, int accountIndex = 0, List<String> preferredInputs = const []}) async {
   final amt = amount == null ? 0 : currentWallet!.amountFromString(amount);
 
   final waddr = currentWallet!.ffiAddress();
@@ -145,7 +135,7 @@ Future<PendingTransactionDescription> createTransactionSync(
     monero.Wallet_synchronized(Pointer.fromAddress(waddr));
   });
 
-  final address_ = address.toNativeUtf8(); 
+  final address_ = address.toNativeUtf8();
   final paymentId_ = paymentId.toNativeUtf8();
   if (preferredInputs.isEmpty) {
     throw MoneroTransactionCreationException("No inputs provided, transaction cannot be constructed");
@@ -197,21 +187,15 @@ Future<PendingTransactionDescription> createTransactionSync(
   final rHex = pendingTx.hex('');
 
   return PendingTransactionDescription(
-      amount: rAmt,
-      fee: rFee,
-      hash: rHash,
-      hex: rHex,
-      pointerAddress: pendingTx.ffiAddress(),
-    );
+    amount: rAmt,
+    fee: rFee,
+    hash: rHash,
+    hex: rHex,
+    pointerAddress: pendingTx.ffiAddress(),
+  );
 }
 
-Future<PendingTransactionDescription> createTransactionMultDest(
-    {required List<MoneroOutput> outputs,
-    required String paymentId,
-    required int priorityRaw,
-    int accountIndex = 0,
-    List<String> preferredInputs = const []}) async {
-  
+Future<PendingTransactionDescription> createTransactionMultDest({required List<MoneroOutput> outputs, required String paymentId, required int priorityRaw, int accountIndex = 0, List<String> preferredInputs = const []}) async {
   final dstAddrs = outputs.map((e) => e.address).toList();
   final amounts = outputs.map((e) => currentWallet!.amountFromString(e.amount)).toList();
 
@@ -249,8 +233,7 @@ Future<PendingTransactionDescription> createTransactionMultDest(
   );
 }
 
-Future<String?> commitTransactionFromPointerAddress({required int address, required bool useUR}) =>
-    commitTransaction(tx: MoneroPendingTransaction(Pointer.fromAddress(address)), useUR: useUR);
+Future<String?> commitTransactionFromPointerAddress({required int address, required bool useUR}) => commitTransaction(tx: MoneroPendingTransaction(Pointer.fromAddress(address)), useUR: useUR);
 
 Future<String?> commitTransaction({required Wallet2PendingTransaction tx, required bool useUR}) async {
   final txCommit = useUR
@@ -279,7 +262,6 @@ Future<String?> commitTransaction({required Wallet2PendingTransaction tx, requir
       }
       return currentWallet!.errorString();
     })();
-  
   }
   if (error != null && error != "no tx keys found for this txid") {
     throw CreationTransactionException(message: error);
@@ -302,11 +284,12 @@ class Transaction {
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
-  late final List<String> addressList = List.generate(addressIndexList.length, (index) =>
-    getAddress(
-    accountIndex: accountIndex,
-    addressIndex: addressIndexList[index],
-    ));
+  late final List<String> addressList = List.generate(
+      addressIndexList.length,
+      (index) => getAddress(
+            accountIndex: accountIndex,
+            addressIndex: addressIndexList[index],
+          ));
   final String description;
   final int fee;
   final int confirmations;
@@ -355,8 +338,7 @@ class Transaction {
         timeStamp = DateTime.fromMillisecondsSinceEpoch(
           txInfo.timestamp() * 1000,
         ),
-        isSpend = txInfo.direction() ==
-            monero.TransactionInfo_Direction.Out.index,
+        isSpend = txInfo.direction() == monero.TransactionInfo_Direction.Out.index,
         amount = txInfo.amount(),
         paymentId = txInfo.paymentId(),
         accountIndex = txInfo.subaddrAccount(),
@@ -368,20 +350,5 @@ class Transaction {
         description = txInfo.description(),
         key = getTxKey(txInfo.hash());
 
-  Transaction.dummy({
-    required this.displayLabel,
-    required this.description,
-    required this.fee,
-    required this.confirmations,
-    required this.blockheight,
-    required this.accountIndex,
-    required this.addressIndexList,
-    required this.addressIndex,
-    required this.paymentId,
-    required this.amount,
-    required this.isSpend,
-    required this.hash,
-    required this.key,
-    required this.txInfo
-  });
+  Transaction.dummy({required this.displayLabel, required this.description, required this.fee, required this.confirmations, required this.blockheight, required this.accountIndex, required this.addressIndexList, required this.addressIndex, required this.paymentId, required this.amount, required this.isSpend, required this.hash, required this.key, required this.txInfo});
 }

@@ -1,8 +1,7 @@
-
-import 'package:cw_monero/api/account_list.dart';
-import 'package:cw_monero/api/transaction_history.dart';
-import 'package:cw_monero/api/wallet.dart';
-import 'package:monero/monero.dart';
+import 'package:cw_monerolws/api/account_list.dart';
+import 'package:cw_monerolws/api/transaction_history.dart';
+import 'package:cw_monerolws/api/wallet.dart';
+import 'package:monerolws/monerolws.dart';
 
 bool isUpdating = false;
 
@@ -16,7 +15,7 @@ class SubaddressInfoMetadata {
 SubaddressInfoMetadata? subaddress = null;
 
 String getRawLabel({required int accountIndex, required int addressIndex}) {
-  return currentWallet?.getSubaddressLabel(accountIndex: accountIndex, addressIndex: addressIndex)??"";
+  return currentWallet?.getSubaddressLabel(accountIndex: accountIndex, addressIndex: addressIndex) ?? "";
 }
 
 void refreshSubaddresses({required int accountIndex}) {
@@ -78,7 +77,7 @@ List<Subaddress> getAllSubaddresses() {
       final subaddrs = tx.subaddrIndex().split(",");
       final account = tx.subaddrAccount();
       newttDetails.add(TinyTransactionDetails(
-        address: List.generate(subaddrs.length, (index) => getAddress(accountIndex: account, addressIndex: int.tryParse(subaddrs[index])??0)),
+        address: List.generate(subaddrs.length, (index) => getAddress(accountIndex: account, addressIndex: int.tryParse(subaddrs[index]) ?? 0)),
         amount: tx.amount(),
       ));
     }
@@ -89,7 +88,7 @@ List<Subaddress> getAllSubaddresses() {
   final list = List.generate(size, (index) {
     final ttDetailsLocal = ttDetails.where((element) {
       final address = getAddress(
-        accountIndex: subaddress!.accountIndex, 
+        accountIndex: subaddress!.accountIndex,
         addressIndex: index,
       );
       if (element.address.contains(address)) return true;
@@ -107,13 +106,12 @@ List<Subaddress> getAllSubaddresses() {
     );
   }).reversed.toList();
   if (list.length == 0) {
-    list.add(
-      Subaddress(
-        addressIndex: subaddress!.accountIndex,
-        accountIndex: 0,
-        received: 0,
-        txCount: 0,
-      ));
+    list.add(Subaddress(
+      addressIndex: subaddress!.accountIndex,
+      accountIndex: 0,
+      received: 0,
+      txCount: 0,
+    ));
   }
   return list;
 }
@@ -128,8 +126,7 @@ Future<void> addSubaddress({required int accountIndex, required String label}) a
   await store();
 }
 
-Future<void> setLabelForSubaddress(
-    {required int accountIndex, required int addressIndex, required String label}) async {
+Future<void> setLabelForSubaddress({required int accountIndex, required int addressIndex, required String label}) async {
   currentWallet?.setSubaddressLabel(accountIndex: accountIndex, addressIndex: addressIndex, label: label);
   await store();
 }

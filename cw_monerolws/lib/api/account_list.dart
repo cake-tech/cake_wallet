@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_monero/api/wallet.dart';
-import 'package:cw_monero/monero_account_list.dart';
-import 'package:monero/src/wallet2.dart';
-import 'package:monero/src/monero.dart';
+import 'package:cw_monerolws/api/wallet.dart';
+import 'package:cw_monerolws/lws_account_list.dart';
+import 'package:monero/src/lws_wallet2.dart'; // imported from git
+import 'package:monero/src/monero.dart'; // imported from git
 
 Wallet2Wallet? currentWallet = null;
 bool get isViewOnly => int.tryParse(currentWallet!.secretSpendKey()) == 0;
@@ -39,7 +39,7 @@ void refreshAccounts() {
   }
 }
 
-  List<Wallet2SubaddressAccountRow> getAllAccount() {
+List<Wallet2SubaddressAccountRow> getAllAccount() {
   // final size = monero.Wallet_numSubaddressAccounts(wptr!);
   refreshAccounts();
   int size = subaddressAccount!.getAll_size();

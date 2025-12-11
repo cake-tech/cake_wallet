@@ -16,7 +16,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/api-lws/monero_lws_dart.dart';
+// import 'package:cw_monero/monero_lws_dart.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/material.dart';

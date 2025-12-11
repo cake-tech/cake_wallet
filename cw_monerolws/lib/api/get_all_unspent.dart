@@ -1,5 +1,5 @@
-import 'package:cw_monero/api/account_list.dart';
-import 'package:cw_monero/monero_unspent.dart';
+import 'package:cw_monerolws/api/account_list.dart';
+import 'package:cw_monerolws/lws_unspent.dart';
 
 Map<String, Map<String, dynamic>> getAllUnspent() {
   final coins = currentWallet!.coins();

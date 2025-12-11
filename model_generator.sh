@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x -e
 
-for cwcoin in cw_{arbitrum,core,evm,monero,bitcoin,nano,bitcoin_cash,solana,tron,wownero,zano,decred,dogecoin,base}
+for cwcoin in cw_{arbitrum,core,evm,monero,monerolws,bitcoin,nano,bitcoin_cash,solana,tron,wownero,zano,decred,dogecoin,base}
 do
     if [[ "x$1" == "xasync" ]];
     then

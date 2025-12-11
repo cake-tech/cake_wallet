@@ -1,12 +1,12 @@
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_monero/api/coins_info.dart';
-import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
-import 'package:cw_monero/api/wallet.dart';
+import 'package:cw_monerolws/api/coins_info.dart';
+import 'package:cw_monerolws/api/subaddress_list.dart' as subaddress_list;
+import 'package:cw_monerolws/api/wallet.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 
-part 'monero_subaddress_list.g.dart';
+part 'lws_subaddress_list.g.dart';
 
 class MoneroSubaddressList = MoneroSubaddressListBase with _$MoneroSubaddressList;
 
@@ -56,12 +56,7 @@ abstract class MoneroSubaddressListBase with Store {
       final address = s.address;
       final label = s.label;
       final id = s.addressIndex;
-      return Subaddress(
-          id: id,
-          address: address,
-          balance: (s.received/1e12).toStringAsFixed(6),
-          txCount: s.txCount,
-          label: label);
+      return Subaddress(id: id, address: address, balance: (s.received / 1e12).toStringAsFixed(6), txCount: s.txCount, label: label);
     }).toList();
   }
 
@@ -70,10 +65,8 @@ abstract class MoneroSubaddressListBase with Store {
     update(accountIndex: accountIndex);
   }
 
-  Future<void> setLabelSubaddress(
-      {required int accountIndex, required int addressIndex, required String label}) async {
-    await subaddress_list.setLabelForSubaddress(
-        accountIndex: accountIndex, addressIndex: addressIndex, label: label);
+  Future<void> setLabelSubaddress({required int accountIndex, required int addressIndex, required String label}) async {
+    await subaddress_list.setLabelForSubaddress(accountIndex: accountIndex, addressIndex: addressIndex, label: label);
     update(accountIndex: accountIndex);
   }
 
@@ -110,8 +103,7 @@ abstract class MoneroSubaddressListBase with Store {
       _isUpdating = true;
       refresh(accountIndex: accountIndex);
       subaddresses.clear();
-      final newSubAddresses =
-          await _getAllUnusedAddresses(accountIndex: accountIndex, label: defaultLabel);
+      final newSubAddresses = await _getAllUnusedAddresses(accountIndex: accountIndex, label: defaultLabel);
       subaddresses.addAll(newSubAddresses);
     } catch (e) {
       rethrow;
@@ -120,8 +112,7 @@ abstract class MoneroSubaddressListBase with Store {
     }
   }
 
-  Future<List<Subaddress>> _getAllUnusedAddresses(
-      {required int accountIndex, required String label}) async {
+  Future<List<Subaddress>> _getAllUnusedAddresses({required int accountIndex, required String label}) async {
     final allAddresses = subaddress_list.getAllSubaddresses();
     // first because addresses come in reversed order.
     if (allAddresses.isEmpty || _usedAddresses.contains(allAddresses.first.address)) {
@@ -136,27 +127,19 @@ abstract class MoneroSubaddressListBase with Store {
           final id = s.addressIndex;
           final address = s.address;
           final label = s.label;
-          return Subaddress(
-            id: id,
-            address: address,
-            balance: (s.received/1e12).toStringAsFixed(6),
-            txCount: s.txCount,
-            label: id == 0 &&
-                    label.toLowerCase() == 'Primary account'.toLowerCase()
-                ? 'Primary address'
-                : label);
-      }).toList().reversed.toList();
+          return Subaddress(id: id, address: address, balance: (s.received / 1e12).toStringAsFixed(6), txCount: s.txCount, label: id == 0 && label.toLowerCase() == 'Primary account'.toLowerCase() ? 'Primary address' : label);
+        })
+        .toList()
+        .reversed
+        .toList();
   }
 
   Future<bool> _newSubaddress({required int accountIndex, required String label}) async {
     await subaddress_list.addSubaddress(accountIndex: accountIndex, label: label);
 
-    return subaddress_list
-        .getAllSubaddresses()
-        .where((s) {
-          final address = s.address;
-          return !_usedAddresses.contains(address);
-        })
-        .isNotEmpty;
+    return subaddress_list.getAllSubaddresses().where((s) {
+      final address = s.address;
+      return !_usedAddresses.contains(address);
+    }).isNotEmpty;
   }
 }

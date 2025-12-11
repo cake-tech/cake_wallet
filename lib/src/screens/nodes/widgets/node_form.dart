@@ -25,8 +25,7 @@ class NodeForm extends StatefulWidget {
   final WalletType? type;
 
   @override
-  State<StatefulWidget> createState() =>
-      _NodeFormState(nodeViewModel: nodeViewModel, editingNode: this.editingNode);
+  State<StatefulWidget> createState() => _NodeFormState(nodeViewModel: nodeViewModel, editingNode: this.editingNode);
 }
 
 class _NodeFormState extends State<NodeForm> {
@@ -35,10 +34,7 @@ class _NodeFormState extends State<NodeForm> {
     Node? editingNode,
   })  : _addressController = TextEditingController(text: editingNode?.uri.host.toString()),
         _pathController = TextEditingController(text: editingNode?.path.toString()),
-        _portController = TextEditingController(
-            text: (editingNode != null && editingNode.uri.hasPort)
-                ? editingNode.uri.port.toString()
-                : ''),
+        _portController = TextEditingController(text: (editingNode != null && editingNode.uri.hasPort) ? editingNode.uri.port.toString() : ''),
         _loginController = TextEditingController(text: editingNode?.login),
         _passwordController = TextEditingController(text: editingNode?.password),
         _socksAddressController = TextEditingController(text: editingNode?.socksProxyAddress) {
@@ -53,7 +49,9 @@ class _NodeFormState extends State<NodeForm> {
         ..setTrusted(editingNode.trusted)
         ..setIsEnabledForAutoSwitching(editingNode.isEnabledForAutoSwitching)
         ..setSocksProxy(editingNode.useSocksProxy)
-        ..setSocksProxyAddress(editingNode.socksProxyAddress ?? '');
+        ..setSocksProxyAddress(editingNode.socksProxyAddress ?? '')
+        ..setIsLWSEnabled(editingNode.isLWSEnabled ?? false);
+      print(editingNode.type);
     }
 
     if (nodeViewModel.hasAuthCredentials) {
@@ -79,13 +77,24 @@ class _NodeFormState extends State<NodeForm> {
       if (path != _pathController.text) _pathController.text = path;
     });
 
+    print("Address: ${nodeViewModel.address}");
+    print("Path: ${nodeViewModel.path}");
+    print("Port: ${nodeViewModel.port}");
+    print("Login: ${nodeViewModel.login}");
+    print("Password: ${nodeViewModel.password}");
+    print("Use SSL: ${nodeViewModel.useSSL}");
+    print("Trusted: ${nodeViewModel.trusted}");
+    print("Is Enabled For Auto Switching: ${nodeViewModel.isEnabledForAutoSwitching}");
+    print("Use Socks Proxy: ${nodeViewModel.useSocksProxy}");
+    print("Socks Proxy Address: ${nodeViewModel.socksProxyAddress}");
+    print("Is LWS Enabled: ${nodeViewModel.isLWSEnabled}");
+
     _addressController.addListener(() => nodeViewModel.address = _addressController.text);
     _pathController.addListener(() => nodeViewModel.path = _pathController.text);
     _portController.addListener(() => nodeViewModel.port = _portController.text);
     _loginController.addListener(() => nodeViewModel.login = _loginController.text);
     _passwordController.addListener(() => nodeViewModel.password = _passwordController.text);
-    _socksAddressController
-        .addListener(() => nodeViewModel.socksProxyAddress = _socksAddressController.text);
+    _socksAddressController.addListener(() => nodeViewModel.socksProxyAddress = _socksAddressController.text);
   }
 
   final NodeCreateOrEditViewModel nodeViewModel;
@@ -106,9 +115,7 @@ class _NodeFormState extends State<NodeForm> {
               child: BaseTextFormField(
                 controller: _addressController,
                 hintText: S.of(context).node_address,
-                validator: widget.type == WalletType.decred
-                    ? NodeAddressValidatorDecredBlankException()
-                    : NodeAddressValidator(),
+                validator: widget.type == WalletType.decred ? NodeAddressValidatorDecredBlankException() : NodeAddressValidator(),
               ),
             )
           ]),
@@ -264,6 +271,37 @@ class _NodeFormState extends State<NodeForm> {
                 ]
               ]),
             ),
+            // KB - TODO: Should we maybe not subclass NodeFormState to keep things clean?
+            if (nodeViewModel.hasLWSSupport) ...[
+              Observer(
+                builder: (_) => Column(children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        StandardCheckbox(
+                          value: nodeViewModel.isLWSEnabled,
+                          borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          iconColor: Theme.of(context).colorScheme.primary,
+                          //onChanged: (value) {
+                          onChanged: (value) => nodeViewModel.isLWSEnabled = value,
+                          // print("LWS Syncing changed to: $value");
+                          // if (value == true) {
+                          //   nodeViewModel.isLWSEnabled = true;
+                          // } else {
+                          //   nodeViewModel.isLWSEnabled = false;
+                          // }
+                          // },
+                          caption: 'Use LWS Syncing',
+                        ),
+                      ],
+                    ),
+                  ),
+                ]),
+              ),
+            ]
           ]
         ]),
       );

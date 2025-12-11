@@ -13,12 +13,10 @@ import 'package:permission_handler/permission_handler.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
 
-class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
-    with _$NodeCreateOrEditViewModel;
+class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase with _$NodeCreateOrEditViewModel;
 
 abstract class NodeCreateOrEditViewModelBase with Store {
-  NodeCreateOrEditViewModelBase(
-      this._nodeSource, this._walletType, this._settingsStore)
+  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         useSSL = false,
@@ -76,14 +74,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool isLWSEnabled;
 
   @computed
-  bool get isReady =>
-      (address.isNotEmpty) ||
-      _walletType == WalletType.decred; // Allow an empty address.
+  bool get isReady => (address.isNotEmpty) || _walletType == WalletType.decred; // Allow an empty address.
 
-  bool get hasAuthCredentials =>
-      _walletType == WalletType.monero ||
-      _walletType == WalletType.wownero ||
-      _walletType == WalletType.haven;
+  bool get hasAuthCredentials => _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
 
   @computed
   bool get hasLWSSupport => _walletType == WalletType.monero;
@@ -163,8 +156,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setTrusted(bool val) => trusted = val;
 
   @action
-  void setIsEnabledForAutoSwitching(bool val) =>
-      isEnabledForAutoSwitching = val;
+  void setIsEnabledForAutoSwitching(bool val) => isEnabledForAutoSwitching = val;
 
   @action
   void setSocksProxy(bool val) => useSocksProxy = val;
@@ -177,16 +169,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
-    final node = Node(
-        uri: uri,
-        path: path,
-        type: _walletType,
-        login: login,
-        password: password,
-        useSSL: useSSL,
-        trusted: trusted,
-        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
-        socksProxyAddress: socksProxyAddress);
+    print(isLWSEnabled);
+    final node = Node(uri: uri, path: path, type: _walletType, login: login, password: password, useSSL: useSSL, trusted: trusted, isEnabledForAutoSwitching: isEnabledForAutoSwitching, socksProxyAddress: socksProxyAddress, isLWSEnabledField: isLWSEnabled);
     try {
       state = IsExecutingState();
       if (editingNode != null) {
@@ -209,16 +193,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> connect() async {
-    final node = Node(
-        uri: uri,
-        path: path,
-        type: _walletType,
-        login: login,
-        password: password,
-        useSSL: useSSL,
-        trusted: trusted,
-        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
-        socksProxyAddress: socksProxyAddress);
+    final node = Node(uri: uri, path: path, type: _walletType, login: login, password: password, useSSL: useSSL, trusted: trusted, isEnabledForAutoSwitching: isEnabledForAutoSwitching, socksProxyAddress: socksProxyAddress);
     try {
       connectionState = IsExecutingState();
       final isAlive = await node.requestNode();
@@ -244,8 +219,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @action
   Future<void> scanQRCodeForNewNode(BuildContext context) async {
     try {
-      bool isCameraPermissionGranted =
-          await PermissionHandler.checkPermission(Permission.camera, context);
+      bool isCameraPermissionGranted = await PermissionHandler.checkPermission(Permission.camera, context);
       if (!isCameraPermissionGranted) return;
       String? code = await presentQRScanner(context);
       if (code == null) throw Exception("Unexpected QR code value: aborted");
@@ -254,8 +228,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Unexpected scan QR code value: value is empty');
       }
 
-      if (code.startsWith("monero_node:"))
-        code = code.replaceFirst("monero_node:", "tcp://");
+      if (code.startsWith("monero_node:")) code = code.replaceFirst("monero_node:", "tcp://");
       if (!code.contains('://')) code = 'tcp://$code';
 
       final uri = Uri.tryParse(code);

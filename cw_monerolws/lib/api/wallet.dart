@@ -5,10 +5,10 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_monero/api/account_list.dart';
-import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
-import 'package:cw_monero/api/get_all_unspent.dart';
-import 'package:monero/monero.dart' as monero;
+import 'package:cw_monerolws/api/account_list.dart';
+import 'package:cw_monerolws/api/exceptions/setup_wallet_exception.dart';
+import 'package:cw_monerolws/api/get_all_unspent.dart';
+import 'package:monerolws/monerolws.dart' as monero_lws; // define in pubspec
 import 'package:mutex/mutex.dart';
 import 'package:polyseed/polyseed.dart';
 
@@ -42,8 +42,7 @@ String getFilename() => currentWallet!.filename();
 
 String getSeed() {
   // monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
-  final cakepolyseed =
-      currentWallet!.getCacheAttribute(key: "cakewallet.seed");
+  final cakepolyseed = currentWallet!.getCacheAttribute(key: "cakewallet.seed");
   final cakepassphrase = getPassphrase();
 
   final weirdPolyseed = currentWallet!.getPolyseed(passphrase: cakepassphrase);
@@ -67,7 +66,7 @@ String getSeed() {
 
   final bip39 = currentWallet!.getCacheAttribute(key: "cakewallet.seed.bip39");
 
-  if(bip39.isNotEmpty) return bip39;
+  if (bip39.isNotEmpty) return bip39;
 
   final legacy = getSeedLegacy(null);
   return legacy;
@@ -75,11 +74,21 @@ String getSeed() {
 
 String? getSeedLanguage(String? language) {
   switch (language) {
-    case "Chinese (Traditional)": language = "Chinese (simplified)"; break;
-    case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
-    case "Korean": language = "English"; break;
-    case "Czech": language = "English"; break;
-    case "Japanese": language = "English"; break;
+    case "Chinese (Traditional)":
+      language = "Chinese (simplified)";
+      break;
+    case "Chinese (Simplified)":
+      language = "Chinese (simplified)";
+      break;
+    case "Korean":
+      language = "English";
+      break;
+    case "Czech":
+      language = "English";
+      break;
+    case "Japanese":
+      language = "English";
+      break;
   }
   return language;
 }
@@ -132,7 +141,7 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
 
   // printV("getaddress: ${accountIndex}/${addressIndex}: ${monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)}: ${monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}");
   // this could be a while loop, but I'm in favor of making it if to not cause freezes
-  if (currentWallet!.numSubaddresses(accountIndex: accountIndex)-1 < addressIndex) {
+  if (currentWallet!.numSubaddresses(accountIndex: accountIndex) - 1 < addressIndex) {
     if (currentWallet!.numSubaddressAccounts() < accountIndex) {
       currentWallet!.addSubaddressAccount();
     } else {
@@ -141,8 +150,7 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
   }
   addressCache[currentWallet!.ffiAddress()] ??= {};
   addressCache[currentWallet!.ffiAddress()]![accountIndex] ??= {};
-  addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex] ??= currentWallet!.address(
-        accountIndex: accountIndex, addressIndex: addressIndex);
+  addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex] ??= currentWallet!.address(accountIndex: accountIndex, addressIndex: addressIndex);
   return addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex]!;
 }
 
@@ -150,11 +158,9 @@ int getFullBalance({int accountIndex = 0}) {
   return currentWallet?.balance(accountIndex: accountIndex) ?? 0;
 }
 
-int getUnlockedBalance({int accountIndex = 0}) =>
-    currentWallet?.unlockedBalance(accountIndex: accountIndex) ?? 0;
+int getUnlockedBalance({int accountIndex = 0}) => currentWallet?.unlockedBalance(accountIndex: accountIndex) ?? 0;
 
 int getCurrentHeight() => currentWallet?.blockChainHeight() ?? 0;
-
 
 int cachedNodeHeight = 0;
 bool isHeightRefreshing = false;
@@ -183,13 +189,7 @@ Future<bool> isConnected() async {
   return await Isolate.run(() => monero.Wallet_connected(Pointer.fromAddress(wptrAddress))) == 1;
 }
 
-Future<bool> setupNodeSync(
-    {required String address,
-    String? login,
-    String? password,
-    bool useSSL = false,
-    bool isLightWallet = false,
-    String? socksProxyAddress}) async {
+Future<bool> setupNodeSync({required String address, String? login, String? password, bool useSSL = false, bool isLightWallet = false, String? socksProxyAddress}) async {
   printV('''
 {
   wptr!,
@@ -203,12 +203,7 @@ Future<bool> setupNodeSync(
   final addr = currentWallet!.ffiAddress();
   printV("init: start");
   await Isolate.run(() {
-    monero.Wallet_init(Pointer.fromAddress(addr),
-        daemonAddress: address,
-        useSsl: useSSL,
-        proxyAddress: socksProxyAddress ?? '',
-        daemonUsername: login ?? '',
-        daemonPassword: password ?? '');
+    monero.Wallet_init(Pointer.fromAddress(addr), daemonAddress: address, useSsl: useSSL, proxyAddress: socksProxyAddress ?? '', daemonUsername: login ?? '', daemonPassword: password ?? '');
   });
   printV("init: end");
 
@@ -238,10 +233,8 @@ void startRefreshSync() {
   currentWallet!.startRefresh();
 }
 
-
 void setRefreshFromBlockHeight({required int height}) {
-  currentWallet!.setRefreshFromBlockHeight(
-    refresh_from_block_height: height);
+  currentWallet!.setRefreshFromBlockHeight(refresh_from_block_height: height);
 }
 
 void setRecoveringFromSeed({required bool isRecovery}) {
@@ -251,7 +244,6 @@ void setRecoveringFromSeed({required bool isRecovery}) {
 
 final storeMutex = Mutex();
 
-
 int lastStorePointer = 0;
 int lastStoreHeight = 0;
 void storeSync({bool force = false}) async {
@@ -259,10 +251,7 @@ void storeSync({bool force = false}) async {
   final synchronized = await Isolate.run(() {
     return monero.Wallet_synchronized(Pointer.fromAddress(addr));
   });
-  if (lastStorePointer == addr &&
-      lastStoreHeight + 75000 > currentWallet!.blockChainHeight() &&
-      !synchronized && 
-      !force) {
+  if (lastStorePointer == addr && lastStoreHeight + 75000 > currentWallet!.blockChainHeight() && !synchronized && !force) {
     return;
   }
   lastStorePointer = currentWallet!.ffiAddress();
@@ -300,8 +289,8 @@ class SyncListener {
       : _cachedBlockchainHeight = 0,
         _lastKnownBlockHeight = 0,
         _initialSyncHeight = 0 {
-          _start();
-        }
+    _start();
+  }
 
   void Function(int, int, double) onNewBlock;
   void Function() onNewTransaction;
@@ -323,8 +312,7 @@ class SyncListener {
     _cachedBlockchainHeight = 0;
     _lastKnownBlockHeight = 0;
     _initialSyncHeight = 0;
-    _updateSyncInfoTimer ??=
-        Timer.periodic(Duration(milliseconds: 1200), (_) async {
+    _updateSyncInfoTimer ??= Timer.periodic(Duration(milliseconds: 1200), (_) async {
       if (isNewTransactionExist()) {
         onNewTransaction();
       }
@@ -370,8 +358,7 @@ class SyncListener {
   void stop() => _updateSyncInfoTimer?.cancel();
 }
 
-SyncListener setListeners(void Function(int, int, double) onNewBlock,
-    void Function() onNewTransaction) {
+SyncListener setListeners(void Function(int, int, double) onNewBlock, void Function() onNewTransaction) {
   final listener = SyncListener(onNewBlock, onNewTransaction);
   // setListenerNative();
   return listener;
@@ -389,13 +376,7 @@ Future<bool> _setupNodeSync(Map<String, Object?> args) async {
   final isLightWallet = args['isLightWallet'] as bool;
   final socksProxyAddress = (args['socksProxyAddress'] ?? '') as String;
 
-  return setupNodeSync(
-      address: address,
-      login: login,
-      password: password,
-      useSSL: useSSL,
-      isLightWallet: isLightWallet,
-      socksProxyAddress: socksProxyAddress);
+  return setupNodeSync(address: address, login: login, password: password, useSSL: useSSL, isLightWallet: isLightWallet, socksProxyAddress: socksProxyAddress);
 }
 
 void startRefresh() => startRefreshSync();
@@ -407,12 +388,10 @@ Future<int> getNodeHeight() async => getNodeHeightSync();
 void rescanBlockchainAsync() => currentWallet!.rescanBlockchainAsync();
 
 String getSubaddressLabel(int accountIndex, int addressIndex) {
-  return currentWallet!.getSubaddressLabel(
-      accountIndex: accountIndex, addressIndex: addressIndex);
+  return currentWallet!.getSubaddressLabel(accountIndex: accountIndex, addressIndex: addressIndex);
 }
 
-Future setTrustedDaemon(bool trusted) async =>
-    currentWallet!.setTrustedDaemon(arg: trusted);
+Future setTrustedDaemon(bool trusted) async => currentWallet!.setTrustedDaemon(arg: trusted);
 
 Future<bool> trustedDaemon() async => currentWallet!.trustedDaemon();
 

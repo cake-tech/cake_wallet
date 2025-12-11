@@ -7,7 +7,7 @@ import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus_dart.dart';
-import 'package:monero/src/monero.dart' as api;
+import 'package:monero/src/monero.dart' as api; // this is on git I believe
 
 LedgerConnection? gLedger;
 String? latestLedgerCommand;
@@ -32,8 +32,7 @@ Future<void> enableLedgerExchange(LedgerConnection connection) async {
 
     latestLedgerCommand = _ledgerMoneroCommands[ledgerRequest[1]];
 
-    api.MoneroWallet.setDeviceReceivedData(
-         result.cast<UnsignedChar>(), response.length);
+    api.MoneroWallet.setDeviceReceivedData(result.cast<UnsignedChar>(), response.length);
     malloc.free(result);
     // api.MoneroFree().free(result.cast());
   }
@@ -49,8 +48,7 @@ void disableLedgerExchange() {
   latestLedgerCommand = null;
 }
 
-Future<Uint8List> exchange(LedgerConnection connection, Uint8List data) async =>
-    connection.sendOperation<Uint8List>(ExchangeOperation(data));
+Future<Uint8List> exchange(LedgerConnection connection, Uint8List data) async => connection.sendOperation<Uint8List>(ExchangeOperation(data));
 
 class ExchangeOperation extends LedgerRawOperation<Uint8List> {
   final Uint8List inputData;
@@ -58,8 +56,7 @@ class ExchangeOperation extends LedgerRawOperation<Uint8List> {
   ExchangeOperation(this.inputData);
 
   @override
-  Future<Uint8List> read(ByteDataReader reader) async =>
-      reader.read(reader.remainingLength);
+  Future<Uint8List> read(ByteDataReader reader) async => reader.read(reader.remainingLength);
 
   @override
   Future<List<Uint8List>> write(ByteDataWriter writer) async => [inputData];
@@ -108,13 +105,11 @@ const _ledgerMoneroCommands = {
 };
 
 void _logLedgerCommand(Uint8List command, [bool isResponse = true]) {
-  String toHexString(Uint8List data) =>
-      data.map((e) => e.toRadixString(16).padLeft(2, '0')).join();
+  String toHexString(Uint8List data) => data.map((e) => e.toRadixString(16).padLeft(2, '0')).join();
 
   if (isResponse) {
     printV("< ${toHexString(command)}");
   } else {
-    printV(
-        "> ${_ledgerMoneroCommands[command[1]]} ${toHexString(command.sublist(2))}");
+    printV("> ${_ledgerMoneroCommands[command[1]]} ${toHexString(command.sublist(2))}");
   }
 }

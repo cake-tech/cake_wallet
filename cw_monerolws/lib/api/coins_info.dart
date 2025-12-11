@@ -1,9 +1,9 @@
 import 'dart:ffi';
 import 'dart:isolate';
 
-import 'package:cw_monero/api/account_list.dart';
-import 'package:monero/monero.dart' as monero;
-import 'package:monero/src/wallet2.dart';
+import 'package:cw_monerolws/api/account_list.dart';
+import 'package:monerolws/monerolws.dart' as monero;
+import 'package:monero/src/lws_wallet2.dart';
 import 'package:mutex/mutex.dart';
 
 Wallet2Coins? coins = null;

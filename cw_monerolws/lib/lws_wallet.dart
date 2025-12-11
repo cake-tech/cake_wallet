@@ -21,29 +21,29 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_monero/api/account_list.dart';
-import 'package:cw_monero/api/coins_info.dart';
-import 'package:cw_monero/api/monero_output.dart';
-import 'package:cw_monero/api/structs/pending_transaction.dart';
-import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
-import 'package:cw_monero/api/wallet.dart' as monero_wallet;
-import 'package:cw_monero/api/wallet_manager.dart';
-import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
-import 'package:cw_monero/ledger.dart';
-import 'package:cw_monero/monero_transaction_creation_credentials.dart';
-import 'package:cw_monero/monero_transaction_history.dart';
-import 'package:cw_monero/monero_transaction_info.dart';
-import 'package:cw_monero/monero_unspent.dart';
-import 'package:cw_monero/monero_wallet_addresses.dart';
-import 'package:cw_monero/monero_wallet_service.dart';
-import 'package:cw_monero/pending_monero_transaction.dart';
+import 'package:cw_monerolws/api/account_list.dart';
+import 'package:cw_monerolws/api/coins_info.dart';
+import 'package:cw_monerolws/api/monero_output.dart';
+import 'package:cw_monerolws/api/structs/pending_transaction.dart';
+import 'package:cw_monerolws/api/transaction_history.dart' as transaction_history;
+import 'package:cw_monerolws/api/wallet.dart' as monero_wallet;
+import 'package:cw_monerolws/api/wallet_manager.dart';
+import 'package:cw_monerolws/exceptions/monero_transaction_creation_exception.dart';
+import 'package:cw_monerolws/ledger.dart';
+import 'package:cw_monerolws/lws_transaction_creation_credentials.dart';
+import 'package:cw_monerolws/lws_transaction_history.dart';
+import 'package:cw_monerolws/lws_transaction_info.dart';
+import 'package:cw_monerolws/lws_unspent.dart';
+import 'package:cw_monerolws/lws_wallet_addresses.dart';
+import 'package:cw_monerolws/lws_wallet_service.dart';
+import 'package:cw_monerolws/pending_lws_transaction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
-import 'package:monero/monero.dart' as monero;
+import 'package:cw_lws/monero.dart' as monero;
 
-part 'monero_wallet.g.dart';
+part 'lws_wallet.g.dart';
 
 const moneroBlockSize = 1000;
 // not sure if this should just be 0 but setting it higher feels safer / should catch more cases:
@@ -51,13 +51,8 @@ const MIN_RESTORE_HEIGHT = 1000;
 
 class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
-abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
-    MoneroTransactionHistory, MoneroTransactionInfo> with Store {
-  MoneroWalletBase(
-      {required WalletInfo walletInfo,
-      required DerivationInfo derivationInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required String password})
+abstract class MoneroWalletBase extends WalletBase<MoneroBalance, MoneroTransactionHistory, MoneroTransactionInfo> with Store {
+  MoneroWalletBase({required WalletInfo walletInfo, required DerivationInfo derivationInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
       : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
           CryptoCurrency.xmr: MoneroBalance(
             fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
@@ -76,17 +71,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     transactionHistory = MoneroTransactionHistory();
     walletAddresses = MoneroWalletAddresses(walletInfo, transactionHistory);
 
-    _onAccountChangeReaction =
-        reaction((_) => walletAddresses.account, (Account? account) {
+    _onAccountChangeReaction = reaction((_) => walletAddresses.account, (Account? account) {
       if (account == null) return;
 
-      balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
-          MoneroBalance>{
-        currency: MoneroBalance(
-            fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
-            unlockedBalance:
-                monero_wallet.getUnlockedBalance(accountIndex: account.id))
-      });
+      balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency, MoneroBalance>{currency: MoneroBalance(fullBalance: monero_wallet.getFullBalance(accountIndex: account.id), unlockedBalance: monero_wallet.getUnlockedBalance(accountIndex: account.id))});
       _updateSubAddress(isEnabledAutoGenerateSubaddress, account: account);
       unawaited(updateTransactions());
     });
@@ -95,8 +83,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       _updateSubAddress(enabled, account: walletAddresses.account);
     });
     _onTxHistoryChangeReaction = reaction((_) => transactionHistory, (__) {
-      _updateSubAddress(isEnabledAutoGenerateSubaddress,
-          account: walletAddresses.account);
+      _updateSubAddress(isEnabledAutoGenerateSubaddress, account: walletAddresses.account);
     });
   }
 
@@ -138,18 +125,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   String get passphrase => monero_wallet.getPassphrase();
 
   @override
-  MoneroWalletKeys get keys => MoneroWalletKeys(
-      primaryAddress:
-          monero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
-      privateSpendKey: monero_wallet.getSecretSpendKey(),
-      privateViewKey: monero_wallet.getSecretViewKey(),
-      publicSpendKey: monero_wallet.getPublicSpendKey(),
-      publicViewKey: monero_wallet.getPublicViewKey(),
-      passphrase: monero_wallet.getPassphrase());
+  MoneroWalletKeys get keys => MoneroWalletKeys(primaryAddress: monero_wallet.getAddress(accountIndex: 0, addressIndex: 0), privateSpendKey: monero_wallet.getSecretSpendKey(), privateViewKey: monero_wallet.getSecretViewKey(), publicSpendKey: monero_wallet.getPublicSpendKey(), publicViewKey: monero_wallet.getPublicViewKey(), passphrase: monero_wallet.getPassphrase());
 
-  int? get restoreHeight =>
-      transactionHistory.transactions.values.firstOrNull?.height ??
-      currentWallet?.getRefreshFromBlockHeight();
+  int? get restoreHeight => transactionHistory.transactions.values.firstOrNull?.height ?? currentWallet?.getRefreshFromBlockHeight();
 
   monero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
@@ -162,14 +140,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   Future<void> init() async {
     await walletAddresses.init();
-    balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
-        MoneroBalance>{
-      currency: MoneroBalance(
-          fullBalance: monero_wallet.getFullBalance(
-              accountIndex: walletAddresses.account!.id),
-          unlockedBalance: monero_wallet.getUnlockedBalance(
-              accountIndex: walletAddresses.account!.id))
-    });
+    balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency, MoneroBalance>{currency: MoneroBalance(fullBalance: monero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id), unlockedBalance: monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id))});
     _setListeners();
     await updateTransactions();
 
@@ -177,17 +148,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       monero_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
 
       if (monero_wallet.getCurrentHeight() <= 1) {
-        monero_wallet.setRefreshFromBlockHeight(
-            height: walletInfo.restoreHeight);
+        monero_wallet.setRefreshFromBlockHeight(height: walletInfo.restoreHeight);
         setupBackgroundSync(password, currentWallet!);
       }
     }
 
-    _autoSaveTimer = Timer.periodic(
-        Duration(seconds: _autoSaveInterval), (_) async => await save());
+    _autoSaveTimer = Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
     // update transaction details after restore
-    walletAddresses.subaddressList
-        .update(accountIndex: walletAddresses.account?.id ?? 0);
+    walletAddresses.subaddressList.update(accountIndex: walletAddresses.account?.id ?? 0);
   }
 
   @override
@@ -215,13 +183,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Future<void> close({bool shouldCleanup = false}) async {
     if (isHardwareWallet) {
       disableLedgerExchange();
-      final currentWalletDirPath =
-          await pathForWalletDir(name: name, type: type);
+      final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
       if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
         printV("closing wallet");
         final wmaddr = wmPtr.ffiAddress();
-        final waddr =
-            openedWalletsByPath["$currentWalletDirPath/$name"]!.ffiAddress();
+        final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.ffiAddress();
         openedWalletsByPath.remove("$currentWalletDirPath/$name");
         closeWalletAwaitIfShould(wmaddr, waddr);
         if (currentWallet?.ffiAddress() == waddr) {
@@ -321,8 +287,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     } catch (_) {
       // our restore height wasn't correct, so lets see if using the backup works:
       try {
-        await resetCache(
-            name); // Resetting the cache removes the TX Keys and Polyseed
+        await resetCache(name); // Resetting the cache removes the TX Keys and Polyseed
         _assertInitialHeight();
       } catch (e) {
         // we still couldn't get a valid height from the backup?!:
@@ -351,8 +316,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final status = currentWallet!.status();
     if (status != 0) {
       final err = currentWallet!.errorString();
-      throw MoneroTransactionCreationException(
-          "unable to broadcast signed transaction: $err");
+      throw MoneroTransactionCreationException("unable to broadcast signed transaction: $err");
     }
     return retStatus;
   }
@@ -372,15 +336,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     int status = currentWallet!.status();
     if (status != 0) {
       final err = currentWallet!.errorString();
-      throw MoneroTransactionCreationException(
-          "unable to export outputs: $err");
+      throw MoneroTransactionCreationException("unable to export outputs: $err");
     }
     final strAll = currentWallet!.exportOutputsUR(all: true);
     status = currentWallet!.status();
     if (status != 0) {
       final err = currentWallet!.errorString();
-      throw MoneroTransactionCreationException(
-          "unable to export outputs: $err");
+      throw MoneroTransactionCreationException("unable to export outputs: $err");
     }
     return {
       "Outputs (partial)": str,
@@ -394,10 +356,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
     // viewOnlyBalance - balance that we can spend
     // TODO(mrcyjanek): remove hasUnknownKeyImages when we cleanup coin control
-    return (currentWallet!
-                .viewOnlyBalance(accountIndex: walletAddresses.account!.id) <
-            amount) ||
-        currentWallet!.hasUnknownKeyImages();
+    return (currentWallet!.viewOnlyBalance(accountIndex: walletAddresses.account!.id) < amount) || currentWallet!.hasUnknownKeyImages();
   }
 
   @override
@@ -406,8 +365,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final inputs = <String>[];
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final unlockedBalance = monero_wallet.getUnlockedBalance(
-        accountIndex: walletAddresses.account!.id);
+    final unlockedBalance = monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
 
     PendingTransactionDescription pendingTransactionDescription;
 
@@ -426,45 +384,29 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
 
     if (hasMultiDestination) {
-      if (outputs.any(
-          (item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw MoneroTransactionCreationException(
-            'You do not have enough XMR to send this amount.');
+      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+        throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
       }
 
-      final int totalAmount = outputs.fold(
-          0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
+      final int totalAmount = outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
       if (unlockedBalance < totalAmount) {
-        throw MoneroTransactionCreationException(
-            'You do not have enough XMR to send this amount.');
+        throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
       }
 
-      if (inputs.isEmpty)
-        MoneroTransactionCreationException('No inputs selected');
+      if (inputs.isEmpty) MoneroTransactionCreationException('No inputs selected');
 
       final moneroOutputs = outputs.map((output) {
-        final outputAddress =
-            output.isParsedAddress ? output.extractedAddress : output.address;
+        final outputAddress = output.isParsedAddress ? output.extractedAddress : output.address;
 
-        return MoneroOutput(
-            address: outputAddress!,
-            amount: output.cryptoAmount!.replaceAll(',', '.'));
+        return MoneroOutput(address: outputAddress!, amount: output.cryptoAmount!.replaceAll(',', '.'));
       }).toList();
 
-      pendingTransactionDescription =
-          await transaction_history.createTransactionMultDest(
-              outputs: moneroOutputs,
-              priorityRaw: _credentials.priority.serialize(),
-              accountIndex: walletAddresses.account!.id,
-              paymentId: "",
-              preferredInputs: inputs);
+      pendingTransactionDescription = await transaction_history.createTransactionMultDest(outputs: moneroOutputs, priorityRaw: _credentials.priority.serialize(), accountIndex: walletAddresses.account!.id, paymentId: "", preferredInputs: inputs);
     } else {
       final output = outputs.first;
-      final address =
-          output.isParsedAddress ? output.extractedAddress : output.address;
-      final amount =
-          output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
+      final address = output.isParsedAddress ? output.extractedAddress : output.address;
+      final amount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
 
       // if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
       //     (formattedAmount == null && unlockedBalance <= 0)) {
@@ -474,16 +416,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       //       'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       // }
 
-      if (inputs.isEmpty)
-        MoneroTransactionCreationException('No inputs selected');
-      pendingTransactionDescription =
-          await transaction_history.createTransactionSync(
-              address: address!,
-              amount: amount,
-              priorityRaw: _credentials.priority.serialize(),
-              accountIndex: walletAddresses.account!.id,
-              preferredInputs: inputs,
-              paymentId: '');
+      if (inputs.isEmpty) MoneroTransactionCreationException('No inputs selected');
+      pendingTransactionDescription = await transaction_history.createTransactionSync(address: address!, amount: amount, priorityRaw: _credentials.priority.serialize(), accountIndex: walletAddresses.account!.id, preferredInputs: inputs, paymentId: '');
     }
 
     // final status = monero.PendingTransaction_status(pendingTransactionDescription);
@@ -518,9 +452,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await walletAddresses.updateUsedSubaddress();
 
     if (isEnabledAutoGenerateSubaddress) {
-      walletAddresses.updateUnusedSubaddress(
-          accountIndex: walletAddresses.account?.id ?? 0,
-          defaultLabel: walletAddresses.account?.label ?? '');
+      walletAddresses.updateUnusedSubaddress(accountIndex: walletAddresses.account?.id ?? 0, defaultLabel: walletAddresses.account?.label ?? '');
     }
 
     await walletAddresses.updateAddressesInBox();
@@ -542,19 +474,16 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       // the concept of a file properly...
       printV("closing wallet");
       final wmaddr = wmPtr.ffiAddress();
-      final waddr =
-          openedWalletsByPath["$currentWalletDirPath/$name"]!.ffiAddress();
+      final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.ffiAddress();
       openedWalletsByPath.remove("$currentWalletDirPath/$name");
       if (Platform.isWindows) {
         await Isolate.run(() {
-          monero.WalletManager_closeWallet(
-              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+          monero.WalletManager_closeWallet(Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
           monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
         });
       } else {
         unawaited(Isolate.run(() {
-          monero.WalletManager_closeWallet(
-              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+          monero.WalletManager_closeWallet(Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
           monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
         }));
       }
@@ -562,10 +491,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
     try {
       // -- rename the waller folder --
-      final currentWalletDir =
-          Directory(await pathForWalletDir(name: name, type: type));
-      final newWalletDirPath =
-          await pathForWalletDir(name: newWalletName, type: type);
+      final currentWalletDir = Directory(await pathForWalletDir(name: name, type: type));
+      final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
 
       // Create new directory if it doesn't exist
       await Directory(newWalletDirPath).create(recursive: true);
@@ -585,12 +512,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         await currentKeysFile.copy("${newWalletDirPath}/$newWalletName.keys");
       }
       if (currentAddressListFile.existsSync()) {
-        await currentAddressListFile
-            .copy("${newWalletDirPath}/$newWalletName.address.txt");
+        await currentAddressListFile.copy("${newWalletDirPath}/$newWalletName.address.txt");
       }
       if (backgroundSyncFile.existsSync()) {
-        await backgroundSyncFile
-            .copy("${newWalletDirPath}/$newWalletName.background");
+        await backgroundSyncFile.copy("${newWalletDirPath}/$newWalletName.background");
       }
 
       await currentWalletDir.delete(recursive: true);
@@ -603,8 +528,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final currentKeysFile = File('$currentWalletPath.keys');
       final currentAddressListFile = File('$currentWalletPath.address.txt');
 
-      final newWalletPath =
-          await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
 
       // Copies current wallet files into new wallet name's dir and files
       if (currentCacheFile.existsSync()) {
@@ -623,8 +547,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   @override
-  Future<void> changePassword(String password) async =>
-      monero_wallet.setPasswordSync(password);
+  Future<void> changePassword(String password) async => monero_wallet.setPasswordSync(password);
 
   Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
 
@@ -660,8 +583,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       for (var i = 0; i < coinCount; i++) {
         final coin = await getCoin(i);
         final coinSpent = coin.spent();
-        if (coinSpent == false &&
-            coin.subaddrAccount() == walletAddresses.account!.id) {
+        if (coinSpent == false && coin.subaddrAccount() == walletAddresses.account!.id) {
           final unspent = await MoneroUnspent.fromUnspent(
             address: coin.address(),
             hash: coin.hash(),
@@ -687,10 +609,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
       if (unspentCoins.isNotEmpty) {
         unspentCoins.forEach((coin) {
-          final coinInfoList = unspentCoinsInfo.values.where((element) =>
-              element.walletId.contains(id) &&
-              element.accountIndex == walletAddresses.account!.id &&
-              element.keyImage!.contains(coin.keyImage!));
+          final coinInfoList = unspentCoinsInfo.values.where((element) => element.walletId.contains(id) && element.accountIndex == walletAddresses.account!.id && element.keyImage!.contains(coin.keyImage!));
 
           if (coinInfoList.isNotEmpty) {
             final coinInfo = coinInfoList.first;
@@ -717,18 +636,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   Future<void> _addCoinInfo(MoneroUnspent coin) async {
-    final newInfo = UnspentCoinsInfo(
-        walletId: id,
-        hash: coin.hash,
-        isFrozen: coin.isFrozen,
-        isSending: coin.isSending,
-        noteRaw: coin.note,
-        address: coin.address,
-        value: coin.value,
-        vout: 0,
-        keyImage: coin.keyImage,
-        isChange: coin.isChange,
-        accountIndex: walletAddresses.account!.id);
+    final newInfo = UnspentCoinsInfo(walletId: id, hash: coin.hash, isFrozen: coin.isFrozen, isSending: coin.isSending, noteRaw: coin.note, address: coin.address, value: coin.value, vout: 0, keyImage: coin.keyImage, isChange: coin.isChange, accountIndex: walletAddresses.account!.id);
 
     await unspentCoinsInfo.add(newInfo);
   }
@@ -736,15 +644,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Future<void> _refreshUnspentCoinsInfo() async {
     try {
       final List<dynamic> keys = <dynamic>[];
-      final currentWalletUnspentCoins = unspentCoinsInfo.values.where(
-          (element) =>
-              element.walletId.contains(id) &&
-              element.accountIndex == walletAddresses.account!.id);
+      final currentWalletUnspentCoins = unspentCoinsInfo.values.where((element) => element.walletId.contains(id) && element.accountIndex == walletAddresses.account!.id);
 
       if (currentWalletUnspentCoins.isNotEmpty) {
         currentWalletUnspentCoins.forEach((element) {
-          final existUnspentCoins = unspentCoins
-              .where((coin) => element.keyImage!.contains(coin.keyImage!));
+          final existUnspentCoins = unspentCoins.where((coin) => element.keyImage!.contains(coin.keyImage!));
 
           if (existUnspentCoins.isEmpty) {
             keys.add(element.key);
@@ -760,19 +664,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
   }
 
-  String getTransactionAddress(int accountIndex, int addressIndex) =>
-      monero_wallet.getAddress(
-          accountIndex: accountIndex, addressIndex: addressIndex);
+  String getTransactionAddress(int accountIndex, int addressIndex) => monero_wallet.getAddress(accountIndex: accountIndex, addressIndex: addressIndex);
 
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
     await transaction_history.refreshTransactions();
-    final resp =
-        (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
-            .fold<Map<String, MoneroTransactionInfo>>(
-                <String, MoneroTransactionInfo>{},
-                (Map<String, MoneroTransactionInfo> acc,
-                    MoneroTransactionInfo tx) {
+    final resp = (await _getAllTransactionsOfAccount(walletAddresses.account?.id)).fold<Map<String, MoneroTransactionInfo>>(<String, MoneroTransactionInfo>{}, (Map<String, MoneroTransactionInfo> acc, MoneroTransactionInfo tx) {
       acc[tx.id] = tx;
       return acc;
     });
@@ -794,13 +691,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final newIds = transactions.keys.toSet();
 
       // Remove transactions that no longer exist
-      currentIds
-          .difference(newIds)
-          .forEach((id) => transactionHistory.transactions.remove(id));
+      currentIds.difference(newIds).forEach((id) => transactionHistory.transactions.remove(id));
 
       // Add or update transactions
-      transactions
-          .forEach((key, tx) => transactionHistory.transactions[key] = tx);
+      transactions.forEach((key, tx) => transactionHistory.transactions[key] = tx);
       await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (e) {
@@ -809,34 +703,25 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
   }
 
-  String getSubaddressLabel(int accountIndex, int addressIndex) =>
-      monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
+  String getSubaddressLabel(int accountIndex, int addressIndex) => monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
-  Future<List<MoneroTransactionInfo>> _getAllTransactionsOfAccount(
-          int? accountIndex) async =>
-      (await transaction_history.getAllTransactions())
-          .map(
-            (row) => MoneroTransactionInfo(
-              row.hash,
-              row.blockheight,
-              row.isSpend
-                  ? TransactionDirection.outgoing
-                  : TransactionDirection.incoming,
-              row.timeStamp,
-              row.isPending,
-              row.amount,
-              row.accountIndex,
-              0,
-              row.fee,
-              row.confirmations,
-            )..additionalInfo = <String, dynamic>{
-                'key': row.key,
-                'accountIndex': row.accountIndex,
-                'addressIndex': row.addressIndex
-              },
-          )
-          .where((element) => element.accountIndex == (accountIndex ?? 0))
-          .toList();
+  Future<List<MoneroTransactionInfo>> _getAllTransactionsOfAccount(int? accountIndex) async => (await transaction_history.getAllTransactions())
+      .map(
+        (row) => MoneroTransactionInfo(
+          row.hash,
+          row.blockheight,
+          row.isSpend ? TransactionDirection.outgoing : TransactionDirection.incoming,
+          row.timeStamp,
+          row.isPending,
+          row.amount,
+          row.accountIndex,
+          0,
+          row.fee,
+          row.confirmations,
+        )..additionalInfo = <String, dynamic>{'key': row.key, 'accountIndex': row.accountIndex, 'addressIndex': row.addressIndex},
+      )
+      .where((element) => element.accountIndex == (accountIndex ?? 0))
+      .toList();
 
   void _setListeners() {
     _listener?.stop();
@@ -903,28 +788,19 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   void _askForUpdateBalance() {
     final unlockedBalance = _getUnlockedBalance();
-    final fullBalance =
-        monero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id);
+    final fullBalance = monero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id);
     final frozenBalance = _getFrozenBalance();
-    if (balance[currency]!.fullBalance != fullBalance ||
-        balance[currency]!.unlockedBalance != unlockedBalance ||
-        balance[currency]!.frozenBalance != frozenBalance) {
-      balance[currency] = MoneroBalance(
-          fullBalance: fullBalance,
-          unlockedBalance: unlockedBalance,
-          frozenBalance: frozenBalance);
+    if (balance[currency]!.fullBalance != fullBalance || balance[currency]!.unlockedBalance != unlockedBalance || balance[currency]!.frozenBalance != frozenBalance) {
+      balance[currency] = MoneroBalance(fullBalance: fullBalance, unlockedBalance: unlockedBalance, frozenBalance: frozenBalance);
     }
   }
 
-  int _getUnlockedBalance() => monero_wallet.getUnlockedBalance(
-      accountIndex: walletAddresses.account!.id);
+  int _getUnlockedBalance() => monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
 
   int _getFrozenBalance() {
     var frozenBalance = 0;
 
-    for (var coin in unspentCoinsInfo.values.where((element) =>
-        element.walletId == id &&
-        element.accountIndex == walletAddresses.account!.id)) {
+    for (var coin in unspentCoinsInfo.values.where((element) => element.walletId == id && element.accountIndex == walletAddresses.account!.id)) {
       if (coin.isFrozen && !coin.isSending) frozenBalance += coin.value;
     }
 
@@ -993,8 +869,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   @override
-  Future<bool> verifyMessage(String message, String signature,
-      {String? address = null}) async {
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
     if (address == null) return false;
 
     return monero_wallet.verifyMessage(message, address, signature);

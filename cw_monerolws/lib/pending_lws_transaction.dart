@@ -1,22 +1,20 @@
 import 'dart:async';
 
-import 'package:cw_monero/api/account_list.dart';
-import 'package:cw_monero/api/structs/pending_transaction.dart';
-import 'package:cw_monero/api/transaction_history.dart'
-    as monero_transaction_history;
+import 'package:cw_monerolws/api/account_list.dart';
+import 'package:cw_monerolws/api/structs/pending_transaction.dart';
+import 'package:cw_monerolws/api/transaction_history.dart' as monero_transaction_history;
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/amount_converter.dart';
 
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_monero/api/wallet.dart';
-import 'package:cw_monero/monero_wallet.dart';
+import 'package:cw_monerolws/api/wallet.dart';
+import 'package:cw_monerolws/lws_wallet.dart';
 
 class DoubleSpendException implements Exception {
   DoubleSpendException();
 
   @override
-  String toString() =>
-      'This transaction cannot be committed. This can be due to many reasons including the wallet not being synced, there is not enough XMR in your available balance, or previous transactions are not yet fully processed.';
+  String toString() => 'This transaction cannot be committed. This can be due to many reasons including the wallet not being synced, there is not enough XMR in your available balance, or previous transactions are not yet fully processed.';
 }
 
 class PendingMoneroTransaction with PendingTransaction {
@@ -32,15 +30,13 @@ class PendingMoneroTransaction with PendingTransaction {
   String get hex => pendingTransactionDescription.hex;
 
   @override
-  String get amountFormatted => AmountConverter.amountIntToString(
-      CryptoCurrency.xmr, pendingTransactionDescription.amount);
+  String get amountFormatted => AmountConverter.amountIntToString(CryptoCurrency.xmr, pendingTransactionDescription.amount);
 
   @override
   String get feeFormatted => "$feeFormattedValue XMR";
 
   @override
-  String get feeFormattedValue => AmountConverter.amountIntToString(
-      CryptoCurrency.xmr, pendingTransactionDescription.fee);
+  String get feeFormattedValue => AmountConverter.amountIntToString(CryptoCurrency.xmr, pendingTransactionDescription.fee);
 
   @override
   bool shouldCommitUR() => isViewOnly;
@@ -48,9 +44,7 @@ class PendingMoneroTransaction with PendingTransaction {
   @override
   Future<void> commit() async {
     try {
-      await monero_transaction_history.commitTransactionFromPointerAddress(
-          address: pendingTransactionDescription.pointerAddress,
-          useUR: false);
+      await monero_transaction_history.commitTransactionFromPointerAddress(address: pendingTransactionDescription.pointerAddress, useUR: false);
     } catch (e) {
       final message = e.toString();
 
@@ -70,9 +64,7 @@ class PendingMoneroTransaction with PendingTransaction {
   @override
   Future<Map<String, String>> commitUR() async {
     try {
-      final ret = await monero_transaction_history.commitTransactionFromPointerAddress(
-          address: pendingTransactionDescription.pointerAddress,
-          useUR: true);
+      final ret = await monero_transaction_history.commitTransactionFromPointerAddress(address: pendingTransactionDescription.pointerAddress, useUR: true);
       storeSync(force: true);
       unawaited(() async {
         await Future.delayed(const Duration(milliseconds: 250));

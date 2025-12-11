@@ -61,8 +61,7 @@ class OtherSettingsPage extends BasePage {
               if (_otherSettingsViewModel.changeHardwareWalletTypeEnabled)
                 SettingsCellWithArrow(
                   title: "Hardware wallet manufacturer",
-                  handler: (context) => Navigator.of(context)
-                      .pushNamed(Routes.restoreWalletFromHardwareWallet, arguments: {
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.restoreWalletFromHardwareWallet, arguments: {
                     "showUnavailable": false,
                     "availableHardwareWalletTypes": [
                       HardwareWalletType.cupcake,
@@ -79,45 +78,40 @@ class OtherSettingsPage extends BasePage {
                 title: S.current.settings_terms_and_conditions,
                 handler: (context) => Navigator.of(context).pushNamed(Routes.readDisclaimer),
               ),
-              if (FeatureFlag.hasDevOptions &&
-                  _otherSettingsViewModel.walletType == WalletType.monero)
+              if (FeatureFlag.hasDevOptions && _otherSettingsViewModel.walletType == WalletType.monero)
                 SettingsCellWithArrow(
                   title: '[dev] monero background sync',
-                  handler: (context) =>
-                      Navigator.of(context).pushNamed(Routes.devMoneroBackgroundSync),
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.devMoneroBackgroundSync),
                 ),
-              if (FeatureFlag.hasDevOptions &&
-                  [WalletType.monero, WalletType.wownero, WalletType.zano]
-                      .contains(_otherSettingsViewModel.walletType))
+              if (FeatureFlag.hasDevOptions && [WalletType.monero, WalletType.wownero, WalletType.zano].contains(_otherSettingsViewModel.walletType))
                 SettingsCellWithArrow(
                   title: '[dev] xmr call profiler',
-                  handler: (context) =>
-                      Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler),
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler),
                 ),
-              if (FeatureFlag.hasDevOptions &&
-                  [WalletType.monero].contains(_otherSettingsViewModel.walletType))
+              if (FeatureFlag.hasDevOptions && [WalletType.monero].contains(_otherSettingsViewModel.walletType))
                 SettingsCellWithArrow(
                   title: '[dev] xmr wallet cache debug',
-                  handler: (context) =>
-                      Navigator.of(context).pushNamed(Routes.devMoneroWalletCacheDebug),
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.devMoneroWalletCacheDebug),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] xmr wallet cache debug',
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.devMoneroWalletCacheDebug),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] shared preferences',
-                  handler: (context) =>
-                      Navigator.of(context).pushNamed(Routes.devSharedPreferences),
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.devSharedPreferences),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] secure storage preferences',
-                  handler: (context) =>
-                      Navigator.of(context).pushNamed(Routes.devSecurePreferences),
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.devSecurePreferences),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] background sync logs',
-                  handler: (context) =>
-                      Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs),
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
@@ -132,8 +126,7 @@ class OtherSettingsPage extends BasePage {
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] exchange provider logs',
-                  handler: (context) =>
-                      Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs),
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
@@ -143,19 +136,17 @@ class OtherSettingsPage extends BasePage {
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] exchange provider logs',
-                  handler: (BuildContext context) =>
-                      Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs),
+                  handler: (BuildContext context) => Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
-                  title: '[dev] browse sqlite db',
-                  handler: (BuildContext context) async {
-                    final data = await dumpDb();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => JsonExplorerPage(data: data, title: 'sqlite db')),
-                    );
-                  }
-                ),
+                    title: '[dev] browse sqlite db',
+                    handler: (BuildContext context) async {
+                      final data = await dumpDb();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => JsonExplorerPage(data: data, title: 'sqlite db')),
+                      );
+                    }),
               Spacer(),
               SettingsVersionCell(
                 title: S.of(context).version(_otherSettingsViewModel.currentVersion),

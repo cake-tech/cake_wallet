@@ -1,12 +1,12 @@
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_monero/api/wallet_manager.dart';
+import 'package:cw_monerolws/api/wallet_manager.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/account.dart';
-import 'package:cw_monero/api/account_list.dart' as account_list;
-import 'package:monero/src/monero.dart';
+import 'package:cw_monerolws/api/account_list.dart' as account_list;
+import 'package:monerolws/src/monerolws.dart'; // needs to point to a file in my repo
 
-part 'monero_account_list.g.dart';
+part 'lws_account_list.g.dart';
 
 class MoneroAccountList = MoneroAccountListBase with _$MoneroAccountList;
 
@@ -46,26 +46,26 @@ abstract class MoneroAccountListBase with Store {
   }
 
   static Map<int, List<Account>> cachedAccounts = {};
-  
+
   List<Account> getAll() {
     final allAccounts = account_list.getAllAccount();
     final currentCount = allAccounts.length;
     cachedAccounts[account_list.currentWallet!.ffiAddress()] ??= [];
-    
+
     if (cachedAccounts[account_list.currentWallet!.ffiAddress()]!.length == currentCount) {
       return cachedAccounts[account_list.currentWallet!.ffiAddress()]!;
     }
-    
-    cachedAccounts[account_list.currentWallet!.ffiAddress()] = allAccounts.map((accountRow) {
-        final balance = accountRow.getUnlockedBalance();
 
-        return Account(
-          id: accountRow.getRowId(),
-          label: accountRow.getLabel(),
-          balance: moneroAmountToString(amount: account_list.currentWallet!.amountFromString(balance)),
-        );
-      }).toList();
-    
+    cachedAccounts[account_list.currentWallet!.ffiAddress()] = allAccounts.map((accountRow) {
+      final balance = accountRow.getUnlockedBalance();
+
+      return Account(
+        id: accountRow.getRowId(),
+        label: accountRow.getLabel(),
+        balance: moneroAmountToString(amount: account_list.currentWallet!.amountFromString(balance)),
+      );
+    }).toList();
+
     return cachedAccounts[account_list.currentWallet!.ffiAddress()]!;
   }
 

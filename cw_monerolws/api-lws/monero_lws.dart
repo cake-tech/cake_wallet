@@ -13,12 +13,12 @@ final isDebug = true;
 // A basic implementation of a Monero LWS client in Dart
 // Technically, addresses and viewkeys aren't strings, but let's go with
 // String for a first pass
-class MoneroLightweightWalletServiceClient {
+class MoneroLWSClient {
   String lwsDaemonAddress;
   String port;
 
   // Construct an instance of this class
-  MoneroLightweightWalletServiceClient(String lwsDaemonAddress, String port)
+  MoneroLWSClient(String lwsDaemonAddress, String port)
       : lwsDaemonAddress = lwsDaemonAddress,
         port = port;
 
@@ -93,7 +93,7 @@ class MoneroLightweightWalletServiceClient {
   // TODO: This hasn't been configured and run yet, but we do know that if a query
   // returns a 501 status, it doesn't accept requests for new wallets.
   // If it accepts them, will return non-200 status indicating admin approval status
-  Future<bool> import_wallet_request(String address, String viewKey) async {
+  Future<Map<String, String>> import_wallet_request(String address, String viewKey) async {
     // TODO: Finish this function
     Response response;
     String Uri = "${lwsDaemonAddress}/login";
@@ -102,6 +102,11 @@ class MoneroLightweightWalletServiceClient {
         Uri,
         data: {'address': address, 'view_key': viewKey},
       );
+      if (response.statusCode != 501) {
+        return {"501": "server does not accept requests"};
+      } else if (response.statusCode != 200) {
+        return {response.statusCode.toString(): "account awaiting admin approval"};
+      }
     } on DioException catch (e) {
       if (e.response != null) {
         switch (e.response!.statusCode) {
@@ -134,7 +139,7 @@ class MoneroLightweightWalletServiceClient {
         }
       }
     }
-    return false;
+    return {"500": "Undefined HTTP Error"};
   }
 
   // Returns the minimal set of information needed to calculate a wallet balance.
@@ -209,7 +214,7 @@ class MoneroLightweightWalletServiceClient {
   
   */
 
-  Future<List<dynamic>> get_address_txs(String address, String viewKey) async {
+  Future<dynamic> get_address_txs(String address, String viewKey) async {
     Response response;
     try {
       Uri url = Uri(
