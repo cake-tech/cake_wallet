@@ -1,17 +1,13 @@
 name: Cake Wallet Android
 
-on:
-  pull_request:
-  pull_request_target:
-    types: [opened, synchronize, reopened, labeled]
+on: [pull_request]
 
 defaults:
   run:
     shell: bash
-
 jobs:
   debug-context:
-    runs-on: ubuntu-latest
+    runs-on: [Linux, amd64, forlinux]
     steps:
       - name: "1. Diagnostic Dump"
         env:
