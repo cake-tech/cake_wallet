@@ -114,8 +114,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     return Limits(
       min: coinJson['minimum'] as double?,
-      // TODO: remove hardcoded value and call `api/new_rate` when Trocador adds min and max to it
-      max: from == CryptoCurrency.zano ? 2600 : coinJson['maximum'] as double?,
+      max: coinJson['maximum'] as double?,
     );
   }
 

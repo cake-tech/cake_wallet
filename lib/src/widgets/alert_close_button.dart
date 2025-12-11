@@ -18,25 +18,27 @@ class AlertCloseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final button = GestureDetector(
-      onTap: onTap ?? () => Navigator.of(context).pop(),
-      child: Semantics(
-        label: S.of(context).close,
-        button: true,
-        enabled: true,
-        child: Container(
-          height: 42,
-          width: 42,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onSurface,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: image ??
-                Image.asset(
-                  'assets/images/close.png',
-                  color: Theme.of(context).colorScheme.surface,
-                ),
+    final button = SafeArea(
+      child: GestureDetector(
+        onTap: onTap ?? () => Navigator.of(context).pop(),
+        child: Semantics(
+          label: S.of(context).close,
+          button: true,
+          enabled: true,
+          child: Container(
+            height: 42,
+            width: 42,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onSurface,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: image ??
+                  Image.asset(
+                    'assets/images/close.png',
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
+            ),
           ),
         ),
       ),
