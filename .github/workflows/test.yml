@@ -1,0 +1,9 @@
+name: Force Debug
+on: [push] # Trigger on every push to this branch
+jobs:
+  debug-test:
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      ref: ${{ github.sha }}
+      pr_number: "debug-branch"
+    secrets: inherit
