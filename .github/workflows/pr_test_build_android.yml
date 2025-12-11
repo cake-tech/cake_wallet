@@ -6,15 +6,15 @@ on:
   pull_request_target:
 
 jobs:
+
   debug-context:
+    runs-on: [Linux, amd64, forlinux]
     defaults:
       run:
         shell: bash
-    runs-on: ubuntu-latest
     steps:
       - name: "1. Diagnostic Dump"
         env:
-          # This dumps the entire JSON payload so you can see exactly what GitHub sees
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
 
@@ -27,25 +27,25 @@ jobs:
           echo "PR Number: ${{ github.event.number }}"
           echo "Head SHA: ${{ github.event.pull_request.head.sha }}"
 
-  # PATH A: Internal PRs (Triggered by standard 'pull_request')
+  # -----------------------------------------
+  # PATH A: Internal PRs
   internal-build:
-    if: |
-      github.event_name == 'pull_request' && 
+    if: >
+      github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/reusable-build.yml
     with:
       ref: ${{ github.event.pull_request.head.sha }}
       pr_number: ${{ github.head_ref || github.ref_name }}
-    secrets: inherit # Passes all secrets automatically
+    secrets: inherit
 
-  # PATH B: External Forks (Triggered by 'pull_request_target' for security)
+  # -----------------------------------------
+  # PATH B: External Fork PRs
   external-build:
-    if: |
-      github.event_name == 'pull_request_target' && 
+    if: >
+      github.event_name == 'pull_request_target' &&
       github.event.pull_request.head.repo.fork == true
-
     environment: external_contributors
-
     uses: ./.github/workflows/reusable-build.yml
     with:
       ref: ${{ github.event.pull_request.head.sha }}
