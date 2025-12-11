@@ -978,7 +978,7 @@ Future<void> setup({
               getIt.get<NanoAccountEditOrCreateViewModel>(param1: account)));
 
   getIt.registerFactory(() =>
-      DisplaySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<ThemeStore>()));
+      DisplaySettingsViewModel(getIt.get<AppStore>(), getIt.get<ThemeStore>()));
 
   getIt.registerFactory(() =>
       SilentPaymentsSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));

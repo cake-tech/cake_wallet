@@ -2,10 +2,12 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/theme_classes/black_theme.dart';
 import 'package:cake_wallet/themes/utils/theme_list.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
@@ -16,9 +18,10 @@ part 'display_settings_view_model.g.dart';
 class DisplaySettingsViewModel = DisplaySettingsViewModelBase with _$DisplaySettingsViewModel;
 
 abstract class DisplaySettingsViewModelBase with Store {
-  DisplaySettingsViewModelBase(this._settingsStore, this._themeStore);
+  DisplaySettingsViewModelBase(this._appStore, this._themeStore);
 
-  final SettingsStore _settingsStore;
+  final AppStore _appStore;
+  SettingsStore get _settingsStore => _appStore.settingsStore;
   final ThemeStore _themeStore;
 
   @computed
@@ -106,6 +109,9 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;
+
+  @computed
+  bool get showDisplayAmountsInSatoshiSetting => _appStore.wallet?.type == WalletType.bitcoin;
 
   @action
   void setDisplayAmountsInSatoshi(BitcoinAmountDisplayMode value) => _settingsStore.displayAmountsInSatoshi = value;

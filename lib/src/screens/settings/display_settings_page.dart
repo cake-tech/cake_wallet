@@ -60,14 +60,15 @@ class DisplaySettingsPage extends BasePage {
                 displayItem: (SyncStatusDisplayMode mode) => mode.title,
                 isGridView: false,
               ),
-              SettingsPickerCell<BitcoinAmountDisplayMode>(
-                title: "Bitcoin Amount Display", // ToDo (Konsti)
-                items: BitcoinAmountDisplayMode.all,
-                selectedItem: _displaySettingsViewModel.displayAmountsInSatoshi,
-                onItemSelected: _displaySettingsViewModel.setDisplayAmountsInSatoshi,
-                displayItem: (mode) => mode.title,
-                isGridView: false,
-              ),
+              if (_displaySettingsViewModel.showDisplayAmountsInSatoshiSetting)
+                SettingsPickerCell<BitcoinAmountDisplayMode>(
+                  title: "Bitcoin Amount Display", // ToDo (Konsti) localize
+                  items: BitcoinAmountDisplayMode.all,
+                  selectedItem: _displaySettingsViewModel.displayAmountsInSatoshi,
+                  onItemSelected: _displaySettingsViewModel.setDisplayAmountsInSatoshi,
+                  displayItem: (mode) => mode.title,
+                  isGridView: false,
+                ),
               //if (!isHaven) it does not work correctly
               if (!_displaySettingsViewModel.disabledFiatApiMode)
                 SettingsPickerCell<FiatCurrency>(
