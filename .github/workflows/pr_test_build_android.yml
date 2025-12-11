@@ -1,13 +1,16 @@
 name: Cake Wallet Android
 
-on: [push]
+on:
+  push:
+  pull_request:
+  pull_request_target:
 
 jobs:
   debug-context:
     defaults:
       run:
         shell: bash
-    runs-on: [Linux, amd64, forlinux]
+    runs-on: ubuntu-latest
     steps:
       - name: "1. Diagnostic Dump"
         env:
@@ -40,7 +43,9 @@ jobs:
     if: |
       github.event_name == 'pull_request_target' && 
       github.event.pull_request.head.repo.fork == true
+
     environment: external_contributors
+
     uses: ./.github/workflows/reusable-build.yml
     with:
       ref: ${{ github.event.pull_request.head.sha }}
