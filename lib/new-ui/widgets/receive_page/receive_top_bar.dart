@@ -16,7 +16,7 @@ class ModalTopBar extends StatelessWidget {
   final Widget? leadingIcon;
   final Widget? trailingIcon;
 
-  static const buttonSize = 52.0;
+  static const buttonSize = 36.0;
 
   @override
   Widget build(BuildContext context) {

@@ -57,7 +57,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                     ),
                   ),
                 BalanceCard(
-                  width: MediaQuery.of(context).size.width * 0.9,
+                  width: MediaQuery.of(context).size.width * 0.87,
                   selected: true,
                   accountName:
                       state.accountName.isEmpty ? widget.cryptoTitle : accountNameController.text,
