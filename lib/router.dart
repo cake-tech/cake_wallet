@@ -440,9 +440,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (context) => getIt.get<ReceivePage>());
 
     case Routes.addressPage:
-      return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<AddressPage>(),
-      );
+      return handleRouteWithPlatformAwareness((_) => getIt<AddressPage>());
 
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
@@ -797,6 +795,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
       final restoredWallet = args['restoredWallet'] as RestoredWallet?;
 
+      final viewModelParam = {'type' : type, 'isPow' : false};
+
       return handleRouteWithPlatformAwareness(
         (context) => AdvancedPrivacySettingsPage(
           isFromRestore: isFromRestore,
@@ -805,7 +805,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           toggleUseTestnet: toggleTestnet,
           advancedPrivacySettingsViewModel:
               getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-          nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
+          nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: viewModelParam),
           seedSettingsViewModel: getIt.get<SeedSettingsViewModel>(),
         ),
       );

@@ -230,6 +230,8 @@ abstract class Bitcoin {
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
+  ReceivePageOption getBitcoinLightningReceivePageOption();
+  ReceivePageOption getBitcoinSegwitPageOption();
   bool isPayjoinAvailable(Object wallet);
   bool hasSelectedSilentPayments(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);

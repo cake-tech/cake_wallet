@@ -1,5 +1,8 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
@@ -7,6 +10,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -31,7 +35,7 @@ class CoinActionRow extends StatelessWidget {
         children: [
           CoinActionButton(
             icon: SvgPicture.asset("assets/new-ui/send.svg"),
-            label: "Send",
+            label: S.of(context).send,
             action: () {
               if (FeatureFlag.hasNewUiExtraPages) {
                 showModalBottomSheet(
@@ -47,8 +51,8 @@ class CoinActionRow extends StatelessWidget {
           ),
           CoinActionButton(
             icon: SvgPicture.asset("assets/new-ui/receive.svg"),
-            label: "Receive",
-            action: () {
+            label: S.of(context).receive,
+            action: () async {
               if (FeatureFlag.hasNewUiExtraPages) {
                 showModalBottomSheet(
                   context: context,
@@ -59,13 +63,21 @@ class CoinActionRow extends StatelessWidget {
                   ),
                 );
               } else {
-                Navigator.of(context).pushNamed(Routes.receive);
+                // ToDo: (Konsti) refactor as part of the derivation PR (I hate myself for it)
+                if (lightningMode) {
+                  await getIt<WalletAddressListViewModel>().setAddressType(
+                      bitcoin!.getOptionToType(bitcoin!.getBitcoinLightningReceivePageOption()));
+                } else {
+                  await getIt<WalletAddressListViewModel>().setAddressType(
+                      bitcoin!.getOptionToType(bitcoin!.getBitcoinSegwitPageOption()));
+                }
+                Navigator.of(context).pushNamed(Routes.addressPage);
               }
             },
           ),
           CoinActionButton(
             icon: SvgPicture.asset("assets/new-ui/exchange.svg"),
-            label: "Swap",
+            label: S.of(context).swap,
             action: () {
               if (FeatureFlag.hasNewUiExtraPages) {
                 showModalBottomSheet(

@@ -1247,6 +1247,7 @@ abstract class DashboardViewModelBase with Store {
 
   String getTransactionType(TransactionInfo tx) {
     if (wallet.type == WalletType.bitcoin) {
+      if (tx.additionalInfo["isLightning"] == true) return ' Lightning';
       if (tx.isReplaced == true) return ' (replaced)';
     }
 

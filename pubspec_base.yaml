@@ -258,6 +258,16 @@ flutter:
         - asset: assets/fonts/Lato-Semibold.ttf
         - asset: assets/fonts/Lato-Bold.ttf
 
+    - family: Wix Madefor Text
+      fonts:
+        - asset: assets/fonts/WixMadeforText-Regular.ttf
+        - asset: assets/fonts/WixMadeforText-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/WixMadeforText-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/WixMadeforText-Bold.ttf
+          weight: 700
+
 msix_config:
   display_name: Cake Wallet
   publisher_display_name: Cake Labs

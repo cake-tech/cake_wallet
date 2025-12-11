@@ -824,10 +824,14 @@ Future<void> setup({
 
   getIt.registerFactory<ReceivePage>(
       () => ReceivePage(addressListViewModel: getIt.get<WalletAddressListViewModel>()));
-  getIt.registerFactory<AddressPage>(() => AddressPage(
-      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-      dashboardViewModel: getIt.get<DashboardViewModel>(),
-      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>()));
+
+  getIt.registerFactory<AddressPage>(
+    () => AddressPage(
+      addressListViewModel: getIt<WalletAddressListViewModel>(),
+      dashboardViewModel: getIt<DashboardViewModel>(),
+      receiveOptionViewModel: getIt<ReceiveOptionViewModel>(),
+    ),
+  );
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
       (WalletAddressListItem? item, _) =>
@@ -1093,22 +1097,30 @@ Future<void> setup({
         wallet: getIt.get<AppStore>().wallet!,
       ));
 
-  getIt.registerFactoryParam<NodeCreateOrEditViewModel, WalletType?, bool?>(
-      (WalletType? type, bool? isPow) => NodeCreateOrEditViewModel(
-          (isPow ?? false) ? _powNodeSource : _nodeSource,
-          type ?? getIt.get<AppStore>().wallet!.type,
-          getIt.get<SettingsStore>()));
+  getIt.registerFactoryParam<NodeCreateOrEditViewModel, Map<String, dynamic>, void>(
+      (Map<String, dynamic> args, _) {
+      final WalletType type = args['type'] as WalletType? ?? getIt.get<AppStore>().wallet!.type;
+      final bool isPow = args['isPow'] as bool? ?? false;
+      final Node? editingNode = args['editingNode'] as Node?;
+      final nodeSourceArgs = isPow ? _powNodeSource : _nodeSource;
+        return NodeCreateOrEditViewModel(
+            nodeSourceArgs,
+            type,
+            editingNode,
+            getIt.get<SettingsStore>());
+      }
+  );
 
   getIt.registerFactoryParam<NodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => NodeCreateOrEditPage(
-          nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param2: false),
+          nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: {'isPow' : false,'editingNode': editingNode}),
           editingNode: editingNode,
           isSelected: isSelected,
           type: getIt.get<AppStore>().wallet!.type));
 
   getIt.registerFactoryParam<PowNodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(
-          nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param2: true),
+          nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: {'isPow' : true, 'editingNode': editingNode}),
           editingNode: editingNode,
           isSelected: isSelected));
 

@@ -346,13 +346,15 @@ class StealthExExchangeProvider extends ExchangeProvider {
     // Parsing 'from' currency with network tag
     final fromCurrency = deposit['symbol'] as String;
     final fromNetwork = deposit['network'] as String?;
-    final fromTag = fromNetwork == 'mainnet' ? null : fromNetwork;
+    final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
+    final fromTag = _normalizedFromNetwork == 'mainnet' ? null : fromNetwork;
     final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
 
     // Parsing 'to' currency with network tag
     final toCurrency = withdrawal['symbol'] as String;
     final toNetwork = withdrawal['network'] as String?;
-    final toTag = toNetwork == 'mainnet' ? null : toNetwork;
+    final _normalizedToNetwork = _normalizeNetworkType(toNetwork ?? '');
+    final toTag = _normalizedToNetwork == 'mainnet' ? null : toNetwork;
     final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
 
     final payoutAddress = withdrawal['address'] as String;
@@ -440,7 +442,15 @@ class StealthExExchangeProvider extends ExchangeProvider {
     return currency.title.toLowerCase();
   }
 
+  String _normalizeNetworkType(String network) {
+    return switch (network.toUpperCase()) {
+      'ARBITRUM' => 'mainnet',
+      _ => network,
+    };
+  }
+
   String _getNetwork(CryptoCurrency currency) {
+    if (currency == CryptoCurrency.arb) return 'arbitrum';
     if (currency.tag == null) return 'mainnet';
 
     if (currency == CryptoCurrency.maticpoly) return 'mainnet';

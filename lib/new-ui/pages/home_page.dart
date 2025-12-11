@@ -109,13 +109,14 @@ class _NewHomePageState extends State<NewHomePage> {
                       ],
                     );
                   },
-                  child: _lightningMode
-                      ? LightningAssets(
-                          dashboardViewModel: widget.dashboardViewModel,
-                        )
-                      : HistorySection(
-                          dashboardViewModel: widget.dashboardViewModel,
-                        ),
+                  child: HistorySection(dashboardViewModel: widget.dashboardViewModel,),
+                // child:_lightningMode
+                  //    ? LightningAssets(
+                         // dashboardViewModel: widget.dashboardViewModel,
+                        // )
+                  //    : HistorySection(
+                          //dashboardViewModel: widget.dashboardViewModel,
+                        // ),
                 ),
               ],
             ),

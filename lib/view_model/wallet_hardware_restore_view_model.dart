@@ -14,9 +14,7 @@ import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'wallet_hardware_restore_view_model.g.dart';
@@ -57,7 +55,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   Future<void> getNextAvailableAccounts(int limit) async {
     try {
       final service = await hardwareWalletVM.getHardwareWalletService(type);
-      List<HardwareAccountData> accounts = await service
+      final accounts = await service
           .getAvailableAccounts(index: _nextIndex, limit: limit);
 
       availableAccounts.addAll(accounts);
@@ -69,7 +67,6 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     }
 
     isLoadingMoreAccounts = false;
-    _nextIndex += limit;
   }
 
   @override

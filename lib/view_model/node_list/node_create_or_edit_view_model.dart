@@ -1,37 +1,219 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/node_address_validator.dart';
+import 'package:cake_wallet/core/node_port_validator.dart';
+import 'package:cake_wallet/core/socks_proxy_node_address_validator.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_dropdown.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:collection/collection.dart';
-import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
 
-class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase with _$NodeCreateOrEditViewModel;
+class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
+    with _$NodeCreateOrEditViewModel;
 
 abstract class NodeCreateOrEditViewModelBase with Store {
-  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore)
+  NodeCreateOrEditViewModelBase(
+      this._nodeSource, this._walletType, this.editingNode, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
-        useSSL = false,
-        address = '',
-        path = '',
-        port = '',
-        login = '',
-        password = '',
-        trusted = false,
-        isEnabledForAutoSwitching = false,
-        useSocksProxy = false,
-        socksProxyAddress = '';
+        label = editingNode?.label ?? '',
+        address = editingNode?.uri.host.toString() ?? '',
+        path = editingNode?.path.toString() ?? '',
+        port = (editingNode != null && editingNode.uri.hasPort)
+            ? editingNode.uri.port.toString()
+            : '',
+        login = editingNode?.login ?? '',
+        password = editingNode?.password ?? '',
+        socksProxyAddress = editingNode?.socksProxyAddress ?? '',
+        trusted = editingNode?.trusted ?? false,
+        isEnabledForAutoSwitching =
+            editingNode?.isEnabledForAutoSwitching ?? false,
+        useSocksProxy = editingNode?.socksProxyAddress != null &&
+            editingNode!.socksProxyAddress!.isNotEmpty,
+        useSSL = editingNode?.useSSL ?? false {
+    nodeFormItems = {
+      'main': [
+        ListItemTextField(
+          keyValue: nodeLabelUIKey,
+          label: 'Node label',
+          initialValue: label,
+        ),
+        ListItemTextField(
+          keyValue: nodeAddressUIKey,
+          label: S.current.node_address,
+          initialValue: address,
+          validator: _walletType == WalletType.decred
+              ? NodeAddressValidatorDecredBlankException()
+              : NodeAddressValidator(),
+        ),
+        if (hasPathSupport)
+          ListItemTextField(
+            keyValue: nodePathUIKey,
+            label: '/path',
+            initialValue: path,
+            validator: NodePathValidator(),
+          ),
+        ListItemTextField(
+          keyValue: nodePortUIKey,
+          label: S.current.node_port,
+          initialValue: '',
+          //keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+          validator: NodePortValidator(),
+        ),
+        if (hasAuthCredentials) ...[
+          ListItemTextField(
+            keyValue: nodeUsernameUIKey,
+            label: S.current.login,
+            initialValue: login,
+          ),
+          ListItemTextField(
+            keyValue: nodePasswordUIKey,
+            label: S.current.password,
+            initialValue: password,
+          ),
+        ]
+      ],
+      'advanced': [
+        ListItemCheckbox(
+            keyValue: useSSLUIKey,
+            label: S.current.use_ssl,
+            value: useSSL,
+            onChanged: (value) => useSSL = value),
+        ListItemCheckbox(
+          keyValue: nodeTrustedUIKey,
+          label: S.current.trusted,
+          value: trusted,
+          onChanged: (value) => trusted = value,
+        ),
+        if (usesEmbeddedProxy)
+          ListItemCheckbox(
+            keyValue: nodeEmbeddedTorProxyUIKey,
+            label: 'Embedded Tor SOCKS Proxy',
+            value: usesEmbeddedProxy,
+            onChanged: (_) {},
+          ),
+        ListItemCheckbox(
+          keyValue: useSocksProxyUIKey,
+          label: 'Use SOCKS Proxy',
+          value: useSocksProxy,
+          onChanged: (value) {
+            socksProxyAddress = '';
+            useSocksProxy = value;
+          },
+        ),
+        if (useSocksProxy)
+          ListItemTextField(
+            keyValue: socksProxyAddressUIKey,
+            label: '[<ip>:]<port>',
+            initialValue: socksProxyAddress,
+            validator: SocksProxyNodeAddressValidator(),
+          ),
+        ListItemCheckbox(
+            keyValue: autoSwitchingUIKey,
+            label: S.current.enable_for_auto_switching,
+            value: isEnabledForAutoSwitching,
+            onChanged: (value) => isEnabledForAutoSwitching = value),
+      ],
+      // TODO: Remove example sections below when done testing
+      'example section': [
+        ListItemRegularRow(
+            keyValue: 'node_regular_with_drill_in_row_key',
+            label: 'Regular with Drill-in'),
+        ListItemRegularRow(
+            keyValue: 'node_tall_row_key',
+            label: 'Tall',
+            subtitle: 'With secondary text'),
+        ListItemRegularRow(
+            keyValue: 'node_regular_with_trailing_row_key',
+            label: 'Regular with Trailing',
+            trailingText: 'Trailing'),
+        ListItemToggle(
+            keyValue: 'node_toggle_row_key',
+            label: 'Toggle',
+            value: toggleExampleValue,
+            onChanged: (value) => toggleExampleValue = value),
+        ListItemCheckbox(
+          keyValue: 'node_checkbox_row_key',
+          label: 'Checkbox',
+          value: checkboxExampleValue,
+          onChanged: (value) => checkboxExampleValue = value,
+        ),
+        ListItemSelector(
+          keyValue: 'node_item_selector_row_key',
+          label: 'Item Selector',
+          onTap: () {},
+        ),
+      ],
+      'example dropdown': [
+        ListItemDropdown(
+          keyValue: 'node_dropdown_key',
+          label: 'Leading',
+          trailingText: 'Trailing',
+          onTap: () {},
+        ),
+      ],
+      'example icons': [
+        ListItemRegularRow(
+            keyValue: 'node_regular_with_icon_row_key',
+            label: 'Regular with icon',
+            iconPath: 'assets/images/eos.png'
+        ),
+        ListItemRegularRow(
+            keyValue: 'node_regular_tall_with_icon_row_key',
+            label: 'Tall',
+            subtitle: 'with icon',
+            iconPath: 'assets/images/avdo_icon.png'
+        ),
+        ListItemRegularRow(
+            keyValue: 'node_regular_trailing_with_icon_row_key',
+            label: 'Regular with Trailing',
+            trailingText: 'Trailing',
+            iconPath: 'assets/images/avdo_icon.png'
+        ),
+      ],
+    };
+  }
+
+  final nodeLabelUIKey = 'node_label_row_key';
+  final nodeAddressUIKey = 'node_address_row_key';
+  final nodePathUIKey = 'node_path_row_key';
+  final nodeUsernameUIKey = 'node_username_row_key';
+  final nodePasswordUIKey = 'node_password_row_key';
+  final nodePortUIKey = 'node_port_row_key';
+  final useSSLUIKey = 'node_use_ssl_row_key';
+  final nodeTrustedUIKey = 'node_trusted_daemon_row_key';
+  final nodeEmbeddedTorProxyUIKey = 'node_embedded_tor_proxy_row_key';
+  final autoSwitchingUIKey = 'node_auto_switching_row_key';
+  final useSocksProxyUIKey = 'node_use_socks_proxy_row_key';
+  final socksProxyAddressUIKey = 'node_socks_proxy_address_row_key';
+
+  Map<String, List<ListItem>> nodeFormItems = {};
+
+  //TODO: Remove example values when done testing
+  bool toggleExampleValue = false;
+  bool checkboxExampleValue = false;
 
   @observable
   ExecutionState state;
+
+  @observable
+  String label;
 
   @observable
   String address;
@@ -71,10 +253,13 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @computed
   bool get isReady =>
-      (address.isNotEmpty) || _walletType == WalletType.decred; // Allow an empty address.
+      (address.isNotEmpty) ||
+      _walletType == WalletType.decred; // Allow an empty address.
 
   bool get hasAuthCredentials =>
-      _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
+      _walletType == WalletType.monero ||
+      _walletType == WalletType.wownero ||
+      _walletType == WalletType.haven;
 
   bool get hasPathSupport {
     switch (_walletType) {
@@ -112,8 +297,35 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   }
 
   final WalletType _walletType;
+  final Node? editingNode;
   final Box<Node> _nodeSource;
   final SettingsStore _settingsStore;
+
+  void updateViewModelFromText(String key, String value) {
+    if (key == nodeLabelUIKey) setLabel(value);
+    if (key == nodeAddressUIKey) setAddress(value);
+    if (key == nodePortUIKey) setPort(value);
+    if (key == nodePathUIKey) setPath(value);
+    if (key == nodeUsernameUIKey) setLogin(value);
+    if (key == nodePasswordUIKey) setPassword(value);
+    if (key == socksProxyAddressUIKey) setSocksProxyAddress(value);
+  }
+
+  void updateCheckboxValue(String key, bool value) {
+    if (key == useSSLUIKey) setSSL(value);
+    if (key == nodeTrustedUIKey) setTrusted(value);
+    if (key == useSocksProxyUIKey) setSocksProxy(value);
+    if (key == autoSwitchingUIKey) setIsEnabledForAutoSwitching(value);
+  }
+
+  bool getCheckboxValue(String key) {
+    if (key == useSSLUIKey) return useSSL;
+    if (key == nodeTrustedUIKey) return trusted;
+    if (key == nodeEmbeddedTorProxyUIKey) return usesEmbeddedProxy;
+    if (key == useSocksProxyUIKey) return useSocksProxy;
+    if (key == autoSwitchingUIKey) return isEnabledForAutoSwitching;
+    return false;
+  }
 
   @action
   void reset() {
@@ -128,6 +340,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     useSocksProxy = false;
     socksProxyAddress = '';
   }
+
+  @action
+  void setLabel(String val) => label = val;
 
   @action
   void setPort(String val) => port = val;
@@ -151,7 +366,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setTrusted(bool val) => trusted = val;
 
   @action
-  void setIsEnabledForAutoSwitching(bool val) => isEnabledForAutoSwitching = val;
+  void setIsEnabledForAutoSwitching(bool val) =>
+      isEnabledForAutoSwitching = val;
 
   @action
   void setSocksProxy(bool val) => useSocksProxy = val;
@@ -162,6 +378,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @action
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
     final node = Node(
+        label: label,
         uri: uri,
         path: path,
         type: _walletType,
@@ -238,7 +455,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Unexpected scan QR code value: value is empty');
       }
 
-      if (code.startsWith("monero_node:")) code = code.replaceFirst("monero_node:", "tcp://");
+      if (code.startsWith("monero_node:"))
+        code = code.replaceFirst("monero_node:", "tcp://");
       if (!code.contains('://')) code = 'tcp://$code';
 
       final uri = Uri.tryParse(code);
