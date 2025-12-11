@@ -1,13 +1,6 @@
 name: Cake Wallet Android
 
-on:
-  # Trigger 1: For Maintainers (Automatic, No Approval)
-  pull_request:
-    types: [opened, synchronize, reopened]
-
-  # Trigger 2: For Forks (Manual Approval via Environment)
-  pull_request_target:
-    types: [opened, synchronize, reopened]
+on: [pull_request, pull_request_target]
 
 jobs:
   # PATH A: Internal PRs (Runs immediately)
