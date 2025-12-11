@@ -16,8 +16,11 @@ class EditBackupPasswordPage extends BasePage {
     textEditingController
         .addListener(() => editBackupPasswordViewModel.backupPassword = textEditingController.text);
 
-    reaction((_) => editBackupPasswordViewModel.backupPassword,
-        (_) => textEditingController.text = editBackupPasswordViewModel.backupPassword);
+    reaction((_) => editBackupPasswordViewModel.backupPassword, (_) {
+      if (textEditingController.text != editBackupPasswordViewModel.backupPassword) {
+        textEditingController.text = editBackupPasswordViewModel.backupPassword;
+      }
+    });
   }
 
   final EditBackupPasswordViewModel editBackupPasswordViewModel;
