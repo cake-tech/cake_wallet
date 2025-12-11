@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
+import 'package:cake_wallet/new-ui/pages/settings_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_section.dart';
@@ -65,6 +66,14 @@ class _NewHomePageState extends State<NewHomePage> {
                     setState(() {
                       _lightningMode = !_lightningMode;
                     });
+                  },
+                  onSettingsButtonPress:(){
+                    showCupertinoModalBottomSheet(context: context, builder: (context){
+                      return Material(
+                        child: NewSettingsPage(),
+                      );
+                    });
+
                   },
                 ),
                 WalletInfo(
