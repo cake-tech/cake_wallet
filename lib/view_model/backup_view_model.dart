@@ -4,7 +4,7 @@ import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
-import 'package:cake_wallet/store/secret_store.dart';
+import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
@@ -25,21 +25,24 @@ class BackupExportFile {
 class BackupViewModel = BackupViewModelBase with _$BackupViewModel;
 
 abstract class BackupViewModelBase with Store {
-  BackupViewModelBase(this.secureStorage, this.secretStore, this.backupService)
+  BackupViewModelBase(this.secureStorage, this.backupService, this.editBackupPasswordViewModel)
       : isBackupPasswordVisible = false,
         backupPassword = '',
         state = InitialExecutionState() {
-    final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
-    secretStore.values.observe((change) {
-      if (change.key == key) {
-        backupPassword = secretStore.read(key);
-      }
-    }, fireImmediately: true);
+    init();
+
+    reaction((_) => editBackupPasswordViewModel.backupPassword, (value) {
+      backupPassword = value;
+    });
+
+    reaction((_)=>backupPassword, (value){
+      editBackupPasswordViewModel.backupPassword = value;
+    });
   }
 
   final SecureStorage secureStorage;
-  final SecretStore secretStore;
   final BackupServiceV3 backupService;
+  final EditBackupPasswordViewModel editBackupPasswordViewModel;
 
   @observable
   ExecutionState state;

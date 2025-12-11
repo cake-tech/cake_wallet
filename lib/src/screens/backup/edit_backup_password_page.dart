@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
+import 'package:mobx/mobx.dart';
 
 class EditBackupPasswordPage extends BasePage {
   EditBackupPasswordPage(this.editBackupPasswordViewModel)
@@ -14,6 +15,9 @@ class EditBackupPasswordPage extends BasePage {
     textEditingController.text = editBackupPasswordViewModel.backupPassword;
     textEditingController
         .addListener(() => editBackupPasswordViewModel.backupPassword = textEditingController.text);
+
+    reaction((_) => editBackupPasswordViewModel.backupPassword,
+        (_) => textEditingController.text = editBackupPasswordViewModel.backupPassword);
   }
 
   final EditBackupPasswordViewModel editBackupPasswordViewModel;
