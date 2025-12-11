@@ -39,15 +39,4 @@ jobs:
       pr_number: ${{ github.head_ref || github.ref_name }}
     secrets: inherit
 
-  # -----------------------------------------
-  # PATH B: External Fork PRs
-  external-build:
-    if: >
-      github.event_name == 'pull_request_target' &&
-      github.event.pull_request.head.repo.fork == true
-    environment: external_contributors
-    uses: ./.github/workflows/reusable-build.yml
-    with:
-      ref: ${{ github.event.pull_request.head.sha }}
-      pr_number: ${{ github.head_ref || github.ref_name }}
-    secrets: inherit
+
