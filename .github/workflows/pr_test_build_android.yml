@@ -3,32 +3,30 @@ name: Cake Wallet Android
 on:
   pull_request:
   pull_request_target:
+    types: [opened, synchronize, reopened, labeled]
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  # PATH A: Internal PRs (Runs immediately)
+  # PATH A: Internal PRs (Triggered by standard 'pull_request')
   internal-build:
     if: |
       github.event_name == 'pull_request' && 
-      github.event.pull_request.head.repo.full_name == github.repository
+      github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/reusable-build.yml
     with:
       ref: ${{ github.event.pull_request.head.sha }}
       pr_number: ${{ github.head_ref || github.ref_name }}
     secrets: inherit # Passes all secrets automatically
 
-  # PATH B: External Forks (Waits for Approval)
+  # PATH B: External Forks (Triggered by 'pull_request_target' for security)
   external-build:
     if: |
       github.event_name == 'pull_request_target' && 
-      github.event.pull_request.head.repo.full_name != github.repository
-
-    # This applies the specific environment rule ONLY to forks
+      github.event.pull_request.head.repo.fork == true
     environment: external_contributors
-
     uses: ./.github/workflows/reusable-build.yml
     with:
       ref: ${{ github.event.pull_request.head.sha }}
