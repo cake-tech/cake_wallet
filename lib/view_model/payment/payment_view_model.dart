@@ -288,7 +288,7 @@ class PaymentFlowResult {
         return walletTypeToCryptoCurrency(walletType!, chainId: chainId);
       }
 
-      return walletTypeToCryptoCurrency(walletType!, chainId: chainId);
+      return walletTypeToCryptoCurrency(walletType!);
     }
     return null;
   }
