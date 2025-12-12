@@ -1,13 +1,20 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/bip/bip/bip32/bip32.dart';
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/parse_fixed.dart';
+import 'package:cw_core/payment_uris.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:payjoin_flutter/receive.dart' as payjoin;
+
+import 'lightning/utils.dart';
 
 part 'bitcoin_wallet_addresses.g.dart';
 
@@ -27,6 +34,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.initialSilentAddresses,
     super.initialSilentAddressIndex = 0,
     super.masterHd,
+    super.lightningWallet,
   }) : super(walletInfo);
 
   final PayjoinManager payjoinManager;
@@ -87,5 +95,42 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       // Ignore Connectivity errors
       if (!_isPayjoinConnectivityError(e.toString())) rethrow;
     }
+  }
+
+  @override
+  List<ReceivePageOption> get receivePageOptions {
+    if (isHardwareWallet) {
+      return [
+        ...BitcoinReceivePageOption.allViewOnly,
+        ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+      ];
+    }
+    return [
+      ...BitcoinReceivePageOption.all,
+      ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+    ];
+  }
+
+  @override
+  PaymentURI getPaymentUri(String amount) {
+    if (addressPageType is LightningAddressType && lightningWallet != null) {
+      final lnUrl = getLnurlOfLightningAddress(address);
+      return LightningPaymentRequest(address: address, lnURL: lnUrl, amount: amount);
+    }
+    return BitcoinURI(address: address, amount: amount, pjUri: payjoinEndpoint ?? '');
+  }
+
+  Future<PaymentURI> getPaymentRequestUri(String amount) async {
+    if (addressPageType is LightningAddressType && lightningWallet != null) {
+      final amountSats = amount.isNotEmpty ? parseFixed(amount, 8) : null;
+      final lnUrl = getLnurlOfLightningAddress(address);
+      if (amountSats == null) {
+        return LightningPaymentRequest(address: address, lnURL: lnUrl, amount: amount);
+      }
+      final invoice = await lightningWallet!.getBolt11Invoice(amountSats, "Send to Cake Wallet");
+      return LightningPaymentRequest(
+          address: address, lnURL: lnUrl, amount: amount, bolt11Invoice: invoice);
+    }
+    return getPaymentUri(amount);
   }
 }

@@ -2,11 +2,10 @@ name: cw_core
 description: A new Flutter package project.
 version: 0.0.1
 publish_to: none
-author: Cake Wallet
 homepage: https://cakewallet.com
 
 environment:
-  sdk: ">=2.17.5 <3.0.0"
+  sdk: '>=3.0.6 <4.0.0'
   flutter: ">=1.20.0"
 
 dependencies:
@@ -46,6 +45,9 @@ dependencies:
       ref: cake-update-v2
   sqflite: ^2.4.1
   sqflite_common_ffi: ^2.3.4+4
+  bech32:
+    git:
+      url: https://github.com/cake-tech/bech32.git
   sqlite3_flutter_libs: 0.5.40
 
 dev_dependencies:

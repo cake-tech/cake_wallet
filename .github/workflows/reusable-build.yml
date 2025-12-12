@@ -64,6 +64,7 @@ jobs:
           touch cw_core/lib/.secrets.g.dart
           touch cw_nano/lib/.secrets.g.dart
           touch cw_tron/lib/.secrets.g.dart
+          touch cw_bitcoin/lib/.secrets.g.dart
           if [[ "x${{ secrets.SALT }}" == "x" ]];
           then
             echo "const salt = '954f787f12622067f7e548d9450c3832';" > lib/.secrets.g.dart
@@ -140,6 +141,7 @@ jobs:
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart

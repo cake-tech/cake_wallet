@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/entities/ens_record.dart';
+import 'package:cake_wallet/entities/lnurlpay_record.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
@@ -370,6 +371,14 @@ class AddressResolver {
               await WellKnownRecord.fetchAddressAndName(formattedName: text, currency: currency);
           if (record != null) {
             return ParsedAddress.fetchWellKnownAddress(address: record.address, name: text);
+          }
+        }
+
+        if (walletType == WalletType.bitcoin && currency == CryptoCurrency.btc) {
+          final record =
+              await LNUrlPayRecord.fetchAddressAndName(formattedName: text, currency: currency);
+          if (record != null) {
+            return ParsedAddress.fetchLNUrlPayAddress(address: record.address, name: text);
           }
         }
       }
