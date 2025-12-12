@@ -34,7 +34,7 @@ class _CardsViewState extends State<CardsView> {
 
   static const Duration animDuration = Duration(milliseconds: 200);
   static const double overlapAmount = 60.0;
-  late final double cardWidth = MediaQuery.of(context).size.width * 0.85;
+  late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
   late final int numCards;
 
   @override
@@ -176,7 +176,7 @@ class _CardsViewState extends State<CardsView> {
         }
 
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          padding: const EdgeInsets.symmetric(vertical: 0),
           child: AnimatedContainer(
             duration: Duration(milliseconds: 200),
             curve: Curves.easeOut,

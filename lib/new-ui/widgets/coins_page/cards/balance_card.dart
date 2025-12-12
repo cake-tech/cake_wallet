@@ -47,7 +47,7 @@ class BalanceCard extends StatelessWidget {
         fiatBalance.isNotEmpty ||
         assetName.isNotEmpty;
 
-    final height = width * 0.64;
+    final height = width * 0.62;
 
     return Container(
       width: width,
