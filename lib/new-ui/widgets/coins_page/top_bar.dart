@@ -28,14 +28,13 @@ class TopBar extends StatelessWidget {
               child: InkWell(
                 onTap: onLightningSwitchPress,
                 child: Container(
-                  // decoration: ShapeDecoration(
-                  //     shape: RoundedSuperellipseBorder(borderRadius: BorderRadiusGeometry.circular(30.0)),
-                  //   color: Theme.of(context).colorScheme.surfaceContainer
-                  // ),
+                  decoration: ShapeDecoration(
+                    shape: RoundedSuperellipseBorder(borderRadius: BorderRadiusGeometry.circular(900.0)),
+                    color: Theme.of(context).colorScheme.surfaceContainer
+                  ),
                   width: 84,
                   height: 44,
                   padding: EdgeInsets.all(4),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(900.0)), color: Theme.of(context).colorScheme.surfaceContainer),
                   child: Stack(
                     children: [
                       AnimatedContainer(
