@@ -174,20 +174,12 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           );
           break;
         case PaymentFlowType.evmNetworkSelection:
-          if (result.wallet != null) {
-            await _showPaymentConfirmation(
-              paymentViewModel,
-              walletSwitcherViewModel,
-              paymentRequest,
-              result,
-            );
-          } else {
-            await _showEVMPaymentFlow(
-              paymentViewModel,
-              walletSwitcherViewModel,
-              paymentRequest,
-            );
-          }
+          await _showEVMPaymentFlow(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
+          );
+
           break;
         case PaymentFlowType.currentWalletCompatible:
         case PaymentFlowType.error:
@@ -233,7 +225,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             paymentRequest,
             result,
           ),
-          onSwap: () => _handleSwapFlow(paymentViewModel, result),
+          onSwap: (bottomSheetContext) =>
+              _handleSwapFlow(paymentViewModel, result, bottomSheetContext),
           onSwitchNetwork: () => _handleSwitchNetwork(
             paymentViewModel,
             walletSwitcherViewModel,
@@ -481,8 +474,17 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     noteController.text = paymentRequest.note;
   }
 
-  Future<void> _handleSwapFlow(PaymentViewModel paymentViewModel, PaymentFlowResult result) async {
-    Navigator.of(context).pop();
+  Future<void> _handleSwapFlow(
+    PaymentViewModel paymentViewModel,
+    PaymentFlowResult result,
+    BuildContext bottomSheetContext,
+  ) async {
+    Navigator.of(bottomSheetContext).pop();
+
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (!mounted) return;
+
     final bottomSheet = getIt.get<SwapConfirmationBottomSheet>(param1: result);
     await showModalBottomSheet<Trade?>(
       context: context,

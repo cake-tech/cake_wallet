@@ -1,3 +1,4 @@
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -33,7 +34,7 @@ class PaymentConfirmationBottomSheet extends BaseBottomSheet {
   final PaymentRequest paymentRequest;
   final VoidCallback onSelectWallet;
   final VoidCallback onChangeWallet;
-  final VoidCallback onSwap;
+  final void Function(BuildContext) onSwap;
   final VoidCallback? onSwitchNetwork;
 
   @override
@@ -69,7 +70,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
   final PaymentRequest paymentRequest;
   final VoidCallback onSelectWallet;
   final VoidCallback onChangeWallet;
-  final VoidCallback onSwap;
+  final void Function(BuildContext) onSwap;
   final VoidCallback? onSwitchNetwork;
 
   /// Checks if the given address is a MWEB or SP (Silent Payment) address
@@ -201,20 +202,24 @@ class _PaymentConfirmationContent extends StatelessWidget {
               ],
               const SizedBox(height: 72),
               if (isEVMChainMismatch) ...[
-                // EVM Chain Mismatch: Show Switch Network, Change/Switch Wallet, and Swap
                 if (!isMwebOrSpAddress) ...[
                   PrimaryButton(
-                    onPressed: onSwap,
-                    text: '${S.current.swap} $currentWalletName',
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                    onPressed: () => onSwap(context),
+                    text: 'Create In App Swap',
+                    color: hasAtLeastOneWallet
+                        ? Theme.of(context).colorScheme.surfaceContainer
+                        : Theme.of(context).colorScheme.primary,
+                    textColor: hasAtLeastOneWallet
+                        ? Theme.of(context).colorScheme.onSecondaryContainer
+                        : Theme.of(context).colorScheme.onPrimary,
                   ),
                   const SizedBox(height: 10),
                 ],
                 if (onSwitchNetwork != null) ...[
                   PrimaryButton(
                     onPressed: onSwitchNetwork,
-                    text: 'Switch Network',
+                    text:
+                        'Switch to ${evm!.getChainNameByChainId(paymentViewModel.detectedChainId!).toUpperCase()} Network',
                     color: Theme.of(context).colorScheme.surfaceContainer,
                     textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                   ),
@@ -223,16 +228,16 @@ class _PaymentConfirmationContent extends StatelessWidget {
                 if (hasAtLeastOneWallet) ...[
                   PrimaryButton(
                     onPressed: hasMultipleOtherWallets ? onSelectWallet : onChangeWallet,
-                    text: S.current.switch_wallet,
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                    text: S.current.change_wallet_alert_title,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
                   ),
                   const SizedBox(height: 10),
                 ],
               ] else if (hasAtLeastOneWallet) ...[
                 if (!isMwebOrSpAddress) ...[
                   PrimaryButton(
-                    onPressed: onSwap,
+                    onPressed: () => onSwap(context),
                     text: '${S.current.swap} $currentWalletName',
                     color: Theme.of(context).colorScheme.surfaceContainer,
                     textColor: Theme.of(context).colorScheme.onSecondaryContainer,
@@ -256,7 +261,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
                 const SizedBox(height: 10),
                 if (!isMwebOrSpAddress) ...[
                   PrimaryButton(
-                    onPressed: onSwap,
+                    onPressed: () => onSwap(context),
                     text: '${S.current.swap} $currentWalletName',
                     color: hasAtLeastOneWallet
                         ? Theme.of(context).colorScheme.surfaceContainer
