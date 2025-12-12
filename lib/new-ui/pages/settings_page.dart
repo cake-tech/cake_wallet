@@ -133,7 +133,7 @@ class SettingsSection extends StatelessWidget {
             if (data.title.isNotEmpty)
               Text(
                 data.title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: Theme.of(context).textTheme.titleMedium
               )
           ],
         ),
