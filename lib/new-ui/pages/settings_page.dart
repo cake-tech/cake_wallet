@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/router.dart';
 import 'package:cake_wallet/routes.dart';
@@ -23,30 +24,30 @@ class SettingsSectionData {
 
   const SettingsSectionData(this.title, this.titleIconPath, this.items);
 
-  static const SettingsSectionData walletSetings =
+  static SettingsSectionData walletSettings =
       SettingsSectionData("Wallet Settings", "assets/new-ui/wallet_settings.svg", [
     SettingsListItem("assets/new-ui/settings_row_icons/nodes.svg", "Nodes", Routes.manageNodes),
-    SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", "Privacy features", ""),
+    // SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", "Privacy features", ""),
     SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", "Seed & keys", Routes.seed,
         routeArgs: true),
     SettingsListItem("assets/new-ui/settings_row_icons/other.svg", "Other", Routes.otherSettingsPage),
   ]);
 
-  static const SettingsSectionData appSettings =
+  static SettingsSectionData appSettings =
       SettingsSectionData("App Settings", "assets/new-ui/app_settings.svg", [
     SettingsListItem("assets/new-ui/settings_row_icons/connections.svg", "Connections", Routes.connectionSync),
-    SettingsListItem("assets/new-ui/settings_row_icons/defaults.svg", "Defaults", ""),
+    // SettingsListItem("assets/new-ui/settings_row_icons/defaults.svg", "Defaults", ""),
     SettingsListItem("assets/new-ui/settings_row_icons/display.svg", "Display", Routes.displaySettingsPage),
     SettingsListItem("assets/new-ui/settings_row_icons/security.svg", "Privacy & Security", Routes.privacyPage),
     SettingsListItem("assets/new-ui/settings_row_icons/backup.svg", "Backup", Routes.backup),
   ]);
 
-  static const SettingsSectionData otherSettings = SettingsSectionData("", "", [
-    SettingsListItem("assets/new-ui/settings_row_icons/support.svg", "Support", Routes.support),
-    SettingsListItem("assets/new-ui/settings_row_icons/info.svg", "About", ""),
+  static SettingsSectionData otherSettings = SettingsSectionData("", "", [
+    SettingsListItem("assets/new-ui/settings_row_icons/support.svg", S.current.settings_support, Routes.support),
+    // SettingsListItem("assets/new-ui/settings_row_icons/info.svg", "About", ""),
   ]);
 
-  static const List<SettingsSectionData> all = [walletSetings, appSettings, otherSettings];
+  static List<SettingsSectionData> all = [walletSettings, appSettings, otherSettings];
 }
 
 class NewSettingsPage extends StatelessWidget {
@@ -80,12 +81,12 @@ class SettingsMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics: ClampingScrollPhysics(),
+      physics: const ClampingScrollPhysics(),
       controller: ModalScrollController.of(context),
       child: Column(
         children: [
           ModalTopBar(
-            title: "Settings",
+            title: S.of(context).settings,
             leadingIcon: Icon(Icons.close),
             onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
             onTrailingPressed: () {},
@@ -93,15 +94,14 @@ class SettingsMainPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20.0),
             child: Column(
-                spacing: 24.0,
-                children: SettingsSectionData.all
-                    .map((item) => Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                          child: SettingsSection(
-                            data: item,
-                          ),
-                        ))
-                    .toList()),
+              spacing: 24.0,
+              children: SettingsSectionData.all
+                  .map((item) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: SettingsSection(data: item),
+                      ))
+                  .toList(),
+            ),
           ),
         ],
       ),
@@ -133,7 +133,7 @@ class SettingsSection extends StatelessWidget {
             if (data.title.isNotEmpty)
               Text(
                 data.title,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               )
           ],
         ),
@@ -202,8 +202,8 @@ class SettingsRow extends StatelessWidget {
         if (!roundedBottom)
           Container(
             color: Theme.of(context).colorScheme.surfaceContainer,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 18.0),
               child: HorizontalSectionDivider(),
             ),
           )
