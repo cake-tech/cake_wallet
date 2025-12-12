@@ -626,9 +626,10 @@ class CakePayBuyCardPage extends BasePage {
                   quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
                   fiatAmountValue: _sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: S.of(bottomSheetContext).send_fee,
-                  feeValue: _sendViewModel.amountParsingProxy.getCryptoOutputAmount(
-                      _sendViewModel.pendingTransaction!.feeFormatted,
-                      _sendViewModel.selectedCryptoCurrency),
+                  feeValue: "${_sendViewModel.amountParsingProxy.getCryptoOutputAmount(
+                      _sendViewModel.pendingTransaction!.feeFormattedValue,
+                      _sendViewModel.selectedCryptoCurrency)} ${_sendViewModel.amountParsingProxy
+                      .getCryptoSymbol(_sendViewModel.wallet.currency)}",
                   feeFiatAmount: _sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: displayingOutputs,
                   footerType: FooterType.slideActionButton,

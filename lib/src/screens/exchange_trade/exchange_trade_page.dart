@@ -299,8 +299,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     fee: isEVMCompatibleChain(sendVM.walletType)
                         ? S.of(bottomSheetContext).send_estimated_fee
                         : S.of(bottomSheetContext).send_fee,
-                    feeValue: sendVM.amountParsingProxy.getCryptoOutputAmount(
-                        sendVM.pendingTransaction!.feeFormatted, sendVM.selectedCryptoCurrency),
+                    feeValue: "${sendVM.amountParsingProxy.getCryptoOutputAmount(
+                        sendVM.pendingTransaction!.feeFormattedValue,
+                        sendVM.selectedCryptoCurrency)} ${sendVM.amountParsingProxy
+                        .getCryptoSymbol(sendVM.wallet.currency)}",
                     feeFiatAmount: sendVM.pendingTransactionFeeFiatAmountFormatted,
                     outputs: sendVM.outputs,
                     onSlideActionComplete: () async {
