@@ -165,7 +165,8 @@ class AddressResolver {
     "xmr",
     "xyz",
     "zil",
-    "zone"
+    "zone",
+    "pizza"
   ];
 
   static String? extractAddressByType(
