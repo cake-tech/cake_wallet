@@ -49,8 +49,18 @@ class SettingsSectionData {
   static const List<SettingsSectionData> all = [walletSetings, appSettings, otherSettings];
 }
 
-class NewSettingsPage extends StatelessWidget {
+class NewSettingsPage extends StatefulWidget {
   const NewSettingsPage({super.key});
+
+  @override
+  State<NewSettingsPage> createState() => _NewSettingsPageState();
+}
+
+class _NewSettingsPageState extends State<NewSettingsPage> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -58,17 +68,47 @@ class NewSettingsPage extends StatelessWidget {
       left: false,
       child: SizedBox(
         height: MediaQuery.of(context).size.height,
-        child: Navigator(
-            observers: [HeroController()],
-            onGenerateRoute: (settings) {
-              printV(settings.name);
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            pageTransitionsTheme: PageTransitionsTheme(
+              builders: {
+                // requested by ui - iphone-style back anim on every platform
+                TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+                TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+                TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+              },
+            ),
+          ),
+          child: PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) return;
 
-              if (settings.name == "/")
-                return handleRouteWithPlatformAwareness((context) => SettingsMainPage(),
-                    fullscreenDialog: false);
-              else
-                return createRoute(settings);
-            }),
+              final navigator = _navigatorKey.currentState;
+              if (navigator != null && navigator.canPop()) {
+                navigator.pop();
+              } else {
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              }
+            },
+            child: Navigator(
+              key: _navigatorKey,
+                observers: [HeroController()],
+                onGenerateRoute: (settings) {
+                  printV(settings.name);
+
+                  if (settings.name == "/")
+                    return handleRouteWithPlatformAwareness((context) => SettingsMainPage(),
+                        fullscreenDialog: false);
+                  else
+                    return createRoute(settings);
+                }),
+          ),
+        ),
       ),
     );
   }
