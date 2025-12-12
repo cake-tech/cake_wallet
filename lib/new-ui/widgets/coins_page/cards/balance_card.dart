@@ -79,7 +79,9 @@ class BalanceCard extends StatelessWidget {
                         children: [
                           Text(
                             accountName,
-                            style: TextStyle(color: design.colors.textColor, fontSize: 16),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: design.colors.textColor),
                           ),
                           AnimatedOpacity(
                             opacity: selected ? 0 : 1,
@@ -99,19 +101,21 @@ class BalanceCard extends StatelessWidget {
                           children: [
                             Text(
                               balance,
-                              style: TextStyle(color: design.colors.textColor, fontSize: 28),
+                              style: TextStyle(color: design.colors.textColor, fontSize: 28, fontWeight: FontWeight.w500),
                             ),
                             Text(
                               assetName.toUpperCase(),
                               style:
-                                  TextStyle(color: design.colors.textColorSecondary, fontSize: 28),
+                                  TextStyle(color: design.colors.textColorSecondary, fontSize: 28, fontWeight: FontWeight.w400),
                             ),
                           ],
                         ),
                       ),
                       Text(
                         fiatBalance,
-                        style: TextStyle(color: design.colors.textColorSecondary, fontSize: 16),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w400,
+                            color: design.colors.textColorSecondary),
                       ),
                     ],
                   )

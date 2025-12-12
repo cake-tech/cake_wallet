@@ -95,7 +95,7 @@ class LightTheme extends MaterialThemeBase {
         ),
         titleLarge: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
@@ -149,7 +149,7 @@ class LightTheme extends MaterialThemeBase {
         ),
       );
 
-  static const String fontFamily = 'Lato';
+  static const String fontFamily = 'Wix Madefor Text';
   @override
   ThemeData get themeData => ThemeData(
         useMaterial3: true,

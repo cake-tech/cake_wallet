@@ -46,10 +46,8 @@ class CoinActionButton extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top:8.0),
           child: Text(
-            style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface),
             label,
           ),
         ),

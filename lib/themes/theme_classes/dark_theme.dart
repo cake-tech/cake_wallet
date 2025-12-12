@@ -54,7 +54,7 @@ class DarkTheme extends MaterialThemeBase {
         outline: const Color(0xFF9EACC1),
         outlineVariant: const Color(0xFF3E5579),
       );
-  static const String fontFamily = 'Lato';
+  static const String fontFamily = 'Wix Madefor Text';
   @override
   TextTheme get textTheme => TextTheme(
         displayLarge: TextStyle(
@@ -95,7 +95,7 @@ class DarkTheme extends MaterialThemeBase {
         ),
         titleLarge: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
