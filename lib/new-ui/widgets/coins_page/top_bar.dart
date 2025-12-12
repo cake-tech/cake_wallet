@@ -27,7 +27,11 @@ class TopBar extends StatelessWidget {
               child: InkWell(
                 onTap: onLightningSwitchPress,
                 child: Container(
-                  width: 88,
+                  // decoration: ShapeDecoration(
+                  //     shape: RoundedSuperellipseBorder(borderRadius: BorderRadiusGeometry.circular(30.0)),
+                  //   color: Theme.of(context).colorScheme.surfaceContainer
+                  // ),
+                  width: 84,
                   height: 44,
                   padding: EdgeInsets.all(4),
                   decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(900.0)), color: Theme.of(context).colorScheme.surfaceContainer),
@@ -40,12 +44,13 @@ class TopBar extends StatelessWidget {
                             : 0),
                         duration: Duration(milliseconds: 250),
                         curve: Curves.easeOutCubic,
-                        width: 40,
+                        width: 36,
                         height: double.infinity,
                         decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(900.0)), color: Theme.of(context).colorScheme.primary),
                       ),
                       Container(
                         child: Row(
+                          spacing: 4.0,
                           children: [
                             AnimatedSwitcher(
                               duration: Duration(milliseconds: 150),
@@ -53,9 +58,9 @@ class TopBar extends StatelessWidget {
                                   FadeTransition(opacity: animation, child: child),
                               child: SvgPicture.asset(
                                 key: ValueKey(lightningMode),
-                                'assets/new-ui/switcher-bitcoin-off.svg',
-                                width: 40,
-                                height: 40,
+                                'assets/new-ui/switcher-bitcoin.svg',
+                                width: 36,
+                                height: 36,
                                 colorFilter: ColorFilter.mode(
                                   lightningMode
                                     ? Theme.of(context).colorScheme.primary
@@ -70,9 +75,9 @@ class TopBar extends StatelessWidget {
                                   FadeTransition(opacity: animation, child: child),
                               child: SvgPicture.asset(
                                 key: ValueKey(lightningMode),
-                                'assets/new-ui/switcher-lightning-off.svg',
-                                width: 40,
-                                height: 40,
+                                'assets/new-ui/switcher-lightning.svg',
+                                width: 36,
+                                height: 36,
                                 colorFilter: ColorFilter.mode(
                                   lightningMode
                                       ? Theme.of(context).colorScheme.surfaceContainer
