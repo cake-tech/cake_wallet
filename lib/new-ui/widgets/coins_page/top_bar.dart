@@ -24,51 +24,70 @@ class TopBar extends StatelessWidget {
           (dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance ||
           dashboardViewModel.balanceViewModel.hasSecondAvailableBalance) ?
           SizedBox(
-            child: AnimatedSwitcher(
-              duration: Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) =>
-                  FadeTransition(opacity: animation, child: child),
-              child: ElevatedButton(
-                key: ValueKey(lightningMode),
-                style: ElevatedButton.styleFrom(
+              child: InkWell(
+                onTap: onLightningSwitchPress,
+                child: Container(
+                  width: 88,
+                  height: 44,
                   padding: EdgeInsets.all(4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(900.0)),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(900.0)), color: Theme.of(context).colorScheme.surfaceContainer),
+                  child: Stack(
+                    children: [
+                      AnimatedContainer(
+                        alignment: Alignment.centerRight,
+                        margin: EdgeInsets.only(left: lightningMode
+                            ? 40
+                            : 0),
+                        duration: Duration(milliseconds: 250),
+                        curve: Curves.easeOutCubic,
+                        width: 40,
+                        height: double.infinity,
+                        decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(900.0)), color: Theme.of(context).colorScheme.primary),
+                      ),
+                      Container(
+                        child: Row(
+                          children: [
+                            AnimatedSwitcher(
+                              duration: Duration(milliseconds: 150),
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(opacity: animation, child: child),
+                              child: SvgPicture.asset(
+                                key: ValueKey(lightningMode),
+                                'assets/new-ui/switcher-bitcoin-off.svg',
+                                width: 40,
+                                height: 40,
+                                colorFilter: ColorFilter.mode(
+                                  lightningMode
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context).colorScheme.surfaceContainer,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            ),
+                            AnimatedSwitcher(
+                              duration: Duration(milliseconds: 150),
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(opacity: animation, child: child),
+                              child: SvgPicture.asset(
+                                key: ValueKey(lightningMode),
+                                'assets/new-ui/switcher-lightning-off.svg',
+                                width: 40,
+                                height: 40,
+                                colorFilter: ColorFilter.mode(
+                                  lightningMode
+                                      ? Theme.of(context).colorScheme.surfaceContainer
+                                      : Theme.of(context).colorScheme.primary,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainer,
-                ),
-                onPressed: onLightningSwitchPress,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SvgPicture.asset(
-                      lightningMode
-                          ? 'assets/new-ui/switcher-lightning.svg'
-                          : 'assets/new-ui/switcher-bitcoin.svg',
-                      width: 40,
-                      height: 40,
-                      colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.primary,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    SvgPicture.asset(
-                      lightningMode
-                          ? 'assets/new-ui/switcher-bitcoin-off.svg'
-                          : 'assets/new-ui/switcher-lightning-off.svg',
-                      width: 40,
-                      height: 40,
-                      colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.primary,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ],
                 ),
               ),
-            ),
           ) : Container(),
           ModernButton.svg(size: 44, onPressed: (){}, svgPath: "assets/new-ui/top-settings.svg",),
         ],
