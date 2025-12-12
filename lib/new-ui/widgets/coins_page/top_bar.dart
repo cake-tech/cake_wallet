@@ -7,11 +7,12 @@ class TopBar extends StatelessWidget {
   const TopBar({
     super.key,
     required this.lightningMode,
-    required this.onLightningSwitchPress, required this.dashboardViewModel,
+    required this.onLightningSwitchPress, required this.dashboardViewModel, required this.onSettingsButtonPress,
   });
 
   final bool lightningMode;
   final VoidCallback onLightningSwitchPress;
+  final VoidCallback onSettingsButtonPress;
   final DashboardViewModel dashboardViewModel;
 
   @override
@@ -70,7 +71,7 @@ class TopBar extends StatelessWidget {
               ),
             ),
           ) : Container(),
-          ModernButton.svg(size: 44, onPressed: (){}, svgPath: "assets/new-ui/top-settings.svg",),
+          ModernButton.svg(size: 44, onPressed: onSettingsButtonPress, svgPath: "assets/new-ui/top-settings.svg",),
         ],
       ),
     );
