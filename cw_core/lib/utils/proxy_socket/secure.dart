@@ -40,16 +40,22 @@ class ProxySocketSecure implements ProxySocket {
   
   @override
   void write(String data) {
-    try {
-      if (isClosed) {
-        printV("ProxySocketSecure: write: socket is closed");
-        return;
+    runZonedGuarded(() {
+      try {
+        if (isClosed) {
+          printV("ProxySocketSecure: write: socket is closed");
+          return;
+        }
+
+        socket.write(data);
+      } catch (e) {
+        // Catches synchronous errors
+        printV("ProxySocketSecure: write (sync error): $e");
       }
-      socket.write(data);
-    } catch (e) {
-      printV("ProxySocketSecure: write: $e");
-      return;
-    }
+    }, (e, stack) {
+      // Catches asynchronous errors (like the Bad State from the StreamConsumer)
+      printV("ProxySocketSecure: write (async error): $e");
+    });
   }
   
   @override
