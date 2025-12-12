@@ -146,7 +146,7 @@ class _CardsViewState extends State<CardsView> {
   double _getBoxHeight() {
     return
         /* height of initial card */
-        (2 / 3) * (cardWidth) +
+        (2 / 3.2) * (cardWidth) +
             /* height of bg card * amount of bg cards */
             overlapAmount * ((widget.accountListViewModel?.accounts.length ?? 1) - 1);
   }
@@ -175,23 +175,20 @@ class _CardsViewState extends State<CardsView> {
           children.add(_buildCard(_selectedIndex!, parentWidth));
         }
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 0),
-          child: AnimatedContainer(
+        return AnimatedContainer(
+          duration: Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          width: double.infinity,
+          height: _getBoxHeight(),
+          child: AnimatedSwitcher(
             duration: Duration(milliseconds: 200),
-            curve: Curves.easeOut,
-            width: double.infinity,
-            height: _getBoxHeight(),
-            child: AnimatedSwitcher(
-              duration: Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) =>
-                  FadeTransition(opacity: animation, child: child),
-              child: SizedBox(
-                key: ValueKey(_getBoxHeight()),
-                width: double.infinity,
-                height: _getBoxHeight(),
-                child: Stack(alignment: Alignment.center, children: children),
-              ),
+            transitionBuilder: (child, animation) =>
+                FadeTransition(opacity: animation, child: child),
+            child: SizedBox(
+              key: ValueKey(_getBoxHeight()),
+              width: double.infinity,
+              height: _getBoxHeight(),
+              child: Stack(alignment: Alignment.center, children: children),
             ),
           ),
         );
