@@ -34,7 +34,13 @@ class CoinActionRow extends StatelessWidget {
         spacing: MediaQuery.of(context).size.width * 0.05,
         children: [
           CoinActionButton(
-            icon: SvgPicture.asset("assets/new-ui/send.svg"),
+            icon: SvgPicture.asset(
+              "assets/new-ui/send.svg",
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).colorScheme.primary,
+                BlendMode.srcIn,
+              ),
+            ),
             label: S.of(context).send,
             action: () {
               if (FeatureFlag.hasNewUiExtraPages) {
@@ -50,7 +56,13 @@ class CoinActionRow extends StatelessWidget {
             },
           ),
           CoinActionButton(
-            icon: SvgPicture.asset("assets/new-ui/receive.svg"),
+            icon: SvgPicture.asset(
+              "assets/new-ui/receive.svg",
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).colorScheme.primary,
+                BlendMode.srcIn,
+              ),
+            ),
             label: S.of(context).receive,
             action: () async {
               if (FeatureFlag.hasNewUiExtraPages) {
@@ -76,7 +88,13 @@ class CoinActionRow extends StatelessWidget {
             },
           ),
           CoinActionButton(
-            icon: SvgPicture.asset("assets/new-ui/exchange.svg"),
+            icon: SvgPicture.asset(
+              "assets/new-ui/exchange.svg",
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).colorScheme.primary,
+                BlendMode.srcIn,
+              ),
+            ),
             label: S.of(context).swap,
             action: () {
               if (FeatureFlag.hasNewUiExtraPages) {
@@ -94,7 +112,13 @@ class CoinActionRow extends StatelessWidget {
             },
           ),
           CoinActionButton(
-            icon: SvgPicture.asset("assets/new-ui/scan.svg"),
+            icon: SvgPicture.asset(
+              "assets/new-ui/scan.svg",
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).colorScheme.primary,
+                BlendMode.srcIn,
+              ),
+            ),
             label: "Scan",
             action: () => _onPressedScan(context),
           ),
