@@ -1,22 +1,29 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+class BalanceCardAction {
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const BalanceCardAction({required this.label, required this.icon, required this.onTap});
+}
+
 class BalanceCard extends StatelessWidget {
-  const BalanceCard(
-      {super.key,
-      required this.width,
-        this.borderRadius = 20,
-      this.selected = false,
-      this.accountName = "",
-      this.accountBalance = "",
-      this.balance = "",
-      this.fiatBalance = "",
-      this.assetName = "",
-      required this.design,
-      this.showBuyActions = true});
+  const BalanceCard({
+    super.key,
+    required this.width,
+    required this.design,
+    this.borderRadius = 20,
+    this.selected = false,
+    this.accountName = "",
+    this.accountBalance = "",
+    this.balance = "",
+    this.fiatBalance = "",
+    this.assetName = "",
+    this.actions = const [],
+  });
 
   final double width;
   final double borderRadius;
@@ -26,8 +33,8 @@ class BalanceCard extends StatelessWidget {
   final String fiatBalance;
   final String assetName;
   final bool selected;
-  final bool showBuyActions;
   final CardDesign design;
+  final List<BalanceCardAction> actions;
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +53,11 @@ class BalanceCard extends StatelessWidget {
       width: width,
       height: height,
       decoration: ShapeDecoration(
-          gradient: design.gradient,
-          shape: RoundedSuperellipseBorder(side: BorderSide(color: Color(0x77FFFFFF), width: 1), borderRadius: BorderRadiusGeometry.circular(borderRadius))
+        gradient: design.gradient,
+        shape: RoundedSuperellipseBorder(
+          side: const BorderSide(color: Color(0x77FFFFFF), width: 1),
+          borderRadius: BorderRadiusGeometry.circular(borderRadius),
+        ),
       ),
       child: Stack(
         children: [
@@ -112,28 +122,10 @@ class BalanceCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    if (showBuyActions)
-                      Container(
-                        decoration: BoxDecoration(
-                          color: design.colors.backgroundImageColor,
-                          borderRadius: BorderRadius.circular(10000000),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Text(
-                                "Buy",
-                                style: TextStyle(color: design.colors.textColor, fontSize: 16),
-                              ),
-                            ),
-                            Icon(Icons.arrow_forward, color: design.colors.textColorSecondary),
-                          ],
-                        ),
-                      )
-                    else
-                      Container(),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: actions.map(getBalanceCardActionButton).toList(),
+                    ),
                     if (design.backgroundType == CardDesignBackgroundTypes.svgIcon)
                       SvgPicture.asset(
                         design.imagePath,
@@ -153,4 +145,29 @@ class BalanceCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget getBalanceCardActionButton(BalanceCardAction action) => GestureDetector(
+        onTap: action.onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: design.colors.backgroundImageColor,
+            borderRadius: BorderRadius.circular(10000000),
+          ),
+          margin: const EdgeInsets.only(right: 10),
+          padding: const EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Text(
+                  action.label,
+                  style: TextStyle(color: design.colors.textColor, fontSize: 16),
+                ),
+              ),
+              Icon(action.icon, color: design.colors.textColorSecondary),
+            ],
+          ),
+        ),
+      );
 }

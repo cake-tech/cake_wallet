@@ -1,8 +1,14 @@
 import 'dart:math';
 
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/card_design.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -38,16 +44,16 @@ class _CardsViewState extends State<CardsView> {
   }
 
   Widget _buildCard(int index, double parentWidth) {
-    final int numCards = widget.accountListViewModel?.accounts.length ?? 1;
-    final double baseTop = overlapAmount * (numCards - 1);
-    final double scaleFactor = 0.96;
+    final numCards = widget.accountListViewModel?.accounts.length ?? 1;
+    final baseTop = overlapAmount * (numCards - 1);
+    final scaleFactor = 0.96;
 
-    final int howFarBehind = (_selectedIndex! - index + numCards) % numCards;
-    final double scale = pow(scaleFactor, howFarBehind).toDouble();
+    final howFarBehind = (_selectedIndex! - index + numCards) % numCards;
+    final scale = pow(scaleFactor, howFarBehind).toDouble();
 
-    final double top = baseTop - (howFarBehind * overlapAmount);
+    final top = baseTop - (howFarBehind * overlapAmount);
 
-    final double left = (parentWidth - cardWidth) / 2.0;
+    final left = (parentWidth - cardWidth) / 2.0;
 
     return AnimatedPositioned(
       key: ValueKey('box_$index'),
@@ -83,14 +89,14 @@ class _CardsViewState extends State<CardsView> {
 
             // the card designs is empty if widget gets built before it loads.
             // should get populated before user sees anything
-            late final CardDesign cardDesign;
+            final CardDesign cardDesign;
             if (widget.dashboardViewModel.cardDesigns.isEmpty)
               cardDesign = CardDesign.genericDefault;
             else
               cardDesign = widget.dashboardViewModel.cardDesigns[index];
 
-            late final String accountName;
-            late final String accountBalance;
+            final String accountName;
+            final String accountBalance;
             if (account == null) {
               accountName = walletCurrency.fullName ?? walletCurrency.title;
               accountBalance = "";
@@ -99,15 +105,38 @@ class _CardsViewState extends State<CardsView> {
               accountBalance = account.balance ?? "0.00";
             }
 
+            final List<BalanceCardAction> actions = widget.lightningMode
+                ? [
+                    BalanceCardAction(
+                      label: S.current.bitcoin_lightning_deposit,
+                      icon: Icons.arrow_downward,
+                      onTap: depositToL2,
+                    ),
+                    BalanceCardAction(
+                      label: S.current.bitcoin_lightning_withdraw,
+                      icon: Icons.arrow_upward,
+                      onTap: withdrawFromL2,
+                    )
+                  ]
+                : [
+                    BalanceCardAction(
+                      label: S.current.buy,
+                      icon: Icons.arrow_forward,
+                      onTap: () => Navigator.of(context).pushNamed(Routes.buySellPage),
+                    )
+                  ];
+
             return BalanceCard(
               width: cardWidth,
               accountName: accountName,
               accountBalance: accountBalance,
-                assetName: walletCurrency.name,
-                balance: walletBalance,
-                fiatBalance: walletFiatBalance,
-                selected: _selectedIndex == index,
-                design: cardDesign);
+              assetName: walletCurrency.title,
+              balance: walletBalance,
+              fiatBalance: walletFiatBalance,
+              selected: _selectedIndex == index,
+              design: cardDesign,
+              actions: actions,
+            );
           }),
         ),
       ),
@@ -126,8 +155,8 @@ class _CardsViewState extends State<CardsView> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double parentWidth = constraints.maxWidth;
-        List<Widget> children = [];
+        final parentWidth = constraints.maxWidth;
+        final children = <Widget>[];
 
         if (_selectedIndex! >= (widget.accountListViewModel?.accounts.length ?? 1)) {
           _selectedIndex = 0;
@@ -166,6 +195,59 @@ class _CardsViewState extends State<CardsView> {
             ),
           ),
         );
+      },
+    );
+  }
+
+  Future<void> depositToL2() async {
+    PaymentRequest? paymentRequest = null;
+
+    if (widget.dashboardViewModel.type == WalletType.litecoin) {
+      final depositAddress = bitcoin!.getUnusedMwebAddress(widget.dashboardViewModel.wallet);
+      if ((depositAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$depositAddress"));
+      }
+    } else if (widget.dashboardViewModel.type == WalletType.bitcoin) {
+      final depositAddress =
+          await bitcoin!.getUnusedSpakDepositAddress(widget.dashboardViewModel.wallet);
+      if ((depositAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$depositAddress"));
+      }
+    }
+
+    Navigator.pushNamed(
+      context,
+      Routes.send,
+      arguments: {
+        'paymentRequest': paymentRequest,
+        'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
+      },
+    );
+  }
+
+  Future<void> withdrawFromL2() async {
+    PaymentRequest? paymentRequest = null;
+    UnspentCoinType unspentCoinType = UnspentCoinType.any;
+    final withdrawAddress = bitcoin!.getUnusedSegwitAddress(widget.dashboardViewModel.wallet);
+
+    if (widget.dashboardViewModel.type == WalletType.litecoin) {
+      if ((withdrawAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$withdrawAddress"));
+      }
+      unspentCoinType = UnspentCoinType.mweb;
+    } else if (widget.dashboardViewModel.type == WalletType.bitcoin) {
+      if ((withdrawAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$withdrawAddress"));
+      }
+      unspentCoinType = UnspentCoinType.lightning;
+    }
+
+    Navigator.pushNamed(
+      context,
+      Routes.send,
+      arguments: {
+        'paymentRequest': paymentRequest,
+        'coinTypeToSpendFrom': unspentCoinType,
       },
     );
   }
