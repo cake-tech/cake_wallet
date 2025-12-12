@@ -293,6 +293,7 @@ class ExceptionHandler {
     
     "FocusScopeNode was used after being disposed",
     "_getDismissibleFlushbar",
+    "_QueuedFuture.execute (package:universal_ble/src/queue.dart:65)",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
