@@ -11,7 +11,6 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,13 +33,14 @@ abstract class AnonInvoicePageViewModelBase with Store {
         description = '',
         amount = '',
         state = InitialExecutionState(),
-        selectedCurrency = walletTypeToCryptoCurrency(_wallet.type),
-        cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type) {
+        selectedCurrency = walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId),
+        cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId) {
     _getPreviousDonationLink();
     _fetchLimits();
   }
 
-  List<Currency> get currencies => [walletTypeToCryptoCurrency(_wallet.type), ...FiatCurrency.all];
+  List<Currency> get currencies =>
+      [walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId), ...FiatCurrency.all];
   final AnonPayApi anonPayApi;
   final String address;
   final SettingsStore settingsStore;
@@ -85,7 +85,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
     if (currency is CryptoCurrency) {
       cryptoCurrency = currency;
     } else {
-      cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
+      cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId);
     }
 
     _fetchLimits();
@@ -118,7 +118,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
         email: receipientEmail,
         name: receipientName,
         fiatEquivalent:
-        selectedCurrency is FiatCurrency ? (selectedCurrency as FiatCurrency).raw : null,
+            selectedCurrency is FiatCurrency ? (selectedCurrency as FiatCurrency).raw : null,
       ));
 
       _anonpayInvoiceInfoSource.add(result);
@@ -182,8 +182,8 @@ abstract class AnonInvoicePageViewModelBase with Store {
 
   @action
   void reset() {
-    selectedCurrency = walletTypeToCryptoCurrency(_wallet.type);
-    cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
+    selectedCurrency = walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId);
+    cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId);
     receipientEmail = '';
     receipientName = '';
     description = '';

@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -56,10 +55,10 @@ abstract class TrezorViewModelBase extends HardwareWalletViewModel with Store {
         return bitcoin!.getTrezorHardwareWalletService(trezorConnect, true);
       case WalletType.litecoin:
         return bitcoin!.getTrezorHardwareWalletService(trezorConnect, false);
+      case WalletType.evm:
       case WalletType.ethereum:
-        return ethereum!.getTrezorHardwareWalletService(trezorConnect);
       case WalletType.polygon:
-        return polygon!.getTrezorHardwareWalletService(trezorConnect);
+        return evm!.getTrezorHardwareWalletService(trezorConnect);
       default:
         throw UnimplementedError();
     }
@@ -71,10 +70,10 @@ abstract class TrezorViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+      case WalletType.evm:
       case WalletType.ethereum:
-        return ethereum!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.polygon:
-        return polygon!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+        return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

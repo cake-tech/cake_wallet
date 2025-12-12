@@ -2,6 +2,8 @@ import 'package:cw_core/wallet_type.dart';
 
 String getQrImage(WalletType type) {
   switch (type) {
+    // TODO: in the refactoring, it would be `wallet.qrImage` so in case of evm, let's display the QR based on the current selected chain id
+    case WalletType.evm:
     case WalletType.ethereum:
       return 'assets/images/eth_chain_qr.svg';
     case WalletType.solana:
@@ -41,6 +43,7 @@ String getQrImage(WalletType type) {
 
 String getChainMonoImage(WalletType type) {
   switch (type) {
+    case WalletType.evm:
     case WalletType.ethereum:
       return 'assets/images/eth_chain_mono.svg';
     case WalletType.solana:

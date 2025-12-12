@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/universal_address_detector.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -11,7 +11,6 @@ import 'package:cake_wallet/utils/qr_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
-import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -60,21 +59,21 @@ class _EVMPaymentFlowContent extends StatefulWidget {
 }
 
 class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
-  WalletType? selectedNetwork;
+  int? selectedChainId;
   CryptoCurrency? selectedToken;
 
   @override
   void initState() {
     super.initState();
-    selectedNetwork = WalletType.ethereum;
+    selectedChainId = widget.paymentViewModel.detectedChainId ?? 1;
     _autoSelectToken();
   }
 
   Future<void> _autoSelectToken() async {
-    if (selectedNetwork == null) return;
+    if (selectedChainId == null) return;
 
     try {
-      final tokens = await TokenUtilities.getAvailableTokensForNetwork(selectedNetwork!);
+      final tokens = await TokenUtilities.getAvailableTokensForChainId(selectedChainId!);
       if (tokens.isNotEmpty) {
         setState(() {
           selectedToken = tokens.first;
@@ -124,11 +123,11 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
           ),
           const SizedBox(height: 32),
           EVMTileWidget(
-            value: selectedNetwork != null
-                ? walletTypeToString(selectedNetwork!)
+            value: selectedChainId != null
+                ? _getChainName(selectedChainId!)
                 : S.current.select_network,
-            imagePath: selectedNetwork != null ? getChainMonoImage(selectedNetwork!) : null,
-            color: selectedNetwork != null ? Theme.of(context).colorScheme.primary : null,
+            imagePath: selectedChainId != null ? _getChainImagePath(selectedChainId!) : null,
+            color: selectedChainId != null ? Theme.of(context).colorScheme.primary : null,
             enabled: true,
             onTap: () => _showNetworkSelection(context),
           ),
@@ -136,7 +135,7 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
           EVMTileWidget(
             imagePath: selectedToken != null ? selectedToken!.iconPath : null,
             value: selectedToken != null ? selectedToken!.title : S.current.select_token,
-            enabled: selectedNetwork != null,
+            enabled: selectedChainId != null,
             onTap: () => _showTokenSelection(context),
             color: selectedToken == null ? Theme.of(context).colorScheme.primary : null,
           ),
@@ -145,7 +144,7 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
             text: S.current.restore_next,
             color: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.onPrimary,
-            onPressed: selectedNetwork != null && selectedToken != null
+            onPressed: selectedChainId != null && selectedToken != null
                 ? () async => await _handleNext(context)
                 : null,
           ),
@@ -156,30 +155,34 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
   }
 
   void _showNetworkSelection(BuildContext context) async {
-    final evmNetworks =
-        availableWalletTypes.where((walletType) => isEVMCompatibleChain(walletType)).toList();
-    final selectedIndex = evmNetworks.indexOf(selectedNetwork ?? WalletType.ethereum);
+    final allChains = evm!.getAllChains();
+    final chainIds = allChains.map((chainInfo) => chainInfo.chainId).toList();
+
+    final selectedIndex = selectedChainId != null ? chainIds.indexOf(selectedChainId!) : 0;
 
     await showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
         return Picker(
-          items: evmNetworks,
-          displayItem: (WalletType network) => walletTypeToString(network),
-          selectedAtIndex: selectedIndex,
+          items: chainIds,
+          displayItem: (int chainId) => _getChainName(chainId),
+          selectedAtIndex: selectedIndex >= 0 ? selectedIndex : 0,
           title: S.current.select_network,
           closeOnItemSelected: true,
           hasTitleSpacing: true,
-          images: evmNetworks
-              .map((network) => CakeImageWidget(
-                  imageUrl: getChainMonoImage(network),
-                  width: 20,
-                  height: 20,
-                  color: Theme.of(context).colorScheme.primary))
-              .toList(),
-          onItemSelected: (WalletType network) {
+          images: chainIds.map((chainId) {
+            final imagePath = _getChainImagePath(chainId);
+            return imagePath != null
+                ? CakeImageWidget(
+                    imageUrl: imagePath,
+                    width: 20,
+                    height: 20,
+                    color: Theme.of(context).colorScheme.primary)
+                : const SizedBox(width: 20, height: 20);
+          }).toList(),
+          onItemSelected: (int chainId) {
             setState(() {
-              selectedNetwork = network;
+              selectedChainId = chainId;
               selectedToken = null;
             });
             _autoSelectToken();
@@ -189,11 +192,27 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
     );
   }
 
+  String _getChainName(int chainId) {
+    final allChains = evm!.getAllChains();
+    final chainInfo = allChains.firstWhere(
+      (chain) => chain.chainId == chainId,
+      orElse: () => ChainInfo(chainId: chainId, name: 'Unknown Network', shortCode: 'unknown'),
+    );
+    return chainInfo.name;
+  }
+
+  String? _getChainImagePath(int chainId) {
+    final walletType = evm!.getWalletTypeByChainId(chainId);
+    if (walletType != null) return getChainMonoImage(walletType);
+
+    return null;
+  }
+
   void _showTokenSelection(BuildContext context) async {
-    if (selectedNetwork == null) return;
+    if (selectedChainId == null) return;
 
     try {
-      final availableTokens = await TokenUtilities.getAvailableTokensForNetwork(selectedNetwork!);
+      final availableTokens = await TokenUtilities.getAvailableTokensForChainId(selectedChainId!);
 
       if (availableTokens.isEmpty) return;
 
@@ -220,30 +239,36 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
   }
 
   Future<void> _handleNext(BuildContext context) async {
-    if (selectedNetwork == null || selectedToken == null) return;
+    if (selectedChainId == null || selectedToken == null) return;
 
     Navigator.of(context).pop();
 
-    final compatibleWallets = await widget.paymentViewModel.getWalletsByType(selectedNetwork!);
+    final allEVMWallets = await widget.paymentViewModel.getEVMCompatibleWallets();
 
-    final newResult = PaymentFlowResult.evmNetworkSelection(
-      AddressDetectionResult(
-        address: widget.paymentRequest.address,
-        detectedWalletType: selectedNetwork!,
-        detectedCurrency: selectedToken!,
-        isValid: true,
-        amount: widget.paymentRequest.amount,
-        note: widget.paymentRequest.note,
-        scheme: widget.paymentRequest.scheme,
-        pjUri: widget.paymentRequest.pjUri,
-        callbackUrl: widget.paymentRequest.callbackUrl,
-        callbackMessage: widget.paymentRequest.callbackMessage,
-      ),
-      compatibleWallets: compatibleWallets,
-      wallet: compatibleWallets.isNotEmpty ? compatibleWallets.first : null,
+    final walletType = evm!.getWalletTypeByChainId(selectedChainId!) ?? WalletType.evm;
+
+    final detectionResult = AddressDetectionResult(
+      address: widget.paymentRequest.address,
+      detectedWalletType: walletType,
+      detectedCurrency: selectedToken!,
+      chainId: selectedChainId,
+      isValid: true,
+      amount: widget.paymentRequest.amount,
+      note: widget.paymentRequest.note,
+      scheme: widget.paymentRequest.scheme,
+      pjUri: widget.paymentRequest.pjUri,
+      callbackUrl: widget.paymentRequest.callbackUrl,
+      callbackMessage: widget.paymentRequest.callbackMessage,
     );
 
-    widget.paymentViewModel.detectedWalletType = selectedNetwork!;
+    final newResult = PaymentFlowResult.evmNetworkSelection(
+      detectionResult,
+      compatibleWallets: allEVMWallets,
+      wallet: allEVMWallets.isNotEmpty ? allEVMWallets.first : null,
+    );
+
+    widget.paymentViewModel.detectedWalletType = walletType;
+
     widget.onNext(newResult);
   }
 }

@@ -38,6 +38,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
@@ -185,6 +186,19 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (isElectrumWallet) {
       bitcoin!.updateFeeRates(wallet);
     }
+    reaction((_) {
+      if (isEVMCompatibleChain(wallet.type)) {
+        // Access currency which depends on selectedChainId, so MobX tracks the change
+        return wallet.currency;
+      }
+      return null;
+    }, (_) async {
+      // When chain changes, update currencies and refresh token lists
+      await Future.delayed(const Duration(milliseconds: 100));
+      receiveCurrency = wallet.currency;
+      depositCurrency = wallet.currency;
+      _injectUserEthTokensIntoCurrencyLists();
+    });
   }
 
   bool useSameWalletAddress(CryptoCurrency currency) =>
@@ -833,6 +847,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   void _initialPairBasedOnWallet() {
+    if (isEVMCompatibleChain(wallet.type)) {
+      depositCurrency = wallet.currency;
+      receiveCurrency = CryptoCurrency.xmr;
+      return;
+    }
+
     switch (wallet.type) {
       case WalletType.monero:
         depositCurrency = CryptoCurrency.xmr;
@@ -900,6 +920,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.decred:
         depositCurrency = CryptoCurrency.dcr;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.evm:
+        depositCurrency = wallet.currency;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.none:
