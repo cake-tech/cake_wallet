@@ -96,10 +96,10 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     } catch (e) {
       printV("Failed to initialize tor: $e");
     }
-    
+
     try {
       await linuxSymlinkSharedPreferences();
-    } catch (e) { 
+    } catch (e) {
       printV("Failed to symlink linux preferences: $e");
     }
 
@@ -347,7 +347,9 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         final authenticationStore = getIt.get<AuthenticationStore>();
         final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
             ? Routes.welcome
-            : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
+            : settingsStore.currentBuiltinTor
+                ? Routes.startTor
+                : Routes.login;
         final currentTheme = appStore.themeStore.currentTheme;
         final statusBarBrightness =
             currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;

@@ -214,6 +214,9 @@ class WalletInfo extends HiveObject {
   // @HiveField(26, defaultValue: false)
   bool isNonSeedWallet;
 
+  // @HiveField(26, defaultValue: false)
+  bool isLWSEnabled;
+
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 
   set yatLastUsedAddress(String address) {
@@ -234,8 +237,7 @@ class WalletInfo extends HiveObject {
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 
-  Stream<String> get yatLastUsedAddressStream =>
-      _yatLastUsedAddressController.stream;
+  Stream<String> get yatLastUsedAddressStream => _yatLastUsedAddressController.stream;
 
   StreamController<String> _yatLastUsedAddressController;
 
@@ -247,9 +249,8 @@ class WalletInfo extends HiveObject {
   Future<void> migrateToSqlite() async {
     final di = newWi.DerivationInfo(
       id: 0,
-      derivationType: derivationInfo?.derivationType ??
-          derivationType ??
-          newWi.DerivationType.unknown,
+      derivationType:
+          derivationInfo?.derivationType ?? derivationType ?? newWi.DerivationType.unknown,
       derivationPath: derivationInfo?.derivationPath ?? derivationPath ?? '',
     );
     final derivationInfoId = await di.save();
@@ -272,20 +273,16 @@ class WalletInfo extends HiveObject {
         parentAddress,
         hashedWalletIdentifier,
         isNonSeedWallet,
-        0,
-        false);
+        isLWSEnabled);
     final wiId = await walletInfo.save();
     for (final address in usedAddresses ?? <String>[]) {
-      await newWi.WalletInfoAddress.insert(
-          wiId, newWi.WalletInfoAddressType.used, address);
+      await newWi.WalletInfoAddress.insert(wiId, newWi.WalletInfoAddressType.used, address);
     }
     for (final address in hiddenAddresses ?? <String>[]) {
-      await newWi.WalletInfoAddress.insert(
-          wiId, newWi.WalletInfoAddressType.hidden, address);
+      await newWi.WalletInfoAddress.insert(wiId, newWi.WalletInfoAddressType.hidden, address);
     }
     for (final address in manualAddresses ?? <String>[]) {
-      await newWi.WalletInfoAddress.insert(
-          wiId, newWi.WalletInfoAddressType.manual, address);
+      await newWi.WalletInfoAddress.insert(wiId, newWi.WalletInfoAddressType.manual, address);
     }
     for (int i = 0; i < (addressInfos?.length ?? 0); i++) {
       for (final address in addressInfos![i] ?? <AddressInfo>[]) {

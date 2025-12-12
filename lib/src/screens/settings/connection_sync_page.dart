@@ -11,6 +11,8 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -66,7 +68,8 @@ class ConnectionSyncPage extends BasePage {
             },
           ),
           if (isWalletConnectCompatibleChain(dashboardViewModel.wallet.type) &&
-              !dashboardViewModel.wallet.isHardwareWallet) ...[ // ToDo: Remove this line once WalletConnect is implemented
+              !dashboardViewModel.wallet.isHardwareWallet) ...[
+            // ToDo: Remove this line once WalletConnect is implemented
             WalletConnectTile(
               onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
             ),
@@ -75,24 +78,53 @@ class ConnectionSyncPage extends BasePage {
             Observer(builder: (context) {
               return SettingsSwitcherCell(
                 leading: Container(
-                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: Text(
-                  'Alpha',
-                  style: TextStyle(
-                    color: Colors.red.shade700,
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold,
+                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade100,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: Text(
+                    'Alpha',
+                    style: TextStyle(
+                      color: Colors.red.shade700,
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
                 title: S.current.enable_builtin_tor,
                 value: dashboardViewModel.builtinTor,
                 onValueChange: (_, bool value) => dashboardViewModel.setBuiltinTor(value, context),
               );
+            }),
+          if (dashboardViewModel.wallet.type == WalletType.monero)
+            Observer(builder: (context) {
+              return SettingsSwitcherCell(
+                  leading: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade100,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: Text(
+                      'Alpha',
+                      style: TextStyle(
+                        color: Colors.red.shade700,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  // title: S.current.enable_lws,
+                  title: "Enable LWS for this wallet",
+                  value: dashboardViewModel.wallet is MoneroWallet
+                      ? (dashboardViewModel.wallet as MoneroWallet).isLWSEnabled
+                      : false,
+                  onValueChange: (_, bool value) {
+                    if (dashboardViewModel.wallet is MoneroWallet) {
+                      (dashboardViewModel.wallet as MoneroWallet).isLWSEnabled = value;
+                    }
+                  });
             }),
         ],
       ),

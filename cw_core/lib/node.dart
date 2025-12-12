@@ -9,12 +9,13 @@ import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'dart:math' as math;
 import 'package:convert/convert.dart';
-import 'package:cw_monero/api-lws/monero_lws_dart.dart';
+//import 'package:cw_monero/api-lws/monero_lws_dart.dart';
 import 'package:crypto/crypto.dart';
 
 part 'node.g.dart';
 
-Uri createUriFromElectrumAddress(String address, String path) => Uri.tryParse('tcp://$address$path')!;
+Uri createUriFromElectrumAddress(String address, String path) =>
+    Uri.tryParse('tcp://$address$path')!;
 
 @HiveType(typeId: Node.typeId) // KB: so has a typeId == monero (simplified)
 class Node extends HiveObject with Keyable {
@@ -130,7 +131,8 @@ class Node extends HiveObject with Keyable {
       case WalletType.tron:
       case WalletType.zano:
       case WalletType.decred:
-        return Uri.parse("http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
+        return Uri.parse(
+            "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
       case WalletType.none:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -139,10 +141,27 @@ class Node extends HiveObject with Keyable {
   bool get isValidProxyAddress => socksProxyAddress?.contains(':') ?? false;
 
   @override
-  bool operator ==(other) => other is Node && (other.uriRaw == uriRaw && other.login == login && other.password == password && other.typeRaw == typeRaw && other.useSSL == useSSL && other.trusted == trusted && other.socksProxyAddress == socksProxyAddress && other.path == path);
+  bool operator ==(other) =>
+      other is Node &&
+      (other.uriRaw == uriRaw &&
+          other.login == login &&
+          other.password == password &&
+          other.typeRaw == typeRaw &&
+          other.useSSL == useSSL &&
+          other.trusted == trusted &&
+          other.socksProxyAddress == socksProxyAddress &&
+          other.path == path);
 
   @override
-  int get hashCode => uriRaw.hashCode ^ login.hashCode ^ password.hashCode ^ typeRaw.hashCode ^ useSSL.hashCode ^ trusted.hashCode ^ socksProxyAddress.hashCode ^ path.hashCode;
+  int get hashCode =>
+      uriRaw.hashCode ^
+      login.hashCode ^
+      password.hashCode ^
+      typeRaw.hashCode ^
+      useSSL.hashCode ^
+      trusted.hashCode ^
+      socksProxyAddress.hashCode ^
+      path.hashCode;
 
   @override
   dynamic get keyIndex {
@@ -158,8 +177,10 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestNode() async {
     try {
+      if (type == WalletType.monero) return requestMoneroLWSNode();
       switch (type) {
-        case WalletType.monero: // This may be a candidate for splitting up LWS requests from Monero requests?
+        case WalletType
+            .monero: // This may be a candidate for splitting up LWS requests from Monero requests?
         case WalletType.haven:
         case WalletType.wownero:
           return requestMoneroNode();
@@ -218,8 +239,75 @@ class Node extends HiveObject with Keyable {
   // We should be handling this elsewhere. We shouldn't need to invoke this and then return early
   // just based on if data / a field is enabled. It should only run when a wallet is LWS enabled.
   // This is going to need to vary depending on how we've subclassed our node object, I reckon?
-  Future<bool> requestMoneroNode({String methodName = 'get_info', String? address, String? viewKey}) async {
+  Future<bool> requestMoneroNode(
+      {String methodName = 'get_info', String? address, String? viewKey}) async {
+    if (useSocksProxy) {
+      return await requestNodeWithProxy();
+    }
+
+    final path = '/json_rpc';
+    final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
+    final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
+
+    try {
+      final client = ProxyWrapper().getHttpIOClient();
+
+      final jsonBody = json.encode(body);
+
+      final response = await client.post(
+        rpcUri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonBody,
+      );
+      // Check if we received a 401 Unauthorized response
+      if (response.statusCode == 401) {
+        final daemonRpc = DaemonRpc(
+          rpcUri.toString(),
+          username: login ?? '',
+          password: password ?? '',
+        );
+        final response = await daemonRpc.call('get_info', {});
+        return !(response['offline'] as bool);
+      }
+
+      final responseString = await response.body;
+
+      if ((responseString.contains("400 Bad Request") // Some other generic error
+              ||
+              responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+              ||
+              response.headers["location"] != null // Generic reverse proxy
+              ||
+              responseString
+                  .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+          ) &&
+          !(useSSL ?? false)) {
+        final oldUseSSL = useSSL;
+        useSSL = true;
+        try {
+          final ret = await requestMoneroNode(methodName: methodName);
+          if (ret == true) {
+            await save();
+            return ret;
+          }
+          useSSL = oldUseSSL;
+        } catch (e) {
+          useSSL = oldUseSSL;
+        }
+      }
+
+      final resBody = json.decode(response.body) as Map<String, dynamic>;
+      return !(resBody['result']['offline'] as bool);
+    } catch (e) {
+      printV("error: $e");
+      return false;
+    }
+  }
+
+  Future<bool> requestMoneroLWSNode(
+      {String methodName = 'get_info', String? address, String? viewKey}) async {
     // TODO: We should honour using a proxy to communicate with the Monero server
+
     if (useSocksProxy) {
       return await requestNodeWithProxy();
     }
@@ -230,22 +318,24 @@ class Node extends HiveObject with Keyable {
 
     if (isLWSEnabledField == true) {
       try {
-        print("Do LWS attempt, then if successful, retrieve transactions and plug into DB");
-        print("Then do formatting for the transactions to match Transaction Input");
-        print("Finally plug get_address_info into balance");
+        // print("Do LWS attempt, then if successful, retrieve transactions and plug into DB");
+        // print("Then do formatting for the transactions to match Transaction Input");
+        // print("Finally plug get_address_info into balance");
 
-        address = "47Cw9RboPr9DRmvA7WnrzxZrAGh9gy6a2U2wqrbqwZaHjV1FbtX5VH288NmjdmGCqLYL1kQyJSfGxWRwJCAQg9upUxNGRde";
-        viewKey = "59710f89795362d36e9ad1e7dcf9611d594686ed7089d27bdeaaee10803f9502";
-        var response;
-        MoneroLightweightWalletServiceClient lwsClient = MoneroLightweightWalletServiceClient(lwsDaemonAddress: '192.168.0.141', port: '8443');
-        response = await lwsClient.get_address_txs(address, viewKey);
-        print(response);
+        // address =
+        //     "47Cw9RboPr9DRmvA7WnrzxZrAGh9gy6a2U2wqrbqwZaHjV1FbtX5VH288NmjdmGCqLYL1kQyJSfGxWRwJCAQg9upUxNGRde";
+        // viewKey = "59710f89795362d36e9ad1e7dcf9611d594686ed7089d27bdeaaee10803f9502";
+        // var response;
+        // MoneroLightweightWalletServiceClient lwsClient =
+        //     MoneroLightweightWalletServiceClient(lwsDaemonAddress: '192.168.0.141', port: '8443');
+        // response = await lwsClient.get_address_txs(address, viewKey);
+        // print(response);
         // response in this case now returns Future<List<String>> to address length issue
-        for (var i = 0; i < (response.length as int); i++) {
-          print(response[i]);
-          // We've isolated every single transaction here
-          // What's left is to map these transactions to MoneroTransactionInfo for the current wallet
-        }
+        // for (var i = 0; i < (response.length as int); i++) {
+        //   print(response[i]);
+        // We've isolated every single transaction here
+        // What's left is to map these transactions to MoneroTransactionInfo for the current wallet
+        // }
       } catch (e) {
         print("Failed");
         print(e);
@@ -287,7 +377,8 @@ class Node extends HiveObject with Keyable {
               ||
               response.headers["location"] != null // Generic reverse proxy
               ||
-              responseString.contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+              responseString
+                  .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
           ) &&
           !(useSSL ?? false)) {
         final oldUseSSL = useSSL;
@@ -366,8 +457,12 @@ class Node extends HiveObject with Keyable {
       );
 
       final data = jsonDecode(response.body);
-      if (response.statusCode != 200 || data["error"] != null || data["balance"] == null || data["receivable"] == null) {
-        throw Exception("Error while trying to get balance! ${data["error"] != null ? data["error"] : ""}");
+      if (response.statusCode != 200 ||
+          data["error"] != null ||
+          data["balance"] == null ||
+          data["receivable"] == null) {
+        throw Exception(
+            "Error while trying to get balance! ${data["error"] != null ? data["error"] : ""}");
       }
       return true;
     } catch (_) {
@@ -512,7 +607,8 @@ class DaemonRpc {
       }),
     );
 
-    if (initialResponse.statusCode != 401 || !initialResponse.headers.containsKey('www-authenticate')) {
+    if (initialResponse.statusCode != 401 ||
+        !initialResponse.headers.containsKey('www-authenticate')) {
       throw Exception('Unexpected response: ${initialResponse.body}');
     }
 
@@ -543,7 +639,8 @@ class DaemonRpc {
       throw Exception('RPC call failed: ${authenticatedResponse.body}');
     }
 
-    final Map<String, dynamic> result = jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
+    final Map<String, dynamic> result =
+        jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
     if (result['error'] != null) {
       throw Exception('RPC Error: ${result['error']}');
     }
