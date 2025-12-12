@@ -181,16 +181,15 @@ class _CardCustomizerState extends State<CardCustomizer> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 60),
+                            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 52),
                           ),
                           onPressed: Navigator.of(context).pop,
                           child: Text(
                             'Cancel',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(color: Theme.of(context).colorScheme.primary)),
                         ),
                       ),
                       SizedBox(width: 8.0),
@@ -201,7 +200,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 60),
+                            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 52),
                           ),
                           onPressed: () {
                             context.read<CardCustomizerBloc>().add(DesignSaved());
@@ -209,11 +208,10 @@ class _CardCustomizerState extends State<CardCustomizer> {
                           },
                           child: Text(
                             'Save',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
                         ),
                       ),
                     ],
