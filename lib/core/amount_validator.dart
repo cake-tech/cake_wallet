@@ -112,7 +112,7 @@ class AmountMinValidator extends Validator<String> {
       return false;
     }
 
-    return valueInDouble > minInDouble;
+    return valueInDouble >= minInDouble;
   }
 
   double? parseToDouble(String value) {
@@ -146,7 +146,7 @@ class AmountMaxValidator extends Validator<String> {
     if (valueInDouble == null || maxInDouble == null) {
       return false;
     }
-    return valueInDouble < maxInDouble;
+    return valueInDouble <= maxInDouble;
   }
 
   double? parseToDouble(String value) {
