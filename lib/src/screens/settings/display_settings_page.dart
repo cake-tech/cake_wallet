@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
@@ -59,6 +60,15 @@ class DisplaySettingsPage extends BasePage {
                 displayItem: (SyncStatusDisplayMode mode) => mode.title,
                 isGridView: false,
               ),
+              if (_displaySettingsViewModel.showDisplayAmountsInSatoshiSetting)
+                SettingsPickerCell<BitcoinAmountDisplayMode>(
+                  title: "Bitcoin Amount Display", // ToDo (Konsti) localize
+                  items: BitcoinAmountDisplayMode.all,
+                  selectedItem: _displaySettingsViewModel.displayAmountsInSatoshi,
+                  onItemSelected: _displaySettingsViewModel.setDisplayAmountsInSatoshi,
+                  displayItem: (mode) => mode.title,
+                  isGridView: false,
+                ),
               //if (!isHaven) it does not work correctly
               if (!_displaySettingsViewModel.disabledFiatApiMode)
                 SettingsPickerCell<FiatCurrency>(
