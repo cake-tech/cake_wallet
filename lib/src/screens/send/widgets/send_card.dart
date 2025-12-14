@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/evm_payment_flow_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
@@ -148,6 +150,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   }
 
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
+    if (uri.contains('@') || paymentRequest.address.contains('@')) return;
+
     try {
       final result = await paymentViewModel.processAddress(uri);
 
@@ -164,6 +168,13 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             walletSwitcherViewModel,
             paymentRequest,
             result,
+          );
+          break;
+        case PaymentFlowType.evmNetworkSelection:
+          await _showEVMPaymentFlow(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
           );
           break;
         case PaymentFlowType.currentWalletCompatible:
@@ -184,6 +195,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     PaymentRequest paymentRequest,
     PaymentFlowResult result,
   ) async {
+    if (!context.mounted) {
+      return;
+    }
+
     await showModalBottomSheet<void>(
       context: context,
       isDismissible: true,
@@ -198,6 +213,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             paymentViewModel,
             walletSwitcherViewModel,
             paymentRequest,
+            result,
           ),
           onChangeWallet: () => _handleChangeWallet(
             paymentViewModel,
@@ -211,10 +227,47 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     );
   }
 
+  Future<void> _showEVMPaymentFlow(
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest,
+  ) async {
+    if (!context.mounted) {
+      return;
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isDismissible: true,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return EVMPaymentFlowBottomSheet(
+          paymentViewModel: paymentViewModel,
+          paymentRequest: paymentRequest,
+          onNext: (PaymentFlowResult newResult) {
+            if (newResult.addressDetectionResult!.detectedWalletType ==
+                paymentViewModel.currentWalletType) {
+              sendViewModel.setSelectedCryptoCurrency(
+                  newResult.addressDetectionResult!.detectedCurrency!.title);
+            } else {
+              _showPaymentConfirmation(
+                paymentViewModel,
+                walletSwitcherViewModel,
+                paymentRequest,
+                newResult,
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _handleSelectWallet(
     PaymentViewModel paymentViewModel,
     WalletSwitcherViewModel walletSwitcherViewModel,
     PaymentRequest paymentRequest,
+    PaymentFlowResult result,
   ) async {
     Navigator.of(context).pop();
 
@@ -233,6 +286,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     final success = await walletSwitcherViewModel.switchToSelectedWallet();
 
     if (success) {
+      await sendViewModel.wallet.updateBalance();
+      sendViewModel
+          .setSelectedCryptoCurrency(result.addressDetectionResult!.detectedCurrency!.title);
       _applyPaymentRequest(paymentRequest);
     }
   }
@@ -243,7 +299,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     PaymentRequest paymentRequest,
     PaymentFlowResult result,
   ) async {
-    if (context.mounted && Navigator.of(context).canPop()) {
+    if (mounted && Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     }
 
@@ -269,6 +325,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         if (loadingBottomSheetContext != null && loadingBottomSheetContext!.mounted) {
           Navigator.of(loadingBottomSheetContext!).pop();
         }
+
+        await sendViewModel.wallet.updateBalance();
+        sendViewModel
+            .setSelectedCryptoCurrency(result.addressDetectionResult!.detectedCurrency!.title);
         _applyPaymentRequest(paymentRequest);
       }
     }
@@ -287,7 +347,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   }
 
   Future<void> _handleSwapFlow(PaymentViewModel paymentViewModel, PaymentFlowResult result) async {
-    Navigator.of(context).pop();
+    if (mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
     final bottomSheet = getIt.get<SwapConfirmationBottomSheet>(param1: result);
     await showModalBottomSheet<Trade?>(
       context: context,
@@ -485,13 +547,36 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         FutureBuilder<String>(
                           future: sendViewModel.sendingBalance,
                           builder: (context, snapshot) {
-                            return Text(
-                              snapshot.data ??
-                                  sendViewModel.balance, // default to balance while loading
-                              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
+                            return GestureDetector(
+                              onTap: () {
+                                sendViewModel.balanceViewModel
+                                    .switchBalanceValue();
+                              },
+                              child: Observer(builder: (_) {
+                                final hidden = sendViewModel
+                                        .balanceViewModel.displayMode ==
+                                    BalanceDisplayMode.hiddenBalance;
+                                return Text(
+                                  hidden
+                                      ? S.of(context).show_balance_send_page
+                                      : (snapshot.data ??
+                                          sendViewModel.balance),
+                                  // default to balance while loading
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: hidden
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                      ),
+                                );
+                              }),
                             );
                           },
                         )
@@ -886,8 +971,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
         items: sendViewModel.currencies,
         hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) =>
-            sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency),
+        onItemSelected: (Currency cur) async {
+          final selectedCurrency = sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency);
+          await output.calculateEstimatedFee();
+          return selectedCurrency;
+        },
       ),
     );
   }

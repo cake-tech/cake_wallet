@@ -1,1 +1,3 @@
+Fix QR scanning
+UI enhancements
 Bug fixes

@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -565,6 +566,9 @@ Future<void> defaultSettingsMigration(
             oldUri: ['cakewallet.com'],
           );
           break;
+         case 54:
+          await _backupWowneroSeeds(havenSeedStore);
+          break;
 
         default:
           break;
@@ -748,6 +752,12 @@ Future<void> disableServiceStatusFiatDisabled(SharedPreferences sharedPreference
   if (currentFiat == FiatApiMode.disabled.raw || currentFiat == FiatApiMode.torOnly.raw) {
     await sharedPreferences.setBool(PreferencesKey.disableBulletinKey, true);
   }
+}
+
+Future<void> _backupWowneroSeeds(Box<HavenSeedStore> havenSeedStore) async {
+  final future = wownero?.backupSeeds(havenSeedStore);
+  if (future != null) await future;
+  return;
 }
 
 Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {

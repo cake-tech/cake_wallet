@@ -127,6 +127,7 @@ jobs:
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
@@ -184,7 +185,7 @@ jobs:
         run: |
           set -x -e
           pushd scripts
-            wget https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.4/torch_dart-v1.0.4.tar.gz -O torch_dart.tar.gz
+            wget https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.17/torch_dart-v1.0.17.tar.gz -O torch_dart.tar.gz
             mkdir torch_dart
             pushd torch_dart
               tar -xzf ../torch_dart.tar.gz
@@ -196,6 +197,9 @@ jobs:
         run: |
           set -x -e
           pushd scripts
+            # cleaning
+            rm -rf reown_flutter
+            rm -f reown_flutter.tar.gz
             wget https://github.com/cake-tech/reown_flutter/releases/download/v0.0.4/reown_flutter-v0.0.4.tar.gz -O reown_flutter.tar.gz
             mkdir reown_flutter
             pushd reown_flutter

@@ -114,8 +114,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     return Limits(
       min: coinJson['minimum'] as double?,
-      // TODO: remove hardcoded value and call `api/new_rate` when Trocador adds min and max to it
-      max: from == CryptoCurrency.zano ? 2600 : coinJson['maximum'] as double?,
+      max: coinJson['maximum'] as double?,
     );
   }
 
@@ -420,15 +419,24 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final providerName = responseJSON['provider'] as String;
       final addressProviderMemo = responseJSON['address_provider_memo'] as String?;
 
-      final from = responseJSON['ticker_from'] as String;
-      final networkFrom = responseJSON['network_from'] as String?;
-      final to = responseJSON['ticker_to'] as String;
+      final fromCurrency = responseJSON['ticker_from'] as String;
+      final fromNetwork = responseJSON['network_from'] as String?;
+      final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
+      final fromTag = _normalizedFromNetwork.isEmpty || _normalizedFromNetwork == fromCurrency.toUpperCase() || _normalizedFromNetwork == 'Mainnet'
+          ? null : _normalizedFromNetwork;
+
+      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
+
+      final toCurrency = responseJSON['ticker_to'] as String;
       final networkTo = responseJSON['network_to'] as String?;
+      final _normalizedToNetwork = _normalizeNetworkType(networkTo ?? '');
+      final toTag = _normalizedToNetwork.isEmpty || _normalizedToNetwork == toCurrency.toUpperCase() || _normalizedFromNetwork == 'Mainnet' ? null : _normalizedToNetwork;
+      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
 
       return Trade(
         id: id,
-        from: CryptoCurrency.safeParseCurrencyFromString(from),
-        to: CryptoCurrency.safeParseCurrencyFromString(to),
+        from: from,
+        to: to,
         provider: description,
         inputAddress: inputAddress,
         refundAddress: refundAddress,
@@ -440,8 +448,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         providerId: providerId,
         providerName: providerName,
         extraId: addressProviderMemo,
-        userCurrencyFromRaw: '${from.toUpperCase()}' + '_' + _normalizeNetworkType(networkFrom ?? ''),
-        userCurrencyToRaw: '${to.toUpperCase()}' + '_' + _normalizeNetworkType(networkTo ?? ''), // Handle null network
+        userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
+        userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
       );
     });
   }
@@ -514,6 +522,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       'TRC20' => 'TRX',
       'BEP20' => 'BSC',
       'LIGHTNING' => 'LN',
+      'MATIC' => 'POL',
       _ => network,
     };
   }

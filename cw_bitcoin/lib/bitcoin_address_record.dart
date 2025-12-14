@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:cw_bitcoin/electrum_derivations.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -65,8 +67,14 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     required super.type,
     String? scriptHash,
     required super.network,
-  }) : scriptHash = scriptHash ??
-            (network != null ? BitcoinAddressUtils.scriptHash(address, network: network) : null);
+  })  {
+    try {
+      this.scriptHash = scriptHash ??
+        (network != null ? BitcoinAddressUtils.scriptHash(address, network: network!) : null);
+    } catch (e) {
+      printV(e);
+    }
+}
 
   factory BitcoinAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
     final decoded = json.decode(jsonSource) as Map;
@@ -92,7 +100,11 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 
   String getScriptHash(BasedUtxoNetwork network) {
     if (scriptHash != null) return scriptHash!;
-    scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
+    try {
+      scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
+    } catch (e) {
+      return '';
+    }
     return scriptHash!;
   }
 
@@ -122,7 +134,8 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     required this.silentPaymentTweak,
     required super.network,
     required super.type,
-  }) : super();
+    this.spendDerivationPath = SILENT_PAYMENTS_SPEND_PATH_TESTNET,
+  });
 
   factory BitcoinSilentPaymentAddressRecord.fromJSON(String jsonSource,
       {BasedUtxoNetwork? network}) {
@@ -144,10 +157,13 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
           ? BitcoinAddressType.values
               .firstWhere((type) => type.toString() == decoded['type'] as String)
           : SilentPaymentsAddresType.p2sp,
+      spendDerivationPath:
+          decoded['spend_derivation_path'] as String? ?? SILENT_PAYMENTS_SPEND_PATH_TESTNET,
     );
   }
 
   final String? silentPaymentTweak;
+  final String spendDerivationPath;
 
   @override
   String toJSON() => json.encode({
@@ -161,5 +177,6 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
         'type': type.toString(),
         'network': network?.value,
         'silent_payment_tweak': silentPaymentTweak,
+        'spend_derivation_path': spendDerivationPath,
       });
 }

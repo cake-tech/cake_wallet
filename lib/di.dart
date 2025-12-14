@@ -224,7 +224,6 @@ import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
-import 'package:cake_wallet/store/secret_store.dart';
 import 'package:cake_wallet/store/seed_settings_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
@@ -417,9 +416,6 @@ Future<void> setup({
       appName: "Cake Wallet"));
   getIt.registerLazySingleton(() => TrezorViewModel(getIt<TrezorConnect>()));
 
-  final secretStore = await SecretStoreBase.load(getIt.get<SecureStorage>());
-
-  getIt.registerSingleton<SecretStore>(secretStore);
 
   getIt.registerFactory<KeyService>(() => KeyService(getIt.get<SecureStorage>()));
 
@@ -586,11 +582,14 @@ Future<void> setup({
     keyService: getIt.get<KeyService>()));
 
   getIt.registerFactory<AuthService>(
-    () => AuthService(
-      secureStorage: getIt.get<SecureStorage>(),
-      sharedPreferences: getIt.get<SharedPreferences>(),
-      settingsStore: getIt.get<SettingsStore>(),
-    ),
+        () => AuthService(
+        secureStorage: getIt.get<SecureStorage>(),
+        sharedPreferences: getIt.get<SharedPreferences>(),
+        settingsStore: getIt.get<SettingsStore>(),
+        authenticationStore: getIt.get<AuthenticationStore>(),
+        appStore: getIt.get<AppStore>(),
+        resetService: getIt.get<ResetService>(),
+        walletList: walletList),
   );
 
   getIt.registerFactory<ResetService>(
@@ -997,7 +996,7 @@ Future<void> setup({
           getIt.get<SendViewModel>()));
 
   getIt.registerFactory(() =>
-      SecuritySettingsViewModel(getIt.get<SettingsStore>()));
+      SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
 
@@ -1236,13 +1235,25 @@ Future<void> setup({
     }
   });
 
-  getIt.registerFactory<SetupPinCodeViewModel>(
-      () => SetupPinCodeViewModel(getIt.get<AuthService>(), getIt.get<SettingsStore>()));
+  getIt.registerFactoryParam<SetupPinCodeViewModel, bool?, void>(
+        (isDuressPin, _) => SetupPinCodeViewModel(
+      getIt.get<AuthService>(),
+      getIt.get<SettingsStore>(),
+      isDuressPin: isDuressPin ?? false,
+    ),
+  );
 
-  getIt.registerFactoryParam<SetupPinCodePage, void Function(PinCodeState<PinCodeWidget>, String),
-          void>(
-      (onSuccessfulPinSetup, _) => SetupPinCodePage(getIt.get<SetupPinCodeViewModel>(),
-          onSuccessfulPinSetup: onSuccessfulPinSetup));
+
+  getIt.registerFactoryParam<
+      SetupPinCodePage,
+      void Function(PinCodeState<PinCodeWidget>, String),
+      bool?>(
+        (onSuccessfulPinSetup, isDuressPin) => SetupPinCodePage(
+      getIt.get<SetupPinCodeViewModel>(param1: isDuressPin),
+      onSuccessfulPinSetup: onSuccessfulPinSetup,
+      isDuressPin: isDuressPin ?? false,
+    ),
+  );
 
   getIt.registerFactory(() => WelcomePage());
 
@@ -1339,13 +1350,15 @@ Future<void> setup({
       _transactionDescriptionBox,
       getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
 
-  getIt.registerFactory(() => BackupViewModel(
-      getIt.get<SecureStorage>(), getIt.get<SecretStore>(), getIt.get<BackupServiceV3>()));
 
   getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
 
-  getIt.registerFactory(
-      () => EditBackupPasswordViewModel(getIt.get<SecureStorage>(), getIt.get<SecretStore>()));
+  getIt.registerSingleton<EditBackupPasswordViewModel>(
+    EditBackupPasswordViewModel(getIt.get<SecureStorage>()),
+  );
+
+  getIt.registerFactory(() => BackupViewModel(
+      getIt.get<SecureStorage>(),getIt.get<BackupServiceV3>(), getIt.get<EditBackupPasswordViewModel>()));
 
   getIt.registerFactory(() => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
@@ -1411,8 +1424,7 @@ Future<void> setup({
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>(
       (Order order, _) => OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
 
-  getIt.registerFactory(() =>
-      SupportViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>()));
+  getIt.registerFactory(() => SupportViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
@@ -1428,6 +1440,8 @@ Future<void> setup({
     return UnspentCoinsListViewModel(
       wallet: wallet!,
       unspentCoinsInfo: _unspentCoinsInfoSource,
+      fiatConversationStore: getIt.get<FiatConversionStore>(),
+      settingsStore: getIt.get<SettingsStore>(),
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
     );
   });

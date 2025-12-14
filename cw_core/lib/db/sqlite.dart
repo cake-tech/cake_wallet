@@ -1,12 +1,28 @@
 
-import 'package:sqflite/sqflite.dart';
+import 'dart:io';
 
-late Database db; 
+import 'package:cw_core/root_dir.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+late Database db;
 
 Future<void> initDb({String? pathOverride}) async {
-  db = await openDatabase(
-    pathOverride ?? "cake.db",
-    version: 1,
+  if (Platform.isLinux || Platform.isWindows) {
+    databaseFactory = databaseFactoryFfi;
+  }
+
+  // getAppDir is predictable on all platforms and ensures the db gets included in backups.
+  final dbFileOld = File("${await getDatabasesPath()}/cake.db");
+  final dbFile = File("${(await getAppDir()).path}/cake.db");
+
+  if (dbFileOld.existsSync()) {
+    final copied = dbFileOld.copySync(dbFile.path);
+    if (copied.existsSync()) {
+      dbFileOld.deleteSync();
+    }
+  }
+
+  db = await openDatabase(dbFile.path, version: 1,
     onCreate: (Database db, int version) async {
       await db.execute(
         '''
