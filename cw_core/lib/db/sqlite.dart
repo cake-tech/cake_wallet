@@ -15,7 +15,7 @@ Future<void> initDb({String? pathOverride}) async {
   final dbFileOld = File("${await getDatabasesPath()}/cake.db");
   final dbFile = File("${(await getAppDir()).path}/cake.db");
 
-  if (dbFileOld.existsSync() && dbFileOld.path != dbFile.path) {
+  if (Platform.isAndroid && dbFileOld.existsSync() && dbFileOld.path != dbFile.path) {
     final copied = dbFileOld.copySync(dbFile.path);
     if (copied.existsSync()) {
       dbFileOld.deleteSync();

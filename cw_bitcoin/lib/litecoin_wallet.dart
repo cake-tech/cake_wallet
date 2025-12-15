@@ -284,8 +284,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
     derivationInfo.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
     if (derivationInfo.derivationType == DerivationType.unknown) {
-      derivationInfo.derivationPath = segwit_path;
-      derivationInfo.derivationType = DerivationType.bip39;
+      if (snp?.derivationPath == electrum_path || snp?.derivationType == DerivationType.electrum) {
+        derivationInfo.derivationPath = electrum_path;
+        derivationInfo.derivationType = DerivationType.electrum;
+      } else {
+        derivationInfo.derivationPath = segwit_path;
+        derivationInfo.derivationType = DerivationType.bip39;
+      }
     }
 
     Uint8List? seedBytes = null;

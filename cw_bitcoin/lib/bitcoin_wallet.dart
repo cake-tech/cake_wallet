@@ -219,14 +219,25 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     final derivationInfo = await walletInfo.getDerivationInfo();
 
+    print("@@@@@@@@@");
+    print(derivationInfo.derivationPath);
+    print(snp?.derivationPath);
+    print(derivationInfo.derivationType);
+    print(snp?.derivationType);
+
     // set the default if not present:
     derivationInfo.derivationPath ??=
         snp?.derivationPath ?? electrum_path;
     derivationInfo.derivationType ??=
         snp?.derivationType ?? DerivationType.electrum;
     if (derivationInfo.derivationType == DerivationType.unknown) {
-      derivationInfo.derivationPath = segwit_path;
-      derivationInfo.derivationType = DerivationType.bip39;
+      if (snp?.derivationPath == electrum_path || snp?.derivationType == DerivationType.electrum) {
+        derivationInfo.derivationPath = electrum_path;
+        derivationInfo.derivationType = DerivationType.electrum;
+      } else {
+        derivationInfo.derivationPath = segwit_path;
+        derivationInfo.derivationType = DerivationType.bip39;
+      }
     }
     await derivationInfo.save();
 
