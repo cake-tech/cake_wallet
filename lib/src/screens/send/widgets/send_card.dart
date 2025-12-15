@@ -431,6 +431,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   focusNode: addressFocusNode,
                   controller: addressController,
                   onURIScanned: (uri) async {
+                    output.resetParsedAddress();
+                    await output.fetchParsedAddress(context);
+
                     // Process the payment through the new flow
                     await _handlePaymentFlow(
                       uri.toString(),
