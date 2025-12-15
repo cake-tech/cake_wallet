@@ -140,6 +140,7 @@ class ElectrumClient {
         final errorMsg = error.toString();
         printV(errorMsg);
         unterminatedString = '';
+        socket?.destroy();
         socket = null;
         _setConnectionStatus(ConnectionStatus.disconnected);
       },

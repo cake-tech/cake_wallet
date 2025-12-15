@@ -4,14 +4,6 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:cw_core/root_dir.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
-import 'package:cw_bitcoin/litecoin_wallet.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
@@ -19,6 +11,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart' as electrum;
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -27,31 +20,37 @@ import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
+import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/socket_health_logger.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/output_info.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sp_scanner/sp_scanner.dart';
-import 'package:hex/hex.dart';
-import 'package:cw_core/utils/socket_health_logger.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -76,7 +75,8 @@ abstract class ElectrumWalletBase
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
     bool? alwaysScan,
-  })  : accountHD = getAccountHDWallet(
+  })  : _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
+        accountHD = getAccountHDWallet(
             currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
@@ -171,9 +171,18 @@ abstract class ElectrumWalletBase
     }
   }
 
+  static Bip32Slip10Secp256k1? getMasterHD(Uint8List? seedBytes,
+      [BasedUtxoNetwork? network, HardwareWalletType? hardwareWalletType]) {
+    if (seedBytes == null) return null;
+
+    return Bip32Slip10Secp256k1.fromSeed(
+        seedBytes, network != null ? getKeyNetVersion(network, hardwareWalletType) : null);
+  }
+
   @observable
   bool? alwaysScan;
 
+  final Bip32Slip10Secp256k1? _masterHD;
   final Bip32Slip10Secp256k1 accountHD;
   final String? _mnemonic;
 
@@ -389,6 +398,7 @@ abstract class ElectrumWalletBase
       ScanData(
         sendPort: receivePort.sendPort,
         silentAddress: walletAddresses.silentAddress!,
+        masterHD: _masterHD!,
         network: network,
         height: height,
         chainTip: chainTip,
@@ -874,10 +884,10 @@ abstract class ElectrumWalletBase
 
       if (utx.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
         final unspentAddress = utx.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
-        privkey = walletAddresses.silentAddress!.b_spend.tweakAdd(
-          BigintUtils.fromBytes(
-            BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
-          ),
+        privkey = ECPrivate.fromHex(
+                _masterHD!.derivePath(unspentAddress.spendDerivationPath).privateKey.toHex())
+            .tweakAdd(
+          BigintUtils.fromBytes(BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!)),
         );
         spendsSilentPayment = true;
         isSilentPayment = true;
@@ -2913,8 +2923,8 @@ abstract class ElectrumWalletBase
 
   @override
   String formatCryptoAmount(String amount) {
-    final amountInt = int.parse(amount);
-    return bitcoinAmountToString(amount: amountInt);
+    final amountBigInt = BigInt.parse(amount);
+    return currency.formatAmount(amountBigInt);
   }
 
   /// Checks the health of the socket connection
@@ -3082,6 +3092,7 @@ class ScanNode {
 class ScanData {
   final SendPort sendPort;
   final SilentPaymentOwner silentAddress;
+  final Bip32Slip10Secp256k1 masterHD;
   final int height;
   final ScanNode node;
   final BasedUtxoNetwork network;
@@ -3097,6 +3108,7 @@ class ScanData {
   ScanData({
     required this.sendPort,
     required this.silentAddress,
+    required this.masterHD,
     required this.height,
     required this.node,
     required this.network,
@@ -3114,6 +3126,7 @@ class ScanData {
     return ScanData(
       sendPort: scanData.sendPort,
       silentAddress: scanData.silentAddress,
+      masterHD: scanData.masterHD,
       height: newHeight,
       node: scanData.node,
       network: scanData.network,
@@ -3162,16 +3175,29 @@ Future<void> _handleSilentPaymentsLegacyScan(ScanData scanData) async {
 
     log("connected to ${node.toString()}", LogLevel.info);
 
-    final receiver = Receiver(
-      scanData.silentAddress.b_scan.toHex(),
-      scanData.silentAddress.B_spend.toHex(),
-      scanData.network == BitcoinNetwork.testnet,
-      scanData.labelIndexes,
-      scanData.labelIndexes.length,
-    );
+    final receivers = [
+      Receiver(
+        scanData.silentAddress.b_scan.toHex(),
+        scanData.silentAddress.B_spend.toHex(),
+        scanData.network == BitcoinNetwork.testnet,
+        scanData.labelIndexes,
+        scanData.labelIndexes.length,
+      ),
+      Receiver(
+        scanData.masterHD.derivePath(SILENT_PAYMENTS_SCAN_PATH_TESTNET).privateKey.toHex(),
+        scanData.masterHD.derivePath(SILENT_PAYMENTS_SPEND_PATH_TESTNET).publicKey.toHex(),
+        scanData.network == BitcoinNetwork.testnet,
+        scanData.labelIndexes,
+        scanData.labelIndexes.length,
+      )
+    ];
 
     log(
-      "using receiver: b_scan: ${scanData.silentAddress.b_scan.toHex()}, B_scan: ${scanData.silentAddress.B_spend.toHex()}, b_spend: ${scanData.silentAddress.B_spend.toHex()}, B_spend: ${scanData.silentAddress.B_spend.toHex()}, network: ${scanData.network.value}, labelIndexes: ${scanData.labelIndexes}",
+      "using receiver: b_scan: ${scanData.silentAddress.b_scan.toHex()}, b_spend: ${scanData.silentAddress.B_spend.toHex()}, network: ${scanData.network.value}, labelIndexes: ${scanData.labelIndexes}",
+      LogLevel.info,
+    );
+    log(
+      "using receiver: b_scan: ${receivers[1].bScan}, b_spend: ${receivers[1].BSpend}, network: ${scanData.network.value}, labelIndexes: ${scanData.labelIndexes}",
       LogLevel.info,
     );
 
@@ -3299,22 +3325,20 @@ Future<void> _handleSilentPaymentsLegacyScan(ScanData scanData) async {
             final tweak = tweakData.tweak;
 
             try {
-              final addToWallet = {};
+              final addToWallet = <String, dynamic>{};
 
-              // receivers.forEach((receiver) {
-              // NOTE: scanOutputs, from sp_scanner package, called from rust here
-              final scanResult = scanOutputs([outputPubkeys.keys.toList()], tweak, receiver);
+              receivers.forEach((receiver) {
+                // NOTE: scanOutputs, from sp_scanner package, called from rust here
+                final scanResult = scanOutputs([outputPubkeys.keys.toList()], tweak, receiver);
 
-              if (scanResult.isEmpty) {
-                continue;
-              }
+                if (scanResult.isEmpty) return;
 
-              if (addToWallet[receiver.BSpend] == null) {
-                addToWallet[receiver.BSpend] = scanResult;
-              } else {
-                addToWallet[receiver.BSpend].addAll(scanResult);
-              }
-              // });
+                if (addToWallet[receiver.BSpend] == null) {
+                  addToWallet[receiver.BSpend] = scanResult;
+                } else {
+                  addToWallet[receiver.BSpend].addAll(scanResult);
+                }
+              });
 
               if (addToWallet.isEmpty) {
                 // no results tx, continue to next tx
@@ -3396,9 +3420,8 @@ Future<void> _handleSilentPaymentsLegacyScan(ScanData scanData) async {
                     final pos = matchingOutput.vout;
                     final spent = matchingOutput.spendingInput;
 
-                    // final matchingSPWallet = scanData.silentPaymentsWallets.firstWhere(
-                    //   (receiver) => receiver.B_spend.toHex() == BSpend.toString(),
-                    // );
+                    final matchingReceiver =
+                        receivers.indexWhere((receiver) => receiver.BSpend == BSpend);
 
                     // final labelIndex = labelValue != null ? scanData.labels[label] : 0;
                     // final balance = ElectrumBalance();
@@ -3414,6 +3437,9 @@ Future<void> _handleSilentPaymentsLegacyScan(ScanData scanData) async {
                       type: SegwitAddresType.p2tr,
                       txCount: 1,
                       balance: amount,
+                      spendDerivationPath: matchingReceiver == 0
+                          ? SILENT_PAYMENTS_SPEND_PATH
+                          : SILENT_PAYMENTS_SPEND_PATH_TESTNET,
                     );
 
                     final unspent = BitcoinSilentPaymentsUnspent(
