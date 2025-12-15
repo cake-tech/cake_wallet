@@ -11,6 +11,8 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -26,75 +28,104 @@ class ConnectionSyncPage extends BasePage {
   Widget body(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(top: 10),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SettingsCellWithArrow(
-            title: S.current.reconnect,
-            handler: (context) => _presentReconnectAlert(context),
-          ),
-          if (dashboardViewModel.hasRescan) ...[
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             SettingsCellWithArrow(
-              title: dashboardViewModel.hasSilentPayments
-                  ? S.current.silent_payments_scanning
-                  : S.current.rescan,
-              handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
+              title: S.current.reconnect,
+              handler: (context) => _presentReconnectAlert(context),
             ),
-          ],
-          SettingsCellWithArrow(
-            title: S.current.manage_nodes,
-            handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
-          ),
-          if (Platform.isAndroid && FeatureFlag.isBackgroundSyncEnabled) ...[
-            SettingsCellWithArrow(
-              title: S.current.background_sync,
-              handler: (context) => Navigator.of(context).pushNamed(Routes.backgroundSync),
-            ),
-          ],
-          Observer(
-            builder: (context) {
-              if (!dashboardViewModel.hasPowNodes) return const SizedBox();
-
-              return Column(
-                children: [
-                  SettingsCellWithArrow(
-                    title: S.current.manage_pow_nodes,
-                    handler: (context) => Navigator.of(context).pushNamed(Routes.managePowNodes),
-                  ),
-                ],
-              );
-            },
-          ),
-          if (isWalletConnectCompatibleChain(dashboardViewModel.wallet.type) &&
-              !dashboardViewModel.wallet.isHardwareWallet) ...[ // ToDo: Remove this line once WalletConnect is implemented
-            WalletConnectTile(
-              onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
-            ),
-          ],
-          if (FeatureFlag.isInAppTorEnabled)
-            Observer(builder: (context) {
-              return SettingsSwitcherCell(
-                leading: Container(
-                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: Text(
-                  'Alpha',
-                  style: TextStyle(
-                    color: Colors.red.shade700,
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+            if (dashboardViewModel.hasRescan) ...[
+              SettingsCellWithArrow(
+                title: dashboardViewModel.hasSilentPayments
+                    ? S.current.silent_payments_scanning
+                    : S.current.rescan,
+                handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
               ),
-                title: S.current.enable_builtin_tor,
-                value: dashboardViewModel.builtinTor,
-                onValueChange: (_, bool value) => dashboardViewModel.setBuiltinTor(value, context),
-              );
-            }),
-        ],
+            ],
+            SettingsCellWithArrow(
+              title: S.current.manage_nodes,
+              handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
+            ),
+            if (Platform.isAndroid && FeatureFlag.isBackgroundSyncEnabled) ...[
+              SettingsCellWithArrow(
+                title: S.current.background_sync,
+                handler: (context) => Navigator.of(context).pushNamed(Routes.backgroundSync),
+              ),
+            ],
+            Observer(
+              builder: (context) {
+                if (!dashboardViewModel.hasPowNodes) return const SizedBox();
+
+                return Column(
+                  children: [
+                    SettingsCellWithArrow(
+                      title: S.current.manage_pow_nodes,
+                      handler: (context) => Navigator.of(context).pushNamed(Routes.managePowNodes),
+                    ),
+                  ],
+                );
+              },
+            ),
+            if (isWalletConnectCompatibleChain(dashboardViewModel.wallet.type) &&
+                !dashboardViewModel.wallet.isHardwareWallet) ...[
+              // ToDo: Remove this line once WalletConnect is implemented
+              WalletConnectTile(
+                onTap: () =>
+                    Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
+              ),
+            ],
+            if (FeatureFlag.isInAppTorEnabled)
+              Observer(builder: (context) {
+                return SettingsSwitcherCell(
+                  leading: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade100,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: Text(
+                      'Alpha',
+                      style: TextStyle(
+                        color: Colors.red.shade700,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  title: S.current.enable_builtin_tor,
+                  value: dashboardViewModel.builtinTor,
+                  onValueChange: (_, bool value) =>
+                      dashboardViewModel.setBuiltinTor(value, context),
+                );
+              }),
+            if (dashboardViewModel.wallet.type == WalletType.monero)
+              Observer(builder: (context) {
+                return SettingsSwitcherCell(
+                  leading: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade100,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: Text(
+                      'Alpha',
+                      style: TextStyle(
+                        color: Colors.red.shade700,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  title: "Enable LWS for this wallet",
+                  value: (dashboardViewModel.wallet as MoneroWallet).isLWSEnabled,
+                  onValueChange: (_, bool value) =>
+                      (dashboardViewModel.wallet as MoneroWallet).setLWSEnabled(value),
+                );
+              }),
+          ],
+        ),
       ),
     );
   }
