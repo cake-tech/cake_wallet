@@ -83,9 +83,10 @@ If your chain's native currency doesn't exist, add it:
 static const CryptoCurrency op = CryptoCurrency(
   name: 'Optimism',
   title: 'OP',
-  raw: 'op',
+  raw: 126,
   iconPath: 'assets/images/op.png', // Add icon asset
   tag: 'OP',
+  decimals: 18,
 );
 ```
 
@@ -93,6 +94,62 @@ static const CryptoCurrency op = CryptoCurrency(
 - The `tag` should match the symbol used in the registry
 - Add the currency icon to `assets/images/`
 - Update currency lists if needed (e.g., `all`, `fiat`, etc.)
+
+### Step 2b: Wire Currency ↔ chainId Mappings
+
+The unified EVM and PayAnything flows rely on a **two-way mapping** between
+`CryptoCurrency` and `chainId`.
+
+**File**: `cw_core/lib/currency_for_wallet_type.dart`
+
+1. **Map `chainId` → `CryptoCurrency`** in `getCryptoCurrencyByChainId`:
+
+```dart
+CryptoCurrency getCryptoCurrencyByChainId(int chainId) {
+  switch (chainId) {
+    case 1:
+      return CryptoCurrency.eth;
+    case 137:
+      return CryptoCurrency.maticpoly;
+    case 8453:
+      return CryptoCurrency.baseEth;
+    case 42161:
+      return CryptoCurrency.arbEth;
+    case 10:
+      return CryptoCurrency.op; // NEW: Optimism
+    default:
+      return CryptoCurrency.eth;
+  }
+}
+```
+
+2. **Map `CryptoCurrency` → `chainId`** in `getChainIdByCryptoCurrency`:
+
+```dart
+int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
+  switch (currency) {
+    case CryptoCurrency.eth:
+      return 1;
+    case CryptoCurrency.maticpoly:
+      return 137;
+    case CryptoCurrency.baseEth:
+      return 8453;
+    case CryptoCurrency.arbEth:
+      return 42161;
+    case CryptoCurrency.op: // NEW: Optimism
+      return 10;
+    default:
+      return null;
+  }
+}
+```
+
+**Why this matters**:
+- `UniversalAddressDetector` and `PaymentViewModel` use these helpers to
+  derive `chainId` from detected currencies (QR codes, URIs, raw EVM
+  addresses).
+- The EVM PayAnything flow and `EVMPaymentFlowBottomSheet` depend on having
+  the correct `chainId` for network and token selection.
 
 ### Step 3: Create Default Tokens File (Optional but Recommended)
 
