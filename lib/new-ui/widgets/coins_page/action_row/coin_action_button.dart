@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -26,7 +27,7 @@ class CoinActionButton extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [Color(0xFF2B3A67), Color(0xFF1C2A4F)],
+              colors: [context.customColors.cardGradientColorPrimary, context.customColors.cardGradientColorSecondary],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
