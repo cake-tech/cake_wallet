@@ -486,10 +486,11 @@ class WalletListBodyState extends State<WalletListBody> {
                 walletType: WalletType.monero,
                 hardwareWalletType: HardwareWalletType.ledger,
                 onConnectDevice: (context, ledgerVM) async {
-                  if (ledgerVM is LedgerViewModel)
+                  if (ledgerVM is LedgerViewModel) {
                     monero!.setGlobalLedgerConnection(ledgerVM.connection);
-                  didConnect = true;
-                  Navigator.of(context).pop();
+                    didConnect = true;
+                    Navigator.of(context).pop();
+                  }
                 },
                 isReconnect: true,
               ),
