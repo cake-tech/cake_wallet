@@ -415,6 +415,7 @@
   "forgot_password": "パスワードを忘れた",
   "freeze": "氷結",
   "frequently_asked_questions": "よくある質問",
+  "frigate_electrum_server_warning": "この Frigate Electrum サーバーはサイレント ペイメント キーをサーバーと共有するため、プライバシーが損なわれる可能性があります。このサーバーを信頼できる場合にのみ続行してください。",
   "from": "から",
   "frozen": "凍った",
   "frozen_balance": "凍結バランス",

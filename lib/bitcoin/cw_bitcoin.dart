@@ -396,7 +396,11 @@ class CWBitcoin extends Bitcoin {
     }
 
     final electrumClient = ElectrumClient();
-    await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
+    await electrumClient.connectToUri(
+      node.uri,
+      useSSL: node.useSSL,
+      isFrigateServer: node.isFrigate,
+    );
 
     late BasedUtxoNetwork network;
     switch (node.type) {
@@ -667,7 +671,7 @@ class CWBitcoin extends Bitcoin {
   int getLitecoinHeightByDate({required DateTime date}) => getLtcHeightByDate(date: date);
 
   @override
-  Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
+  Future<void> rescan(Object wallet, {required int height, bool doSingleScan = false}) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
   }
@@ -676,6 +680,24 @@ class CWBitcoin extends Bitcoin {
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.getNodeSupportsSilentPayments();
+  }
+
+  @override
+  Future<bool> getNodeIsFrigate(Object wallet) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+
+    final savedValue = bitcoinWallet.node?.isFrigate;
+
+    if (savedValue != null) {
+      return savedValue;
+    }
+
+    try {
+      final version = await bitcoinWallet.electrumClient.version();
+      return await bitcoinWallet.getNodeIsFrigate(version);
+    } catch (_) {
+      return bitcoinWallet.node?.isFrigate ?? false;
+    }
   }
 
   @override

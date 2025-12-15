@@ -415,6 +415,7 @@
   "forgot_password": "Մոռացել եմ գաղտնաբառը",
   "freeze": "Կասեցնել",
   "frequently_asked_questions": "Հաճախ տրվող հարցեր",
+  "frigate_electrum_server_warning": "Այս Frigate Electrum սերվերը կիսում է ձեր Silent Payments բանալիները սերվերի հետ և կարող է նսեմացնել ձեր գաղտնիությունը: Շարունակեք միայն այն դեպքում, եթե վստահում եք այս սերվերին:",
   "from": "Դեպի",
   "frozen": "Կասեցված",
   "frozen_balance": "Սառեցված հավասարակշռություն",

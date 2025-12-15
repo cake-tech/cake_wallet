@@ -415,6 +415,7 @@
   "forgot_password": "Zaboravljena lozinka",
   "freeze": "Zamrznuti",
   "frequently_asked_questions": "Često postavljana pitanja",
+  "frigate_electrum_server_warning": "Ovaj poslužitelj Frigate Electrum dijeli vaše ključeve tihog plaćanja s poslužiteljem i može narušiti vašu privatnost. Nastavite samo ako vjerujete ovom poslužitelju.",
   "from": "Iz",
   "frozen": "Smrznuto",
   "frozen_balance": "Smrznuta ravnoteža",

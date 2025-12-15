@@ -415,6 +415,7 @@
   "forgot_password": "Nakalimutan ang Password",
   "freeze": "I-freeze",
   "frequently_asked_questions": "Mga madalas itanong",
+  "frigate_electrum_server_warning": "Ang frigate electrum server na ito ay nagbabahagi ng iyong mga key ng tahimik na pagbabayad sa server at maaaring pababain ang iyong privacy. Magpatuloy lamang kung pinagkakatiwalaan mo ang server na ito.",
   "from": "Mula sa",
   "frozen": "Frozen",
   "frozen_balance": "Frozen na balanse",

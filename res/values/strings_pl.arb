@@ -414,6 +414,7 @@
   "forgot_password": "Zapomniałeś hasła?",
   "freeze": "Zamroź",
   "frequently_asked_questions": "Najczęściej zadawane pytania",
+  "frigate_electrum_server_warning": "Ten serwer Frigate Electrum udostępnia Twoje klucze Silent Payments serwerowi i może pogorszyć Twoją prywatność. Kontynuuj tylko jeśli ufasz temu serwerowi.",
   "from": "Od",
   "frozen": "Zamrożone",
   "frozen_balance": "Zablokowane saldo",

@@ -415,6 +415,7 @@
   "forgot_password": "Zapomenuté heslo",
   "freeze": "Zmrazit",
   "frequently_asked_questions": "Často kladené otázky",
+  "frigate_electrum_server_warning": "Tento server Frigate Electrum sdílí vaše klíče Silent Payments se serverem a může snížit vaše soukromí. Pokračujte pouze v případě, že tomuto serveru důvěřujete.",
   "from": "Z",
   "frozen": "Zmraženo",
   "frozen_balance": "Zmrazená rovnováha",
