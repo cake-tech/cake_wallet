@@ -69,15 +69,19 @@ abstract class PaymentViewModelBase with Store {
       final currentWallet = appStore.wallet;
 
       if (isEVMCompatibleChain(detectedWalletType!)) {
+        final isRawEvmInput =
+            !addressData.contains(':') && _isEVMAddress(detectionResult.address);
+
         // Check if the current wallet is also EVM
         if (currentWallet != null && isEVMCompatibleChain(currentWallet.type)) {
           final currentChainId = evm!.getSelectedChainId(currentWallet);
           final detectedChainIdValue = this.detectedChainId;
 
           if (detectedChainIdValue != null && currentChainId != null) {
-            if (detectedChainIdValue == currentChainId) {
-              return PaymentFlowResult.currentWalletCompatible();
-            } else {
+            // For raw EVM address input that only defaulted to chainId 1,
+            // always force the EVM ecosystem bottom sheet so the user
+            // can pick the actual network and token.
+            if (isRawEvmInput && detectedChainIdValue == 1) {
               final allEVMWallets = await getEVMCompatibleWallets();
 
               final currentWalletInfo = currentWallet.walletInfo;
@@ -91,6 +95,23 @@ abstract class PaymentViewModelBase with Store {
                 wallet: currentWalletInfo,
               );
             }
+
+            if (detectedChainIdValue == currentChainId) {
+              return PaymentFlowResult.currentWalletCompatible();
+            }
+
+            final allEVMWallets = await getEVMCompatibleWallets();
+
+            final currentWalletInfo = currentWallet.walletInfo;
+
+            final otherEVMWallets =
+                allEVMWallets.where((w) => w.name != currentWallet.name).toList();
+
+            return PaymentFlowResult.evmNetworkSelection(
+              detectionResult,
+              compatibleWallets: otherEVMWallets,
+              wallet: currentWalletInfo,
+            );
           }
         }
 
