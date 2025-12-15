@@ -2705,7 +2705,6 @@ abstract class ElectrumWalletBase
 
   void _syncStatusReaction(SyncStatus syncStatus) async {
     printV("SYNC_STATUS_CHANGE: ${syncStatus}");
-    print((await electrumClient.getMempool("10540c13c5b7f8c36da1c732b07a91655c38e4a801e38011295d8a7a0b8e9674")));
     if (syncStatus is SyncingSyncStatus) {
       return;
     }
