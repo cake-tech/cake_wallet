@@ -6,6 +6,7 @@ import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
@@ -80,6 +81,9 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case ExchangeProviderDescription.swapsXyz:
         _provider = SwapsXyzExchangeProvider();
+        break;
+      case ExchangeProviderDescription.nearIntents:
+        _provider = NearIntentsExchangeProvider();
         break;
     }
 
