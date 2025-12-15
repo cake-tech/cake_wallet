@@ -178,7 +178,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
   String get currentWalletName => _wallet.name;
 
   @computed
-  String get qrImage => getQrImage(_wallet.type);
+  String get qrImage => getQrImage(_wallet.type, selectedChainId: _wallet.chainId);
 
   @action
   void reset() {

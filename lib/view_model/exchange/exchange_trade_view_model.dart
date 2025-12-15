@@ -480,5 +480,5 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   @computed
-  String get qrImage => getQrImage(wallet.type);
+  String get qrImage => getQrImage(wallet.type, selectedChainId: wallet.chainId);
 }

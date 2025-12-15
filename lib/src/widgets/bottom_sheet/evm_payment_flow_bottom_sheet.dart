@@ -202,10 +202,7 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
   }
 
   String? _getChainImagePath(int chainId) {
-    final walletType = evm!.getWalletTypeByChainId(chainId);
-    if (walletType != null) return getChainMonoImage(walletType);
-
-    return null;
+    return getChainMonoImage(WalletType.evm, selectedChainId: chainId);
   }
 
   void _showTokenSelection(BuildContext context) async {

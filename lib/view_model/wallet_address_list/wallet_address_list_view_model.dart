@@ -55,6 +55,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _init();
   }
 
+  @computed
+  int? get selectedChainId => wallet.chainId;
+
   @override
   void onWalletChange(wallet) {
     _init();
@@ -112,6 +115,21 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   PaymentURI get uri {
+    if (isEVMCompatibleChain(wallet.type) && selectedChainId != null) {
+      switch (selectedChainId) {
+        case 1:
+          return EthereumURI(amount: amount, address: address.address);
+        case 137:
+          return PolygonURI(amount: amount, address: address.address);
+        case 8453:
+          return BaseURI(amount: amount, address: address.address);
+        case 42161:
+          return ArbitrumURI(amount: amount, address: address.address);
+        default:
+          return EthereumURI(amount: amount, address: address.address);
+      }
+    }
+
     switch (wallet.type) {
       case WalletType.monero:
         return MoneroURI(amount: amount, address: address.address);
@@ -122,7 +140,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: address.address);
       case WalletType.ethereum:
-        return EthereumURI(amount: amount, address: address.address);
       case WalletType.evm:
         return EthereumURI(amount: amount, address: address.address);
       case WalletType.bitcoinCash:
@@ -460,10 +477,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
-  String get qrImage => getQrImage(type);
+  String get qrImage => getQrImage(type, selectedChainId: selectedChainId);
 
   @computed
-  String get monoImage => getChainMonoImage(type);
+  String get monoImage => getChainMonoImage(type, selectedChainId: selectedChainId);
 
   @computed
   bool get isBalanceAvailable => isElectrumWallet;
