@@ -29,8 +29,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
               CryptoCurrency.flip,
               CryptoCurrency.sol,
               CryptoCurrency.usdcsol,
-              // TODO: Add CryptoCurrency.etharb
-              // TODO: Add CryptoCurrency.usdcarb
+              CryptoCurrency.arbEth,
+              CryptoCurrency.usdcArb,
               // TODO: Add CryptoCurrency.dot
             ].contains(element))
         .toList())
