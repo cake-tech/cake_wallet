@@ -69,11 +69,15 @@ class EvmSwitcher extends StatefulWidget {
     required this.chains,
     required this.currentChain,
     required this.onChainSelected,
+    required this.hiddenChainIds,
+    required this.onHiddenChanged,
   });
 
   final List<ChainInfo> chains;
   final ChainInfo? currentChain;
   final Future<void> Function(int chainId) onChainSelected;
+  final Set<int> hiddenChainIds;
+  final void Function(Set<int> hiddenChainIds) onHiddenChanged;
 
   static const editModeAnimDuration = Duration(milliseconds: 200);
 
@@ -88,8 +92,26 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
   @override
   void initState() {
     super.initState();
-    optionsEnabled = List.filled(widget.chains.length, true);
+    _syncOptionsEnabled();
   }
+
+  @override
+  void didUpdateWidget(covariant EvmSwitcher oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.chains != widget.chains ||
+        !_hiddenSetsEqual(oldWidget.hiddenChainIds, widget.hiddenChainIds)) {
+      _syncOptionsEnabled();
+    }
+  }
+
+  void _syncOptionsEnabled() {
+    optionsEnabled = widget.chains
+        .map((chain) => !widget.hiddenChainIds.contains(chain.chainId))
+        .toList(growable: false);
+  }
+
+  bool _hiddenSetsEqual(Set<int> a, Set<int> b) =>
+      a.length == b.length && a.containsAll(b);
 
   int get _selectedIndex {
     if (widget.currentChain == null) return -1;
@@ -108,6 +130,16 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
         optionsEnabled[index] &&
         nextEnabled != _selectedIndex &&
         nextEnabled != -1;
+  }
+
+  Set<int> _currentHiddenChainIds() {
+    final hidden = <int>{};
+    for (var i = 0; i < widget.chains.length; i++) {
+      if (i < optionsEnabled.length && !optionsEnabled[i]) {
+        hidden.add(widget.chains[i].chainId);
+      }
+    }
+    return hidden;
   }
 
   @override
@@ -244,6 +276,9 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
                                         setState(() {
                                           optionsEnabled[index] = !optionsEnabled[index];
                                         });
+                                        widget.onHiddenChanged(
+                                          _currentHiddenChainIds(),
+                                        );
                                       },
                                       editSwitchValue: optionsEnabled[index],
                                       animDuration: EvmSwitcher.editModeAnimDuration,

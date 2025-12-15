@@ -84,6 +84,7 @@ class PreferencesKey {
   static const useArbiScan = 'use_arbitrum_scan';
   static const useTronGrid = 'use_trongrid';
   static const useMempoolFeeAPI = 'use_mempool_fee_api';
+  static const evmHiddenChainIds = 'evm_hidden_chain_ids';
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';

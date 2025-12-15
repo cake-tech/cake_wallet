@@ -157,6 +157,9 @@ class _DashboardPageView extends BasePage {
             chains: dashboardViewModel.availableChains,
             currentChain: dashboardViewModel.currentChain,
             onChainSelected: (chainId) => dashboardViewModel.selectChain(chainId),
+            hiddenChainIds: dashboardViewModel.settingsStore.evmHiddenChainIds,
+            onHiddenChanged: (hidden) =>
+                dashboardViewModel.settingsStore.setEvmHiddenChainIds(hidden),
           ),
         ),
         child: Container(

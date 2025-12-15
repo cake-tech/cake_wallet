@@ -454,7 +454,10 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
         hintText: S.of(context).search_currency,
         isMoneroWallet: _isMoneroWallet,
         isConvertFrom: widget.hasRefundAddress,
-        onItemSelected: (Currency item) => widget.onCurrencySelected(item as T),
+        onItemSelected: (Currency item) {
+          print('item: $item');
+          return widget.onCurrencySelected(item as T);
+        },
       ),
     );
   }

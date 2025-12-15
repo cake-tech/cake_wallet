@@ -114,6 +114,7 @@ abstract class SettingsStoreBase with Store {
       required this.usePolygonScan,
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
+      required List<int> initialEvmHiddenChainIds,
       required this.defaultNanoRep,
       required this.defaultBananoRep,
       required this.lookupsTwitter,
@@ -198,6 +199,7 @@ abstract class SettingsStoreBase with Store {
         currentBuiltinTor = initialBuiltinTor,
         enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
         backgroundImage = initialBackgroundImage,
+        evmHiddenChainIds = ObservableSet.of(initialEvmHiddenChainIds),
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -633,6 +635,12 @@ abstract class SettingsStoreBase with Store {
             _sharedPreferences.setBool(PreferencesKey.mwebAlwaysScan, mwebAlwaysScan));
 
     reaction(
+        (_) => evmHiddenChainIds.toList(growable: false),
+        (List<int> hiddenIds) => _sharedPreferences.setStringList(
+            PreferencesKey.evmHiddenChainIds,
+            hiddenIds.map((id) => id.toString()).toList()));
+
+    reaction(
         (_) => mwebCardDisplay,
         (bool mwebCardDisplay) =>
             _sharedPreferences.setBool(PreferencesKey.mwebCardDisplay, mwebCardDisplay));
@@ -844,6 +852,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool useMempoolFeeAPI;
+
+  @observable
+  ObservableSet<int> evmHiddenChainIds;
 
   @observable
   String defaultNanoRep;
@@ -1115,6 +1126,13 @@ abstract class SettingsStoreBase with Store {
     final useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
+    final evmHiddenChainIdsRaw =
+        sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ??
+            const <String>[];
+    final evmHiddenChainIds = evmHiddenChainIdsRaw
+        .map((value) => int.tryParse(value))
+        .whereType<int>()
+        .toList();
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -1457,6 +1475,7 @@ abstract class SettingsStoreBase with Store {
       useArbiScan: useArbiScan,
       useTronGrid: useTronGrid,
       useMempoolFeeAPI: useMempoolFeeAPI,
+      initialEvmHiddenChainIds: evmHiddenChainIds,
       defaultNanoRep: defaultNanoRep,
       defaultBananoRep: defaultBananoRep,
       lookupsTwitter: lookupsTwitter,
@@ -1659,6 +1678,11 @@ abstract class SettingsStoreBase with Store {
     useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
+    final hiddenChainIdsRaw =
+        sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ?? const <String>[];
+    evmHiddenChainIds
+      ..clear()
+      ..addAll(hiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>());
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -1950,6 +1974,13 @@ abstract class SettingsStoreBase with Store {
     }
 
     powNodes[walletType] = node;
+  }
+
+  @action
+  void setEvmHiddenChainIds(Set<int> chainIds) {
+    evmHiddenChainIds
+      ..clear()
+      ..addAll(chainIds);
   }
 
   @action
