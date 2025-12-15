@@ -2311,9 +2311,20 @@ abstract class ElectrumWalletBase
 
       final history = await electrumClient.getHistory(addressRecord.getScriptHash(network));
 
+
       if (history.isNotEmpty) {
         addressRecord.setAsUsed();
         walletAddresses.clearLockIfMatches(addressRecord.type, addressRecord.address);
+
+        if(this is BitcoinWallet) {
+          //removes transactions no longer returned by the api, presumed replaced/invalid.
+          transactionHistory.transactions.removeWhere(
+                (hash, tx) =>
+            tx.outputAddresses != null &&
+                tx.outputAddresses!.contains(addressRecord.address) &&
+                !history.any((newTransaction) => newTransaction['tx_hash'] == hash),
+          );
+        }
 
         await Future.wait(history.map((transaction) async {
           txid = transaction['tx_hash'] as String;
@@ -2694,6 +2705,7 @@ abstract class ElectrumWalletBase
 
   void _syncStatusReaction(SyncStatus syncStatus) async {
     printV("SYNC_STATUS_CHANGE: ${syncStatus}");
+    print((await electrumClient.getMempool("10540c13c5b7f8c36da1c732b07a91655c38e4a801e38011295d8a7a0b8e9674")));
     if (syncStatus is SyncingSyncStatus) {
       return;
     }
