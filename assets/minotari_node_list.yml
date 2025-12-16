@@ -1,0 +1,5 @@
+-
+  uri: rpc.tari.com
+  useSSL: true
+  isDefault: true
+  isEnabledForAutoSwitching: true
