@@ -105,6 +105,7 @@ class BackupPage extends BasePage {
   }
 
   void onExportBackup(BuildContext context) {
+    if(backupViewModelBase.backupPassword.isEmpty) return;
     showPopUp<void>(
       context: context,
       builder: (dialogContext) {

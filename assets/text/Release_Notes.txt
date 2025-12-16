@@ -1,10 +1,1 @@
-Improve wallets performance
-Litecoin and MWEB support in Cupcake Android
-Ethereum and EVM chains enhancements
-Improved EVM fee estimation
-Improvements for AnyPay
-Better automatic node switching
-New navbar/tab navigation
-WalletConnect enhancements
-Add Dark and tintable app icons
 Bug fixes

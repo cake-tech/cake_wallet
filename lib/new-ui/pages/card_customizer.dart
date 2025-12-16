@@ -61,7 +61,6 @@ class _CardCustomizerState extends State<CardCustomizer> {
                   selected: true,
                   accountName:
                       state.accountName.isEmpty ? widget.cryptoTitle : accountNameController.text,
-                  showBuyActions: false,
                   balance: "0.00",
                   assetName: widget.cryptoName,
                   design: state.selectedDesign,
@@ -105,7 +104,6 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                 width: 100,
                                                 borderRadius: 10,
                                                 selected: false,
-                                                showBuyActions: false,
                                                 design: state.availableDesigns[index],
                                               ),
                                             ),

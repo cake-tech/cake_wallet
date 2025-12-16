@@ -165,7 +165,8 @@ class AddressResolver {
     "xmr",
     "xyz",
     "zil",
-    "zone"
+    "zone",
+    "pizza"
   ];
 
   static String? extractAddressByType(
@@ -293,7 +294,7 @@ class AddressResolver {
             final addressFromPinnedTweet = extractAddressByType(
                 raw: pinnedTweet,
                 type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency),
-                requireSurroundingWhitespaces: false);
+                requireSurroundingWhitespaces: true);
             if (addressFromPinnedTweet != null) {
               return ParsedAddress.fetchTwitterAddress(
                   address: addressFromPinnedTweet,
@@ -332,7 +333,7 @@ class AddressResolver {
               await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
 
           if (mastodonUser != null) {
-            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency, requireSurroundingWhitespaces: false);
+            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency, requireSurroundingWhitespaces: true);
 
             if (addressFromBio != null && addressFromBio.isNotEmpty) {
               return ParsedAddress.fetchMastodonAddress(
@@ -348,7 +349,7 @@ class AddressResolver {
                 final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
                 String? addressFromPinnedPost =
                     extractAddressByType(raw: userPinnedPostsText, type: currency,
-                        requireSurroundingWhitespaces: false);
+                        requireSurroundingWhitespaces: true);
 
                 if (addressFromPinnedPost != null && addressFromPinnedPost.isNotEmpty) {
                   return ParsedAddress.fetchMastodonAddress(

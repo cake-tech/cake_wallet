@@ -304,7 +304,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     PaymentRequest paymentRequest,
     PaymentFlowResult result,
   ) async {
-    if (context.mounted && Navigator.of(context).canPop()) {
+    if (mounted && Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     }
 
@@ -352,7 +352,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   }
 
   Future<void> _handleSwapFlow(PaymentViewModel paymentViewModel, PaymentFlowResult result) async {
-    Navigator.of(context).pop();
+    if (mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
     final bottomSheet = getIt.get<SwapConfirmationBottomSheet>(param1: result);
     await showModalBottomSheet<Trade?>(
       context: context,
@@ -429,6 +431,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   focusNode: addressFocusNode,
                   controller: addressController,
                   onURIScanned: (uri) async {
+                    output.resetParsedAddress();
+                    await output.fetchParsedAddress(context);
+
                     // Process the payment through the new flow
                     await _handlePaymentFlow(
                       uri.toString(),

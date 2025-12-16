@@ -226,6 +226,7 @@ flutter:
     - assets/images/crypto/
     - assets/images/stocks/
     - assets/images/main_actions/
+    - assets/images/wallet_connect_step_icons/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
