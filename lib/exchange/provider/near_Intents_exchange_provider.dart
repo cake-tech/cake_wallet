@@ -22,7 +22,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
   static const List<CryptoCurrency> _notSupported = [];
 
-  static const apiKey = secrets.letsExchangeBearerToken;
+  //static const apiKey = secrets.nearIntentsBearerToken;
   static const _baseUrl = '1click.chaindefuser.com';
   static const _versionPath = '/v0';
   static const _tokenPath = '/tokens';
@@ -30,6 +30,12 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const _statusPath = '/status';
 
   static const _slippageTolerance = 100; // 1%
+
+  static const _memoRequiredCurrencies = <CryptoCurrency>[
+    CryptoCurrency.xrp,
+    CryptoCurrency.xlm,
+    CryptoCurrency.ton,
+  ];
 
   /// Use these only for quote/rate testing (dummy data).
   static const Map<String, String> kNearDummyAddresses = {
@@ -54,8 +60,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     'TRX': 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb',
     'TON': 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c',
     'XLM': 'GA3D5O2W7YQZJQ3H4Y5QW6N7V8X9Z0A1B2C3D4E5F6G7H8I9J0',
-    'ADA':
-        'addr1q8z9x0k9z4j7g3x2m4qv8s8d0l0xk0l3s8x3z9y6x2n5r5h4m8w9u6n7r3d0s2p5h9m4q8s',
+    'ADA': 'addr1vyc33hdv5vag52f3d8h0qsngu52vm27x28zkzru333jma9gaxd38v',
   };
 
   String getNearDummyAddress(CryptoCurrency currency) {
@@ -68,7 +73,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static final Map<String, String> _headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    // 'Authorization': 'Bearer $apiKey',
+    //'Authorization': 'Bearer $apiKey',
   };
 
   static final _supportedTokensList = <Token>[];
@@ -126,11 +131,13 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
         throw Exception('fetchRate: Unsupported currency pair');
       }
 
-      final formattedAmount =
-          _toBaseUnits(amount: amount, decimals: originToken.decimals);
+      final formattedAmount = AmountConverter.toBaseUnits(amount.toString(),
+          isFixedRateMode ? destinationToken.decimals : originToken.decimals);
 
       final dummyAddrFrom = getNearDummyAddress(from);
       final dummyAddrTo = getNearDummyAddress(to);
+
+      final depositMode = _memoRequiredCurrencies.contains(from) ? "MEMO" : "SIMPLE";
 
       final quote = await getSwapQuote(
         dry: true,
@@ -138,6 +145,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
         originAsset: originToken.assetId,
         destinationAsset: destinationToken.assetId,
         amount: formattedAmount,
+        depositMode: depositMode,
         refundTo: dummyAddrFrom,
         recipient: dummyAddrTo,
       );
@@ -147,12 +155,14 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       }
 
       final q = quote['quote'] as Map<String, dynamic>;
-      final amountIn = double.tryParse(q['amountIn']?.toString() ?? '0') ?? 0.0;
+      final amountIn =
+          double.tryParse(q['amountInFormatted']?.toString() ?? '0') ?? 0.0;
       final amountOut =
-          double.tryParse(q['amountOut']?.toString() ?? '0') ?? 0.0;
+          double.tryParse(q['amountOutFormatted']?.toString() ?? '0') ?? 0.0;
 
-      final rate =
-          isReceiveAmount ? amountIn / amountOut : amountOut / amountIn;
+      if (amountIn == 0) return 0.0;
+
+      final rate = amountOut / amountIn;
 
       ExchangeProviderLogger.logSuccess(
         provider: description,
@@ -220,11 +230,14 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
             : request.fromCurrency.decimals,
       );
 
+      final depositMode = _memoRequiredCurrencies.contains(request.fromCurrency) ? "MEMO" : "SIMPLE";
+
       final quote = await getSwapQuote(
         dry: false,
         isFixedRateMode: isFixedRateMode,
         originAsset: originToken.assetId,
         destinationAsset: destinationToken.assetId,
+        depositMode: depositMode,
         amount: baseAmount,
         refundTo: request.refundAddress,
         recipient: request.toAddress,
@@ -234,14 +247,13 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
         throw Exception('Quote request failed');
       }
 
-      final correlationId = quote['correlationId'] as String;
-
       final quoteObj = quote['quote'] as Map<String, dynamic>;
       final depositAddress = quoteObj['depositAddress'] as String;
       final depositMemo = quoteObj['depositMemo'] as String?;
 
       final trade = Trade(
-        id: correlationId,
+        id: depositAddress,
+        // Using deposit address as trade ID
         from: request.fromCurrency,
         to: request.toCurrency,
         provider: description,
@@ -308,48 +320,72 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    try {
-      final uri = Uri.https(
-        _baseUrl,
-        '$_versionPath$_statusPath',
-        {'depositAddress': id},
+    final param = {'depositAddress': id};
+    final uri = Uri.https(_baseUrl, '$_versionPath$_statusPath', param);
+
+    final response =
+        await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Near Intents fetch trade failed: ${response.statusCode} ${response.body}',
       );
-
-      final response =
-          await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
-
-      if (response.statusCode != 200) {
-        throw Exception('Status request failed: ${response.body}');
-      }
-
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      final status = data['status'];
-
-      ExchangeProviderLogger.logSuccess(
-        provider: description,
-        function: 'findTradeById',
-        requestData: {'depositAddress': id},
-        responseData: {
-          'status': status,
-          'updatedAt': data['updatedAt'],
-          'swapDetails': data['swapDetails'],
-        },
-      );
-
-      // … existing parsing logic stays unchanged
-      // return Trade(...)
-
-      throw UnimplementedError(); // keep your existing return
-    } catch (e, s) {
-      ExchangeProviderLogger.logError(
-        provider: description,
-        function: 'findTradeById',
-        error: e,
-        stackTrace: s,
-        requestData: {'depositAddress': id},
-      );
-      rethrow;
     }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final statusRaw = (data['status'] as String?) ?? 'UNKNOWN';
+
+    final quoteResponse = data['quoteResponse'] as Map<String, dynamic>? ?? {};
+    final quoteRequest =
+        quoteResponse['quoteRequest'] as Map<String, dynamic>? ?? {};
+
+    final refundTo = quoteRequest['refundTo'] as String? ?? '';
+    final recipient = quoteRequest['recipient'] as String? ?? '';
+
+    // Parsing 'from' currency
+    final originAssetId = quoteRequest['originAsset'] as String? ?? '';
+    final from =
+        _nearAssetIdToCurrency(originAssetId, await _geSupportedTokens());
+
+    // Parsing 'to' currency
+    final destinationAssetId =
+        quoteRequest['destinationAsset'] as String? ?? '';
+
+    final to =
+        _nearAssetIdToCurrency(destinationAssetId, await _geSupportedTokens());
+
+    final quote = quoteResponse['quote'] as Map<String, dynamic>? ?? {};
+    final swap = data['swapDetails'] as Map<String, dynamic>? ?? {};
+
+    final depositAddress = quote['depositAddress'] as String?;
+    final depositMemo = quote['depositMemo'] as String?;
+
+    final depositAmount = swap['amountInFormatted']?.toString() ??
+        quote['amountInFormatted']?.toString() ??
+        '0';
+
+    final receiveAmount = swap['amountOutFormatted']?.toString() ??
+        quote['amountOutFormatted']?.toString();
+
+    final originTxHash = (swap['originChainTxHashes'] as List?)
+        ?.firstOrNull?['hash']
+        ?.toString();
+
+    return Trade(
+      id: id,
+      from: from,
+      to: to,
+      provider: description,
+      inputAddress: depositAddress,
+      payoutAddress: recipient,
+      refundAddress: refundTo,
+      amount: depositAmount,
+      receiveAmount: receiveAmount,
+      state: _normalizeStatusToTradeState(statusRaw),
+      txId: originTxHash,
+      extraId: depositMemo,
+      isRefund: statusRaw == 'REFUNDED',
+    );
   }
 
   // Load & cache supported tokens
@@ -382,6 +418,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     required String amount,
     required String refundTo,
     required String recipient,
+    required String depositMode,
     List<String>? connectedWallets,
     String? sessionId,
     String? virtualChainRecipient,
@@ -392,7 +429,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     int? quoteWaitingTimeMs,
     List<Map<String, dynamic>>? appFees,
   }) async {
-    final depositMode = "SIMPLE";
     final swapType = isFixedRateMode ? 'EXACT_OUTPUT' : 'EXACT_INPUT';
     final _isoUtcDeadline = _buildDeadline();
 
@@ -444,6 +480,18 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     }
   }
 
+  TradeState _normalizeStatusToTradeState(String status) {
+    return switch (status.toUpperCase()) {
+      'PENDING_DEPOSIT' => TradeState.pending,
+      'PROCESSING' => TradeState.processing,
+      'SUCCESS' => TradeState.success,
+      'INCOMPLETE_DEPOSIT' => TradeState.underpaid,
+      'REFUNDED' => TradeState.refunded,
+      'FAILED' => TradeState.failed,
+      _ => TradeState.notFound,
+    };
+  }
+
   String _normalizeTitleToNearSymbol(CryptoCurrency currency) {
     final title = currency.title.toUpperCase();
     return switch (title) {
@@ -457,6 +505,14 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       'TRX' => 'tron',
       'AVAXC' => 'avax',
       _ => tag?.toLowerCase(),
+    };
+  }
+
+  String? _normalizeNearBlockchainToTag(String? blockchain) {
+    return switch (blockchain) {
+      'tron' => 'TRX',
+      'avax' => 'AVAXC',
+      _ => blockchain?.toUpperCase(),
     };
   }
 
@@ -483,14 +539,19 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     return token;
   }
 
-  String _toBaseUnits({
-    required double amount,
-    required int decimals,
-  }) {
-    return AmountConverter.toBaseUnits(
-      amount.toString(),
-      decimals,
-    );
+  CryptoCurrency? _nearAssetIdToCurrency(
+      String assetId, List<Token> supported) {
+    if (supported.isEmpty) return null;
+
+    final token = supported.firstWhereOrNull((t) => t.assetId == assetId);
+
+    if (token == null) return null;
+    final title = token.symbol;
+    final normalizedNetwork = _normalizeNearBlockchainToTag(token.blockchain);
+    final tag =
+        normalizedNetwork == title.toUpperCase() ? null : normalizedNetwork;
+
+    return CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);
   }
 
   String _buildDeadline() {
