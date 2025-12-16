@@ -147,6 +147,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.usdcArb,
     CryptoCurrency.usdtArb,
     CryptoCurrency.robEth,
+    CryptoCurrency.xtm,
   ];
 
   static const havenCurrencies = [
@@ -988,6 +989,14 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       decimals: 18,
       flatIconPath: "assets/new-ui/balance_card_icons/robinhood.svg",
       chainIconPath: "assets/new-ui/chain_badges/robinhood.svg");
+
+  static const xtm = CryptoCurrency(
+      title: 'XTM',
+      fullName: 'Minotari',
+      raw: 112,
+      name: 'xtm',
+      iconPath: 'assets/images/crypto/minotari.webp',
+      decimals: 6);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap = [
     ...all,

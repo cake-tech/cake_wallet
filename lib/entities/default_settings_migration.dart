@@ -58,6 +58,7 @@ const arbitrumDefaultNodeUri = 'arbitrum-one-rpc.publicnode.com';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
 const robinhoodDefaultNodeUri = "robinhood-rpc.publicnode.com";
 const zcashDefaultNodeUri = 'zec.rocks:443';
+const minotariDefaultNodeUri = 'rpc.tari.com';
 
 Future<void> defaultSettingsMigration(
     {required int version,
