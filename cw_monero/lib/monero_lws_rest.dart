@@ -15,76 +15,73 @@ final isDebug = true;
 // String for a first pass
 class MoneroLWSClient {
   String lwsDaemonAddress;
-  String port;
+  int port;
 
   // Construct an instance of this class
-  MoneroLWSClient(String lwsDaemonAddress, String port)
+  MoneroLWSClient(String lwsDaemonAddress, int port)
       : lwsDaemonAddress = lwsDaemonAddress,
         port = port;
 
   // deno run --unsafely-ignore-certificate-errors --allow-net index.js --host https://127.0.0.1:8443 login --address 43zxvpcj5Xv9SEkNXbMCG7LPQStHMpFCQCmkmR4u5nzjWwq5Xkv5VmGgYEsHXg4ja2FGRD5wMWbBVMijDTqmmVqm93wHGkg --view_key 7bea1907940afdd480eff7c4bcadb478a0fbb626df9e3ed74ae801e18f53e104 --
-  Future<dynamic> login(
-    String address,
-    String viewKey,
-    bool createAccountIfDoesntExist,
-    bool generated_locally,
-  ) async {
+  Future<dynamic> login(String address, String viewKey,
+      {bool createAccountIfDoesntExist = false, bool generated_locally = true}) async {
     Uri url = Uri(
       scheme: 'https',
       host: lwsDaemonAddress,
-      port: 8443,
+      port: port,
       path: '/login',
     );
     try {
       final data = json.encode({
         'address': address,
         'view_key': viewKey,
-        'create_account': createAccountIfDoesntExist, // TODO: verify - I think this creates new accounts
+        'create_account':
+            createAccountIfDoesntExist, // TODO: verify - I think this creates new accounts
         'generated_locally': generated_locally
       });
-      final response = await ProxyWrapper().post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
+      final response = await ProxyWrapper()
+          .post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
       // On first success, returns a code 200 with the following object: {"new_address":true,"generated_locally":true}
-
       return response;
       // TODO: What kind of returns do we get from response?
     } on DioException catch (e) {
       if (e.response != null) {
-        // print("Received response from lws");
-        // print("e.response.statusCode: ${e.response!.statusCode}");
-        // switch (e.response!.statusCode) {
-        //   case 400:
-        //     print('Bad Request: ${e.response!.data}');
-        //     break;
-        //   case 401:
-        //     print('Unauthorized: ${e.response!.data}');
-        //     // Potentially refresh token or redirect to login
-        //     break;
-        //   case 403:
-        //     print(
-        //       'Either your account awaits approval, or doesn\'t exist on the server',
-        //     );
-        //     break;
-        //   case 422:
-        //     print(
-        //       'Error: Make sure your address / viewkey is properly set in your request. ${e.response!.data}',
-        //     );
-        //     break;
-        //   case 501:
-        //     print(
-        //       'This server does not allow account creations: ${e.response!.data}',
-        //     );
-        //     break;
-        //   default:
-        //     print(
-        //       'Unhandled HTTP Error: ${e.response!.statusCode} - ${e.response!.data}',
-        //     );
-        // }
+        print("Received response from lws");
+        switch (e.response!.statusCode) {
+          case 400:
+            print('Bad Request: ${e.response!.data}');
+            break;
+          case 401:
+            print('Unauthorized: ${e.response!.data}');
+            // Potentially refresh token or redirect to login
+            break;
+          case 403:
+            print(
+              'Either your account awaits approval, or doesn\'t exist on the server',
+            );
+            break;
+          case 422:
+            print(
+              'Error: Make sure your address / viewkey is properly set in your request. ${e.response!.data}',
+            );
+            break;
+          case 501:
+            print(
+              'This server does not allow account creations: ${e.response!.data}',
+            );
+            break;
+          default:
+            print(
+              'Unhandled HTTP Error: ${e.response!.statusCode} - ${e.response!.data}',
+            );
+        }
 
-        // print(e.response!.data);
-        // rethrow;
+        print(e.response!.data);
+        //rethrow;
+        return false;
       }
     }
-    // throw (Exception('An unexpected error occurred during login'));
+    return false;
   }
 
   //   // Now I need to use dio to craft a request to send to 127.0.0.1
@@ -167,7 +164,7 @@ class MoneroLWSClient {
       Uri url = Uri(
         scheme: 'https',
         host: lwsDaemonAddress,
-        port: int.parse(port),
+        port: port,
         path: '/get_address_info',
       );
 
@@ -187,8 +184,13 @@ class MoneroLWSClient {
       // returns {"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3553384,"scanned_block_height":3553384,"start_height":3542413,"transaction_height":3558148,"blockchain_height":3558148}
       //{"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3558387,"scanned_block_height":3558387,"start_height":3558271,"transaction_height":3558387,"blockchain_height":3558387}
       // {"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3558389,"scanned_block_height":3558389,"start_height":3558349,"transaction_height":3558389,"blockchain_height":3558389}
-      final data = json.encode({'address': '47QinGb37esXtgWjw6oHhqUkdyUSRMZiEHsUJUt7X3qZb6o6NuYVEBz2mevwkeinLPT9Zj6amjhsSb37FQ3ycLNdLTZKeTh', 'view_key': 'f7afa147a354965aef24163e21687a0acb9fbeedb97b26dfc8885c8661e89f0b'});
-      final response = await ProxyWrapper().post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
+      final data = json.encode({
+        'address':
+            '47QinGb37esXtgWjw6oHhqUkdyUSRMZiEHsUJUt7X3qZb6o6NuYVEBz2mevwkeinLPT9Zj6amjhsSb37FQ3ycLNdLTZKeTh',
+        'view_key': 'f7afa147a354965aef24163e21687a0acb9fbeedb97b26dfc8885c8661e89f0b'
+      });
+      final response = await ProxyWrapper()
+          .post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
       print(response);
       return response;
     } on DioException catch (e) {
@@ -220,16 +222,18 @@ class MoneroLWSClient {
       Uri url = Uri(
         scheme: 'https',
         host: lwsDaemonAddress,
-        port: int.parse(port),
+        port: port,
         path: '/get_address_txs',
       );
 
-      address = "45mrNgxwbBmDjGsrYCrvRtJcd5XEW6YKuJojxE9Zr1jHckwTZ1tstti4EaM6GgrAFtZnSks2qYwqNVxPrMjgEL2SMXbfmJw";
+      address =
+          "45mrNgxwbBmDjGsrYCrvRtJcd5XEW6YKuJojxE9Zr1jHckwTZ1tstti4EaM6GgrAFtZnSks2qYwqNVxPrMjgEL2SMXbfmJw";
       viewKey = "dc4e4c9509ed0c6def1f6fbfe6ac45f08636e8f2610949e4419d821297aa3a00";
       // );
       // // the following account has transaction records we could use
       final data = json.encode({'address': address, 'view_key': viewKey});
-      final response = await ProxyWrapper().post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
+      final response = await ProxyWrapper()
+          .post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
 
       final jsonData = json.decode(response.body);
       final transactions = jsonData['transactions'];
@@ -248,16 +252,18 @@ class MoneroLWSClient {
       Uri url = Uri(
         scheme: 'https',
         host: lwsDaemonAddress,
-        port: int.parse(port),
+        port: port,
         path: '/get_unspent_outs',
       );
 
-      address = "45mrNgxwbBmDjGsrYCrvRtJcd5XEW6YKuJojxE9Zr1jHckwTZ1tstti4EaM6GgrAFtZnSks2qYwqNVxPrMjgEL2SMXbfmJw";
+      address =
+          "45mrNgxwbBmDjGsrYCrvRtJcd5XEW6YKuJojxE9Zr1jHckwTZ1tstti4EaM6GgrAFtZnSks2qYwqNVxPrMjgEL2SMXbfmJw";
       viewKey = "dc4e4c9509ed0c6def1f6fbfe6ac45f08636e8f2610949e4419d821297aa3a00";
       // );
       // // the following account has transaction records we could use
       final data = json.encode({'address': address, 'view_key': viewKey});
-      final response = await ProxyWrapper().post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
+      final response = await ProxyWrapper()
+          .post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
 
       final jsonData = json.decode(response.body);
       final transactions = jsonData['transactions'];
