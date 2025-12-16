@@ -59,6 +59,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                 BalanceCard(
                   width: MediaQuery.of(context).size.width * 0.87,
                   selected: true,
+                  designSwitchDuration: Duration(milliseconds: 300),
                   accountName:
                       state.accountName.isEmpty ? widget.cryptoTitle : accountNameController.text,
                   balance: "0.00",
@@ -131,7 +132,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                         spacing: 4, // space between items in a row
                                         runSpacing: 8,
                                         children:
-                                            List.generate(CardDesign.allGradients.length, (index) {
+                                            List.generate(state.availableColors.length, (index) {
                                           return Material(
                                             borderRadius: BorderRadius.circular(999999999),
                                             child: InkWell(
@@ -155,7 +156,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                                 .colorScheme
                                                                 .surfaceContainerHigh,
                                                         width: 2),
-                                                    gradient: CardDesign.allGradients[index]),
+                                                    gradient: state.availableColors[index]),
                                               ),
                                             ),
                                           );

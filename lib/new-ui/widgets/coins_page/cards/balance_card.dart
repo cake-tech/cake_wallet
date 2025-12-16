@@ -22,6 +22,7 @@ class BalanceCard extends StatelessWidget {
     this.balance = "",
     this.fiatBalance = "",
     this.assetName = "",
+    this.designSwitchDuration = const Duration(),
     this.actions = const [],
   });
 
@@ -35,6 +36,7 @@ class BalanceCard extends StatelessWidget {
   final bool selected;
   final CardDesign design;
   final List<BalanceCardAction> actions;
+  final Duration designSwitchDuration;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,8 @@ class BalanceCard extends StatelessWidget {
 
     final height = width * 0.64;
 
-    return Container(
+    return AnimatedContainer(
+      duration: designSwitchDuration,
       width: width,
       height: height,
       decoration: ShapeDecoration(
@@ -61,8 +64,21 @@ class BalanceCard extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          if (design.backgroundType == CardDesignBackgroundTypes.svgFull)
-            SvgPicture.asset(design.imagePath, width: width, height: height),
+          AnimatedSwitcher(
+            duration: designSwitchDuration,
+            switchInCurve: Curves.easeInOut,
+            switchOutCurve: Curves.easeInOut,
+            child: design.backgroundType == CardDesignBackgroundTypes.svgFull
+                ? SvgPicture.asset(
+                    design.imagePath,
+                    key: const ValueKey('svgFull'),
+                    width: width,
+                    height: height,
+                  )
+                : const SizedBox.shrink(
+                    key: ValueKey('svgFullOff'),
+                  ),
+          ),
           Padding(
             padding: EdgeInsets.all(width * 0.05),
             child: Column(
@@ -77,9 +93,12 @@ class BalanceCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            accountName,
-                            style: TextStyle(color: design.colors.textColor, fontSize: 16),
+                          AnimatedDefaultTextStyle(
+                            duration: designSwitchDuration,
+                            style: DefaultTextStyle.of(context)
+                                .style
+                                .copyWith(color: design.colors.textColor, fontSize: 16),
+                            child: Text(accountName),
                           ),
                           AnimatedOpacity(
                             opacity: selected ? 0 : 1,
@@ -97,14 +116,23 @@ class BalanceCard extends StatelessWidget {
                         child: Row(
                           spacing: 8.0,
                           children: [
-                            Text(
-                              balance,
-                              style: TextStyle(color: design.colors.textColor, fontSize: 28),
+                            AnimatedDefaultTextStyle(
+                              duration: designSwitchDuration,
+                              style: DefaultTextStyle.of(context)
+                                  .style
+                                  .copyWith(color: design.colors.textColor, fontSize: 28),
+                              child: Text(
+                                balance,
+                              ),
                             ),
-                            Text(
-                              assetName.toUpperCase(),
-                              style:
-                                  TextStyle(color: design.colors.textColorSecondary, fontSize: 28),
+                            AnimatedDefaultTextStyle(
+                              duration: designSwitchDuration,
+                              style: DefaultTextStyle.of(context)
+                                  .style
+                                  .copyWith(color: design.colors.textColorSecondary, fontSize: 28),
+                              child: Text(
+                                assetName.toUpperCase(),
+                              ),
                             ),
                           ],
                         ),
@@ -126,16 +154,25 @@ class BalanceCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: actions.map(getBalanceCardActionButton).toList(),
                     ),
-                    if (design.backgroundType == CardDesignBackgroundTypes.svgIcon)
-                      SvgPicture.asset(
-                        design.imagePath,
-                        height: iconWidth,
-                        width: iconWidth,
-                        colorFilter: ColorFilter.mode(
-                          design.colors.backgroundImageColor,
-                          BlendMode.srcIn,
-                        ),
-                      ),
+                    AnimatedSwitcher(
+                      duration: designSwitchDuration,
+                      switchInCurve: Curves.easeInOut,
+                      switchOutCurve: Curves.easeInOut,
+                      child: design.backgroundType == CardDesignBackgroundTypes.svgIcon
+                          ? SvgPicture.asset(
+                              design.imagePath,
+                              key: const ValueKey('svgIcon'),
+                              height: iconWidth,
+                              width: iconWidth,
+                              colorFilter: ColorFilter.mode(
+                                design.colors.backgroundImageColor,
+                                BlendMode.srcIn,
+                              ),
+                            )
+                          : const SizedBox.shrink(
+                              key: ValueKey('svgIconOff'),
+                            ),
+                    ),
                   ],
                 ),
               ],
