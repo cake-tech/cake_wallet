@@ -40,6 +40,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/socket_health_logger.dart';
+import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -2998,6 +2999,7 @@ class SyncResponse {
 Future<void> _handleScanSilentPayments(ScanData scanData) async {
   final shouldUpdateSyncStatus = scanData.rescanHeights == null || scanData.rescanHeights!.isEmpty;
   final hasForcedRescanHeights = !shouldUpdateSyncStatus;
+  CakeTor.instance = await CakeTorInstance.getInstance();
 
   var node = Uri.parse("tcp://electrs.cakewallet.com:50001");
 
@@ -3193,19 +3195,12 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               // So, if blockDate exists, reuse
               if (isDateNow) {
                 try {
+                  final rootURL = "https://cake.mempool.space";
                   final tweakBlockHash = await ProxyWrapper()
-                      .get(
-                        clearnetUri: Uri.parse(
-                          "https://mempool.cakewallet.com/api/v1/block-height/$tweakHeight",
-                        ),
-                      )
+                      .get(clearnetUri: Uri.parse("$rootURL/api/block-height/$tweakHeight"))
                       .timeout(Duration(seconds: 15));
                   final blockResponse = await ProxyWrapper()
-                      .get(
-                        clearnetUri: Uri.parse(
-                          "https://mempool.cakewallet.com/api/v1/block/${tweakBlockHash.body}",
-                        ),
-                      )
+                      .get(clearnetUri: Uri.parse("$rootURL/api/block/${tweakBlockHash.body}"))
                       .timeout(Duration(seconds: 15));
 
                   if (blockResponse.statusCode == 200 &&
@@ -3231,7 +3226,6 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
                 fee: 0,
                 direction: TransactionDirection.incoming,
                 isReplaced: false,
-                // TODO: fetch block data and get the date from it
                 date: scanData.network == BitcoinNetwork.mainnet
                     ? (isDateNow ? getDateByBitcoinHeight(tweakHeight) : blockDate)
                     : DateTime.now(),
