@@ -9,7 +9,7 @@ import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'dart:math' as math;
 import 'package:convert/convert.dart';
-import 'package:cw_monero/api-lws/monero_lws_dart.dart';
+import 'package:cw_monero/monero_lws_rest.dart';
 import 'package:crypto/crypto.dart';
 
 part 'node.g.dart';
@@ -158,6 +158,7 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestNode() async {
     try {
+      if (type == WalletType.monero) return requestMoneroLWSNode();
       switch (type) {
         case WalletType.monero: // This may be a candidate for splitting up LWS requests from Monero requests?
         case WalletType.haven:
@@ -212,13 +213,112 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  // TODO: KB: Where do we determine which nodetype to call?
-  // Should we be using our subclass to call an entirely different node?
-  // For now, do I just get this working?
-  // We should be handling this elsewhere. We shouldn't need to invoke this and then return early
-  // just based on if data / a field is enabled. It should only run when a wallet is LWS enabled.
+  // TODO: KB: This gets determined when a switch statement determines if we have an LWS node
   // This is going to need to vary depending on how we've subclassed our node object, I reckon?
-  Future<bool> requestMoneroNode({String methodName = 'get_info', String? address, String? viewKey}) async {
+  Future<bool> requestMoneroLWSNode(
+      {String methodName = 'get_info', String? address, String? viewKey}) async {
+    // TODO: We should honour using a proxy to communicate with the Monero server
+    if (useSocksProxy) {
+      return await requestNodeWithProxy();
+    }
+    printV("isLWSEnabledField: $isLWSEnabledField");
+
+    if (isLWSEnabledField == true) {
+      try {
+        // get node fields to construct client class
+
+        MoneroLWSClient lwsClient = MoneroLWSClient('192.168.0.141', 8443);
+
+        lwsClient.login(address, viewKey);
+        // print("Do LWS attempt, then if successful, retrieve transactions and plug into DB");
+
+        // print("Then do formatting for the transactions to match Transaction Input");
+        // print("Finally plug get_address_info into balance");
+
+        // address =
+        //     "47Cw9RboPr9DRmvA7WnrzxZrAGh9gy6a2U2wqrbqwZaHjV1FbtX5VH288NmjdmGCqLYL1kQyJSfGxWRwJCAQg9upUxNGRde";
+        // viewKey = "59710f89795362d36e9ad1e7dcf9611d594686ed7089d27bdeaaee10803f9502";
+        // var response;
+        // MoneroLightweightWalletServiceClient lwsClient =
+        //     MoneroLightweightWalletServiceClient(lwsDaemonAddress: '192.168.0.141', port: '8443');
+        // response = await lwsClient.get_address_txs(address, viewKey);
+        // print(response);
+        // response in this case now returns Future<List<String>> to address length issue
+        // for (var i = 0; i < (response.length as int); i++) {
+        //   print(response[i]);
+        // We've isolated every single transaction here
+        // What's left is to map these transactions to MoneroTransactionInfo for the current wallet
+        // }
+      } catch (e) {
+        print("Failed");
+        print(e);
+        return false;
+      }
+      return true;
+    }
+
+    return false;
+    // final path = '/json_rpc';
+    // final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
+    // final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
+
+    // try {
+    //   final client = ProxyWrapper().getHttpIOClient();
+
+    //   final jsonBody = json.encode(body);
+
+    //   final response = await client.post(
+    //     rpcUri,
+    //     headers: {'Content-Type': 'application/json'},
+    //     body: jsonBody,
+    //   );
+    //   // Check if we received a 401 Unauthorized response
+    //   if (response.statusCode == 401) {
+    //     final daemonRpc = DaemonRpc(
+    //       rpcUri.toString(),
+    //       username: login ?? '',
+    //       password: password ?? '',
+    //     );
+    //     final response = await daemonRpc.call('get_info', {});
+    //     return !(response['offline'] as bool);
+    //   }
+
+    //   final responseString = await response.body;
+
+    //   if ((responseString.contains("400 Bad Request") // Some other generic error
+    //           ||
+    //           responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+    //           ||
+    //           response.headers["location"] != null // Generic reverse proxy
+    //           ||
+    //           responseString
+    //               .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+    //       ) &&
+    //       !(useSSL ?? false)) {
+    //     final oldUseSSL = useSSL;
+    //     useSSL = true;
+    //     try {
+    //       final ret = await requestMoneroNode(methodName: methodName);
+    //       if (ret == true) {
+    //         await save();
+    //         return ret;
+    //       }
+    //       useSSL = oldUseSSL;
+    //     } catch (e) {
+    //       useSSL = oldUseSSL;
+    //     }
+    //   }
+
+    //   final resBody = json.decode(response.body) as Map<String, dynamic>;
+    //   return !(resBody['result']['offline'] as bool);
+    // } catch (e) {
+    //   printV("error: $e");
+    //   return false;
+    // }
+  }
+
+  Future<bool> requestMoneroNode(
+      {String methodName = 'get_info', String? address, String? viewKey}) async {
     // TODO: We should honour using a proxy to communicate with the Monero server
     if (useSocksProxy) {
       return await requestNodeWithProxy();
@@ -230,22 +330,12 @@ class Node extends HiveObject with Keyable {
 
     if (isLWSEnabledField == true) {
       try {
-        print("Do LWS attempt, then if successful, retrieve transactions and plug into DB");
-        print("Then do formatting for the transactions to match Transaction Input");
-        print("Finally plug get_address_info into balance");
-
-        address = "47Cw9RboPr9DRmvA7WnrzxZrAGh9gy6a2U2wqrbqwZaHjV1FbtX5VH288NmjdmGCqLYL1kQyJSfGxWRwJCAQg9upUxNGRde";
-        viewKey = "59710f89795362d36e9ad1e7dcf9611d594686ed7089d27bdeaaee10803f9502";
-        var response;
-        MoneroLightweightWalletServiceClient lwsClient = MoneroLightweightWalletServiceClient(lwsDaemonAddress: '192.168.0.141', port: '8443');
-        response = await lwsClient.get_address_txs(address, viewKey);
-        print(response);
         // response in this case now returns Future<List<String>> to address length issue
-        for (var i = 0; i < (response.length as int); i++) {
-          print(response[i]);
-          // We've isolated every single transaction here
-          // What's left is to map these transactions to MoneroTransactionInfo for the current wallet
-        }
+        // for (var i = 0; i < (response.length as int); i++) {
+        //   print(response[i]);
+        // We've isolated every single transaction here
+        // What's left is to map these transactions to MoneroTransactionInfo for the current wallet
+        // }
       } catch (e) {
         print("Failed");
         print(e);
