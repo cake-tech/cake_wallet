@@ -617,8 +617,7 @@ class CakePayBuyCardPage extends BasePage {
                   expirationTime: cakePayBuyCardViewModel.formattedRemainingTime,
                   walletType: _sendViewModel.walletType,
                   titleIconPath: _sendViewModel.selectedCryptoCurrency.iconPath,
-                  currencyTitle: _sendViewModel.amountParsingProxy
-                      .getCryptoSymbol(_sendViewModel.selectedCryptoCurrency),
+                  currency: _sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
                   amountValue: _sendViewModel.amountParsingProxy.getCryptoOutputAmount(
                       _sendViewModel.pendingTransaction!.amountFormatted,
@@ -646,6 +645,7 @@ class CakePayBuyCardPage extends BasePage {
                   },
                   change: _sendViewModel.pendingTransaction!.change,
                   isOpenCryptoPay: _sendViewModel.ocpRequest != null,
+                  amountParsingProxy: _sendViewModel.amountParsingProxy,
                 );
               },
             );

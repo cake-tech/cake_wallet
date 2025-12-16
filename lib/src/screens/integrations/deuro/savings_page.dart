@@ -178,7 +178,7 @@ class DEuroSavingsPage extends BasePage {
           titleText: title,
           walletType: WalletType.ethereum,
           titleIconPath: CryptoCurrency.deuro.iconPath,
-          currencyTitle: CryptoCurrency.deuro.title,
+          currency: CryptoCurrency.deuro,
           amount: S.of(bottomSheetContext).send_amount,
           amountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
               ? _dEuroViewModel.accruedInterestFormated
@@ -213,7 +213,7 @@ class DEuroSavingsPage extends BasePage {
           titleText: S.of(bottomSheetContext).approve_tokens,
           walletType: WalletType.ethereum,
           titleIconPath: CryptoCurrency.deuro.iconPath,
-          currencyTitle: CryptoCurrency.deuro.title,
+          currency: CryptoCurrency.deuro,
           amount: S.of(bottomSheetContext).send_amount,
           amountValue: tx.amountFormatted,
           fiatAmountValue: "",

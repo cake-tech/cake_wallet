@@ -290,8 +290,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     walletType: sendVM.walletType,
                     titleText: S.of(bottomSheetContext).confirm_transaction,
                     titleIconPath: sendVM.selectedCryptoCurrency.iconPath,
-                    currencyTitle:
-                        sendVM.amountParsingProxy.getCryptoSymbol(sendVM.selectedCryptoCurrency),
+                    currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
                     amount: S.of(bottomSheetContext).send_amount,
                     amountValue: sendVM.amountParsingProxy
                         .getCryptoOutputAmount(amountValue, sendVM.selectedCryptoCurrency),
@@ -311,6 +310,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       sendVM.commitTransaction(context);
                       widget.exchangeTradeViewModel.registerSwapsXyzTransaction();
                     },
+                    amountParsingProxy: sendVM.amountParsingProxy,
                   );
                 },
               );

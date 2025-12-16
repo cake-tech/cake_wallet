@@ -570,8 +570,7 @@ class SendPage extends BasePage {
                   isSlideActionEnabled: sendViewModel.isReadyForSend,
                   walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
-                  currencyTitle: sendViewModel.amountParsingProxy
-                      .getCryptoSymbol(sendViewModel.selectedCryptoCurrency),
+                  currency: sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
                   amountValue: sendViewModel.amountParsingProxy.getCryptoOutputAmount(
                       sendViewModel.pendingTransaction!.amountFormatted,
@@ -592,6 +591,7 @@ class SendPage extends BasePage {
                   },
                   change: sendViewModel.pendingTransaction!.change,
                   isOpenCryptoPay: sendViewModel.ocpRequest != null,
+                  amountParsingProxy: sendViewModel.amountParsingProxy,
                 );
               },
             );

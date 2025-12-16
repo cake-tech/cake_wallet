@@ -194,8 +194,7 @@ class RBFDetailsPage extends BasePage {
                   walletType: transactionDetailsViewModel.sendViewModel.walletType,
                   titleIconPath:
                       transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
-                  currencyTitle:
-                      transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.title,
+                  currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
                   amountValue:
                       transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
@@ -217,6 +216,7 @@ class RBFDetailsPage extends BasePage {
                     } catch (_) {}
                   },
                   change: transactionDetailsViewModel.sendViewModel.pendingTransaction!.change,
+                  amountParsingProxy: transactionDetailsViewModel.sendViewModel.amountParsingProxy,
                 );
               },
             );
