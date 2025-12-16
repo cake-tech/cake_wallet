@@ -143,10 +143,8 @@ abstract class SolanaWalletBase
 
     walletInfo.address = _solanaPublicKey.toAddress().address;
 
-    await Future.wait([
-      walletAddresses.init(),
-      transactionHistory.init(),
-    ]);
+    await walletAddresses.init();
+    await transactionHistory.init();
 
     await save();
   }
