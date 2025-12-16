@@ -51,6 +51,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.doge;
     case WalletType.zcash:
       return CryptoCurrency.zec;
+    case WalletType.minotari:
+      return CryptoCurrency.xtm;
     case WalletType.none:
       throw BadWalletTypeException(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency', type);
