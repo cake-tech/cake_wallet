@@ -1411,6 +1411,7 @@ abstract class EVM {
     String dataHex,
     BigInt valueWei,
     TransactionPriority priority,
+    {bool useBlinkProtection = true}
   );
   
   // Hardware wallet methods
