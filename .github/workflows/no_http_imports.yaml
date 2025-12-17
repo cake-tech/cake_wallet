@@ -11,7 +11,7 @@ jobs:
       - name: Check for http package usage
         if: github.event_name == 'pull_request'
         run: |
-          GIT_GREP_OUT="$(git grep package:http | (grep .dart: || test $? = 1) | (grep -v proxy_wrapper.dart || test $? = 1) | (grep -v fiat_api_check.dart || test $? = 1) | (grep -v very_insecure_http_do_not_use || test $? = 1) || true)"
+          GIT_GREP_OUT="$(git grep package:http | (grep .dart: || test $? = 1) | (grep -v proxy_wrapper.dart || test $? = 1) | (grep -v very_insecure_http_do_not_use || test $? = 1) || true)"
           [[ "x$GIT_GREP_OUT" == "x" ]] && exit 0
           echo "$GIT_GREP_OUT"
           echo "There are .dart files which use http imports"

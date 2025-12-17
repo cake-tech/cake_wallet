@@ -11,7 +11,7 @@ jobs:
       - name: Check for print() statements in dart code (use printV() instead)
         if: github.event_name == 'pull_request'
         run: |
-          GIT_GREP_OUT="$(git grep ' print(' | (grep .dart: || test $? = 1) | (grep -v print_verbose.dart || test $? = 1) | (grep -v print_verbose_dummy.dart || test $? = 1)  | (grep -v fiat_api_check.dart || test $? = 1) || true)"
+          GIT_GREP_OUT="$(git grep ' print(' | (grep .dart: || test $? = 1) | (grep -v print_verbose.dart || test $? = 1) | (grep -v print_verbose_dummy.dart || test $? = 1) || true)"
           [[ "x$GIT_GREP_OUT" == "x" ]] && exit 0
           echo "$GIT_GREP_OUT"
           echo "There are .dart files which use print() statements"
