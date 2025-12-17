@@ -44,7 +44,7 @@ const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
 const tronDefaultNodeUri = 'api.trongrid.io';
-const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
+const newCakeWalletBitcoinUri = 'cake.mempool.space:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 const zanoDefaultNodeUri = '37.27.100.59:10500';
 const moneroWorldNodeUri = '.moneroworld.com';
@@ -554,6 +554,16 @@ Future<void> defaultSettingsMigration(
             sharedPreferences: sharedPreferences,
             type: WalletType.arbitrum,
             currentNodePreferenceKey: PreferencesKey.currentArbitrumNodeIdKey,
+          );
+
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.bitcoin,
+            newDefaultUri: newCakeWalletBitcoinUri,
+            currentNodePreferenceKey: PreferencesKey.currentBitcoinElectrumSererIdKey,
+            useSSL: true,
+            oldUri: ['cakewallet.com'],
           );
           break;
          case 54:

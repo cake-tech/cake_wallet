@@ -179,7 +179,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return 'https://monero.com/tx/${txId}';
       case WalletType.bitcoin:
-        return 'https://mempool.cakewallet.com/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
+        return 'https://cake.mempool.space/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.bitcoinCash:
