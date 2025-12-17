@@ -112,6 +112,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.arbitrum:
       case WalletType.robinhood:
       case WalletType.zcash:
+      case WalletType.minotari:
         return false;
     }
   }

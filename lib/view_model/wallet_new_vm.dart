@@ -157,6 +157,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             password: walletPassword,
             passphrase: passphrase,
             mnemonic: newWalletArguments!.mnemonic);
+      case WalletType.minotari:
       case WalletType.none:
       case WalletType.haven:
         throw BadWalletTypeException('Unexpected type: ${type.toString()}', type);

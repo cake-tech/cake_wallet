@@ -1891,7 +1891,6 @@ abstract class Minotari {
   List<String> getMinotariWordList(String language);
 
   WalletService createMinotariWalletService(
-    Box<WalletInfo> walletInfoSource,
     Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   );
 
@@ -1922,7 +1921,7 @@ abstract class Minotari {
   Future<int> getCurrentHeight();
   TransactionHistoryBase getTransactionHistory(Object wallet);
 
-  MinotariWallet createMinotariWallet(WalletInfo walletInfo);
+  Future<MinotariWallet> createMinotariWallet(WalletInfo walletInfo);
 
   String getAssetShortName(CryptoCurrency asset);
   String getAssetFullName(CryptoCurrency asset);
