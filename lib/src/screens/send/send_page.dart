@@ -61,6 +61,9 @@ class SendPage extends BasePage {
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
   final PaymentRequest? initialPaymentRequest;
+  final FocusNode _cryptoAmountFocus = FocusNode();
+  final FocusNode _fiatAmountFocus = FocusNode();
+
 
   bool _effectsInstalled = false;
   ContactRecord? newContactAddress;
@@ -176,8 +179,6 @@ class SendPage extends BasePage {
       List<Widget> sendCards = [];
       List<KeyboardActionsItem> keyboardActions = [];
       for (var output in sendViewModel.outputs) {
-        var cryptoAmountFocus = FocusNode();
-        var fiatAmountFocus = FocusNode();
         sendCards.add(
           SendCard(
             currentTheme: currentTheme,
@@ -187,19 +188,19 @@ class SendPage extends BasePage {
             paymentViewModel: paymentViewModel,
             walletSwitcherViewModel: walletSwitcherViewModel,
             initialPaymentRequest: initialPaymentRequest,
-            cryptoAmountFocus: cryptoAmountFocus,
-            fiatAmountFocus: fiatAmountFocus,
+            cryptoAmountFocus: _cryptoAmountFocus,
+            fiatAmountFocus: _fiatAmountFocus,
           ),
         );
         keyboardActions.add(
           KeyboardActionsItem(
-            focusNode: cryptoAmountFocus,
+            focusNode: _cryptoAmountFocus,
             toolbarButtons: [(_) => KeyboardDoneButton()],
           ),
         );
         keyboardActions.add(
           KeyboardActionsItem(
-            focusNode: fiatAmountFocus,
+            focusNode: _fiatAmountFocus,
             toolbarButtons: [(_) => KeyboardDoneButton()],
           ),
         );
