@@ -83,6 +83,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         network: network,
       );
 
+      // Clean the Silent Payment Addresses if the initial addresses are the old SP Addresses
+      if (!silentAddresses
+          .any((addr) => addr.index == 0 && addr.address == silentAddress.toString())) {
+        silentAddresses.clear();
+      }
+
       if (!silentAddresses.any((addr) => addr.index == 0 && addr.isHidden == false))
         silentAddresses.add(BitcoinSilentPaymentAddressRecord(
           silentAddress.toString(),
