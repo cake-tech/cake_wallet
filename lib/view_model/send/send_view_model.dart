@@ -572,6 +572,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 routerData,
                 routerValueWei,
                 priority,
+                useBlinkProtection: _settingsStore.useBlinkProtection,
               );
 
               _isSwapsXYZCallDataTx = true;
@@ -589,6 +590,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               routerData,
               routerValueWei,
               priority,
+              useBlinkProtection: _settingsStore.useBlinkProtection,
             );
             _isSwapsXYZCallDataTx = true;
             state = ExecutedSuccessfullyState();
@@ -834,6 +836,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           outputs,
           priority: priority!,
           currency: selectedCryptoCurrency,
+          useBlinkProtection: _settingsStore.useBlinkProtection,
         );
       case WalletType.nano:
         return nano!.createNanoTransactionCredentials(outputs);
@@ -1119,6 +1122,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         spender,
         erc20Token,
         priority,
+        useBlinkProtection: _settingsStore.useBlinkProtection,
       );
     }
 

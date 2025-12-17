@@ -1074,6 +1074,7 @@
   "upto": "Şu miktara kadar: ${value}",
   "usb": "USB",
   "use": "Şuna geç: ",
+  "use_blink_protection": "Göz Kırpma Korumasını Kullan",
   "use_card_info_three": "Dijital kartı çevrimiçi olarak veya temassız ödeme yöntemleriyle kullanın.",
   "use_card_info_two": "Paralar, dijital para birimlerinde değil, ön ödemeli hesapta tutulduğunda USD'ye dönüştürülür.",
   "use_device_theme": "Cihaz temasını kullanın",

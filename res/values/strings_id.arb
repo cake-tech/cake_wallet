@@ -1077,6 +1077,7 @@
   "upto": "hingga ${value}",
   "usb": "USB",
   "use": "Beralih ke ",
+  "use_blink_protection": "Gunakan Perlindungan Berkedip",
   "use_card_info_three": "Gunakan kartu digital secara online atau dengan metode pembayaran tanpa kontak.",
   "use_card_info_two": "Dana dikonversi ke USD ketika disimpan dalam akun pra-bayar, bukan dalam mata uang digital.",
   "use_device_theme": "Gunakan tema perangkat",

@@ -1075,6 +1075,7 @@
   "upto": "${value}까지",
   "usb": "USB",
   "use": "다음으로 전환 ",
+  "use_blink_protection": "깜박임 방지 사용",
   "use_card_info_three": "디지털 카드를 온라인 또는 비접촉 결제 방법으로 사용하세요.",
   "use_card_info_two": "자금은 디지털 통화가 아닌 선불 계정에 보관될 때 USD로 변환됩니다.",
   "use_device_theme": "장치 테마를 사용하십시오",

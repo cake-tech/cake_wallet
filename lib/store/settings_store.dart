@@ -70,6 +70,7 @@ abstract class SettingsStoreBase with Store {
       required FilterListOrderType initialWalletListOrder,
       required FilterListOrderType initialContactListOrder,
       required bool initialDisableBulletin,
+      required this.useBlinkProtection,
       required bool initialWalletListAscending,
       required bool initialContactListAscending,
       required FiatApiMode initialFiatMode,
@@ -483,6 +484,11 @@ abstract class SettingsStoreBase with Store {
         (bool useMempoolFeeAPI) =>
             _sharedPreferences.setBool(PreferencesKey.useMempoolFeeAPI, useMempoolFeeAPI));
 
+    reaction(
+        (_) => useBlinkProtection,
+        (bool value) =>
+            _sharedPreferences.setBool(PreferencesKey.useBlinkProtection, value));
+
     reaction((_) => defaultNanoRep,
         (String nanoRep) => _sharedPreferences.setString(PreferencesKey.defaultNanoRep, nanoRep));
 
@@ -747,6 +753,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool disableAutomaticExchangeStatusUpdates;
+
+  @observable
+  bool useBlinkProtection;
 
   @observable
   FilterListOrderType contactListOrder;
@@ -1126,6 +1135,8 @@ abstract class SettingsStoreBase with Store {
     final useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
+    final useBlinkProtection =
+        sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
     final evmHiddenChainIdsRaw =
         sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ??
             const <String>[];
@@ -1475,6 +1486,7 @@ abstract class SettingsStoreBase with Store {
       useArbiScan: useArbiScan,
       useTronGrid: useTronGrid,
       useMempoolFeeAPI: useMempoolFeeAPI,
+      useBlinkProtection: useBlinkProtection,
       initialEvmHiddenChainIds: evmHiddenChainIds,
       defaultNanoRep: defaultNanoRep,
       defaultBananoRep: defaultBananoRep,
@@ -1678,6 +1690,8 @@ abstract class SettingsStoreBase with Store {
     useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
+    useBlinkProtection =
+        sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
     final hiddenChainIdsRaw =
         sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ?? const <String>[];
     evmHiddenChainIds

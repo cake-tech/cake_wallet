@@ -1360,6 +1360,7 @@ abstract class EVM {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
+    bool useBlinkProtection = true,
   });
   
   Object createEVMTransactionCredentialsRaw(
@@ -1367,6 +1368,7 @@ abstract class EVM {
     TransactionPriority? priority,
     required CryptoCurrency currency,
     required int feeRate,
+    bool useBlinkProtection = true,
   });
   
   int formatterEVMParseAmount(String amount);
@@ -1400,6 +1402,7 @@ abstract class EVM {
     String spender,
     CryptoCurrency token,
     TransactionPriority priority,
+    {bool useBlinkProtection = true}
   );
   
   Future<PendingTransaction> createRawCallDataTransaction(

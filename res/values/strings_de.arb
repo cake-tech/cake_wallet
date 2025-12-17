@@ -1076,6 +1076,7 @@
   "upto": "bis zu ${value}",
   "usb": "USB",
   "use": "Wechsel zu ",
+  "use_blink_protection": "Verwenden Sie den Blinzelschutz",
   "use_card_info_three": "Verwenden Sie die digitale Karte online oder mit kontaktlosen Zahlungsmethoden.",
   "use_card_info_two": "Guthaben werden auf dem Prepaid-Konto in USD umgerechnet, nicht in digitale Währung.",
   "use_device_theme": "Verwenden Sie das Gerätethema",

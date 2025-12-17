@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -85,6 +86,11 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @computed
   bool get useMempoolFeeAPI => _settingsStore.useMempoolFeeAPI;
+
+  @computed
+  bool get useBlinkProtection => _settingsStore.useBlinkProtection;
+
+  bool get canUseBlinkProtection => isEVMCompatibleChain(_wallet.type);
 
   @computed
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
@@ -206,6 +212,9 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setUseMempoolFeeAPI(bool value) => _settingsStore.useMempoolFeeAPI = value;
+
+  @action
+  void setUseBlinkProtection(bool value) => _settingsStore.useBlinkProtection = value;
 
   @action
   void setUsePayjoin(bool value) {

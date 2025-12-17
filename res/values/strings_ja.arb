@@ -1075,6 +1075,7 @@
   "upto": "up up ${value}",
   "usb": "USB",
   "use": "使用する ",
+  "use_blink_protection": "まばたき防止を使用する",
   "use_card_info_three": "デジタルカードをオンラインまたは非接触型決済方法で使用してください。",
   "use_card_info_two": "デジタル通貨ではなく、プリペイドアカウントで保持されている場合、資金は米ドルに変換されます。",
   "use_device_theme": "デバイステーマを使用します",

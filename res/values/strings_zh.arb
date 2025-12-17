@@ -1074,6 +1074,7 @@
   "upto": "最高 ${value}",
   "usb": "USB",
   "use": "切换使用",
+  "use_blink_protection": "使用眨眼保护",
   "use_card_info_three": "在线使用电子卡或使用非接触式支付方式。",
   "use_card_info_two": "预付账户中的资金转换为美元，不是数字货币。",
   "use_device_theme": "使用设备主题",

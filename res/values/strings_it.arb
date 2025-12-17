@@ -1075,6 +1075,7 @@
   "upto": "fino a ${value}",
   "usb": "USB",
   "use": "Passa a ",
+  "use_blink_protection": "Utilizza la protezione dagli occhi chiusi",
   "use_card_info_three": "Utilizza la carta digitale online o con metodi di pagamento contactless.",
   "use_card_info_two": "I fondi vengono convertiti in USD quando sono detenuti nel conto prepagato, non in valute digitali.",
   "use_device_theme": "Usa il tema del dispositivo",

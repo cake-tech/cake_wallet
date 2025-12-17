@@ -1074,6 +1074,7 @@
   "upto": "do ${value}",
   "usb": "USB",
   "use": "Prebaci na",
+  "use_blink_protection": "Koristite zaštitu od treptanja",
   "use_card_info_three": "Koristite digitalnu karticu online ili s beskontaktnim metodama plaćanja.",
   "use_card_info_two": "Sredstva se pretvaraju u USD kada se drže na prepaid računu, a ne u digitalnim valutama.",
   "use_device_theme": "Koristite temu uređaja",
