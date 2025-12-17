@@ -60,6 +60,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/trezor_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/view_model/start_tor_view_model.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
@@ -575,7 +576,7 @@ Future<void> setup({
     keyService: getIt.get<KeyService>()));
 
   final walletList = await WalletInfo.getAll();
-  
+
   getIt.registerFactory<AuthService>(
         () => AuthService(
         secureStorage: getIt.get<SecureStorage>(),
@@ -1221,6 +1222,8 @@ Future<void> setup({
         return zano!.createZanoWalletService();
       case WalletType.decred:
         return decred!.createDecredWalletService(_unspentCoinsInfoSource);
+      case WalletType.minotari:
+        return minotari!.createMinotariWalletService(_unspentCoinsInfoSource);
       case WalletType.haven:
         return HavenWalletService();
       case WalletType.zcash:

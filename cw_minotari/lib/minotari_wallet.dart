@@ -8,9 +8,10 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_minotari/minotari_balance.dart';
+import 'package:cw_minotari/minotari_transaction_info.dart';
 import 'package:cw_minotari/minotari_transaction_history.dart';
 import 'package:cw_minotari/minotari_wallet_addresses.dart';
-import 'package:cw_minotari/minotari_ffi.dart';
+import 'package:cw_minotari/minotari_ffi_stub.dart';
 import 'package:mobx/mobx.dart';
 
 part 'minotari_wallet.g.dart';
@@ -20,21 +21,23 @@ class MinotariWallet = MinotariWalletBase with _$MinotariWallet;
 abstract class MinotariWalletBase
     extends WalletBase<MinotariBalance, MinotariTransactionHistory, MinotariTransactionInfo>
     with Store {
-  MinotariWalletBase(WalletInfo walletInfo)
-      : balance = MinotariBalance(
-          available: 0,
-          pendingIncoming: 0,
-          pendingOutgoing: 0,
-        ),
+  MinotariWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo)
+      : balance = ObservableMap.of({
+          CryptoCurrency.xtm: MinotariBalance(
+            available: 0,
+            pendingIncoming: 0,
+            pendingOutgoing: 0,
+          )
+        }),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         walletAddresses = MinotariWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     transactionHistory = MinotariTransactionHistory();
   }
 
-  MinotariFfi? _ffi;
+  MinotariFfiStub? _ffi;
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
 
@@ -47,7 +50,7 @@ abstract class MinotariWalletBase
 
   @override
   @observable
-  MinotariBalance balance;
+  ObservableMap<CryptoCurrency, MinotariBalance> balance;
 
   @override
   String? get seed => _ffi?.getMnemonic();
@@ -56,14 +59,14 @@ abstract class MinotariWalletBase
   String get password => '';
 
   @override
-  WalletKeys get keys => WalletKeys(privateKey: '', publicKey: '');
+  Object get keys => {};
 
   String get address => walletAddresses.address;
 
   @override
   Future<void> init() async {
     final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
-    _ffi = MinotariFfi(dataPath: path);
+    _ffi = MinotariFfiStub(dataPath: path);
     await updateBalance();
     await updateTransactions();
     _hasSyncAfterStartup = false;
@@ -126,15 +129,45 @@ abstract class MinotariWalletBase
   }
 
   @override
-  Future<void> close({bool? silent = false}) async {
+  Future<void> close({bool shouldCleanup = false}) async {
     _ffi?.dispose();
+  }
+
+  @override
+  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+    // Stub implementation - return 0 fee for now
+    return 0;
+  }
+
+  @override
+  Future<bool> checkNodeHealth() async {
+    // Stub implementation - always return true
+    return true;
+  }
+
+  @override
+  Future<Map<String, MinotariTransactionInfo>> fetchTransactions() async {
+    // Stub implementation - return empty map
+    return {};
+  }
+
+  @override
+  Future<String> signMessage(String message, {String? address}) async {
+    // Stub implementation
+    throw UnimplementedError('signMessage not yet implemented');
+  }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address}) async {
+    // Stub implementation
+    return false;
   }
 
   Future<void> updateBalance() async {
     try {
       final balanceData = await _ffi?.getBalance();
       if (balanceData != null) {
-        balance = MinotariBalance(
+        balance[CryptoCurrency.xtm] = MinotariBalance(
           available: balanceData['available'] as int,
           pendingIncoming: balanceData['pendingIncoming'] as int,
           pendingOutgoing: balanceData['pendingOutgoing'] as int,

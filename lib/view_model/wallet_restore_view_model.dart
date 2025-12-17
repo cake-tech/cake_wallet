@@ -63,6 +63,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.bitcoinCash:
       case WalletType.zano:
       case WalletType.dogecoin:
+      case WalletType.minotari:
         availableModes = [WalletRestoreMode.seed];
         break;
       case WalletType.none:
@@ -221,6 +222,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             passphrase: passphrase,
             height: height,
           );
+        case WalletType.minotari:
         case WalletType.none:
         case WalletType.haven:
           break;

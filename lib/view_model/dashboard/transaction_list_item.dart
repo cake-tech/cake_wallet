@@ -226,7 +226,10 @@ class TransactionListItem extends ActionListItem with Keyable {
         amount = calculateFiatAmountRaw(
             cryptoAmount: zcash!.formatterZcashAmountToDouble(amount: BigInt.from(transaction.amount)),
             price: price);
-      
+      case WalletType.minotari:
+      /// TODO :Add Minotari fiat amount calculation when available
+        break;
+
       case WalletType.none:
       case WalletType.banano:
       case WalletType.haven:

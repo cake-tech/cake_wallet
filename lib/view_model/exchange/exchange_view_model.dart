@@ -192,7 +192,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       await Future.delayed(const Duration(milliseconds: 100));
       receiveCurrency = wallet.currency;
       depositCurrency = wallet.currency;
-      
+
       // Only refresh ETH tokens for EVM wallets
       if (isEVMCompatibleChain(wallet.type)) {
         _injectUserEthTokensIntoCurrencyLists();
@@ -930,6 +930,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.zcash:
         depositCurrency = CryptoCurrency.zec;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.minotari:
+        depositCurrency = CryptoCurrency.xtm;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.none:

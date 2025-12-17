@@ -97,6 +97,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.zcash:
         _addZcashListItems(tx, dateFormat);
+      case WalletType.minotari:
       case WalletType.none:
       case WalletType.banano:
         break;
@@ -217,6 +218,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://blockchair.com/dogecoin/transaction/${txId}';
       case WalletType.zcash:
         return 'https://blockchair.com/zcash/transaction/${txId}';
+      case WalletType.minotari:
+        /// TODO :Add Minotari explorer when available
       case WalletType.none:
         return '';
     }
@@ -266,6 +269,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'arbiscan.io';
       case WalletType.zcash:
         return S.current.view_transaction_on + 'blockchair.com';
+      case WalletType.minotari:
       case WalletType.none:
         return '';
     }

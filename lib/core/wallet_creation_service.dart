@@ -93,6 +93,7 @@ class WalletCreationService {
       case WalletType.banano:
       case WalletType.zano:
       case WalletType.decred:
+      case WalletType.minotari:
         return false;
     }
   }

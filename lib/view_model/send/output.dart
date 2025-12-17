@@ -130,6 +130,8 @@ abstract class OutputBase with Store {
           case WalletType.zcash:
             _amount = zcash!.formatterZcashParseAmount(_cryptoAmount);
             break;
+          case WalletType.minotari:
+            /// TODO :Add Minotari amount formatter when available
           case WalletType.none:
           case WalletType.haven:
           case WalletType.nano:
@@ -209,7 +211,7 @@ abstract class OutputBase with Store {
             estimatedFee = tron!.getTronTRC20EstimatedFee(_wallet).toString();
           }
           break;
-          
+
         case WalletType.zcash:
           estimatedFee = zcash!.formatterZcashAmountToDouble(amount: BigInt.from(fee)).toString();
           break;
@@ -234,6 +236,7 @@ abstract class OutputBase with Store {
 
         /// end EVMs
 
+        case WalletType.minotari:
         case WalletType.haven:
         case WalletType.nano:
         case WalletType.banano:

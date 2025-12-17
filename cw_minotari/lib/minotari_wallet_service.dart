@@ -7,7 +7,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
-import 'package:cw_minotari/minotari_ffi.dart';
+import 'package:cw_minotari/minotari_ffi_stub.dart';
 import 'package:hive/hive.dart';
 
 class MinotariWalletService extends WalletService<
@@ -15,20 +15,20 @@ class MinotariWalletService extends WalletService<
     MinotariRestoreWalletFromSeedCredentials,
     MinotariRestoreWalletFromKeysCredentials,
     MinotariNewWalletCredentials> {
-  MinotariWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
+  MinotariWalletService(this.unspentCoinsInfoSource);
 
-  final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
 
   @override
   WalletType getType() => WalletType.minotari;
 
   @override
-  Future<MinotariWallet> create(
+  Future<WalletBase> create(
     MinotariNewWalletCredentials credentials, {
     bool? isTestnet,
   }) async {
-    final wallet = MinotariWallet(credentials.walletInfo!);
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    final wallet = MinotariWallet(credentials.walletInfo!, derivationInfo);
     await wallet.init();
 
     final path = await pathForWallet(
@@ -36,12 +36,17 @@ class MinotariWalletService extends WalletService<
       type: getType(),
     );
 
-    final ffi = MinotariFfi(dataPath: path);
+    final ffi = MinotariFfiStub(dataPath: path);
 
-    // Generate new mnemonic and create wallet
-    // TODO: Generate mnemonic using BIP39
-    final mnemonic = _generateMnemonic();
-    await ffi.createFromMnemonic(mnemonic);
+    // NOTE: Stubbed - actual wallet creation not implemented yet
+    // This will throw an UnimplementedError with user-friendly message
+    try {
+      final mnemonic = _generateMnemonic();
+      await ffi.createFromMnemonic(mnemonic);
+    } catch (e) {
+      // Re-throw the UnimplementedError to show user the message
+      rethrow;
+    }
 
     // Get and set the wallet address
     final address = await ffi.getAddress();
@@ -54,18 +59,15 @@ class MinotariWalletService extends WalletService<
   }
 
   @override
-  Future<MinotariWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-
-    final wallet = MinotariWallet(walletInfo);
-    await wallet.init();
-
-    // Get and set the wallet address
-    final address = await wallet._ffi?.getAddress();
-    if (address != null) {
-      wallet.walletAddresses.setAddress(address);
+  Future<WalletBase> openWallet(String name, String password) async {
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
     }
+
+    final derivationInfo = await walletInfo.getDerivationInfo();
+    final wallet = MinotariWallet(walletInfo, derivationInfo);
+    await wallet.init();
 
     return wallet;
   }
@@ -79,29 +81,32 @@ class MinotariWalletService extends WalletService<
       await file.delete(recursive: true);
     }
 
-    final walletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(wallet, getType()));
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values.firstWhere(
-      (info) => info.id == WalletBase.idFor(currentName, getType()),
-    );
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
 
-    final currentWallet = MinotariWallet(currentWalletInfo);
+    final derivationInfo = await currentWalletInfo.getDerivationInfo();
+    final currentWallet = MinotariWallet(currentWalletInfo, derivationInfo);
 
     await currentWallet.renameWalletFiles(newName);
 
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.name = newName;
+    currentWalletInfo.name = newName;
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    await currentWalletInfo.save();
   }
 
   @override
-  Future<MinotariWallet> restoreFromKeys(
+  Future<WalletBase> restoreFromKeys(
     MinotariRestoreWalletFromKeysCredentials credentials, {
     bool? isTestnet,
   }) async {
@@ -110,11 +115,12 @@ class MinotariWalletService extends WalletService<
   }
 
   @override
-  Future<MinotariWallet> restoreFromSeed(
+  Future<WalletBase> restoreFromSeed(
     MinotariRestoreWalletFromSeedCredentials credentials, {
     bool? isTestnet,
   }) async {
-    final wallet = MinotariWallet(credentials.walletInfo!);
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    final wallet = MinotariWallet(credentials.walletInfo!, derivationInfo);
     await wallet.init();
 
     final path = await pathForWallet(
@@ -122,8 +128,14 @@ class MinotariWalletService extends WalletService<
       type: getType(),
     );
 
-    final ffi = MinotariFfi(dataPath: path);
-    await ffi.restore(credentials.mnemonic);
+    final ffi = MinotariFfiStub(dataPath: path);
+
+    // NOTE: Stubbed - actual wallet restoration not implemented yet
+    try {
+      await ffi.restore(credentials.mnemonic);
+    } catch (e) {
+      rethrow;
+    }
 
     // Get and set the wallet address
     final address = await ffi.getAddress();
@@ -136,6 +148,15 @@ class MinotariWalletService extends WalletService<
   }
 
   @override
+  Future<WalletBase> restoreFromHardwareWallet(
+    MinotariNewWalletCredentials credentials, {
+    bool? isTestnet,
+  }) async {
+    // Minotari doesn't support hardware wallets yet
+    throw UnimplementedError('Minotari hardware wallet support not yet implemented');
+  }
+
+  @override
   Future<bool> isWalletExit(String name) async {
     try {
       final path = await pathForWallet(name: name, type: getType());
@@ -145,11 +166,10 @@ class MinotariWalletService extends WalletService<
     }
   }
 
-  /// Generate a 24-word BIP39 mnemonic
+  /// Generate a 24-word BIP39 mnemonic (stubbed)
   String _generateMnemonic() {
-    // TODO: Implement proper BIP39 mnemonic generation
-    // This is a placeholder
-    throw UnimplementedError('Mnemonic generation not yet implemented');
+    // Placeholder mnemonic - in real implementation, use BIP39 library
+    return 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art';
   }
 }
 

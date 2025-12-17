@@ -32,16 +32,5 @@ ffigen:
     entry-points:
       - 'rust/target/minotari_wallet.h'
 
-flutter:
-  plugin:
-    platforms:
-      android:
-        ffiPlugin: true
-      ios:
-        ffiPlugin: true
-      linux:
-        ffiPlugin: true
-      macos:
-        ffiPlugin: true
-      windows:
-        ffiPlugin: true
+# Flutter plugin configuration removed - will be added back when implementing real FFI
+# Currently using stub implementation without native code
