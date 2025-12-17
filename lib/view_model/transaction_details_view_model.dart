@@ -496,6 +496,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return "https://blockchair.com/dogecoin/transaction/${txId}";
       case WalletType.zcash:
         return "https://blockchair.com/zcash/transaction/${txId}";
+      case WalletType.minotari:
+        /// TODO :Add Minotari explorer when available
       case WalletType.none:
         return "";
     }

@@ -42,7 +42,8 @@ class MenuWidgetState extends State<MenuWidget> {
         this.zanoIcon = Image.asset('assets/new-ui/crypto_full_icons/zano.svg'),
         this.decredIcon = Image.asset('assets/new-ui/crypto_full_icons/decred.svg'),
         this.dogecoinIcon = Image.asset('assets/new-ui/crypto_full_icons/dogecoin.svg'),
-        this.zcashIcon = Image.asset('assets/new-ui/crypto_full_icons/zcash.svg');
+        this.zcashIcon = Image.asset('assets/new-ui/crypto_full_icons/zcash.svg'),
+        this.minotariIcon = Image.asset('assets/images/crypto/minotari.webp');
 
   final largeScreen = 731;
 
@@ -74,6 +75,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image decredIcon;
   Image dogecoinIcon;
   Image zcashIcon;
+  Image minotariIcon;
 
   @override
   void initState() {
@@ -273,6 +275,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return dogecoinIcon;
       case WalletType.zcash:
         return zcashIcon;
+      case WalletType.minotari:
+        return minotariIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }

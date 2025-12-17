@@ -207,6 +207,7 @@ abstract class OutputBase with Store {
 
         /// end EVMs
 
+        case WalletType.minotari:
         case WalletType.haven:
         case WalletType.nano:
         case WalletType.banano:

@@ -246,6 +246,8 @@ class TransactionListItem extends ActionListItem with Keyable {
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
+      case WalletType.minotari:
+      /// TODO :Add Minotari fiat amount calculation when available
       case WalletType.none:
       case WalletType.banano:
       case WalletType.haven:

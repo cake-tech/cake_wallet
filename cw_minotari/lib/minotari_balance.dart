@@ -25,19 +25,3 @@ class MinotariBalance extends Balance {
     return '$wholePart.${fractionalPart.toString().padLeft(6, '0')}';
   }
 }
-
-class MinotariTransactionInfo {
-  final String id;
-  final int amount;
-  final DateTime date;
-  final String status;
-  final bool isIncoming;
-
-  MinotariTransactionInfo({
-    required this.id,
-    required this.amount,
-    required this.date,
-    required this.status,
-    required this.isIncoming,
-  });
-}

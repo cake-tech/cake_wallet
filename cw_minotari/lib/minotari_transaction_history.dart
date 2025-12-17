@@ -1,5 +1,5 @@
 import 'package:cw_core/transaction_history.dart';
-import 'package:cw_minotari/minotari_balance.dart';
+import 'package:cw_minotari/minotari_transaction_info.dart';
 import 'package:mobx/mobx.dart';
 
 part 'minotari_transaction_history.g.dart';
