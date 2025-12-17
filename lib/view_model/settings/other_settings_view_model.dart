@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -46,6 +47,7 @@ abstract class OtherSettingsViewModelBase with Store {
   @computed
   TransactionPriority get transactionPriority {
     final priority = _settingsStore.priority[walletType];
+    final priorities = priorityForWalletType(walletType);
 
     if (priority == null) {
       throw Exception('Unexpected type ${walletType.toString()}');
