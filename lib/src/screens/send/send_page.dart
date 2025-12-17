@@ -260,7 +260,7 @@ class SendPage extends BasePage {
                                             dotColor: Theme.of(context)
                                                 .colorScheme
                                                 .primary
-                                                .withOpacity(0.4),
+                                                .withAlpha(100),
                                             activeDotColor: Theme.of(context).colorScheme.primary,
                                           ),
                                         ),
@@ -411,12 +411,11 @@ class SendPage extends BasePage {
                                 return;
                               }
 
-                              final notValidItems = sendViewModel.outputs
-                                  .where(
-                                      (item) => item.address.isEmpty || item.cryptoAmount.isEmpty)
-                                  .toList();
+                              final hasInvalidItems = sendViewModel.outputs.any((item) =>
+                                  item.address.isEmpty ||
+                                  (item.cryptoAmount.isEmpty && !item.sendAll));
 
-                              if (notValidItems.isNotEmpty) {
+                              if (hasInvalidItems) {
                                 showErrorValidationAlert(context);
                                 return;
                               }

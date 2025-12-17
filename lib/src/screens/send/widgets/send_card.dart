@@ -786,6 +786,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.sendAll = false;
       }
 
+      if (amount == S.current.all) return;
+
       final cAmount = sendViewModel.amountParsingProxy
           .getCryptoOutputAmount(output.cryptoAmount, sendViewModel.selectedCryptoCurrency);
       if (amount != cAmount) {

@@ -292,7 +292,8 @@ abstract class OutputBase with Store {
 
   @action
   void setSendAll(String fullBalance) {
-    cryptoFullBalance = fullBalance;
+    cryptoFullBalance =
+        _appStore.amountParsingProxy.getCryptoInputAmount(fullBalance, cryptoCurrencyHandler());
     sendAll = true;
     _updateFiatAmount();
   }
