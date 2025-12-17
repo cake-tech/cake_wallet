@@ -233,66 +233,63 @@ class Node extends HiveObject with Keyable {
     }
   }
 
+  // KB: We hijack the connect method in monero_wallet.dart's class (line 199) for mvp
+  // Should we be using our subclass to call an entirely different node?
   // Future<bool> requestMoneroLWSNode({String methodName = 'get_address_info', String? address, String? viewKey}) async {
   Future<bool> requestMoneroLWSNode({String methodName = 'get_address_info'}) async {
-      // TODO: We should honour using a proxy to communicate with the Monero server
-
-      final lwsDaemonAddress = "192.168.0.141";
-      final port = "8443";
-      try {     
-        Uri url = Uri(
-          scheme: 'https',
-          host: lwsDaemonAddress,
-          port: int.parse(port),
-          path: '/get_address_info',
-        );
-        // We can use these throwaway keys to see if we get some form of response
-        final address =
-            "47Cw9RboPr9DRmvA7WnrzxZrAGh9gy6a2U2wqrbqwZaHjV1FbtX5VH288NmjdmGCqLYL1kQyJSfGxWRwJCAQg9upUxNGRde";
-        final viewKey = "59710f89795362d36e9ad1e7dcf9611d594686ed7089d27bdeaaee10803f9502";
-        final data = json.encode({'address': address, 'view_key': viewKey});
-        final response = await ProxyWrapper().post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
-        // We don't care about the response, just that the server responds
-        print(response);
-        return true;        
-        // final body = const {
-        //   "address": address,
-        //   "viewKey": viewKey,
-        //   // "createAccountIfDoesntExist": "true",
-        //   // "generated_locally": "true",
-        // };
-        // response = await dio.post(
-        //   Uri,
-        //   data: {'address': address, 'view_key': viewKey},
-        // );
-        // return response;
-        //final data = json.encode({'address': address, 'view_key': viewKey});
-        // print("Override mitm?");
-        // returns {"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3553384,"scanned_block_height":3553384,"start_height":3542413,"transaction_height":3558148,"blockchain_height":3558148}
-        //{"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3558387,"scanned_block_height":3558387,"start_height":3558271,"transaction_height":3558387,"blockchain_height":3558387}
-        // {"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3558389,"scanned_block_height":3558389,"start_height":3558349,"transaction_height":3558389,"blockchain_height":3558389}
-        // MoneroLightweightWalletServiceClient lwsClient =        MoneroLightweightWalletServiceClient(lwsDaemonAddress: '192.168.0.141', port: '8443');
-        // response = await lwsClient.get_address_txs(address, viewKey);
-        // print(response);
-        // response in this case now returns Future<List<String>> to address length issue
-        // for (var i = 0; i < (response.length as int); i++) {
-        //   print(response[i]);
-        //   // We've isolated every single transaction here
-        //   // What's left is to map these transactions to MoneroTransactionInfo for the current wallet
-        // }
-      } catch (e) {
-        print("Failed");
-        print(e);
-        return false;
-      }
-    } 
+    // TODO: We should honour using a proxy to communicate with the Monero server
+    printV("Hello from requestMoneroLWSNode");
+    final lwsDaemonAddress = "192.168.0.141";
+    final port = "8443";
+    try {
+      Uri url = Uri(
+        scheme: 'https',
+        host: lwsDaemonAddress,
+        port: int.parse(port),
+        path: '/get_address_info',
+      );
+      // We can use these throwaway keys to see if we get some form of response
+      final address =
+          "47Cw9RboPr9DRmvA7WnrzxZrAGh9gy6a2U2wqrbqwZaHjV1FbtX5VH288NmjdmGCqLYL1kQyJSfGxWRwJCAQg9upUxNGRde";
+      final viewKey = "59710f89795362d36e9ad1e7dcf9611d594686ed7089d27bdeaaee10803f9502";
+      final data = json.encode({'address': address, 'view_key': viewKey});
+      final response = await ProxyWrapper()
+          .post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
+      // We don't care about the response, just that the server responds
+      print(response);
+      return true;
+      // final body = const {
+      //   "address": address,
+      //   "viewKey": viewKey,
+      //   // "createAccountIfDoesntExist": "true",
+      //   // "generated_locally": "true",
+      // };
+      // response = await dio.post(
+      //   Uri,
+      //   data: {'address': address, 'view_key': viewKey},
+      // );
+      // return response;
+      //final data = json.encode({'address': address, 'view_key': viewKey});
+      // print("Override mitm?");
+      // returns {"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3553384,"scanned_block_height":3553384,"start_height":3542413,"transaction_height":3558148,"blockchain_height":3558148}
+      //{"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3558387,"scanned_block_height":3558387,"start_height":3558271,"transaction_height":3558387,"blockchain_height":3558387}
+      // {"locked_funds":"0","total_received":"0","total_sent":"0","scanned_height":3558389,"scanned_block_height":3558389,"start_height":3558349,"transaction_height":3558389,"blockchain_height":3558389}
+      // MoneroLightweightWalletServiceClient lwsClient =        MoneroLightweightWalletServiceClient(lwsDaemonAddress: '192.168.0.141', port: '8443');
+      // response = await lwsClient.get_address_txs(address, viewKey);
+      // print(response);
+      // response in this case now returns Future<List<String>> to address length issue
+      // for (var i = 0; i < (response.length as int); i++) {
+      //   print(response[i]);
+      //   // We've isolated every single transaction here
+      //   // What's left is to map these transactions to MoneroTransactionInfo for the current wallet
+      // }
+    } catch (e) {
+      print("Failed");
+      print(e);
+      return false;
+    }
   }
-  // TODO: KB: Where do we determine which nodetype to call?
-  // Should we be using our subclass to call an entirely different node?
-  // For now, do I just get this working?
-  // We should be handling this elsewhere. We shouldn't need to invoke this and then return early
-  // just based on if data / a field is enabled. It should only run when a wallet is LWS enabled.
-  // This is going to need to vary depending on how we've subclassed our node object, I reckon?
+
   Future<bool> requestMoneroNode({String methodName = 'get_info'}) async {
     if (useSocksProxy) {
       return await requestNodeWithProxy();
