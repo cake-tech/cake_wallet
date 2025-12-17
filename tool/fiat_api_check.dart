@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http; // very_insecure_http_do_not_use
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import './print_verbose_dummy.dart';
 
 // 1. Configuration
 const _fiatApiClearNetAuthority = 'fiat-api.cakewallet.com';
@@ -75,7 +76,7 @@ void main() {
   // --- B. Run App in a Zone to Capture Prints ---
   runZoned(
     () async {
-      print('--- Starting Verified Price Check ---');
+      printV('--- Starting Verified Price Check ---');
 
       final Map<String, List<String>> workingPairs = {};
       final Map<String, List<String>> failedPairs = {};
@@ -129,7 +130,7 @@ void main() {
             }
 
             // Print immediate status (Captured by Zone)
-            print('$logPrefix $logMessage');
+            printV('$logPrefix $logMessage');
 
             // Aggregate
             if (isSuccess) {
@@ -147,25 +148,25 @@ void main() {
       }
 
       // --- FINAL SUMMARY ---
-      print('\n\n=== SUMMARY ===\n');
+      printV('\n\n=== SUMMARY ===\n');
 
       // Print Successful
       workingPairs.forEach((crypto, fiats) {
         if (fiats.isNotEmpty) {
-          print('✅ ${crypto.toUpperCase()}: ${fiats.join(", ")}');
+          printV('✅ ${crypto.toUpperCase()}: ${fiats.join(", ")}');
         }
       });
 
-      print('\n--------------------------------------------------\n');
+      printV('\n--------------------------------------------------\n');
 
       // Print Failed
       failedPairs.forEach((crypto, fiats) {
         if (fiats.isNotEmpty) {
-          print('❌ ${crypto.toUpperCase()}: ${fiats.join(", ")}');
+          printV('❌ ${crypto.toUpperCase()}: ${fiats.join(", ")}');
         }
       });
 
-      print('\n=== DONE ===');
+      printV('\n=== DONE ===');
     },
 
     // --- C. The Interceptor ---
