@@ -311,7 +311,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
     int? chainId;
     if (isEVMCompatibleChain(walletType)) {
-      chainId = evm!.getSelectedChainId(appStore.wallet!);
+      if (appStore.wallet != null) {
+        chainId = evm!.getSelectedChainId(appStore.wallet!);
+      }
+      chainId ??= evm!.getChainIdByWalletType(walletType);
     }
 
     var node = appStore.settingsStore.getCurrentNode(walletType, chainId: chainId);

@@ -1075,6 +1075,7 @@
   "upto": "hasta ${value}",
   "usb": "USB",
   "use": "Cambiar a ",
+  "use_blink_protection": "Usar protección contra parpadeos",
   "use_card_info_three": "Utiliza la tarjeta digital en línea o con métodos de pago sin contacto.",
   "use_card_info_two": "Los fondos se convierten a USD cuando se mantienen en la cuenta prepaga, no en monedas digitales.",
   "use_device_theme": "Usar el tema del dispositivo",

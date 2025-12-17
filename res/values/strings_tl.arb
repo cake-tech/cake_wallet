@@ -1074,6 +1074,7 @@
   "upto": "hanggang sa ${value}",
   "usb": "USB",
   "use": "Lumipat sa ",
+  "use_blink_protection": "Gumamit ng Blink Protection",
   "use_card_info_three": "Gamitin ang digital card online o sa mga paraan ng pagbabayad na walang contact.",
   "use_card_info_two": "Ang mga pondo ay na-convert sa USD kapag hawak sa prepaid account, hindi sa mga digital na pera.",
   "use_device_theme": "Gumamit ng tema ng aparato",

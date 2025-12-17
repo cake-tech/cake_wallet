@@ -1074,6 +1074,7 @@
   "upto": "jusqu'à ${value}",
   "usb": "USB",
   "use": "Changer vers code PIN à ",
+  "use_blink_protection": "Utiliser la protection contre les clignements",
   "use_card_info_three": "Utilisez la carte numérique en ligne ou avec des méthodes de paiement sans contact.",
   "use_card_info_two": "Les fonds sont convertis en USD lorsqu'ils sont détenus sur le compte prépayé, et non en devises numériques.",
   "use_device_theme": "Utiliser le thème de l'appareil",

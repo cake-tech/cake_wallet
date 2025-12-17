@@ -686,8 +686,8 @@ abstract class EVMChainWalletBase
     }
 
     final transactionCurrency = balance.keys.firstWhere(
-            (currency) =>
-        currency.title == _credentials.currency.title &&
+        (currency) =>
+            currency.title == _credentials.currency.title &&
             currency.tag == _credentials.currency.tag,
         orElse: () => throw Exception(
             'Currency ${_credentials.currency.title} ${_credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
@@ -809,6 +809,7 @@ abstract class EVMChainWalletBase
           transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
       data: hexOpReturnMemo,
       gasPrice: maxFeePerGasForTransaction,
+      useBlinkProtection: _credentials.useBlinkProtection,
     );
 
     return pendingEVMChainTransaction;
@@ -818,8 +819,9 @@ abstract class EVMChainWalletBase
     String to,
     String dataHex,
     BigInt valueWei,
-    EVMChainTransactionPriority? priority,
-  ) async {
+    EVMChainTransactionPriority? priority, {
+    bool useBlinkProtection = true,
+  }) async {
     // Estimate gas with the SAME call (sender, to, value, data)
     final gas = await calculateActualEstimatedFeeForCreateTransaction(
       amount: valueWei, // native value (usually 0 for ERC20 transfer)
@@ -854,16 +856,13 @@ abstract class EVMChainWalletBase
       contractAddress: null,
       data: dataHex,
       gasPrice: gas.gasPrice,
+      useBlinkProtection: useBlinkProtection,
     );
   }
 
-  Future<PendingTransaction> createApprovalTransaction(
-    BigInt amount,
-    String spender,
-    CryptoCurrency token,
-    EVMChainTransactionPriority? priority,
-    String feeCurrency,
-  ) async {
+  Future<PendingTransaction> createApprovalTransaction(BigInt amount, String spender,
+      CryptoCurrency token, EVMChainTransactionPriority? priority, String feeCurrency,
+      {bool useBlinkProtection = true}) async {
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == token.title);
     assert(transactionCurrency is Erc20Token);
@@ -894,6 +893,7 @@ abstract class EVMChainWalletBase
       exponent: transactionCurrency.decimal,
       contractAddress: transactionCurrency.contractAddress,
       gasPrice: gasFeesModel.gasPrice,
+      useBlinkProtection: useBlinkProtection,
     );
   }
 

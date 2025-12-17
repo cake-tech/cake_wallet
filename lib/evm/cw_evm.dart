@@ -104,6 +104,7 @@ class CWEVM extends EVM {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
+    bool useBlinkProtection = true,
   }) {
     return EVMChainTransactionCredentials(
       outputs
@@ -121,6 +122,7 @@ class CWEVM extends EVM {
       priority: priority as EVMChainTransactionPriority,
       currency: currency,
       feeRate: feeRate,
+      useBlinkProtection: useBlinkProtection,
     );
   }
 
@@ -130,12 +132,14 @@ class CWEVM extends EVM {
     TransactionPriority? priority,
     required CryptoCurrency currency,
     required int feeRate,
+    bool useBlinkProtection = true,
   }) {
     return EVMChainTransactionCredentials(
       outputs,
       priority: priority as EVMChainTransactionPriority?,
       currency: currency,
       feeRate: feeRate,
+      useBlinkProtection: useBlinkProtection,
     );
   }
 
@@ -230,7 +234,7 @@ class CWEVM extends EVM {
     String spender,
     CryptoCurrency token,
     TransactionPriority priority,
-  ) {
+    {bool useBlinkProtection = true}) {
     final evmWallet = wallet as EVMChainWallet;
     final feeCurrency = EVMChainUtils.getFeeCurrency(evmWallet.selectedChainId);
     return evmWallet.createApprovalTransaction(
@@ -239,6 +243,7 @@ class CWEVM extends EVM {
       token,
       priority as EVMChainTransactionPriority,
       feeCurrency,
+      useBlinkProtection: useBlinkProtection,
     );
   }
 
@@ -248,13 +253,15 @@ class CWEVM extends EVM {
     String to,
     String dataHex,
     BigInt valueWei,
-    TransactionPriority priority,
-  ) =>
+    TransactionPriority priority, {
+    bool useBlinkProtection = true,
+  }) =>
       (wallet as EVMChainWallet).createCallDataTransaction(
         to,
         dataHex,
         valueWei,
         priority as EVMChainTransactionPriority,
+        useBlinkProtection: useBlinkProtection,
       );
 
   @override

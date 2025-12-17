@@ -1071,6 +1071,7 @@
   "upto": "lên đến ${value}",
   "usb": "USB",
   "use": "Chuyển sang",
+  "use_blink_protection": "Sử dụng Bảo vệ chớp mắt",
   "use_card_info_three": "Sử dụng thẻ kỹ thuật số trực tuyến hoặc với các phương thức thanh toán không tiếp xúc.",
   "use_card_info_two": "Các khoản tiền được chuyển đổi thành USD khi chúng được giữ trong tài khoản trả trước, không phải trong các loại tiền kỹ thuật số.",
   "use_device_theme": "Sử dụng chủ đề thiết bị",

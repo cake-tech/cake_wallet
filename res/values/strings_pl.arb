@@ -1073,6 +1073,7 @@
   "upto": "do ${value}",
   "usb": "USB",
   "use": "Przełącz na ",
+  "use_blink_protection": "Użyj ochrony przed mruganiem",
   "use_card_info_three": "Użyj cyfrowej karty online lub przy pomocy zbliżeniowych metod płatności.",
   "use_card_info_two": "Środki są konwertowane na USD, gdy są przechowywane na koncie przedpłaconym, a nie w kryptowalutach.",
   "use_device_theme": "Użyj motywu systemowego",

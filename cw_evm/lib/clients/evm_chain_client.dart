@@ -236,6 +236,7 @@ class EVMChainClient {
     String? contractAddress,
     String? data,
     int? gasPrice,
+    bool useBlinkProtection = true,
   }) async {
     assert(currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||
@@ -281,7 +282,8 @@ class EVMChainClient {
       );
     }
 
-    _sendTransaction = () async => await sendTransaction(signedTransaction);
+    _sendTransaction = () async =>
+        await sendTransaction(signedTransaction, useBlinkProtection: useBlinkProtection);
 
     return PendingEVMChainTransaction(
       signedTransaction: prepareSignedTransactionForSending(signedTransaction),
@@ -305,6 +307,7 @@ class EVMChainClient {
     required int exponent,
     required String contractAddress,
     int? gasPrice,
+    bool useBlinkProtection = true,
   }) async {
     final Transaction transaction = createTransaction(
       from: privateKey.address,
@@ -335,7 +338,8 @@ class EVMChainClient {
       amount: amount.toString(),
       fee: gasFee,
       feeCurrency: feeCurrency,
-      sendTransaction: () => sendTransaction(signedTransaction),
+      sendTransaction: () =>
+          sendTransaction(signedTransaction, useBlinkProtection: useBlinkProtection),
       exponent: exponent,
       isInfiniteApproval: amount.toRadixString(16) ==
           'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
@@ -364,8 +368,24 @@ class EVMChainClient {
     );
   }
 
-  Future<String> sendTransaction(Uint8List signedTransaction) async {
-    return await _client!.sendRawTransaction(prepareSignedTransactionForSending(signedTransaction));
+  String _blinkUrl(String apiKey) => 'https://eth.blinklabs.xyz/v1/$apiKey';
+
+  Future<String> sendTransaction(
+    Uint8List signedTransaction, {
+    bool useBlinkProtection = false,
+  }) async {
+    final prepared = prepareSignedTransactionForSending(signedTransaction);
+
+    if (useBlinkProtection && secrets.blinkApiKey.isNotEmpty) {
+      final blinkClient = Web3Client(_blinkUrl(secrets.blinkApiKey), client);
+      try {
+        return await blinkClient.sendRawTransaction(prepared);
+      } finally {
+        await blinkClient.dispose();
+      }
+    }
+
+    return await _client!.sendRawTransaction(prepared);
   }
 
   Future getTransactionDetails(String transactionHash) async {
