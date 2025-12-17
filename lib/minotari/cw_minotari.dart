@@ -10,10 +10,9 @@ class CWMinotari extends Minotari {
 
   @override
   WalletService createMinotariWalletService(
-    Box<WalletInfo> walletInfoSource,
     Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   ) =>
-      MinotariWalletService(walletInfoSource, unspentCoinsInfoSource);
+      MinotariWalletService(unspentCoinsInfoSource);
 
   @override
   WalletCredentials createMinotariNewWalletCredentials({
@@ -105,8 +104,10 @@ class CWMinotari extends Minotari {
   }
 
   @override
-  MinotariWallet createMinotariWallet(WalletInfo walletInfo) =>
-      MinotariWallet(walletInfo);
+  Future<MinotariWallet> createMinotariWallet(WalletInfo walletInfo) async {
+    final derivationInfo = await walletInfo.getDerivationInfo();
+    return MinotariWallet(walletInfo, derivationInfo);
+  }
 
   @override
   String getAssetShortName(CryptoCurrency asset) {

@@ -301,6 +301,7 @@ class Node {
       case WalletType.decred:
         return Uri.parse(
             "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
+      case WalletType.minotari:
       case WalletType.none:
         throw BadWalletTypeException('Unexpected type ${type.toString()} for Node uri', type);
     }
@@ -365,6 +366,7 @@ class Node {
           return requestZanoNode();
         case WalletType.decred:
           return requestDecredNode();
+        case WalletType.minotari:
         case WalletType.none:
           return false;
       }
