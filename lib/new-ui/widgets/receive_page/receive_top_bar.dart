@@ -30,7 +30,10 @@ class ModalTopBar extends StatelessWidget {
             ModernButton(size: buttonSize, onPressed: onLeadingPressed, icon: leadingIcon!)
           else
             Container(width: buttonSize),
-          Text(title, style: TextStyle(fontSize: 22)),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           if (trailingIcon != null)
             ModernButton(size: buttonSize, onPressed: onTrailingPressed, icon: trailingIcon!)
           else

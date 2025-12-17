@@ -48,7 +48,11 @@ class WalletInfo extends StatelessWidget {
                   ),
                 ),
         ),
-        Text(name, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
+        Text(
+          name,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface),
+        ),
         SizedBox(width: 8),
         ModernButton.svg(
           size: 24,

@@ -1,8 +1,12 @@
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/router.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
+import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -50,8 +54,15 @@ class SettingsSectionData {
   static List<SettingsSectionData> all = [walletSettings, appSettings, otherSettings];
 }
 
-class NewSettingsPage extends StatelessWidget {
+class NewSettingsPage extends StatefulWidget {
   const NewSettingsPage({super.key});
+
+  @override
+  State<NewSettingsPage> createState() => _NewSettingsPageState();
+}
+
+class _NewSettingsPageState extends State<NewSettingsPage> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -59,17 +70,47 @@ class NewSettingsPage extends StatelessWidget {
       left: false,
       child: SizedBox(
         height: MediaQuery.of(context).size.height,
-        child: Navigator(
-            observers: [HeroController()],
-            onGenerateRoute: (settings) {
-              printV(settings.name);
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            pageTransitionsTheme: PageTransitionsTheme(
+              builders: {
+                // requested by ui - iphone-style back anim on every platform
+                TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+                TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+                TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+              },
+            ),
+          ),
+          child: PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) return;
 
-              if (settings.name == "/")
-                return handleRouteWithPlatformAwareness((context) => SettingsMainPage(),
-                    fullscreenDialog: false);
-              else
-                return createRoute(settings);
-            }),
+              final navigator = _navigatorKey.currentState;
+              if (navigator != null && navigator.canPop()) {
+                navigator.pop();
+              } else {
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              }
+            },
+            child: Navigator(
+                key: _navigatorKey,
+                observers: [HeroController()],
+                onGenerateRoute: (settings) {
+                  printV(settings.name);
+
+                  if (settings.name == "/")
+                    return handleRouteWithPlatformAwareness((context) => SettingsMainPage(),
+                        fullscreenDialog: false);
+                  else
+                    return createRoute(settings);
+                }),
+          ),
+        ),
       ),
     );
   }
@@ -80,134 +121,36 @@ class SettingsMainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, List<ListItem>> sections = Map.fromEntries(SettingsSectionData.all.map((section) =>
+        MapEntry(
+            section.title,
+            section.items
+                .map((item) => ListItemRegularRow(
+                    keyValue: item.title, label: item.title, iconPath: item.iconPath, onTap: (){
+              if (item.route.isNotEmpty) {
+                Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
+              }
+
+            }))
+                .toList())));
+
     return SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
       controller: ModalScrollController.of(context),
-      child: Column(
-        children: [
-          ModalTopBar(
-            title: S.of(context).settings,
-            leadingIcon: Icon(Icons.close),
-            onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
-            onTrailingPressed: () {},
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
-            child: Column(
-              spacing: 24.0,
-              children: SettingsSectionData.all
-                  .map((item) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: SettingsSection(data: item),
-                      ))
-                  .toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SettingsSection extends StatelessWidget {
-  const SettingsSection({super.key, required this.data});
-
-  final SettingsSectionData data;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (data.titleIconPath.isNotEmpty)
-              SvgPicture.asset(
-                data.titleIconPath,
-                width: 20,
-                height: 20,
-                colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
-              ),
-            SizedBox(width: 6),
-            if (data.title.isNotEmpty)
-              Text(
-                data.title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              )
-          ],
+      child: Column(children: [
+        ModalTopBar(
+          title: "Settings",
+          leadingIcon: Icon(Icons.close),
+          onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
+          onTrailingPressed: () {},
         ),
-        if (data.titleIconPath.isNotEmpty && data.title.isNotEmpty) SizedBox(height: 20),
-        ...data.items.map((item) => SettingsRow(
-              item: item,
-              roundedTop: item == data.items.first,
-              roundedBottom: item == data.items.last,
-            ))
-      ],
-    );
-  }
-}
-
-class SettingsRow extends StatelessWidget {
-  const SettingsRow(
-      {super.key, required this.item, required this.roundedTop, required this.roundedBottom});
-
-  final SettingsListItem item;
-  final bool roundedTop;
-  final bool roundedBottom;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: 50,
-          child: Material(
-            color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(roundedTop ? 10 : 0),
-                  bottom: Radius.circular(roundedBottom ? 10 : 0)),
-            child: InkWell(
-              onTap: () {
-                if (item.route.isNotEmpty) {
-                  Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 12.0),
-                          child: SvgPicture.asset(item.iconPath),
-                        ),
-                        Text(item.title)
-                      ],
-                    ),
-                    SvgPicture.asset(
-                      "assets/new-ui/arrow_right.svg",
-                      colorFilter: ColorFilter.mode(
-                          Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
-                    )
-                  ],
-                ),
-              ),
-            ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+          child: NewListSections(
+            sections: sections,
           ),
         ),
-        if (!roundedBottom)
-          Container(
-            color: Theme.of(context).colorScheme.surfaceContainer,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18.0),
-              child: HorizontalSectionDivider(),
-            ),
-          )
-      ],
+      ]),
     );
   }
 }

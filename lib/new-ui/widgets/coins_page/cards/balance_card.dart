@@ -139,7 +139,9 @@ class BalanceCard extends StatelessWidget {
                       ),
                       Text(
                         fiatBalance,
-                        style: TextStyle(color: design.colors.textColorSecondary, fontSize: 16),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w400,
+                            color: design.colors.textColorSecondary),
                       ),
                     ],
                   )
