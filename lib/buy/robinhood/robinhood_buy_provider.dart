@@ -123,6 +123,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       case WalletType.wownero:
       case WalletType.zano:
       case WalletType.decred:
+      case WalletType.minotari:
         throw Exception("Wallet Type ${wallet.type.name} is not available for Robinhood");
     }
   }

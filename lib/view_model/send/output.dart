@@ -135,6 +135,8 @@ abstract class OutputBase with Store {
             _amount = zano!
                 .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
+          case WalletType.minotari:
+            /// TODO :Add Minotari amount formatter when available
           case WalletType.none:
           case WalletType.haven:
           case WalletType.nano:
@@ -249,6 +251,7 @@ abstract class OutputBase with Store {
 
         /// end EVMs
 
+        case WalletType.minotari:
         case WalletType.haven:
         case WalletType.nano:
         case WalletType.banano:

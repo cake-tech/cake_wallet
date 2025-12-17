@@ -97,6 +97,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.dogecoin:
       case WalletType.zano:
       case WalletType.decred:
+      case WalletType.minotari:
         return false;
     }
   }

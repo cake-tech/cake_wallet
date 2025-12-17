@@ -250,6 +250,9 @@ class TransactionListItem extends ActionListItem with Keyable {
             cryptoAmount: decred!.formatterDecredAmountToDouble(amount: transaction.amount),
             price: price);
         break;
+      case WalletType.minotari:
+      /// TODO :Add Minotari fiat amount calculation when available
+        break;
       case WalletType.none:
       case WalletType.banano:
       case WalletType.haven:

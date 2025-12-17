@@ -184,6 +184,7 @@ abstract class WalletKeysViewModelBase with Store {
             StandartListItem(title: "xPub", value: electrumKeys['xpub']!),
         ]);
         break;
+      case WalletType.minotari:
       case WalletType.none:
       case WalletType.haven:
         break;

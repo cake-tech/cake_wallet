@@ -149,6 +149,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return BaseURI(amount: amount, address: address.address);
       case WalletType.arbitrum:
         return ArbitrumURI(amount: amount, address: address.address);
+      case WalletType.minotari:
+        /// TODO :Add Minotari URI when available
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }

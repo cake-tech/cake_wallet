@@ -164,6 +164,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.decred:
         return decred!.createDecredNewWalletCredentials(name: name);
+      case WalletType.minotari:
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected type: ${type.toString()}');

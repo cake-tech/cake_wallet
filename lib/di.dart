@@ -61,6 +61,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/trezor_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/view_model/start_tor_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
@@ -1228,6 +1229,8 @@ Future<void> setup({
         return base!.createBaseWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.arbitrum:
         return arbitrum!.createArbitrumWalletService(SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.minotari:
+        return minotari!.createMinotariWalletService(_unspentCoinsInfoSource);
       case WalletType.haven:
         return HavenWalletService();
       case WalletType.none:

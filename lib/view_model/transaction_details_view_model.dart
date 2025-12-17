@@ -100,6 +100,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.dogecoin:
         _addDogecoinListItems(tx, dateFormat);
         break;
+      case WalletType.minotari:
       case WalletType.none:
       case WalletType.banano:
         break;
@@ -211,6 +212,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://basescan.org/tx/${txId}';
       case WalletType.arbitrum:
         return 'https://arbiscan.io/tx/${txId}';
+      case WalletType.minotari:
+        /// TODO :Add Minotari explorer when available
       case WalletType.none:
         return '';
     }
@@ -250,6 +253,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'basescan.org';
       case WalletType.arbitrum:
         return S.current.view_transaction_on + 'arbiscan.io';
+      case WalletType.minotari:
       case WalletType.none:
         return '';
     }
