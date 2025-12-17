@@ -1,4 +1,5 @@
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -7,12 +8,12 @@ class WalletInfo extends StatelessWidget {
       {super.key,
       required this.lightningMode,
       required this.name,
-      required this.usesHardwareWallet,
+      required this.hardwareWalletType,
       required this.onCustomizeButtonTap});
 
   final bool lightningMode;
   final String name;
-  final bool usesHardwareWallet;
+  final HardwareWalletType? hardwareWalletType;
   final VoidCallback onCustomizeButtonTap;
 
   @override
@@ -31,13 +32,13 @@ class WalletInfo extends StatelessWidget {
               child: FadeTransition(opacity: animation, child: child),
             );
           },
-          child: !usesHardwareWallet
-              ? SizedBox.shrink(key: ValueKey("empty"))
+          child: hardwareWalletIcon == null
+              ? const SizedBox.shrink(key: ValueKey("empty"))
               : Padding(
-                  padding: const EdgeInsets.fromLTRB(0.0, 0.0, 8.0, 0.0),
+                  padding: const EdgeInsets.only(right: 8),
                   child: SvgPicture.asset(
-                    "assets/new-ui/wallet-trezor.svg",
-                    key: ValueKey("wallet"),
+                    hardwareWalletIcon!,
+                    key: ValueKey("hardware_wallet_icon"),
                     width: 24,
                     height: 24,
                     colorFilter: ColorFilter.mode(
@@ -60,5 +61,24 @@ class WalletInfo extends StatelessWidget {
         )
       ],
     );
+  }
+
+  String? get hardwareWalletIcon {
+    switch (hardwareWalletType) {
+      case null:
+        return null;
+      case HardwareWalletType.bitbox:
+        return "assets/images/hardware_wallet/device_bitbox.svg";
+      case HardwareWalletType.ledger:
+        return "assets/images/hardware_wallet/device_ledger_nano_x.svg";
+      case HardwareWalletType.trezor:
+        return "assets/images/hardware_wallet/device_trezor_safe_5.svg";
+      case HardwareWalletType.cupcake:
+        return "assets/images/cupcake.svg";
+      case HardwareWalletType.coldcard:
+      case HardwareWalletType.seedsigner:
+      case HardwareWalletType.keystone:
+        return "assets/images/hardware_wallet/device_qr.svg";
+    }
   }
 }

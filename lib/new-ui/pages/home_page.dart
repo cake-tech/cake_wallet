@@ -78,7 +78,7 @@ class _NewHomePageState extends State<NewHomePage> {
                 ),
                 WalletInfo(
                   lightningMode: _lightningMode,
-                  usesHardwareWallet: widget.dashboardViewModel.wallet.isHardwareWallet,
+                  hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
                   name: widget.dashboardViewModel.wallet.name,
                   onCustomizeButtonTap: () {
                     final bloc = context.read<CardCustomizerBloc>();
