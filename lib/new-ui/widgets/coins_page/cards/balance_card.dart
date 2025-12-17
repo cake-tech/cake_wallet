@@ -49,7 +49,7 @@ class BalanceCard extends StatelessWidget {
         fiatBalance.isNotEmpty ||
         assetName.isNotEmpty;
 
-    final height = width * 0.64;
+    final height = width * 0.62;
 
     return AnimatedContainer(
       duration: designSwitchDuration,
@@ -95,9 +95,9 @@ class BalanceCard extends StatelessWidget {
                         children: [
                           AnimatedDefaultTextStyle(
                             duration: designSwitchDuration,
-                            style: DefaultTextStyle.of(context)
-                                .style
-                                .copyWith(color: design.colors.textColor, fontSize: 16),
+                            style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: design.colors.textColor),
                             child: Text(accountName),
                           ),
                           AnimatedOpacity(
@@ -120,7 +120,7 @@ class BalanceCard extends StatelessWidget {
                               duration: designSwitchDuration,
                               style: DefaultTextStyle.of(context)
                                   .style
-                                  .copyWith(color: design.colors.textColor, fontSize: 28),
+                                  .copyWith(color: design.colors.textColor, fontSize: 28, fontWeight: FontWeight.w500),
                               child: Text(
                                 balance,
                               ),
@@ -129,7 +129,7 @@ class BalanceCard extends StatelessWidget {
                               duration: designSwitchDuration,
                               style: DefaultTextStyle.of(context)
                                   .style
-                                  .copyWith(color: design.colors.textColorSecondary, fontSize: 28),
+                                  .copyWith(color: design.colors.textColorSecondary, fontSize: 28, fontWeight: FontWeight.w400),
                               child: Text(
                                 assetName.toUpperCase(),
                               ),
@@ -165,7 +165,7 @@ class BalanceCard extends StatelessWidget {
                               height: iconWidth,
                               width: iconWidth,
                               colorFilter: ColorFilter.mode(
-                                design.colors.backgroundImageColor,
+                                design.colors.backgroundImageColor.withAlpha(215),
                                 BlendMode.srcIn,
                               ),
                             )
@@ -187,7 +187,7 @@ class BalanceCard extends StatelessWidget {
         onTap: action.onTap,
         child: Container(
           decoration: BoxDecoration(
-            color: design.colors.backgroundImageColor,
+            color: design.colors.backgroundImageColor.withAlpha(75),
             borderRadius: BorderRadius.circular(10000000),
           ),
           margin: const EdgeInsets.only(right: 10),
