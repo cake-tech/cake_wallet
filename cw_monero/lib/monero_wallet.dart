@@ -37,6 +37,7 @@ import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
+import 'package:cw_monero/monero_lws_rest.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
@@ -120,12 +121,33 @@ abstract class MoneroWalletBase
   @observable
   bool isLWSEnabled;
 
+  // I know that technically, these do not belong here, but for MVP, it's easiest to do so
+  @observable
   setLWSEnabled(bool value) {
     // TODO: Search through all nodes to try find an LWS node. If no LWS node,
-    // we throw an error
+    // we can eventually handle throwing an error after mvp
     // For MVP, we could create such a node and default it to api.mymonero.com:443
-    printV(value);
+    // Now things get potentially interesting. We need to swap to LWS syncing.....
+    // 1. Change pointer to point to LWS C code now
+    // 2. Create and open funny format wallet
+    // 3. Do a GET to get_address_info (not part of vtnerd library)
+    // printV(value);
+    isCurrentWalletLWSEnabled();
+    printV("KB --- Setting LWS to $value");
+    final stringValue = value ? "true" : "false";
+    currentWallet?.setCacheAttribute(key: "cakewallet.isLWSEnabled", value: stringValue);
     isLWSEnabled = value;
+  }
+
+  @observable
+  bool isCurrentWalletLWSEnabled() {
+    if (currentWallet == null) return false;
+    final lwsFlag = currentWallet!.getCacheAttribute(key: "cakewallet.isLWSEnabled");
+    printV("KB --- isCurrentWalletLWSEnabled: $lwsFlag");
+    if (lwsFlag == "true") {
+      return true;
+    }
+    return false;
   }
 
   @override
@@ -193,11 +215,23 @@ abstract class MoneroWalletBase
   Future<void>? updateBalance() => null;
 
   @override
+  Future<void>? beginLWSLoop() {
+    printV("Beginning LWS Loop");
+    // request monerolwsnode
+
+    printV("Finishing LWS Loop");
+  }
+
+  @override
   Future<bool> checkNodeHealth() async {
+    if (isLWSEnabled) {
+      beginLWSLoop();
+
+      return true; // Just for MVP
+    }
     try {
       // Check if the wallet is currently connected to the daemon
       final isConnected = await monero_wallet.isConnected();
-
       if (!isConnected) {
         return false; // It's not connected to daemon
       }
@@ -265,6 +299,7 @@ abstract class MoneroWalletBase
 
   @override
   Future<void> startBackgroundSync() async {
+    if (isLWSEnabled) return;
     if (isBackgroundSyncRunning) {
       printV("Background sync already running");
       return;

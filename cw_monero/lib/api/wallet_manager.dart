@@ -36,32 +36,43 @@ void checkIfMoneroCIsFine() {
   final dartCsExp = monero.wallet2_api_c_exp_sha256;
 
   if (cppCsCpp != dartCsCpp) {
-    throw MoneroCException("monero_c and monero.dart cpp wrapper code mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsCpp'\ndart: '$dartCsCpp'");
+    throw MoneroCException(
+        "monero_c and monero.dart cpp wrapper code mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsCpp'\ndart: '$dartCsCpp'");
   }
 
   if (cppCsH != dartCsH) {
-    throw MoneroCException("monero_c and monero.dart cpp wrapper header mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsH'\ndart: '$dartCsH'");
+    throw MoneroCException(
+        "monero_c and monero.dart cpp wrapper header mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsH'\ndart: '$dartCsH'");
   }
 
   if (cppCsExp != dartCsExp && (Platform.isIOS || Platform.isMacOS)) {
-    throw MoneroCException("monero_c and monero.dart wrapper export list mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsExp'\ndart: '$dartCsExp'");
+    throw MoneroCException(
+        "monero_c and monero.dart wrapper export list mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsExp'\ndart: '$dartCsExp'");
   }
 }
+
 Wallet2WalletManager? _wmPtr;
 Wallet2WalletManager wmPtr = (() {
   try {
     // Problems with the wallet? Crashes? Lags? this will print all calls to xmr
     // codebase, so it will be easier to debug what happens. At least easier
     // than plugging gdb in. Especially on windows/android.
-    monero.printStarts = false;
+    monero.printStarts = true;
+    printV("KB!!!!!!!!!!Creating WalletManager ptr");
+    // Identify here if the wallet is in LWS mode or not.
+
+    // get global setting
+    // if (Platform.isAndroid || Platform.isIOS) {
+    //   final useLws = Platform.environment["MONERO_USE_LWS"] == "1";
+    //   MoneroWalletManagerFactory().setUseLws(useLws);
+    //   printV("Using LWS: $useLws");
+    // }
     if (kDebugMode && debugMonero) {
       MoneroWalletManagerFactory().setLogLevel(4);
     }
     _wmPtr ??= MoneroWalletManagerFactory().getWalletManager();
-    if (kDebugMode && debugMonero) {
-      MoneroWalletManagerFactory().setLogLevel(4);
-    }
-    printV("ptr: $_wmPtr");
+    // KB: Why duplicate?
+    printV("ptr: $_wmPtr"); //wmPtr: ptr: Instance of 'MoneroWalletManager'
   } catch (e) {
     printV(e);
     rethrow;
@@ -70,8 +81,7 @@ Wallet2WalletManager wmPtr = (() {
 })();
 
 Wallet2Wallet createWalletPointer() {
-  final newWptr = wmPtr.createWallet(
-      path: "", password: "", language: "", networkType: 0);
+  final newWptr = wmPtr.createWallet(path: "", password: "", language: "", networkType: 0);
   return newWptr;
 }
 
@@ -83,8 +93,8 @@ void createWallet(
     int nettype = 0}) {
   txhistory = null;
   language = getSeedLanguage(language)!;
-  final newW = wmPtr.createWallet(
-      path: path, password: password, language: language, networkType: 0);
+  final newW =
+      wmPtr.createWallet(path: path, password: password, language: language, networkType: 0);
 
   int status = newW.status();
   if (status != 0) {
@@ -128,7 +138,8 @@ void restoreWalletFromSeedSync(
     final error = newW.errorString();
     if (error.contains('word list failed verification')) {
       throw WalletRestoreFromSeedException(
-        message: "Seed verification failed, please make sure you entered the correct seed with the correct words order",
+        message:
+            "Seed verification failed, please make sure you entered the correct seed with the correct words order",
       );
     }
     throw WalletRestoreFromSeedException(message: error);
@@ -177,11 +188,9 @@ void restoreWalletFromKeys(
 
   int status = newW.status();
   if (status != 0) {
-    throw WalletRestoreFromKeysException(
-        message: newW.errorString());
+    throw WalletRestoreFromKeysException(message: newW.errorString());
   }
   newW.store(path: path);
-
 
   // CW-712 - Try to restore deterministic wallet first, if the view key doesn't
   // match the view key provided
@@ -202,8 +211,7 @@ void restoreWalletFromKeys(
       );
       int status = newW.status();
       if (status != 0) {
-        throw WalletRestoreFromKeysException(
-            message: newW.errorString());
+        throw WalletRestoreFromKeysException(message: newW.errorString());
       }
       newW.store(path: path);
 
@@ -217,7 +225,6 @@ void restoreWalletFromKeys(
   _lastOpenedWallet = path;
 }
 
-
 // English only, because normalization.
 void restoreWalletFromPolyseedWithOffset(
     {required String path,
@@ -226,7 +233,6 @@ void restoreWalletFromPolyseedWithOffset(
     required String seedOffset,
     required String language,
     int nettype = 0}) {
-
   txhistory = null;
   final newW = wmPtr.createWalletFromPolyseed(
     path: path,
@@ -258,7 +264,6 @@ void restoreWalletFromPolyseedWithOffset(
 
   openedWalletsByPath[path] = currentWallet!;
 }
-
 
 void restoreWalletFromSpendKeySync(
     {required String path,
@@ -322,10 +327,7 @@ Future<void> restoreWalletFromHardwareWallet(
   final wmPtr = MoneroWalletManagerFactory().getWalletManager().ffiAddress();
   final newWptrAddr = await Isolate.run(() {
     return monero.WalletManager_createWalletFromDevice(Pointer.fromAddress(wmPtr),
-            path: path,
-            password: password,
-            restoreHeight: restoreHeight,
-            deviceName: deviceName)
+            path: path, password: password, restoreHeight: restoreHeight, deviceName: deviceName)
         .address;
   });
   final newW = MoneroWallet(Pointer.fromAddress(newWptrAddr));
@@ -345,8 +347,7 @@ Future<void> restoreWalletFromHardwareWallet(
 
 Map<String, Wallet2Wallet> openedWalletsByPath = {};
 
-Future<void> loadWallet(
-    {required String path, required String password, int nettype = 0}) async {
+Future<void> loadWallet({required String path, required String password, int nettype = 0}) async {
   if (openedWalletsByPath[path] != null) {
     txhistory = null;
     currentWallet = openedWalletsByPath[path]!;
@@ -368,14 +369,14 @@ Future<void> loadWallet(
     var deviceType = 0;
 
     if (Platform.isAndroid || Platform.isIOS) {
-      deviceType = wmPtr.queryWalletDevice( 
+      deviceType = wmPtr.queryWalletDevice(
         keysFileName: "$path.keys",
         password: password,
         kdfRounds: 1,
       );
       final status = wmPtr.errorString();
       if (status != "") {
-        printV("loadWallet:"+status);
+        printV("loadWallet:" + status);
         // This is most likely closeWallet call leaking error. This is fine.
         if (status.contains("failed to save file")) {
           printV("loadWallet: error leaked: $status");
@@ -390,7 +391,7 @@ Future<void> loadWallet(
 
     if (deviceType == 1) {
       if (gLedger == null) {
-       throw Exception("Tried to open a ledger wallet with no ledger connected");
+        throw Exception("Tried to open a ledger wallet with no ledger connected");
       }
       enableLedgerExchange(gLedger!);
     }
@@ -407,7 +408,7 @@ Future<void> loadWallet(
     int status = newW.status();
     if (status != 0) {
       final err = newW.errorString();
-      printV("loadWallet:"+err);
+      printV("loadWallet:" + err);
       throw WalletOpeningException(message: err);
     }
     if (deviceType == 0) {
@@ -424,18 +425,16 @@ void setupBackgroundSync(String password, Wallet2Wallet wallet) {
   if (isViewOnlyBySpendKey(wallet)) {
     return;
   }
-  wallet.setupBackgroundSync(backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
+  wallet.setupBackgroundSync(
+      backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
   if (wallet.status() != 0) {
     // We simply ignore the error.
     printV("setupBackgroundSync: ${wallet.errorString()}");
   }
 }
 
-
-Future<void> openWallet(
-        {required String path,
-        required String password,
-        int nettype = 0}) async =>
+Future<void> openWallet({required String path, required String password, int nettype = 0}) async =>
     loadWallet(path: path, password: password, nettype: nettype);
 
-bool isViewOnlyBySpendKey(Wallet2Wallet? wallet) => int.tryParse((wallet??currentWallet!).secretSpendKey()) == 0;
+bool isViewOnlyBySpendKey(Wallet2Wallet? wallet) =>
+    int.tryParse((wallet ?? currentWallet!).secretSpendKey()) == 0;
