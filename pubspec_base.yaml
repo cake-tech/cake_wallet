@@ -251,6 +251,7 @@ flutter:
     - assets/new-ui/balance_card_icons/
     - assets/new-ui/balance_card_backgrounds/
     - assets/new-ui/settings_row_icons/
+    - assets/new-ui/chain_badges/
 
   fonts:
     - family: Lato

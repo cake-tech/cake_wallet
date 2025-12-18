@@ -300,6 +300,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> close({bool shouldCleanup = false}) async {
     payjoinManager.cleanupSessions();
+    lightningWallet?.close();
     super.close(shouldCleanup: shouldCleanup);
   }
 
@@ -318,6 +319,22 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       frozen: balance.frozen,
       secondConfirmed: lBalance.toInt(),
     );
+  }
+
+  @override
+  @action
+  Future<void> subscribeForUpdates() async {
+    if (lightningWallet != null) {
+      lightningWallet!.setOnNewTransaction((tx) async {
+        if (transactionHistory.transactions[tx.id]?.isPending != tx.isPending) {
+          transactionHistory.addOne(tx);
+          await transactionHistory.save();
+          await fetchBalances();
+        }
+      });
+    }
+
+    return super.subscribeForUpdates();
   }
 
   @override

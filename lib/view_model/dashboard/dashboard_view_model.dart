@@ -307,7 +307,9 @@ abstract class DashboardViewModelBase with Store {
       if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
         try {
           confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
+                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
+                  1;
         } catch (_) {}
       }
       return length * confirmations;
@@ -1044,7 +1046,9 @@ abstract class DashboardViewModelBase with Store {
       if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
         try {
           confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
+                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
+                  1;
         } catch (_) {}
       }
       return length * confirmations;
@@ -1247,7 +1251,6 @@ abstract class DashboardViewModelBase with Store {
 
   String getTransactionType(TransactionInfo tx) {
     if (wallet.type == WalletType.bitcoin) {
-      if (tx.additionalInfo["isLightning"] == true) return ' Lightning';
       if (tx.isReplaced == true) return ' (replaced)';
     }
 

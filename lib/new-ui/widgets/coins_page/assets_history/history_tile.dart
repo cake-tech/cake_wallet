@@ -1,19 +1,22 @@
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HistoryTile extends StatelessWidget {
-  const HistoryTile(
-      {super.key,
-      required this.title,
-      required this.date,
-      required this.amount,
-      required this.amountFiat,
-      required this.roundedTop,
-      required this.roundedBottom,
-      required this.direction,
-      required this.pending,
-      required this.bottomSeparator});
+  const HistoryTile({
+    super.key,
+    required this.title,
+    required this.date,
+    required this.amount,
+    required this.amountFiat,
+    required this.roundedTop,
+    required this.roundedBottom,
+    required this.direction,
+    required this.pending,
+    required this.bottomSeparator,
+    this.asset,
+  });
 
   final String title;
   final String date;
@@ -24,6 +27,7 @@ class HistoryTile extends StatelessWidget {
   final bool bottomSeparator;
   final TransactionDirection direction;
   final bool pending;
+  final CryptoCurrency? asset;
 
   String _getDirectionIcon() {
     if (pending) {
@@ -37,6 +41,31 @@ class HistoryTile extends StatelessWidget {
     }
   }
 
+  Widget _getLeadingIcon(BuildContext context) {
+    if (asset == CryptoCurrency.btcln) {
+      return Stack(
+        children: [
+          Image.asset(
+            asset!.iconPath!,
+            width: 34,
+            height: 34,
+          ),
+          Positioned(
+            top: 20,
+            left: 20,
+            child: SvgPicture.asset(
+                'assets/new-ui/chain_badges/lightning.svg',
+                width: 16,
+                height: 16,
+              ),
+          )
+        ],
+      );
+    }
+
+    return SvgPicture.asset(_getDirectionIcon());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -45,26 +74,26 @@ class HistoryTile extends StatelessWidget {
           decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainer,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(roundedTop ? 12.0 : 0.0),
-                topRight: Radius.circular(roundedTop ? 12.0 : 0.0),
-                bottomLeft: Radius.circular(roundedBottom ? 12.0 : 0.0),
-                bottomRight: Radius.circular(roundedBottom ? 12.0 : 0.0),
+                topLeft: Radius.circular(roundedTop ? 12 : 0),
+                topRight: Radius.circular(roundedTop ? 12 : 0),
+                bottomLeft: Radius.circular(roundedBottom ? 12 : 0),
+                bottomRight: Radius.circular(roundedBottom ? 12 : 0),
               )),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              vertical: 12.0,
-              horizontal: 12.0,
+              vertical: 12,
+              horizontal: 12,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0.0, 0.0, 8.0, 0.0),
+                  padding: const EdgeInsets.only(right: 8),
                   child: SizedBox(
-                    height: 50,
-                    width: 50,
-                    child: SvgPicture.asset(_getDirectionIcon()),
+                    height: 36,
+                    width: 36,
+                    child: _getLeadingIcon(context),
                   ),
                 ),
                 Expanded(
@@ -93,7 +122,7 @@ class HistoryTile extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12.0),
+          padding: EdgeInsets.symmetric(horizontal: 12),
           child: SizedBox(
             height: 1,
             child: DecoratedBox(

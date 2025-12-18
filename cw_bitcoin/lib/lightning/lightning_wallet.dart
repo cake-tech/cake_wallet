@@ -52,6 +52,12 @@ class LightningWallet {
     );
 
     sdk = await connect(request: connectRequest);
+
+    _eventStream ??= sdk.addEventListener().asBroadcastStream();
+  }
+
+  void close() {
+    _eventSubscription?.cancel();
   }
 
   Future<String?> getAddress() async => (await sdk.getLightningAddress())?.lightningAddress;
@@ -209,31 +215,47 @@ class LightningWallet {
     final response = await sdk.listPayments(request: request);
     final payments = response.payments;
 
-    Map<String, ElectrumTransactionInfo> txHistory = {};
+    final txHistory = <String, ElectrumTransactionInfo>{};
     for (final payment in payments) {
-      TransactionDirection direction = TransactionDirection.outgoing;
-
-      if (payment.paymentType == PaymentType.receive) {
-        direction = TransactionDirection.incoming;
-      }
-
-      if (payment.method == PaymentMethod.deposit) {
-        direction = TransactionDirection.incoming;
-      }
-
-      txHistory[payment.id] = ElectrumTransactionInfo(
-        WalletType.bitcoin,
-        id: payment.id,
-        amount: payment.amount.toInt(),
-        direction: direction,
-        isPending: payment.status == PaymentStatus.pending,
-        date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
-        confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
-        additionalInfo: {"isLightning": true},
-      );
+      txHistory[payment.id] = _getElectrumTransactionInfoFromPayment(payment);
     }
 
     return txHistory;
+  }
+
+  StreamSubscription<SdkEvent>? _eventSubscription;
+  Stream<SdkEvent>? _eventStream;
+
+  void setOnNewTransaction(Function(ElectrumTransactionInfo) onNewTransaction) {
+    _eventSubscription = _eventStream?.listen((sdkEvent) {
+      if (sdkEvent is SdkEvent_PaymentSucceeded) {
+        onNewTransaction.call(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
+      } else if (sdkEvent is SdkEvent_PaymentPending) {
+        onNewTransaction.call(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
+      }
+    });
+  }
+
+  ElectrumTransactionInfo _getElectrumTransactionInfoFromPayment(Payment payment) {
+    TransactionDirection direction = TransactionDirection.outgoing;
+
+    if (payment.paymentType == PaymentType.receive) {
+      direction = TransactionDirection.incoming;
+    }
+    if (payment.method == PaymentMethod.deposit) {
+      direction = TransactionDirection.incoming;
+    }
+
+    return ElectrumTransactionInfo(
+      WalletType.bitcoin,
+      id: payment.id,
+      amount: payment.amount.toInt(),
+      direction: direction,
+      isPending: payment.status == PaymentStatus.pending,
+      date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
+      confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
+      additionalInfo: {"isLightning": true},
+    );
   }
 }
 

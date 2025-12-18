@@ -6,6 +6,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -34,19 +35,24 @@ class HistorySection extends StatelessWidget {
               final transaction = item.transaction;
               final transactionType = dashboardViewModel.getTransactionType(transaction);
 
+              CryptoCurrency? asset;
+              if (transaction.additionalInfo["isLightning"] == true)
+                asset = CryptoCurrency.btcln;
+
               return GestureDetector(
                 onTap: () => Navigator.of(context)
                     .pushNamed(Routes.transactionDetails, arguments: transaction),
                 child: HistoryTile(
-                  title: item.formattedTitle + item.formattedStatus + transactionType,
-                  date: DateFormatter.convertDateTimeToReadableString(item.date),
-                  amount: item.formattedCryptoAmount,
-                  amountFiat: item.formattedFiatAmount,
-                  roundedBottom: !(nextItem is TransactionListItem || nextItem is TradeListItem),
-                  roundedTop: !(prevItem is TransactionListItem || prevItem is TradeListItem),
-                  bottomSeparator: nextItem is TransactionListItem || nextItem is TradeListItem,
-                  direction: item.transaction.direction,
-                  pending: item.transaction.isPending,
+                    title: item.formattedTitle + item.formattedStatus + transactionType,
+                    date: DateFormatter.convertDateTimeToReadableString(item.date),
+                    amount: item.formattedCryptoAmount,
+                    amountFiat: item.formattedFiatAmount,
+                    roundedBottom: !(nextItem is TransactionListItem || nextItem is TradeListItem),
+                    roundedTop: !(prevItem is TransactionListItem || prevItem is TradeListItem),
+                    bottomSeparator: nextItem is TransactionListItem || nextItem is TradeListItem,
+                    direction: item.transaction.direction,
+                    pending: item.transaction.isPending,
+                    asset: asset,
                 ),
               );
             } else if (item is TradeListItem) {
