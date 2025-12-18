@@ -1383,8 +1383,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
 
-  getIt.registerSingleton<EditBackupPasswordViewModel>(
-    EditBackupPasswordViewModel(getIt.get<SecureStorage>()),
+  getIt.registerLazySingleton<EditBackupPasswordViewModel>(
+    () => EditBackupPasswordViewModel(getIt.get<SecureStorage>()),
   );
 
   getIt.registerFactory(() => BackupViewModel(

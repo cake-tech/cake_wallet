@@ -2312,9 +2312,20 @@ abstract class ElectrumWalletBase
 
       final history = await electrumClient.getHistory(addressRecord.getScriptHash(network));
 
+
       if (history.isNotEmpty) {
         addressRecord.setAsUsed();
         walletAddresses.clearLockIfMatches(addressRecord.type, addressRecord.address);
+
+        if(this is BitcoinWallet) {
+          //removes transactions no longer returned by the api, presumed replaced/invalid.
+          transactionHistory.transactions.removeWhere(
+                (hash, tx) =>
+            tx.outputAddresses != null &&
+                tx.outputAddresses!.contains(addressRecord.address) &&
+                !history.any((newTransaction) => newTransaction['tx_hash'] == hash),
+          );
+        }
 
         await Future.wait(history.map((transaction) async {
           txid = transaction['tx_hash'] as String;
