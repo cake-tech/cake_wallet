@@ -23,11 +23,11 @@ dependencies:
   polyseed: ^0.0.7
   cw_core:
     path: ../cw_core
-  monero:
-    git:
-      url: https://github.com/mrcyjanek/monero_c
-      ref: 411e8a1cdb3f4c2812d83f28c335d2a4eb18bd29
-      path: impls/monero.dart
+  # monero:
+  #   git:
+  #     url: https://github.com/mrcyjanek/monero_c
+  #     ref: 411e8a1cdb3f4c2812d83f28c335d2a4eb18bd29
+  #     path: impls/monero.dart
   
   cw_lws:
     git:
