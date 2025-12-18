@@ -325,13 +325,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @action
   Future<void> subscribeForUpdates() async {
     if (lightningWallet != null) {
-      lightningWallet!.setOnNewTransaction((tx) async {
-        if (transactionHistory.transactions[tx.id]?.isPending != tx.isPending) {
-          transactionHistory.addOne(tx);
-          await transactionHistory.save();
-          await fetchBalances();
-        }
-      });
+      lightningWallet!.setEventListener(
+        onTransactionEvent: (tx) async {
+          if (transactionHistory.transactions[tx.id]?.isPending != tx.isPending) {
+            transactionHistory.addOne(tx);
+            await transactionHistory.save();
+            await fetchBalances();
+          }
+        },
+        onBalanceChangedEvent: fetchBalances,
+      );
     }
 
     return super.subscribeForUpdates();

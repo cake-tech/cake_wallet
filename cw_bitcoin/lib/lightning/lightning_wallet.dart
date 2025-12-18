@@ -223,15 +223,80 @@ class LightningWallet {
     return txHistory;
   }
 
+  /// Return a list of UnclaimedDeposits including a possible reason why they where not auto-claimed
+  /// A unclaimed deposit is a [Map] consisting of the following datatypes
+  ///
+  /// | ----------------- | --------- |--------------------------------------------------- |
+  /// | key-name          | data-type | description                                        |
+  /// | ----------------- | --------- |--------------------------------------------------- |
+  /// | txId              | String    | The txId of the deposit transaction                |
+  /// | vout              | int       | The output index of the deposit                    |
+  /// | amount            | BigInt    | Amount of the deposit in sats.                     |
+  /// | claimError        | String?   | The type of Claim error                            |
+  /// | actualFee         | BigInt?   | The actualFee in case of a DepositClaimFeeExceeded |
+  /// | claimErrorMessage | String?   | The claimErrorMessage in case of a Generic Error   |
+  ///
+  Future<List<Map<String, dynamic>>> getUnclaimedDeposits() async {
+    final unclaimedDeposits = <Map<String, dynamic>>[];
+    final response = await sdk.listUnclaimedDeposits(request: ListUnclaimedDepositsRequest());
+    for (final deposit in response.deposits) {
+      final unclaimedDeposit = {
+        "txId": deposit.txid,
+        "vout": deposit.vout,
+        "amount": deposit.amountSats,
+      };
+
+      final claimError = deposit.claimError;
+      if (claimError is DepositClaimError_DepositClaimFeeExceeded) {
+        unclaimedDeposit["claimError"] = "DepositClaimFeeExceeded";
+        unclaimedDeposit["actualFee"] = claimError.actualFee;
+      } else if (claimError is DepositClaimError_MissingUtxo) {
+        unclaimedDeposit["claimError"] = "MissingUtxo";
+      } else if (claimError is DepositClaimError_Generic) {
+        unclaimedDeposit["claimError"] = "Generic";
+        unclaimedDeposit["claimErrorMessage"] = claimError.message;
+      }
+    }
+
+    return unclaimedDeposits;
+  }
+
+  Future<ElectrumTransactionInfo> claimDeposit(String txId, int vout, BigInt newFee) async {
+    final response = await sdk.claimDeposit(
+      request: ClaimDepositRequest(
+        txid: txId,
+        vout: vout,
+        maxFee: Fee.fixed(amount: newFee),
+      ),
+    );
+
+    return _getElectrumTransactionInfoFromPayment(response.payment);
+  }
+
+  Future<String> refundDeposit(String txId, int vout, String destinationAddress,
+      BigInt feeRate) async {
+    final response = await sdk.refundDeposit(request: RefundDepositRequest(
+      txid: txId,
+      vout: vout,
+      destinationAddress: destinationAddress,
+      fee: Fee.rate(satPerVbyte: feeRate),
+    ),);
+
+    return response.txHex;
+  }
+
   StreamSubscription<SdkEvent>? _eventSubscription;
   Stream<SdkEvent>? _eventStream;
 
-  void setOnNewTransaction(Function(ElectrumTransactionInfo) onNewTransaction) {
+  void setEventListener(
+      {required Function(ElectrumTransactionInfo) onTransactionEvent, required Function onBalanceChangedEvent}) {
     _eventSubscription = _eventStream?.listen((sdkEvent) {
       if (sdkEvent is SdkEvent_PaymentSucceeded) {
-        onNewTransaction.call(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
+        onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
       } else if (sdkEvent is SdkEvent_PaymentPending) {
-        onNewTransaction.call(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
+        onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
+      } else if (sdkEvent is SdkEvent_ClaimedDeposits) {
+        onBalanceChangedEvent();
       }
     });
   }
