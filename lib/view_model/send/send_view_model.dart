@@ -236,6 +236,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   Validator<String> amountValidator(Output output) => AmountValidator(
         currency: walletTypeToCryptoCurrency(wallet.type),
+        amountParsingProxy: _appStore.amountParsingProxy,
         minValue: isSendToSilentPayments(output)
             ?
             //  TODO: get from server
@@ -265,7 +266,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return balanceViewModel.balances.values.first.availableBalance;
     }
 
-    return _appStore.amountParsingProxy.getCryptoString(
+    return _appStore.amountParsingProxy.getDisplayCryptoString(
         wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance, selectedCryptoCurrency);
   }
 
@@ -296,7 +297,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final sendingBalance =
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
         return _appStore.amountParsingProxy
-            .getCryptoString(sendingBalance, walletTypeToCryptoCurrency(walletType));
+            .getDisplayCryptoString(sendingBalance, walletTypeToCryptoCurrency(walletType));
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:

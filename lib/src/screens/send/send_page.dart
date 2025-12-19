@@ -571,14 +571,14 @@ class SendPage extends BasePage {
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: sendViewModel.amountParsingProxy.getCryptoOutputAmount(
+                  amountValue: sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
                       sendViewModel.pendingTransaction!.amountFormatted,
                       sendViewModel.selectedCryptoCurrency),
                   fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: isEVMCompatibleChain(sendViewModel.walletType)
                       ? S.of(bottomSheetContext).send_estimated_fee
                       : S.of(bottomSheetContext).send_fee,
-                  feeValue: "${sendViewModel.amountParsingProxy.getCryptoOutputAmount(
+                  feeValue: "${sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
                       sendViewModel.pendingTransaction!.feeFormattedValue,
                       sendViewModel.selectedCryptoCurrency)} ${sendViewModel.amountParsingProxy
                       .getCryptoSymbol(sendViewModel.wallet.currency)}",

@@ -293,12 +293,12 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
                     amount: S.of(bottomSheetContext).send_amount,
                     amountValue: sendVM.amountParsingProxy
-                        .getCryptoOutputAmount(amountValue, sendVM.selectedCryptoCurrency),
+                        .getDisplayCryptoAmount(amountValue, sendVM.selectedCryptoCurrency),
                     fiatAmountValue: sendVM.pendingTransactionFiatAmountFormatted,
                     fee: isEVMCompatibleChain(sendVM.walletType)
                         ? S.of(bottomSheetContext).send_estimated_fee
                         : S.of(bottomSheetContext).send_fee,
-                    feeValue: "${sendVM.amountParsingProxy.getCryptoOutputAmount(
+                    feeValue: "${sendVM.amountParsingProxy.getDisplayCryptoAmount(
                         sendVM.pendingTransaction!.feeFormattedValue,
                         sendVM.selectedCryptoCurrency)} ${sendVM.amountParsingProxy
                         .getCryptoSymbol(sendVM.wallet.currency)}",

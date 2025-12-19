@@ -192,7 +192,7 @@ abstract class OutputBase with Store {
                 _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
           }
 
-          estimatedFee = _appStore.amountParsingProxy.getCryptoString(fee, cryptoCurrencyHandler());
+          estimatedFee = _appStore.amountParsingProxy.getDisplayCryptoString(fee, cryptoCurrencyHandler());
           break;
         case WalletType.solana:
           estimatedFee = solana!.getEstimateFees(_wallet).toString();
@@ -270,7 +270,7 @@ abstract class OutputBase with Store {
           : cryptoCurrencyHandler();
 
       final cryptoAmount =
-          double.parse(_appStore.amountParsingProxy.getCryptoInputAmount(estimatedFee, currency));
+          double.parse(_appStore.amountParsingProxy.getCanonicalCryptoAmount(estimatedFee, currency));
 
       return calculateFiatAmountRaw(
           price: _fiatConversationStore.prices[currency]!, cryptoAmount: cryptoAmount);
@@ -293,7 +293,7 @@ abstract class OutputBase with Store {
   @action
   void setSendAll(String fullBalance) {
     cryptoFullBalance =
-        _appStore.amountParsingProxy.getCryptoInputAmount(fullBalance, cryptoCurrencyHandler());
+        _appStore.amountParsingProxy.getCanonicalCryptoAmount(fullBalance, cryptoCurrencyHandler());
     sendAll = true;
     _updateFiatAmount();
   }

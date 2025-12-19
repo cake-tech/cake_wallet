@@ -32,7 +32,10 @@ abstract class AppStoreBase with Store {
   }) : _amountParsingProxy = AmountParsingProxy(settingsStore.displayAmountsInSatoshi) {
     reaction(
       (_) => settingsStore.displayAmountsInSatoshi,
-      (value) => _amountParsingProxy = AmountParsingProxy(value),
+      (value) {
+        print(value);
+        _amountParsingProxy = AmountParsingProxy(value);
+      },
     );
   }
 

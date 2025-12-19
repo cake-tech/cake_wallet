@@ -327,7 +327,7 @@ abstract class BalanceViewModelBase with Store {
   String _getFormattedCryptoAmount(CryptoCurrency cryptoCurrency, int? amount) {
     if (amount == null) return "";
 
-    return appStore.amountParsingProxy.getCryptoString(amount, cryptoCurrency);
+    return appStore.amountParsingProxy.getDisplayCryptoString(amount, cryptoCurrency);
   }
 
   @computed

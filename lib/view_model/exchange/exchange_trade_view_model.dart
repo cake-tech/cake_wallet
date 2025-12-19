@@ -271,7 +271,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         ExchangeTradeItem(
           title: S.current.amount,
           data:
-              "${_amountParsingProxy.getCryptoOutputAmount(trade.amount, tradeFrom!)} ${_amountParsingProxy.getCryptoSymbol(tradeFrom)}",
+              "${_amountParsingProxy.getDisplayCryptoAmount(trade.amount, tradeFrom!)} ${_amountParsingProxy.getCryptoSymbol(tradeFrom)}",
           isCopied: false,
           isReceiveDetail: false,
           isExternalSendDetail: true,
@@ -279,7 +279,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         ExchangeTradeItem(
           title: "${S.current.you_will_receive_estimated_amount}:",
           data:
-              "${_amountParsingProxy.getCryptoOutputAmount(tradesStore.trade?.receiveAmount ?? "0", tradeTo!)} ${_amountParsingProxy.getCryptoSymbol(tradeTo)}",
+              "${_amountParsingProxy.getDisplayCryptoAmount(tradesStore.trade?.receiveAmount ?? "0", tradeTo!)} ${_amountParsingProxy.getCryptoSymbol(tradeTo)}",
           isCopied: true,
           isReceiveDetail: true,
           isExternalSendDetail: false,

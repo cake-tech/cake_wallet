@@ -123,7 +123,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.haven:
         return HavenURI(amount: amount, address: address.address);
       case WalletType.bitcoin:
-        final amount_ = _appStore.amountParsingProxy.getCryptoInputAmount(amount, CryptoCurrency.btc);
+        final amount_ = _appStore.amountParsingProxy.getCanonicalCryptoAmount(amount, CryptoCurrency.btc);
         return BitcoinURI(amount: amount_, address: address.address, pjUri: payjoinEndpoint);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: address.address);
@@ -209,7 +209,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             address: address.address,
             txCount: address.txCount,
             balance: _appStore.amountParsingProxy
-                .getCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
+                .getDisplayCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
             isChange: address.isChange,
           );
         });
@@ -225,7 +225,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             address: address.address,
             txCount: address.txCount,
             balance: _appStore.amountParsingProxy
-                .getCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
+                .getDisplayCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
             isChange: address.isChange,
             isOneTimeReceiveAddress: true,
           );
@@ -242,7 +242,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
               address: subaddress.address,
               txCount: subaddress.txCount,
               balance: _appStore.amountParsingProxy
-                  .getCryptoString(subaddress.balance, walletTypeToCryptoCurrency(type)),
+                  .getDisplayCryptoString(subaddress.balance, walletTypeToCryptoCurrency(type)),
               isChange: subaddress.isChange);
         });
 
@@ -592,7 +592,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     try {
       final crypto = double.parse(_rawAmount.replaceAll(',', '.')) / fiatRate;
       final cryptoAmountTmp = _appStore.amountParsingProxy
-          .getCryptoOutputAmount(crypto.toStringAsFixed(8), cryptoCurrency);
+          .getDisplayCryptoAmount(crypto.toStringAsFixed(8), cryptoCurrency);
       if (amount != cryptoAmountTmp) {
         amount = cryptoAmountTmp;
       }

@@ -335,10 +335,10 @@ abstract class TransactionDetailsViewModelBase with Store {
   void _addElectrumListItems(TransactionInfo tx, DateFormat dateFormat) {
     final isLightning = (tx.additionalInfo["isLightning"] as bool?) ?? false;
     final amountFormatted = _appStore.amountParsingProxy
-        .getCryptoString(tx.amount, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc);
+        .getDisplayCryptoString(tx.amount, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc);
     final feeFormatted = (tx.fee != null)
         ? _appStore.amountParsingProxy
-            .getCryptoString(tx.fee!, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc)
+            .getDisplayCryptoString(tx.fee!, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc)
         : "";
 
     final _items = [

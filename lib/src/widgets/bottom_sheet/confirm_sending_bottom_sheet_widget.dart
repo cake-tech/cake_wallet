@@ -198,7 +198,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                     name: S.of(context).send_change_to_you,
                     address: change!.address,
                     amount:
-                        '${amountParsingProxy?.getCryptoString(change!.amount.toInt(), currency)} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}',
+                        '${amountParsingProxy?.getDisplayCryptoString(change!.amount.toInt(), currency)} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}',
                     isBatchSending: true,
                     walletType: walletType,
                     itemTitleTextStyle: itemTitleTextStyle,

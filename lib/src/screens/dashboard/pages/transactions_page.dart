@@ -156,7 +156,7 @@ class TransactionsPage extends StatelessWidget {
                                 currency: "BTC",
                                 state: item.status,
                                 amount: dashboardViewModel.appStore.amountParsingProxy
-                                    .getCryptoString(session.amount.toInt(), CryptoCurrency.btc),
+                                    .getDisplayCryptoString(session.amount.toInt(), CryptoCurrency.btc),
                                 createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
                                 isSending: session.isSenderSession,
                               );

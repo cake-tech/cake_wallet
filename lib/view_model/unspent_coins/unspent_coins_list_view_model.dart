@@ -210,7 +210,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
             return UnspentCoinsItem(
               address: elem.address,
               amount:
-                  '${_appStore.amountParsingProxy.getCryptoString(elem.value, wallet.currency)} $symbol',
+                  '${_appStore.amountParsingProxy.getDisplayCryptoString(elem.value, wallet.currency)} $symbol',
               hash: elem.hash,
               isFrozen: existingItem.isFrozen,
               note: existingItem.note,

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 class AmountParsingProxy {
@@ -7,25 +8,25 @@ class AmountParsingProxy {
   const AmountParsingProxy(this.displayMode);
 
   /// [getCryptoInputAmount] turns the input [amount] into the canonical representation of [cryptoCurrency]
-  String getCryptoInputAmount(String amount, CryptoCurrency cryptoCurrency) {
+  String getCanonicalCryptoAmount(String amount, CryptoCurrency cryptoCurrency) {
     if (useSatoshi(cryptoCurrency) && amount.isNotEmpty) {
-      return cryptoCurrency.formatAmount(BigInt.parse(amount));
+      return cryptoCurrency.formatAmount(BigInt.tryParse(amount) ?? BigInt.zero);
     }
 
     return amount;
   }
 
   /// [getCryptoOutputAmount] turns the input [amount] into the preferred representation of [cryptoCurrency]
-  String getCryptoOutputAmount(String amount, CryptoCurrency cryptoCurrency) {
+  String getDisplayCryptoAmount(String amount, CryptoCurrency cryptoCurrency) {
     if (useSatoshi(cryptoCurrency) && amount.isNotEmpty) {
-      return cryptoCurrency.parseAmount(amount).toString();
+      return cryptoCurrency.parseAmount(amount.withMaxDecimals(cryptoCurrency.decimals)).toString();
     }
 
-    return amount;
+    return amount.withMaxDecimals(cryptoCurrency.decimals);
   }
 
   /// [getCryptoStringRepresentation] turns the input [amount] into the preferred representation of [cryptoCurrency]
-  String getCryptoString(int amount, CryptoCurrency cryptoCurrency) {
+  String getDisplayCryptoString(int amount, CryptoCurrency cryptoCurrency) {
     if (useSatoshi(cryptoCurrency)) {
       return "$amount";
     }
@@ -34,7 +35,7 @@ class AmountParsingProxy {
   }
 
   /// [getCryptoStringFromDouble] turns the input [amount] into the preferred representation of [cryptoCurrency] and
-  String getCryptoStringFromDouble(double amount, CryptoCurrency cryptoCurrency) {
+  String getDisplayCryptoStringFromDouble(double amount, CryptoCurrency cryptoCurrency) {
     if (useSatoshi(cryptoCurrency)) {
       return "$amount";
     }

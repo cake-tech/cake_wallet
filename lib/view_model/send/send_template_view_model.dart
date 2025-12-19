@@ -44,8 +44,10 @@ abstract class SendTemplateViewModelBase with Store {
     recipients.remove(recipient);
   }
 
-  AmountValidator get amountValidator =>
-      AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
+  AmountValidator get amountValidator => AmountValidator(
+        currency: walletTypeToCryptoCurrency(_wallet.type),
+        amountParsingProxy: _appStore.amountParsingProxy,
+      );
 
   AddressValidator get addressValidator =>
       AddressValidator(type: _wallet.currency, isTestnet: _wallet.isTestnet);

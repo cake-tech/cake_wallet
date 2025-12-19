@@ -81,7 +81,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   double get amount {
     final formattedFiatAmount = double.tryParse(fiatAmount);
     var formattedCryptoAmount = double.tryParse(
-        _appStore.amountParsingProxy.getCryptoInputAmount(cryptoAmount, cryptoCurrency));
+        _appStore.amountParsingProxy.getCanonicalCryptoAmount(cryptoAmount, cryptoCurrency));
 
     return isBuyAction
         ? formattedFiatAmount ?? 200.0
@@ -223,7 +223,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       final amount = enteredAmount / bestRateQuote!.rate;
 
       _cryptoNumberFormat.maximumFractionDigits = cryptoCurrency.decimals;
-      cryptoAmount = _appStore.amountParsingProxy.getCryptoOutputAmount(
+      cryptoAmount = _appStore.amountParsingProxy.getDisplayCryptoAmount(
         _cryptoNumberFormat.format(amount).replaceAll(RegExp('\\,'), ''),
         cryptoCurrency,
       );
@@ -234,7 +234,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @action
   Future<void> changeCryptoAmount({required String amount}) async {
-    cryptoAmount = _appStore.amountParsingProxy.getCryptoInputAmount(amount, cryptoCurrency);
+    cryptoAmount = _appStore.amountParsingProxy.getDisplayCryptoAmount(amount, cryptoCurrency);
 
     if (amount.isEmpty) {
       fiatAmount = '';

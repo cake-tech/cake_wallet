@@ -55,7 +55,7 @@ class TransactionListItem extends ActionListItem with Keyable {
     if (balanceViewModel.wallet.type == WalletType.bitcoin) {
       final isLightning = (transaction.additionalInfo["isLightning"] as bool?) ?? false;
       final crypto = isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc;
-      return '${_appStore.amountParsingProxy.getCryptoString(transaction.amount, crypto)} ${_appStore.amountParsingProxy.getCryptoSymbol(crypto)}';
+      return '${_appStore.amountParsingProxy.getDisplayCryptoString(transaction.amount, crypto)} ${_appStore.amountParsingProxy.getCryptoSymbol(crypto)}';
     }
     return transaction.amountFormatted();
   }

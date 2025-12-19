@@ -17,12 +17,12 @@ class TradeListItem extends ActionListItem {
 
   String get tradeFormattedAmount => displayMode == BalanceDisplayMode.hiddenBalance
       ? "---"
-      : appStore.amountParsingProxy.getCryptoOutputAmount(trade.amountFormatted(), trade.from!);
+      : appStore.amountParsingProxy.getDisplayCryptoAmount(trade.amountFormatted(), trade.from!);
 
   String get tradeFormattedReceiveAmount => displayMode == BalanceDisplayMode.hiddenBalance
       ? "---"
       : appStore.amountParsingProxy
-          .getCryptoOutputAmount(trade.receiveAmountFormatted(), trade.to!);
+          .getDisplayCryptoAmount(trade.receiveAmountFormatted(), trade.to!);
 
   @override
   DateTime get date => trade.createdAt!;
