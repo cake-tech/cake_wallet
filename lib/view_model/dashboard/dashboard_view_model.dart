@@ -458,7 +458,10 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   List<TradeListItem> get trades =>
-      tradesStore.trades.where((trade) => trade.trade.walletId == wallet.id).toList();
+      tradesStore.trades.where((trade) {
+        final isSameChain = trade.trade.chainId != null ? trade.trade.chainId == wallet.chainId : true; // returning default as true here so it falls back to the default checks if there's no chainId
+        return trade.trade.walletId == wallet.id && isSameChain;
+      }).toList();
 
   @computed
   List<OrderListItem> get orders =>

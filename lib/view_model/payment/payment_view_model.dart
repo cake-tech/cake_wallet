@@ -49,6 +49,13 @@ abstract class PaymentViewModelBase with Store {
   @computed
   WalletType get currentWalletType => appStore.wallet!.type;
 
+  @computed
+  int? get currentChainId {
+    if (!isEVMCompatibleChain(currentWalletType)) return null;
+
+    return evm!.getSelectedChainId(appStore.wallet!);
+  }
+
   /// Main entry point - detect address type and check compatibility
   @action
   Future<PaymentFlowResult> processAddress(String addressData) async {
@@ -69,8 +76,7 @@ abstract class PaymentViewModelBase with Store {
       final currentWallet = appStore.wallet;
 
       if (isEVMCompatibleChain(detectedWalletType!)) {
-        final isRawEvmInput =
-            !addressData.contains(':') && _isEVMAddress(detectionResult.address);
+        final isRawEvmInput = !addressData.contains(':') && _isEVMAddress(detectionResult.address);
 
         // Check if the current wallet is also EVM
         if (currentWallet != null && isEVMCompatibleChain(currentWallet.type)) {

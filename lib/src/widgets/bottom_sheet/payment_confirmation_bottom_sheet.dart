@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -93,7 +94,9 @@ class _PaymentConfirmationContent extends StatelessWidget {
     return Observer(
       builder: (_) {
         final currencyName = walletTypeToString(paymentViewModel.detectedWalletType!);
-        final currentWalletName = walletTypeToString(paymentViewModel.currentWalletType);
+        final currentWalletName = isEVMCompatibleChain(paymentViewModel.currentWalletType)
+            ? evm!.getChainNameByChainId(paymentViewModel.currentChainId!)
+            : walletTypeToString(paymentViewModel.currentWalletType);
 
         final hasSingleWallet = paymentFlowResult.type == PaymentFlowType.singleWallet ||
             paymentFlowResult.wallets.length == 1;
@@ -158,7 +161,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  '''Would you like to ${!noAvailableWallets ? 'switch to a $currencyName wallet or' : ''} swap $currentWalletName for ${paymentFlowResult.addressDetectionResult?.detectedCurrency} (${walletTypeToString(paymentFlowResult.walletType!)}) for this payment?''',
+                  '''Would you like to ${!noAvailableWallets ? 'switch to a $currencyName wallet or' : ''} swap ${currentWalletName.capitalized()} for ${paymentFlowResult.addressDetectionResult?.detectedCurrency} (${walletTypeToString(paymentFlowResult.walletType!)}) for this payment?''',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 16,
@@ -190,7 +193,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
                 const SizedBox(height: 24),
                 Text(
                   '''Looks like you scanned a $currencyName address.\n\n'''
-                  '''Would you like to ${!noAvailableWallets ? 'switch to a $currencyName wallet or' : ''} swap $currentWalletName for $currencyName for this payment?''',
+                  '''Would you like to ${!noAvailableWallets ? 'switch to a $currencyName wallet or' : ''} swap ${currentWalletName.capitalized()} for $currencyName for this payment?''',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 16,
@@ -238,7 +241,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
                 if (!isMwebOrSpAddress) ...[
                   PrimaryButton(
                     onPressed: () => onSwap(context),
-                    text: '${S.current.swap} $currentWalletName',
+                    text: '${S.current.swap} ${currentWalletName.capitalized()}',
                     color: Theme.of(context).colorScheme.surfaceContainer,
                     textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                   ),
@@ -262,7 +265,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
                 if (!isMwebOrSpAddress) ...[
                   PrimaryButton(
                     onPressed: () => onSwap(context),
-                    text: '${S.current.swap} $currentWalletName',
+                    text: '${S.current.swap} ${currentWalletName.capitalized()}',
                     color: hasAtLeastOneWallet
                         ? Theme.of(context).colorScheme.surfaceContainer
                         : Theme.of(context).colorScheme.primary,

@@ -723,6 +723,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
                 isSendAll: isSendAllEnabled,
               );
               trade.walletId = wallet.id;
+              trade.chainId = wallet.chainId;
               trade.fromWalletAddress = wallet.walletAddresses.address;
 
               final canCreateTrade = await isCanCreateTrade(trade);
