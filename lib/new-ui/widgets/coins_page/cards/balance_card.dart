@@ -74,6 +74,7 @@ class BalanceCard extends StatelessWidget {
                     key: const ValueKey('svgFull'),
                     width: width,
                     height: height,
+                    fit: BoxFit.fill,
                   )
                 : const SizedBox.shrink(
                     key: ValueKey('svgFullOff'),
@@ -120,7 +121,7 @@ class BalanceCard extends StatelessWidget {
                               duration: designSwitchDuration,
                               style: DefaultTextStyle.of(context)
                                   .style
-                                  .copyWith(color: design.colors.textColor, fontSize: 28, fontWeight: FontWeight.w500),
+                                  .copyWith(color: design.colors.textColor, fontSize: 28, fontWeight: FontWeight.w500, letterSpacing: -0.4),
                               child: Text(
                                 balance,
                               ),
@@ -129,7 +130,7 @@ class BalanceCard extends StatelessWidget {
                               duration: designSwitchDuration,
                               style: DefaultTextStyle.of(context)
                                   .style
-                                  .copyWith(color: design.colors.textColorSecondary, fontSize: 28, fontWeight: FontWeight.w400),
+                                  .copyWith(color: design.colors.textColorSecondary, fontSize: 28, fontWeight: FontWeight.w400, letterSpacing: -0.4),
                               child: Text(
                                 assetName.toUpperCase(),
                               ),
