@@ -1,4 +1,3 @@
-
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -32,10 +31,7 @@ abstract class AppStoreBase with Store {
   }) : _amountParsingProxy = AmountParsingProxy(settingsStore.displayAmountsInSatoshi) {
     reaction(
       (_) => settingsStore.displayAmountsInSatoshi,
-      (value) {
-        print(value);
-        _amountParsingProxy = AmountParsingProxy(value);
-      },
+      (value) => _amountParsingProxy = AmountParsingProxy(value),
     );
   }
 
