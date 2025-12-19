@@ -1,9 +1,10 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -16,7 +17,7 @@ part 'node_create_or_edit_view_model.g.dart';
 class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase with _$NodeCreateOrEditViewModel;
 
 abstract class NodeCreateOrEditViewModelBase with Store {
-  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore)
+  NodeCreateOrEditViewModelBase(this.isPow, this.nodeListViewModel,this.powNodeListViewModel, this._walletType, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         useSSL = false,
@@ -69,6 +70,12 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @observable
   String socksProxyAddress;
 
+  @observable
+  bool isPow;
+
+  final NodeListViewModel? nodeListViewModel;
+  final PowNodeListViewModel? powNodeListViewModel;
+
   @computed
   bool get isReady =>
       (address.isNotEmpty) || _walletType == WalletType.decred; // Allow an empty address.
@@ -112,7 +119,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   }
 
   final WalletType _walletType;
-  final Box<Node> _nodeSource;
   final SettingsStore _settingsStore;
 
   @action
@@ -160,13 +166,26 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setSocksProxyAddress(String val) => socksProxyAddress = val;
 
   @action
+  Future<void> delete({required Node editingNode}) async {
+    await editingNode.delete();
+    if(nodeListViewModel != null) {
+      nodeListViewModel!.bindNodes();
+    }
+    if(powNodeListViewModel != null) {
+      powNodeListViewModel!.bindNodes();
+    }
+  }
+
+  @action
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
     final node = Node(
+        id: editingNode?.id ?? 0,
         uri: uri,
         path: path,
         type: _walletType,
         login: login,
         password: password,
+        isPow: isPow,
         useSSL: useSSL,
         trusted: trusted,
         isEnabledForAutoSwitching: isEnabledForAutoSwitching,
@@ -174,18 +193,25 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     try {
       state = IsExecutingState();
       if (editingNode != null) {
-        await _nodeSource.put(editingNode.key, node);
-      } else if (_existingNode(node) != null) {
-        setAsCurrent(_existingNode(node)!);
+        await node.save();
+      } else if (await _existingNode(node) != null) {
+        setAsCurrent((await _existingNode(node))!);
       } else {
-        await _nodeSource.add(node);
-        setAsCurrent(_nodeSource.values.last);
+        await node.save();
+        setAsCurrent(node);
       }
       if (saveAsCurrent) {
         setAsCurrent(node);
       }
 
       state = ExecutedSuccessfullyState();
+      if(nodeListViewModel != null) {
+        nodeListViewModel!.bindNodes();
+      }
+      if(powNodeListViewModel != null) {
+        powNodeListViewModel!.bindNodes();
+      }
+
     } catch (e) {
       state = FailureState(e.toString());
     }
@@ -212,8 +238,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     }
   }
 
-  Node? _existingNode(Node node) {
-    final nodes = _nodeSource.values.toList();
+  Future<Node?> _existingNode(Node node)async {
+    final nodes = isPow ? await Node.getAllPow() : await Node.getAll();
     nodes.forEach((item) {
       item.login ??= '';
       item.password ??= '';

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import "package:yaml/yaml.dart";
@@ -84,6 +85,7 @@ Future<List<Node>> loadDefaultNanoPowNodes() async {
   for (final raw in loadedPowNodes) {
     if (raw is Map) {
       final node = Node.fromMap(Map<String, Object>.from(raw));
+      node.isPow = true;
       node.type = WalletType.nano;
       nodes.add(node);
     }
@@ -92,7 +94,7 @@ Future<List<Node>> loadDefaultNanoPowNodes() async {
   return nodes;
 }
 
-Future<void> resetToDefault(Box<Node> nodeSource) async {
+Future<void> resetToDefault() async {
   final moneroNodes = await loadDefaultNodes(WalletType.monero);
   final bitcoinElectrumServerList = await loadDefaultNodes(WalletType.bitcoin);
   final litecoinElectrumServerList = await loadDefaultNodes(WalletType.litecoin);
@@ -125,13 +127,30 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
       baseNodes +
       arbitrumNodes;
 
-  await nodeSource.clear();
-  await nodeSource.addAll(nodes);
+
+  final currentNodes = await Node.getAll();
+
+  // after reset, nodes should retain the id to correspond with the ones in shared prefs.
+  // alternative would be nuking the shared prefs on reset
+  for (final node in nodes) {
+    final curr = currentNodes.firstWhereOrNull(
+          (item) => item.uri == node.uri && item.typeRaw == node.typeRaw,
+    );
+    if (curr != null) {
+      node.id = curr.id;
+    }
+  }
+
+  await Node.deleteAll();
+  for(final node in nodes) {
+    node.save();
+  }
 }
 
-Future<void> resetPowToDefault(Box<Node> powNodeSource) async {
+Future<void> resetPowToDefault() async {
   final nanoPowNodes = await loadDefaultNanoPowNodes();
-  final nodes = nanoPowNodes;
-  await powNodeSource.clear();
-  await powNodeSource.addAll(nodes);
+  await Node.deleteAllPow();
+  for(final node in nanoPowNodes) {
+    node.save();
+  }
 }

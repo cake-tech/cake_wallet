@@ -16,13 +16,13 @@ part 'pow_node_list_view_model.g.dart';
 class PowNodeListViewModel = PowNodeListViewModelBase with _$PowNodeListViewModel;
 
 abstract class PowNodeListViewModelBase with Store {
-  PowNodeListViewModelBase(this._nodeSource, this._appStore)
+  PowNodeListViewModelBase(this._appStore)
       : nodes = ObservableList<Node>(),
         settingsStore = _appStore.settingsStore {
-    _bindNodes();
+    bindNodes();
 
     reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
-      _bindNodes();
+      bindNodes();
     });
   }
 
@@ -50,17 +50,16 @@ abstract class PowNodeListViewModelBase with Store {
 
   final ObservableList<Node> nodes;
   final SettingsStore settingsStore;
-  final Box<Node> _nodeSource;
   final AppStore _appStore;
 
   Future<void> reset() async {
-    await resetPowToDefault(_nodeSource);
+    await resetPowToDefault();
 
     Node node;
 
     switch (_appStore.wallet!.type) {
       case WalletType.nano:
-        node = getNanoDefaultPowNode(nodes: _nodeSource)!;
+        node = (await getNanoDefaultPowNode())!;
         break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
@@ -76,12 +75,8 @@ abstract class PowNodeListViewModelBase with Store {
       settingsStore.powNodes[_appStore.wallet!.type] = node;
 
   @action
-  void _bindNodes() {
+  Future<void> bindNodes() async  {
     nodes.clear();
-    _nodeSource.bindToList(
-      nodes,
-      filter: (val) => val.type == _appStore.wallet!.type,
-      initialFire: true,
-    );
+    nodes.addAll(await Node.getAllPow());
   }
 }

@@ -300,8 +300,8 @@ import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 final getIt = GetIt.instance;
 
 var _isSetupFinished = false;
-late Box<Node> _nodeSource;
-late Box<Node> _powNodeSource;
+// late Box<Node> _nodeSource;
+// late Box<Node> _powNodeSource;
 late Box<Contact> _contactSource;
 late Box<Trade> _tradesSource;
 late Box<Template> _templates;
@@ -313,8 +313,6 @@ late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 
 Future<void> setup({
-  required Box<Node> nodeSource,
-  required Box<Node> powNodeSource,
   required Box<Contact> contactSource,
   required Box<Trade> tradesSource,
   required Box<Template> templates,
@@ -327,8 +325,6 @@ Future<void> setup({
   required SecureStorage secureStorage,
   required GlobalKey<NavigatorState> navigatorKey,
 }) async {
-  _nodeSource = nodeSource;
-  _powNodeSource = powNodeSource;
   _contactSource = contactSource;
   _tradesSource = tradesSource;
   _templates = templates;
@@ -354,8 +350,6 @@ Future<void> setup({
       (secrets.wyreAccountId.isNotEmpty);
 
   final settingsStore = await SettingsStoreBase.load(
-    nodeSource: _nodeSource,
-    powNodeSource: _powNodeSource,
     isBitcoinBuyEnabled: isBitcoinBuyEnabled,
   );
 
@@ -363,18 +357,16 @@ Future<void> setup({
     return;
   }
 
-  getIt.registerFactory<Box<Node>>(() => _nodeSource);
-  getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
   getIt.registerSingleton(AuthenticationStore());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
-  getIt.registerSingleton(NodeListStoreBase.instance);
+  // getIt.registerSingleton(NodeListStoreBase.instance);
   getIt.registerSingleton<SettingsStore>(settingsStore);
   getIt.registerSingleton<AppStore>(AppStore(
       authenticationStore: getIt.get<AuthenticationStore>(),
       walletList: getIt.get<WalletListStore>(),
       settingsStore: getIt.get<SettingsStore>(),
-      nodeListStore: getIt.get<NodeListStore>(),
+      // nodeListStore: getIt.get<NodeListStore>(),
       themeStore: getIt.get<ThemeStore>()));
   getIt.registerSingleton<TradesStore>(
       TradesStore(tradesSource: _tradesSource, settingsStore: getIt.get<SettingsStore>()));
@@ -1035,14 +1027,14 @@ Future<void> setup({
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
-  getIt.registerFactory(() {
+  getIt.registerLazySingleton(() {
     final appStore = getIt.get<AppStore>();
-    return NodeListViewModel(_nodeSource, appStore);
+    return NodeListViewModel(appStore);
   });
 
-  getIt.registerFactory(() {
+  getIt.registerLazySingleton(() {
     final appStore = getIt.get<AppStore>();
-    return PowNodeListViewModel(_powNodeSource, appStore);
+    return PowNodeListViewModel(appStore);
   });
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
@@ -1078,7 +1070,9 @@ Future<void> setup({
 
   getIt.registerFactoryParam<NodeCreateOrEditViewModel, WalletType?, bool?>(
       (WalletType? type, bool? isPow) => NodeCreateOrEditViewModel(
-          (isPow ?? false) ? _powNodeSource : _nodeSource,
+        isPow ?? false,
+          (isPow ?? false) ? null : getIt.get<NodeListViewModel>(),
+          (isPow ?? false) ? getIt.get<PowNodeListViewModel>() : null,
           type ?? getIt.get<AppStore>().wallet!.type,
           getIt.get<SettingsStore>()));
 
@@ -1625,7 +1619,6 @@ Future<void> setup({
   getIt.registerLazySingleton(() => NodeSwitchingService(
     appStore: getIt.get<AppStore>(),
     settingsStore: getIt.get<SettingsStore>(),
-    nodeSource: _nodeSource,
   ));
 
   _isSetupFinished = true;

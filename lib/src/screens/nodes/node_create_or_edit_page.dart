@@ -111,7 +111,7 @@ class NodeCreateOrEditPage extends BasePage {
                           false;
 
                       if (confirmed) {
-                        await editingNode!.delete();
+                        await nodeCreateOrEditViewModel.delete(editingNode: editingNode!);
                         Navigator.of(context).pop();
                       }
                     },
