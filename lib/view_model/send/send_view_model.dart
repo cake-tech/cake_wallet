@@ -105,6 +105,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             appStore.wallet!.type == WalletType.solana ||
             appStore.wallet!.type == WalletType.tron ||
             appStore.wallet!.type == WalletType.zano,
+        selectedChainId = appStore.wallet!.chainId,
         outputs = ObservableList<Output>(),
         _settingsStore = appStore.settingsStore,
         fiatFromSettings = appStore.settingsStore.fiatCurrency,
@@ -147,6 +148,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
 
   bool get isEVMWallet => isEVMCompatibleChain(walletType);
+
   @action
   void setShowAddressBookPopup(bool value) {
     _settingsStore.showAddressBookPopupEnabled = value;
@@ -399,6 +401,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @observable
   bool hasMultipleTokens;
 
+  @observable
+  int? selectedChainId;
+
   @computed
   List<ContactRecord> get contactsToShow => contactListViewModel.contacts
       .where((element) => element.type == selectedCryptoCurrency)
@@ -572,7 +577,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 routerData,
                 routerValueWei,
                 priority,
-                useBlinkProtection: _settingsStore.useBlinkProtection,
+                useBlinkProtection:
+                    canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,
               );
 
               _isSwapsXYZCallDataTx = true;
@@ -590,7 +596,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               routerData,
               routerValueWei,
               priority,
-              useBlinkProtection: _settingsStore.useBlinkProtection,
+              useBlinkProtection:
+                  canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,
             );
             _isSwapsXYZCallDataTx = true;
             state = ExecutedSuccessfullyState();
@@ -836,7 +843,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           outputs,
           priority: priority!,
           currency: selectedCryptoCurrency,
-          useBlinkProtection: _settingsStore.useBlinkProtection,
+          useBlinkProtection:
+              canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,
         );
       case WalletType.nano:
         return nano!.createNanoTransactionCredentials(outputs);
@@ -1122,7 +1130,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         spender,
         erc20Token,
         priority,
-        useBlinkProtection: _settingsStore.useBlinkProtection,
+        useBlinkProtection:
+            canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,
       );
     }
 

@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -27,7 +28,16 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   @computed
   bool get useBlinkProtection => _settingsStore.useBlinkProtection;
 
-  bool get canUseBlinkProtection => isEVMCompatibleChain(type);
+  bool get canUseBlinkProtection {
+    if (!isEVMCompatibleChain(type)) return false;
+
+    // For WalletType.evm, new wallets default to chainId 1 (Ethereum)
+    // For other wallet types, get the chainId from the wallet type
+
+    final chainId = type == WalletType.evm ? 1 : evm!.getChainIdByWalletType(type);
+
+    return canSupportBlinkProtection(chainId);
+  }
 
   @observable
   bool _addCustomNode = false;

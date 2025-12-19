@@ -90,7 +90,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get useBlinkProtection => _settingsStore.useBlinkProtection;
 
-  bool get canUseBlinkProtection => isEVMCompatibleChain(_wallet.type);
+  bool get canUseBlinkProtection => canSupportBlinkProtection(_wallet.chainId);
 
   @computed
   bool get lookupTwitter => _settingsStore.lookupsTwitter;

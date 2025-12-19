@@ -18,6 +18,14 @@ bool isEVMCompatibleChain(WalletType walletType) {
   }
 }
 
+// Blink Protection is supported on Ethereum and Base chains
+//TODO: Add BNB Smart Chain to this list when we integrate it
+bool canSupportBlinkProtection(int? chainId) {
+  if (chainId == null) return false;
+
+  return chainId == 1 || chainId == 8453;
+}
+
 bool isNFTACtivatedChain(WalletType walletType) {
   switch (walletType) {
     case WalletType.evm:
