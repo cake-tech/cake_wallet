@@ -8,36 +8,36 @@ void main() {
     group("BitcoinAmountDisplayMode.satoshi", () {
       final amountParsingProxy = AmountParsingProxy(BitcoinAmountDisplayMode.satoshi);
 
-      group("getCryptoInputAmount", () {
+      group("getCanonicalCryptoAmount", () {
         test("Amount should be parsed from Satoshi for Bitcoin", () {
-          final amount = amountParsingProxy.getCryptoInputAmount("100", CryptoCurrency.btc);
+          final amount = amountParsingProxy.getCanonicalCryptoAmount("100", CryptoCurrency.btc);
           expect(amount, "0.000001");
         });
 
         test("Amount should be parsed from Satoshi for Bitcoin Lightning", () {
-          final amount = amountParsingProxy.getCryptoInputAmount("100", CryptoCurrency.btcln);
+          final amount = amountParsingProxy.getCanonicalCryptoAmount("100", CryptoCurrency.btcln);
           expect(amount, "0.000001");
         });
 
         test("Amount should not be parsed from Satoshi for Ethereum", () {
-          final amount = amountParsingProxy.getCryptoInputAmount("100", CryptoCurrency.eth);
+          final amount = amountParsingProxy.getCanonicalCryptoAmount("100", CryptoCurrency.eth);
           expect(amount, "100");
         });
       });
 
-      group("getCryptoOutputAmount", () {
+      group("getDisplayCryptoAmount", () {
         test("Amount should be formated to Satoshi for Bitcoin", () {
-          final amount = amountParsingProxy.getCryptoOutputAmount("0.000001", CryptoCurrency.btc);
+          final amount = amountParsingProxy.getDisplayCryptoAmount("0.000001", CryptoCurrency.btc);
           expect(amount, "100");
         });
 
         test("Amount should be formated to Satoshi for Bitcoin Lightning", () {
-          final amount = amountParsingProxy.getCryptoOutputAmount("100", CryptoCurrency.btcln);
+          final amount = amountParsingProxy.getDisplayCryptoAmount("100", CryptoCurrency.btcln);
           expect(amount, "10000000000");
         });
 
         test("Amount should not be formated to Satoshi for Ethereum", () {
-          final amount = amountParsingProxy.getCryptoOutputAmount("100", CryptoCurrency.eth);
+          final amount = amountParsingProxy.getDisplayCryptoAmount("100", CryptoCurrency.eth);
           expect(amount, "100");
         });
       });
@@ -46,46 +46,46 @@ void main() {
     group("BitcoinAmountDisplayMode.bitcoin", () {
       final amountParsingProxy = AmountParsingProxy(BitcoinAmountDisplayMode.bitcoin);
 
-      group("getCryptoInputAmount", () {
+      group("getCanonicalCryptoAmount", () {
         test("Amount should not change for Bitcoin", () {
-          final amount = amountParsingProxy.getCryptoInputAmount("0.000001", CryptoCurrency.btc);
+          final amount = amountParsingProxy.getCanonicalCryptoAmount("0.000001", CryptoCurrency.btc);
           expect(amount, "0.000001");
         });
 
         test("Amount should not change for Bitcoin: potentially wrong input Satoshi", () {
-          final amount = amountParsingProxy.getCryptoInputAmount("100", CryptoCurrency.btc);
+          final amount = amountParsingProxy.getCanonicalCryptoAmount("100", CryptoCurrency.btc);
           expect(amount, "100");
         });
 
         test("Amount should not change for Bitcoin", () {
-          final amount = amountParsingProxy.getCryptoInputAmount("0.000001", CryptoCurrency.btcln);
+          final amount = amountParsingProxy.getCanonicalCryptoAmount("0.000001", CryptoCurrency.btcln);
           expect(amount, "0.000001");
         });
 
         test("Amount should not change for Bitcoin Lightning: potentially wrong input Satoshi", () {
-          final amount = amountParsingProxy.getCryptoInputAmount("100", CryptoCurrency.btcln);
+          final amount = amountParsingProxy.getCanonicalCryptoAmount("100", CryptoCurrency.btcln);
           expect(amount, "100");
         });
 
         test("Amount should not change on ETH", () {
-          final amount = amountParsingProxy.getCryptoInputAmount("100", CryptoCurrency.eth);
+          final amount = amountParsingProxy.getCanonicalCryptoAmount("100", CryptoCurrency.eth);
           expect(amount, "100");
         });
       });
 
-      group("getCryptoOutputAmount", () {
+      group("getDisplayCryptoAmount", () {
         test("Amount should not be formated to Satoshi for Bitcoin", () {
-          final amount = amountParsingProxy.getCryptoOutputAmount("0.000001", CryptoCurrency.btc);
+          final amount = amountParsingProxy.getDisplayCryptoAmount("0.000001", CryptoCurrency.btc);
           expect(amount, "0.000001");
         });
 
         test("Amount should not be formated to Satoshi for Bitcoin Lightning", () {
-          final amount = amountParsingProxy.getCryptoOutputAmount("100", CryptoCurrency.btcln);
+          final amount = amountParsingProxy.getDisplayCryptoAmount("100", CryptoCurrency.btcln);
           expect(amount, "100");
         });
 
         test("Amount should not be formated to Satoshi for Ethereum", () {
-          final amount = amountParsingProxy.getCryptoOutputAmount("100", CryptoCurrency.eth);
+          final amount = amountParsingProxy.getDisplayCryptoAmount("100", CryptoCurrency.eth);
           expect(amount, "100");
         });
       });
@@ -94,36 +94,36 @@ void main() {
     group("BitcoinAmountDisplayMode.satoshiForLightning", () {
       final amountParsingProxy = AmountParsingProxy(BitcoinAmountDisplayMode.satoshiForLightning);
 
-      group("getCryptoInputAmount", () {
+      group("getCanonicalCryptoAmount", () {
         test("Amount should not change for Bitcoin", () {
-          final amount = amountParsingProxy.getCryptoInputAmount("100", CryptoCurrency.btc);
+          final amount = amountParsingProxy.getCanonicalCryptoAmount("100", CryptoCurrency.btc);
           expect(amount, "100");
         });
 
         test("Amount should get formated from Satoshi for Bitcoin Lightning", () {
-          final amount = amountParsingProxy.getCryptoInputAmount("100", CryptoCurrency.btcln);
+          final amount = amountParsingProxy.getCanonicalCryptoAmount("100", CryptoCurrency.btcln);
           expect(amount, "0.000001");
         });
 
         test("Amount should not change for Ethereum", () {
-          final amount = amountParsingProxy.getCryptoInputAmount("100", CryptoCurrency.eth);
+          final amount = amountParsingProxy.getCanonicalCryptoAmount("100", CryptoCurrency.eth);
           expect(amount, "100");
         });
       });
 
-      group("getCryptoOutputAmount", () {
+      group("getDisplayCryptoAmount", () {
         test("Amount should not be formated to Satoshi for Bitcoin", () {
-          final amount = amountParsingProxy.getCryptoOutputAmount("0.000001", CryptoCurrency.btc);
+          final amount = amountParsingProxy.getDisplayCryptoAmount("0.000001", CryptoCurrency.btc);
           expect(amount, "0.000001");
         });
 
         test("Amount should be formated to Satoshi for Bitcoin Lightning", () {
-          final amount = amountParsingProxy.getCryptoOutputAmount("0.000001", CryptoCurrency.btcln);
+          final amount = amountParsingProxy.getDisplayCryptoAmount("0.000001", CryptoCurrency.btcln);
           expect(amount, "100");
         });
 
         test("Amount should not be formated to Satoshi for Ethereum", () {
-          final amount = amountParsingProxy.getCryptoOutputAmount("100", CryptoCurrency.eth);
+          final amount = amountParsingProxy.getDisplayCryptoAmount("100", CryptoCurrency.eth);
           expect(amount, "100");
         });
       });
