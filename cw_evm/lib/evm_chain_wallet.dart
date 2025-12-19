@@ -1026,8 +1026,13 @@ abstract class EVMChainWalletBase
   }
 
   Future<EVMChainERC20Balance> _fetchEVMChainBalance() async {
-    final balance = await _client.getBalance(_evmChainPrivateKey.address);
-    return EVMChainERC20Balance(balance.getInWei);
+    final newBalance = await _client.getBalance(_evmChainPrivateKey.address);
+
+    if (newBalance == EtherAmount.zero()) {
+      return balance[currency] ?? EVMChainERC20Balance(BigInt.zero);
+    }
+
+    return EVMChainERC20Balance(newBalance.getInWei);
   }
 
   bool _isTokenMatchingChain(Erc20Token token) {
