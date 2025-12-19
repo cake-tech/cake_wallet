@@ -119,6 +119,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://scan.chainflip.io/channels/${trade.id}';
       case ExchangeProviderDescription.xoSwap:
         return  'https://orders.xoswap.com/${trade.id}';
+      case ExchangeProviderDescription.nearIntents:
+        return  'https://explorer.near-intents.org/transactions/${trade.id}';
     }
     return null;
   }
