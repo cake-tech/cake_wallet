@@ -1,1 +1,2 @@
-Bug fixes
+Add support to Bitcoin Lightning
+New Design
