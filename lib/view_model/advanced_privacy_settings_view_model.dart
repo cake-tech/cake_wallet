@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -22,6 +23,11 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   @computed
   bool get disableBulletin => _settingsStore.disableBulletin;
+
+  @computed
+  bool get useBlinkProtection => _settingsStore.useBlinkProtection;
+
+  bool get canUseBlinkProtection => isEVMCompatibleChain(type);
 
   @observable
   bool _addCustomNode = false;
@@ -109,6 +115,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   @action
   void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
+
+  @action
+  void setUseBlinkProtection(bool value) => _settingsStore.useBlinkProtection = value;
 
   @action
   void toggleAddCustomNode() => _addCustomNode = !_addCustomNode;
