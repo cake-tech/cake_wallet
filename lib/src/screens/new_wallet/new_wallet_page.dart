@@ -360,7 +360,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   alertContent: S.of(context).wallet_name_exists,
                   buttonText: S.of(context).ok,
                   buttonAction: () {
-                    if (Navigator.of(context).canPop()) {
+                    if (mounted && Navigator.of(context).canPop()) {
                       Navigator.of(context).pop();
                     }
                   });
