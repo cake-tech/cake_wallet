@@ -90,6 +90,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         network: network,
       );
 
+      // Clean the Silent Payment Addresses if the initial addresses are the old SP Addresses
+      if (!silentAddresses
+          .any((addr) => addr.index == 0 && addr.address == silentAddress.toString())) {
+        silentAddresses.clear();
+      }
+
       if (!silentAddresses.any((addr) => addr.index == 0 && addr.isHidden == false))
         silentAddresses.add(BitcoinSilentPaymentAddressRecord(
           silentAddress.toString(),
@@ -472,19 +478,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       addressesMap[address] = 'Active - P2WSH';
     }
 
-    silentAddresses.forEach((addressRecord) {
-      if (addressRecord.type != SilentPaymentsAddresType.p2sp || addressRecord.isHidden) {
-        return;
-      }
+    final firstSilentAddressRecord = silentAddresses.firstOrNull;
+    if (firstSilentAddressRecord != null) {
 
-      if (addressRecord.address != address) {
-        addressesMap[addressRecord.address] = addressRecord.name.isEmpty
+      if (firstSilentAddressRecord.address != address) {
+        addressesMap[firstSilentAddressRecord.address] = firstSilentAddressRecord.name.isEmpty
             ? "Silent Payments"
-            : "Silent Payments - " + addressRecord.name;
+            : "Silent Payments - ${firstSilentAddressRecord.name}";
       } else {
         addressesMap[address] = 'Active - Silent Payments';
       }
-    });
+    }
   }
 
   void addLitecoinAddressTypes() {
