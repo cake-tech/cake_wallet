@@ -16,7 +16,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   final WalletBase _wallet;
 
   CardCustomizerBloc(this._wallet)
-      : super(CardCustomizerInitial(0, 0, [CardDesign.genericDefault], "", -1)) {
+      : super(CardCustomizerInitial(0, 0, [CardDesign.genericDefault], [], "", -1)) {
     on<_Init>((event, emit) async {
       late final account;
       if (_wallet.type == WalletType.monero) {
@@ -30,11 +30,12 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
       final accountName = (account?.label ?? "") as String;
       final accountIndex = account == null ? -1 : account.id as int;
       final availableDesigns = _initAvailableDesigns();
+      final availableColors = _updateAvailableColors(currentDesign);
       final selectedDesign = _initSelectedDesign(currentDesign);
       final selectedColor = _initSelectedColor(currentDesign);
 
-      emit(CardCustomizerInitial(
-          selectedDesign, selectedColor, availableDesigns, accountName, accountIndex));
+      emit(CardCustomizerInitial(selectedDesign, selectedColor, availableDesigns, availableColors,
+          accountName, accountIndex));
     });
 
     on<CardDesignSelected>(_onDesignSelected);
@@ -44,25 +45,20 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     add(_Init());
   }
 
+  List<Gradient> _updateAvailableColors(CardDesign currentDesign) {
+    final list = List<Gradient>.from(CardDesign.allGradients, growable: true);
+    printV(currentDesign.backgroundType);
+    if (currentDesign.backgroundType == CardDesignBackgroundTypes.svgFull &&
+        CardDesign.specialDesignsForCurrencies[_wallet.currency] != null) {
+      list.add(CardDesign.specialDesignsForCurrencies[_wallet.currency]!.gradient);
+    }
+    return list;
+  }
+
   Future<CardDesign> _loadCurrentDesign() async {
     final setting =
         await BalanceCardStyleSettings.get(_wallet.walletInfo.internalId, state.accountIndex);
-
-    if (setting == null) {
-      return CardDesign.forCurrency(_wallet.currency);
-    } else if (setting.backgroundImagePath.isNotEmpty) {
-      return CardDesign(
-        imagePath: setting.backgroundImagePath,
-      );
-    } else if (setting.useSpecialDesign) {
-      return CardDesign.forCurrencySpecial(_wallet.currency);
-    } else if (setting.gradientIndex != -1) {
-      return CardDesign.forCurrency(_wallet.currency)
-          .withGradient(CardDesign.allGradients[setting.gradientIndex]);
-    } else {
-      printV("somehow, the user saved the design settings with literally no customization?");
-      return CardDesign.forCurrency(_wallet.currency);
-    }
+    return CardDesign.fromStyleSettings(setting, _wallet.currency);
   }
 
   List<CardDesign> _initAvailableDesigns() {
@@ -87,11 +83,24 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
   int _initSelectedColor(CardDesign currentDesign) {
     int ret = CardDesign.allGradients.indexOf(currentDesign.gradient);
-    return ret != -1 ? ret : 0;
+    return (ret != -1 || currentDesign.backgroundType == CardDesignBackgroundTypes.svgFull)
+        ? ret
+        : 0;
   }
 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {
-    emit(state.copyWith(selectedDesignIndex: event.newDesignIndex));
+    final newColors = _updateAvailableColors(state.availableDesigns[event.newDesignIndex]);
+    late final int newColorIndex;
+    if (newColors.length < state.availableColors.length) {
+      newColorIndex = 0;
+    } else {
+      newColorIndex = state.selectedColorIndex;
+    }
+
+    emit(state.copyWith(
+        selectedDesignIndex: event.newDesignIndex,
+        availableColors: newColors,
+        selectedColorIndex: newColorIndex));
   }
 
   void _onColorSelected(ColorSelected event, Emitter<CardCustomizerState> emit) {
@@ -104,7 +113,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
         .insert()
         .then((value) {
       emit(CardCustomizerSaved(state.selectedDesignIndex, state.selectedColorIndex,
-          state.availableDesigns, state.accountName, state.accountIndex));
+          state.availableDesigns, state.availableColors, state.accountName, state.accountIndex));
     });
   }
 }

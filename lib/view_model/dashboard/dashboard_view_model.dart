@@ -358,21 +358,7 @@ abstract class DashboardViewModelBase with Store {
             .where((e) => e.accountIndex == (balanceViewModel.hasAccounts ? i : -1))
             .firstOrNull;
 
-        if (setting == null) {
-          cardDesigns.add(CardDesign.forCurrency(wallet.currency));
-        } else if (setting.backgroundImagePath.isNotEmpty) {
-          cardDesigns.add(CardDesign(
-            imagePath: setting.backgroundImagePath,
-          ));
-        } else if (setting.useSpecialDesign) {
-          cardDesigns.add(CardDesign.forCurrencySpecial(wallet.currency));
-        } else if (setting.gradientIndex != -1) {
-          cardDesigns.add(CardDesign.forCurrency(wallet.currency)
-              .withGradient(CardDesign.allGradients[setting.gradientIndex]));
-        } else {
-          printV("somehow, the user saved the design settings with literally no customization?");
-          cardDesigns.add(CardDesign.forCurrency(wallet.currency));
-        }
+        cardDesigns.add(CardDesign.fromStyleSettings(setting, wallet.currency));
       }
       printV("loaded card designs.");
   }

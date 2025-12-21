@@ -1,4 +1,6 @@
+import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 
 enum CardDesignBackgroundTypes { image, svgIcon, svgFull }
@@ -214,7 +216,7 @@ class CardDesign {
       imagePath: "assets/new-ui/balance_card_backgrounds/nano.svg");
 
   CardDesign withGradient(Gradient gradient) => CardDesign(
-      gradient: gradient, colors: colors, imagePath: imagePath, backgroundType: backgroundType);
+      gradient: gradient, colors: preferredColorCombinations[gradient] ?? colors, imagePath: imagePath, backgroundType: backgroundType);
 
   static const List<CardDesign> all = [genericDefault, btc, eth, btcln, ethSpecial, btcSpecial, xmrSpecial, ltcSpecial, lnSpecial, tronSpecial, bchSpecial, wowSpecial, dogeSpecial];
 
@@ -244,4 +246,39 @@ class CardDesign {
     CryptoCurrency.doge: dogeSpecial,
     CryptoCurrency.nano: nanoSpecial,
   };
+
+  static Map<Gradient, CardColorCombination> preferredColorCombinations = {
+    CardDesign.gradientOrange: CardColorCombination.light,
+    CardDesign.gradientYellow: CardColorCombination.dark,
+    CardDesign.gradientGreen: CardColorCombination.light,
+    CardDesign.gradientBlue: CardColorCombination.dark,
+    CardDesign.gradientPurple: CardColorCombination.light,
+    CardDesign.gradientPink: CardColorCombination.dark,
+    CardDesign.gradientRed: CardColorCombination.light,
+    CardDesign.gradientSilver: CardColorCombination.dark,
+    CardDesign.gradientGold: CardColorCombination.dark,
+    CardDesign.gradientBlack: CardColorCombination.light,
+  };
+
+  static CardDesign fromStyleSettings(
+      BalanceCardStyleSettings? setting, CryptoCurrency walletCurrency) {
+    if (setting == null) {
+      return CardDesign.forCurrency(walletCurrency);
+    } else if (setting.backgroundImagePath.isNotEmpty) {
+      return CardDesign(
+        imagePath: setting.backgroundImagePath,
+      );
+    } else if (setting.useSpecialDesign && setting.gradientIndex != -1) {
+      return CardDesign.forCurrencySpecial(walletCurrency)
+          .withGradient(CardDesign.allGradients[setting.gradientIndex]);
+    } else if (setting.useSpecialDesign) {
+      return CardDesign.forCurrencySpecial(walletCurrency);
+    } else if (setting.gradientIndex != -1) {
+      return CardDesign.forCurrency(walletCurrency)
+          .withGradient(CardDesign.allGradients[setting.gradientIndex]);
+    } else {
+      printV("somehow, the user saved the design settings with literally no customization?");
+      return CardDesign.forCurrency(walletCurrency);
+    }
+  }
 }

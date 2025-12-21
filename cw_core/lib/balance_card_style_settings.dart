@@ -44,7 +44,7 @@ class BalanceCardStyleSettings {
       walletInfoId: walletInfoId,
       accountIndex: accountIndex,
       gradientIndex: CardDesign.allGradients.indexOf(design.gradient),
-      useSpecialDesign: CardDesign.specialDesignsForCurrencies.containsValue(design),
+      useSpecialDesign: design.backgroundType == CardDesignBackgroundTypes.svgFull,
       backgroundImagePath:
       design.backgroundType == CardDesignBackgroundTypes.image ? design.imagePath : "",
     );

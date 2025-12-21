@@ -1,4 +1,4 @@
-<svg width="320" height="205" viewBox="0 0 320 205" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="328" height="205" viewBox="0 0 328 205" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_12569_91909)">
 <g opacity="0.1">
 <path d="M388.214 82.6885C388.185 82.5401 388.154 82.3923 388.124 82.2441C388.161 82.428 388.199 82.6117 388.234 82.7959L388.214 82.6885Z" fill="white"/>
@@ -35,7 +35,7 @@
 <stop offset="1" stop-color="white" stop-opacity="0"/>
 </linearGradient>
 <clipPath id="clip0_12569_91909">
-<rect width="320" height="205" rx="20" fill="white"/>
+<rect width="328" height="205" rx="20" fill="white"/>
 </clipPath>
 </defs>
 </svg>
