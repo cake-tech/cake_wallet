@@ -1,10 +1,9 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
@@ -33,10 +32,10 @@ abstract class UnspentCoinsListViewModelBase with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     this.coinTypeToSpendFrom = UnspentCoinType.any,
     required FiatConversionStore fiatConversationStore,
-    required SettingsStore settingsStore,
+    required AppStore appStore,
   })  : _unspentCoinsInfo = unspentCoinsInfo,
         _fiatConversationStore = fiatConversationStore,
-        _settingsStore = settingsStore,
+        _appStore = appStore,
         items = ObservableList<UnspentCoinsItem>(),
         _originalState = {};
 
@@ -44,8 +43,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
   final FiatConversionStore _fiatConversationStore;
-  final SettingsStore _settingsStore;
   final UnspentCoinType coinTypeToSpendFrom;
+  final AppStore _appStore;
 
   @observable
   ObservableList<UnspentCoinsItem> items;
@@ -59,10 +58,10 @@ abstract class UnspentCoinsListViewModelBase with Store {
   bool get isAllSelected => items.every((element) => element.isFrozen || element.isSending);
 
   @computed
-  FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
+  FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
 
   @computed
-  bool get isFiatDisabled => _settingsStore.fiatApiMode == FiatApiMode.disabled;
+  bool get isFiatDisabled => _appStore.settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
   Map<String, String> get fiatAmounts {
@@ -76,7 +75,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       final formatted = formatAmountToString(item.value);
       final cryptoAmount = double.tryParse(formatted.replaceAll(',', '')) ?? 0.0;
       final fiatValue = price * cryptoAmount;
-      result[item.hash] = fiatCurrency.title + ' ' + fiatValue.toStringAsFixed(2);
+      result[item.hash] = '${fiatCurrency.title} ${fiatValue.toStringAsFixed(2)}';
     }
 
     return result;
@@ -125,17 +124,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
     }
   }
 
-  String formatAmountToString(int fullBalance) {
-    if (wallet.type == WalletType.monero)
-      return monero!.formatterMoneroAmountToString(amount: fullBalance);
-    if (wallet.type == WalletType.wownero)
-      return wownero!.formatterWowneroAmountToString(amount: fullBalance);
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type))
-      return bitcoin!.formatterBitcoinAmountToString(amount: fullBalance);
-    if (wallet.type == WalletType.decred)
-      return decred!.formatterDecredAmountToString(amount: fullBalance);
-    return '';
-  }
+  String formatAmountToString(int fullBalance) =>
+      wallet.currency.formatAmount(BigInt.from(fullBalance));
 
   Future<void> _updateUnspents() async {
     if (wallet.type == WalletType.monero) {
@@ -211,13 +201,16 @@ abstract class UnspentCoinsListViewModelBase with Store {
         .map((elem) {
           try {
             final existingItem = _unspentCoinsInfo.values
-                .firstWhereOrNull((item) => item.walletId == wallet.id && item == elem);;
+                .firstWhereOrNull((item) => item.walletId == wallet.id && item == elem);
 
             if (existingItem == null) return null;
 
+            final symbol = _appStore.amountParsingProxy.getCryptoSymbol(wallet.currency);
+
             return UnspentCoinsItem(
               address: elem.address,
-              amount: '${formatAmountToString(elem.value)} ${wallet.currency.title}',
+              amount:
+                  '${_appStore.amountParsingProxy.getDisplayCryptoString(elem.value, wallet.currency)} $symbol',
               hash: elem.hash,
               isFrozen: existingItem.isFrozen,
               note: existingItem.note,
@@ -268,9 +261,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
   void setIsDisposing(bool value) => isDisposing = value;
 
   @action
-  void updateWallet(WalletBase newWallet) {
-    wallet = newWallet;
-  }
+  void updateWallet(WalletBase newWallet) => wallet = newWallet;
 
   @action
   Future<void> dispose() async {

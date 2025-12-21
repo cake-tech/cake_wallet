@@ -1,9 +1,8 @@
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/parse_fixed.dart';
-
-import 'format_fixed.dart';
 
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implements Currency {
   const CryptoCurrency({
@@ -391,19 +390,18 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     int? decimals,
     bool? enabled,
     bool? isPotentialScam,
-  }) {
-    return CryptoCurrency(
-      title: title ?? this.title,
-      raw: raw ?? this.raw,
-      name: name ?? this.name,
-      fullName: fullName ?? this.fullName,
-      iconPath: iconPath ?? this.iconPath,
-      tag: tag ?? this.tag,
-      decimals: decimals ?? this.decimals,
-      enabled: enabled ?? this.enabled,
-      isPotentialScam: isPotentialScam ?? this.isPotentialScam,
-    );
-  }
+  }) =>
+      CryptoCurrency(
+        title: title ?? this.title,
+        raw: raw ?? this.raw,
+        name: name ?? this.name,
+        fullName: fullName ?? this.fullName,
+        iconPath: iconPath ?? this.iconPath,
+        tag: tag ?? this.tag,
+        decimals: decimals ?? this.decimals,
+        enabled: enabled ?? this.enabled,
+        isPotentialScam: isPotentialScam ?? this.isPotentialScam,
+      );
 
   @override
   String toString() => title;

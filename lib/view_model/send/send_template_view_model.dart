@@ -1,4 +1,5 @@
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/send/template_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -11,7 +12,6 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 
 part 'send_template_view_model.g.dart';
 
@@ -19,12 +19,12 @@ class SendTemplateViewModel = SendTemplateViewModelBase with _$SendTemplateViewM
 
 abstract class SendTemplateViewModelBase with Store {
   final WalletBase _wallet;
-  final SettingsStore _settingsStore;
+  final AppStore _appStore;
   final SendTemplateStore _sendTemplateStore;
   final FiatConversionStore _fiatConversationStore;
 
   SendTemplateViewModelBase(
-      this._wallet, this._settingsStore, this._sendTemplateStore, this._fiatConversationStore)
+      this._wallet, this._appStore, this._sendTemplateStore, this._fiatConversationStore)
       : recipients = ObservableList<TemplateViewModel>() {
     addRecipient();
   }
@@ -35,7 +35,7 @@ abstract class SendTemplateViewModelBase with Store {
   void addRecipient() {
     recipients.add(TemplateViewModel(
         wallet: _wallet,
-        settingsStore: _settingsStore,
+        appStore: _appStore,
         fiatConversationStore: _fiatConversationStore));
   }
 
@@ -44,8 +44,10 @@ abstract class SendTemplateViewModelBase with Store {
     recipients.remove(recipient);
   }
 
-  AmountValidator get amountValidator =>
-      AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
+  AmountValidator get amountValidator => AmountValidator(
+        currency: walletTypeToCryptoCurrency(_wallet.type),
+        amountParsingProxy: _appStore.amountParsingProxy,
+      );
 
   AddressValidator get addressValidator =>
       AddressValidator(type: _wallet.currency, isTestnet: _wallet.isTestnet);
@@ -65,10 +67,10 @@ abstract class SendTemplateViewModelBase with Store {
   CryptoCurrency get cryptoCurrency => _wallet.currency;
 
   @computed
-  String get fiatCurrency => _settingsStore.fiatCurrency.title;
+  String get fiatCurrency => _appStore.settingsStore.fiatCurrency.title;
 
   @computed
-  int get fiatCurrencyDecimals => _settingsStore.fiatCurrency.decimals;
+  int get fiatCurrencyDecimals => _appStore.settingsStore.fiatCurrency.decimals;
 
   @computed
   ObservableList<Template> get templates => _sendTemplateStore.templates;

@@ -207,6 +207,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                 return AmountValidator(
                   isAutovalidate: true,
                   currency: widget.exchangeViewModel.receiveCurrency,
+                  amountParsingProxy: widget.exchangeViewModel.amountParsingProxy,
                   minValue: widget.exchangeViewModel.limits.min.toString(),
                   maxValue: widget.exchangeViewModel.limits.max.toString(),
                 ).call(value);
@@ -434,7 +435,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
     exchangeViewModel.receiveAddress = _addressController.text;
     exchangeViewModel.depositAddress = exchangeViewModel.wallet.walletAddresses.addressForExchange;
-    exchangeViewModel.receiveAmount = _amountController.text;
+    exchangeViewModel.setCanonicalReceiveAmount(_amountController.text);
     _amountFiatController.text = exchangeViewModel.receiveAmountFiatFormatted;
     exchangeViewModel.isReceiveAmountEntered = true;
     exchangeViewModel.isFixedRateMode = true;
