@@ -1,6 +1,7 @@
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
@@ -190,7 +191,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty ||
                         sendingState is ExecutedSuccessfullyState,
                     isLoading: sendingState is IsExecutingState,
-                    onPressed: () => widget.exchangeTradeViewModel.confirmSending(),
+                    onPressed: _onPressedSendFromCakeWallet,
                     text: S.current.send_from_cake_wallet,
                     color: Theme.of(context).colorScheme.primary,
                     textColor: Theme.of(context).colorScheme.onPrimary,
@@ -202,6 +203,30 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         ),
       ),
     );
+  }
+
+  Future<void> _onPressedSendFromCakeWallet() async {
+    final sendVM = widget.exchangeTradeViewModel.sendViewModel;
+
+    if (sendVM.wallet.isHardwareWallet) {
+      if (!sendVM.hardwareWalletViewModel!.isConnected) {
+        await Navigator.of(context).pushNamed(Routes.connectDevices,
+            arguments: ConnectDevicePageParams(
+              walletType: sendVM.walletType,
+              hardwareWalletType:
+              sendVM.wallet.walletInfo.hardwareWalletType!,
+              onConnectDevice: (context, _) {
+                print(sendVM.wallet);
+                sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+                Navigator.of(context).pop();
+              },
+            ));
+      } else {
+        sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+      }
+    }
+
+    widget.exchangeTradeViewModel.confirmSending();
   }
 
   BuildContext? dialogContext;
