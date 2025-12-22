@@ -467,8 +467,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (sortedRecommendedQuotes.isNotEmpty) {
       sortedRecommendedQuotes.first
-        ..setIsBestRate = true
-        ..recommendations.insert(0, ProviderRecommendation.bestRate);
+        ..setIsBestRate = true;
       bestRateQuote = sortedRecommendedQuotes.first;
 
       sortedRecommendedQuotes.sort((a, b) {
@@ -476,6 +475,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         if (b.provider is OnRamperBuyProvider) return 1;
         return 0;
       });
+
+      final Quote effectiveBestRateQuote =
+      sortedRecommendedQuotes.reduce((a, b) {
+        return isBuyAction ? a.rate < b.rate ? a : b : a.rate > b.rate ? a : b;
+      });
+
+
+      effectiveBestRateQuote.recommendations
+          .add(ProviderRecommendation.bestRate);
 
       selectedQuote = sortedRecommendedQuotes.first;
       sortedRecommendedQuotes.first.setIsSelected = true;
