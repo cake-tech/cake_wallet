@@ -4,8 +4,7 @@ class CWSolana extends Solana {
   @override
   List<String> getSolanaWordList(String language) => SolanaMnemonics.englishWordlist;
 
-  WalletService createSolanaWalletService(bool isDirect) =>
-      SolanaWalletService(isDirect);
+  WalletService createSolanaWalletService(bool isDirect) => SolanaWalletService(isDirect);
 
   @override
   WalletCredentials createSolanaNewWalletCredentials({
@@ -135,7 +134,29 @@ class CWSolana extends Solana {
   }
 
   @override
-  String getTokenAddress(CryptoCurrency asset) => (asset as SPLToken).mintAddress;
+  String getTokenAddress(CryptoCurrency asset) {
+    // If it's already an SPLToken, use its mint address
+    if (asset is SPLToken) return asset.mintAddress;
+
+    // If it's not an SPLToken but has SOL tag, try to find matching SPLToken
+    if (asset.tag == 'SOL') {
+      final symbol = asset.title.toUpperCase();
+      
+      // Search through default tokens to find matching symbol
+      final defaultTokens = DefaultSPLTokens().initialSPLTokens;
+      try {
+        final matchingToken = defaultTokens.firstWhere(
+          (token) => token.symbol.toUpperCase() == symbol,
+        );
+        return matchingToken.mintAddress;
+      } catch (_) {
+        // Token not found in default tokens
+      }
+    }
+
+    // Fallback - try to cast (will throw if not SPLToken)
+    return (asset as SPLToken).mintAddress;
+  }
 
   @override
   List<int>? getValidationLength(CryptoCurrency type) {
@@ -160,5 +181,52 @@ class CWSolana extends Solana {
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
     final solanaWallet = wallet as SolanaWallet;
     return solanaWallet.splTokenCurrencies.any((element) => element.mintAddress == contractAddress);
+  }
+
+  @override
+  Future<PendingTransaction> signAndPrepareJupiterSwapTransaction(
+    WalletBase wallet,
+    String base64Transaction,
+    String destinationAddress,
+    double amount,
+    double fee,
+  ) async {
+    final solanaWallet = wallet as SolanaWallet;
+    final privateKey = solanaWallet.solanaPrivateKey;
+    final solanaProvider = solanaWallet.solanaProvider;
+
+    if (solanaProvider == null) {
+      throw Exception('Solana provider not available');
+    }
+
+    // Decode base64 transaction
+    final transactionBytes = base64.decode(base64Transaction);
+    final unsignedTransaction = SolanaTransaction.deserialize(transactionBytes);
+
+    // Sign the transaction
+    final signedMessage = privateKey.sign(unsignedTransaction.serializeMessage());
+
+    unsignedTransaction.addSignature(privateKey.publicKey().toAddress(), signedMessage);
+
+    // Serialize the signed transaction
+    final serializedTransaction = unsignedTransaction.serializeString();
+
+    Future<String> sendTx() async {
+      final signature = await solanaProvider.request(
+        SolanaRPCSendTransaction(
+          encodedTransaction: serializedTransaction,
+          commitment: Commitment.confirmed,
+        ),
+      );
+      return signature;
+    }
+
+    return PendingSolanaTransaction(
+      amount: amount,
+      serializedTransaction: serializedTransaction,
+      destinationAddress: destinationAddress,
+      sendTransaction: sendTx,
+      fee: fee,
+    );
   }
 }

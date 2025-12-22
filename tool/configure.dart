@@ -1158,13 +1158,13 @@ Future<void> generateSolana(bool hasImplementation) async {
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/spl_token.dart';
-import 'package:hive/hive.dart';
 
 """;
   const solanaCWHeaders = """
@@ -1172,9 +1172,13 @@ import 'package:cw_solana/solana_wallet.dart';
 import 'package:cw_solana/solana_mnemonics.dart';
 import 'package:cw_solana/solana_wallet_service.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
+import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
+
+import 'dart:convert';
+import 'package:on_chain/solana/solana.dart' hide Store;
 """;
   const solanaCwPart = "part 'cw_solana.dart';";
   const solanaContent = """
@@ -1217,6 +1221,16 @@ abstract class Solana {
   double? getEstimateFees(WalletBase wallet);
   List<String> getDefaultTokenContractAddresses();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
+  
+  // Jupiter swap transaction handling
+  // Signs and prepares a base64-encoded unsigned transaction for sending
+  Future<PendingTransaction> signAndPrepareJupiterSwapTransaction(
+    WalletBase wallet,
+    String base64Transaction,
+    String destinationAddress,
+    double amount,
+    double fee,
+  );
 }
 
   """;
