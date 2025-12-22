@@ -7,10 +7,12 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -23,19 +25,19 @@ abstract class DEuroViewModelBase with Store {
 
   static BigInt get MIN_ACCRUED_INTEREST => BigInt.parse("1000000000000");
 
-  DEuroViewModelBase(
-    this._appStore,
-    this.balanceViewModel,
-    this._settingsStore,
-    this._fiatConversationStore,
-  ) {
+  DEuroViewModelBase(this._appStore, this.balanceViewModel, this._settingsStore,
+      this._fiatConversationStore,
+      [this.hardwareWalletViewModel]) {
     reloadInterestRate();
     reloadSavingsUserData();
   }
 
   final BalanceViewModel balanceViewModel;
+  final HardwareWalletViewModel? hardwareWalletViewModel;
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
+
+  WalletBase get wallet => this._appStore.wallet!;
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;

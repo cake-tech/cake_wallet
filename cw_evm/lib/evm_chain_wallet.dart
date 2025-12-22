@@ -413,23 +413,33 @@ abstract class EVMChainWalletBase
     // check for Already existing scam tokens, cuz users can get scammed twice ¯\_(ツ)_/¯
     await _checkForExistingScamTokens();
 
-    if (walletInfo.hardwareWalletType == HardwareWalletType.ledger) {
-      _evmChainPrivateKey = EvmLedgerCredentials(walletInfo.address);
-      walletAddresses.address = walletInfo.address;
-    } else if (walletInfo.hardwareWalletType == HardwareWalletType.bitbox) {
-      _evmChainPrivateKey = EvmBitboxCredentials(walletInfo.address);
-      walletAddresses.address = walletInfo.address;
-    } else if (walletInfo.hardwareWalletType == HardwareWalletType.trezor) {
-      _evmChainPrivateKey = EvmTrezorCredentials(walletInfo.address);
-      walletAddresses.address = walletInfo.address;
-    } else {
-      _evmChainPrivateKey = await getPrivateKey(
-        mnemonic: _mnemonic,
-        privateKey: _hexPrivateKey,
-        password: _password,
-        passphrase: passphrase,
-      );
-      walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
+    switch(walletInfo.hardwareWalletType) {
+      case HardwareWalletType.ledger:
+        _evmChainPrivateKey = EvmLedgerCredentials(walletInfo.address);
+        walletAddresses.address = walletInfo.address;
+        break;
+      case HardwareWalletType.bitbox:
+        _evmChainPrivateKey = EvmBitboxCredentials(walletInfo.address);
+        walletAddresses.address = walletInfo.address;
+        break;
+      case HardwareWalletType.trezor:
+        _evmChainPrivateKey = EvmTrezorCredentials(walletInfo.address);
+        walletAddresses.address = walletInfo.address;
+        break;
+      case HardwareWalletType.cupcake:
+      case HardwareWalletType.coldcard:
+      case HardwareWalletType.seedsigner:
+      case HardwareWalletType.keystone:
+        throw UnimplementedError();
+      case null:
+        _evmChainPrivateKey = await getPrivateKey(
+          mnemonic: _mnemonic,
+          privateKey: _hexPrivateKey,
+          password: _password,
+          passphrase: passphrase,
+        );
+        walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
+        break;
     }
 
     // Ensure balance is initialized for current currency (in case currency changed)
