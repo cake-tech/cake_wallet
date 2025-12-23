@@ -198,14 +198,9 @@ abstract class EVMChainWalletBase
 
     if (selectedChainId == chainId) return;
 
-    final oldNativeCurrency = currency;
-
     _client.stop();
 
-    final tokensToRemove = balance.keys.whereType<Erc20Token>().toList();
-    for (final token in tokensToRemove) {
-      balance.remove(token);
-    }
+    balance.clear();
 
     selectedChainId = chainId;
     _client = EVMChainClientFactory.createClient(selectedChainId);
@@ -218,12 +213,6 @@ abstract class EVMChainWalletBase
 
     // Reload transaction history from the new chain's file
     await transactionHistory.init();
-
-    // Remove old native currency if it's different from the new one
-    final newNativeCurrency = currency;
-    if (oldNativeCurrency != newNativeCurrency) {
-      balance.remove(oldNativeCurrency);
-    }
 
     await save();
 

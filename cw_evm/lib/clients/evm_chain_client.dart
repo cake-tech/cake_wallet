@@ -32,6 +32,7 @@ class EVMChainClient {
   Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
+      /// when adding new chains, make sure they are supported by the same api through https://docs.etherscan.io/supported-chains  
       final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
         "chainid": "$chainId",
         "module": "account",
