@@ -155,8 +155,7 @@ class QRWidget extends StatelessWidget {
                                         ),
                                       ),
                                     ],
-                                    if (addressListViewModel.payjoinEndpoint.isNotEmpty &&
-                                        !addressListViewModel.isSilentPayments) ...[
+                                    if (addressListViewModel.isPayjoinAvailable) ...[
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
@@ -255,8 +254,7 @@ class QRWidget extends StatelessWidget {
             ),
             Observer(
               builder: (_) => Offstage(
-                offstage: addressListViewModel.payjoinEndpoint.isEmpty ||
-                    addressListViewModel.isSilentPayments,
+                offstage: !addressListViewModel.isPayjoinAvailable,
                 child: Padding(
                   padding: EdgeInsets.only(top: 12),
                   child: PrimaryImageButton(
