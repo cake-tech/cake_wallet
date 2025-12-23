@@ -56,8 +56,9 @@ class LightningWallet {
     _eventStream ??= sdk.addEventListener().asBroadcastStream();
   }
 
-  void close() {
+  Future<void> close() async {
     _eventSubscription?.cancel();
+    await sdk.disconnect();
   }
 
   Future<String?> getAddress() async => (await sdk.getLightningAddress())?.lightningAddress;
@@ -318,6 +319,7 @@ class LightningWallet {
       amount: payment.amount.toInt(),
       direction: direction,
       isPending: payment.status == PaymentStatus.pending,
+      fee: payment.fees.toInt(),
       date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
       confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
       additionalInfo: {"isLightning": true},
