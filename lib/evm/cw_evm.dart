@@ -204,7 +204,8 @@ class CWEVM extends EVM {
 
     // Otherwise, it's an ERC20 token
     return evmWallet.erc20Currencies.firstWhere(
-      (element) => transaction.tokenSymbol == element.symbol,
+      (element) =>
+          transaction.contractAddress?.toLowerCase() == element.contractAddress.toLowerCase(),
     );
   }
 
@@ -228,13 +229,9 @@ class CWEVM extends EVM {
       (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
 
   @override
-  Future<PendingTransaction> createTokenApproval(
-    WalletBase wallet,
-    BigInt amount,
-    String spender,
-    CryptoCurrency token,
-    TransactionPriority priority,
-    {bool useBlinkProtection = true}) {
+  Future<PendingTransaction> createTokenApproval(WalletBase wallet, BigInt amount, String spender,
+      CryptoCurrency token, TransactionPriority priority,
+      {bool useBlinkProtection = true}) {
     final evmWallet = wallet as EVMChainWallet;
     final feeCurrency = EVMChainUtils.getFeeCurrency(evmWallet.selectedChainId);
     return evmWallet.createApprovalTransaction(
