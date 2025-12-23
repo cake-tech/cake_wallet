@@ -35,23 +35,6 @@ abstract class WalletKeysViewModelBase with Store {
       _populateKeysItems();
     });
 
-    if (isEVMCompatibleChain(_wallet.type)) {
-      reaction((_) {
-        final wallet = _appStore.wallet;
-        if (wallet != null && isEVMCompatibleChain(wallet.type)) {
-          return evm!.getSelectedChainId(wallet);
-        }
-        return null;
-      }, (_) {
-        final wallet = _appStore.wallet;
-        if (wallet != null && isEVMCompatibleChain(wallet.type)) {
-          final currentChain = evm!.getCurrentChain(wallet);
-          _title =
-              '${currentChain?.name ?? walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
-        }
-      });
-    }
-
     if (_wallet.type == WalletType.monero ||
         _wallet.type == WalletType.haven ||
         _wallet.type == WalletType.wownero) {
@@ -69,7 +52,10 @@ abstract class WalletKeysViewModelBase with Store {
   }
 
   static String _getInitialTitle(WalletBase wallet) {
-    if (isEVMCompatibleChain(wallet.type)) return 'EVM ${S.current.wallet_keys}';
+    if (isEVMCompatibleChain(wallet.type)) {
+      final currentChain = evm!.getCurrentChain(wallet);
+      return '${currentChain?.name ?? walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
+    }
 
     return '${walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
   }

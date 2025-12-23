@@ -186,18 +186,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (isElectrumWallet) {
       bitcoin!.updateFeeRates(wallet);
     }
-    reaction((_) {
-      if (isEVMCompatibleChain(wallet.type)) {
-        // Access currency which depends on selectedChainId, so MobX tracks the change
-        return wallet.currency;
-      }
-      return null;
-    }, (_) async {
-      // When chain changes, update currencies and refresh token lists
+    reaction((_) => wallet.currency, (_) async {
+      // When currency changes (e.g., EVM chain switch), update currencies
       await Future.delayed(const Duration(milliseconds: 100));
       receiveCurrency = wallet.currency;
       depositCurrency = wallet.currency;
-      _injectUserEthTokensIntoCurrencyLists();
+      
+      // Only refresh ETH tokens for EVM wallets
+      if (isEVMCompatibleChain(wallet.type)) {
+        _injectUserEthTokensIntoCurrencyLists();
+      }
     });
   }
 

@@ -240,16 +240,17 @@ abstract class EVMChainWalletBase
       EVMChainDefaultTokens.getDefaultTokenAddresses(selectedChainId);
 
   Future<void> initErc20TokensBox() async {
-    // Handle Ethereum's special backward compatibility case (only on first init)
-    // After migration is complete, use normal chain-specific box logic
+    // Migration for old WalletType.ethereum wallets:
+    // Old wallets used a global erc20TokensBox (shared across all wallets).
+    // New system uses wallet-specific, chain-specific boxes.
+    // This checks if migration is needed and runs it once.
     if (walletInfo.type == WalletType.ethereum) {
       try {
-        // Check if erc20TokensBox is already initialized (migration already done)
+        // Try to access erc20TokensBox - if it exists, migration already ran
         final _ = erc20TokensBox;
-        // If we get here, migration is done, use normal chain-specific logic
-        // Fall through to normal chain-specific box logic below
+        // Migration done, proceed with normal chain-specific logic below
       } catch (_) {
-        // erc20TokensBox not initialized yet, run migration
+        // erc20TokensBox doesn't exist yet, run migration from global box
         await _initEthereumErc20TokensBox();
         return;
       }

@@ -66,16 +66,6 @@ abstract class BalanceViewModelBase with Store {
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
       _checkMweb();
     });
-
-    reaction((_) {
-      if (isEVMCompatibleChain(wallet.type)) {
-        final selectedChainId = evm!.getSelectedChainId(wallet);
-        return '${wallet.currency.title}_${selectedChainId}';
-      }
-      return null;
-    }, (_) {
-      wallet.balance;
-    });
   }
 
   void _checkMweb() {

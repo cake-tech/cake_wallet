@@ -262,16 +262,21 @@ class CWEVM extends EVM {
       );
 
   @override
-  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
+  Future<void> setHardwareWalletService(
+    WalletBase wallet,
+    HardwareWalletService service,
+  ) async {
+    final evmWallet = wallet as EVMChainWallet;
+    final privateKey = evmWallet.evmChainPrivateKey;
+    final derivationPath = (await wallet.walletInfo.getDerivationInfo()).derivationPath;
+
     if (service is EVMChainLedgerService) {
-      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedgerConnection(
-          service.ledgerConnection, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
+      (privateKey as EvmLedgerCredentials)
+          .setLedgerConnection(service.ledgerConnection, derivationPath);
     } else if (service is EVMChainBitboxService) {
-      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
-          .setBitbox(service.manager, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
+      (privateKey as EvmBitboxCredentials).setBitbox(service.manager, derivationPath);
     } else if (service is EVMChainTrezorService) {
-      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials).setTrezorConnect(
-          service.connect, (await wallet.walletInfo.getDerivationInfo()).derivationPath);
+      (privateKey as EvmTrezorCredentials).setTrezorConnect(service.connect, derivationPath);
     }
   }
 

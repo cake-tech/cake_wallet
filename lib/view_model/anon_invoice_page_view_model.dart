@@ -33,14 +33,13 @@ abstract class AnonInvoicePageViewModelBase with Store {
         description = '',
         amount = '',
         state = InitialExecutionState(),
-        selectedCurrency = walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId),
-        cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId) {
+        selectedCurrency = _wallet.currency,
+        cryptoCurrency = _wallet.currency {
     _getPreviousDonationLink();
     _fetchLimits();
   }
 
-  List<Currency> get currencies =>
-      [walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId), ...FiatCurrency.all];
+  List<Currency> get currencies => [_wallet.currency, ...FiatCurrency.all];
   final AnonPayApi anonPayApi;
   final String address;
   final SettingsStore settingsStore;
@@ -85,7 +84,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
     if (currency is CryptoCurrency) {
       cryptoCurrency = currency;
     } else {
-      cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId);
+      cryptoCurrency = _wallet.currency;
     }
 
     _fetchLimits();
@@ -182,8 +181,8 @@ abstract class AnonInvoicePageViewModelBase with Store {
 
   @action
   void reset() {
-    selectedCurrency = walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId);
-    cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type, chainId: _wallet.chainId);
+    selectedCurrency = _wallet.currency;
+    cryptoCurrency = _wallet.currency;
     receipientEmail = '';
     receipientName = '';
     description = '';

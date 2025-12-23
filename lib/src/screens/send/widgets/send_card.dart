@@ -314,12 +314,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
       final detectedCurrency = result.addressDetectionResult!.detectedCurrency;
       if (detectedCurrency != null) {
-        if (isEVMCompatibleChain(sendViewModel.wallet.type) &&
-            detectedCurrency == sendViewModel.wallet.currency) {
-          sendViewModel.selectedCryptoCurrency = sendViewModel.wallet.currency;
-        } else {
-          sendViewModel.setSelectedCryptoCurrency(detectedCurrency.title);
-        }
+        sendViewModel.setSelectedCryptoCurrency(detectedCurrency.title);
       }
 
       _applyPaymentRequest(paymentRequest);

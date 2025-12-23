@@ -112,9 +112,11 @@ class _PaymentConfirmationContent extends StatelessWidget {
         final isMwebOrSpAddress =
             _isMwebOrSpAddress(paymentFlowResult.addressDetectionResult?.address ?? '');
 
-        final isEVMChainMismatch = paymentFlowResult.type == PaymentFlowType.evmNetworkSelection &&
-            paymentFlowResult.wallet != null &&
-            isEVMCompatibleChain(paymentViewModel.currentWalletType);
+        /// If the wallet is EVM but the detected chainId is different from the currently selected chainId
+        final isEVMWalletButDifferentChainId =
+            paymentFlowResult.type == PaymentFlowType.evmNetworkSelection &&
+                paymentFlowResult.wallet != null &&
+                isEVMCompatibleChain(paymentViewModel.currentWalletType);
 
         final otherWalletsCount = paymentFlowResult.wallets.length;
         final hasMultipleOtherWallets = otherWalletsCount > 1;
@@ -204,7 +206,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 72),
-              if (isEVMChainMismatch) ...[
+              if (isEVMWalletButDifferentChainId) ...[
                 if (!isMwebOrSpAddress) ...[
                   PrimaryButton(
                     onPressed: () => onSwap(context),
