@@ -26,11 +26,11 @@ abstract class OtherSettingsViewModelBase with Store {
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
-    final priority = _settingsStore.priority[_wallet.type];
+    final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
     final priorities = priorityForWalletType(_wallet.type);
 
     if (!priorities.contains(priority) && priorities.isNotEmpty) {
-      _settingsStore.priority[_wallet.type] = priorities.first;
+      _settingsStore.setPriority(_wallet.type, priorities.first, chainId: _wallet.chainId);
     }
   }
 
@@ -47,7 +47,7 @@ abstract class OtherSettingsViewModelBase with Store {
 
   @computed
   TransactionPriority get transactionPriority {
-    final priority = _settingsStore.priority[walletType];
+    final priority = _settingsStore.getPriority(walletType, chainId: chainId);
 
     if (priority == null) {
       throw Exception('Unexpected type ${walletType.toString()}');
@@ -105,14 +105,14 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
-      _settingsStore.priority[walletType] = priority;
+      _settingsStore.setPriority(walletType, priority, chainId: chainId);
 
   void onDisplayBitcoinPrioritySelected(
       TransactionPriority priority, double customValue) {
     if (_wallet.type == WalletType.bitcoin) {
       _settingsStore.customBitcoinFeeRate = customValue.round();
     }
-    _settingsStore.priority[_wallet.type] = priority;
+    _settingsStore.setPriority(_wallet.type, priority, chainId: _wallet.chainId);
   }
 
   @action

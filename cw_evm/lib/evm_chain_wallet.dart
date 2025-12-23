@@ -584,7 +584,21 @@ abstract class EVMChainWalletBase
       int maxFeePerGas;
       int adjustedGasPrice;
 
-      maxFeePerGas = gasBaseFee != null ? (gasBaseFee + priorityFee) : (gasPrice + priorityFee);
+      if (gasBaseFee != null) {
+        // For chains with base fee, add priority fee (if supported) and a buffer to account for base fee increases
+        // Base fee can increase between estimation and transaction submission
+        final baseFeeWithPriority = gasBaseFee + priorityFee;
+        
+        // For chains without priority fees (e.g., Arbitrum), use a smaller buffer (5%)
+        // For chains with priority fees, use a larger buffer (10%) to account for both base fee and priority fee volatility
+        final bufferMultiplier = hasPriorityFee ? 110 : 105;
+        final bufferPercent = (baseFeeWithPriority * bufferMultiplier) ~/ 100;
+        final bufferMin = baseFeeWithPriority + (baseFeeWithPriority ~/ 100);
+        maxFeePerGas = bufferPercent > bufferMin ? bufferPercent : bufferMin;
+      } else {
+        // Fallback to gasPrice if baseFee is not available
+        maxFeePerGas = gasPrice + priorityFee;
+      }
 
       adjustedGasPrice = maxFeePerGas;
 

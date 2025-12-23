@@ -143,6 +143,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialHavenTransactionPriority,
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority,
+      TransactionPriority? initialEVMTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
       TransactionPriority? initialBaseTransactionPriority,
       TransactionPriority? initialBitcoinCashTransactionPriority,
@@ -226,6 +227,10 @@ abstract class SettingsStoreBase with Store {
 
     if (initialEthereumTransactionPriority != null) {
       priority[WalletType.ethereum] = initialEthereumTransactionPriority;
+    }
+
+    if (initialEVMTransactionPriority != null) {
+      priority[WalletType.evm] = initialEVMTransactionPriority;
     }
 
     if (initialPolygonTransactionPriority != null) {
@@ -484,10 +489,8 @@ abstract class SettingsStoreBase with Store {
         (bool useMempoolFeeAPI) =>
             _sharedPreferences.setBool(PreferencesKey.useMempoolFeeAPI, useMempoolFeeAPI));
 
-    reaction(
-        (_) => useBlinkProtection,
-        (bool value) =>
-            _sharedPreferences.setBool(PreferencesKey.useBlinkProtection, value));
+    reaction((_) => useBlinkProtection,
+        (bool value) => _sharedPreferences.setBool(PreferencesKey.useBlinkProtection, value));
 
     reaction((_) => defaultNanoRep,
         (String nanoRep) => _sharedPreferences.setString(PreferencesKey.defaultNanoRep, nanoRep));
@@ -549,10 +552,9 @@ abstract class SettingsStoreBase with Store {
             value: biometricalAuthentication.toString()));
 
     reaction(
-            (_) => enableDuressPin,
-            (bool enableDuressPin) => secureStorage.write(
-            key: SecureKey.enableDuressPin,
-            value: enableDuressPin.toString()));
+        (_) => enableDuressPin,
+        (bool enableDuressPin) =>
+            secureStorage.write(key: SecureKey.enableDuressPin, value: enableDuressPin.toString()));
 
     reaction(
         (_) => selectedCake2FAPreset,
@@ -643,8 +645,7 @@ abstract class SettingsStoreBase with Store {
     reaction(
         (_) => evmHiddenChainIds.toList(growable: false),
         (List<int> hiddenIds) => _sharedPreferences.setStringList(
-            PreferencesKey.evmHiddenChainIds,
-            hiddenIds.map((id) => id.toString()).toList()));
+            PreferencesKey.evmHiddenChainIds, hiddenIds.map((id) => id.toString()).toList()));
 
     reaction(
         (_) => mwebCardDisplay,
@@ -996,6 +997,40 @@ abstract class SettingsStoreBase with Store {
     return node;
   }
 
+  TransactionPriority? getPriority(WalletType walletType, {int? chainId}) {
+    if (isEVMCompatibleChain(walletType)) {
+      if (chainId != null) {
+        if (!evm!.hasPriorityFee(chainId)) return null;
+
+        final chainSpecificWalletType = evm!.getWalletTypeByChainId(chainId);
+
+        if (chainSpecificWalletType != null) return priority[chainSpecificWalletType];
+
+        return priority[WalletType.evm];
+      }
+
+      return priority[walletType];
+    }
+
+    return priority[walletType];
+  }
+
+  void setPriority(WalletType walletType, TransactionPriority priority, {int? chainId}) {
+    if (walletType == WalletType.evm && chainId != null) {
+      final chainSpecificWalletType = evm!.getWalletTypeByChainId(chainId);
+
+      if (chainSpecificWalletType != null) {
+        this.priority[chainSpecificWalletType] = priority;
+        return;
+      }
+
+      this.priority[WalletType.evm] = priority;
+      return;
+    }
+
+    this.priority[walletType] = priority;
+  }
+
   bool isBitcoinBuyEnabled;
 
   bool get shouldShowReceiveWarning =>
@@ -1028,6 +1063,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? havenTransactionPriority;
     TransactionPriority? litecoinTransactionPriority;
     TransactionPriority? ethereumTransactionPriority;
+    TransactionPriority? evmTransactionPriority;
     TransactionPriority? polygonTransactionPriority;
     TransactionPriority? baseTransactionPriority;
     TransactionPriority? bitcoinCashTransactionPriority;
@@ -1045,6 +1081,8 @@ abstract class SettingsStoreBase with Store {
     }
     if (sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
       ethereumTransactionPriority = evm?.deserializeEVMTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
+      evmTransactionPriority = evm?.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
@@ -1077,6 +1115,7 @@ abstract class SettingsStoreBase with Store {
     havenTransactionPriority ??= monero?.getDefaultTransactionPriority();
     litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
     ethereumTransactionPriority ??= evm?.getDefaultTransactionPriority();
+    evmTransactionPriority ??= evm?.getDefaultTransactionPriority();
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
@@ -1135,15 +1174,11 @@ abstract class SettingsStoreBase with Store {
     final useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
-    final useBlinkProtection =
-        sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
+    final useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
     final evmHiddenChainIdsRaw =
-        sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ??
-            const <String>[];
-    final evmHiddenChainIds = evmHiddenChainIdsRaw
-        .map((value) => int.tryParse(value))
-        .whereType<int>()
-        .toList();
+        sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ?? const <String>[];
+    final evmHiddenChainIds =
+        evmHiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>().toList();
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -1531,6 +1566,7 @@ abstract class SettingsStoreBase with Store {
       initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings:
           shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
       initialEthereumTransactionPriority: ethereumTransactionPriority,
+      initialEVMTransactionPriority: evmTransactionPriority,
       initialPolygonTransactionPriority: polygonTransactionPriority,
       initialBaseTransactionPriority: baseTransactionPriority,
       initialSyncMode: savedSyncMode,
@@ -1577,6 +1613,8 @@ abstract class SettingsStoreBase with Store {
     if (evm != null &&
         sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
       priority[WalletType.ethereum] = evm!.deserializeEVMTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
+      priority[WalletType.evm] = evm!.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
     }
     if (evm != null &&
@@ -1690,8 +1728,7 @@ abstract class SettingsStoreBase with Store {
     useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
-    useBlinkProtection =
-        sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
+    useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
     final hiddenChainIdsRaw =
         sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ?? const <String>[];
     evmHiddenChainIds

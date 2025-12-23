@@ -562,7 +562,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
           if (requiresTokenApproval && tokenContract.isNotEmpty && requiredAmount > BigInt.zero) {
             if (isEVMWallet) {
-              final priority = _settingsStore.priority[walletType]!;
+              final priority = _settingsStore.getPriority(walletType, chainId: selectedChainId);
               _pendingApprovalTx = await buildApprovalIfNeeded(
                 spender: routerTo!,
                 tokenContract: tokenContract,
@@ -589,7 +589,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
           // No approval needed (or prepared transfer): send exactly what backend prepared
           if (isEVMWallet) {
-            final priority = _settingsStore.priority[walletType]!;
+            final priority = _settingsStore.getPriority(walletType, chainId: selectedChainId);
             pendingTransaction = await evm!.createRawCallDataTransaction(
               wallet,
               routerTo!,
@@ -795,14 +795,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   Object _credentials([ExchangeProvider? provider]) {
-    final priority = _settingsStore.priority[wallet.type];
+    final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null &&
         wallet.type != WalletType.nano &&
         wallet.type != WalletType.banano &&
         wallet.type != WalletType.solana &&
         wallet.type != WalletType.tron &&
-        wallet.type != WalletType.arbitrum) {
+        wallet.chainId != 42161) { // Wallet type is generic for all EVM chains, so we need to check the chainId
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
 
@@ -841,7 +841,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.arbitrum:
         return evm!.createEVMTransactionCredentials(
           outputs,
-          priority: priority!,
+          priority: priority,
           currency: selectedCryptoCurrency,
           useBlinkProtection:
               canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,
@@ -1123,7 +1123,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         );
 
     if (isEVMWallet) {
-      final priority = _settingsStore.priority[walletType]!;
+      final priority = _settingsStore.getPriority(walletType, chainId: selectedChainId);
       return await evm!.createTokenApproval(
         wallet,
         requiredAmount,

@@ -152,14 +152,15 @@ abstract class OutputBase with Store {
   @action
   Future<void> calculateEstimatedFee() async {
     try {
+      final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
       if (isEVMCompatibleChain(_wallet.type)) {
-        await _wallet.updateEstimatedFeesParams(_settingsStore.priority[_wallet.type]!);
+        await _wallet.updateEstimatedFeesParams(priority);
       }
 
       int fee = 0;
-      if (_settingsStore.priority[_wallet.type] != null) {
+      if (_settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId) != null) {
         fee = _wallet.calculateEstimatedFee(
-          _settingsStore.priority[_wallet.type]!,
+          _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId)!,
           formattedCryptoAmount,
         );
       }
@@ -169,7 +170,7 @@ abstract class OutputBase with Store {
           estimatedFee = monero!.formatterMoneroAmountToDouble(amount: fee).toString();
           break;
         case WalletType.bitcoin:
-          if (_settingsStore.priority[_wallet.type] ==
+          if (_settingsStore.getPriority(_wallet.type) ==
               bitcoin!.getBitcoinTransactionPriorityCustom()) {
             fee = bitcoin!.getEstimatedFeeWithFeeRate(
                 _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);

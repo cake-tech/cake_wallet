@@ -26,7 +26,6 @@ import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
@@ -342,7 +341,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   TransactionPriority get transactionPriority {
-    final priority = _settingsStore.priority[wallet.type];
+    final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null) {
       throw Exception('Unexpected type ${wallet.type.toString()}');
@@ -796,7 +795,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       WalletType.bitcoinCash,
       WalletType.dogecoin,
     ].contains(wallet.type)) {
-      final priority = _settingsStore.priority[wallet.type]!;
+      final priority = _settingsStore.getPriority(wallet.type)!;
 
       final amount = await bitcoin!.estimateFakeSendAllTxAmount(
         wallet,

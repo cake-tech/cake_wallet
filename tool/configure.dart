@@ -1357,7 +1357,7 @@ abstract class EVM {
   
   Object createEVMTransactionCredentials(
     List<Output> outputs, {
-    required TransactionPriority priority,
+    required TransactionPriority? priority,
     required CryptoCurrency currency,
     int? feeRate,
     bool useBlinkProtection = true,
@@ -1401,7 +1401,7 @@ abstract class EVM {
     BigInt amount,
     String spender,
     CryptoCurrency token,
-    TransactionPriority priority,
+    TransactionPriority? priority,
     {bool useBlinkProtection = true}
   );
   
@@ -1410,7 +1410,7 @@ abstract class EVM {
     String to,
     String dataHex,
     BigInt valueWei,
-    TransactionPriority priority,
+    TransactionPriority? priority,
     {bool useBlinkProtection = true}
   );
   
@@ -1455,6 +1455,8 @@ abstract class EVM {
   Future<void> selectChain(WalletBase wallet, int chainId, {required Node node});
   
   String? getExplorerUrlForChainId(int chainId, String txId);
+  
+  bool hasPriorityFee(int chainId);
 }
 
 class ChainInfo {

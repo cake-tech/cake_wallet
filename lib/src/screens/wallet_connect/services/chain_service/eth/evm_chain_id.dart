@@ -4,8 +4,6 @@ enum EVMChainId {
   ethereum,
   polygon,
   base,
-  goerli,
-  mumbai,
   arbitrum,
 }
 
@@ -13,13 +11,7 @@ extension EVMChainIdX on EVMChainId {
   String chain() {
     final chainId = _getChainIdForEnum(this);
 
-    if (chainId == null) {
-      return switch (this) {
-        EVMChainId.goerli => 'eip155:5',
-        EVMChainId.mumbai => 'eip155:80001',
-        _ => 'eip155:1', // Default to Ethereum
-      };
-    }
+    if (chainId == null) return 'eip155:1';
 
     return evm!.getCaip2ByChainId(chainId);
   }
@@ -30,7 +22,6 @@ extension EVMChainIdX on EVMChainId {
       EVMChainId.polygon => 137,
       EVMChainId.base => 8453,
       EVMChainId.arbitrum => 42161,
-      _ => 1,
     };
   }
 

@@ -26,14 +26,15 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
     this.balanceViewModel,
   )   : _settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
-    if (wallet.type == WalletType.bitcoin &&
-        _settingsStore.priority[wallet.type] == bitcoinTransactionPriorityCustom) {
+    final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
+    
+    if (wallet.type == WalletType.bitcoin && priority == bitcoinTransactionPriorityCustom) {
       setTransactionPriority(bitcoinTransactionPriorityMedium);
     }
-    final priority = _settingsStore.priority[wallet.type];
+
     final priorities = priorityForWalletType(wallet.type);
-    if (!priorityForWalletType(wallet.type).contains(priority) && priorities.isNotEmpty) {
-      _settingsStore.priority[wallet.type] = priorities.first;
+    if (!priorities.contains(priority) && priorities.isNotEmpty) {
+      _settingsStore.setPriority(wallet.type, priorities.first, chainId: wallet.chainId);
     }
   }
 
@@ -46,7 +47,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
   final BalanceViewModel balanceViewModel;
 
   TransactionPriority get transactionPriority {
-    final priority = _settingsStore.priority[wallet.type];
+    final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null) {
       throw Exception('Unexpected type ${wallet.type}');
@@ -118,7 +119,8 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type != WalletType.banano &&
       wallet.type != WalletType.solana &&
       wallet.type != WalletType.tron &&
-      wallet.chainId != 42161; // Wallet type is generic for all EVM chains, so we need to check the chainId
+      wallet.chainId !=
+          42161; // Wallet type is generic for all EVM chains, so we need to check the chainId
 
   @computed
   bool get isElectrumWallet =>
@@ -136,7 +138,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   void setTransactionPriority(TransactionPriority priority) =>
-      _settingsStore.priority[wallet.type] = priority;
+      _settingsStore.setPriority(wallet.type, priority, chainId: wallet.chainId);
 
   bool showAlertForCustomFeeRate() {
     if (wallet.type != WalletType.bitcoin || isLowFee) {
@@ -180,25 +182,29 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.haven:
       case WalletType.wownero:
       case WalletType.zano:
-        _settingsStore.priority[wallet.type] = monero!.getMoneroTransactionPriorityAutomatic();
+        _settingsStore.setPriority(wallet.type, monero!.getMoneroTransactionPriorityAutomatic());
         break;
       case WalletType.bitcoin:
-        _settingsStore.priority[wallet.type] = bitcoin!.getBitcoinTransactionPriorityMedium();
+        _settingsStore.setPriority(wallet.type, bitcoin!.getBitcoinTransactionPriorityMedium());
         break;
       case WalletType.litecoin:
-        _settingsStore.priority[wallet.type] = bitcoin!.getLitecoinTransactionPriorityMedium();
+        _settingsStore.setPriority(wallet.type, bitcoin!.getLitecoinTransactionPriorityMedium());
         break;
       case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
-        _settingsStore.priority[wallet.type] = evm!.getDefaultTransactionPriority();
+        _settingsStore.setPriority(
+          wallet.type,
+          evm!.getDefaultTransactionPriority(),
+          chainId: wallet.chainId,
+        );
         break;
       case WalletType.bitcoinCash:
-        _settingsStore.priority[wallet.type] = bitcoinCash!.getDefaultTransactionPriority();
+        _settingsStore.setPriority(wallet.type, bitcoinCash!.getDefaultTransactionPriority());
         break;
       case WalletType.dogecoin:
-        _settingsStore.priority[wallet.type] = dogecoin!.getDefaultTransactionPriority();
+        _settingsStore.setPriority(wallet.type, dogecoin!.getDefaultTransactionPriority());
         break;
       default:
         break;
