@@ -118,7 +118,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type != WalletType.banano &&
       wallet.type != WalletType.solana &&
       wallet.type != WalletType.tron &&
-      wallet.type != WalletType.arbitrum;
+      wallet.chainId != 42161; // Wallet type is generic for all EVM chains, so we need to check the chainId
 
   @computed
   bool get isElectrumWallet =>
