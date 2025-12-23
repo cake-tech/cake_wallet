@@ -782,7 +782,8 @@ class SendPage extends BasePage {
     final excludedPatterns = [
       RegExp(AddressValidator.silentPaymentAddressPatternMainnet),
       RegExp(AddressValidator.silentPaymentAddressPatternTestnet),
-      RegExp(AddressValidator.mWebAddressPattern)
+      RegExp(AddressValidator.mWebAddressPattern),
+      RegExp(AddressValidator.bolt11InvoiceMatcher),
     ];
 
     final trimmed = address.trim();

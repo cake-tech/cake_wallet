@@ -7,6 +7,15 @@ String encodeLNURL(String url) {
   return const Bech32Codec().encode(Bech32('lnurl', raw), 255);
 }
 
+bool isBolt11ZeroInvoice(String invoice) {
+  final request = Bech32Codec().decode(invoice, invoice.length);
+
+  final prefix = ["lnbcrt", "lntbs", "lnbc", "lntb"]
+      .firstWhere((prefix) => request.hrp.startsWith(prefix), orElse: () => "");
+
+  return request.hrp.length == prefix.length;
+}
+
 Uri decodeLNURL(String encodedUrl) {
   Uri decodedUri;
 
@@ -23,8 +32,7 @@ Uri decodeLNURL(String encodedUrl) {
   if (lud17prefixes.contains(decodedUri.scheme)) {
     /// If the non-bech32 LNURL is a Tor address, the port has to be http instead of https for the clearnet LNURL so check if the host ends with '.onion' or '.onion.'
     decodedUri = decodedUri.replace(
-        scheme: decodedUri.host.endsWith('onion') ||
-                decodedUri.host.endsWith('onion.')
+        scheme: decodedUri.host.endsWith('onion') || decodedUri.host.endsWith('onion.')
             ? 'http'
             : 'https');
   } else {

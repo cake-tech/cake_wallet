@@ -321,6 +321,10 @@ class AddressValidator extends TextValidator {
   static String get silentPaymentAddressPatternTestnet => '(tsp|sprt)1[0-9a-zA-Z]{113}';
   static String get mWebAddressPattern => MwebAddress.regex.pattern;
 
+  static const String bolt11InvoiceMatcher = r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt)[a-z0-9]+$';
+  static const String bolt12OfferMatcher = r'^(lightning:)?(lno1)[a-z0-9]+$';
+  static const String lnurlMatcher = r'^(lightning:)?(lnurl)[a-z0-9]+$';
+
   // NOTE: not needed to check for network here as it's a general address catcher, validation is separate
   static String? getAddressFromStringPattern(CryptoCurrency type) {
     String? pattern = null;

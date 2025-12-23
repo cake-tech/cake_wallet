@@ -53,6 +53,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/exceptions.dart';
+import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -491,10 +492,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   static bool isLightningInvoice(String txt) {
-    final RegExp lightningInvoiceRegex = RegExp(
-        r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt)[a-z0-9]+$',
-        caseSensitive: false);
-    return lightningInvoiceRegex.hasMatch(txt);
+    return RegExp(AddressValidator.bolt11InvoiceMatcher, caseSensitive: false).hasMatch(txt);
+  }
+
+  static bool isNonZeroAmountLightningInvoice(String txt) {
+    return RegExp(AddressValidator.bolt11InvoiceMatcher, caseSensitive: false).hasMatch(txt) &&
+        !isBolt11ZeroInvoice(txt);
   }
 
   Timer? _ledgerTxStateTimer;

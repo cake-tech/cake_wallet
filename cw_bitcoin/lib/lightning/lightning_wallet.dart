@@ -117,7 +117,8 @@ class LightningWallet {
 
         return PendingLightningTransaction(
           id: paymentMethod.invoiceDetails.paymentHash,
-          amount: ((paymentMethod.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
+          amount: amountSats?.toInt() ??
+              ((paymentMethod.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
           fee: lightningFeeSats.toInt() + (sparkTransferFeeSats?.toInt() ?? 0),
           commitOverride: () async {
             final res = await sdk.sendPayment(

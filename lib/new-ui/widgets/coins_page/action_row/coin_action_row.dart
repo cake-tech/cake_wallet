@@ -142,7 +142,7 @@ class CoinActionRow extends StatelessWidget {
 
       if (code == null || code.isEmpty) return;
 
-      if (SendViewModelBase.isLightningInvoice(code) ||
+      if (SendViewModelBase.isNonZeroAmountLightningInvoice(code) ||
           OpenCryptoPayService.isOpenCryptoPayQR(code)) {
         Navigator.of(context).pushNamed(Routes.send,
             arguments: {"paymentRequest": PaymentRequest(code, "", "", "", "")});
