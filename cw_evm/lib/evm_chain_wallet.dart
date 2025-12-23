@@ -387,7 +387,7 @@ abstract class EVMChainWalletBase
   Future<bool> checkNodeHealth() async {
     try {
       // Check native balance
-      await _client.getBalance(_evmChainPrivateKey.address, throwOnError: true);
+      await _client.getBalance(_evmChainPrivateKey.address);
 
       // Check USDC token balance
       String usdcContractAddress = _getUSDCContractAddress();
@@ -413,7 +413,7 @@ abstract class EVMChainWalletBase
     // check for Already existing scam tokens, cuz users can get scammed twice ¯\_(ツ)_/¯
     await _checkForExistingScamTokens();
 
-    switch(walletInfo.hardwareWalletType) {
+    switch (walletInfo.hardwareWalletType) {
       case HardwareWalletType.ledger:
         _evmChainPrivateKey = EvmLedgerCredentials(walletInfo.address);
         walletAddresses.address = walletInfo.address;
@@ -1036,13 +1036,13 @@ abstract class EVMChainWalletBase
   }
 
   Future<EVMChainERC20Balance> _fetchEVMChainBalance() async {
-    final newBalance = await _client.getBalance(_evmChainPrivateKey.address);
+    try {
+      final balance = await _client.getBalance(_evmChainPrivateKey.address);
 
-    if (newBalance == EtherAmount.zero()) {
+      return EVMChainERC20Balance(balance.getInWei);
+    } catch (_) {
       return balance[currency] ?? EVMChainERC20Balance(BigInt.zero);
     }
-
-    return EVMChainERC20Balance(newBalance.getInWei);
   }
 
   bool _isTokenMatchingChain(Erc20Token token) {
