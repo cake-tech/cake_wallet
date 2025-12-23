@@ -23,7 +23,7 @@ class NewMainNavBar extends StatefulWidget {
 
 class _NEWNewMainNavBarState extends State<NewMainNavBar> {
 
-  static const barHeight = 70.0;
+  static const barHeight = 68.0;
   static const barBottomPadding = 8.0;
 
   static const iconBoxWidth = 48.0;
@@ -39,7 +39,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   static const barBorderRadius = 50.0;
   static const pillBorderRadius = 50.0;
 
-  static const barHorizontalPadding = 8.0;
+  static const barHorizontalPadding = 6.0;
 
   static const barResizeDuration = Duration(milliseconds: 300);
   static const inactiveIconMoveDuration = Duration(milliseconds: 300);
@@ -50,7 +50,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   static const iconColorChangeDuration = Duration(milliseconds: 200);
 
   static const pillTextStyle = TextStyle(
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: FontWeight.w500,
   );
 
@@ -181,7 +181,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                               curve: Curves.easeOutCubic,
                               child: InkWell(
                                 splashFactory: NoSplash.splashFactory,
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(pillBorderRadius),
                                 onTap: () => _onItemTap(i),
                                 child: AnimatedContainer(
                                   duration: _firstFrame
@@ -206,10 +206,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                           ),
                                         duration: iconColorChangeDuration,
                                         builder: (context, value, child) {
-                                          return Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                                            child: Container(
-                                              color: theme.colorScheme.surfaceContainer.withAlpha(0),
+                                            return Container(
                                               height: barHeight,
                                                 child: SvgPicture.asset(
                                                   visibleActions[i].image,
@@ -221,7 +218,6 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                                     BlendMode.srcIn,
                                                   ),
                                                 ),
-                                            ),
                                           );
                                         }
                                       ),
@@ -278,8 +274,8 @@ class AnimatedPill extends StatelessWidget {
         duration: pillMoveDuration,
         curve: Curves.easeOutCubic,
         left: left,
-        top: 8,
-        bottom: 8,
+        top: 6,
+        bottom: 6,
         child: AnimatedContainer(
           duration: pillResizeDuration,
           curve: Curves.easeOutCubic,
@@ -296,8 +292,7 @@ class AnimatedPill extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // SizedBox(width: pillIconSpacing*10),
-                Padding(padding: EdgeInsets.only(left: pillIconWidth),
+                Padding(padding: EdgeInsets.only(left: pillIconWidth + 2),
                   child: Text(
                     currentAction.name(context),
                     style: pillTextStyle.copyWith(color: contentColor),
