@@ -216,7 +216,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               hardwareWalletType:
               sendVM.wallet.walletInfo.hardwareWalletType!,
               onConnectDevice: (context, _) {
-                print(sendVM.wallet);
                 sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
                 Navigator.of(context).pop();
               },
