@@ -300,7 +300,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> close({bool shouldCleanup = false}) async {
     payjoinManager.cleanupSessions();
-    lightningWallet?.close();
+    await lightningWallet?.close();
     super.close(shouldCleanup: shouldCleanup);
   }
 

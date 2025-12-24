@@ -56,8 +56,9 @@ class LightningWallet {
     _eventStream ??= sdk.addEventListener().asBroadcastStream();
   }
 
-  void close() {
+  Future<void> close() async {
     _eventSubscription?.cancel();
+    await sdk.disconnect();
   }
 
   Future<String?> getAddress() async => (await sdk.getLightningAddress())?.lightningAddress;
@@ -117,7 +118,8 @@ class LightningWallet {
 
         return PendingLightningTransaction(
           id: paymentMethod.invoiceDetails.paymentHash,
-          amount: ((paymentMethod.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
+          amount: amountSats?.toInt() ??
+              ((paymentMethod.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
           fee: lightningFeeSats.toInt() + (sparkTransferFeeSats?.toInt() ?? 0),
           commitOverride: () async {
             final res = await sdk.sendPayment(
@@ -317,6 +319,7 @@ class LightningWallet {
       amount: payment.amount.toInt(),
       direction: direction,
       isPending: payment.status == PaymentStatus.pending,
+      fee: payment.fees.toInt(),
       date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
       confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
       additionalInfo: {"isLightning": true},

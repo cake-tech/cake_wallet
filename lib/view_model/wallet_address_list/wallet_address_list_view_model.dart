@@ -110,6 +110,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   bool get isPayjoinUnavailable =>
       wallet.type == WalletType.bitcoin && _settingsStore.usePayjoin && payjoinEndpoint.isEmpty;
 
+  @computed
+  bool get isPayjoinAvailable =>
+      !isPayjoinUnavailable && !isSilentPayments && !(uri is LightningPaymentRequest);
+
   @observable
   late PaymentURI uri;
 
