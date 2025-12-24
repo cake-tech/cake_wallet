@@ -78,6 +78,11 @@ Future<String> extractAddressFromParsed(
       content = S.of(context).extracted_address_content('${parsedAddress.name} (BIP-353)');
       address = parsedAddress.addresses.first;
       break;
+    case ParseFrom.lnurlpay:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Lightning)');
+      address = parsedAddress.addresses.first;
+      break;
     case ParseFrom.yatRecord:
       if (parsedAddress.name.isEmpty) {
         title = S.of(context).yat_error;

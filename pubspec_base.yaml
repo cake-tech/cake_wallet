@@ -20,6 +20,7 @@ dependencies:
       ref: 69b3276b090fa6ac01b4483ca3adca93a8e615be
   http: ^1.1.0
   path_provider: ^2.0.11
+  modal_bottom_sheet: ^3.0.0
   mobx: ^2.1.4
   flutter_mobx: 2.0.6+5
   flutter_slidable: ^3.0.1
@@ -87,6 +88,9 @@ dependencies:
   shared_preferences_android: ^2.4.8
   url_launcher_android: 6.3.14
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
+  bloc: ^9.0.0
+  flutter_bloc: ^9.1.0
+  equatable: ^2.0.0
   sensitive_clipboard:
     git:
       url: https://github.com/cake-tech/sensitive_clipboard
@@ -243,6 +247,11 @@ flutter:
     - assets/text/
     - assets/faq/
     - assets/animation/
+    - assets/new-ui/
+    - assets/new-ui/balance_card_icons/
+    - assets/new-ui/balance_card_backgrounds/
+    - assets/new-ui/settings_row_icons/
+    - assets/new-ui/chain_badges/
 
   fonts:
     - family: Lato

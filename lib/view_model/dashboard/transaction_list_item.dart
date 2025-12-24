@@ -185,28 +185,28 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.ethereum:
         final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
             cryptoAmount: ethereum!.formatterEthereumAmountToDouble(transaction: transaction),
             price: price);
         break;
       case WalletType.polygon:
         final asset = polygon!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
             cryptoAmount: polygon!.formatterPolygonAmountToDouble(transaction: transaction),
             price: price);
         break;
       case WalletType.base:
         final asset = base!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
             cryptoAmount: base!.formatterBaseAmountToDouble(transaction: transaction),
             price: price);
         break;
       case WalletType.arbitrum:
         final asset = arbitrum!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
             cryptoAmount: arbitrum!.formatterArbitrumAmountToDouble(transaction: transaction),
             price: price);
@@ -219,7 +219,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.solana:
         final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: solana!.getTransactionAmountRaw(transaction),
           price: price,
@@ -227,7 +227,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.tron:
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         final cryptoAmount = tron!.getTransactionAmountRaw(transaction);
         amount = calculateFiatAmountRaw(
           cryptoAmount: cryptoAmount,
@@ -240,7 +240,7 @@ class TransactionListItem extends ActionListItem with Keyable {
           amount = "0.00";
           break;
         }
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: zano!.formatterIntAmountToDouble(amount: transaction.amount, currency: asset, forFee: false),
           price: price);

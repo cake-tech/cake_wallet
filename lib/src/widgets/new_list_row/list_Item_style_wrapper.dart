@@ -6,14 +6,15 @@ class ListItemStyleWrapper extends StatelessWidget {
     required this.isFirstInSection,
     required this.isLastInSection,
     required this.builder,
+    this.onTap,
     this.height = 48,
   });
 
   final bool isFirstInSection;
   final bool isLastInSection;
   final double height;
-  final Widget Function(
-      BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
+  final VoidCallback? onTap;
+  final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +43,6 @@ class ListItemStyleWrapper extends StatelessWidget {
       borderRadius: radius,
       child: Container(
           height: height,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainer,
             border: isLastInSection
@@ -53,7 +53,13 @@ class ListItemStyleWrapper extends StatelessWidget {
                     ),
                   ),
           ),
-          child: builder(context, textStyle, labelStyle)),
+          child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                  onTap: onTap,
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: builder(context, textStyle, labelStyle))))),
     );
   }
 }

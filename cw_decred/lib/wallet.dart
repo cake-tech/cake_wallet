@@ -54,7 +54,7 @@ abstract class DecredWalletBase
             derivationInfo.derivationPath ==
                 DecredWalletService.pubkeyRestorePathTestnet,
         super(walletInfo, derivationInfo) {
-    walletAddresses = DecredWalletAddresses(walletInfo, libwallet);
+    walletAddresses = DecredWalletAddresses(walletInfo, libwallet, isTestnet);
     transactionHistory = DecredTransactionHistory();
 
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {

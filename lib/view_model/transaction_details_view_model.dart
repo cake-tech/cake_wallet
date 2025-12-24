@@ -126,19 +126,24 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     final type = wallet.type;
 
-    items.add(
-      BlockExplorerListItem(
-        title: S.current.view_in_block_explorer,
-        value: _explorerDescription(type),
-        onTap: () async {
-          try {
-            final uri = Uri.parse(_explorerUrl(type, tx.txHash));
-            if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
-          } catch (e) {}
-        },
-        key: ValueKey('block_explorer_list_item_${type.name}_wallet_type_key'),
-      ),
-    );
+    final isLightning = tx.additionalInfo["isLightning"] as bool? ?? false;
+
+    if (!isLightning) {
+      items.add(
+        BlockExplorerListItem(
+          title: S.current.view_in_block_explorer,
+          value: _explorerDescription(type),
+          onTap: () async {
+            try {
+              final uri = Uri.parse(_explorerUrl(type, tx.txHash));
+              if (await canLaunchUrl(uri)) await launchUrl(
+                  uri, mode: LaunchMode.externalApplication);
+            } catch (e) {}
+          },
+          key: ValueKey('block_explorer_list_item_${type.name}_wallet_type_key'),
+        ),
+      );
+    }
 
     items.add(
       TextFieldListItem(
@@ -332,6 +337,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addElectrumListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final isLightning = tx.additionalInfo["isLightning"] as bool? ?? false;
     final _items = [
       StandartListItem(
         title: S.current.transaction_details_transaction_id,
@@ -343,16 +349,18 @@ abstract class TransactionDetailsViewModelBase with Store {
         value: dateFormat.format(tx.date),
         key: ValueKey('standard_list_item_transaction_details_date_key'),
       ),
-      StandartListItem(
-        title: S.current.confirmations,
-        value: tx.confirmations.toString(),
-        key: ValueKey('standard_list_item_transaction_confirmations_key'),
-      ),
-      StandartListItem(
-        title: S.current.transaction_details_height,
-        value: '${tx.height}',
-        key: ValueKey('standard_list_item_transaction_details_height_key'),
-      ),
+      if (!isLightning) ...[
+        StandartListItem(
+          title: S.current.confirmations,
+          value: tx.confirmations.toString(),
+          key: ValueKey('standard_list_item_transaction_confirmations_key'),
+        ),
+        StandartListItem(
+          title: S.current.transaction_details_height,
+          value: '${tx.height}',
+          key: ValueKey('standard_list_item_transaction_details_height_key'),
+        ),
+      ],
       StandartListItem(
         title: S.current.transaction_details_amount,
         value: tx.amountFormatted(),

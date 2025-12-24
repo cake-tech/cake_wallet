@@ -31,7 +31,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
@@ -275,7 +274,9 @@ class _DashboardPageView extends BasePage {
                   ),
                   NewMainNavBar(
                     dashboardViewModel: dashboardViewModel,
-                  )
+                    selectedIndex: 0,
+                    onItemTap: (index) {}
+                  ),
                 ],
               ),
             ],

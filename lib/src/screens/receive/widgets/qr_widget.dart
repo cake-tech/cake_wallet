@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/payment_uris.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/routes.dart';
@@ -155,8 +155,7 @@ class QRWidget extends StatelessWidget {
                                         ),
                                       ),
                                     ],
-                                    if (addressListViewModel.payjoinEndpoint.isNotEmpty &&
-                                        !addressListViewModel.isSilentPayments) ...[
+                                    if (addressListViewModel.isPayjoinAvailable) ...[
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
@@ -255,8 +254,7 @@ class QRWidget extends StatelessWidget {
             ),
             Observer(
               builder: (_) => Offstage(
-                offstage: addressListViewModel.payjoinEndpoint.isEmpty ||
-                    addressListViewModel.isSilentPayments,
+                offstage: !addressListViewModel.isPayjoinAvailable,
                 child: Padding(
                   padding: EdgeInsets.only(top: 12),
                   child: PrimaryImageButton(

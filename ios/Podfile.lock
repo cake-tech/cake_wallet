@@ -1,6 +1,8 @@
 PODS:
   - bitbox_flutter (0.0.1):
     - Flutter
+  - breez_sdk_spark_flutter (0.4.2):
+    - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
   - CryptoSwift (1.8.4)
@@ -143,6 +145,7 @@ PODS:
 
 DEPENDENCIES:
   - bitbox_flutter (from `.symlinks/plugins/bitbox_flutter/ios`)
+  - breez_sdk_spark_flutter (from `.symlinks/plugins/breez_sdk_spark_flutter/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
   - cw_decred (from `.symlinks/plugins/cw_decred/ios`)
@@ -194,6 +197,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   bitbox_flutter:
     :path: ".symlinks/plugins/bitbox_flutter/ios"
+  breez_sdk_spark_flutter:
+    :path: ".symlinks/plugins/breez_sdk_spark_flutter/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   cw_decred:
@@ -267,6 +272,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   bitbox_flutter: 506f80b961ddf646b0d80cef9f6eadaab96d91b0
+  breez_sdk_spark_flutter: 4b6189261cffbc760421201da26ed8e3a3ce80ef
   connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
   cw_decred: 9c0e1df74745b51a1289ec5e91fb9e24b68fa14a

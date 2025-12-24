@@ -57,7 +57,8 @@ class WalletSeedPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return PopScope(
-      canPop: false,
+      //FIXME i can't figure out why this was here? it caused back gesture to break
+      canPop: true,
       child: Container(
         alignment: Alignment.center,
         child: Column(

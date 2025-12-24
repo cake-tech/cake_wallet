@@ -1,4 +1,5 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_core/receive_page_option.dart';
 
 class BitcoinReceivePageOption implements ReceivePageOption {
@@ -10,6 +11,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
   static const mweb = BitcoinReceivePageOption._('MWEB');
 
   static const silent_payments = BitcoinReceivePageOption._('Silent Payments');
+  static const lightning = BitcoinReceivePageOption._('Lightning');
 
   const BitcoinReceivePageOption._(this.value);
 
@@ -20,6 +22,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
   }
 
   static const all = [
+    BitcoinReceivePageOption.lightning,
     BitcoinReceivePageOption.silent_payments,
     BitcoinReceivePageOption.p2wpkh,
     BitcoinReceivePageOption.p2tr,
@@ -55,6 +58,8 @@ class BitcoinReceivePageOption implements ReceivePageOption {
         return P2shAddressType.p2wpkhInP2sh;
       case BitcoinReceivePageOption.silent_payments:
         return SilentPaymentsAddresType.p2sp;
+      case BitcoinReceivePageOption.lightning:
+        return LightningAddressType.p2l;
       case BitcoinReceivePageOption.mweb:
         return SegwitAddresType.mweb;
       case BitcoinReceivePageOption.p2wpkh:
@@ -77,6 +82,8 @@ class BitcoinReceivePageOption implements ReceivePageOption {
         return BitcoinReceivePageOption.p2sh;
       case SilentPaymentsAddresType.p2sp:
         return BitcoinReceivePageOption.silent_payments;
+      case LightningAddressType.p2l:
+        return BitcoinReceivePageOption.lightning;
       case SegwitAddresType.p2wpkh:
       default:
         return BitcoinReceivePageOption.p2wpkh;

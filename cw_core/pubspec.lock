@@ -46,6 +46,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.0"
+  bech32:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "05755063b593aa6cca0a4820a318e0ce17de6192"
+      url: "https://github.com/cake-tech/bech32.git"
+    source: git
+    version: "0.2.2"
   blockchain_utils:
     dependency: "direct main"
     description:

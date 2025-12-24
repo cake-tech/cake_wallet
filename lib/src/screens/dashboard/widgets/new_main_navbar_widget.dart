@@ -9,53 +9,55 @@ class NewMainNavBar extends StatefulWidget {
   const NewMainNavBar({
     super.key,
     required this.dashboardViewModel,
-    this.initialIndex = 0,
+    required this.selectedIndex,
+    required this.onItemTap,
   });
 
   final DashboardViewModel dashboardViewModel;
-  final int initialIndex;
+  final int selectedIndex;
+  final Function(int index) onItemTap;
 
   @override
   State<NewMainNavBar> createState() => _NEWNewMainNavBarState();
 }
 
 class _NEWNewMainNavBarState extends State<NewMainNavBar> {
-  static const kBarFlex = 0.85;
 
   static const barHeight = 64.0;
   static const barBottomPadding = 32.0;
 
   static const iconWidth = 28.0;
   static const iconHeight = 28.0;
+  static const iconHorizontalPadding = 12.0;
 
-  static const pillIconWidth = 20.0;
-  static const pillIconHeight = 20.0;
-  static const pillIconSpacing = 8.0;
-  static const pillHorizontalPadding = 14.0;
+  static const pillIconWidth = 24.0;
+  static const pillIconHeight = 24.0;
+  static const pillIconSpacing = 4.0;
+  static const pillHorizontalPadding = 20.0;
 
   static const barBorderRadius = 50.0;
   static const pillBorderRadius = 50.0;
 
-  static const barResizeDuration = Duration(milliseconds: 400);
-  static const inactiveIconMoveDuration = Duration(milliseconds: 150);
-  static const inactiveIconFadeDuration = Duration(milliseconds: 100);
-  static const inactiveIconAppearDuration = Duration(milliseconds: 250);
-  static const pillMoveDuration = Duration(milliseconds: 300);
-  static const pillResizeDuration = Duration(milliseconds: 200);
+  static const barHorizontalPadding = 12.0;
+
+  static const barResizeDuration = Duration(milliseconds: 300);
+  static const inactiveIconMoveDuration = Duration(milliseconds: 300);
+  static const inactiveIconFadeDuration = Duration(milliseconds: 300);
+  static const inactiveIconAppearDuration = Duration(milliseconds: 300);
+  static const pillMoveDuration = Duration(milliseconds: 250);
+  static const pillResizeDuration = Duration(milliseconds: 250);
+  static const iconColorChangeDuration = Duration(milliseconds: 200);
 
   static const pillTextStyle = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w500,
   );
 
-  late int selectedIndex;
-  bool _fadeSelected = true;
   bool _firstFrame = true;
 
   @override
   void initState() {
     super.initState();
-    selectedIndex = widget.initialIndex;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -64,20 +66,13 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   }
 
   void _onItemTap(int index) {
-    if (index == selectedIndex) return;
+    // if (index == widget.selectedIndex) return;
+    //
+    // setState(() {
+    //   widget.selectedIndex = index;
+    // });
 
-    setState(() {
-      selectedIndex = index;
-      _fadeSelected = false;
-    });
-
-    // delay fade (tweak duration)
-    Future.delayed(const Duration(milliseconds: 50), () {
-      if (!mounted) return;
-      if (index == selectedIndex) {
-        setState(() => _fadeSelected = true);
-      }
-    });
+    widget.onItemTap(index);
 
     NewMainActions.all[index].onTap.call();
   }
@@ -98,15 +93,29 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
     return pillIconWidth +
         pillIconSpacing +
         textPainter.width +
-        pillHorizontalPadding * 2;
+        pillHorizontalPadding;
+  }
+
+  double calcLeft(int index, double pillWidth) {
+    final double baseOffset = (iconWidth+iconHorizontalPadding) * index;
+
+    double additionalSpacing;
+    if (index > widget.selectedIndex) additionalSpacing = pillWidth-iconWidth-iconHorizontalPadding/2;
+     else additionalSpacing = 0;
+
+    return baseOffset + additionalSpacing;
+  }
+
+  double calcBarWidth(double pillWidth) {
+    return (iconWidth+iconHorizontalPadding)*(NewMainActions.all.length)+(pillWidth-(iconWidth))+barHorizontalPadding+pillIconSpacing/2;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final backgroundColor =
-        theme.colorScheme.surfaceContainerHighest.withAlpha(85);
-    final pillColor = theme.colorScheme.onSurfaceVariant.withAlpha(85);
+        theme.colorScheme.surfaceContainer.withAlpha(127);
+    final pillColor = theme.colorScheme.onSurface.withAlpha(25);
     final activeColor = theme.colorScheme.onSurface;
     final inactiveColor = theme.colorScheme.primary;
 
@@ -115,57 +124,13 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
             (action) => action.canShow?.call(widget.dashboardViewModel) ?? true)
         .toList();
 
-    final screenWidth = MediaQuery.of(context).size.width;
     final pillWidth = _estimatePillWidthForAction(
-        context, visibleActions[selectedIndex],
+        context, visibleActions[widget.selectedIndex],
         color: activeColor);
 
-    final baseWidth = screenWidth * 0.65;
+    final barWidth = calcBarWidth(pillWidth);
 
-    final double baselinePillWidth =
-        pillIconWidth + pillIconSpacing + (pillHorizontalPadding * 2) + 8;
-
-    // Dynamic bar width
-    final barWidth = math.max(
-      baseWidth,
-      baseWidth + (pillWidth - baselinePillWidth) * kBarFlex,
-    );
-
-    final int itemCount = visibleActions.length;
-    const double edgePadding = 10.0;
-    final double firstItemLeft = edgePadding;
-    final double lastItemLeft = barWidth - pillWidth - edgePadding;
-
-    // Center alignment for middle (3rd) icon
-    final double centerOfBar = barWidth / 2;
-    final double halfPill = pillWidth / 2;
-    final double centerItemLeft = centerOfBar - halfPill;
-
-    // Base even spacing between first → center → last
-    final double secondItemLeft =
-        firstItemLeft + (centerItemLeft - firstItemLeft) / 2;
-    final double fourthItemLeft =
-        centerItemLeft + (lastItemLeft - centerItemLeft) / 2;
-
-    // Spacing correction function
-    double spacingCorrection(int index) {
-      const double maxCorrection = 6.0;
-      final double factor =
-          (index - (itemCount - 1) / 2).abs() / ((itemCount - 1) / 2);
-      return maxCorrection * factor;
-    }
-
-    // Apply correction: shift outer icons inward slightly
-    final List<double> positions = [
-      firstItemLeft + spacingCorrection(0),
-      secondItemLeft + spacingCorrection(1) / 2,
-      centerItemLeft,
-      fourthItemLeft - spacingCorrection(3) / 2,
-      lastItemLeft - spacingCorrection(4),
-    ];
-
-    final double left = positions[selectedIndex];
-    final currentAction = visibleActions[selectedIndex];
+    final currentAction = visibleActions[widget.selectedIndex];
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -185,72 +150,77 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                     height: barHeight,
                     decoration: BoxDecoration(
                       color: backgroundColor,
+                      border: Border.all(color: Color(0x14FFFFFF), width: 1),
                       borderRadius: BorderRadius.circular(barBorderRadius),
                     ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        AnimatedPill(
-                          left: left,
-                          pillColor: pillColor,
-                          currentAction: currentAction,
-                          pillIconHeight: pillIconHeight,
-                          pillIconWidth: pillIconWidth,
-                          pillIconSpacing: pillIconSpacing,
-                          pillBorderRadius: pillBorderRadius,
-                          contentColor: activeColor,
-                          estimateWidthForAction: pillWidth,
-                          pillTextStyle: pillTextStyle,
-                          pillMoveDuration: pillMoveDuration,
-                          pillResizeDuration: pillResizeDuration,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              for (int i = 0; i < visibleActions.length; i++)
-                                GestureDetector(
-                                  onTap: () => _onItemTap(i),
-                                  child: AnimatedContainer(
-                                    duration: _firstFrame
-                                        ? Duration.zero
-                                        : inactiveIconMoveDuration,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: barHorizontalPadding),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          AnimatedPill(
+                            left: calcLeft(widget.selectedIndex, pillWidth),
+                            pillColor: pillColor,
+                            currentAction: currentAction,
+                            pillIconHeight: pillIconHeight,
+                            pillIconWidth: pillIconWidth,
+                            pillIconSpacing: pillIconSpacing,
+                            pillBorderRadius: pillBorderRadius,
+                            contentColor: activeColor,
+                            estimateWidthForAction: pillWidth,
+                            pillTextStyle: pillTextStyle,
+                            pillMoveDuration: pillMoveDuration,
+                            pillResizeDuration: pillResizeDuration,
+                          ),
+                          for (int i = 0; i < visibleActions.length; i++)
+                            AnimatedPositioned(
+                              duration: pillResizeDuration,
+                              left: calcLeft(i, pillWidth)+((i == widget.selectedIndex) ? iconHorizontalPadding/2 : 0),
+                              curve: Curves.easeOutCubic,
+                              child: GestureDetector(
+                                onTap: () => _onItemTap(i),
+                                child: AnimatedContainer(
+                                  duration: _firstFrame
+                                      ? Duration.zero
+                                      : inactiveIconMoveDuration,
+                                  curve: Curves.easeOutCubic,
+                                  width:
+                                      i == widget.selectedIndex ? pillWidth : iconWidth,
+                                  height: iconHeight,
+                                  alignment: Alignment.center,
+                                  child: AnimatedAlign(
+                                    duration: inactiveIconFadeDuration,
                                     curve: Curves.easeOutCubic,
-                                    width: i == selectedIndex
-                                        ? pillWidth
-                                        : iconWidth,
-                                    height: iconHeight,
-                                    alignment: Alignment.center,
-                                    child: AnimatedOpacity(
-                                      duration: inactiveIconFadeDuration,
+                                    alignment: Alignment.centerLeft,
+                                    child: AnimatedScale(
+                                      duration: inactiveIconAppearDuration,
                                       curve: Curves.easeOutCubic,
-                                      opacity:
-                                          (i == selectedIndex && _fadeSelected)
-                                              ? 0.0
-                                              : 1.0,
-                                      child: AnimatedScale(
-                                        duration: inactiveIconAppearDuration,
-                                        curve: Curves.easeOutCubic,
-                                        scale:
-                                            (i == selectedIndex) ? 0.95 : 1.0,
-                                        child: SvgPicture.asset(
-                                          visibleActions[i].image,
-                                          width: iconWidth,
-                                          height: iconHeight,
-                                          colorFilter: ColorFilter.mode(
-                                            inactiveColor,
-                                            BlendMode.srcIn,
+                                      scale: (i == widget.selectedIndex) ? 0.857 : 1.0,
+                                      child: TweenAnimationBuilder<Color?>(
+                                          tween: ColorTween(
+                                            begin: (i == widget.selectedIndex) ? inactiveColor : activeColor,
+                                            end: (i==widget.selectedIndex) ? activeColor : inactiveColor,
                                           ),
-                                        ),
+                                        duration: iconColorChangeDuration,
+                                        builder: (context, value, child) {
+                                          return SvgPicture.asset(
+                                            visibleActions[i].image,
+                                            width: iconWidth,
+                                            height: iconHeight,
+                                            colorFilter: ColorFilter.mode(
+                                              value ?? inactiveColor,
+                                              BlendMode.srcIn,
+                                            ),
+                                          );
+                                        }
                                       ),
                                     ),
                                   ),
                                 ),
-                            ],
-                          ),
-                        )
-                      ],
+                              ),
+                            ),
+                        ],
+                      ),
                     )),
               ),
             ),
@@ -294,60 +264,39 @@ class AnimatedPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedPositioned(
-      duration: pillMoveDuration,
-      curve: Curves.easeOutCubic,
-      left: left,
-      top: 12,
-      bottom: 12,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(
-          begin: estimateWidthForAction,
-          end: estimateWidthForAction,
-        ),
-        duration: pillResizeDuration,
+        duration: pillMoveDuration,
         curve: Curves.easeOutCubic,
-        builder: (context, width, child) {
-          return AnimatedContainer(
-            duration: pillResizeDuration,
-            curve: Curves.easeOutCubic,
-            width: width + 4,
-            decoration: BoxDecoration(
-              color: pillColor,
-              borderRadius: BorderRadius.circular(pillBorderRadius),
-            ),
-            clipBehavior: Clip.hardEdge,
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      currentAction.image,
-                      width: pillIconWidth,
-                      height: pillIconHeight,
-                      colorFilter: ColorFilter.mode(
-                        contentColor,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    SizedBox(width: pillIconSpacing),
-                    Text(
-                      currentAction.name(context),
-                      style: pillTextStyle.copyWith(color: contentColor),
-                      overflow: TextOverflow.fade,
-                      softWrap: false,
-                    ),
-                  ],
+        left: left,
+        top: 8,
+        bottom: 8,
+        child: AnimatedContainer(
+          duration: pillResizeDuration,
+          curve: Curves.easeOutCubic,
+          width: estimateWidthForAction,
+          decoration: BoxDecoration(
+            color: pillColor,
+            borderRadius: BorderRadius.circular(pillBorderRadius),
+          ),
+          clipBehavior: Clip.hardEdge,
+          alignment: Alignment.center,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // SizedBox(width: pillIconSpacing*10),
+                Padding(padding: EdgeInsets.only(left: pillIconWidth),
+                  child: Text(
+                    currentAction.name(context),
+                    style: pillTextStyle.copyWith(color: contentColor),
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                  ),
                 ),
-              ),
+              ],
             ),
-          );
-        },
-      ),
-    );
+          ),
+        ));
   }
 }
