@@ -1054,6 +1054,7 @@
   "tx_rejected_dust_output": "Ang transaksyon na tinanggihan ng mga patakaran sa network, mababang halaga ng output (dust). Mangyaring dagdagan ang halaga.",
   "tx_rejected_dust_output_send_all": "Ang transaksyon na tinanggihan ng mga patakaran sa network, mababang halaga ng output (dust). Mangyaring suriin ang balanse ng mga barya na napili sa ilalim ng Coin Control.",
   "tx_rejected_vout_negative": "Hindi sapat na balanse upang magbayad para sa mga fee ng transaksyon na ito. Mangyaring suriin ang balanse ng mga barya sa ilalim ng Coin Control.",
+  "tx_retry_message": "Nagkaroon ng error habang pinoproseso ang transaksyon. Pakisubukang muli ang transaksyon.",
   "tx_wrong_balance_exception": "Wala kang sapat na ${currency} upang maipadala ang halagang ito.",
   "tx_wrong_balance_with_amount_exception": "Wala kang sapat ${currency} upang ipadala ang kabuuang halaga ng ${amount}",
   "tx_zero_fee_exception": "Hindi maaaring magpadala ng transaksyon na may 0 fee. Subukan ang pagtaas ng rate o pagsuri sa iyong koneksyon para sa pinakabagong mga pagtatantya.",

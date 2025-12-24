@@ -1054,6 +1054,7 @@
   "tx_rejected_dust_output": "Ağ kurallarına göre reddedilen işlem, düşük çıktı miktarı (toz). Lütfen miktarı artırın.",
   "tx_rejected_dust_output_send_all": "Ağ kurallarına göre reddedilen işlem, düşük çıktı miktarı (toz). Lütfen madeni para kontrolü altında seçilen madeni para dengesini kontrol edin.",
   "tx_rejected_vout_negative": "Bu işlem ücretleri için ödeme yapmak için yeterli bakiye yok. Lütfen madeni para kontrolü altındaki madeni para dengesini kontrol edin.",
+  "tx_retry_message": "İşlem gerçekleştirilirken bir hata oluştu. Lütfen işlemi yeniden deneyin.",
   "tx_wrong_balance_exception": "Bu miktarı göndermek için yeterli ${currency} yok.",
   "tx_wrong_balance_with_amount_exception": "Yeterli değilsiniz ${currency} toplam ${amount} miktarını göndermek için",
   "tx_zero_fee_exception": "0 ücret ile işlem gönderilemez. En son tahminler için oranı artırmayı veya bağlantınızı kontrol etmeyi deneyin.",

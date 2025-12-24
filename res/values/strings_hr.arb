@@ -1054,6 +1054,7 @@
   "tx_rejected_dust_output": "Transakcija odbijena mrežnim pravilima, niska količina izlaza (prašina). Molimo povećajte iznos.",
   "tx_rejected_dust_output_send_all": "Transakcija odbijena mrežnim pravilima, niska količina izlaza (prašina). Molimo provjerite ravnotežu kovanica odabranih pod kontrolom novčića.",
   "tx_rejected_vout_negative": "Nema dovoljno salda za plaćanje naknada ove transakcije. Molimo provjerite ravnotežu kovanica pod kontrolom novčića.",
+  "tx_retry_message": "Došlo je do pogreške prilikom obrade transakcije. Molimo pokušajte ponovno transakciju.",
   "tx_wrong_balance_exception": "Nemate dovoljno ${currency} da biste poslali ovaj iznos.",
   "tx_wrong_balance_with_amount_exception": "Nemate dovoljno ${currency} za slanje ukupne količine ${amount}",
   "tx_zero_fee_exception": "Ne mogu poslati transakciju s 0 naknade. Pokušajte povećati stopu ili provjeriti vezu za najnovije procjene.",

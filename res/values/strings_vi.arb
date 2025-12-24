@@ -1051,6 +1051,7 @@
   "tx_rejected_dust_output": "Giao dịch bị từ chối bởi quy tắc mạng, số tiền đầu ra thấp (dust). Vui lòng tăng số tiền.",
   "tx_rejected_dust_output_send_all": "Giao dịch bị từ chối bởi quy tắc mạng, số tiền đầu ra thấp (dust). Vui lòng kiểm tra số dư của các đồng tiền được chọn dưới Coin Control.",
   "tx_rejected_vout_negative": "Không đủ số dư để thanh toán phí giao dịch này. Vui lòng kiểm tra số dư của các đồng tiền dưới Coin Control.",
+  "tx_retry_message": "Đã xảy ra lỗi khi xử lý giao dịch. Vui lòng thử lại giao dịch.",
   "tx_wrong_balance_exception": "Bạn không có đủ ${currency} để gửi số tiền này.",
   "tx_wrong_balance_with_amount_exception": "Bạn không có đủ ${currency} để gửi tổng số tiền ${amount}",
   "tx_zero_fee_exception": "Không thể gửi giao dịch với phí bằng 0. Thử tăng tỷ lệ phí hoặc kiểm tra kết nối của bạn để biết ước lượng mới nhất.",

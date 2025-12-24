@@ -1055,6 +1055,7 @@
   "tx_rejected_dust_output": "Transacción rechazada por reglas de la red, cantidad de salida baja (dust). Por favor, aumenta la cantidad.",
   "tx_rejected_dust_output_send_all": "Transacción rechazada por reglas de la red, baja cantidad de salida (dust). Verifique el saldo de las monedas seleccionadas bajo Control de Monedas.",
   "tx_rejected_vout_negative": "No hay suficiente saldo para pagar las tarifas de esta transacción. Por favor, verifica el saldo de monedas en Control de Monedas.",
+  "tx_retry_message": "Se produjo un error al procesar la transacción. Vuelva a intentar la transacción.",
   "tx_wrong_balance_exception": "No tienes suficiente ${currency} para enviar este monto.",
   "tx_wrong_balance_with_amount_exception": "No tienes suficiente ${currency} para enviar la cantidad total de ${amount}",
   "tx_zero_fee_exception": "No se puede enviar una transacción con tarifa 0. Intente aumentar la tarifa o verifique su conexión para obtener las últimas estimaciones.",

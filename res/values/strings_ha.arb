@@ -1056,6 +1056,7 @@
   "tx_rejected_dust_output": "Ma'adar da aka ƙi ta dokokin cibiyar sadarwa, ƙananan fitarwa (ƙura). Da fatan za a ƙara adadin.",
   "tx_rejected_dust_output_send_all": "Ma'adar da aka ƙi ta dokokin cibiyar sadarwa, ƙananan fitarwa (ƙura). Da fatan za a duba daidaiton tsabar kudi a ƙarƙashin ikon tsabar kudin.",
   "tx_rejected_vout_negative": "Bai isa daidai ba don biyan wannan kudin ma'amala. Da fatan za a duba daidaiton tsabar kudi a ƙarƙashin ikon tsabar kudin.",
+  "tx_retry_message": "An sami kuskure yayin sarrafa ma'amala. Da fatan za a sake gwada ciniki.",
   "tx_wrong_balance_exception": "Ba ku da isasshen ${currency} don aika wannan adadin.",
   "tx_wrong_balance_with_amount_exception": "Ba ku da isasshen ${currency} don aika jimlar adadin ${amount}",
   "tx_zero_fee_exception": "Ba zai iya aika ma'amala da kuɗi 0 ba. Gwada ƙara ƙimar ko bincika haɗin ku don mahimmin ƙididdiga.",

@@ -32,7 +32,7 @@ class EVMChainClient {
   Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
-      /// when adding new chains, make sure they are supported by the same api through https://docs.etherscan.io/supported-chains  
+      /// when adding new chains, make sure they are supported by the same api through https://docs.etherscan.io/supported-chains
       final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
         "chainid": "$chainId",
         "module": "account",
@@ -468,9 +468,13 @@ class EVMChainClient {
       final symbol = (decodedResponse['symbol'] ?? '') as String;
       String filteredSymbol = symbol.replaceFirst(RegExp('^\\\$'), '');
 
-      final name = decodedResponse['name'] ?? '';
+      final name = (decodedResponse['name'] ?? '').toString();
       final decimal = decodedResponse['decimals'] ?? '0';
       final iconPath = decodedResponse['logo'] ?? '';
+
+      if (name.isEmpty || symbol.isEmpty) {
+        return await getErcTokenInfoFromNode(contractAddress, chainName);
+      }
 
       return Erc20Token(
         name: name,
@@ -481,21 +485,25 @@ class EVMChainClient {
       );
     } catch (e) {
       try {
-        final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
-        final name = await erc20.name();
-        final symbol = await erc20.symbol();
-        final decimal = await erc20.decimals();
-
-        return Erc20Token(
-          name: name,
-          symbol: symbol,
-          contractAddress: contractAddress,
-          decimal: decimal.toInt(),
-        );
-      } catch (_) {}
-
-      return null;
+        return await getErcTokenInfoFromNode(contractAddress, chainName);
+      } catch (e) {
+        return null;
+      }
     }
+  }
+
+  Future<Erc20Token?> getErcTokenInfoFromNode(String contractAddress, String chainName) async {
+    final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+    final name = await erc20.name();
+    final symbol = await erc20.symbol();
+    final decimal = await erc20.decimals();
+
+    return Erc20Token(
+      name: name,
+      symbol: symbol,
+      contractAddress: contractAddress,
+      decimal: decimal.toInt(),
+    );
   }
 
   Uint8List hexToBytes(String hexString) {

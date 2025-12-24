@@ -1053,6 +1053,7 @@
   "tx_rejected_dust_output": "Transakcja odrzucona zgodnie z regułami sieci, niska kwota wyjścia (dust). Proszę zwiększyć kwotę.",
   "tx_rejected_dust_output_send_all": "Transakcja odrzucona przez zasady sieci, niska kwota wyjścia (dust). Sprawdź saldo wybranych monet w sekcji Coin Control.",
   "tx_rejected_vout_negative": "Niewystarczające saldo, aby pokryć opłaty tej transakcji. Sprawdź saldo w sekcji Coin Control.",
+  "tx_retry_message": "Wystąpił błąd podczas przetwarzania transakcji. Spróbuj ponownie przeprowadzić transakcję.",
   "tx_wrong_balance_exception": "Nie masz wystarczającej ilości ${currency}, aby wysłać tę kwotę.",
   "tx_wrong_balance_with_amount_exception": "Nie masz wystarczająco dużo ${currency}, aby wysłać całkowitą kwotę ${amount}",
   "tx_zero_fee_exception": "Nie można wysłać transakcji z zerową opłatą. Spróbuj zwiększyć opłatę lub sprawdzić połączenie, aby uzyskać najnowsze szacunki.",

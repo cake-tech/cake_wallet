@@ -1055,6 +1055,7 @@
   "tx_rejected_dust_output": "네트워크 규칙에 의해 트랜잭션 거부됨, 낮은 출력 금액 (더스트). 금액을 늘리세요.",
   "tx_rejected_dust_output_send_all": "네트워크 규칙에 의해 트랜잭션 거부됨, 낮은 출력 금액 (더스트). 코인 제어에서 선택한 코인 잔액을 확인하세요.",
   "tx_rejected_vout_negative": "이 트랜잭션 수수료를 지불하기에 잔액이 부족합니다. 코인 제어에서 코인 잔액을 확인하세요.",
+  "tx_retry_message": "거래를 처리하는 동안 오류가 발생했습니다. 거래를 다시 시도하십시오.",
   "tx_wrong_balance_exception": "이 금액을 보내기에 ${currency}이(가) 충분하지 않습니다.",
   "tx_wrong_balance_with_amount_exception": "총 금액 ${amount}을(를) 보내기에 ${currency}이(가) 충분하지 않습니다.",
   "tx_zero_fee_exception": "수수료 0으로 트랜잭션을 보낼 수 없습니다. 요율을 높이거나 연결을 확인하여 최신 예상치를 확인하세요.",

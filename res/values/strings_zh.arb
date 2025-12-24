@@ -1054,6 +1054,7 @@
   "tx_rejected_dust_output": "交易被网络规则拒绝，输出金额过低（尘额）。请增加金额。",
   "tx_rejected_dust_output_send_all": "交易被网络规则拒绝，低输出量（灰尘）拒绝。请检查在硬币控制下选择的硬币的余额。",
   "tx_rejected_vout_negative": "没有足够的余额来支付此交易费用。请检查硬币控制下的硬币余额。",
+  "tx_retry_message": "处理交易时发生错误。请重试交易。",
   "tx_wrong_balance_exception": "您没有足够的${currency}来发送此金额。",
   "tx_wrong_balance_with_amount_exception": "您没有足够的${currency} ${amount}",
   "tx_zero_fee_exception": "无法以0手续费发送交易。尝试提高速率或检查连接以获取最新估计。",

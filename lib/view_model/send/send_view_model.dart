@@ -577,8 +577,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 routerData,
                 routerValueWei,
                 priority,
-                useBlinkProtection:
-                    canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,
+                useBlinkProtection: canSupportBlinkProtection(selectedChainId)
+                    ? _settingsStore.useBlinkProtection
+                    : false,
               );
 
               _isSwapsXYZCallDataTx = true;
@@ -596,8 +597,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               routerData,
               routerValueWei,
               priority,
-              useBlinkProtection:
-                  canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,
+              useBlinkProtection: canSupportBlinkProtection(selectedChainId)
+                  ? _settingsStore.useBlinkProtection
+                  : false,
             );
             _isSwapsXYZCallDataTx = true;
             state = ExecutedSuccessfullyState();
@@ -802,7 +804,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type != WalletType.banano &&
         wallet.type != WalletType.solana &&
         wallet.type != WalletType.tron &&
-        wallet.chainId != 42161) { // Wallet type is generic for all EVM chains, so we need to check the chainId
+        wallet.chainId != 42161) {
+      // Wallet type is generic for all EVM chains, so we need to check the chainId
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
 
@@ -843,8 +846,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           outputs,
           priority: priority,
           currency: selectedCryptoCurrency,
-          useBlinkProtection:
-              canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,
+          useBlinkProtection: canSupportBlinkProtection(selectedChainId)
+              ? _settingsStore.useBlinkProtection
+              : false,
         );
       case WalletType.nano:
         return nano!.createNanoTransactionCredentials(outputs);
@@ -979,11 +983,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       return errorMessage;
     }
-    if (walletType == WalletType.ethereum ||
-        walletType == WalletType.polygon ||
-        walletType == WalletType.base ||
-        walletType == WalletType.arbitrum ||
-        walletType == WalletType.haven) {
+    if (isEVMWallet || walletType == WalletType.haven) {
       if (errorMessage.contains('gas required exceeds allowance')) {
         return S.current.gas_exceeds_allowance;
       }
@@ -1012,6 +1012,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
       }
 
+      if (errorMessage.contains('max fee per gas less than block base fee')) {
+        return S.current.tx_retry_message;
+      }
+
       return errorMessage;
     }
 
@@ -1021,7 +1025,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       if (errorMessage.contains('Transaction expired')) {
-        return 'An error occurred while processing the transaction. Please retry the transaction';
+        return S.current.tx_retry_message;
       }
     }
 

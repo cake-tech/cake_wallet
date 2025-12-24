@@ -1057,6 +1057,7 @@
   "tx_rejected_dust_output": "Transaksi ditolak oleh aturan jaringan, jumlah output rendah (debu). Harap tingkatkan jumlahnya.",
   "tx_rejected_dust_output_send_all": "Transaksi ditolak oleh aturan jaringan, jumlah output rendah (debu). Silakan periksa saldo koin yang dipilih di bawah kontrol koin.",
   "tx_rejected_vout_negative": "Tidak cukup saldo untuk membayar biaya transaksi ini. Silakan periksa saldo koin di bawah kendali koin.",
+  "tx_retry_message": "Terjadi kesalahan saat memproses transaksi. Silakan coba lagi transaksinya.",
   "tx_wrong_balance_exception": "Anda tidak memiliki cukup ${currency} untuk mengirim jumlah ini.",
   "tx_wrong_balance_with_amount_exception": "Anda tidak memiliki cukup ${currency} untuk mengirim jumlah total ${amount}",
   "tx_zero_fee_exception": "Tidak dapat mengirim transaksi dengan biaya 0. Coba tingkatkan tarif atau periksa koneksi Anda untuk perkiraan terbaru.",

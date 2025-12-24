@@ -1262,6 +1262,7 @@ abstract class DogeCoin {
 Future<void> generateEVM(bool hasImplementation) async {
   final outputFile = File(evmOutputPath);
   const evmCommonHeaders = """
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';

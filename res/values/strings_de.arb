@@ -1055,6 +1055,7 @@
   "tx_rejected_dust_output": "Transaktion durch Netzwerkregeln, niedriger Ausgangsmenge (Dust) abgelehnt. Bitte erhöhen Sie den Betrag.",
   "tx_rejected_dust_output_send_all": "Transaktion durch Netzwerkregeln, niedriger Ausgangsmenge (Dust) abgelehnt. Bitte überprüfen Sie das Guthabe der unter Coinkontrolle ausgewählten Coins.",
   "tx_rejected_vout_negative": "Nicht genug Guthaben, um die Gebühren dieser Transaktion zu bezahlen. Bitte überprüfen Sie den Restbetrag der Coins unter Coinkontrolle.",
+  "tx_retry_message": "Bei der Verarbeitung der Transaktion ist ein Fehler aufgetreten. Bitte versuchen Sie die Transaktion erneut.",
   "tx_wrong_balance_exception": "Sie haben nicht genug ${currency}, um diesen Betrag zu senden.",
   "tx_wrong_balance_with_amount_exception": "Sie haben nicht genug ${currency}, um die Gesamtmenge von ${amount} zu senden",
   "tx_zero_fee_exception": "Transaktion kann nicht mit 0 Gebühren gesendet werden. Versuchen Sie, die Rate zu erhöhen oder Ihre Verbindung auf die neuesten Schätzungen zu überprüfen.",

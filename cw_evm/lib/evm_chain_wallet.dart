@@ -1237,8 +1237,14 @@ abstract class EVMChainWalletBase
     await transactionHistory.save();
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async =>
-      await _client.getErc20Token(contractAddress, chainName);
+  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
+    try {
+     return await _client.getErc20Token(contractAddress, chainName);
+    } catch (e) {
+      printV('Error getting ERC20 token: $e');
+      rethrow;
+    }
+  }
 
   void _onNewTransaction() {
     _updateBalance();

@@ -1054,6 +1054,7 @@
   "tx_rejected_dust_output": "Transakce zamítnuta síťovými pravidly, nízkým množstvím výstupu (prach). Zvyšte prosím částku.",
   "tx_rejected_dust_output_send_all": "Transakce zamítnuta síťovými pravidly, nízkým množstvím výstupu (prach). Zkontrolujte prosím zůstatek mincí vybraných pod kontrolou mincí.",
   "tx_rejected_vout_negative": "Nedostatek zůstatek na zaplacení poplatků za tuto transakci. Zkontrolujte prosím zůstatek mincí pod kontrolou mincí.",
+  "tx_retry_message": "Při zpracování transakce došlo k chybě. Zkuste transakci opakovat.",
   "tx_wrong_balance_exception": "Nemáte dost ${currency} pro odeslání této částky.",
   "tx_wrong_balance_with_amount_exception": "Nemáte dost ${currency} na odeslání celkové částky ${amount}",
   "tx_zero_fee_exception": "Nelze odeslat transakci s 0 poplatkem. Zkuste zvýšit sazbu nebo zkontrolovat připojení pro nejnovější odhady.",

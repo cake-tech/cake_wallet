@@ -420,29 +420,50 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.dogecoin
       ].contains(wallet.type);
 
-  @computed
-  List<String> get walletImages {
+  List<String> getWalletImages(int? chainId) {
+    if (chainId != null) {
+      switch (chainId) {
+        case 1:
+          return [
+            'assets/images/eth_icon.svg',
+            'assets/images/usdc_icon.svg',
+            'assets/images/usdt_wallet_icon.svg',
+            'assets/images/deuro_icon.svg',
+            'assets/images/more_tokens.svg',
+          ];
+        case 137:
+          return [
+            'assets/images/pol_icon.svg',
+            'assets/images/eth_pol_icon.svg',
+            'assets/images/usdc_icon.svg',
+            'assets/images/usdt_wallet_icon.svg',
+            'assets/images/more_tokens.svg',
+          ];
+        case 8453:
+          return [
+            'assets/images/eth_icon.svg',
+            'assets/images/usdc_icon.svg',
+            'assets/images/more_tokens.svg',
+          ];
+        case 42161:
+          return [
+            'assets/images/crypto/arbitrum.webp',
+            'assets/images/usdc_icon.svg',
+            'assets/images/more_tokens.svg',
+          ];
+        default:
+          return [
+            'assets/images/eth_icon.svg',
+            'assets/images/usdc_icon.svg',
+            'assets/images/usdt_wallet_icon.svg',
+          ];
+      }
+    }
+
     switch (wallet.type) {
-      case WalletType.evm:
-      case WalletType.ethereum:
-        return [
-          'assets/images/eth_icon.svg',
-          'assets/images/usdc_icon.svg',
-          'assets/images/usdt_wallet_icon.svg',
-          'assets/images/deuro_icon.svg',
-          'assets/images/more_tokens.svg',
-        ];
       case WalletType.solana:
         return [
           'assets/images/sol_icon.svg',
-          'assets/images/usdc_icon.svg',
-          'assets/images/usdt_wallet_icon.svg',
-          'assets/images/more_tokens.svg',
-        ];
-      case WalletType.polygon:
-        return [
-          'assets/images/pol_icon.svg',
-          'assets/images/eth_pol_icon.svg',
           'assets/images/usdc_icon.svg',
           'assets/images/usdt_wallet_icon.svg',
           'assets/images/more_tokens.svg',
@@ -457,18 +478,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.zano:
         return [
           'assets/images/zano_icon.svg',
-          'assets/images/more_tokens.svg',
-        ];
-      case WalletType.base:
-        return [
-          'assets/images/eth_icon.svg',
-          'assets/images/usdc_icon.svg',
-          'assets/images/more_tokens.svg',
-        ];
-      case WalletType.arbitrum:
-        return [
-          'assets/images/crypto/arbitrum.webp',
-          'assets/images/usdc_icon.svg',
           'assets/images/more_tokens.svg',
         ];
       default:

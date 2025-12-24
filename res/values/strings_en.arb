@@ -1055,6 +1055,7 @@
   "tx_rejected_dust_output": "Transaction rejected by network rules, low output amount (dust). Please increase the amount.",
   "tx_rejected_dust_output_send_all": "Transaction rejected by network rules, low output amount (dust). Please check the balance of coins selected under Coin Control.",
   "tx_rejected_vout_negative": "Not enough balance to pay for this transaction's fees. Please check the balance of coins under Coin Control.",
+  "tx_retry_message": "An error occurred while processing the transaction. Please retry the transaction.",
   "tx_wrong_balance_exception": "You do not have enough ${currency} to send this amount.",
   "tx_wrong_balance_with_amount_exception": "You do not have enough ${currency} to send the total amount of ${amount}",
   "tx_zero_fee_exception": "Cannot send transaction with 0 fee. Try increasing the rate or checking your connection for latest estimates.",

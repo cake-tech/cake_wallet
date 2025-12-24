@@ -1054,6 +1054,7 @@
   "tx_rejected_dust_output": "Transactie afgewezen door netwerkregels, laag outputbedrag (stof). Verhoog het bedrag.",
   "tx_rejected_dust_output_send_all": "Transactie afgewezen door netwerkregels, laag outputbedrag (stof). Controleer het saldo van munten die zijn geselecteerd onder muntcontrole.",
   "tx_rejected_vout_negative": "Niet genoeg saldo om te betalen voor de kosten van deze transactie. Controleer het saldo van munten onder muntcontrole.",
+  "tx_retry_message": "Er is een fout opgetreden tijdens het verwerken van de transactie. Probeer de transactie opnieuw.",
   "tx_wrong_balance_exception": "Je hebt niet genoeg ${currency} om dit bedrag te verzenden.",
   "tx_wrong_balance_with_amount_exception": "Je hebt niet genoeg  ${currency} om de totale hoeveelheid  ${amount} te verzenden",
   "tx_zero_fee_exception": "Kan geen transactie verzenden met 0 kosten. Probeer het tarief te verhogen of uw verbinding te controleren op de laatste schattingen.",

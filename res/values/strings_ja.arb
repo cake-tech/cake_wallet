@@ -1055,6 +1055,7 @@
   "tx_rejected_dust_output": "ネットワークルール、低出力量（ダスト）によって拒否されたトランザクション。金額を増やしてください。",
   "tx_rejected_dust_output_send_all": "ネットワークルール、低出力量（ダスト）によって拒否されたトランザクション。コイン管理下で選択されたコインのバランスを確認してください。",
   "tx_rejected_vout_negative": "この取引の料金に支払うのに十分な残高はありません。コイン制御下のコインのバランスを確認してください。",
+  "tx_retry_message": "トランザクションの処理中にエラーが発生しました。トランザクションを再試行してください。",
   "tx_wrong_balance_exception": "この金額を送信するのに十分な${currency}はありません。",
   "tx_wrong_balance_with_amount_exception": "あなたは十分なものを持っていませ${currency} ${amount}",
   "tx_zero_fee_exception": "0料金でトランザクションを送信できません。レートを上げて、最新の見積もりについて接続を確認してみてください。",

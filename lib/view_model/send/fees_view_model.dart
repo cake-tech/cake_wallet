@@ -27,7 +27,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
   )   : _settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
-    
+
     if (wallet.type == WalletType.bitcoin && priority == bitcoinTransactionPriorityCustom) {
       setTransactionPriority(bitcoinTransactionPriorityMedium);
     }
@@ -49,11 +49,11 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
   TransactionPriority get transactionPriority {
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
-    if (priority == null) {
+    if (priority == null && hasFeesPriority) {
       throw Exception('Unexpected type ${wallet.type}');
     }
 
-    return priority;
+    return priority!;
   }
 
   int? getCustomPriorityIndex(List<TransactionPriority> priorities) {
@@ -74,6 +74,8 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   bool get isLowFee {
+    if (wallet.chainId == 42161) return false;
+
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.wownero:

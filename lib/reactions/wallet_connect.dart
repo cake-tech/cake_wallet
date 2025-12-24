@@ -26,14 +26,21 @@ bool canSupportBlinkProtection(int? chainId) {
   return chainId == 1 || chainId == 8453;
 }
 
-bool isNFTACtivatedChain(WalletType walletType) {
+bool isNFTACtivatedChain(WalletType walletType, int? chainId) {
+  if (chainId != null) {
+    switch (chainId) {
+      case 1:
+      case 8453:
+      case 137:
+      case 42161:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   switch (walletType) {
-    case WalletType.evm:
-    case WalletType.polygon:
-    case WalletType.ethereum:
-    case WalletType.base:
     case WalletType.solana:
-    case WalletType.arbitrum:
       return true;
     default:
       return false;
