@@ -458,7 +458,7 @@ class SolanaWalletClient {
         }
 
         if (i + batchSize < signatures.length) {
-          await Future.delayed(const Duration(milliseconds: 300));
+          await Future.delayed(const Duration(milliseconds: 100));
         }
       }
 
