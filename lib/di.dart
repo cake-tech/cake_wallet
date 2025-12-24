@@ -225,7 +225,6 @@ import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
-import 'package:cake_wallet/store/secret_store.dart';
 import 'package:cake_wallet/store/seed_settings_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
@@ -418,9 +417,6 @@ Future<void> setup({
       appName: "Cake Wallet"));
   getIt.registerLazySingleton(() => TrezorViewModel(getIt<TrezorConnect>()));
 
-  final secretStore = await SecretStoreBase.load(getIt.get<SecureStorage>());
-
-  getIt.registerSingleton<SecretStore>(secretStore);
 
   getIt.registerFactory<KeyService>(() => KeyService(getIt.get<SecureStorage>()));
 
@@ -1366,13 +1362,15 @@ Future<void> setup({
       _transactionDescriptionBox,
       getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
 
-  getIt.registerFactory(() => BackupViewModel(
-      getIt.get<SecureStorage>(), getIt.get<SecretStore>(), getIt.get<BackupServiceV3>()));
 
   getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
 
-  getIt.registerFactory(
-      () => EditBackupPasswordViewModel(getIt.get<SecureStorage>(), getIt.get<SecretStore>()));
+  getIt.registerLazySingleton<EditBackupPasswordViewModel>(
+    () => EditBackupPasswordViewModel(getIt.get<SecureStorage>()),
+  );
+
+  getIt.registerFactory(() => BackupViewModel(
+      getIt.get<SecureStorage>(),getIt.get<BackupServiceV3>(), getIt.get<EditBackupPasswordViewModel>()));
 
   getIt.registerFactory(() => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
@@ -1626,13 +1624,17 @@ Future<void> setup({
   getIt.registerFactory(() => DevExchangeProviderLogsPage(getIt.get<ExchangeProviderLogsViewModel>()));
 
   getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
-  
+
   getIt.registerFactory(() => DEuroViewModel(
-    getIt<AppStore>(),
-    getIt<BalanceViewModel>(),
-    getIt<SettingsStore>(),
-    getIt<FiatConversionStore>(),
-  ));
+        getIt<AppStore>(),
+        getIt<BalanceViewModel>(),
+        getIt<SettingsStore>(),
+        getIt<FiatConversionStore>(),
+        getIt.get<AppStore>().wallet!.isHardwareWallet
+            ? getIt<HardwareWalletViewModel>(
+                param1: getIt.get<AppStore>().wallet!.hardwareWalletType!)
+            : null,
+      ));
 
   getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));
 

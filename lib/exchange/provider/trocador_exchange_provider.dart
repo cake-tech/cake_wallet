@@ -275,9 +275,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       throw Exception('No available provider is enabled');
     }
 
-    final provider = _provider.first as String;
-    // TODO : Remove this workaround when Trocador fixes BitcoinVN provider issue
-    params['provider'] = provider == 'BitcoinVN' ? '' : provider;
+    params['provider'] = _provider.first as String;
 
     final uri = await _getUri(createTradePath, params);
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});

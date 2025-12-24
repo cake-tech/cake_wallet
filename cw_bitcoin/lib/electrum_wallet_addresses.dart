@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
@@ -75,10 +76,18 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         super(walletInfo) {
     if (masterHd != null) {
       silentAddress = SilentPaymentOwner.fromPrivateKeys(
-        b_scan: ECPrivate.fromHex(masterHd.derivePath(SCAN_PATH).privateKey.toHex()),
-        b_spend: ECPrivate.fromHex(masterHd.derivePath(SPEND_PATH).privateKey.toHex()),
+        b_scan:
+            ECPrivate.fromHex(masterHd.derivePath(SILENT_PAYMENTS_SCAN_PATH).privateKey.toHex()),
+        b_spend:
+            ECPrivate.fromHex(masterHd.derivePath(SILENT_PAYMENTS_SPEND_PATH).privateKey.toHex()),
         network: network,
       );
+
+      // Clean the Silent Payment Addresses if the initial addresses are the old SP Addresses
+      if (!silentAddresses
+          .any((addr) => addr.index == 0 && addr.address == silentAddress.toString())) {
+        silentAddresses.clear();
+      }
 
       if (!silentAddresses.any((addr) => addr.index == 0 && addr.isHidden == false))
         silentAddresses.add(BitcoinSilentPaymentAddressRecord(
@@ -454,19 +463,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       addressesMap[address] = 'Active - P2WSH';
     }
 
-    silentAddresses.forEach((addressRecord) {
-      if (addressRecord.type != SilentPaymentsAddresType.p2sp || addressRecord.isHidden) {
-        return;
-      }
+    final firstSilentAddressRecord = silentAddresses.firstOrNull;
+    if (firstSilentAddressRecord != null) {
 
-      if (addressRecord.address != address) {
-        addressesMap[addressRecord.address] = addressRecord.name.isEmpty
+      if (firstSilentAddressRecord.address != address) {
+        addressesMap[firstSilentAddressRecord.address] = firstSilentAddressRecord.name.isEmpty
             ? "Silent Payments"
-            : "Silent Payments - " + addressRecord.name;
+            : "Silent Payments - ${firstSilentAddressRecord.name}";
       } else {
         addressesMap[address] = 'Active - Silent Payments';
       }
-    });
+    }
   }
 
   void addLitecoinAddressTypes() {
