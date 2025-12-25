@@ -203,50 +203,56 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 return Container();
               }),
             if (widget.privacySettingsViewModel.hasPassphraseOption && !widget.isFromRestore)
-              Padding(
-                padding: EdgeInsets.all(24),
-                child: Form(
-                  key: _passphraseFormKey,
-                  child: Column(
-                    children: [
-                      BaseTextFormField(
-                        hintText: S.of(context).passphrase,
-                        controller: passphraseController,
-                        obscureText: obscurePassphrase,
-                        suffixIcon: GestureDetector(
-                          onTap: () => setState(() {
-                            obscurePassphrase = !obscurePassphrase;
-                          }),
-                          child: Icon(
-                            Icons.remove_red_eye,
+              if (widget.privacySettingsViewModel.hasPassphraseOption &&
+                  !widget.isFromRestore)
+                Observer(builder: (_) {
+                  if (widget.privacySettingsViewModel.isnNnoStandardSeedsEnabled)
+                  return Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Form(
+                      key: _passphraseFormKey,
+                      child: Column(
+                        children: [
+                          BaseTextFormField(
+                            hintText: S.of(context).passphrase,
+                            controller: passphraseController,
+                            obscureText: obscurePassphrase,
+                            suffixIcon: GestureDetector(
+                              onTap: () => setState(() {
+                                obscurePassphrase = !obscurePassphrase;
+                              }),
+                              child: Icon(
+                                Icons.remove_red_eye,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      BaseTextFormField(
-                        hintText: S.of(context).confirm_passphrase,
-                        controller: confirmPassphraseController,
-                        obscureText: obscurePassphrase,
-                        validator: (text) {
-                          if (text == passphraseController.text) {
-                            return null;
-                          }
+                          const SizedBox(height: 10),
+                          BaseTextFormField(
+                            hintText: S.of(context).confirm_passphrase,
+                            controller: confirmPassphraseController,
+                            obscureText: obscurePassphrase,
+                            validator: (text) {
+                              if (text == passphraseController.text) {
+                                return null;
+                              }
 
-                          return S.of(context).passphrases_doesnt_match;
-                        },
-                        suffixIcon: GestureDetector(
-                          onTap: () => setState(() {
-                            obscurePassphrase = !obscurePassphrase;
-                          }),
-                          child: Icon(
-                            Icons.remove_red_eye,
+                              return S.of(context).passphrases_doesnt_match;
+                            },
+                            suffixIcon: GestureDetector(
+                              onTap: () => setState(() {
+                                obscurePassphrase = !obscurePassphrase;
+                              }),
+                              child: Icon(
+                                Icons.remove_red_eye,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
+                  );
+                  return Container();
+                }),
             Observer(builder: (_) {
               return Column(
                 children: [
@@ -257,6 +263,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                       widget.privacySettingsViewModel.setDisableBulletin(value);
                     },
                   ),
+                  if (!widget.privacySettingsViewModel.isGroupCreation)
                   SettingsSwitcherCell(
                     title: S.current.add_custom_node,
                     value: widget.privacySettingsViewModel.addCustomNode,

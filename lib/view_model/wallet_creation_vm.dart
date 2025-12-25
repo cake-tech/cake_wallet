@@ -65,20 +65,21 @@ abstract class WalletCreationVMBase with Store {
   Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
 
   bool _isCreating = false;
-  Future<void> create({dynamic options}) async {
+
+    Future<void> create({dynamic options,bool makeCurrent = true}) async {
     try {
       if (_isCreating) {
         printV("not creating because we don't feel like doing so");
         return;
       }
       _isCreating = true;
-      await _create(options: options);
+      await _create(options: options, makeCurrent: makeCurrent);
     } finally {
       _isCreating = false;
     }
   }
 
-  Future<void> _create({dynamic options}) async {
+  Future<void> _create({dynamic options, bool makeCurrent = true}) async {
     final type = this.type;
     try {
 
@@ -127,13 +128,22 @@ abstract class WalletCreationVMBase with Store {
       final wallet = await process(credentials);
 
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
+
       credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
       credentials.walletInfo!.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
       credentials.walletInfo!.address = wallet.walletAddresses.address;
       await credentials.walletInfo!.save();
+
+    if (makeCurrent) {
       await _appStore.changeCurrentWallet(wallet);
       _appStore.authenticationStore.allowedCreate();
-      state = ExecutedSuccessfullyState();
+
+    } else {
+    await wallet.close(shouldCleanup: true);
+    }
+
+
+    state = ExecutedSuccessfullyState();
     } catch (e, s) {
       printV("error: $e");
       printV("stack: $s");
