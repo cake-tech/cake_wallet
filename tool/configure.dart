@@ -1455,7 +1455,7 @@ abstract class EVM {
   int? getSelectedChainId(WalletBase wallet);
   Future<void> selectChain(WalletBase wallet, int chainId, {required Node node});
   
-  String? getExplorerUrlForChainId(int chainId, String txId);
+  String? getExplorerUrlForChainId(int chainId, {bool showProtocol = true});
   
   bool hasPriorityFee(int chainId);
 }

@@ -1266,7 +1266,7 @@ abstract class DashboardViewModelBase with Store {
       if (tx.isReplaced == true) return ' (replaced)';
     }
 
-    if (wallet.type == WalletType.ethereum && tx.evmSignatureName == 'approval')
+    if (wallet.chainId == 1 && tx.evmSignatureName == 'approval')
       return ' (${tx.evmSignatureName})';
     return '';
   }

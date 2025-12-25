@@ -332,7 +332,7 @@ class CWEVM extends EVM {
   // Chain-specific integrations (only for Ethereum)
   @override
   Future<BigInt>? getDEuroSavingsBalance(WalletBase wallet) {
-    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).savingsBalance;
     }
     return null;
@@ -340,7 +340,7 @@ class CWEVM extends EVM {
 
   @override
   Future<BigInt>? getDEuroAccruedInterest(WalletBase wallet) {
-    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).accruedInterest;
     }
     return null;
@@ -348,7 +348,7 @@ class CWEVM extends EVM {
 
   @override
   Future<BigInt>? getDEuroInterestRate(WalletBase wallet) {
-    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).interestRate;
     }
     return null;
@@ -356,7 +356,7 @@ class CWEVM extends EVM {
 
   @override
   Future<BigInt>? getDEuroSavingsApproved(WalletBase wallet) {
-    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).approvedBalance;
     }
     return null;
@@ -365,7 +365,7 @@ class CWEVM extends EVM {
   @override
   Future<PendingTransaction>? addDEuroSaving(
       WalletBase wallet, BigInt amount, TransactionPriority priority) {
-    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).depositSavings(amount, priority as EVMChainTransactionPriority);
     }
     return null;
@@ -374,7 +374,7 @@ class CWEVM extends EVM {
   @override
   Future<PendingTransaction>? removeDEuroSaving(
       WalletBase wallet, BigInt amount, TransactionPriority priority) {
-    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).withdrawSavings(amount, priority as EVMChainTransactionPriority);
     }
     return null;
@@ -383,7 +383,7 @@ class CWEVM extends EVM {
   @override
   Future<PendingTransaction>? reinvestDEuroInterest(
       WalletBase wallet, TransactionPriority priority) {
-    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).reinvestInterest(priority as EVMChainTransactionPriority);
     }
     return null;
@@ -391,7 +391,7 @@ class CWEVM extends EVM {
 
   @override
   Future<PendingTransaction>? enableDEuroSaving(WalletBase wallet, TransactionPriority priority) {
-    if (wallet.type == WalletType.ethereum && wallet is EVMChainWallet) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).enableSavings(priority as EVMChainTransactionPriority);
     }
     return null;
@@ -499,10 +499,14 @@ class CWEVM extends EVM {
   }
 
   @override
-  String? getExplorerUrlForChainId(int chainId, String txId) {
+  String? getExplorerUrlForChainId(int chainId, {bool showProtocol = true}) {
     final config = _registry.getChainConfig(chainId);
+
     if (config != null && config.explorerUrls.isNotEmpty) {
-      return '${config.explorerUrls.first}/tx/$txId';
+      final url = config.explorerUrls.first;
+      return showProtocol
+          ? url
+          : url.replaceAll('https://', '').replaceAll('http://', '').split('/')[0];
     }
     return null;
   }

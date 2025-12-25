@@ -96,6 +96,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
+        WalletType.evm,
         WalletType.ethereum,
         WalletType.polygon,
         WalletType.base,

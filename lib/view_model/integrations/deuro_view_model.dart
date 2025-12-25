@@ -150,7 +150,7 @@ abstract class DEuroViewModelBase with Store {
     }
     try {
       state = TransactionCommitting();
-      final priority = _appStore.settingsStore.getPriority(WalletType.ethereum)!;
+      final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       final approval = await evm!.enableDEuroSaving(_appStore.wallet!, priority);
       if (approval == null) {
         throw Exception('DEuro saving not available');
@@ -167,7 +167,7 @@ abstract class DEuroViewModelBase with Store {
     try {
       state = TransactionCommitting();
       final amount = parseFixed(amountRaw, 18);
-      final priority = _appStore.settingsStore.getPriority(WalletType.ethereum)!;
+      final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       actionType = isAdding ? DEuroActionType.deposit : DEuroActionType.withdraw;
       final tx = await (isAdding
           ? evm!.addDEuroSaving(_appStore.wallet!, amount, priority)
@@ -188,7 +188,7 @@ abstract class DEuroViewModelBase with Store {
     try {
       state = TransactionCommitting();
       actionType = DEuroActionType.reinvest;
-      final priority = _appStore.settingsStore.getPriority(WalletType.ethereum)!;
+      final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       final tx = await evm!.reinvestDEuroInterest(_appStore.wallet!, priority);
       if (tx == null) {
         throw Exception('DEuro saving not available');

@@ -125,10 +125,10 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.add(
       BlockExplorerListItem(
         title: S.current.view_in_block_explorer,
-        value: _explorerDescription(type, wallet),
+        value: _explorerDescription(type, wallet.chainId),
         onTap: () async {
           try {
-            final uri = Uri.parse(_explorerUrl(type, tx.txHash, wallet));
+            final uri = Uri.parse(_explorerUrl(type, tx.txHash, wallet.chainId));
             if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
           } catch (e) {}
         },
@@ -171,7 +171,12 @@ abstract class TransactionDetailsViewModelBase with Store {
   @observable
   bool canReplaceByFee;
 
-  String _explorerUrl(WalletType type, String txId, [WalletBase? walletForChainId]) {
+  String _explorerUrl(WalletType type, String txId, int? chainId) {
+    if (chainId != null) {
+      final explorerUrl = evm!.getExplorerUrlForChainId(chainId);
+      if (explorerUrl != null) return '$explorerUrl/tx/${txId}';
+    }
+
     switch (type) {
       case WalletType.monero:
         return 'https://monero.com/tx/${txId}';
@@ -184,22 +189,18 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.haven:
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
       case WalletType.ethereum:
-        return 'https://etherscan.io/tx/${txId}';
       case WalletType.evm:
-        if (walletForChainId != null && isEVMCompatibleChain(walletForChainId.type)) {
-          final chainInfo = evm!.getCurrentChain(walletForChainId);
-          if (chainInfo != null) {
-            final explorerUrl = evm!.getExplorerUrlForChainId(chainInfo.chainId, txId);
-            if (explorerUrl != null) return explorerUrl;
-          }
-        }
         return 'https://etherscan.io/tx/${txId}';
+      case WalletType.base:
+        return 'https://basescan.org/tx/${txId}';
+      case WalletType.arbitrum:
+        return 'https://arbiscan.io/tx/${txId}';
+      case WalletType.polygon:
+        return 'https://polygonscan.com/tx/${txId}';
       case WalletType.nano:
         return 'https://nanexplorer.com/nano/block/${txId}';
       case WalletType.banano:
         return 'https://nanexplorer.com/banano/block/${txId}';
-      case WalletType.polygon:
-        return 'https://polygonscan.com/tx/${txId}';
       case WalletType.solana:
         return 'https://solscan.io/tx/${txId}';
       case WalletType.tron:
@@ -212,16 +213,19 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://${wallet.isTestnet ? "testnet" : "dcrdata"}.decred.org/tx/${txId.split(':')[0]}';
       case WalletType.dogecoin:
         return 'https://blockchair.com/dogecoin/transaction/${txId}';
-      case WalletType.base:
-        return 'https://basescan.org/tx/${txId}';
-      case WalletType.arbitrum:
-        return 'https://arbiscan.io/tx/${txId}';
+
       case WalletType.none:
         return '';
     }
   }
 
-  String _explorerDescription(WalletType type, [WalletBase? walletForChainId]) {
+  String _explorerDescription(WalletType type, int? chainId) {
+    if (chainId != null) {
+      final explorerUrl = evm!.getExplorerUrlForChainId(chainId, showProtocol: false);
+      if (explorerUrl != null) {
+        return S.current.view_transaction_on + explorerUrl;
+      }
+    }
     switch (type) {
       case WalletType.monero:
         return S.current.view_transaction_on + 'Monero.com';
@@ -234,19 +238,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
       case WalletType.ethereum:
-        return S.current.view_transaction_on + 'etherscan.io';
       case WalletType.evm:
-        if (walletForChainId != null && isEVMCompatibleChain(walletForChainId.type)) {
-          final chainInfo = evm!.getCurrentChain(walletForChainId);
-          if (chainInfo != null) {
-            final explorerUrl = evm!.getExplorerUrlForChainId(chainInfo.chainId, '');
-            if (explorerUrl != null) {
-              final domain =
-                  explorerUrl.replaceAll('https://', '').replaceAll('http://', '').split('/')[0];
-              return S.current.view_transaction_on + domain;
-            }
-          }
-        }
         return S.current.view_transaction_on + 'etherscan.io';
       case WalletType.nano:
         return S.current.view_transaction_on + 'nanexplorer.com';

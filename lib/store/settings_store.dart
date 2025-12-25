@@ -1970,6 +1970,11 @@ abstract class SettingsStoreBase with Store {
         final chainId = evm!.getChainIdByWalletType(node.type);
         final preferenceKey = _getEVMNodePreferenceKey(chainId);
         await _sharedPreferences.setInt(preferenceKey, node.key as int);
+        final walletTypeForChain = evm!.getWalletTypeByChainId(chainId);
+        if (walletTypeForChain != null) {
+          nodes[walletTypeForChain] = node;
+          return;
+        }
         break;
       case WalletType.ethereum:
         await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);

@@ -59,12 +59,12 @@ abstract class SendTemplateViewModelBase with Store {
 
   bool get hasMultiRecipient =>
       _wallet.type != WalletType.haven &&
-      _wallet.type != WalletType.ethereum &&
-      _wallet.type != WalletType.polygon &&
-      _wallet.type != WalletType.base &&
-      _wallet.type != WalletType.arbitrum &&
       _wallet.type != WalletType.solana &&
-      _wallet.type != WalletType.tron;
+      _wallet.type != WalletType.tron &&
+      _wallet.chainId != 1 &&
+      _wallet.chainId != 137 &&
+      _wallet.chainId != 8453 &&
+      _wallet.chainId != 42161;
 
   @computed
   CryptoCurrency get cryptoCurrency => _wallet.currency;
