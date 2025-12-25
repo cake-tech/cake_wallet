@@ -19,22 +19,19 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   ChainflipExchangeProvider({required this.tradesStore})
       : super(pairList: supportedPairs(_notSupported));
 
-  static final List<CryptoCurrency> _notSupported = [
-    ...(CryptoCurrency.all
-        .where((element) => ![
-              CryptoCurrency.btc,
-              CryptoCurrency.eth,
-              CryptoCurrency.usdc,
-              CryptoCurrency.usdterc20,
-              CryptoCurrency.flip,
-              CryptoCurrency.sol,
-              CryptoCurrency.usdcsol,
-              CryptoCurrency.arbEth,
-              CryptoCurrency.usdcArb,
-              // TODO: Add CryptoCurrency.dot
-            ].contains(element))
-        .toList())
-  ];
+  static final List<CryptoCurrency> _notSupported = [];
+  static final List<CryptoCurrency> _supported = [
+    CryptoCurrency.btc,
+    CryptoCurrency.eth,
+    CryptoCurrency.usdc,
+    CryptoCurrency.usdterc20,
+    CryptoCurrency.flip,
+    CryptoCurrency.sol,
+    CryptoCurrency.usdcsol,
+    CryptoCurrency.arbEth,
+    CryptoCurrency.usdcArb,
+    // TODO: Add CryptoCurrency.dot
+    ];
 
   static const _baseURL = 'chainflip-broker.io';
   static const _assetsPath = '/assets';
@@ -72,6 +69,11 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode}) async {
 
     try {
+
+      if(!_supported.contains(from) || !_supported.contains(to)) {
+        throw Exception('No rates found for $from to $to');
+      }
+
     final assetId = _normalizeCurrency(from);
 
     final assetsResponse = await _getAssets();
@@ -102,6 +104,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
     try {
       if (amount == 0) return 0.0;
+
+      if(!_supported.contains(from) || !_supported.contains(to)) return 0.0;
+
 
       final quoteParams = {
         'apiKey': _affiliateKey,
@@ -320,13 +325,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
-    final network = switch (currency.tag) {
-      'ETH' => 'eth',
-      'SOL' => 'sol',
-      _ => currency.title.toLowerCase()
-    };
+    final tag = currency.tag?.toLowerCase();
+    final title = currency.title.toLowerCase();
 
-    return '${currency.title.toLowerCase()}.$network';
+    // Naive assets without network tag
+    if (tag == null) return '$title.$title';
+
+    return '$title.$tag';
   }
 
   CryptoCurrency? _toCurrency(String name) {
