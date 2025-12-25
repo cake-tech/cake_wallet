@@ -570,30 +570,34 @@ class SendPage extends BasePage {
               isDismissible: false,
               isScrollControlled: true,
               builder: (BuildContext bottomSheetContext) {
-                return ConfirmSendingBottomSheet(
-                  key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
-                  titleText: S.of(bottomSheetContext).confirm_transaction,
-                  accessibleNavigationModeSlideActionButtonText: S.of(bottomSheetContext).send,
-                  footerType: FooterType.slideActionButton,
-                  isSlideActionEnabled: sendViewModel.isReadyForSend,
-                  walletType: sendViewModel.walletType,
-                  titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
-                  currency: sendViewModel.selectedCryptoCurrency,
-                  amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: sendViewModel.pendingTransaction!.amountFormatted,
-                  fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
-                  fee: isEVMCompatibleChain(sendViewModel.walletType)
-                      ? S.of(bottomSheetContext).send_estimated_fee
-                      : S.of(bottomSheetContext).send_fee,
-                  feeValue: sendViewModel.pendingTransaction!.feeFormatted,
-                  feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-                  outputs: sendViewModel.outputs,
-                  onSlideActionComplete: () async {
-                    Navigator.of(bottomSheetContext).pop(true);
-                    sendViewModel.commitTransaction(context);
-                  },
-                  change: sendViewModel.pendingTransaction!.change,
-                  isOpenCryptoPay: sendViewModel.ocpRequest != null,
+                return Observer(
+                  builder: (_) => ConfirmSendingBottomSheet(
+                    key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
+                    titleText: S.of(bottomSheetContext).confirm_transaction,
+                    accessibleNavigationModeSlideActionButtonText:
+                        S.of(bottomSheetContext).send,
+                    footerType: FooterType.slideActionButton,
+                    isSlideActionEnabled: sendViewModel.isReadyForSend,
+                    walletType: sendViewModel.walletType,
+                    titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
+                    currency: sendViewModel.selectedCryptoCurrency,
+                    amount: S.of(bottomSheetContext).send_amount,
+                    amountValue: sendViewModel.pendingTransaction!.amountFormatted,
+                    fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
+                    fee: isEVMCompatibleChain(sendViewModel.walletType)
+                        ? S.of(bottomSheetContext).send_estimated_fee
+                        : S.of(bottomSheetContext).send_fee,
+                    feeValue: sendViewModel.pendingTransaction!.feeFormatted,
+                    feeFiatAmount:
+                        sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                    outputs: sendViewModel.outputs,
+                    onSlideActionComplete: () async {
+                      Navigator.of(bottomSheetContext).pop(true);
+                      sendViewModel.commitTransaction(context);
+                    },
+                    change: sendViewModel.pendingTransaction!.change,
+                    isOpenCryptoPay: sendViewModel.ocpRequest != null,
+                  ),
                 );
               },
             );

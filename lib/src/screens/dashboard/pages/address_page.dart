@@ -144,13 +144,11 @@ class AddressPage extends BasePage {
         child: Column(
           children: <Widget>[
             Expanded(
-              child: Observer(
-                builder: (_) => QRWidget(
-                  formKey: _formKey,
-                  addressListViewModel: addressListViewModel,
-                  amountTextFieldFocusNode: _cryptoAmountFocus,
-                  amountController: _amountController,
-                ),
+              child: QRWidget(
+                formKey: _formKey,
+                addressListViewModel: addressListViewModel,
+                amountTextFieldFocusNode: _cryptoAmountFocus,
+                amountController: _amountController,
               ),
             ),
             SizedBox(height: 16),
