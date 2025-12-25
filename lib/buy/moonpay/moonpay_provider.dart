@@ -383,6 +383,8 @@ class MoonPayProvider extends BuyProvider {
         return 'yellow_card_bank_transfer';
       case PaymentType.fiatBalance:
         return 'fiat_balance';
+      case PaymentType.revolutPay:
+        return 'revolut_pay';
       default:
         return null;
     }
@@ -416,6 +418,8 @@ class MoonPayProvider extends BuyProvider {
         return PaymentType.sepaOpenBankingPayment;
       case 'yellow_card_bank_transfer':
         return PaymentType.yellowCardBankTransfer;
+      case 'revolut_pay':
+        return PaymentType.revolutPay;
       default:
         return PaymentType.unknown;
     }
