@@ -58,8 +58,8 @@ class EVMChainUtils {
     return switch (chainId) {
       1 => 'ETH',
       137 => 'POL',
-      8453 => 'ETH',
-      42161 => 'ETH',
+      8453 => 'BASE',
+      42161 => 'ARB',
       _ => 'ETH',
     };
   }
@@ -78,8 +78,8 @@ class EVMChainUtils {
     return switch (chainId) {
       1 => 'ETH',
       137 => 'MATIC',
-      8453 => 'ETH',
-      42161 => 'ETH',
+      8453 => 'BASE',
+      42161 => 'ARBITRUM',
       _ => 'ETH',
     };
   }

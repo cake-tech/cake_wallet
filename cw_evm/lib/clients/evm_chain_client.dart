@@ -446,50 +446,56 @@ class EVMChainClient {
 
   Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
     try {
-      final uri = Uri.https(
-        'deep-index.moralis.io',
-        '/api/v2.2/erc20/metadata',
-        {
-          "chain": chainName,
-          "addresses": contractAddress,
-        },
-      );
+      final token = await getErcTokenInfoFromNode(contractAddress, chainName);
 
-      final response = await client.get(
-        uri,
-        headers: {
-          "Accept": "application/json",
-          "X-API-Key": secrets.moralisApiKey,
-        },
-      );
-
-      final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
-
-      final symbol = (decodedResponse['symbol'] ?? '') as String;
-      String filteredSymbol = symbol.replaceFirst(RegExp('^\\\$'), '');
-
-      final name = (decodedResponse['name'] ?? '').toString();
-      final decimal = decodedResponse['decimals'] ?? '0';
-      final iconPath = decodedResponse['logo'] ?? '';
-
-      if (name.isEmpty || symbol.isEmpty) {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
+      if (token == null || token.name.isEmpty || token.symbol.isEmpty) {
+        return await getErc20TokenFromMoralis(contractAddress, chainName);
       }
 
-      return Erc20Token(
-        name: name,
-        symbol: filteredSymbol,
-        contractAddress: contractAddress,
-        decimal: int.tryParse(decimal) ?? 0,
-        iconPath: iconPath,
-      );
+      return token;
     } catch (e) {
       try {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
+        return await getErc20TokenFromMoralis(contractAddress, chainName);
       } catch (e) {
         return null;
       }
     }
+  }
+
+  Future<Erc20Token?> getErc20TokenFromMoralis(String contractAddress, String chainName) async {
+    final uri = Uri.https(
+      'deep-index.moralis.io',
+      '/api/v2.2/erc20/metadata',
+      {
+        "chain": chainName,
+        "addresses": contractAddress,
+      },
+    );
+
+    final response = await client.get(
+      uri,
+      headers: {
+        "Accept": "application/json",
+        "X-API-Key": secrets.moralisApiKey,
+      },
+    );
+
+    final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
+
+    final symbol = (decodedResponse['symbol'] ?? '') as String;
+    String filteredSymbol = symbol.replaceFirst(RegExp('^\\\$'), '');
+
+    final name = (decodedResponse['name'] ?? '').toString();
+    final decimal = decodedResponse['decimals'] ?? '0';
+    final iconPath = decodedResponse['logo'] ?? '';
+
+    return Erc20Token(
+      name: name,
+      symbol: filteredSymbol,
+      contractAddress: contractAddress,
+      decimal: int.tryParse(decimal) ?? 0,
+      iconPath: iconPath,
+    );
   }
 
   Future<Erc20Token?> getErcTokenInfoFromNode(String contractAddress, String chainName) async {

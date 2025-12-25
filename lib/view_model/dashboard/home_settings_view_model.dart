@@ -273,9 +273,9 @@ abstract class HomeSettingsViewModelBase with Store {
       }
 
       // Tokens whose contract have not been verified are potentially risky tokens.
-      if (tokenInfo.verifiedContract == false) {
-        return true;
-      }
+      // if (tokenInfo.verifiedContract == false) {
+      //   return true;
+      // }
 
       // Tokens with a security score less than 40 are potentially risky, requiring caution when dealing with them.
       if (tokenInfo.securityScore != null && tokenInfo.securityScore! < 40) {
