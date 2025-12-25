@@ -1401,8 +1401,14 @@ import 'package:cw_core/output_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 """;
   const decredCWHeaders = """
 import 'package:cw_decred/transaction_priority.dart';
@@ -1412,17 +1418,26 @@ import 'package:cw_decred/wallet_creation_credentials.dart';
 import 'package:cw_decred/amount_format.dart';
 import 'package:cw_decred/transaction_credentials.dart';
 import 'package:cw_decred/mnemonic.dart';
+import 'package:cw_decred/ledger.dart';
 """;
   const decredCwPart = "part 'cw_decred.dart';";
   const decredContent = """
 
 abstract class Decred {
   WalletCredentials createDecredNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo});
+      {required String name,
+      WalletInfo? walletInfo,
+      required bool isBip39,
+      required String? mnemonic});
   WalletCredentials createDecredRestoreWalletFromSeedCredentials(
-      {required String name, required String mnemonic, required String password});
+      {required String name,
+      required String mnemonic,
+      required String password,
+      required String passphrase});
   WalletCredentials createDecredRestoreWalletFromPubkeyCredentials(
       {required String name, required String pubkey, required String password});
+  WalletCredentials createDecredHardwareWalletCredentials(
+      {required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
 
   List<TransactionPriority> getTransactionPriorities();
@@ -1448,6 +1463,9 @@ abstract class Decred {
   List<String> getDecredWordList();
 
   String pubkey(Object wallet);
+
+  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
 }
 """;
 
