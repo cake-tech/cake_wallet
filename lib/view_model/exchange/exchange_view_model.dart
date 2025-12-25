@@ -217,7 +217,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         LetsExchangeExchangeProvider(),
         StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
-        // SwapsXyzExchangeProvider(),
+        SwapsXyzExchangeProvider(),
         TrocadorExchangeProvider(
             useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
       ];
@@ -726,6 +726,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
               /// return after the first successful trade
               return;
+            } on SwapXyzProviderException catch (e) {
+              tradeState = TradeIsCreatedFailure(
+                title: S.current.trade_not_created,
+                error: e.message);
+              return;
             } catch (e) {
               continue;
             }
@@ -991,6 +996,50 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   int get receiveMaxDigits => receiveCurrency.decimals;
 
   Future<CreateTradeResult> isCanCreateTrade(Trade trade) async {
+
+    if (trade.provider == ExchangeProviderDescription.swapsXyz) {
+
+      final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+
+      if (tradeFrom == null) {
+        return CreateTradeResult(
+          result: false,
+          errorMessage: 'From currency is null',
+        );
+      }
+
+      final isNativeSupportedToken = walletTypes.contains(cryptoCurrencyToWalletType(tradeFrom));
+
+      if (!isNativeSupportedToken) {
+
+
+
+        bool _isEthToken() =>
+            wallet.currency == CryptoCurrency.eth && tradeFrom.tag == CryptoCurrency.eth.title;
+
+        bool _isPolygonToken() =>
+            wallet.currency == CryptoCurrency.maticpoly &&
+                tradeFrom.tag == CryptoCurrency.maticpoly.tag;
+
+        bool _isBaseToken() =>
+            wallet.currency == CryptoCurrency.baseEth && tradeFrom.tag == CryptoCurrency.baseEth.tag;
+
+        bool _isTronToken() =>
+            wallet.currency == CryptoCurrency.trx && tradeFrom.tag == CryptoCurrency.trx.title;
+
+        bool _isSplToken() =>
+            wallet.currency == CryptoCurrency.sol && tradeFrom.tag == CryptoCurrency.sol.title;
+
+        if(!(_isEthToken() || _isPolygonToken() || _isBaseToken() || _isTronToken() || _isSplToken())) {
+          return CreateTradeResult(
+            result: false,
+            errorMessage: 'This token isn’t supported on the current wallet/network for Swaps.xyz. Switch to a supported wallet or asset',
+          );
+        }
+      }
+
+    }
+
     if (trade.provider == ExchangeProviderDescription.thorChain) {
       final payoutAddress = trade.payoutAddress ?? '';
       final fromWalletAddress = trade.fromWalletAddress ?? '';
