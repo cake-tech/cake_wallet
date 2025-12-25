@@ -6,26 +6,10 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 late Database db;
 
-Future<void> initDb({String? pathOverride}) async {
-  if (Platform.isLinux || Platform.isWindows) {
-    databaseFactory = databaseFactoryFfi;
-  }
 
-  // getAppDir is predictable on all platforms and ensures the db gets included in backups.
-  final dbFileOld = File("${await getDatabasesPath()}/cake.db");
-  final dbFile = File("${(await getAppDir()).path}/cake.db");
-
-  if (Platform.isAndroid && dbFileOld.existsSync() && dbFileOld.path != dbFile.path) {
-    final copied = dbFileOld.copySync(dbFile.path);
-    if (copied.existsSync()) {
-      dbFileOld.deleteSync();
-    }
-  }
-
-  db = await openDatabase(dbFile.path, version: 1,
-    onCreate: (Database db, int version) async {
-      await db.execute(
-        '''
+Future<void> createTablesV2(Database db) async {
+  await db.execute(
+      '''
 CREATE TABLE WalletInfo (
 	walletInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	id TEXT NOT NULL,
@@ -51,8 +35,8 @@ CREATE TABLE WalletInfo (
 );
 ''');
 
-      await db.execute(
-        '''
+  await db.execute(
+      '''
 CREATE TABLE WalletInfoDerivationInfo (
 	walletInfoDerivationInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	address TEXT NOT NULL,
@@ -65,8 +49,8 @@ CREATE TABLE WalletInfoDerivationInfo (
 );
 ''');
 
-      await db.execute(
-        '''
+  await db.execute(
+      '''
 CREATE TABLE WalletInfoAddress (
 	walletInfoAddressId INTEGER PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER,
@@ -76,8 +60,8 @@ CREATE TABLE WalletInfoAddress (
 );
 ''');
 
-      await db.execute(
-        '''
+  await db.execute(
+      '''
 CREATE TABLE WalletInfoAddressInfo (
 	walletInfoAddressInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER NOT NULL,
@@ -89,8 +73,8 @@ CREATE TABLE WalletInfoAddressInfo (
 );
 ''');
 
-      await db.execute(
-        '''
+  await db.execute(
+      '''
 CREATE TABLE "WalletInfoAddressMap" (
 	walletInfoAddressMapId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER NOT NULL,
@@ -99,7 +83,53 @@ CREATE TABLE "WalletInfoAddressMap" (
 	CONSTRAINT WalletInfoAddress_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
         '''
-      );
+  );
+}
+
+Future<void> createTablesV3(Database db) async {
+  db.execute("""
+CREATE TABLE Node (
+NodeId INTEGER PRIMARY KEY,
+uri TEXT NOT NULL,
+path TEXT,
+login TEXT,
+password TEXT,
+isPow INTEGER NOT NULL,
+useSSL INTEGER,
+typeRaw INTEGER NOT NULL,
+trusted INTEGER NOT NULL,
+socksProxyAddress TEXT,
+isEnabledForAutoSwitching INTEGER NOT NULL
+);
+        """);
+}
+
+Future<void> initDb({String? pathOverride}) async {
+  if (Platform.isLinux || Platform.isWindows) {
+    databaseFactory = databaseFactoryFfi;
+  }
+
+  // getAppDir is predictable on all platforms and ensures the db gets included in backups.
+  final dbFileOld = File("${await getDatabasesPath()}/cake.db");
+  final dbFile = File("${(await getAppDir()).path}/cake.db");
+
+  if (Platform.isAndroid && dbFileOld.existsSync() && dbFileOld.path != dbFile.path) {
+    final copied = dbFileOld.copySync(dbFile.path);
+    if (copied.existsSync()) {
+      dbFileOld.deleteSync();
+    }
+  }
+
+  db = await openDatabase(dbFile.path, version: 3,
+    onCreate: (Database db, int version) async {
+     await createTablesV2(db);
+     await createTablesV3(db);
+    },
+    onUpgrade: (Database db, int oldVersion, int newVersion) async{
+      if(oldVersion < 3 && newVersion >= 3) {
+        await createTablesV3(db);
+      }
+
     }
   );
 }

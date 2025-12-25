@@ -57,8 +57,6 @@ Future<void> defaultSettingsMigration(
     {required int version,
     required SharedPreferences sharedPreferences,
     required SecureStorage secureStorage,
-    required Box<Node> nodes,
-    required Box<Node> powNodes,
     required Box<Trade> tradeSource,
     required Box<Contact> contactSource,
     required Box<HavenSeedStore> havenSeedStore}) async {
@@ -67,7 +65,7 @@ Future<void> defaultSettingsMigration(
   }
 
   // check current nodes for nullability regardless of the version
-  await checkCurrentNodes(nodes, powNodes, sharedPreferences);
+  await checkCurrentNodes(sharedPreferences);
 
   final isNewInstall =
       sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) == null;
@@ -100,10 +98,9 @@ Future<void> defaultSettingsMigration(
           await sharedPreferences.setInt(
               PreferencesKey.currentBalanceDisplayModeKey, BalanceDisplayMode.availableBalance.raw);
           await sharedPreferences.setBool('save_recipient_address', true);
-          await resetToDefault(nodes);
+          await resetToDefault();
 
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.monero,
             currentNodePreferenceKey: PreferencesKey.currentNodeIdKey,
@@ -111,30 +108,26 @@ Future<void> defaultSettingsMigration(
             trusted: true,
           );
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.bitcoin,
             currentNodePreferenceKey: PreferencesKey.currentBitcoinElectrumSererIdKey,
             useSSL: true,
           );
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.litecoin,
             currentNodePreferenceKey: PreferencesKey.currentLitecoinElectrumSererIdKey,
             useSSL: true,
           );
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.haven,
             currentNodePreferenceKey: PreferencesKey.currentHavenNodeIdKey,
           );
           break;
         case 2:
-          await replaceNodesMigration(nodes: nodes);
+          await replaceNodesMigration();
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.monero,
             newDefaultUri: newCakeWalletMoneroUri,
@@ -149,13 +142,12 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 3:
-          await updateNodeTypes(nodes: nodes);
-          await addWalletNodeList(nodes: nodes, type: WalletType.bitcoin);
+          await updateNodeTypes();
+          await addWalletNodeList(type: WalletType.bitcoin);
 
           break;
         case 4:
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.bitcoin,
             newDefaultUri: newCakeWalletBitcoinUri,
@@ -182,7 +174,6 @@ Future<void> defaultSettingsMigration(
 
         case 11:
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.monero,
             newDefaultUri: newCakeWalletMoneroUri,
@@ -193,38 +184,35 @@ Future<void> defaultSettingsMigration(
           break;
 
         case 12:
-          await checkCurrentNodes(nodes, powNodes, sharedPreferences);
+          await checkCurrentNodes(sharedPreferences);
           break;
 
         case 13:
-          await resetBitcoinElectrumServer(nodes, sharedPreferences);
+          await resetBitcoinElectrumServer(sharedPreferences);
           break;
 
         case 15:
-          await addWalletNodeList(nodes: nodes, type: WalletType.litecoin);
+          await addWalletNodeList(type: WalletType.litecoin);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.litecoin,
             currentNodePreferenceKey: PreferencesKey.currentLitecoinElectrumSererIdKey,
           );
-          await checkCurrentNodes(nodes, powNodes, sharedPreferences);
+          await checkCurrentNodes(sharedPreferences);
           break;
 
         case 16:
-          await addWalletNodeList(nodes: nodes, type: WalletType.haven);
+          await addWalletNodeList(type: WalletType.haven);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.haven,
             currentNodePreferenceKey: PreferencesKey.currentHavenNodeIdKey,
           );
-          await checkCurrentNodes(nodes, powNodes, sharedPreferences);
+          await checkCurrentNodes(sharedPreferences);
           break;
 
         case 17:
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.haven,
             currentNodePreferenceKey: PreferencesKey.currentHavenNodeIdKey,
@@ -232,7 +220,7 @@ Future<void> defaultSettingsMigration(
           break;
 
         case 18:
-          addWalletNodeList(nodes: nodes, type: WalletType.monero);
+          addWalletNodeList(type: WalletType.monero);
           break;
 
         case 19:
@@ -242,25 +230,22 @@ Future<void> defaultSettingsMigration(
           await migrateExchangeStatus(sharedPreferences);
           break;
         case 21:
-          await addWalletNodeList(nodes: nodes, type: WalletType.ethereum);
+          await addWalletNodeList(type: WalletType.ethereum);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.ethereum,
             currentNodePreferenceKey: PreferencesKey.currentEthereumNodeIdKey,
           );
           break;
         case 22:
-          await addWalletNodeList(nodes: nodes, type: WalletType.nano);
-          await addNanoPowNodeList(nodes: powNodes);
+          await addWalletNodeList(type: WalletType.nano);
+          await addNanoPowNodeList();
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.nano,
             currentNodePreferenceKey: PreferencesKey.currentNanoNodeIdKey,
           );
           await _changeDefaultNode(
-            nodes: powNodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.nano,
             currentNodePreferenceKey: PreferencesKey.currentNanoPowNodeIdKey,
@@ -268,18 +253,16 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 23:
-          await addWalletNodeList(nodes: nodes, type: WalletType.bitcoinCash);
+          await addWalletNodeList(type: WalletType.bitcoinCash);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.bitcoinCash,
             currentNodePreferenceKey: PreferencesKey.currentBitcoinCashNodeIdKey,
           );
           break;
         case 24:
-          await addWalletNodeList(nodes: nodes, type: WalletType.polygon);
+          await addWalletNodeList(type: WalletType.polygon);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.polygon,
             currentNodePreferenceKey: PreferencesKey.currentPolygonNodeIdKey,
@@ -296,9 +279,8 @@ Future<void> defaultSettingsMigration(
           // await insecureStorageMigration(secureStorage: secureStorage, sharedPreferences: sharedPreferences);
           break;
         case 27:
-          await addWalletNodeList(nodes: nodes, type: WalletType.solana);
+          await addWalletNodeList( type: WalletType.solana);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.solana,
             currentNodePreferenceKey: PreferencesKey.currentSolanaNodeIdKey,
@@ -310,7 +292,6 @@ Future<void> defaultSettingsMigration(
           break;
         case 29:
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.bitcoin,
             newDefaultUri: newCakeWalletBitcoinUri,
@@ -323,25 +304,23 @@ Future<void> defaultSettingsMigration(
           await disableServiceStatusFiatDisabled(sharedPreferences);
           break;
         case 31:
-          await updateNanoNodeList(nodes: nodes);
+          await updateNanoNodeList();
           break;
         case 32:
           await updateBtcNanoWalletInfos();
           break;
         case 33:
-          await addWalletNodeList(nodes: nodes, type: WalletType.tron);
+          await addWalletNodeList(type: WalletType.tron);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.tron,
             currentNodePreferenceKey: PreferencesKey.currentTronNodeIdKey,
           );
           break;
         case 34:
-          addWalletNodeList(nodes: nodes, type: WalletType.bitcoin);
+          addWalletNodeList(type: WalletType.bitcoin);
         case 35:
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.bitcoin,
             newDefaultUri: newCakeWalletBitcoinUri,
@@ -351,9 +330,8 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 36:
-          await addWalletNodeList(nodes: nodes, type: WalletType.wownero);
+          await addWalletNodeList(type: WalletType.wownero);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.wownero,
             currentNodePreferenceKey: PreferencesKey.currentWowneroNodeIdKey,
@@ -367,9 +345,8 @@ Future<void> defaultSettingsMigration(
           await fixBtcDerivationPaths();
           break;
         case 39:
-          _fixNodesUseSSLFlag(nodes);
+          _fixNodesUseSSLFlag();
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.nano,
             newDefaultUri: nanoDefaultNodeUri,
@@ -379,7 +356,7 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 40:
-          await removeMoneroWorld(sharedPreferences: sharedPreferences, nodes: nodes);
+          await removeMoneroWorld(sharedPreferences: sharedPreferences);
           break;
         case 41:
           _changeExchangeProviderAvailability(
@@ -387,14 +364,14 @@ Future<void> defaultSettingsMigration(
             providerName: "SwapTrade",
             enabled: false,
           );
-          addWalletNodeList(nodes: nodes, type: WalletType.bitcoin);
-          addWalletNodeList(nodes: nodes, type: WalletType.tron);
+          addWalletNodeList(type: WalletType.bitcoin);
+          addWalletNodeList(type: WalletType.tron);
           break;
         case 42:
-          _fixNodesUseSSLFlag(nodes);
+          _fixNodesUseSSLFlag();
           break;
         case 43:
-          _fixNodesUseSSLFlag(nodes);
+          _fixNodesUseSSLFlag();
           _changeExchangeProviderAvailability(
             sharedPreferences,
             providerName: "THORChain",
@@ -407,9 +384,8 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 44:
-          _fixNodesUseSSLFlag(nodes);
+          _fixNodesUseSSLFlag();
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.bitcoin,
             newDefaultUri: newCakeWalletBitcoinUri,
@@ -418,7 +394,6 @@ Future<void> defaultSettingsMigration(
             oldUri: ['cakewallet.com'],
           );
           _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.tron,
             newDefaultUri: tronDefaultNodeUri,
@@ -433,10 +408,9 @@ Future<void> defaultSettingsMigration(
         case 45:
           // await _backupHavenSeeds(havenSeedStore);
 
-          addWalletNodeList(nodes: nodes, type: WalletType.polygon);
-          addWalletNodeList(nodes: nodes, type: WalletType.ethereum);
+          addWalletNodeList(type: WalletType.polygon);
+          addWalletNodeList(type: WalletType.ethereum);
           _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.tron,
             newDefaultUri: tronDefaultNodeUri,
@@ -448,7 +422,6 @@ Future<void> defaultSettingsMigration(
             ],
           );
           _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.solana,
             newDefaultUri: solanaDefaultNodeUri,
@@ -458,10 +431,9 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 46:
-          await _fixNodesUseSSLFlag(nodes);
-          await addWalletNodeList(nodes: nodes, type: WalletType.litecoin);
+          await _fixNodesUseSSLFlag();
+          await addWalletNodeList(type: WalletType.litecoin);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.solana,
             newDefaultUri: solanaDefaultNodeUri,
@@ -474,21 +446,18 @@ Future<void> defaultSettingsMigration(
             ],
           );
           await _updateNode(
-            nodes: nodes,
             currentUri: "ethereum.publicnode.com",
             newUri: "ethereum-rpc.publicnode.com",
             useSSL: true,
           );
           await _updateNode(
-            nodes: nodes,
             currentUri: "polygon-bor.publicnode.com",
             newUri: "polygon-bor-rpc.publicnode.com",
             useSSL: true,
           );
         case 47:
-          await addWalletNodeList(nodes: nodes, type: WalletType.zano);
+          await addWalletNodeList(type: WalletType.zano);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.zano,
             currentNodePreferenceKey: PreferencesKey.currentZanoNodeIdKey,
@@ -505,9 +474,8 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 48:
-          await addWalletNodeList(nodes: nodes, type: WalletType.decred);
+          await addWalletNodeList(type: WalletType.decred);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.decred,
             currentNodePreferenceKey: PreferencesKey.currentDecredNodeIdKey,
@@ -521,36 +489,32 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 50:
-          migrateExistingNodesToUseAutoSwitching(nodes: nodes, powNodes: powNodes);
+          migrateExistingNodesToUseAutoSwitching();
           break;
         case 51:
           _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.zano,
             currentNodePreferenceKey: PreferencesKey.currentZanoNodeIdKey,
           );
-          await addWalletNodeList(nodes: nodes, type: WalletType.dogecoin);
+          await addWalletNodeList(type: WalletType.dogecoin);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.dogecoin,
             currentNodePreferenceKey: PreferencesKey.currentDogecoinNodeIdKey,
           );
           break;
         case 52:
-          await addWalletNodeList(nodes: nodes, type: WalletType.base);
+          await addWalletNodeList(type: WalletType.base);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.base,
             currentNodePreferenceKey: PreferencesKey.currentBaseNodeIdKey,
           );
           break;
          case 53:
-          await addWalletNodeList(nodes: nodes, type: WalletType.arbitrum);
+          await addWalletNodeList(type: WalletType.arbitrum);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.arbitrum,
             currentNodePreferenceKey: PreferencesKey.currentArbitrumNodeIdKey,
@@ -576,12 +540,13 @@ Future<void> defaultSettingsMigration(
 }
 
 Future<void> _updateNode({
-  required Box<Node> nodes,
   required String currentUri,
   String? newUri,
   bool? useSSL,
 }) async {
-  for (Node node in nodes.values) {
+  final nodes = await Node.getAll();
+
+  for (Node node in nodes) {
     if (node.uriRaw == currentUri) {
       if (newUri != null) {
         node.uriRaw = newUri;
@@ -597,7 +562,6 @@ Future<void> _updateNode({
 /// generic function for changing any wallet default node
 /// instead of making a new function for each change
 Future<void> _changeDefaultNode({
-  required Box<Node> nodes,
   required SharedPreferences sharedPreferences,
   required WalletType type,
   required String currentNodePreferenceKey,
@@ -607,19 +571,21 @@ Future<void> _changeDefaultNode({
   List<String>?
       oldUri, // ignore, if you want to force replace the node regardless of the user's current node
 }) async {
+  List<Node> nodes = await Node.getAll();
+
   final currentNodeId = sharedPreferences.getInt(currentNodePreferenceKey);
   final bool shouldReplace;
   if (currentNodeId == null) {
     shouldReplace = true;
   } else {
-    final currentNode = nodes.values.firstWhere((node) => node.key == currentNodeId);
+    final currentNode = nodes.firstWhere((node) => node.id == currentNodeId);
     shouldReplace = oldUri?.any((e) => currentNode.uriRaw.contains(e)) ?? true;
   }
 
   if (shouldReplace) {
     newDefaultUri ??= _getDefaultNodeUri(type);
     var newNodeId =
-        nodes.values.firstWhereOrNull((element) => element.uriRaw == newDefaultUri)?.key;
+        nodes.firstWhereOrNull((element) => element.uriRaw == newDefaultUri)?.id;
 
     // new node doesn't exist, then add it
     if (newNodeId == null) {
@@ -630,11 +596,11 @@ Future<void> _changeDefaultNode({
         trusted: trusted,
       );
 
-      await nodes.add(newNode);
-      newNodeId = newNode.key;
+      await newNode.save();
+      newNodeId = newNode.id;
     }
 
-    await sharedPreferences.setInt(currentNodePreferenceKey, newNodeId as int);
+    await sharedPreferences.setInt(currentNodePreferenceKey, newNodeId);
   }
 }
 
@@ -692,8 +658,9 @@ void _changeExchangeProviderAvailability(SharedPreferences sharedPreferences,
   );
 }
 
-Future<void> _fixNodesUseSSLFlag(Box<Node> nodes) async {
-  for (Node node in nodes.values) {
+Future<void> _fixNodesUseSSLFlag() async {
+  final nodes = await Node.getAll();
+  for (Node node in nodes) {
     switch (node.uriRaw) {
       case cakeWalletLitecoinElectrumUri:
       case cakeWalletBitcoinElectrumUri:
@@ -706,7 +673,8 @@ Future<void> _fixNodesUseSSLFlag(Box<Node> nodes) async {
   }
 }
 
-Future<void> updateNanoNodeList({required Box<Node> nodes}) async {
+Future<void> updateNanoNodeList() async {
+  final nodes = await Node.getAll();
   final nodeList = await loadDefaultNodes(WalletType.nano);
   var listOfNewEndpoints = <String>[
     "app.natrium.io",
@@ -717,14 +685,14 @@ Future<void> updateNanoNodeList({required Box<Node> nodes}) async {
   ];
   // add new nodes:
   for (final node in nodeList) {
-    if (listOfNewEndpoints.contains(node.uriRaw) && !nodes.values.contains(node)) {
-      await nodes.add(node);
+    if (listOfNewEndpoints.contains(node.uriRaw) && !nodes.contains(node)) {
+      await node.save();
     }
   }
 
   // update the nautilus node:
   final nautilusNode =
-      nodes.values.firstWhereOrNull((element) => element.uriRaw == "node.perish.co");
+      nodes.firstWhereOrNull((element) => element.uriRaw == "node.perish.co");
   if (nautilusNode != null) {
     nautilusNode.uriRaw = "node.nautilus.io";
     nautilusNode.path = "/api";
@@ -841,16 +809,17 @@ Future<void> validateBitcoinSavedTransactionPriority(SharedPreferences sharedPre
   }
 }
 
-Future<void> replaceNodesMigration({required Box<Node> nodes}) async {
+Future<void> replaceNodesMigration() async {
   final replaceNodes = <String, Node>{
     'eu-node.cakewallet.io:18081':
-        Node(uri: 'xmr-node-eu.cakewallet.com:18081', type: WalletType.monero),
+    Node(uri: 'xmr-node-eu.cakewallet.com:18081', type: WalletType.monero),
     'node.cakewallet.io:18081':
-        Node(uri: 'xmr-node-usa-east.cakewallet.com:18081', type: WalletType.monero),
+    Node(uri: 'xmr-node-usa-east.cakewallet.com:18081', type: WalletType.monero),
     'node.xmr.ru:13666': Node(uri: 'node.monero.net:18081', type: WalletType.monero)
   };
 
-  nodes.values.forEach((Node node) async {
+  List<Node> nodes = await Node.getAll();
+  nodes.forEach((Node node) async {
     final nodeToReplace = replaceNodes[node.uri];
 
     if (nodeToReplace != null) {
@@ -862,16 +831,19 @@ Future<void> replaceNodesMigration({required Box<Node> nodes}) async {
   });
 }
 
-Node? getBitcoinTestnetDefaultElectrumServer({required Box<Node> nodes}) {
-  return nodes.values
+Future<Node?> getBitcoinTestnetDefaultElectrumServer()async {
+  final nodes = await Node.getAll();
+
+  return nodes
           .firstWhereOrNull((Node node) => node.uriRaw == publicBitcoinTestnetElectrumUri) ??
-      nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
+      nodes.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
 }
 
-Node? getDefaultNode({required Box<Node> nodes, required WalletType type}) {
+Future<Node?> getDefaultNode({required WalletType type}) async {
+  final nodes = await Node.getAll();
   final defaultUri = _getDefaultNodeUri(type);
-  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == defaultUri) ??
-      nodes.values.firstWhereOrNull((node) => node.type == type);
+  return nodes.firstWhereOrNull((Node node) => node.uriRaw == defaultUri) ??
+      nodes.firstWhereOrNull((node) => node.type == type);
 }
 
 Future<void> insecureStorageMigration({
@@ -982,8 +954,9 @@ Future<void> rewriteSecureStoragePin({required SecureStorage secureStorage}) asy
   );
 }
 
-Future<void> updateNodeTypes({required Box<Node> nodes}) async {
-  nodes.values.forEach((node) async {
+Future<void> updateNodeTypes() async {
+  List<Node> nodes = await Node.getAll();
+  nodes.forEach((node) async {
     if (node.type == null) {
       node.type = WalletType.monero;
       await node.save();
@@ -1070,7 +1043,7 @@ Future<void> updateBtcNanoWalletInfos() async {}
 // }
 
 Future<void> checkCurrentNodes(
-    Box<Node> nodeSource, Box<Node> powNodeSource, SharedPreferences sharedPreferences) async {
+    SharedPreferences sharedPreferences) async {
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
   final currentBitcoinElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -1092,163 +1065,166 @@ Future<void> checkCurrentNodes(
   final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
   final currentZanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
+  List<Node> nodeSource = await Node.getAll();
+  List<Node> powNodeSource = await Node.getAllPow();
+
   final currentMoneroNode =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinElectrumSeverId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentBitcoinElectrumSeverId);
   final currentLitecoinElectrumServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentLitecoinElectrumSeverId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentLitecoinElectrumSeverId);
   final currentHavenNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentHavenNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentHavenNodeId);
   final currentEthereumNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentEthereumNodeId);
   final currentPolygonNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentPolygonNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentPolygonNodeId);
   final currentBaseNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentBaseNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentBaseNodeId);
   final currentArbitrumNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentArbitrumNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentArbitrumNodeId);
   final currentNanoNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentNanoNodeId);
   final currentDecredNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentDecredNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentDecredNodeId);
   final currentNanoPowNodeServer =
-      powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
+      powNodeSource.firstWhereOrNull((node) => node.id == currentNanoPowNodeId);
   final currentBitcoinCashNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentBitcoinCashNodeId);
   final currentDogecoinNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentDogecoinNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentDogecoinNodeId);
   final currentSolanaNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentSolanaNodeId);
   final currentTronNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentTronNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentTronNodeId);
   final currentWowneroNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentWowneroNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentWowneroNodeId);
   final currentZanoNode =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
+      nodeSource.firstWhereOrNull((node) => node.id == currentZanoNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
-    await nodeSource.add(newCakeWalletNode);
-    await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.key as int);
+    await newCakeWalletNode.save();
+    await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.id);
   }
 
   if (currentBitcoinElectrumServer == null) {
     final cakeWalletElectrum =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
-    await nodeSource.add(cakeWalletElectrum);
+    Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
+    await cakeWalletElectrum.save();
     final cakeWalletElectrumTestnet =
-        Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
-    await nodeSource.add(cakeWalletElectrumTestnet);
+    Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
+    await cakeWalletElectrumTestnet.save();
     await sharedPreferences.setInt(
-        PreferencesKey.currentBitcoinElectrumSererIdKey, cakeWalletElectrum.key as int);
+        PreferencesKey.currentBitcoinElectrumSererIdKey, cakeWalletElectrum.id);
   }
 
   if (currentLitecoinElectrumServer == null) {
     final cakeWalletElectrum =
-        Node(uri: cakeWalletLitecoinElectrumUri, type: WalletType.litecoin, useSSL: false);
-    await nodeSource.add(cakeWalletElectrum);
+    Node(uri: cakeWalletLitecoinElectrumUri, type: WalletType.litecoin, useSSL: false);
+    await cakeWalletElectrum.save();
     await sharedPreferences.setInt(
-        PreferencesKey.currentLitecoinElectrumSererIdKey, cakeWalletElectrum.key as int);
+        PreferencesKey.currentLitecoinElectrumSererIdKey, cakeWalletElectrum.id);
   }
 
   if (currentHavenNodeServer == null) {
     final node = Node(uri: havenDefaultNodeUri, type: WalletType.haven);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.id);
   }
 
   if (currentEthereumNodeServer == null) {
     final node = Node(uri: ethereumDefaultNodeUri, type: WalletType.ethereum);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.id);
   }
 
   if (currentNanoNodeServer == null) {
     final node = Node(uri: nanoDefaultNodeUri, useSSL: true, type: WalletType.nano);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.id);
   }
 
   if (currentNanoPowNodeServer == null) {
-    Node? node = powNodeSource.values
+    Node? node = powNodeSource
         .firstWhereOrNull((node) => node.uri.toString() == nanoDefaultPowNodeUri);
     if (node == null) {
-      node = Node(uri: nanoDefaultPowNodeUri, useSSL: true, type: WalletType.nano);
-      await powNodeSource.add(node);
+      node = Node(uri: nanoDefaultPowNodeUri, useSSL: true, type: WalletType.nano, isPow:true);
+      await node.save();
     }
-    await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);
+    await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.id);
   }
 
   if (currentBitcoinCashNodeServer == null) {
     final node =
-        Node(uri: cakeWalletBitcoinCashDefaultNodeUri, type: WalletType.bitcoinCash, useSSL: false);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
+    Node(uri: cakeWalletBitcoinCashDefaultNodeUri, type: WalletType.bitcoinCash, useSSL: false);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.id);
   }
 
   if (currentDogecoinNodeServer == null) {
     final node = Node(uri: dogecoinDefaultNodeUri, type: WalletType.dogecoin, useSSL: true);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.id);
   }
 
   if (currentPolygonNodeServer == null) {
     final node = Node(uri: polygonDefaultNodeUri, type: WalletType.polygon);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.id);
   }
 
   if (currentBaseNodeServer == null) {
     final node = Node(uri: baseDefaultNodeUri, type: WalletType.base);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentBaseNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentBaseNodeIdKey, node.id);
   }
 
   if (currentArbitrumNodeServer == null) {
     final node = Node(uri: arbitrumDefaultNodeUri, type: WalletType.arbitrum);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentArbitrumNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentArbitrumNodeIdKey, node.id);
   }
 
   if (currentSolanaNodeServer == null) {
     final node = Node(uri: solanaDefaultNodeUri, type: WalletType.solana);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.id);
   }
 
   if (currentTronNodeServer == null) {
     final node = Node(uri: tronDefaultNodeUri, type: WalletType.tron);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.id);
   }
 
   if (currentWowneroNodeServer == null) {
     final node = Node(uri: wowneroDefaultNodeUri, type: WalletType.wownero);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.id);
   }
 
   if (currentZanoNode == null) {
     final node = Node(uri: zanoDefaultNodeUri, type: WalletType.zano);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.id);
   }
 
   if (currentDecredNodeServer == null) {
     final node = Node(uri: decredDefaultUri, type: WalletType.decred);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.id);
   }
 }
 
-Future<void> resetBitcoinElectrumServer(
-    Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+Future<void> resetBitcoinElectrumServer(SharedPreferences sharedPreferences) async {
+  final nodeSource = await Node.getAll();
   final currentElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
-  final oldElectrumServer = nodeSource.values
+  final oldElectrumServer = nodeSource
       .firstWhereOrNull((node) => node.uri.toString().contains('electrumx.cakewallet.com'));
-  var cakeWalletNode = nodeSource.values
+  var cakeWalletNode = nodeSource
       .firstWhereOrNull((node) => node.uriRaw.toString() == cakeWalletBitcoinElectrumUri);
 
   if (cakeWalletNode == null) {
@@ -1257,12 +1233,12 @@ Future<void> resetBitcoinElectrumServer(
     // final cakeWalletElectrumTestnet =
     //     Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
     // await nodeSource.add(cakeWalletElectrumTestnet);
-    await nodeSource.add(cakeWalletNode);
+    await cakeWalletNode.save();
   }
 
-  if (currentElectrumSeverId == oldElectrumServer?.key) {
+  if (currentElectrumSeverId == oldElectrumServer?.id) {
     await sharedPreferences.setInt(
-        PreferencesKey.currentBitcoinElectrumSererIdKey, cakeWalletNode.key as int);
+        PreferencesKey.currentBitcoinElectrumSererIdKey, cakeWalletNode.id);
   }
 
   await oldElectrumServer?.delete();
@@ -1280,38 +1256,42 @@ Future<void> migrateExchangeStatus(SharedPreferences sharedPreferences) async {
   await sharedPreferences.remove(PreferencesKey.disableExchangeKey);
 }
 
-Future<void> addNanoPowNodeList({required Box<Node> nodes}) async {
+Future<void> addNanoPowNodeList() async {
   final nodeList = await loadDefaultNanoPowNodes();
+  final nodes = await Node.getAllPow();
   for (var node in nodeList) {
-    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
-      await nodes.add(node);
+    if (nodes.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await node.save();
     }
   }
 }
 
-Node? getNanoDefaultPowNode({required Box<Node> nodes}) {
-  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == nanoDefaultPowNodeUri) ??
-      nodes.values.firstWhereOrNull((node) => (node.type == WalletType.nano));
+Future<Node?> getNanoDefaultPowNode() async {
+  final nodes = await Node.getAll();
+  return nodes.firstWhereOrNull((Node node) => node.uriRaw == nanoDefaultPowNodeUri) ??
+      nodes.firstWhereOrNull((node) => (node.type == WalletType.nano));
 }
 
-Future<void> addWalletNodeList({required Box<Node> nodes, required WalletType type}) async {
+Future<void> addWalletNodeList({required WalletType type}) async {
+  final nodes = await Node.getAll();
   final List<Node> nodeList = await loadDefaultNodes(type);
   for (var node in nodeList) {
-    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
-      await nodes.add(node);
+    if (nodes.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await node.save();
     }
   }
 }
 
 Future<void> removeMoneroWorld(
-    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+    {required SharedPreferences sharedPreferences}) async {
+  final nodes = await Node.getAll();
   const cakeWalletMoneroNodeUriPattern = '.moneroworld.com';
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
-  final currentMoneroNode = nodes.values.firstWhere((node) => node.key == currentMoneroNodeId);
+  final currentMoneroNode = nodes.firstWhere((node) => node.id == currentMoneroNodeId);
   final needToReplaceCurrentMoneroNode =
       currentMoneroNode.uri.toString().contains(cakeWalletMoneroNodeUriPattern);
 
-  nodes.values.forEach((node) async {
+  nodes.forEach((node) async {
     if (node.type == WalletType.monero &&
         node.uri.toString().contains(cakeWalletMoneroNodeUriPattern)) {
       await node.delete();
@@ -1320,7 +1300,6 @@ Future<void> removeMoneroWorld(
 
   if (needToReplaceCurrentMoneroNode) {
     await _changeDefaultNode(
-      nodes: nodes,
       sharedPreferences: sharedPreferences,
       type: WalletType.monero,
       newDefaultUri: newCakeWalletMoneroUri,
@@ -1330,8 +1309,7 @@ Future<void> removeMoneroWorld(
   }
 }
 
-Future<void> migrateExistingNodesToUseAutoSwitching(
-    {required Box<Node> nodes, required Box<Node> powNodes}) async {
+Future<void> migrateExistingNodesToUseAutoSwitching() async {
   final listOfDefaultNodesWithAutoSwitching = [
     'bitcoincash.stackwallet.com:50002',
     'bch.aftrek.org:50002',
@@ -1365,11 +1343,23 @@ Future<void> migrateExistingNodesToUseAutoSwitching(
     'zano.cakewallet.com:11211',
     'electrum.cakewallet.com:50002',
   ];
-  for (var node in [...nodes.values.toList(), ...powNodes.values.toList()]) {
+  final nodes = await Node.getAll();
+  for (var node in nodes) {
     if (listOfDefaultNodesWithAutoSwitching.contains(node.uriRaw)) {
       node.isEnabledForAutoSwitching = true;
       await node.save();
     }
   }
+
+  final powNodes = await Node.getAllPow();
+
+  for(var node in powNodes) {
+    if (listOfDefaultNodesWithAutoSwitching.contains(node.uriRaw)) {
+      node.isEnabledForAutoSwitching = true;
+      node.isPow = true;
+      await node.save();
+    }
+  }
+
 }
 

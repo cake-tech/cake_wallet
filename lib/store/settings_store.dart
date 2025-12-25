@@ -963,8 +963,7 @@ abstract class SettingsStoreBase with Store {
       _sharedPreferences.setBool(PreferencesKey.shouldShowReceiveWarning, value);
 
   static Future<SettingsStore> load(
-      {required Box<Node> nodeSource,
-      required Box<Node> powNodeSource,
+      {
       required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
       BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance}) async {
@@ -1144,39 +1143,60 @@ abstract class SettingsStoreBase with Store {
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
 
+
+    final nodeSource = await Node.getAll();
+    final powNodeSource = await Node.getAllPow();
+
     /// get the selected node, if null, then use the default
-    final moneroNode = nodeSource.get(nodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == newCakeWalletMoneroUri);
-    final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == newCakeWalletBitcoinUri);
-    final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == cakeWalletLitecoinElectrumUri);
-    final ethereumNode = nodeSource.get(ethereumNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == ethereumDefaultNodeUri);
-    final polygonNode = nodeSource.get(polygonNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == polygonDefaultNodeUri);
-    final baseNode = nodeSource.get(baseNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == baseDefaultNodeUri);
-    final arbitrumNode = nodeSource.get(arbitrumNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == arbitrumDefaultNodeUri);
-    final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == cakeWalletBitcoinCashDefaultNodeUri);
-    final nanoNode = nodeSource.get(nanoNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == nanoDefaultNodeUri);
-    final decredNode = nodeSource.get(decredNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == decredDefaultUri);
-    final nanoPowNode = powNodeSource.get(nanoPowNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == nanoDefaultPowNodeUri);
-    final solanaNode = nodeSource.get(solanaNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == solanaDefaultNodeUri);
-    final tronNode = nodeSource.get(tronNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == tronDefaultNodeUri);
-    final wowneroNode = nodeSource.get(wowneroNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
-    final zanoNode = nodeSource.get(zanoNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
-    final dogecoinNode = nodeSource.get(dogecoinNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
+    final moneroNode = nodeSource.firstWhereOrNull((e) => e.id == nodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == newCakeWalletMoneroUri);
+    final bitcoinElectrumServer =
+        nodeSource.firstWhereOrNull((e) => e.id == bitcoinElectrumServerId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == newCakeWalletBitcoinUri);
+    final litecoinElectrumServer =
+        nodeSource.firstWhereOrNull((e) => e.id == litecoinElectrumServerId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == cakeWalletLitecoinElectrumUri);
+    final ethereumNode =
+        nodeSource.firstWhereOrNull((e) => e.id == ethereumNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == ethereumDefaultNodeUri);
+    final polygonNode =
+        nodeSource.firstWhereOrNull((e) => e.id == polygonNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == polygonDefaultNodeUri);
+    final baseNode =
+        nodeSource.firstWhereOrNull((e) => e.id == baseNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == baseDefaultNodeUri);
+    final arbitrumNode =
+        nodeSource.firstWhereOrNull((e) => e.id == arbitrumNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == arbitrumDefaultNodeUri);
+    final bitcoinCashElectrumServer =
+        nodeSource.firstWhereOrNull((e) => e.id == bitcoinCashElectrumServerId) ??
+            nodeSource.firstWhereOrNull(
+                    (e) => e.uriRaw == cakeWalletBitcoinCashDefaultNodeUri);
+    final nanoNode =
+        nodeSource.firstWhereOrNull((e) => e.id == nanoNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == nanoDefaultNodeUri);
+    final decredNode =
+        nodeSource.firstWhereOrNull((e) => e.id == decredNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == decredDefaultUri);
+    final nanoPowNode =
+        powNodeSource.firstWhereOrNull((e) => e.id == nanoPowNodeId) ??
+            powNodeSource.firstWhereOrNull(
+                    (e) => e.uriRaw == nanoDefaultPowNodeUri);
+    final solanaNode =
+        nodeSource.firstWhereOrNull((e) => e.id == solanaNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == solanaDefaultNodeUri);
+    final tronNode =
+        nodeSource.firstWhereOrNull((e) => e.id == tronNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == tronDefaultNodeUri);
+    final wowneroNode =
+        nodeSource.firstWhereOrNull((e) => e.id == wowneroNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
+    final zanoNode =
+        nodeSource.firstWhereOrNull((e) => e.id == zanoNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
+    final dogecoinNode =
+        nodeSource.firstWhereOrNull((e) => e.id == dogecoinNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
@@ -1846,57 +1866,58 @@ abstract class SettingsStoreBase with Store {
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {
+
     switch (walletType) {
       case WalletType.bitcoin:
         await _sharedPreferences.setInt(
-            PreferencesKey.currentBitcoinElectrumSererIdKey, node.key as int);
+            PreferencesKey.currentBitcoinElectrumSererIdKey, node.id);
         break;
       case WalletType.litecoin:
         await _sharedPreferences.setInt(
-            PreferencesKey.currentLitecoinElectrumSererIdKey, node.key as int);
+            PreferencesKey.currentLitecoinElectrumSererIdKey, node.id);
         break;
       case WalletType.monero:
-        await _sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, node.id);
         break;
       case WalletType.haven:
-        await _sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.id);
         break;
       case WalletType.ethereum:
-        await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.id);
         break;
       case WalletType.bitcoinCash:
         await _sharedPreferences.setInt(
-            PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
+            PreferencesKey.currentBitcoinCashNodeIdKey, node.id);
         break;
       case WalletType.nano:
-        await _sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.id);
         break;
       case WalletType.polygon:
-        await _sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.id);
         break;
       case WalletType.base:
-        await _sharedPreferences.setInt(PreferencesKey.currentBaseNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentBaseNodeIdKey, node.id);
         break;
       case WalletType.arbitrum:
-        await _sharedPreferences.setInt(PreferencesKey.currentArbitrumNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentArbitrumNodeIdKey, node.id);
         break;
       case WalletType.solana:
-        await _sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.id);
         break;
       case WalletType.tron:
-        await _sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.id);
         break;
       case WalletType.wownero:
-        await _sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.id);
         break;
       case WalletType.decred:
-        await _sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.id);
         break;
       case WalletType.zano:
-        await _sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.id);
         break;
       case WalletType.dogecoin:
-        await _sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.id);
         break;
       default:
         break;
@@ -1908,7 +1929,7 @@ abstract class SettingsStoreBase with Store {
   Future<void> _saveCurrentPowNode(Node node, WalletType walletType) async {
     switch (walletType) {
       case WalletType.nano:
-        await _sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.id);
         break;
       default:
         break;

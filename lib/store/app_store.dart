@@ -14,7 +14,6 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'app_store.g.dart';
@@ -26,7 +25,6 @@ abstract class AppStoreBase with Store {
       {required this.authenticationStore,
       required this.walletList,
       required this.settingsStore,
-      required this.nodeListStore,
       required this.themeStore});
 
   AuthenticationStore authenticationStore;
@@ -38,7 +36,6 @@ abstract class AppStoreBase with Store {
 
   SettingsStore settingsStore;
 
-  NodeListStore nodeListStore;
 
   ThemeStore themeStore;
 
