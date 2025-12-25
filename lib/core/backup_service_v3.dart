@@ -236,11 +236,16 @@ class BackupServiceV3 extends $BackupService {
       throw Exception('Invalid v3 backup: missing data.bin');
     }
     final dataStream = dataFile.rawContent!.getStream();
-    
-    final decryptedData = File('${file.path}_decrypted'); // decrypted zip file
-    if (decryptedData.existsSync()) {
-      decryptedData.deleteSync();
-    }
+
+    final tmpDir = await getRestoreTempDir();
+    if (!tmpDir.existsSync()) tmpDir.createSync(recursive: true);
+
+    final decryptedData = File('${tmpDir.path}/data_decrypted.zip');
+
+    // pre-clean
+    if (decryptedData.existsSync()) decryptedData.deleteSync();
+
+    try {
     decryptedData.createSync(recursive: true);
     decryptedData.writeAsBytesSync(Uint8List(0), mode: FileMode.write, flush: true);
     
@@ -314,6 +319,12 @@ class BackupServiceV3 extends $BackupService {
 
     // Delete decrypted data file
     decryptedData.deleteSync();
+  } finally {
+      // always clean, even on exception
+      if (decryptedData.existsSync()) {
+        decryptedData.deleteSync();
+      }
+    }
   }
 
   Future<void> verifyHardwareWallets(String password,

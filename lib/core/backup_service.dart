@@ -22,6 +22,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_backup/backup.dart' as cake_backup;
+import 'package:path/path.dart' as path;
 
 class $BackupService {
   $BackupService(this._secureStorage, this.transactionDescriptionBox,
@@ -338,4 +339,11 @@ class $BackupService {
 
   Future<Uint8List> decryptV2(Uint8List data, String passphrase) async =>
       cake_backup.decrypt(passphrase, data);
+
+  Future<Directory> getRestoreTempDir() async {
+    final appDir = await getAppDir();
+    final dir = Directory(path.join(appDir.path, '~_RESTORE_TMP'));
+    if (!dir.existsSync()) dir.createSync(recursive: true);
+    return dir;
+  }
 }
