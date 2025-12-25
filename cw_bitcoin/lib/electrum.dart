@@ -24,6 +24,18 @@ String jsonrpc(
         double version = 2.0}) =>
     '{"jsonrpc": "$version", "method": "$method", "id": "$id",  "params": ${json.encode(params)}}\n';
 
+Map<String, dynamic> _buildRpcRequest(
+        {required String method,
+        required int id,
+        List<Object> params = const [],
+        double version = 2.0}) =>
+    {
+      'jsonrpc': version.toString(),
+      'method': method,
+      'id': id,
+      'params': params,
+    };
+
 class SocketTask {
   SocketTask({required this.isSubscription, this.completer, this.subject});
 
@@ -51,20 +63,27 @@ class ElectrumClient {
   final Map<String, String> _errors;
   ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
   Timer? _aliveTimer;
+  bool isFrigateServer = false;
   String unterminatedString;
 
   Uri? uri;
   bool? useSSL;
 
-  Future<void> connectToUri(Uri uri, {bool? useSSL}) async {
+  Future<void> connectToUri(Uri uri, {bool? useSSL, bool? isFrigateServer}) async {
     this.uri = uri;
     if (useSSL != null) {
       this.useSSL = useSSL;
     }
+    if (isFrigateServer != null) {
+      this.isFrigateServer = isFrigateServer;
+    }
     await connect(host: uri.host, port: uri.port);
   }
 
-  Future<void> connect({required String host, required int port}) async {
+  Future<void> connect({required String host, required int port, bool? isFrigateServer}) async {
+    if (isFrigateServer != null) {
+      this.isFrigateServer = isFrigateServer;
+    }
     _setConnectionStatus(ConnectionStatus.connecting);
 
     // Reset internal state to ensure clean connection
@@ -144,8 +163,20 @@ class ElectrumClient {
 
   void _parseResponse(String message) {
     try {
-      final response = json.decode(message) as Map<String, dynamic>;
-      _handleResponse(response);
+      final decoded = json.decode(message);
+
+      if (decoded is List) {
+        for (final item in decoded) {
+          if (item is Map<String, dynamic>) {
+            _handleResponse(item);
+          }
+        }
+        return;
+      }
+
+      if (decoded is Map<String, dynamic>) {
+        _handleResponse(decoded);
+      }
     } on FormatException catch (e) {
       final msg = e.message.toLowerCase();
 
@@ -337,6 +368,77 @@ class ElectrumClient {
   Future<dynamic> getTweaks({required int height}) async =>
       await callWithTimeout(method: 'blockchain.tweaks.subscribe', params: [height, 1, false]);
 
+  // Uses the Frigate Server method to remote scan, for a single fetch with the latest chainTip height
+  // to verify a response is received, useful to verify if this is a working Frigate server
+  Future<dynamic> getSilentpaymentsSubscribe(
+    String scanPrivateKey,
+    String spendPublicKey,
+    int chainTip,
+  ) async {
+    return callWithTimeout(
+      method: 'blockchain.silentpayments.subscribe',
+      params: [scanPrivateKey, spendPublicKey, chainTip],
+      timeout: 500,
+    );
+  }
+
+  // Frigate Server method to remote scan using the keys from the wallet
+  Future<BehaviorSubject<Map<String, dynamic>>?> silentpaymentsSubscribe(
+    String scanPrivateKey,
+    String spendPublicKey, {
+    int? start,
+    List<int>? labels,
+  }) async {
+    try {
+      if (!isConnected) {
+        return null;
+      }
+
+      final subscription = BehaviorSubject<Map<String, dynamic>>();
+      _regisrySubscription('blockchain.silentpayments.subscribe', subscription);
+
+      if (isFrigateServer) {
+        _id += 1;
+        final versionId = _id;
+
+        _id += 1;
+        final subscribeId = _id;
+
+        // register version to clear it from tasks map when response arrives
+        _registryTask(versionId, Completer<dynamic>());
+
+        final requests = [
+          _buildRpcRequest(method: 'server.version', id: versionId, params: ["", "1.4"]),
+          _buildRpcRequest(
+            method: 'blockchain.silentpayments.subscribe',
+            id: subscribeId,
+            params: [scanPrivateKey, spendPublicKey, start ?? 0, labels ?? []],
+          ),
+        ];
+
+        socket!.write('${json.encode(requests)}\n');
+      } else {
+        _id += 1;
+        socket!.write(jsonrpc(
+          method: 'blockchain.silentpayments.subscribe',
+          id: _id,
+          params: [scanPrivateKey, spendPublicKey, start ?? 0, labels ?? []],
+        ));
+      }
+
+      return subscription;
+    } catch (e) {
+      printV("silentpaymentsSubscribe $e");
+      return null;
+    }
+  }
+
+  // Frigate Server method to stop the remote scanning, previously initiated using the keys from the wallet
+  Future<dynamic> silentpaymentsUnsubscribe(String scanPrivateKey, String spendPublicKey) async =>
+      await callWithTimeout(
+          method: 'blockchain.silentpayments.unsubscribe',
+          params: [scanPrivateKey, spendPublicKey]);
+
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
         if (result is double) {
@@ -437,7 +539,27 @@ class ElectrumClient {
       }
       final subscription = BehaviorSubject<T>();
       _regisrySubscription(id, subscription);
-      socket!.write(jsonrpc(method: method, id: _id, params: params));
+
+      if (isFrigateServer && method != 'server.version') {
+        _id += 1;
+        final versionId = _id;
+
+        _id += 1;
+        final subscribeId = _id;
+
+        // register version to clear it from tasks map when response arrives
+        _registryTask(versionId, Completer<dynamic>());
+
+        final requests = [
+          _buildRpcRequest(method: 'server.version', id: versionId, params: ["", "1.4"]),
+          _buildRpcRequest(method: method, id: subscribeId, params: params),
+        ];
+
+        socket!.write('${json.encode(requests)}\n');
+      } else {
+        _id += 1;
+        socket!.write(jsonrpc(method: method, id: _id, params: params));
+      }
 
       return subscription;
     } catch (e) {
@@ -450,6 +572,14 @@ class ElectrumClient {
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
     if (!isConnected) return null;
 
+    if (isFrigateServer && method != 'server.version') {
+      return _callWithVersionBatch(
+        method: method,
+        params: params,
+        idCallback: idCallback,
+      );
+    }
+
     final completer = Completer<dynamic>();
     _id += 1;
     final id = _id;
@@ -460,10 +590,51 @@ class ElectrumClient {
     return completer.future;
   }
 
+  Future<dynamic> _callWithVersionBatch(
+      {required String method,
+      List<Object> params = const [],
+      int? timeout,
+      Function(int)? idCallback}) async {
+    if (!isConnected) return null;
+
+    final completer = Completer<dynamic>();
+
+    _id += 1;
+    final versionId = _id;
+    final versionCompleter = Completer<dynamic>();
+    _registryTask(versionId, versionCompleter);
+
+    _id += 1;
+    final callId = _id;
+    _registryTask(callId, completer);
+    idCallback?.call(callId);
+
+    final requests = [
+      _buildRpcRequest(method: 'server.version', id: versionId, params: ["", "1.4"]),
+      _buildRpcRequest(method: method, id: callId, params: params),
+    ];
+
+    socket!.write('${json.encode(requests)}\n');
+
+    if (timeout != null) {
+      Timer(Duration(milliseconds: timeout), () {
+        if (!completer.isCompleted) {
+          completer.completeError(RequestFailedTimeoutException(method, callId));
+        }
+      });
+    }
+
+    return completer.future;
+  }
+
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
       if (!isConnected) return null;
+
+      if (isFrigateServer && method != 'server.version') {
+        return _callWithVersionBatch(method: method, params: params, timeout: timeout);
+      }
 
       final completer = Completer<dynamic>();
       _id += 1;
@@ -551,7 +722,11 @@ class ElectrumClient {
         break;
       case 'blockchain.tweaks.subscribe':
         final params = request['params'] as List<dynamic>;
-        _tasks[_tasks.keys.first]?.subject?.add(params.last);
+        _tasks[method]?.subject?.add(params.last);
+        break;
+      case 'blockchain.silentpayments.subscribe':
+        final params = request['params'] as Map<String, dynamic>;
+        _tasks[method]?.subject?.add(params);
         break;
       default:
         break;
@@ -571,7 +746,8 @@ class ElectrumClient {
 
   void _handleResponse(Map<String, dynamic> response) {
     final method = response['method'];
-    final id = response['id'] as String?;
+    // id can be String or a number, use toString() here to always return a String
+    final id = response['id'].toString();
     final result = response['result'];
 
     try {

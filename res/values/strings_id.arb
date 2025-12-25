@@ -415,6 +415,7 @@
   "forgot_password": "Lupa Kata Sandi",
   "freeze": "Freeze",
   "frequently_asked_questions": "Pertanyaan yang sering diajukan",
+  "frigate_electrum_server_warning": "Server Frigate Electrum ini membagikan kunci Pembayaran Senyap Anda dengan server dan dapat menurunkan privasi Anda. Lanjutkan hanya jika Anda mempercayai server ini.",
   "from": "Dari",
   "frozen": "Dibekukan",
   "frozen_balance": "Keseimbangan beku",

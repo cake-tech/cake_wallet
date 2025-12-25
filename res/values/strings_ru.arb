@@ -415,6 +415,7 @@
   "forgot_password": "Забыли пароль",
   "freeze": "Заморозить",
   "frequently_asked_questions": "Часто задаваемые вопросы",
+  "frigate_electrum_server_warning": "Этот сервер Frigate Electrum передает ваши ключи Silent Payments серверу и может ухудшить вашу конфиденциальность. Продолжайте, только если вы доверяете этому серверу.",
   "from": "От",
   "frozen": "Заморожено",
   "frozen_balance": "Замороженный баланс",

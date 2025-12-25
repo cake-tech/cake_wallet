@@ -1,6 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/frigate_server_warning.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -103,12 +104,23 @@ class RescanPage extends BasePage {
 
     Navigator.of(context).pop();
 
+    final popupContext = navigatorKey.currentState!.context;
+
+    final shouldProceed = await showFrigateElectrumServerWarning(
+      context: popupContext,
+      wallet: _rescanViewModel.wallet,
+    );
+
+    if (!shouldProceed) {
+      return;
+    }
+
     final needsToSwitch =
         await bitcoin!.getNodeIsElectrsSPEnabled(_rescanViewModel.wallet) == false;
 
     if (needsToSwitch) {
       return showPopUp<void>(
-        context: navigatorKey.currentState!.context,
+        context: popupContext,
         builder: (BuildContext _dialogContext) => AlertWithTwoActions(
           alertTitle: S.of(_dialogContext).change_current_node_title,
           alertContent: S.of(_dialogContext).confirm_silent_payments_switch_node,

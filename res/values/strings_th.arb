@@ -415,6 +415,7 @@
   "forgot_password": "ลืมรหัสผ่าน",
   "freeze": "ดักจับ",
   "frequently_asked_questions": "คำถามที่พบบ่อย",
+  "frigate_electrum_server_warning": "เซิร์ฟเวอร์ Frigate Electrum นี้แชร์คีย์ Silent Payments ของคุณกับเซิร์ฟเวอร์ และอาจลดความเป็นส่วนตัวของคุณ ดำเนินการต่อเมื่อคุณเชื่อถือเซิร์ฟเวอร์นี้เท่านั้น",
   "from": "จาก",
   "frozen": "ถูกดักจับ",
   "frozen_balance": "สมดุลแช่แข็ง",
