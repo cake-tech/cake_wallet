@@ -8,10 +8,12 @@ class VerifyForm extends StatefulWidget {
   VerifyForm({
     Key? key,
     required this.type,
+    required this.chainId,
   }) : super(key: key);
 
   final WalletType type;
-
+  final int? chainId;
+  
   @override
   VerifyFormState createState() => VerifyFormState();
 }
@@ -66,7 +68,7 @@ class VerifyFormState extends State<VerifyForm> with AutomaticKeepAliveClientMix
               onSelectedContact: (contact) {
                 addressController.text = contact.address;
               },
-              selectedCurrency: walletTypeToCryptoCurrency(widget.type),
+              selectedCurrency: walletTypeToCryptoCurrency(widget.type, chainId: widget.chainId),
             ),
             const SizedBox(height: 20),
             AddressTextField(

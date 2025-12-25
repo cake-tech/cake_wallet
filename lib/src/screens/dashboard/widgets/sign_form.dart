@@ -11,12 +11,14 @@ class SignForm extends StatefulWidget {
   SignForm({
     Key? key,
     required this.type,
+    required this.chainId,
     required this.includeAddress,
   }) : super(key: key);
 
   final WalletType type;
   final bool includeAddress;
-
+  final int? chainId;
+  
   @override
   SignFormState createState() => SignFormState();
 }
@@ -76,7 +78,7 @@ class SignFormState extends State<SignForm> with AutomaticKeepAliveClientMixin {
                       onSelectedContact: (contact) {
                         addressController.text = contact.address;
                       },
-                      selectedCurrency: walletTypeToCryptoCurrency(widget.type),
+                      selectedCurrency: walletTypeToCryptoCurrency(widget.type, chainId: widget.chainId),
                       fillColor: Theme.of(context).colorScheme.surface,
                     ),
                   ],

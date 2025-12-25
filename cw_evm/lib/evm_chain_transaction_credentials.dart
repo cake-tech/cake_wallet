@@ -8,10 +8,12 @@ class EVMChainTransactionCredentials {
     required this.priority,
     required this.currency,
     this.feeRate,
+    this.useBlinkProtection = true,
   });
 
   final List<OutputInfo> outputs;
   final EVMChainTransactionPriority? priority;
   final int? feeRate;
   final CryptoCurrency currency;
+  final bool useBlinkProtection;
 }
