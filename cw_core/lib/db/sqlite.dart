@@ -104,6 +104,11 @@ isEnabledForAutoSwitching INTEGER NOT NULL
         """);
 }
 
+Future<void> reloadDb() async {
+  await db.close();
+  await initDb();
+}
+
 Future<void> initDb({String? pathOverride}) async {
   if (Platform.isLinux || Platform.isWindows) {
     databaseFactory = databaseFactoryFfi;
