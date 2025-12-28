@@ -37,41 +37,12 @@ SCRIPTS_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
 # Paths
 #######################################
 
-# scripts/minotari
-MINOTARI_DIR="$SCRIPTS_DIR/minotari"
-MINOTARI_REPO="minotari-cli"
-MINOTARI_REPO_URL="git@github.com:tari-project/minotari-cli.git"
-
 # sibling: ./cw_minotari/rust
 PROJECT_ROOT="$(cd "$SCRIPTS_DIR/.." && pwd)"
 CW_PARENT_DIR="$PROJECT_ROOT/cw_minotari"
 CW_RUST_DIR="$CW_PARENT_DIR/rust"
 CW_REPO_URL="https://github.com/tari-project/cw_tari_wallet.git"
 
-#######################################
-# Minotari setup
-#######################################
-
-mkdir -p "$MINOTARI_DIR"
-
-if [ ! -d "$MINOTARI_DIR/$MINOTARI_REPO" ]; then
-  git clone "$MINOTARI_REPO_URL" "$MINOTARI_DIR/$MINOTARI_REPO"
-fi
-
-mkdir -p "$MINOTARI_DIR/$MINOTARI_REPO/data"
-
-DATA_DIR="$MINOTARI_DIR/$MINOTARI_REPO/data"
-DATABASE_URL="sqlite://$DATA_DIR/wallet.db"
-export DATABASE_URL
-
-echo "DATABASE_URL set to:"
-echo "  $DATABASE_URL"
-
-(
-  cd "$MINOTARI_DIR/$MINOTARI_REPO" || exit 1
-  sqlx database create
-  sqlx migrate run
-)
 
 #######################################
 # cw_tari_wallet setup
@@ -107,8 +78,6 @@ fi
 
   if ! flutter_rust_bridge_codegen generate; then
     echo "⚠️  flutter_rust_bridge_codegen failed."
-    echo "⚠️  This usually means rust_input is not configured yet."
-    echo "⚠️  Continuing without aborting your shell."
   fi
 )
 
