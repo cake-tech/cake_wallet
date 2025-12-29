@@ -18,7 +18,8 @@ class LanguageService {
     'pt_BR': 'Português Brasileiro (Brazilian Portuguese)',
     'ru': 'Русский (Russian)',
     'uk': 'Українська (Ukrainian)',
-    'zh': '中文 (Chinese)',
+    'zh': '简体中文 (Chinese Simplified)',
+    'zh_TW': '繁體中文 (Chinese Traditional)',
     'hr': 'Hrvatski (Croatian)',
     'it': 'Italiano (Italian)',
     'th': 'ภาษาไทย (Thai)',
@@ -52,6 +53,7 @@ class LanguageService {
     'ru': 'rus',
     'uk': 'ukr',
     'zh': 'chn',
+    'zh_TW': 'twn',
     'hr': 'hrv',
     'it': 'ita',
     'th': 'tha',
@@ -83,15 +85,15 @@ class LanguageService {
 
   static Future<String> localeDetection() async {
     try {
-        var locale = await Devicelocale.currentLocale ?? '';
-        locale = Intl.shortLocale(locale);
+      var locale = await Devicelocale.currentLocale ?? '';
+      locale = Intl.shortLocale(locale);
 
-        if (list.keys.contains(locale)) {
-            return locale;
-        }
-        return LanguageService.defaultLocale;
-    } catch(_) {
-        return LanguageService.defaultLocale;
+      if (list.keys.contains(locale)) {
+        return locale;
+      }
+      return LanguageService.defaultLocale;
+    } catch (_) {
+      return LanguageService.defaultLocale;
     }
   }
 }
