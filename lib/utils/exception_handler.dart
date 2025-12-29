@@ -294,6 +294,7 @@ class ExceptionHandler {
     "FocusScopeNode was used after being disposed",
     "_getDismissibleFlushbar",
     "_QueuedFuture.execute (package:universal_ble/src/queue.dart:65)",
+    "reown_core/relay_client/websocket/websocket_handler.dart",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
