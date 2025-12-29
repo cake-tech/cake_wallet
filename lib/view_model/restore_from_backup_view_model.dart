@@ -63,8 +63,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
 
       final store = getIt.get<AppStore>();
       ReactionDisposer? reaction;
-      await store.settingsStore.reload(nodeSource: getIt.get<Box<Node>>());
-      await reloadDb();
+      //await store.settingsStore.reload(nodeSource: getIt.get<Box<Node>>());
       await store.themeStore.loadSavedTheme(isFromBackup: true);
       reaction = autorun((_) {
         final wallet = store.wallet;
