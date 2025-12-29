@@ -13,7 +13,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
 part 'deuro_view_model.g.dart';
@@ -166,7 +165,21 @@ abstract class DEuroViewModelBase with Store {
   Future<void> prepareSavingsEdit(String amountRaw, bool isAdding) async {
     try {
       state = TransactionCommitting();
+
+      if (amountRaw.isEmpty || amountRaw.trim().isEmpty) {
+        throw Exception('Invalid amount: amount cannot be empty');
+      }
+
+      if (!isAdding && accruedInterest < MIN_ACCRUED_INTEREST) {
+        throw Exception('Accrued interest is below minimum threshold');
+      }
+
       final amount = parseFixed(amountRaw, 18);
+      
+      if (amount == BigInt.zero) {
+        throw Exception('Invalid amount: amount cannot be zero');
+      }
+
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       actionType = isAdding ? DEuroActionType.deposit : DEuroActionType.withdraw;
       final tx = await (isAdding
@@ -182,7 +195,20 @@ abstract class DEuroViewModelBase with Store {
     }
   }
 
-  Future<void> prepareCollectInterest() => prepareSavingsEdit(accruedInterestFormated, false);
+  Future<void> prepareCollectInterest() async {
+    if (accruedInterest < MIN_ACCRUED_INTEREST) {
+      state = FailureState('Accrued interest is below minimum threshold');
+      return;
+    }
+
+    final formatted = accruedInterestFormated;
+    if (formatted.isEmpty || formatted == '0.000000') {
+      state = FailureState('Invalid accrued interest amount');
+      return;
+    }
+
+    await prepareSavingsEdit(formatted, false);
+  }
 
   Future<void> prepareReinvestInterest() async {
     try {

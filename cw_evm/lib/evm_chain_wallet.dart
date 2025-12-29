@@ -589,9 +589,10 @@ abstract class EVMChainWalletBase
         // Base fee can increase between estimation and transaction submission
         final baseFeeWithPriority = gasBaseFee + priorityFee;
         
-        // For chains without priority fees (e.g., Arbitrum), use a smaller buffer (5%)
-        // For chains with priority fees, use a larger buffer (10%) to account for both base fee and priority fee volatility
-        final bufferMultiplier = hasPriorityFee ? 110 : 105;
+        // For chains without priority fees (e.g., Arbitrum), use a 5% buffer
+        // For chains with priority fees (e.g., Ethereum), use a 15% buffer to account for base fee volatility
+        // Base fee can increase significantly during high network activity
+        final bufferMultiplier = hasPriorityFee ? 115 : 105;
         final bufferPercent = (baseFeeWithPriority * bufferMultiplier) ~/ 100;
         final bufferMin = baseFeeWithPriority + (baseFeeWithPriority ~/ 100);
         maxFeePerGas = bufferPercent > bufferMin ? bufferPercent : bufferMin;
