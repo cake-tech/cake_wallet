@@ -4,7 +4,7 @@ version: 0.0.1
 homepage:
 
 environment:
-  sdk: '>=3.0.6 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -19,7 +19,6 @@ dependencies:
     path: ../cw_core
   hive: ^2.2.3
   flutter_rust_bridge: 2.11.1
-  freezed: ^2.5.2
   freezed_annotation: ^2.4.4
 
 dev_dependencies:
@@ -29,7 +28,6 @@ dev_dependencies:
   mobx_codegen: ^2.6.1
   hive_generator: ^2.0.1
   freezed: ^2.5.2
-  freezed_annotation: ^2.4.4
 
 ffigen:
   output: 'lib/minotari_ffi_bindings.dart'
