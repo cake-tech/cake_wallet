@@ -108,7 +108,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   }
 
   double calcBarWidth(double pillWidth) {
-    return (iconWidth+iconHorizontalPadding)*(NewMainActions.all.length)+(pillWidth-(iconWidth))+barHorizontalPadding+pillIconSpacing/double.infinity;
+    return (iconWidth+iconHorizontalPadding)*(NewMainActions.all.length)+(pillWidth-(iconWidth))+barHorizontalPadding+pillIconSpacing/double.infinity - 2;
   }
 
   @override
