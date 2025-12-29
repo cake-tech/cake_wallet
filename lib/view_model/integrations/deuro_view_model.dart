@@ -170,13 +170,9 @@ abstract class DEuroViewModelBase with Store {
         throw Exception('Invalid amount: amount cannot be empty');
       }
 
-      if (!isAdding && accruedInterest < MIN_ACCRUED_INTEREST) {
-        throw Exception('Accrued interest is below minimum threshold');
-      }
-
-      final amount = parseFixed(amountRaw, 18);
+      final amount = tryParseFixed(amountRaw, 18);
       
-      if (amount == BigInt.zero) {
+      if (amount == BigInt.zero || amount == null) {
         throw Exception('Invalid amount: amount cannot be zero');
       }
 
