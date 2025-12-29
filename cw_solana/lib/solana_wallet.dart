@@ -145,6 +145,7 @@ abstract class SolanaWalletBase
 
     await walletAddresses.init();
     await transactionHistory.init();
+
     await save();
   }
 
@@ -227,8 +228,8 @@ abstract class SolanaWalletBase
     await _updateBalance();
 
     final transactionCurrency = balance.keys.firstWhere(
-            (currency) =>
-        currency.title == credentials.currency.title &&
+        (currency) =>
+            currency.title == credentials.currency.title &&
             currency.tag == credentials.currency.tag,
         orElse: () => throw Exception(
             'Currency ${credentials.currency.title} ${credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));

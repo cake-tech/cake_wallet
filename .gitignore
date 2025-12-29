@@ -214,3 +214,4 @@ flatpak-build/
 **/linux/flutter/generated_plugins.cmake
 
 scripts/torch_dart/
+fiat-check-output.txt

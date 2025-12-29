@@ -1353,8 +1353,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
 
-  getIt.registerSingleton<EditBackupPasswordViewModel>(
-    EditBackupPasswordViewModel(getIt.get<SecureStorage>()),
+  getIt.registerLazySingleton<EditBackupPasswordViewModel>(
+    () => EditBackupPasswordViewModel(getIt.get<SecureStorage>()),
   );
 
   getIt.registerFactory(() => BackupViewModel(
@@ -1612,13 +1612,17 @@ Future<void> setup({
   getIt.registerFactory(() => DevExchangeProviderLogsPage(getIt.get<ExchangeProviderLogsViewModel>()));
 
   getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
-  
+
   getIt.registerFactory(() => DEuroViewModel(
-    getIt<AppStore>(),
-    getIt<BalanceViewModel>(),
-    getIt<SettingsStore>(),
-    getIt<FiatConversionStore>(),
-  ));
+        getIt<AppStore>(),
+        getIt<BalanceViewModel>(),
+        getIt<SettingsStore>(),
+        getIt<FiatConversionStore>(),
+        getIt.get<AppStore>().wallet!.isHardwareWallet
+            ? getIt<HardwareWalletViewModel>(
+                param1: getIt.get<AppStore>().wallet!.hardwareWalletType!)
+            : null,
+      ));
 
   getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));
 
