@@ -1,9 +1,11 @@
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_trade_tile.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
+import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -31,6 +33,10 @@ class HistorySection extends StatelessWidget {
                 ? null
                 : dashboardViewModel.items[index + 1];
 
+            final roundedBottom = (nextItem == null || nextItem is DateSectionItem);
+            final roundedTop = (prevItem == null || prevItem is DateSectionItem);
+
+
             if (item is TransactionListItem) {
               final transaction = item.transaction;
               final transactionType = dashboardViewModel.getTransactionType(transaction);
@@ -47,9 +53,9 @@ class HistorySection extends StatelessWidget {
                     date: DateFormatter.convertDateTimeToReadableString(item.date),
                     amount: item.formattedCryptoAmount,
                     amountFiat: item.formattedFiatAmount,
-                    roundedBottom: !(nextItem is TransactionListItem || nextItem is TradeListItem),
-                    roundedTop: !(prevItem is TransactionListItem || prevItem is TradeListItem),
-                    bottomSeparator: nextItem is TransactionListItem || nextItem is TradeListItem,
+                    roundedBottom: roundedBottom,
+                    roundedTop: roundedTop,
+                    bottomSeparator: !roundedBottom,
                     direction: item.transaction.direction,
                     pending: item.transaction.isPending,
                     asset: asset,
@@ -68,15 +74,24 @@ class HistorySection extends StatelessWidget {
                 date: DateFormatter.convertDateTimeToReadableString(item.date),
                 amount: trade.amountFormatted(),
                 receiveAmount: trade.receiveAmountFormatted(),
-                roundedBottom: !(nextItem is TransactionListItem || nextItem is TradeListItem),
-                roundedTop: !(prevItem is TransactionListItem || prevItem is TradeListItem),
-                bottomSeparator: nextItem is TransactionListItem || nextItem is TradeListItem,
+                roundedBottom: roundedBottom,
+                roundedTop: roundedTop,
+                bottomSeparator: !roundedBottom,
                 swapState: trade.state,
               );
             } else if (item is DateSectionItem) {
               return Padding(
                   padding: EdgeInsets.only(left: 8.0, bottom: 8.0),
                   child: Text(DateFormatter.convertDateTimeToReadableString(item.date)));
+            }else if(item is OrderListItem){
+              return HistoryOrderTile(
+                date: DateFormatter.convertDateTimeToReadableString(item.date),
+                amount: item.orderFormattedAmount,
+                amountFiat: "USD 0.00",
+                roundedBottom: roundedBottom,
+                roundedTop: roundedTop,
+                bottomSeparator: !roundedBottom,
+              );
             } else
               return Text(item.runtimeType.toString());
           },

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -17,18 +19,34 @@ class CardCustomizer extends StatefulWidget {
 
 class _CardCustomizerState extends State<CardCustomizer> {
   final accountNameController = TextEditingController();
+  late final bool editEnabled;
 
   @override
   void initState() {
     super.initState();
 
-    accountNameController.text = context.read<CardCustomizerBloc>().state.accountName;
+    // wait for the bloc to load, then figure out if we should allow name editing.
+    final bloc = context.read<CardCustomizerBloc>();
+    late final StreamSubscription sub;
+    sub = bloc.stream.listen((state) {
+      if (state is! CardCustomizerNotLoaded) {
+        editEnabled = state.accountName.isNotEmpty;
+        sub.cancel();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CardCustomizerBloc, CardCustomizerState>(
+    return BlocListener<CardCustomizerBloc, CardCustomizerState>(
+      listenWhen: (previous, current) =>
+      previous.accountName != current.accountName,
+      listener: (context, state) {
+        accountNameController.text = state.accountName;
+      },
+  child: BlocBuilder<CardCustomizerBloc, CardCustomizerState>(
       builder: (context, state) {
+        if (state is CardCustomizerNotLoaded) return SizedBox.shrink();
         return SingleChildScrollView(
           child: SafeArea(
             child: Column(
@@ -36,13 +54,13 @@ class _CardCustomizerState extends State<CardCustomizer> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ModalTopBar(
-                  title: state.accountName.isEmpty ? "Edit Card" : "Edit Account",
+                  title: editEnabled ? "Edit Account" : "Edit Card",
                   leadingIcon: Icon(Icons.close),
-                  trailingIcon: state.accountName.isEmpty ? null : Icon(Icons.delete_forever),
+                  trailingIcon: editEnabled ? Icon(Icons.delete_forever) : null,
                   onLeadingPressed: () => Navigator.of(context).pop(),
                   onTrailingPressed: () {},
                 ),
-                if (state.accountName.isNotEmpty)
+                if (editEnabled)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 18.0),
                     child: Column(
@@ -51,6 +69,9 @@ class _CardCustomizerState extends State<CardCustomizer> {
                       children: [
                         Text("Account name"),
                         TextField(
+                          onChanged: (value) {
+                            context.read<CardCustomizerBloc>().add(AccountNameChanged(value));
+                          },
                           controller: accountNameController,
                         )
                       ],
@@ -61,7 +82,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                   selected: true,
                   designSwitchDuration: Duration(milliseconds: 300),
                   accountName:
-                      state.accountName.isEmpty ? widget.cryptoTitle : accountNameController.text,
+                      editEnabled ?  state.accountName:widget.cryptoTitle ,
                   balance: "0.00",
                   assetName: widget.cryptoName,
                   design: state.selectedDesign,
@@ -223,7 +244,8 @@ class _CardCustomizerState extends State<CardCustomizer> {
           ),
         );
       },
-    );
+    ),
+);
   }
 
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/material.dart';
@@ -68,71 +69,16 @@ class HistoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(roundedTop ? 12 : 0),
-                topRight: Radius.circular(roundedTop ? 12 : 0),
-                bottomLeft: Radius.circular(roundedBottom ? 12 : 0),
-                bottomRight: Radius.circular(roundedBottom ? 12 : 0),
-              )),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 12,
-              horizontal: 12,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: SizedBox(
-                    height: 36,
-                    width: 36,
-                    child: _getLeadingIcon(context),
-                  ),
-                ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(title),
-                          Text(date),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(amount),
-                          Text(amountFiat),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: SizedBox(
-            height: 1,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHigh,
-              ),
-            ),
-          ),
-        ),
-      ],
+    return HistoryTileBase(
+      title: title,
+      date: date,
+      amount: amount,
+      amountFiat: amountFiat,
+      leadingIcon: _getLeadingIcon(context),
+      roundedTop: roundedTop,
+      roundedBottom: roundedBottom,
+      bottomSeparator: bottomSeparator,
+      asset: asset,
     );
   }
 }
