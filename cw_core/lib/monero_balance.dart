@@ -4,7 +4,7 @@ import 'package:cw_core/monero_amount_format.dart';
 class MoneroBalance extends Balance {
   MoneroBalance({required this.fullBalance, required this.unlockedBalance, this.frozenBalance = 0})
       : formattedFrozenBalance = moneroAmountToString(amount: frozenBalance),
-        super(unlockedBalance, fullBalance, frozen: frozenBalance);
+        super(unlockedBalance, fullBalance - unlockedBalance, frozen: frozenBalance);
 
   final int fullBalance;
   final int unlockedBalance;

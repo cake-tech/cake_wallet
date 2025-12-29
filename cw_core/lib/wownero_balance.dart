@@ -4,7 +4,7 @@ import 'package:cw_core/wownero_amount_format.dart';
 class WowneroBalance extends Balance {
   WowneroBalance({required this.fullBalance, required this.unlockedBalance, this.frozenBalance = 0})
       : formattedFrozenBalance = wowneroAmountToString(amount: frozenBalance),
-        super(unlockedBalance, fullBalance, frozen: frozenBalance);
+        super(unlockedBalance, fullBalance - unlockedBalance, frozen: frozenBalance);
 
   final int fullBalance;
   final int unlockedBalance;
