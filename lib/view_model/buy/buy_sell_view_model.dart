@@ -12,9 +12,9 @@ import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 
 part 'buy_sell_view_model.g.dart';
@@ -24,8 +24,7 @@ class BuySellViewModel = BuySellViewModelBase with _$BuySellViewModel;
 abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with Store {
   BuySellViewModelBase(
     AppStore appStore,
-  )   : _cryptoNumberFormat = NumberFormat(),
-        cryptoAmount = '',
+  )   : _cryptoAmount = '',
         fiatAmount = '',
         cryptoCurrencyAddress = '',
         isCryptoCurrencyAddressEnabled = false,
@@ -54,7 +53,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     isCryptoCurrencyAddressEnabled = !(cryptoCurrency == wallet.currency);
   }
 
-  final NumberFormat _cryptoNumberFormat;
   late Timer bestRateSync;
 
   List<BuyProvider> get availableBuyProviders {
@@ -80,8 +78,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   double get amount {
     final formattedFiatAmount = double.tryParse(fiatAmount);
-    var formattedCryptoAmount = double.tryParse(
-        _appStore.amountParsingProxy.getCanonicalCryptoAmount(cryptoAmount, cryptoCurrency));
+    final formattedCryptoAmount = double.tryParse(_cryptoAmount);
 
     return isBuyAction
         ? formattedFiatAmount ?? 200.0
@@ -122,7 +119,11 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   CryptoCurrency cryptoCurrency;
 
   @observable
-  String cryptoAmount;
+  String _cryptoAmount;
+
+  @computed
+  String get cryptoAmount =>
+      _appStore.amountParsingProxy.getDisplayCryptoAmount(_cryptoAmount, cryptoCurrency);
 
   @observable
   String fiatAmount;
@@ -205,28 +206,23 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (amount.isEmpty) {
       fiatAmount = '';
-      cryptoAmount = '';
+      _cryptoAmount = '';
       return;
     }
 
-    final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
-
     if (!isReadyToTrade && !isBuySellQuoteFailed) {
-      cryptoAmount = S.current.fetching;
+      _cryptoAmount = S.current.fetching;
       return;
     } else if (isBuySellQuoteFailed) {
-      cryptoAmount = '';
+      _cryptoAmount = '';
       return;
     }
 
     if (bestRateQuote != null) {
+      final enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0;
       final amount = enteredAmount / bestRateQuote!.rate;
 
-      _cryptoNumberFormat.maximumFractionDigits = cryptoCurrency.decimals;
-      cryptoAmount = _appStore.amountParsingProxy.getDisplayCryptoAmount(
-        _cryptoNumberFormat.format(amount).replaceAll(RegExp('\\,'), ''),
-        cryptoCurrency,
-      );
+      _cryptoAmount = amount.toString().withMaxDecimals(cryptoCurrency.decimals);
     } else {
       await calculateBestRate();
     }
@@ -234,15 +230,13 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @action
   Future<void> changeCryptoAmount({required String amount}) async {
-    cryptoAmount = _appStore.amountParsingProxy.getDisplayCryptoAmount(amount, cryptoCurrency);
+    _cryptoAmount = _appStore.amountParsingProxy.getCanonicalCryptoAmount(amount, cryptoCurrency);
 
     if (amount.isEmpty) {
       fiatAmount = '';
-      cryptoAmount = '';
+      _cryptoAmount = '';
       return;
     }
-
-    final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
     if (!isReadyToTrade && !isBuySellQuoteFailed) {
       fiatAmount = S.current.fetching;
@@ -253,10 +247,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     }
 
     if (bestRateQuote != null) {
-      fiatAmount = _cryptoNumberFormat
-          .format(enteredAmount * bestRateQuote!.rate)
-          .toString()
-          .replaceAll(RegExp('\\,'), '');
+      final enteredAmount = double.tryParse(_cryptoAmount.replaceAll(',', '.')) ?? 0;
+
+      fiatAmount =
+          (enteredAmount * bestRateQuote!.rate).toString().withMaxDecimals(fiatCurrency.decimals);
     } else {
       await calculateBestRate();
     }
@@ -345,7 +339,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   Future<void> _initialize() async {
     _setProviders();
-    cryptoAmount = '';
+    _cryptoAmount = '';
     fiatAmount = '';
     cryptoCurrencyAddress = _getInitialCryptoCurrencyAddress();
     paymentMethodState = InitialPaymentMethod();
@@ -447,7 +441,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     } else {
       validQuotes.sort((a, b) => a.payout.compareTo(b.payout));
     }
-
 
     final Set<String> addedProviders = {};
     final List<Quote> uniqueProviderQuotes = validQuotes.where((element) {
