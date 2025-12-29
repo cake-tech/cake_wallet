@@ -29,31 +29,38 @@ class LightningWallet {
     this.network = Network.mainnet,
   });
 
-  Future<void> init(String appPath) async {
-    if (_breezSdkSparkLibUninitialized) {
-      await BreezSdkSparkLib.init();
-      _breezSdkSparkLibUninitialized = false;
+  Future<bool> init(String appPath) async {
+    try {
+      if (_breezSdkSparkLibUninitialized) {
+        await BreezSdkSparkLib.init();
+        _breezSdkSparkLibUninitialized = false;
+      }
+
+      final seed = seedBytes != null
+          ? Seed.entropy(seedBytes!)
+          : Seed.mnemonic(mnemonic: mnemonic, passphrase: passphrase);
+      final config = defaultConfig(network: Network.mainnet).copyWith(
+          lnurlDomain: lnurlDomain,
+          apiKey: apiKey,
+          privateEnabledDefault: true,
+          maxDepositClaimFee: Fee.rate(satPerVbyte: BigInt.from(5))
+      );
+
+      final connectRequest = ConnectRequest(
+        config: config,
+        seed: seed,
+        storageDir: "$appPath/",
+      );
+
+      sdk = await connect(request: connectRequest);
+
+      _eventStream ??= sdk.addEventListener().asBroadcastStream();
+
+      return true;
+    } catch (e) {
+      printV(e);
+      return false;
     }
-
-    final seed = seedBytes != null
-        ? Seed.entropy(seedBytes!)
-        : Seed.mnemonic(mnemonic: mnemonic, passphrase: passphrase);
-    final config = defaultConfig(network: Network.mainnet).copyWith(
-      lnurlDomain: lnurlDomain,
-      apiKey: apiKey,
-      privateEnabledDefault: true,
-      maxDepositClaimFee: Fee.rate(satPerVbyte: BigInt.from(5))
-    );
-
-    final connectRequest = ConnectRequest(
-      config: config,
-      seed: seed,
-      storageDir: "$appPath/",
-    );
-
-    sdk = await connect(request: connectRequest);
-
-    _eventStream ??= sdk.addEventListener().asBroadcastStream();
   }
 
   Future<void> close() async {
