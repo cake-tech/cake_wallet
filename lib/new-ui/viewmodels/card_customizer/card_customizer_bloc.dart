@@ -78,7 +78,6 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   }
 
   void _init(_Init event, Emitter<CardCustomizerState> emit) async {
-    printV("init");
     late final account;
     if (_wallet.type == WalletType.monero) {
       account = monero!.getCurrentAccount(_wallet);
@@ -87,7 +86,6 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     } else {
       account = null;
     }
-    printV(account!.label);
     final accountName = (account?.label ?? "") as String;
     final accountIndex = account == null ? -1 : account.id as int;
     final currentDesign = await _loadCurrentDesign(accountIndex);
@@ -95,7 +93,6 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     final availableColors = _updateAvailableColors(currentDesign);
     final selectedDesign = _initSelectedDesign(currentDesign);
     final selectedColor = _initSelectedColor(currentDesign);
-    printV(accountName);
 
     emit(CardCustomizerInitial(selectedDesign, selectedColor, availableDesigns, availableColors,
         accountName, accountIndex));
