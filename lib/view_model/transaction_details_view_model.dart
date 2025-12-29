@@ -1,4 +1,5 @@
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -957,6 +958,16 @@ abstract class TransactionDetailsViewModelBase with Store {
   Future<void> _checkForRBF(TransactionInfo tx) async {
     if (wallet.type == WalletType.bitcoin &&
         transactionInfo.direction == TransactionDirection.outgoing) {
+      final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
+      final description = transactionDescriptionBox.values
+          .firstWhereOrNull((val) => val.id == descriptionKey || val.id == transactionInfo.txHash);
+
+      if (RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
+          .hasMatch(description?.recipientAddress ?? "")) {
+        canReplaceByFee = false;
+        return;
+      }
+
       rawTransaction = await bitcoin!.canReplaceByFee(wallet, tx);
       if (rawTransaction != null) {
         canReplaceByFee = true;

@@ -442,7 +442,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return;
     }
 
-    validQuotes.sort((a, b) => a.rate.compareTo(b.rate));
+    if (isBuyAction) {
+      validQuotes.sort((a, b) => b.payout.compareTo(a.payout));
+    } else {
+      validQuotes.sort((a, b) => a.payout.compareTo(b.payout));
+    }
+
 
     final Set<String> addedProviders = {};
     final List<Quote> uniqueProviderQuotes = validQuotes.where((element) {

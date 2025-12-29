@@ -1061,6 +1061,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.solana_invalid_data_message;
       }
 
+      if (errorMessage.contains('Blockhash not found') ||
+          errorMessage.contains('BlockhashNotFound') ||
+          errorMessage.contains('BlockhashMNotFound')) {
+        return 'Transaction failed because its recent blockhash expired. '
+            'Please retry your send; if this keeps happening, try again in '
+            'a few seconds or switch to a different Solana node.';
+      }
+
       return errorMessage;
     }
     if (walletType == WalletType.ethereum ||
