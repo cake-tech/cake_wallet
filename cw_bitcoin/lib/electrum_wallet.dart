@@ -553,6 +553,7 @@ abstract class ElectrumWalletBase
       ScanData(
         sendPort: receivePort.sendPort,
         silentAddress: walletAddresses.silentAddress!,
+        masterHD: _masterHD!,
         network: network,
         height: height,
         chainTip: chainTip,
@@ -776,6 +777,13 @@ abstract class ElectrumWalletBase
   }
 
   Future<bool> getNodeSupportsSilentPayments() async {
+    // If we already know this is a Frigate server, skip version check
+    if (electrumClient.isFrigateServer) {
+      node!.supportsSilentPayments = true;
+      node!.save();
+      return true;
+    }
+
     final version = await electrumClient.version();
 
     // cake's electrs fork OR frigate electrum servers support silent payments remote scanning
@@ -1721,6 +1729,13 @@ abstract class ElectrumWalletBase
     silentPaymentsScanningActive = true;
     syncStatus = AttemptingScanSyncStatus();
 
+    // If we already know this is a Frigate server, use Frigate scan directly
+    if (electrumClient.isFrigateServer) {
+      await _silentPaymentsFrigateScan(startHeight: height, doSingleScan: doSingleScan);
+      return;
+    }
+
+    // Otherwise, check if it's a Frigate server
     final version = await electrumClient.version();
 
     if (await getNodeIsFrigate(version)) {
@@ -3518,6 +3533,14 @@ Future<void> _handleSilentPaymentsFrigateScan(ScanData scanData) async {
     useSSL: scanData.node.useSSL,
     isFrigateServer: scanData.node.isFrigate,
   );
+
+  // Perform initial handshake with version call
+  final version = await scanningClient.version();
+  if (version.isEmpty) {
+    scanData.sendPort.send(SyncResponse(
+        scanData.height, FailedSyncStatus(error: 'Failed to connect to Frigate server')));
+    return;
+  }
 
   double? parseProgress(dynamic value) {
     if (value is num) {

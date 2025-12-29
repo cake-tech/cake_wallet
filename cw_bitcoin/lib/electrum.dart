@@ -24,18 +24,6 @@ String jsonrpc(
         double version = 2.0}) =>
     '{"jsonrpc": "$version", "method": "$method", "id": "$id",  "params": ${json.encode(params)}}\n';
 
-Map<String, dynamic> _buildRpcRequest(
-        {required String method,
-        required int id,
-        List<Object> params = const [],
-        double version = 2.0}) =>
-    {
-      'jsonrpc': version.toString(),
-      'method': method,
-      'id': id,
-      'params': params,
-    };
-
 class SocketTask {
   SocketTask({required this.isSubscription, this.completer, this.subject});
 
@@ -65,6 +53,7 @@ class ElectrumClient {
   Timer? _aliveTimer;
   bool isFrigateServer = false;
   String unterminatedString;
+  List<String>? _cachedVersion;
 
   Uri? uri;
   bool? useSSL;
@@ -160,6 +149,17 @@ class ElectrumClient {
       cancelOnError: true,
     );
 
+    // in case it is required that server.version to be the FIRST message
+    // This must be called before any other requests (including ping)
+    try {
+      final versionResult = await version();
+
+      // Detect if this is a Frigate server from the version response
+      if (versionResult.isNotEmpty && versionResult.first.toLowerCase().contains('frigate')) {
+        isFrigateServer = true;
+      }
+    } catch (e) {}
+
     keepAlive();
   }
 
@@ -229,14 +229,26 @@ class ElectrumClient {
     }
   }
 
-  Future<List<String>> version() =>
-      call(method: 'server.version', params: ["", "1.4"]).then((dynamic result) {
-        if (result is List) {
-          return result.map((dynamic val) => val.toString()).toList();
-        }
+  Future<List<String>> version() async {
+    // Return cached version if available (Electrum protocol only allows one server.version call per session)
+    if (_cachedVersion != null) {
+      return _cachedVersion!;
+    }
 
-        return [];
-      });
+    try {
+      final result =
+          await callWithTimeout(method: 'server.version', params: ["", "1.4"], timeout: 5000);
+      if (result is List) {
+        _cachedVersion = result.map((dynamic val) => val.toString()).toList();
+        return _cachedVersion!;
+      }
+      return [];
+    } on RequestFailedTimeoutException catch (_) {
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
 
   Future<Map<String, dynamic>> getBalance(String scriptHash, {bool throwOnError = false}) async {
     try {
@@ -399,34 +411,12 @@ class ElectrumClient {
       final subscription = BehaviorSubject<Map<String, dynamic>>();
       _regisrySubscription('blockchain.silentpayments.subscribe', subscription);
 
-      if (isFrigateServer) {
-        _id += 1;
-        final versionId = _id;
-
-        _id += 1;
-        final subscribeId = _id;
-
-        // register version to clear it from tasks map when response arrives
-        _registryTask(versionId, Completer<dynamic>());
-
-        final requests = [
-          _buildRpcRequest(method: 'server.version', id: versionId, params: ["", "1.4"]),
-          _buildRpcRequest(
-            method: 'blockchain.silentpayments.subscribe',
-            id: subscribeId,
-            params: [scanPrivateKey, spendPublicKey, start ?? 0, labels ?? []],
-          ),
-        ];
-
-        socket!.write('${json.encode(requests)}\n');
-      } else {
-        _id += 1;
-        socket!.write(jsonrpc(
-          method: 'blockchain.silentpayments.subscribe',
-          id: _id,
-          params: [scanPrivateKey, spendPublicKey, start ?? 0, labels ?? []],
-        ));
-      }
+      _id += 1;
+      socket!.write(jsonrpc(
+        method: 'blockchain.silentpayments.subscribe',
+        id: _id,
+        params: [scanPrivateKey, spendPublicKey, start ?? 0, labels ?? []],
+      ));
 
       return subscription;
     } catch (e) {
@@ -542,26 +532,8 @@ class ElectrumClient {
       final subscription = BehaviorSubject<T>();
       _regisrySubscription(id, subscription);
 
-      if (isFrigateServer && method != 'server.version') {
-        _id += 1;
-        final versionId = _id;
-
-        _id += 1;
-        final subscribeId = _id;
-
-        // register version to clear it from tasks map when response arrives
-        _registryTask(versionId, Completer<dynamic>());
-
-        final requests = [
-          _buildRpcRequest(method: 'server.version', id: versionId, params: ["", "1.4"]),
-          _buildRpcRequest(method: method, id: subscribeId, params: params),
-        ];
-
-        socket!.write('${json.encode(requests)}\n');
-      } else {
-        _id += 1;
-        socket!.write(jsonrpc(method: method, id: _id, params: params));
-      }
+      _id += 1;
+      socket!.write(jsonrpc(method: method, id: _id, params: params));
 
       return subscription;
     } catch (e) {
@@ -572,14 +544,8 @@ class ElectrumClient {
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
-    if (!isConnected) return null;
-
-    if (isFrigateServer && method != 'server.version') {
-      return _callWithVersionBatch(
-        method: method,
-        params: params,
-        idCallback: idCallback,
-      );
+    if (!isConnected) {
+      return null;
     }
 
     final completer = Completer<dynamic>();
@@ -592,50 +558,11 @@ class ElectrumClient {
     return completer.future;
   }
 
-  Future<dynamic> _callWithVersionBatch(
-      {required String method,
-      List<Object> params = const [],
-      int? timeout,
-      Function(int)? idCallback}) async {
-    if (!isConnected) return null;
-
-    final completer = Completer<dynamic>();
-
-    _id += 1;
-    final versionId = _id;
-    final versionCompleter = Completer<dynamic>();
-    _registryTask(versionId, versionCompleter);
-
-    _id += 1;
-    final callId = _id;
-    _registryTask(callId, completer);
-    idCallback?.call(callId);
-
-    final requests = [
-      _buildRpcRequest(method: 'server.version', id: versionId, params: ["", "1.4"]),
-      _buildRpcRequest(method: method, id: callId, params: params),
-    ];
-
-    socket!.write('${json.encode(requests)}\n');
-
-    if (timeout != null) {
-      Timer(Duration(milliseconds: timeout), () {
-        if (!completer.isCompleted) {
-          completer.completeError(RequestFailedTimeoutException(method, callId));
-        }
-      });
-    }
-
-    return completer.future;
-  }
-
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
-      if (!isConnected) return null;
-
-      if (isFrigateServer && method != 'server.version') {
-        return _callWithVersionBatch(method: method, params: params, timeout: timeout);
+      if (!isConnected) {
+        return null;
       }
 
       final completer = Completer<dynamic>();
@@ -651,7 +578,6 @@ class ElectrumClient {
 
       return completer.future;
     } catch (e) {
-      printV("callWithTimeout $e");
       rethrow;
     }
   }
@@ -672,6 +598,7 @@ class ElectrumClient {
     // This preserves active subscriptions while clearing error state
     _errors.clear();
     unterminatedString = '';
+    _cachedVersion = null;
   }
 
   void _resetInternalStateCompletely() {
@@ -679,6 +606,7 @@ class ElectrumClient {
     _tasks.clear();
     _errors.clear();
     unterminatedString = '';
+    _cachedVersion = null;
   }
 
   void _registryTask(int id, Completer<dynamic> completer) =>
@@ -756,8 +684,9 @@ class ElectrumClient {
       final error = response['error'] as Map<String, dynamic>?;
       if (error != null) {
         final errorMessage = error['message'] as String?;
+        final errorCode = error['code'];
         if (errorMessage != null) {
-          _errors[id!] = errorMessage;
+          _errors[id] = errorMessage;
         }
       }
     } catch (_) {}
@@ -765,7 +694,7 @@ class ElectrumClient {
     try {
       final error = response['error'] as String?;
       if (error != null) {
-        _errors[id!] = error;
+        _errors[id] = error;
       }
     } catch (_) {}
 
@@ -774,9 +703,7 @@ class ElectrumClient {
       return;
     }
 
-    if (id != null) {
-      _finish(id, result);
-    }
+    _finish(id, result);
   }
 
   String getErrorMessage(int id) => _errors[id.toString()] ?? '';
