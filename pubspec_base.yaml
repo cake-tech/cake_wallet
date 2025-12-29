@@ -58,6 +58,7 @@ dependencies:
   connectivity_plus: ^6.1.3
   keyboard_actions: ^4.0.1
   another_flushbar: ^1.12.29
+  progressive_blur: ^0.0.2
   archive: ^4.0.3
   cryptography: ^2.0.5
   file_picker:

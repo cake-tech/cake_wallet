@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class NewMainNavBar extends StatefulWidget {
 class _NEWNewMainNavBarState extends State<NewMainNavBar> {
 
   static const barHeight = 64.0;
-  static const barBottomPadding = 32.0;
+  static const barBottomPadding = 24.0;
 
   static const iconWidth = 28.0;
   static const iconHeight = 28.0;
@@ -135,6 +136,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: SafeArea(
+        bottom: !(Platform.isIOS),
         top: false,
         child: Padding(
           padding: const EdgeInsets.only(bottom: barBottomPadding),
