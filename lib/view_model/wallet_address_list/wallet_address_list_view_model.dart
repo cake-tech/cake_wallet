@@ -111,8 +111,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoin && _settingsStore.usePayjoin && payjoinEndpoint.isEmpty;
 
   @computed
-  bool get isPayjoinAvailable =>
-      !isPayjoinUnavailable && !isSilentPayments && !(uri is LightningPaymentRequest);
+  bool get isPayjoinAvailable => !isPayjoinUnavailable && !isSilentPayments && !isLightning;
 
   @observable
   late PaymentURI uri;
@@ -440,7 +439,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   String get qrImage {
-    if (uri is LightningPaymentRequest) return 'assets/images/btc_chain_qr_lightning.svg';
+    if (isLightning) return 'assets/images/btc_chain_qr_lightning.svg';
     return getQrImage(type);
   }
 
@@ -456,6 +455,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   bool get isSilentPayments =>
       wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
+
+  @computed
+  bool get isLightning => wallet.type == WalletType.bitcoin && (uri is LightningPaymentRequest);
 
   @computed
   bool get isBitcoinViewOnly =>

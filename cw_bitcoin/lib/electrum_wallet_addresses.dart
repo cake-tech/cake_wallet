@@ -12,6 +12,7 @@ import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -480,7 +481,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     final firstSilentAddressRecord = silentAddresses.firstOrNull;
     if (firstSilentAddressRecord != null) {
-
       if (firstSilentAddressRecord.address != address) {
         addressesMap[firstSilentAddressRecord.address] = firstSilentAddressRecord.name.isEmpty
             ? "Silent Payments"
@@ -764,13 +764,19 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (lightningWallet == null) return;
 
     final path = await pathForWalletDir(name: walletName, type: WalletType.bitcoin);
-    await lightningWallet!.init(path);
+    final initialized = await lightningWallet!.init(path);
+
+    if (!initialized) {
+      printV("Failed to initialize the lightning wallet");
+      return;
+    }
 
     lightningAddress = await lightningWallet!.getAddress();
 
     if (lightningAddress == null) {
       final randomNumber = Random.secure().nextInt(9999);
-      final username = "${walletName.replaceAll(" ", "")}$randomNumber".toLowerCase();
+      final randomName = await generateName();
+      final username = "${randomName.replaceAll(" ", "")}$randomNumber".toLowerCase();
       try {
         lightningAddress = await lightningWallet!.registerAddress(username);
       } catch (e) {
