@@ -253,7 +253,7 @@ class SolanaWalletClient {
 
           continue;
         } else {
-          return null;
+          continue;
         }
       }
     } catch (e, s) {
@@ -278,23 +278,35 @@ class SolanaWalletClient {
     String? sender;
     String? receiver;
 
-    for (int i = 0; i < meta.preBalances.length; i++) {
+    final accountKeysLength = message.accountKeys.length;
+    final balancesLength = meta.preBalances.length;
+    final maxLength = accountKeysLength < balancesLength 
+        ? accountKeysLength 
+        : balancesLength;
+
+    for (int i = 0; i < maxLength; i++) {
       final preBalance = meta.preBalances[i];
       final postBalance = meta.postBalances[i];
       final balanceChange = preBalance - postBalance;
 
       if (balanceChange > BigInt.zero) {
         // This account sent funds
-        sender = message.accountKeys[i].address;
-        totalBalanceChange += balanceChange;
+        if (i < accountKeysLength) {
+          sender = message.accountKeys[i].address;
+          totalBalanceChange += balanceChange;
+        }
       } else if (balanceChange < BigInt.zero) {
         // This account received funds
-        receiver = message.accountKeys[i].address;
+        if (i < accountKeysLength) {
+          receiver = message.accountKeys[i].address;
+        }
       }
     }
 
     // We subtract the fee from total balance change if the fee payer is the sender
-    if (sender == message.accountKeys[feePayerIndex].address) {
+    if (sender != null && 
+        feePayerIndex < message.accountKeys.length &&
+        sender == message.accountKeys[feePayerIndex].address) {
       totalBalanceChange -= BigInt.from(fee);
     }
 
@@ -431,11 +443,11 @@ class SolanaWalletClient {
               SolanaRPCGetTransaction(
                 transactionSignature: signature['signature'],
                 encoding: SolanaRPCEncoding.jsonParsed,
-                maxSupportedTransactionVersion: 0,
+                maxSupportedTransactionVersion: 1,
+                skipVerification: true,
               ),
             );
           } catch (e) {
-            // printV("Error fetching transaction: $e");
             return null;
           }
         }));

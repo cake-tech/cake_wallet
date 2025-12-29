@@ -222,12 +222,14 @@ class JupiterExchangeProvider extends ExchangeProvider {
       final amountInBaseUnits =
           AmountConverter.toBaseUnits(request.fromAmount, request.fromCurrency.decimals);
 
+      final isInternalTransfer = request.refundAddress == request.toAddress;
+
       final orderParams = <String, String>{
         'inputMint': inputMint,
         'outputMint': outputMint,
         'amount': amountInBaseUnits,
-        'taker': request.refundAddress, // Required to get transaction
-        'receiver': request.toAddress, // Output token receiver
+        'taker': request.refundAddress,
+        if (!isInternalTransfer) 'receiver': request.toAddress,
       };
 
       // To add custom fees if needed
