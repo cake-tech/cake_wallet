@@ -1,8 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -16,13 +14,13 @@ part 'node_list_view_model.g.dart';
 class NodeListViewModel = NodeListViewModelBase with _$NodeListViewModel;
 
 abstract class NodeListViewModelBase with Store {
-  NodeListViewModelBase(this._nodeSource, this._appStore)
+  NodeListViewModelBase(this._appStore)
       : nodes = ObservableList<Node>(),
         settingsStore = _appStore.settingsStore {
-    _bindNodes();
+    bindNodes();
 
     reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
-      _bindNodes();
+      bindNodes();
     });
   }
 
@@ -50,17 +48,16 @@ abstract class NodeListViewModelBase with Store {
 
   final ObservableList<Node> nodes;
   final SettingsStore settingsStore;
-  final Box<Node> _nodeSource;
   final AppStore _appStore;
 
   Future<void> reset() async {
-    await resetToDefault(_nodeSource);
+    await resetToDefault();
 
     Node node;
     if (_appStore.wallet!.type == WalletType.bitcoin && _appStore.wallet!.isTestnet) {
-      node = getBitcoinTestnetDefaultElectrumServer(nodes: _nodeSource)!;
+      node = (await getBitcoinTestnetDefaultElectrumServer())!;
     } else {
-      node = getDefaultNode(nodes: _nodeSource, type: _appStore.wallet!.type)!;
+      node = (await getDefaultNode(type: _appStore.wallet!.type))!;
     }
 
     await setAsCurrent(node);
@@ -73,12 +70,8 @@ abstract class NodeListViewModelBase with Store {
   Future<void> setAsCurrent(Node node) async => settingsStore.nodes[_appStore.wallet!.type] = node;
 
   @action
-  void _bindNodes() {
+  Future<void> bindNodes() async {
     nodes.clear();
-    _nodeSource.bindToList(
-      nodes,
-      filter: (val) => val.type == _appStore.wallet!.type,
-      initialFire: true,
-    );
+    nodes.addAll(await Node.getAllForWalletType(_appStore.wallet!.type));
   }
 }

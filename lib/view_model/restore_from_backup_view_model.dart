@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cw_core/db/sqlite.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -62,7 +63,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
 
       final store = getIt.get<AppStore>();
       ReactionDisposer? reaction;
-      await store.settingsStore.reload(nodeSource: getIt.get<Box<Node>>());
+      //await store.settingsStore.reload(nodeSource: getIt.get<Box<Node>>());
       await store.themeStore.loadSavedTheme(isFromBackup: true);
       reaction = autorun((_) {
         final wallet = store.wallet;
