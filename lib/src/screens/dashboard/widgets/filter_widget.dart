@@ -34,14 +34,11 @@ class _FilterWidgetState extends State<FilterWidget> {
       child: Column(
         children: [
           const Expanded(child: SizedBox()),
-          Expanded(
-            flex: responsiveLayoutUtil.shouldRenderTabletUI ? 16 : 8,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                double availableHeight = constraints.maxHeight;
-                return _buildFilterContent(context, availableHeight);
-              },
-            ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              double availableHeight = constraints.maxHeight;
+              return _buildFilterContent(context, availableHeight);
+            },
           ),
           Expanded(
             child: AlertCloseButton(
@@ -50,7 +47,6 @@ class _FilterWidgetState extends State<FilterWidget> {
               onTap: widget.onClose,
             ),
           ),
-          const SizedBox(height: 24),
         ],
       ),
     );
