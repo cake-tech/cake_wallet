@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class NewSwapPage extends StatelessWidget {
-  const NewSwapPage({super.key});
+class SwapPage extends StatelessWidget {
+  const SwapPage({super.key});
 
   @override
   Widget build(BuildContext context) {
