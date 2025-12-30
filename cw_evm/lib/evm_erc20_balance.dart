@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:cw_core/format_fixed.dart';
 
 import 'package:cw_core/balance.dart';
 
@@ -9,12 +8,6 @@ class EVMChainERC20Balance extends Balance {
 
   final BigInt balance;
   final int exponent;
-
-  @override
-  String get formattedAdditionalBalance => formatFixed(balance, exponent, fractionalDigits: 12);
-
-  @override
-  String get formattedAvailableBalance => formatFixed(balance, exponent, fractionalDigits: 12);
 
   String toJSON() => json.encode({
         'balanceInWei': balance.toString(),

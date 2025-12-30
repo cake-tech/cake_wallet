@@ -216,6 +216,7 @@ class RBFDetailsPage extends BasePage {
                     } catch (_) {}
                   },
                   change: transactionDetailsViewModel.sendViewModel.pendingTransaction!.change,
+                  amountParsingProxy: transactionDetailsViewModel.sendViewModel.amountParsingProxy,
                 );
               },
             );
