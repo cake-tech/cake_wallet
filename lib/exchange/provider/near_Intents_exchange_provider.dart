@@ -251,11 +251,31 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       final depositAddress = quoteObj['depositAddress'] as String;
       final depositMemo = quoteObj['depositMemo'] as String?;
 
+      final quoteRequest = quote['quoteRequest'] as Map<String, dynamic>;
+      final fromAssetId = quoteRequest['originAsset'] as String;
+      final toAssetId = quoteRequest['destinationAsset'] as String;
+
+      final fromCurrency = _nearAssetIdToCurrency(fromAssetId, tokens);
+      if (fromCurrency == null) {
+        throw Exception('Failed to parse from currency from assetId: $fromAssetId');
+      }
+
+      final toCurrency = _nearAssetIdToCurrency(toAssetId, tokens);
+      if (toCurrency == null) {
+        throw Exception('Failed to parse to currency from assetId: $toAssetId');
+      }
+
+      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency.$1,
+          tag: fromCurrency.$2);
+      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency.$1,
+          tag: toCurrency.$2);
+
+
       final trade = Trade(
         id: depositAddress,
         // Using deposit address as trade ID
-        from: request.fromCurrency,
-        to: request.toCurrency,
+        from: from,
+        to: to,
         provider: description,
         providerName: title,
         state: TradeState.created,
@@ -347,12 +367,23 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final from =
         _nearAssetIdToCurrency(originAssetId, await _geSupportedTokens());
 
+    CryptoCurrency? coinFrom;
+    CryptoCurrency? coinTo;
+
+    if (from != null) {
+      coinFrom = CryptoCurrency.safeParseCurrencyFromString(from.$1, tag: from.$2);
+    }
+
     // Parsing 'to' currency
     final destinationAssetId =
         quoteRequest['destinationAsset'] as String? ?? '';
 
     final to =
         _nearAssetIdToCurrency(destinationAssetId, await _geSupportedTokens());
+
+    if (to != null) {
+      coinTo = CryptoCurrency.safeParseCurrencyFromString(to.$1, tag: to.$2);
+    }
 
     final quote = quoteResponse['quote'] as Map<String, dynamic>? ?? {};
     final swap = data['swapDetails'] as Map<String, dynamic>? ?? {};
@@ -373,8 +404,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: id,
-      from: from,
-      to: to,
+      from: coinFrom,
+      to: coinTo,
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: recipient,
@@ -385,6 +416,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       txId: originTxHash,
       extraId: depositMemo,
       isRefund: statusRaw == 'REFUNDED',
+      userCurrencyFromRaw: '${from?.$1.toUpperCase()}' + '_' + '${from?.$2?.toUpperCase() ?? ''}',
+      userCurrencyToRaw: '${to?.$1.toUpperCase()}' + '_' + '${to?.$2?.toUpperCase() ?? ''}',
     );
   }
 
@@ -539,7 +572,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     return token;
   }
 
-  CryptoCurrency? _nearAssetIdToCurrency(
+  (String, String?)? _nearAssetIdToCurrency(
       String assetId, List<Token> supported) {
     if (supported.isEmpty) return null;
 
@@ -551,7 +584,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final tag =
         normalizedNetwork == title.toUpperCase() ? null : normalizedNetwork;
 
-    return CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);
+    return (title, tag);
   }
 
   String _buildDeadline() {
