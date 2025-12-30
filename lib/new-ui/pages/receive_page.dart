@@ -1,6 +1,8 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_input.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_bottom_buttons.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_info_box.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_seed_type.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
@@ -9,6 +11,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:mobx/mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +47,7 @@ class NewReceivePage extends StatefulWidget {
 class _NewReceivePageState extends State<NewReceivePage> {
   bool _largeQrMode = false;
   bool _effectsInstalled = false;
+  bool _infoboxDimissed = false;
 
   late final TextEditingController _amountController;
 
@@ -76,65 +80,91 @@ class _NewReceivePageState extends State<NewReceivePage> {
             topRight: Radius.circular(30),
           ),
         ),
-        child: OverflowBox(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              ModalTopBar(
-                title: "Receive",
-                leadingIcon: Icon(Icons.close),
-                trailingIcon: Icon(Icons.share),
-                onLeadingPressed: () {
-                  Navigator.of(context).pop();
-                },
-                onTrailingPressed: () {
-                  Share.share(widget.addressListViewModel.uri.address);
-                },
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    ReceiveQrCode(
-                      addressListViewModel: widget.addressListViewModel,
-                      onTap: () {
-                        setState(() {
-                          _largeQrMode = !_largeQrMode;
-                        });
-                      },
-                      largeQrMode: _largeQrMode,
-                    ),
-                    ReceiveSeedTypeDisplay(
-                      receiveOptionViewModel: widget.receiveOptionViewModel,
-                    ),
-                    ReceiveSeedWidget(
-                      addressListViewModel: widget.addressListViewModel,
-                    ),
-                    Observer(
-                      builder: (_) => ReceiveAmountInput(
-                        largeQrMode: _largeQrMode,
-                        amountController: _amountController,
-                        selectedCurrency: widget.addressListViewModel.selectedCurrency.name,
-                        onCurrencySelectorTap: () {
-                          _presentCurrencyPicker(context);
-                        },
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            ModalTopBar(
+              title: _largeQrMode ? "" : "Receive",
+              leadingIcon: Icon(Icons.close),
+              trailingIcon: _largeQrMode ? Icon(Icons.share) : Icon(Icons.refresh),
+              onLeadingPressed: () {
+                Navigator.of(context).pop();
+              },
+              onTrailingPressed: () {
+                Share.share(widget.addressListViewModel.uri.address);
+              },
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  ReceiveQrCode(
+                    addressListViewModel: widget.addressListViewModel,
+                    onTap: () {
+                      setState(() {
+                        _largeQrMode = !_largeQrMode;
+                        _infoboxDimissed = true;
+                      });
+                    },
+                    largeQrMode: _largeQrMode,
+                  ),
+                  ReceiveSeedTypeDisplay(
+                    receiveOptionViewModel: widget.receiveOptionViewModel,
+                  ),
+                  ReceiveSeedWidget(
+                    addressListViewModel: widget.addressListViewModel,
+                  ),
+                  // Observer(
+                  //   builder: (_) => ReceiveAmountInput(
+                  //     largeQrMode: _largeQrMode,
+                  //     amountController: _amountController,
+                  //     selectedCurrency: widget.addressListViewModel.selectedCurrency.name,
+                  //     onCurrencySelectorTap: () {
+                  //       _presentCurrencyPicker(context);
+                  //     },
+                  //   ),
+                  // ),
+                  ReceiveBottomButtons(
+                    largeQrMode: _largeQrMode,
+                    onCopyButtonPressed: () {
+                      Clipboard.setData(
+                          ClipboardData(text: widget.addressListViewModel.uri.address));
+                    },
+                    onAmountButtonPressed: () {
+showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparent, builder: (context){return ReceiveAmountModal();});
+
+
+                    },
+                    onLabelButtonPressed: () {},
+                    onAccountsButtonPressed: () {},
+                  ),
+                  ClipRect(
+                    child: AnimatedAlign(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                      heightFactor: _infoboxDimissed ? 0 : 1,
+                      alignment: Alignment.center,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 300),
+                        opacity: _infoboxDimissed ? 0 : 1,
+                        curve: Curves.easeOutCubic,
+                        child: ReceiveInfoBox(
+                          message: "Your receive address will rotate every time you close and reopen this screen",iconPath: "assets/new-ui/info.svg",
+                          onDismissed: (){
+                            setState(() {
+                              _infoboxDimissed = true;
+                            });
+                          }
+                        ),
                       ),
                     ),
-                    ReceiveBottomButtons(
-                      largeQrMode: _largeQrMode,
-                      onCopyButtonPressed: () {
-                        Clipboard.setData(
-                            ClipboardData(text: widget.addressListViewModel.uri.address));
-                      },
-                      onAccountsButtonPressed: () {},
-                    ),
-                  ],
-                ),
+                  )
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

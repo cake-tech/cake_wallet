@@ -24,7 +24,7 @@ class ReceiveSeedWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 80.0),
+      padding: const EdgeInsets.symmetric(horizontal: 50.0),
       child: Observer(
         builder: (_) => AddressFormatter.buildSegmentedAddress(
           address: addressListViewModel.uri.address,
@@ -34,6 +34,7 @@ class ReceiveSeedWidget extends StatelessWidget {
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
                 color: Theme.of(context).colorScheme.onSurface,
+            fontFamily: "IBM Plex Mono"
               ),
         ),
       ),

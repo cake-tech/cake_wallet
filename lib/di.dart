@@ -52,6 +52,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
@@ -828,6 +829,13 @@ Future<void> setup({
       receiveOptionViewModel: getIt<ReceiveOptionViewModel>(),
     ),
   );
+
+
+  getIt.registerFactory<NewReceivePage>(() => NewReceivePage(
+    addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+    receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(),
+    dashboardViewModel: getIt.get<DashboardViewModel>(),
+  ));
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
       (WalletAddressListItem? item, _) =>

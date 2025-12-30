@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class NewSendPage extends StatelessWidget {
-  const NewSendPage({super.key});
+class SendPage extends StatelessWidget {
+  const SendPage({super.key});
 
   @override
   Widget build(BuildContext context) {
