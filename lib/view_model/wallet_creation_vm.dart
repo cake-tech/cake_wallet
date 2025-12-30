@@ -148,12 +148,18 @@ abstract class WalletCreationVMBase with Store {
   DerivationInfo getDefaultCreateDerivation() {
     final useBip39ForBitcoin = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.bip39;
     final useBip39ForNano = seedSettingsViewModel.nanoSeedType.type == DerivationType.bip39;
+    final useBip39ForDecred = seedSettingsViewModel.decredSeedType.type == DerivationType.bip39;
     switch (type) {
       case WalletType.nano:
         if (useBip39ForNano) {
           return DerivationInfo(derivationType: DerivationType.bip39);
         }
         return DerivationInfo(derivationType: DerivationType.nano);
+      case WalletType.decred:
+        if (useBip39ForDecred) {
+          return DerivationInfo(derivationType: DerivationType.bip39);
+        }
+        return DerivationInfo(derivationType: DerivationType.decred);  
       case WalletType.bitcoin:
         if (useBip39ForBitcoin) {
           return DerivationInfo(
@@ -182,10 +188,16 @@ abstract class WalletCreationVMBase with Store {
   DerivationInfo? getCommonRestoreDerivation() {
     final useElectrum = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.electrum;
     final useNanoStandard = seedSettingsViewModel.nanoSeedType.type == DerivationType.nano;
+    final useDecredStandard = seedSettingsViewModel.decredSeedType.type == DerivationType.decred;
     switch (this.type) {
       case WalletType.nano:
         if (useNanoStandard) {
           return DerivationInfo(derivationType: DerivationType.nano);
+        }
+        return DerivationInfo(derivationType: DerivationType.bip39);
+      case WalletType.decred:
+        if (useDecredStandard) {
+          return DerivationInfo(derivationType: DerivationType.decred);
         }
         return DerivationInfo(derivationType: DerivationType.bip39);
       case WalletType.bitcoin:
@@ -244,7 +256,7 @@ abstract class WalletCreationVMBase with Store {
     return list;
   }
 
-  WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
+  WalletCredentials getCredentials(Map<String, dynamic>? options) => throw UnimplementedError();
 
   Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
 

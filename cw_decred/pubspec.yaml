@@ -13,9 +13,29 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  bip39: ^1.0.6
+  bip32: ^2.0.0
   cw_core:
     path: ../cw_core
 
+  ledger_flutter_plus: ^1.4.1
+  ledger_litecoin:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter-plus-plugins
+      path: packages/ledger-litecoin
+  mobx: any
+  bitcoin_base: any
+  blockchain_utils:
+    git:
+      url: https://github.com/cake-tech/blockchain_utils
+      ref: cake-update-v2
+  ffi: any
+  path: any
+  hive: any
+  collection: any
+  intl: any
+  dart_varuint_bitcoin: any
+  convert: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
