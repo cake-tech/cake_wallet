@@ -84,6 +84,7 @@ class PreferencesKey {
   static const useArbiScan = 'use_arbitrum_scan';
   static const useTronGrid = 'use_trongrid';
   static const useMempoolFeeAPI = 'use_mempool_fee_api';
+  static const evmHiddenChainIds = 'evm_hidden_chain_ids';
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';
@@ -94,6 +95,7 @@ class PreferencesKey {
   static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
   static const lookupsWellKnown = 'looks_up_well_known';
+  static const useBlinkProtection = 'use_blink_protection';
   static const usePayjoin = 'use_payjoin';
   static const showPayjoinCard = 'show_payjoin_card';
   static const showCameraConsent = 'show_camera_consent';

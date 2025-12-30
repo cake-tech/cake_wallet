@@ -26,7 +26,6 @@ import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
@@ -38,6 +37,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
@@ -185,6 +185,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (isElectrumWallet) {
       bitcoin!.updateFeeRates(wallet);
     }
+    reaction((_) => wallet.currency, (_) async {
+      // When currency changes (e.g., EVM chain switch), update currencies
+      await Future.delayed(const Duration(milliseconds: 100));
+      receiveCurrency = wallet.currency;
+      depositCurrency = wallet.currency;
+      
+      // Only refresh ETH tokens for EVM wallets
+      if (isEVMCompatibleChain(wallet.type)) {
+        _injectUserEthTokensIntoCurrencyLists();
+      }
+    });
   }
 
   bool useSameWalletAddress(CryptoCurrency currency) =>
@@ -330,7 +341,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   TransactionPriority get transactionPriority {
-    final priority = _settingsStore.priority[wallet.type];
+    final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null) {
       throw Exception('Unexpected type ${wallet.type.toString()}');
@@ -709,6 +720,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
                 isSendAll: isSendAllEnabled,
               );
               trade.walletId = wallet.id;
+              trade.chainId = wallet.chainId;
               trade.fromWalletAddress = wallet.walletAddresses.address;
 
               final canCreateTrade = await isCanCreateTrade(trade);
@@ -783,7 +795,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       WalletType.bitcoinCash,
       WalletType.dogecoin,
     ].contains(wallet.type)) {
-      final priority = _settingsStore.priority[wallet.type]!;
+      final priority = _settingsStore.getPriority(wallet.type)!;
 
       final amount = await bitcoin!.estimateFakeSendAllTxAmount(
         wallet,
@@ -833,6 +845,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   void _initialPairBasedOnWallet() {
+    if (isEVMCompatibleChain(wallet.type)) {
+      depositCurrency = wallet.currency;
+      receiveCurrency = CryptoCurrency.xmr;
+      return;
+    }
+
     switch (wallet.type) {
       case WalletType.monero:
         depositCurrency = CryptoCurrency.xmr;
@@ -900,6 +918,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.decred:
         depositCurrency = CryptoCurrency.dcr;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.evm:
+        depositCurrency = wallet.currency;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.none:

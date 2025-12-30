@@ -21,19 +21,21 @@ class OtherSettingsViewModel = OtherSettingsViewModelBase
 abstract class OtherSettingsViewModelBase with Store {
   OtherSettingsViewModelBase(this._settingsStore, this._wallet, this.sendViewModel)
       : walletType = _wallet.type,
+        chainId = _wallet.chainId,
         currentVersion = '' {
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
-    final priority = _settingsStore.priority[_wallet.type];
+    final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
     final priorities = priorityForWalletType(_wallet.type);
 
     if (!priorities.contains(priority) && priorities.isNotEmpty) {
-      _settingsStore.priority[_wallet.type] = priorities.first;
+      _settingsStore.setPriority(_wallet.type, priorities.first, chainId: _wallet.chainId);
     }
   }
 
   final WalletType walletType;
+  final int? chainId;
   final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
       TransactionInfo> _wallet;
 
@@ -45,7 +47,7 @@ abstract class OtherSettingsViewModelBase with Store {
 
   @computed
   TransactionPriority get transactionPriority {
-    final priority = _settingsStore.priority[walletType];
+    final priority = _settingsStore.getPriority(walletType, chainId: chainId);
 
     if (priority == null) {
       throw Exception('Unexpected type ${walletType.toString()}');
@@ -67,7 +69,7 @@ abstract class OtherSettingsViewModelBase with Store {
 
   @computed
   bool get displayTransactionPriority =>
-      !(changeRepresentativeEnabled || [WalletType.solana, WalletType.tron].contains(_wallet.type));
+      !(changeRepresentativeEnabled || [WalletType.solana, WalletType.tron].contains(_wallet.type) || chainId == 42161);
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
@@ -103,14 +105,14 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
-      _settingsStore.priority[walletType] = priority;
+      _settingsStore.setPriority(walletType, priority, chainId: chainId);
 
   void onDisplayBitcoinPrioritySelected(
       TransactionPriority priority, double customValue) {
     if (_wallet.type == WalletType.bitcoin) {
       _settingsStore.customBitcoinFeeRate = customValue.round();
     }
-    _settingsStore.priority[_wallet.type] = priority;
+    _settingsStore.setPriority(_wallet.type, priority, chainId: _wallet.chainId);
   }
 
   @action

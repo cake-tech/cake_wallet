@@ -1,7 +1,11 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 
-CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false}) {
+CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false, int? chainId}) {
+  if (chainId != null) {
+   return getCryptoCurrencyByChainId(chainId);
+  }
+  
   switch (type) {
     case WalletType.monero:
       return CryptoCurrency.xmr;
@@ -14,6 +18,13 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.ltc;
     case WalletType.haven:
       return CryptoCurrency.xhv;
+    case WalletType.evm:
+      if (chainId == null) {
+        throw Exception(
+          'chainId required for WalletType.evm. Use wallet.currency instead of walletTypeToCryptoCurrency(wallet.type) for EVM wallets.',
+        );
+      }
+      return getCryptoCurrencyByChainId(chainId);
     case WalletType.ethereum:
       return CryptoCurrency.eth;
     case WalletType.base:
@@ -43,5 +54,37 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
     case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
+  }
+}
+
+CryptoCurrency getCryptoCurrencyByChainId(int chainId) {
+  switch (chainId) {
+    case 1:
+      return CryptoCurrency.eth;
+    case 137:
+      return CryptoCurrency.maticpoly;
+    case 8453:
+      return CryptoCurrency.baseEth;
+    case 42161:
+      return CryptoCurrency.arbEth;
+    default:
+      return CryptoCurrency.eth;
+  }
+}
+
+/// Get chainId from CryptoCurrency for EVM chains
+/// Returns null if currency is not an EVM chain
+int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
+  switch (currency) {
+    case CryptoCurrency.eth:
+      return 1;
+    case CryptoCurrency.maticpoly:
+      return 137;
+    case CryptoCurrency.baseEth:
+      return 8453;
+    case CryptoCurrency.arbEth:
+      return 42161;
+    default:
+      return null;
   }
 }

@@ -43,7 +43,6 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -62,6 +61,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/evm/evm.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -185,7 +186,7 @@ abstract class DashboardViewModelBase with Store {
                 value: () => tradeFilterStore.displaySwapXyz,
                 caption: ExchangeProviderDescription.swapsXyz.title,
                 onChanged: () =>
-                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
           ]
         },
         subname = '',
@@ -330,6 +331,26 @@ abstract class DashboardViewModelBase with Store {
 
   bool _isTransactionDisposerCallbackRunning = false;
 
+  @action
+  void _reloadTransactions() {
+    if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero) {
+      return; // Monero/Wownero transactions are handled separately
+    }
+
+    transactions.clear();
+
+    transactions.addAll(
+      wallet.transactionHistory.transactions.values.map(
+        (transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore,
+          key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
+        ),
+      ),
+    );
+  }
+
   void _transactionDisposerCallback(int _) async {
     // Simple check to prevent the callback from being called multiple times in the same frame
     if (_isTransactionDisposerCallbackRunning) return;
@@ -437,7 +458,10 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   List<TradeListItem> get trades =>
-      tradesStore.trades.where((trade) => trade.trade.walletId == wallet.id).toList();
+      tradesStore.trades.where((trade) {
+        final isSameChain = trade.trade.chainId != null ? trade.trade.chainId == wallet.chainId : true; // returning default as true here so it falls back to the default checks if there's no chainId
+        return trade.trade.walletId == wallet.id && isSameChain;
+      }).toList();
 
   @computed
   List<OrderListItem> get orders =>
@@ -559,6 +583,30 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
+
+  @computed
+  bool get isEVMWallet => isEVMCompatibleChain(wallet.type);
+
+  @computed
+  List<ChainInfo> get availableChains {
+    if (!isEVMWallet) return [];
+    return evm!.getAllChains();
+  }
+
+  @computed
+  ChainInfo? get currentChain {
+    if (!isEVMWallet) return null;
+    return evm!.getCurrentChain(wallet);
+  }
+
+  @action
+  Future<void> selectChain(int chainId) async {
+    if (!isEVMWallet) return;
+
+    final node = appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId);
+
+    await evm!.selectChain(wallet, chainId, node: node);
+  }
 
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
@@ -863,6 +911,8 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _transactionDisposer;
 
+  ReactionDisposer? _chainChangeDisposer;
+
   @computed
   bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(wallet.type);
 
@@ -876,6 +926,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
+      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
@@ -908,7 +959,12 @@ abstract class DashboardViewModelBase with Store {
   }
 
   Future<void> reconnect() async {
-    final node = appStore.settingsStore.getCurrentNode(wallet.type);
+    int? chainId;
+    if (isEVMWallet) {
+      chainId = evm!.getSelectedChainId(wallet);
+    }
+
+    final node = appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId);
     await wallet.connectToNode(node: node);
     if (hasPowNodes) {
       final powNode = settingsStore.getCurrentPowNode(wallet.type);
@@ -966,21 +1022,24 @@ abstract class DashboardViewModelBase with Store {
       // subname = null;
       subname = '';
 
-      transactions.clear();
-
-      transactions.addAll(
-        wallet.transactionHistory.transactions.values.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
-            key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
-          ),
-        ),
-      );
+      _reloadTransactions();
     }
 
     _transactionDisposer?.reaction.dispose();
+
+    if (isEVMCompatibleChain(wallet.type)) {
+      _chainChangeDisposer?.reaction.dispose();
+      _chainChangeDisposer = reaction((_) {
+        // Access selectedChainId through proxy to track chain changes
+        return evm!.getSelectedChainId(wallet);
+      }, (_) {
+        // When chain switches, reload transactions for the new chain
+        _reloadTransactions();
+      });
+    } else {
+      _chainChangeDisposer?.reaction.dispose();
+      _chainChangeDisposer = null;
+    }
 
     _transactionDisposer = reaction((_) {
       final length = appStore.wallet!.transactionHistory.transactions.length;
@@ -1068,10 +1127,11 @@ abstract class DashboardViewModelBase with Store {
   @action
   void setBuiltinTor(bool value, BuildContext context) {
     if (value) {
-      unawaited(showPopUp<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
+      unawaited(
+        showPopUp<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
               alertTitle: S.of(context).tor_connection,
               alertContent: S.of(context).tor_experimental,
               buttonText: S.of(context).ok,
@@ -1084,13 +1144,25 @@ abstract class DashboardViewModelBase with Store {
     settingsStore.currentBuiltinTor = value;
     if (value) {
       unawaited(ensureTorStarted(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == false) return; // return when tor got disabled in the meantime;
-        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+        if (settingsStore.currentBuiltinTor == false)
+          return; // return when tor got disabled in the meantime;
+        int? chainId;
+        if (isEVMWallet) {
+          chainId = evm!.getSelectedChainId(wallet);
+        }
+        await wallet.connectToNode(
+            node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
       }));
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == true) return; // return when tor got enabled in the meantime;
-        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+        if (settingsStore.currentBuiltinTor == true)
+          return; // return when tor got enabled in the meantime;
+        int? chainId;
+        if (isEVMWallet) {
+          chainId = evm!.getSelectedChainId(wallet);
+        }
+        await wallet.connectToNode(
+            node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
       }));
     }
   }
@@ -1194,7 +1266,7 @@ abstract class DashboardViewModelBase with Store {
       if (tx.isReplaced == true) return ' (replaced)';
     }
 
-    if (wallet.type == WalletType.ethereum && tx.evmSignatureName == 'approval')
+    if (wallet.chainId == 1 && tx.evmSignatureName == 'approval')
       return ' (${tx.evmSignatureName})';
     return '';
   }
