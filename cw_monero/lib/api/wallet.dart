@@ -5,10 +5,15 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_lws/monero.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
 import 'package:cw_monero/api/get_all_unspent.dart';
+import 'package:cw_monero/api/wallet_manager_lws.dart' as wmLws;
 import 'package:monero/monero.dart' as monero;
+// import 'package:cw_lws/src/wallet2.dart' as cw_lwswallet;
+// import 'package:cw_lws/src/monero.dart' as cw_lwssrc;
+import 'package:cw_lws/monero.dart' as cw_lws;
 import 'package:mutex/mutex.dart';
 import 'package:polyseed/polyseed.dart';
 
@@ -209,10 +214,41 @@ Future<bool> setupNodeSync(
 }
 ''');
   final addr = currentWallet!.ffiAddress();
-  printV("init: start");
 
+  printV("setupNodeSync: start");
+  printV("pointer address: $address");
+  printV("currentWallet: $currentWallet");
+  printV("addr: existing wptr address: $addr");
+
+  // Print all properties of currentWallet
+  printV("=== currentWallet Properties ===");
+  printV("filename: ${currentWallet!.filename()}");
+  printV("ffiAddress: ${currentWallet!.ffiAddress()}");
+  printV("blockChainHeight: ${currentWallet!.blockChainHeight()}");
+  printV("status: ${currentWallet!.status()}");
+  printV("errorString: ${currentWallet!.errorString()}");
+  printV("secretViewKey: ${currentWallet!.secretViewKey()}");
+  printV("publicViewKey: ${currentWallet!.publicViewKey()}");
+  printV("secretSpendKey: ${currentWallet!.secretSpendKey()}");
+  printV("publicSpendKey: ${currentWallet!.publicSpendKey()}");
+  printV("numSubaddressAccounts: ${currentWallet!.numSubaddressAccounts()}");
+  printV("trustedDaemon: ${currentWallet!.trustedDaemon()}");
+  printV("================================");
+
+  // final newWalletPointer = monero_lws.libPath();
+  // printV("newWalletPointer: $newWalletPointer");
   // KB: Where we would swap the pointers.
+  // 1.   Prepare to swap the pointers
+  // 1.1  Get a variable pointing to the address in memory of current wallet manager pointer
+  // 1.2  Get the address of the new wallet pointer (LWS vs non-LWS)
+  // 2.   See if new wallet exists on file system
+
   // Swap out pointer
+  // newPtrAddress = Pointer.fromAddress(newAddr);
+  // Do an Isolate.run with the new pointer (and correct arguments?)
+  // NB must support self-signed certs for LWS
+  // TODO: Freeze if no valid nodes to retrieve from?
+  // 3. $currentWallet is available here due to it being a global variable
   // can change out currentWallet! to the opposite pointer
   // await isolate to see if wallet exists
   // Just swap out pointers (doesn't matter if wallet is running)
@@ -220,6 +256,15 @@ Future<bool> setupNodeSync(
   // Create new wallet file for LWS mode
   // LWS cacheattribute on the node itself
   // If 15 minutes passed without resolving problem, call Czarek/Omar/Konstantin
+
+  // 2. See if LWS wallet exists on file system
+  final lwsWalletPath = currentWallet!.filename() + ".lws";
+  printV("About to check if LWS wallet exists at path: $lwsWalletPath");
+  if (wmLws.isWalletExist(path: lwsWalletPath)) {
+    printV("LWS wallet exists at path: $lwsWalletPath");
+  } else {
+    printV("LWS wallet does not exist, defer to the toggle in ");
+  }
 
   await Isolate.run(() {
     monero.Wallet_init(Pointer.fromAddress(addr),
