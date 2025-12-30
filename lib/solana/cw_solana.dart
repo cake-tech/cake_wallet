@@ -141,7 +141,7 @@ class CWSolana extends Solana {
     // If it's not an SPLToken but has SOL tag, try to find matching SPLToken
     if (asset.tag == 'SOL') {
       final symbol = asset.title.toUpperCase();
-      
+
       // Search through default tokens to find matching symbol
       final defaultTokens = DefaultSPLTokens().initialSPLTokens;
       try {
@@ -187,6 +187,7 @@ class CWSolana extends Solana {
   Future<PendingTransaction> signAndPrepareJupiterSwapTransaction(
     WalletBase wallet,
     String base64Transaction,
+    String requestId,
     String destinationAddress,
     double amount,
     double fee,
@@ -199,34 +200,126 @@ class CWSolana extends Solana {
       throw Exception('Solana provider not available');
     }
 
-    // Decode base64 transaction
-    final transactionBytes = base64.decode(base64Transaction);
-    final unsignedTransaction = SolanaTransaction.deserialize(transactionBytes);
+    final unsignedTransactionBytes = base64.decode(base64Transaction);
+    final unsignedTransaction = SolanaTransaction.deserialize(unsignedTransactionBytes);
 
-    // Sign the transaction
     final signedMessage = privateKey.sign(unsignedTransaction.serializeMessage());
-
     unsignedTransaction.addSignature(privateKey.publicKey().toAddress(), signedMessage);
 
-    // Serialize the signed transaction
-    final serializedTransaction = unsignedTransaction.serializeString();
+    final signedTransactionBytes = unsignedTransaction.serialize();
+    final signedTransactionBase64 = base64.encode(Uint8List.fromList(signedTransactionBytes));
 
     Future<String> sendTx() async {
-      final signature = await solanaProvider.request(
-        SolanaRPCSendTransaction(
-          encodedTransaction: serializedTransaction,
-          commitment: Commitment.confirmed,
-        ),
-      );
-      return signature;
+      try {
+        if (signedTransactionBase64.isEmpty) {
+          throw Exception('Invalid transaction: transaction is empty');
+        }
+
+        if (requestId.isEmpty) {
+          throw Exception('Invalid requestId: requestId is empty');
+        }
+
+        final jupiterProvider = JupiterExchangeProvider();
+
+        final executeResponse = await jupiterProvider.executeSwap(
+          signedTransaction: signedTransactionBase64,
+          requestId: requestId,
+        );
+
+        final status = executeResponse['status'] as String?;
+        final signature = executeResponse['signature'] as String?;
+        final errorCode = executeResponse['code'] as num?;
+        final errorMessage = executeResponse['error'] as String? ?? 'Unknown error';
+
+        // Handle different status cases
+        switch (status) {
+          case 'Success':
+            if (signature == null ||
+                signature.isEmpty ||
+                signature == '1111111111111111111111111111111111111111111111111111111111111111') {
+              throw Exception(
+                'Invalid transaction signature received from Jupiter. '
+                'Status: $status',
+              );
+            }
+            return signature;
+          case 'Failed':
+            String userFriendlyError = _getJupiterErrorMessage(errorCode, errorMessage);
+            // Even when failed, Jupiter may return a signature for solscan
+            if (signature != null && signature.isNotEmpty) {
+              throw JupiterSwapFailedException(
+                message: userFriendlyError,
+                signature: signature,
+                errorCode: errorCode,
+                errorMessage: errorMessage,
+              );
+            } else {
+              throw Exception(userFriendlyError);
+            }
+          case 'Pending':
+          case 'Processing':
+            throw Exception(
+              'Jupiter swap is still processing. Please wait and try checking the transaction status.',
+            );
+          default:
+            throw Exception(
+              'Jupiter swap returned unknown status: $status. Error: $errorMessage. Code: $errorCode',
+            );
+        }
+      } catch (e) {
+        throw Exception('Failed to execute Jupiter swap: $e');
+      }
     }
 
     return PendingSolanaTransaction(
       amount: amount,
-      serializedTransaction: serializedTransaction,
+      serializedTransaction: signedTransactionBase64,
       destinationAddress: destinationAddress,
       sendTransaction: sendTx,
       fee: fee,
     );
+  }
+
+  /// Get user-friendly error message based on Jupiter error code
+  String _getJupiterErrorMessage(num? errorCode, String errorMessage) {
+    if (errorCode == null) {
+      return 'Jupiter swap failed: $errorMessage';
+    }
+
+    switch (errorCode.toInt()) {
+      case -2000:
+        return 'Transaction failed to land on the network. Please try again.';
+      case -2001:
+        return 'Unknown error occurred. Please try again.';
+      case -2002:
+        return 'Invalid transaction. Please try creating a new swap.';
+      case -2003:
+        return 'Quote expired. The swap quote is no longer valid. Please create a new swap.';
+      case -2004:
+        return 'Swap was rejected. This may be due to:\n'
+            '- Insufficient funds for the swap or fees\n'
+            '- Slippage tolerance exceeded (price moved too much)\n'
+            '- Network congestion\n'
+            'Please check your balance and try again with a new quote.';
+      case -2005:
+        return 'Internal error occurred. Please try again.';
+      default:
+        // Check for common program errors
+        if (errorMessage.contains('SlippageToleranceExceeded') ||
+            errorMessage.contains('slippage')) {
+          return 'Slippage tolerance exceeded. The price moved too much during the swap. '
+              'Please try again with a new quote.';
+        }
+
+        if (errorMessage.contains('InsufficientFunds') || errorMessage.contains('insufficient')) {
+          return 'Insufficient funds. Please ensure you have enough SOL for the swap and fees.';
+        }
+
+        if (errorMessage.contains('Blockhash') || errorMessage.contains('expired')) {
+          return 'Transaction expired. Please create a new swap.';
+        }
+
+        return 'Jupiter swap failed (code: $errorCode): $errorMessage. Please try again.';
+    }
   }
 }

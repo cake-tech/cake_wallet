@@ -1156,6 +1156,7 @@ Future<void> generateSolana(bool hasImplementation) async {
   final outputFile = File(solanaOutputPath);
   const solanaCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -1178,6 +1179,7 @@ import 'package:cw_solana/solana_wallet_creation_credentials.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
 
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:on_chain/solana/solana.dart' hide Store;
 """;
   const solanaCwPart = "part 'cw_solana.dart';";
@@ -1227,10 +1229,28 @@ abstract class Solana {
   Future<PendingTransaction> signAndPrepareJupiterSwapTransaction(
     WalletBase wallet,
     String base64Transaction,
+    String requestId,
     String destinationAddress,
     double amount,
     double fee,
   );
+}
+
+class JupiterSwapFailedException implements Exception {
+  final String message;
+  final String signature;
+  final num? errorCode;
+  final String? errorMessage;
+
+  JupiterSwapFailedException({
+    required this.message,
+    required this.signature,
+    this.errorCode,
+    this.errorMessage,
+  });
+
+  @override
+  String toString() => message;
 }
 
   """;

@@ -42,6 +42,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
 
   static const _baseUrl = 'api.jup.ag';
   static const _orderPath = '/ultra/v1/order';
+  static const _executePath = '/ultra/v1/execute';
 
   // Wrapped SOL address (native SOL)
   static const _nativeSolMint = 'So11111111111111111111111111111111111111112';
@@ -232,21 +233,6 @@ class JupiterExchangeProvider extends ExchangeProvider {
         if (!isInternalTransfer) 'receiver': request.toAddress,
       };
 
-      // To add custom fees if needed
-      // try {
-      //   final referralAccount = secrets.jupiterReferralAccount;
-      //   if (referralAccount != null && referralAccount.isNotEmpty) {
-      //     orderParams['referralAccount'] = referralAccount;
-      //     final referralFee = secrets.jupiterReferralFee;
-      //     if (referralFee != null && referralFee.isNotEmpty) {
-      //       final feeBps = int.tryParse(referralFee);
-      //       if (feeBps != null && feeBps >= 50 && feeBps <= 255) {
-      //         orderParams['referralFee'] = feeBps.toString();
-      //       }
-      //     }
-      //   }
-      // } catch (_) { }
-
       final orderUri = Uri.https(_baseUrl, _orderPath, orderParams);
       final headers = _getHeaders();
 
@@ -325,9 +311,6 @@ class JupiterExchangeProvider extends ExchangeProvider {
 
       final receiveAmount = AmountConverter.fromBaseUnits(outAmount, request.toCurrency.decimals);
 
-      // Generate a unique trade ID
-      final tradeId = 'jupiter_${DateTime.now().millisecondsSinceEpoch}';
-
       ExchangeProviderLogger.logSuccess(
         provider: description,
         function: 'createTrade',
@@ -342,7 +325,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
           'isSendAll': isSendAll,
         },
         responseData: {
-          'tradeId': tradeId,
+          'tradeId': requestId,
           'receiveAmount': receiveAmount,
           'hasTransaction': transaction.isNotEmpty,
           'requestId': requestId,
@@ -350,7 +333,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
       );
 
       return Trade(
-        id: tradeId,
+        id: requestId,
         from: request.fromCurrency,
         to: request.toCurrency,
         provider: description,
@@ -387,6 +370,70 @@ class JupiterExchangeProvider extends ExchangeProvider {
       );
       printV('createTrade error: $e');
       throw TradeNotCreatedException(description);
+    }
+  }
+
+  /// Executes a signed Jupiter swap transaction via Jupiter's /execute endpoint
+  Future<Map<String, dynamic>> executeSwap({
+    required String signedTransaction,
+    required String requestId,
+  }) async {
+    try {
+      final executeUri = Uri.https(_baseUrl, _executePath);
+      final headers = _getHeaders();
+      headers['Content-Type'] = 'application/json';
+
+      final body = json.encode({
+        'signedTransaction': signedTransaction,
+        'requestId': requestId,
+      });
+
+      final response = await ProxyWrapper().post(
+        clearnetUri: executeUri,
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode != 200) {
+        final errorBody = response.body;
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'executeSwap',
+          error: Exception('Failed to execute swap: ${response.statusCode} $errorBody'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'requestId': requestId,
+            'hasSignedTransaction': signedTransaction.isNotEmpty,
+          },
+        );
+        throw Exception('Failed to execute swap: ${response.statusCode} $errorBody');
+      }
+
+      final executeData = json.decode(response.body) as Map<String, dynamic>;
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'executeSwap',
+        requestData: {
+          'requestId': requestId,
+          'hasSignedTransaction': signedTransaction.isNotEmpty,
+        },
+        responseData: executeData,
+      );
+
+      return executeData;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'executeSwap',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'requestId': requestId,
+          'hasSignedTransaction': signedTransaction.isNotEmpty,
+        },
+      );
+      rethrow;
     }
   }
 

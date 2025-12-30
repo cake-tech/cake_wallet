@@ -120,7 +120,7 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.xoSwap:
         return  'https://orders.xoswap.com/${trade.id}';
       case ExchangeProviderDescription.jupiter:
-        return 'https://solscan.io/tx/${trade.id}';
+        return 'https://solscan.io/tx/${trade.txId}';
     }
     return null;
   }

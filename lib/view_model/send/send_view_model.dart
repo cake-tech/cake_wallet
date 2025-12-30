@@ -23,9 +23,11 @@ import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -33,7 +35,6 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -693,7 +694,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // Jupiter (Solana) swap path
       if (walletType == WalletType.solana && trade != null && provider is JupiterExchangeProvider) {
         final swapTransactionBase64 = trade.routerData;
-        if (swapTransactionBase64?.isNotEmpty == true && solana != null) {
+        final requestId = trade.routerValue;
+        if (swapTransactionBase64?.isNotEmpty == true &&
+            requestId?.isNotEmpty == true &&
+            solana != null) {
           try {
             final actualFee = double.tryParse(trade.memo ?? '0.0') ?? 0.0005;
             // Fallback to estimate if not available
@@ -704,6 +708,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             pendingTransaction = await solana!.signAndPrepareJupiterSwapTransaction(
               wallet,
               swapTransactionBase64!,
+              requestId!,
               trade.payoutAddress ?? '',
               amount,
               fee,
@@ -848,26 +853,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       state = TransactionCommitted();
 
-      // Update Jupiter trade ID with Solscan URL after transaction is committed
-      if (_currentTrade != null &&
-          _currentProvider is JupiterExchangeProvider &&
-          walletType == WalletType.solana &&
-          pendingTransaction!.id.isNotEmpty) {
-        final signature = pendingTransaction!.id;
-        _currentTrade!.id = signature;
-        if (_currentTrade!.isInBox) {
-          await _currentTrade!.save();
-        }
-        _currentTrade = null; // Clear reference after update
-        _currentProvider = null; // Clear reference after update
-      }
+      await _updateSolanaTrade(signature: pendingTransaction!.id, isSuccess: true);
 
       // Immediate transaction update for EVM chains, Solana, Tron, and Nano
       if (isEVMWallet ||
           [WalletType.solana, WalletType.tron, WalletType.nano].contains(walletType)) {
         Future.delayed(Duration(seconds: 4), () async {
           try {
-            await wallet.updateTransactionsHistory();
+            await Future.wait([
+              wallet.updateTransactionsHistory(),
+              wallet.updateBalance() as Future<void>,
+            ]);
           } catch (e) {
             printV('Failed to update transactions after send: $e');
           }
@@ -881,7 +877,35 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
           DateTime.now().add(Duration(minutes: 1)).toIso8601String());
     } catch (e) {
+      if (e is JupiterSwapFailedException) {
+        await _updateSolanaTrade(signature: e.signature, isSuccess: false);
+      }
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
+      await _updateSolanaTrade(signature: '', isSuccess: false);
+    }
+  }
+
+  /// Update Jupiter trade with relevant details after transaction is committed
+  Future<void> _updateSolanaTrade({required String signature, required bool isSuccess}) async {
+    if (_currentTrade == null ||
+        _currentProvider?.title != 'Jupiter' ||
+        walletType != WalletType.solana) return;
+
+    _currentTrade!.txId = signature;
+
+    if (!isSuccess) {
+      _currentTrade!.stateRaw = TradeState.failed.raw;
+    }
+
+    if (isSuccess) {
+      _currentTrade!.stateRaw = TradeState.completed.raw;
+
+      _currentTrade = null;
+      _currentProvider = null;
+    }
+
+    if (_currentTrade!.isInBox) {
+      await _currentTrade!.save();
     }
   }
 
