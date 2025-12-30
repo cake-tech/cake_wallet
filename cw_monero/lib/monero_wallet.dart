@@ -37,12 +37,16 @@ import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
-import 'package:cw_monero/monero_lws_rest.dart';
+// import 'package:cw_monero/monero_lws_rest.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'package:monero/monero.dart' as monero;
+import 'package:cw_lws/monero.dart' as monero_lws;
+import 'package:cw_monero/api/wallet_manager.dart' as moneroWm;
+import 'package:cw_monero/api/wallet_manager_lws.dart' as lwsWm;
+import 'package:monero/src/wallet2.dart';
 
 part 'monero_wallet.g.dart';
 
@@ -118,12 +122,30 @@ abstract class MoneroWalletBase
   @observable
   ObservableMap<CryptoCurrency, MoneroBalance> balance;
 
+  // TODO: KB - Get this garbage out of here and into a class that inherits from MoneroWalletBase
+  // I know that technically, these do not belong here, but for MVP, it's easiest to do so
+
   @observable
   bool isLWSEnabled;
 
-  // I know that technically, these do not belong here, but for MVP, it's easiest to do so
-  @observable
-  setLWSEnabled(bool value) {
+  // Todo: ask Czarek / Omar about offsets for wallets and how to structure them
+  // ie explain monero_account_list
+  Future<dynamic> setPointer(Pointer ptr) async {
+    try {
+      var currentPointer = await moneroWm.getWmPtr();
+      printV("Current Wallet Manager Ptr Address:");
+
+      printV("Lws pointer:");
+      final lwsPtrAddr = await lwsWm.getWmPtr();
+      currentWallet!.pointer(ptr);
+    } catch (e) {
+      printV("Error setting wallet pointer: $e");
+    }
+  }
+
+  // returns bool true / false to indicate LWS type now active
+  // returns error if unable to switch
+  Future<dynamic> setLWSEnabled(bool value) async {
     // TODO: Search through all nodes to try find an LWS node. If no LWS node,
     // we can eventually handle throwing an error after mvp
     // For MVP, we could create such a node and default it to api.mymonero.com:443
@@ -134,9 +156,47 @@ abstract class MoneroWalletBase
     // printV(value);
     isCurrentWalletLWSEnabled();
     printV("KB --- Setting LWS to $value");
+
     final stringValue = value ? "true" : "false";
+
+    if (stringValue == "true") {
+      printV("Enabling LWS for wallet");
+      // check LWS version of wallet exists
+      final lwsPath = currentWallet!.filename() + ".lws";
+      final walletExists = isWalletExist(path: lwsPath);
+      // Cool, we can now create a wallet
+      printV("LWS wallet exists: $walletExists");
+      printV("Lws pointer:");
+      final lwsPtrAddr = await lwsWm.getWmPtr();
+      printV("LWS Wallet Manager Ptr Address:");
+      printV(lwsPtrAddr.ffiAddress());
+      // printV(currentWallet!.setPointer(lwsPtrAddr));
+      // printV the type of currentWallet
+      printV("WalletClass = ${currentWallet.runtimeType}");
+      // First let's switch out the wallet manager pointer to LWS for file format
+      // currentWallet!.setPointer(lwsPtrAddr);
+    } else {
+      printV("Disabling LWS for wallet");
+    }
     currentWallet?.setCacheAttribute(key: "cakewallet.isLWSEnabled", value: stringValue);
     isLWSEnabled = value;
+    printV("Wallet object: $currentWallet");
+    printV("Wallet ptr: ${currentWallet?.ffiAddress()}");
+    printV("Wallet path: ${currentWallet?.path()}");
+    var lwsPath = currentWallet!.path() + ".lws";
+    printV("LWS Wallet path: $lwsPath");
+
+    // createWallet();
+// if (wmLws.isWalletExist(path: currentWallet!.filename())) {
+//       printV("LWS wallet exists at: ${currentWallet!.filename()}");
+//     } else {
+//       printV("LWS wallet does not exist, we should create it at : ${currentWallet!.filename()}");
+
+//       // Create new LWS wallet file from existing wallet file
+//       final lwsPtr = wmLws.getCurrentWalletPtr(); //
+//     }
+    // We're going to need to invoke
+    // Save and close existing wallet
   }
 
   @observable
@@ -258,7 +318,6 @@ abstract class MoneroWalletBase
         if (currentWallet?.ffiAddress() == waddr) {
           currentWallet = null;
         }
-        printV("wallet closed");
       }
     }
 
@@ -266,6 +325,8 @@ abstract class MoneroWalletBase
     _onAccountChangeReaction?.reaction.dispose();
     _onTxHistoryChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
+    // KB - Print wallet closed
+    printV("wallet closed");
   }
 
   @override
@@ -998,4 +1059,8 @@ abstract class MoneroWalletBase
   String formatCryptoAmount(String amount) {
     return moneroAmountToString(amount: int.parse(amount));
   }
+}
+
+extension on Wallet2Wallet {
+  void pointer(Pointer<NativeType> ptr) {}
 }
