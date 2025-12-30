@@ -18,6 +18,7 @@ import 'package:monero/monero.dart' as monero;
 import 'package:cw_lws/src/wallet2.dart' as cw_lwswallet;
 import 'package:cw_lws/src/monero.dart' as cw_lwssrc;
 import 'package:cw_lws/monero.dart' as cw_lwsroot;
+import 'package:cw_monero/api/wallet_manager_lws.dart' as lwsWm;
 
 class MoneroCException implements Exception {
   final String message;
@@ -83,10 +84,10 @@ Wallet2WalletManager wmPtr = (() {
 })();
 
 // KB code
-// TODO (KB): implement getCurrentWalletPtr
-Future<dynamic> getCurrentWalletPtr() async {
-  //return ;
-}
+// TODO (KB)
+// Future<dynamic> getCurrentWalletPtr() async { --
+//   return
+// }
 
 Future<dynamic> getWmPtr() async {
   return _wmPtr;
@@ -191,6 +192,77 @@ void restoreWalletFromKeys(
           // TODO(mrcyjanek): safe to remove
           restoreHeight: restoreHeight)
       : wmPtr.createWalletFromKeys(
+          path: path,
+          password: password,
+          restoreHeight: restoreHeight,
+          addressString: address,
+          viewKeyString: viewKey,
+          spendKeyString: spendKey,
+          nettype: 0,
+        );
+
+  int status = newW.status();
+  if (status != 0) {
+    throw WalletRestoreFromKeysException(message: newW.errorString());
+  }
+  newW.store(path: path);
+
+  // CW-712 - Try to restore deterministic wallet first, if the view key doesn't
+  // match the view key provided
+  if (spendKey != "") {
+    final viewKeyRestored = newW.secretViewKey();
+    if (viewKey != viewKeyRestored && viewKey != "") {
+      wmPtr.closeWallet(newW, false);
+      File(path).deleteSync();
+      File(path + ".keys").deleteSync();
+      newW = wmPtr.createWalletFromKeys(
+        path: path,
+        password: password,
+        restoreHeight: restoreHeight,
+        addressString: address,
+        viewKeyString: viewKey,
+        spendKeyString: spendKey,
+        nettype: 0,
+      );
+      int status = newW.status();
+      if (status != 0) {
+        throw WalletRestoreFromKeysException(message: newW.errorString());
+      }
+      newW.store(path: path);
+
+      // TODO: decide what to do about setupBackgroundSync(password, newW);
+    }
+  }
+
+  currentWallet = newW;
+
+  openedWalletsByPath[path] = currentWallet!;
+  _lastOpenedWallet = path;
+}
+
+// Also in wallet_manager_lws.dart
+// I expect that we may want to refactor there depending on how LWS behaves
+void createLwsWalletFromKeys(
+    {required String path,
+    required String password,
+    required String language,
+    required String address,
+    required String viewKey,
+    required String spendKey,
+    required Wallet2WalletManager lwsPtr,
+    int nettype = 0,
+    int restoreHeight = 0}) {
+  txhistory = null;
+  var newW = (spendKey != "")
+      ? lwsPtr.createDeterministicWalletFromSpendKey(
+          path: path,
+          password: password,
+          language: language,
+          spendKeyString: spendKey,
+          newWallet: true,
+          // TODO(mrcyjanek): safe to remove
+          restoreHeight: restoreHeight)
+      : lwsPtr.createWalletFromKeys(
           path: path,
           password: password,
           restoreHeight: restoreHeight,
