@@ -15,6 +15,9 @@ import 'package:flutter/foundation.dart';
 import 'package:monero/src/monero.dart';
 import 'package:monero/src/wallet2.dart';
 import 'package:monero/monero.dart' as monero;
+import 'package:cw_lws/src/wallet2.dart' as cw_lwswallet;
+import 'package:cw_lws/src/monero.dart' as cw_lwssrc;
+import 'package:cw_lws/monero.dart' as cw_lwsroot;
 
 class MoneroCException implements Exception {
   final String message;
@@ -57,8 +60,7 @@ Wallet2WalletManager wmPtr = (() {
     // Problems with the wallet? Crashes? Lags? this will print all calls to xmr
     // codebase, so it will be easier to debug what happens. At least easier
     // than plugging gdb in. Especially on windows/android.
-    monero.printStarts = true;
-    printV("KB!!!!!!!!!!Creating WalletManager ptr");
+    monero.printStarts = false;
     // Identify here if the wallet is in LWS mode or not.
 
     // get global setting
@@ -79,6 +81,18 @@ Wallet2WalletManager wmPtr = (() {
   }
   return _wmPtr!;
 })();
+
+// KB code
+// TODO (KB): implement getCurrentWalletPtr
+Future<dynamic> getCurrentWalletPtr() async {
+  //return ;
+}
+
+Future<dynamic> getWmPtr() async {
+  return _wmPtr;
+}
+
+// KB code ends
 
 Wallet2Wallet createWalletPointer() {
   final newWptr = wmPtr.createWallet(path: "", password: "", language: "", networkType: 0);
