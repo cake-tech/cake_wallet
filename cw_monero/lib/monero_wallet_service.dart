@@ -173,17 +173,10 @@ class MoneroWalletService extends WalletService<
       {OpenWalletTry openWalletTry = OpenWalletTry.initial}) async {
     try {
       // KB: use correct pointer for wallet based on cacheAttribute
-      final testreturn = currentWallet!.getCacheAttribute(key: "garbage");
-      printV("Garbage value:");
-      if (testreturn == "") {
-        printV("Garbage is empty string");
-      } else {
-        printV("Not string");
-      }
       final String? isLWSEnabled = currentWallet!.getCacheAttribute(key: "cakewallet.isLWSEnabled");
-      printV(isLWSEnabled);
-      // Where we open wallets from mws
-      printV("Where we open wallets from mws");
+      printV("Wallet $isLWSEnabled");
+      // Where we open wallets from monwalletservice
+      printV("Where we open wallets from monwalletservice");
       printV("Name: $name");
       var path;
       if (isLWSEnabled == "" || isLWSEnabled == "false") {
@@ -195,62 +188,6 @@ class MoneroWalletService extends WalletService<
       }
 
       printV("Wallet path: $path");
-      if (walletFilesExist(path)) await repairOldAndroidWallet(name);
-
-      await monero_wallet_manager.openWallet(path: path, password: password);
-      final walletInfo = await WalletInfo.get(name, getType());
-      if (walletInfo == null) {
-        throw Exception('Wallet not found');
-      }
-      final wallet = MoneroWallet(
-          walletInfo: walletInfo,
-          derivationInfo: await walletInfo.getDerivationInfo(),
-          unspentCoinsInfo: unspentCoinsInfoSource,
-          password: password);
-
-      if (wallet.isHardwareWallet) {
-        wallet.setLedgerConnection(gLedger!);
-        gLedger = null;
-      }
-
-      // We've chosen pointer by now
-      await wallet.init();
-
-      return wallet;
-    } catch (e) {
-      // TODO: Implement Exception for wallet list service.
-
-      switch (openWalletTry) {
-        case OpenWalletTry.initial:
-          await restoreOrResetWalletFiles(name);
-          return await openWallet(name, password, openWalletTry: OpenWalletTry.cacheRestored);
-        case OpenWalletTry.cacheRestored:
-          await removeCache(name);
-          return await openWallet(name, password, openWalletTry: OpenWalletTry.cacheRemoved);
-        case OpenWalletTry.cacheRemoved:
-          rethrow;
-      }
-    }
-  }
-
-  Future<MoneroWallet> openWallet2(String name, String password,
-      {OpenWalletTry openWalletTry = OpenWalletTry.initial}) async {
-    try {
-      // KB: use correct pointer for wallet based on cacheAttribute
-      final String? isLWSEnabled = currentWallet!.getCacheAttribute(key: "cakewallet.isLWSEnabled");
-      printV(isLWSEnabled);
-      // Where we open wallets from mws
-      printV("Where we open wallets from mws");
-      printV("Name: $name");
-      var path;
-      if (isLWSEnabled! != null && isLWSEnabled == "true") {
-        printV("LWS wallet opened");
-        final String? path = await pathForWallet(name: name, type: getType());
-      } else {
-        printV("Normal wallet opened");
-        final String? path = await pathForWallet(name: name, type: getType());
-      }
-
       if (walletFilesExist(path)) await repairOldAndroidWallet(name);
 
       await monero_wallet_manager.openWallet(path: path, password: password);
