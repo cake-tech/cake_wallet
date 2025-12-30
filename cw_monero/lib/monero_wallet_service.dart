@@ -172,7 +172,19 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> openWallet(String name, String password,
       {OpenWalletTry openWalletTry = OpenWalletTry.initial}) async {
     try {
-      final path = await pathForWallet(name: name, type: getType());
+      // KB: use correct pointer for wallet based on cacheAttribute
+      final isLWSEnabled = currentWallet!.getCacheAttribute(key: "cakewallet.isLWSEnabled");
+      // Where we open wallets from mws
+      printV("Where we open wallets from mws");
+      printV("Name: $name");
+      var path;
+      if (isLWSEnabled == "true") {
+        printV("LWS wallet opened");
+        final path = await pathForWallet(name: name, type: getType());
+      } else {
+        printV("Normal wallet opened");
+        final path = await pathForWallet(name: name, type: getType());
+      }
 
       if (walletFilesExist(path)) await repairOldAndroidWallet(name);
 
@@ -192,6 +204,7 @@ class MoneroWalletService extends WalletService<
         gLedger = null;
       }
 
+      // We've chosen pointer by now
       await wallet.init();
 
       return wallet;
