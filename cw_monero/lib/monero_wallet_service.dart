@@ -185,6 +185,7 @@ class MoneroWalletService extends WalletService<
       } else {
         printV("LWS wallet opened");
         path = await pathForWallet(name: name, type: getType());
+        path = path + ".lws";
       }
 
       printV("Wallet path: $path");
