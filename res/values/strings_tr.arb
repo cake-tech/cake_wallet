@@ -415,6 +415,7 @@
   "forgot_password": "Parolamı unuttum",
   "freeze": "Dondur",
   "frequently_asked_questions": "Sıkça sorulan sorular",
+  "frigate_electrum_server_warning": "Bu Frigate Electrum sunucusu, Sessiz Ödeme anahtarlarınızı sunucuyla paylaşır ve gizliliğinizi bozabilir. Yalnızca bu sunucuya güveniyorsanız devam edin.",
   "from": "İtibaren",
   "frozen": "Dondurulmuş",
   "frozen_balance": "Dondurulmuş denge",

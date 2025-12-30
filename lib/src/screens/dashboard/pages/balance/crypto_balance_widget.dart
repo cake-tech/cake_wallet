@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/frigate_server_warning.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -391,6 +392,18 @@ class CryptoBalanceWidget extends StatelessWidget {
     final newValue = !isSilentPaymentsScanningActive;
 
     dashboardViewModel.silentPaymentsScanningActive = newValue;
+
+    if (newValue) {
+      final shouldProceed = await showFrigateElectrumServerWarning(
+        context: context,
+        wallet: dashboardViewModel.wallet,
+      );
+
+      if (!shouldProceed) {
+        dashboardViewModel.silentPaymentsScanningActive = isSilentPaymentsScanningActive;
+        return;
+      }
+    }
 
     final needsToSwitch = !isSilentPaymentsScanningActive &&
         await bitcoin!.getNodeIsElectrsSPEnabled(dashboardViewModel.wallet) == false;

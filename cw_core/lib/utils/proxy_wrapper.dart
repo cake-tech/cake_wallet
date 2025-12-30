@@ -35,7 +35,7 @@ class ProxyWrapper {
   }
 
   RequestNetwork requestNetwork() {
-    return CakeTor.instance!.started ? RequestNetwork.tor : RequestNetwork.clearnet;
+    return CakeTor.instance?.started == true ? RequestNetwork.tor : RequestNetwork.clearnet;
   }
 
   ioc.IOClient getHttpIOClient({int? portOverride, bool internal = false}) {
@@ -54,7 +54,7 @@ class ProxyWrapper {
     return ioc.IOClient(httpClient);
   }
 
-  int getPort() => CakeTor.instance!.port;
+  int getPort() => CakeTor.instance?.port ?? 0;
 
   @Deprecated('Use ProxyWrapper().get/post/put methods instead, and provide proper clearnet and onion uri.')
   HttpClient getHttpClient({int? portOverride, bool internal = false}) {
@@ -68,7 +68,7 @@ class ProxyWrapper {
         error: null
       );
     }
-    if (CakeTor.instance!.started) {
+    if (CakeTor.instance?.started == true) {
       // Assign connection factory.
       final client = HttpClient();
       SocksTCPClient.assignToHttpClient(client, [
@@ -152,13 +152,7 @@ class ProxyWrapper {
     Uri? onionUri,
   }) async {
     ioc.IOClient? torClient;
-    bool torEnabled = CakeTor.instance!.started;
-
-    if (CakeTor.instance!.started) {
-      torEnabled = true;
-    } else {
-      torEnabled = false;
-    }
+    bool torEnabled = CakeTor.instance?.started == true;
 
     // if tor is enabled, try to connect to the onion url first:
     if (torEnabled) {
@@ -236,7 +230,7 @@ class ProxyWrapper {
     ioc.IOClient clearnetClient = ioc.IOClient(cleatnetHttpClient);
 
 
-    bool torEnabled = CakeTor.instance!.started;
+    bool torEnabled = CakeTor.instance?.started == true;
 
     if (torEnabled) {
       try {
@@ -307,7 +301,7 @@ class ProxyWrapper {
     String? body,
   }) async {
     ioc.IOClient? torClient;
-    bool torEnabled = CakeTor.instance!.started;
+    bool torEnabled = CakeTor.instance?.started == true;
 
     if (torEnabled) {
       try {
@@ -373,13 +367,7 @@ class ProxyWrapper {
     Uri? onionUri,
   }) async {
     ioc.IOClient? torClient;
-    bool torEnabled = CakeTor.instance!.started;
-
-    if (CakeTor.instance!.started) {
-      torEnabled = true;
-    } else {
-      torEnabled = false;
-    }
+    bool torEnabled = CakeTor.instance?.started == true;
 
     // if tor is enabled, try to connect to the onion url first:
     if (torEnabled) {
