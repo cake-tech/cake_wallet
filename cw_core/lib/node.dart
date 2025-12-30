@@ -236,27 +236,34 @@ class Node extends HiveObject with Keyable {
   // KB: We hijack the connect method in monero_wallet.dart's class (line 199) for mvp
   // Should we be using our subclass to call an entirely different node?
   // Future<bool> requestMoneroLWSNode({String methodName = 'get_address_info', String? address, String? viewKey}) async {
-  Future<bool> requestMoneroLWSNode({String methodName = 'get_address_info'}) async {
+  Future<bool> requestMoneroLWSNode() async {
     // TODO: We should honour using a proxy to communicate with the Monero server
     printV("Hello from requestMoneroLWSNode");
-    final lwsDaemonAddress = "192.168.0.141";
+    final daemonAddress = "192.168.0.167"; // KB: hardcoded for testing
     final port = "8443";
     try {
       Uri url = Uri(
         scheme: 'https',
-        host: lwsDaemonAddress,
+        host: daemonAddress,
         port: int.parse(port),
         path: '/get_address_info',
       );
+      printV(url);
       // We can use these throwaway keys to see if we get some form of response
+
       final address =
           "47Cw9RboPr9DRmvA7WnrzxZrAGh9gy6a2U2wqrbqwZaHjV1FbtX5VH288NmjdmGCqLYL1kQyJSfGxWRwJCAQg9upUxNGRde";
       final viewKey = "59710f89795362d36e9ad1e7dcf9611d594686ed7089d27bdeaaee10803f9502";
       final data = json.encode({'address': address, 'view_key': viewKey});
       final response = await ProxyWrapper()
           .post(clearnetUri: url, body: data, allowMitmMoneroBypassSSLCheck: true);
-      // We don't care about the response, just that the server responds
-      print(response);
+      // // We don't care about the response, just that the server responds
+      printV(response);
+      printV(response.statusCode);
+      final body = response.body;
+      final decodedBody = json.decode(body);
+      final percentageSynced = decodedBody['blockchain_height'] / decodedBody['scanned_height'];
+      printV(decodedBody);
       return true;
       // final body = const {
       //   "address": address,
@@ -284,8 +291,8 @@ class Node extends HiveObject with Keyable {
       //   // What's left is to map these transactions to MoneroTransactionInfo for the current wallet
       // }
     } catch (e) {
-      print("Failed");
-      print(e);
+      printV("Failed");
+      printV(e);
       return false;
     }
   }
