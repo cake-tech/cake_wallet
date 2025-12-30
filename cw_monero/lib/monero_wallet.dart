@@ -30,6 +30,7 @@ import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/ledger.dart';
+import 'package:cw_monero/monero_lws.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
@@ -47,6 +48,7 @@ import 'package:cw_lws/monero.dart' as monero_lws;
 import 'package:cw_monero/api/wallet_manager.dart' as moneroWm;
 import 'package:cw_monero/api/wallet_manager_lws.dart' as lwsWm;
 import 'package:monero/src/wallet2.dart';
+import 'package:cw_monero/api/monero-lightwallet.dart';
 
 part 'monero_wallet.g.dart';
 
@@ -162,41 +164,74 @@ abstract class MoneroWalletBase
     if (stringValue == "true") {
       printV("Enabling LWS for wallet");
       // check LWS version of wallet exists
+
       final lwsPath = currentWallet!.filename() + ".lws";
+      final address = currentWallet!.address(accountIndex: 0, addressIndex: 0);
+      final viewKey = currentWallet!.secretViewKey();
+      final spendKey = currentWallet!.secretSpendKey();
+      final restoreHeight = currentWallet!.getRefreshFromBlockHeight();
+      final language = currentWallet!.getSeedLanguage();
+      final password = _password;
+
       final walletExists = isWalletExist(path: lwsPath);
-      // Cool, we can now create a wallet
-      printV("LWS wallet exists: $walletExists");
-      printV("Lws pointer:");
-      final lwsPtrAddr = await lwsWm.getWmPtr();
-      printV("LWS Wallet Manager Ptr Address:");
-      printV(lwsPtrAddr.ffiAddress());
-      // printV(currentWallet!.setPointer(lwsPtrAddr));
-      // printV the type of currentWallet
-      printV("WalletClass = ${currentWallet.runtimeType}");
-      // First let's switch out the wallet manager pointer to LWS for file format
-      // currentWallet!.setPointer(lwsPtrAddr);
-    } else {
-      printV("Disabling LWS for wallet");
+      if (!walletExists) {
+        printV("LWS wallet does not exist at path: $lwsPath, creating...");
+
+        // Cool, we can now create a wallet
+        printV("LWS wallet exists: $walletExists");
+        printV("Lws pointer:");
+        final lwsPtrAddr = await lwsWm.getWmPtr();
+        printV("LWS Wallet Manager Ptr Address:");
+        printV(lwsPtrAddr.ffiAddress());
+        // printV(currentWallet!.setPointer(lwsPtrAddr));
+        // printV the type of currentWallet
+        printV("WalletClass = ${currentWallet.runtimeType}");
+
+        // Create new LWS wallet file from existing wallet file
+        lwsWm.createLwsWalletFromKeys(
+            path: lwsPath,
+            password: password,
+            language: language,
+            address: address,
+            viewKey: viewKey,
+            spendKey: spendKey,
+            lwsPtr: await lwsWm.getWmPtr(),
+            nettype: 0,
+            restoreHeight: 3000000);
+        // First let's switch out the wallet manager pointer to LWS for file format
+        // currentWallet!.setPointer(lwsPtrAddr);
+      } else {
+        printV("Disabling LWS for wallet");
+      }
+
+      // Independently toggle
+      currentWallet?.setCacheAttribute(key: "cakewallet.isLWSEnabled", value: stringValue);
+      isLWSEnabled = value;
+      printV("Wallet object: $currentWallet");
+      printV("Wallet ptr: ${currentWallet?.ffiAddress()}");
+      printV("Wallet path: ${currentWallet?.path()}");
+      printV("LWS Wallet path: $lwsPath");
+      // Start isolate
+
+      // final lwsPtr
+
+      //final newLwsWallet = monero_lws.WalletManager_createDeterministicWalletFromSpendKey(lwsPtr, path: path, password: password, language: language, spendKeyString: spendKeyString, newWallet: newWallet, restoreHeight: restoreHeight)
+
+      // final pendingTxPtr = Pointer<Void>.fromAddress(await Isolate.run(() {}));
+      // End isolate
+      //
+      // createWallet();
+      // if (wmLws.isWalletExist(path: currentWallet!.filename())) {
+      //       printV("LWS wallet exists at: ${currentWallet!.filename()}");
+      //     } else {
+      //       printV("LWS wallet does not exist, we should create it at : ${currentWallet!.filename()}");
+
+      //       // Create new LWS wallet file from existing wallet file
+      //       final lwsPtr = wmLws.getCurrentWalletPtr(); //
+      //     }
+      // We're going to need to invoke
+      // Save and close existing wallet
     }
-    currentWallet?.setCacheAttribute(key: "cakewallet.isLWSEnabled", value: stringValue);
-    isLWSEnabled = value;
-    printV("Wallet object: $currentWallet");
-    printV("Wallet ptr: ${currentWallet?.ffiAddress()}");
-    printV("Wallet path: ${currentWallet?.path()}");
-    var lwsPath = currentWallet!.path() + ".lws";
-    printV("LWS Wallet path: $lwsPath");
-
-    // createWallet();
-// if (wmLws.isWalletExist(path: currentWallet!.filename())) {
-//       printV("LWS wallet exists at: ${currentWallet!.filename()}");
-//     } else {
-//       printV("LWS wallet does not exist, we should create it at : ${currentWallet!.filename()}");
-
-//       // Create new LWS wallet file from existing wallet file
-//       final lwsPtr = wmLws.getCurrentWalletPtr(); //
-//     }
-    // We're going to need to invoke
-    // Save and close existing wallet
   }
 
   @observable
@@ -265,6 +300,7 @@ abstract class MoneroWalletBase
       }
     }
 
+    beginLWSLoop();
     _autoSaveTimer =
         Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
     // update transaction details after restore
@@ -276,10 +312,29 @@ abstract class MoneroWalletBase
 
   @override
   Future<void>? beginLWSLoop() {
-    printV("Beginning LWS Loop");
-    // request monerolwsnode
+    var isLWSEnabled = isCurrentWalletLWSEnabled();
+    if (isLWSEnabled == true) {
+      // TODO: get LWS nodes and cycle through them
+      printV("Beginning LWS Loop");
+      // This should store the node address somewhere / make it available
+      printV("We should be looping but we aren't?");
 
-    printV("Finishing LWS Loop");
+      final daemonAddress = "192.168.0.167";
+      final walletViewKey = currentWallet!.secretViewKey();
+      final walletAddress = currentWallet!.address(accountIndex: 0, addressIndex: 0);
+      final lwsClient = MoneroLWSClient();
+      Future<dynamic> response =
+          lwsClient.login(daemonAddress, walletAddress, walletViewKey).then((response) {
+        printV("Login successful");
+        printV("LWS Login response: $response");
+      }).catchError((error) {
+        printV("LWS Login error: $error");
+      });
+
+      // request monerolwsnode
+
+      printV("Finishing LWS Loop");
+    }
   }
 
   @override
@@ -360,7 +415,8 @@ abstract class MoneroWalletBase
 
   @override
   Future<void> startBackgroundSync() async {
-    if (isLWSEnabled) return;
+    if (isLWSEnabled) printV("BG sync not supported for LWS wallet");
+    return;
     if (isBackgroundSyncRunning) {
       printV("Background sync already running");
       return;
