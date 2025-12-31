@@ -30,6 +30,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_hidden
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -149,6 +150,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return BaseURI(amount: amount, address: address.address);
       case WalletType.arbitrum:
         return ArbitrumURI(amount: amount, address: address.address);
+      case WalletType.zcash:
+        return ZcashURI(amount: amount, address: address.address);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
@@ -309,6 +312,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       });
     }
 
+    if (wallet.type == WalletType.zcash) {
+      final addrInfos = zcash!.getAddressInfos(wallet);
+      addrInfos.forEach((info) {
+        addressList.add(
+            new WalletAddressListItem(isPrimary: false, address: wallet.walletAddresses.address, name: info.label));
+      });
+    }
+
     for (var i = 0; i < addressList.length; i++) {
       if (!(addressList[i] is WalletAddressListItem)) continue;
       (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses
@@ -405,6 +416,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.litecoin,
         WalletType.decred,
         WalletType.dogecoin,
+        // WalletType.zcash,
       ].contains(wallet.type);
 
   @computed
@@ -513,6 +525,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   Future<void> setAddressType(dynamic option) async {
     if ([WalletType.bitcoin, WalletType.litecoin].contains(wallet.type)) {
       await bitcoin!.setAddressType(wallet, option);
+    }
+    if (wallet.type == WalletType.zcash) {
+      await zcash!.setAddressType(wallet, option);
     }
   }
 

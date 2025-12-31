@@ -48,6 +48,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final zanoIcon = Image.asset('assets/images/crypto/zano.webp', height: 24, width: 24);
   final decredIcon = Image.asset('assets/images/crypto/decred.webp', height: 24, width: 24);
   final dogeIcon = Image.asset('assets/images/crypto/dogecoin.webp', height: 24, width: 24);
+  final zcashIcon = Image.asset('assets/images/crypto/zcash.webp', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
@@ -190,6 +191,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return baseIcon;
       case WalletType.arbitrum:
         return arbitrumIcon;
+      case WalletType.zcash:
+        return zcashIcon;
       case WalletType.none:
         return nonWalletTypeIcon;
     }

@@ -43,6 +43,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.zcash:
         return true;
 
       case WalletType.bitcoin:
