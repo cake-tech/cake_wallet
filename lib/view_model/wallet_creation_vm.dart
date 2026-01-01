@@ -99,7 +99,6 @@ abstract class WalletCreationVMBase with Store {
         throw Exception(S.current.repeated_password_is_incorrect);
       }
 
-
       WalletInfo? placeholder;
       int? keepSortOrder;
       String? resolvedGroupKey;
