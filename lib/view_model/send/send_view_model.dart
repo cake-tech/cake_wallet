@@ -895,17 +895,20 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     if (!isSuccess) {
       _currentTrade!.stateRaw = TradeState.failed.raw;
+      if (_currentTrade!.isInBox) {
+        await _currentTrade!.save();
+      }
     }
 
     if (isSuccess) {
       _currentTrade!.stateRaw = TradeState.completed.raw;
 
+      if (_currentTrade!.isInBox) {
+        await _currentTrade!.save();
+      }
+
       _currentTrade = null;
       _currentProvider = null;
-    }
-
-    if (_currentTrade!.isInBox) {
-      await _currentTrade!.save();
     }
   }
 
