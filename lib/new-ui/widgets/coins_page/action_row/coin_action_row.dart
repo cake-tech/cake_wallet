@@ -81,7 +81,7 @@ class CoinActionRow extends StatelessWidget {
                   isScrollControlled: true,
                   builder: (context) => FractionallySizedBox(
                     heightFactor: 0.9,
-                    child: ReceivePage(),
+                    child: ModalNavigator(rootPage: getIt.get<NewReceivePage>())
                   ),
                 );
               } else {
