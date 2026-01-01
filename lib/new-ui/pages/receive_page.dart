@@ -1,14 +1,19 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_display.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_input.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_bottom_buttons.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_info_box.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_seed_type.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -48,21 +53,28 @@ class _NewReceivePageState extends State<NewReceivePage> {
   bool _largeQrMode = false;
   bool _effectsInstalled = false;
   bool _infoboxDimissed = false;
+  late WalletAddressListItem _addressItemWithLabel;
 
-  late final TextEditingController _amountController;
 
   @override
   void initState() {
     super.initState();
-    _amountController = TextEditingController();
-    _amountController.addListener(() {
-      widget.addressListViewModel.changeAmount(_amountController.text);
+
+    _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhere((item) {
+      return (item is WalletAddressListItem &&
+          item.address == widget.addressListViewModel.uri.address);
+    }) as WalletAddressListItem;
+
+    reaction((_) => widget.addressListViewModel.uri, (newAddress) {
+          _reloadAddressWithLabel(newAddress);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     _setEffects(context);
+
+    final hasLabel = _addressItemWithLabel.name != null && _addressItemWithLabel.name!.isNotEmpty;
 
     return SafeArea(
       child: Container(
@@ -89,7 +101,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
               leadingIcon: Icon(Icons.close),
               trailingIcon: _largeQrMode ? Icon(Icons.share) : Icon(Icons.refresh),
               onLeadingPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context, rootNavigator: true).pop();
               },
               onTrailingPressed: () {
                 Share.share(widget.addressListViewModel.uri.address);
@@ -97,9 +109,10 @@ class _NewReceivePageState extends State<NewReceivePage> {
             ),
             Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 mainAxisSize: MainAxisSize.max,
                 children: [
+                  ReceiveAmountDisplay(walletAddressListViewModel: widget.addressListViewModel, largeQrMode: _largeQrMode,),
                   ReceiveQrCode(
                     addressListViewModel: widget.addressListViewModel,
                     onTap: () {
@@ -116,48 +129,52 @@ class _NewReceivePageState extends State<NewReceivePage> {
                   ReceiveSeedWidget(
                     addressListViewModel: widget.addressListViewModel,
                   ),
-                  // Observer(
-                  //   builder: (_) => ReceiveAmountInput(
-                  //     largeQrMode: _largeQrMode,
-                  //     amountController: _amountController,
-                  //     selectedCurrency: widget.addressListViewModel.selectedCurrency.name,
-                  //     onCurrencySelectorTap: () {
-                  //       _presentCurrencyPicker(context);
-                  //     },
-                  //   ),
-                  // ),
+                    GestureDetector(
+                        onTap: _showLabelModal,
+                        child: ReceiveLabelWidget(name: _addressItemWithLabel.name ?? "")),
                   ReceiveBottomButtons(
                     largeQrMode: _largeQrMode,
+                    showAccountsButton: true,
+                    showLabelButton: !hasLabel,
                     onCopyButtonPressed: () {
                       Clipboard.setData(
                           ClipboardData(text: widget.addressListViewModel.uri.address));
                     },
                     onAmountButtonPressed: () {
-showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparent, builder: (context){return ReceiveAmountModal();});
-
-
+                      showMaterialModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) {
+                            return ReceiveAmountModal(
+                              walletAddressListViewModel: widget.addressListViewModel,
+                              onSubmitted: (amount) {}
+                            );
+                          });
                     },
-                    onLabelButtonPressed: () {},
-                    onAccountsButtonPressed: () {},
+                    onLabelButtonPressed: _showLabelModal,
+                    onAccountsButtonPressed: () {
+                      Navigator.of(context).pushNamed(Routes.receiveAddresses, arguments: false);
+                    },
                   ),
                   ClipRect(
                     child: AnimatedAlign(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOut,
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeOutCubic,
                       heightFactor: _infoboxDimissed ? 0 : 1,
                       alignment: Alignment.center,
                       child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 300),
+                        duration: const Duration(milliseconds: 200),
                         opacity: _infoboxDimissed ? 0 : 1,
                         curve: Curves.easeOutCubic,
                         child: ReceiveInfoBox(
-                          message: "Your receive address will rotate every time you close and reopen this screen",iconPath: "assets/new-ui/info.svg",
-                          onDismissed: (){
-                            setState(() {
-                              _infoboxDimissed = true;
-                            });
-                          }
-                        ),
+                            message:
+                                "Your receive address will rotate every time you close and reopen this screen",
+                            iconPath: "assets/new-ui/info.svg",
+                            onDismissed: () {
+                              setState(() {
+                                _infoboxDimissed = true;
+                              });
+                            }),
                       ),
                     ),
                   )
@@ -170,17 +187,7 @@ showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparen
     );
   }
 
-  void _presentCurrencyPicker(BuildContext context) async {
-    await showPopUp(
-      builder: (_) => CurrencyPicker(
-        selectedAtIndex: widget.addressListViewModel.selectedCurrencyIndex,
-        items: widget.addressListViewModel.currencies,
-        hintText: S.of(context).search_currency,
-        onItemSelected: widget.addressListViewModel.selectCurrency,
-      ),
-      context: context,
-    );
-  }
+
 
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
@@ -242,5 +249,25 @@ showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparen
     });
 
     _effectsInstalled = true;
+  }
+
+  void _showLabelModal() {
+    showMaterialModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return getIt.get<ReceiveLabelModal>(param1: _addressItemWithLabel);
+        }).then((value) {
+      _reloadAddressWithLabel(widget.addressListViewModel.uri);
+    });
+  }
+
+  void _reloadAddressWithLabel(PaymentURI newAddress) {
+    // FIXME: viewmodel doesn't want to load address name here, so we make it. investigate why later
+    setState(() {
+      _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhere(
+              (item) => (item is WalletAddressListItem && item.address == newAddress.address))
+          as WalletAddressListItem;
+    });
   }
 }

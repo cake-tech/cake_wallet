@@ -8,19 +8,6 @@ class ReceiveSeedWidget extends StatelessWidget {
 
   final WalletAddressListViewModel addressListViewModel;
 
-  static const List<String> dummyWalletStrings = [
-    'bc1q',
-    'xy2k',
-    'gdyg',
-    'jrsq',
-    'tzq2',
-    'n0yr',
-    'f249',
-    '3p83',
-    'kkfj',
-    'hx0wlh',
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Padding(

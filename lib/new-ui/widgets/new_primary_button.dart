@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class NewPrimaryButton extends StatelessWidget {
   const NewPrimaryButton(
       {required this.onPressed,
-        required this.image,
+        this.image,
         required this.text,
         required this.color,
         required this.textColor,
@@ -13,7 +13,7 @@ class NewPrimaryButton extends StatelessWidget {
         super.key});
 
   final VoidCallback onPressed;
-  final SvgPicture image;
+  final SvgPicture? image;
   final Color color;
   final Color textColor;
   final Color borderColor;
@@ -37,10 +37,10 @@ class NewPrimaryButton extends StatelessWidget {
               )),
           child: Center(
             child: Row(
+              spacing: 10,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                image,
-                SizedBox(width: 10),
+                if(image != null) image!,
                 Text(
                   text,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(

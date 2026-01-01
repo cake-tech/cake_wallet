@@ -51,8 +51,11 @@ import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
+import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
+import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
@@ -846,6 +849,17 @@ Future<void> setup({
           addressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
+
+  getIt.registerFactoryParam<AddressLabelInputPopup, dynamic, void>((dynamic item, _) =>
+      AddressLabelInputPopup(
+          walletAddressEditOrCreateViewModel:
+              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
+
+  getIt.registerFactoryParam<ReceiveLabelModal, dynamic, void>((dynamic item, _) =>
+      ReceiveLabelModal(
+          walletAddressEditOrCreateViewModel:
+          getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
+
   getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(
       getIt.get<AppStore>().wallet!,
       getIt.get<AppStore>().settingsStore,
@@ -1060,6 +1074,13 @@ Future<void> setup({
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
+  getIt.registerFactoryParam<NewAddressesPage, bool, void>(
+        (showHidden, _) => NewAddressesPage(
+      showHidden: showHidden,
+      addressListViewModel: getIt<WalletAddressListViewModel>(),
+      dashboardViewModel: getIt<DashboardViewModel>(),
+    ),
+  );
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
     return NodeListViewModel(_nodeSource, appStore);

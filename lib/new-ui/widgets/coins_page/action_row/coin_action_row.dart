@@ -4,6 +4,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/routes.dart';
@@ -73,7 +74,7 @@ class CoinActionRow extends StatelessWidget {
                   isScrollControlled: true,
                   builder: (context) => FractionallySizedBox(
                     heightFactor: 0.9,
-                    child: getIt.get<NewReceivePage>()
+                    child: ModalNavigator(rootPage: getIt.get<NewReceivePage>())
                   ),
                 );
               } else {
