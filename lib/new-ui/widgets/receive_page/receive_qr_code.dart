@@ -21,40 +21,51 @@ class ReceiveQrCode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double targetY = largeQrMode ? 60 : 0;
-    final double resolvedSize = MediaQuery.of(context).size.width * (largeQrMode ? 0.9 : 0.625);
+    final double resolvedSize = MediaQuery.of(context).size.width * (largeQrMode ? 0.9 : 0.5);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(begin: 0, end: targetY),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOut,
-        builder: (context, value, child) {
-          return Transform.translate(
-            offset: Offset(0, value),
-            child: Column(
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeOutCubic,
-                  width: resolvedSize,
-                  height: resolvedSize,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.white,
-                  ),
-                  padding: const EdgeInsets.all(8.0),
-                  child: Observer(builder:(_)=> QrImage(data: addressListViewModel.uri.toString())),
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        AnimatedOpacity(
+            duration: Duration(milliseconds: 300),
+            opacity: largeQrMode ? 1:0,
+            child: Image.asset("assets/images/cake_wordmark.png", scale: 1.7,)),
+        GestureDetector(
+          onTap: onTap,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: targetY),
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOut,
+            builder: (context, value, child) {
+              return Transform.translate(
+                offset: Offset(0, value),
+                child: Column(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeOutCubic,
+                      width: resolvedSize,
+                      height: resolvedSize,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                      ),
+                      // padding: const EdgeInsets.all(8.0),
+                      child: Observer(builder:(_)=> ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: QrImage(data: addressListViewModel.uri.toString()))),
+                    ),
+                    AnimatedSize(
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.easeOutCubic,
+                        child: SizedBox(height: largeQrMode ? largeQrModeBottomPadding : 0))
+                  ],
                 ),
-                AnimatedSize(
-                    duration: Duration(milliseconds: 500),
-                    curve: Curves.easeOutCubic,
-                    child: SizedBox(height: largeQrMode ? largeQrModeBottomPadding : 0))
-              ],
-            ),
-          );
-        },
-      ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

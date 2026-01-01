@@ -8,9 +8,15 @@ class ListItemTextField extends ListItem {
     this.initialValue,
     this.validator,
     this.onChanged,
+    this.onFieldSubmitted,
+    this.focusNode
   });
 
   final String? initialValue;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onFieldSubmitted;
+  final FocusNode? focusNode;
+
+
 }

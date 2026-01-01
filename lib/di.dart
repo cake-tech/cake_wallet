@@ -53,6 +53,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
@@ -830,6 +831,13 @@ Future<void> setup({
     ),
   );
 
+
+  getIt.registerFactory<NewReceivePage>(() => NewReceivePage(
+    addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+    receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(),
+    dashboardViewModel: getIt.get<DashboardViewModel>(),
+  ));
+
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
       (WalletAddressListItem? item, _) =>
           WalletAddressEditOrCreateViewModel(wallet: getIt.get<AppStore>().wallet!, item: item));
@@ -838,6 +846,17 @@ Future<void> setup({
       AddressEditOrCreatePage(
           addressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
+
+
+  getIt.registerFactoryParam<AddressLabelInputPopup, dynamic, void>((dynamic item, _) =>
+      AddressLabelInputPopup(
+          walletAddressEditOrCreateViewModel:
+              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
+
+  getIt.registerFactoryParam<ReceiveLabelModal, dynamic, void>((dynamic item, _) =>
+      ReceiveLabelModal(
+          walletAddressEditOrCreateViewModel:
+          getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
   getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(
       getIt.get<AppStore>().wallet!,
@@ -1062,6 +1081,13 @@ Future<void> setup({
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
+  getIt.registerFactoryParam<NewAddressesPage, bool, void>(
+        (showHidden, _) => NewAddressesPage(
+      showHidden: showHidden,
+      addressListViewModel: getIt<WalletAddressListViewModel>(),
+      dashboardViewModel: getIt<DashboardViewModel>(),
+    ),
+  );
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
     return NodeListViewModel(_nodeSource, appStore);
@@ -1250,6 +1276,8 @@ Future<void> setup({
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoWalletService(SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.polygon:
+        return polygon!.createPolygonWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.solana:
         return solana!.createSolanaWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.tron:

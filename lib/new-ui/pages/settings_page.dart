@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/router.dart';
 import 'package:cake_wallet/routes.dart';
@@ -62,57 +63,10 @@ class NewSettingsPage extends StatefulWidget {
 }
 
 class _NewSettingsPageState extends State<NewSettingsPage> {
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      left: false,
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            pageTransitionsTheme: PageTransitionsTheme(
-              builders: {
-                // requested by ui - iphone-style back anim on every platform
-                TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-              },
-            ),
-          ),
-          child: PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, result) async {
-              if (didPop) return;
-
-              final navigator = _navigatorKey.currentState;
-              if (navigator != null && navigator.canPop()) {
-                navigator.pop();
-              } else {
-                if (context.mounted) {
-                  Navigator.of(context).pop();
-                }
-              }
-            },
-            child: Navigator(
-                key: _navigatorKey,
-                observers: [HeroController()],
-                onGenerateRoute: (settings) {
-                  printV(settings.name);
-
-                  if (settings.name == "/")
-                    return handleRouteWithPlatformAwareness((context) => SettingsMainPage(),
-                        fullscreenDialog: false);
-                  else
-                    return createRoute(settings);
-                }),
-          ),
-        ),
-      ),
-    );
+    return ModalNavigator(rootPage: SettingsMainPage());
   }
 }
 
