@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/core/sync_status_title.dart';
@@ -33,6 +34,13 @@ class SyncIndicator extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(15)),
           child: GestureDetector(
             onTap: onTap,
+            onLongPress: (){
+              if(dashboardViewModel.settingsStore.syncStatusDisplayMode == SyncStatusDisplayMode.eta) {
+                dashboardViewModel.settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.blocksRemaining;
+              } else {
+                dashboardViewModel.settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.eta;
+              }
+            },
             child: Container(
               height: 30,
               width: syncIndicatorWidth,
