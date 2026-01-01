@@ -4,6 +4,7 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -28,6 +29,8 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -211,10 +214,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 AddWalletButtonWidget(
                                   onTap: () {
                                     final arguments = NewWalletTypeArguments(
-                                      onTypeSelected: null,
-                                      isCreate: true,
-                                      allowMultiSelect: true,
-                                      constrainBip39Only: true,
+                                      inGroup: true,
                                       preselectedTypes: existingTypes,
                                       walletGroupKey: group.groupKey,
                                     );
@@ -381,7 +381,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   ),
                 ),
                 Container(
-                  height: 120,
+                  height: 220,
                   width: MediaQuery.of(context).size.width,
                   margin: EdgeInsets.only(bottom: 24),
                   padding: EdgeInsets.only(left: 16, right: 16),
@@ -416,6 +416,38 @@ class WalletListBodyState extends State<WalletListBody> {
                         text: S.of(context).wallet_list_restore_wallet,
                         color: Theme.of(context).colorScheme.surfaceContainer,
                         textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
+                      if (!isSingleCoin)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: PrimaryImageButton(
+                          image: Image.asset(
+                            'assets/images/new_wallet.png',
+                            height: 12,
+                            width: 12,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          key: ValueKey('wallet_list_page_create_new_group_button_key'),
+                          onPressed: () {
+                            final arguments = NewWalletTypeArguments(
+                                inGroup: true,
+                            );
+                              if (widget
+                                  .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
+                                widget.authService.authenticateAction(
+                                  context,
+                                  route: Routes.newWalletType,
+                                  conditionToDetermineIfToUse2FA: widget
+                                      .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+                                );
+                              } else {
+                                Navigator.of(context).pushNamed(Routes.newWalletType, arguments: arguments);
+                              }
+                          },
+                          text: 'Create New Group',
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                        ),
                       ),
                       SizedBox(height: 10.0),
                       PrimaryImageButton(
@@ -482,7 +514,17 @@ class WalletListBodyState extends State<WalletListBody> {
 
     _loadingWallet = true;
 
-    if (SettingsStoreBase.walletPasswordDirectInput) {
+    if (!wallet.isReady) {
+      final activated = await _activatePlaceholder(wallet);
+      _loadingWallet = false;
+      if (activated == true && responsiveLayoutUtil.shouldRenderMobileUI) {
+        if (!context.mounted) return;
+        await widget.onWalletLoaded.call(context);
+      }
+      return;
+    }
+
+      if (SettingsStoreBase.walletPasswordDirectInput) {
       Navigator.of(context).pushNamed(Routes.walletUnlockLoadable,
           arguments: WalletUnlockArguments(
               callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
@@ -568,6 +610,70 @@ class WalletListBodyState extends State<WalletListBody> {
     );
   }
 
+  Future<bool> _activatePlaceholder(WalletListItem wallet) async {
+    try {
+      final rows = await WalletInfo.selectList('walletInfoId = ?', [wallet.internalId]);
+      if (rows.isEmpty) {
+        await showBar(context, 'Activation Error', 'Missing WalletInfo for "${wallet.name}".');
+        return false;
+      }
+
+      final info = rows.first;
+      if (info.isReady == true) return true;
+
+      final current = widget.walletListViewModel.appStore.wallet;
+      if (current == null) {
+        await showBar(context, 'Activation Error', 'Open a wallet from this group first.');
+        return false;
+      }
+
+      final groupKey = info.hashedWalletIdentifier ?? '';
+      if (groupKey.isEmpty ||
+          current.walletInfo.hashedWalletIdentifier != groupKey) {
+        await showBar(context, 'Activation Error',
+            'Please open a wallet from this group before activating.');
+        return false;
+      }
+
+      final sharedMnemonic = current.seed ?? '';
+      final sharedPassphrase = current.passphrase ?? '';
+      if (sharedMnemonic.isEmpty) {
+        await showBar(context, 'Activation Error', 'Shared mnemonic is unavailable.');
+        return false;
+      }
+
+
+      final args = NewWalletArguments(
+        type: wallet.type,
+        mnemonic: sharedMnemonic,
+        isChildWallet: true,
+      );
+      final newVM = getIt<WalletNewVM>(param1: args);
+      newVM.name = info.name;
+
+      dynamic options;
+      if (sharedPassphrase.isNotEmpty) {
+        options = [
+          {'passphrase': sharedPassphrase},
+        ];
+      }
+
+      await newVM.create(
+        options: options,
+        makeCurrent: true,
+        isGroupCreationDeferred: false,
+        walletInfoIdOverride: info.internalId,
+      );
+
+      return true;
+    } catch (e) {
+      await ExceptionHandler.resetLastPopupDate();
+      await ExceptionHandler.onError(FlutterErrorDetails(exception: e));
+      await showBar(context, 'Activation Error', e.toString());
+      return false;
+    }
+  }
+
   void changeProcessText(String text) {
     _progressBar = createBar<void>(text, context, duration: null)..show(context);
   }
@@ -578,6 +684,18 @@ class WalletListBodyState extends State<WalletListBody> {
       _progressBar = null;
     });
   }
+
+  Future<void> showBar(
+      BuildContext context, String title, String content) async =>
+      showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => AlertWithOneAction(
+            alertTitle: title,
+            alertContent: content,
+            buttonText: S.of(context).ok,
+            alertBarrierDismissible: false,
+            buttonAction: () => Navigator.of(context).pop()),
+      );
 }
 
 

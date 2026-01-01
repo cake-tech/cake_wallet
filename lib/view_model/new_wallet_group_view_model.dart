@@ -5,6 +5,9 @@ import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
@@ -73,6 +76,9 @@ abstract class WalletGroupNewVMBase with Store {
   bool groupNameExists(String name) =>
       walletCreationService.groupNameExists(name);
 
+  bool isGroupCreationDeferredType(WalletType type) =>
+      deferredGroupCreationTypes(type);
+
   Future<String> _uniquePerTypeName(WalletType type) async {
     final base = walletTypeToString(type);
     var i = 1;
@@ -93,6 +99,37 @@ abstract class WalletGroupNewVMBase with Store {
       i++;
     }
     return '$base ($i)';
+  }
+
+  Future<void> _createPlaceholderForType({
+    required WalletType type,
+    required String finalName,
+    required String groupKey,
+  }) async {
+
+    // Reserve the future paths but DO NOT create files now
+    final dirPath = await pathForWalletDir(name: finalName, type: type);
+    final path = await pathForWallet(name: finalName, type: type);
+
+    final info = WalletInfo.external(
+      id: WalletBase.idFor(finalName, type),
+      name: finalName,
+      type: type,
+      isRecovery: false,
+      restoreHeight: 0,
+      date: DateTime.now(),
+      path: path,
+      dirPath: dirPath,
+      address: '',
+      showIntroCakePayCard: false,
+      derivationInfoId: null,
+      hardwareWalletType: null,
+      hashedWalletIdentifier: groupKey,
+      isReady: false,
+    );
+
+    await info.save();
+    printV('[INFO] Created placeholder for wallet type $type with name $finalName');
   }
 
   @action
@@ -198,8 +235,27 @@ abstract class WalletGroupNewVMBase with Store {
   Future<void> createRestWallets(WalletGroupParams params) async {
     await Future<void>.delayed(Duration.zero); // run on next event loop turn
 
+    final total = params.restTypes.length;
+    var completed = 0;
+
     for (final type in params.restTypes) {
       final walletName = await _uniquePerTypeName(type);
+
+      // If this type is deferred, create a DB placeholder only.
+      if (isGroupCreationDeferredType(type)) {
+        await _createPlaceholderForType(
+          type: type,
+          finalName: walletName,
+          groupKey: params.groupKey,
+        );
+        printV('[INFO] Deferred creation for wallet type $type with name $walletName');
+        done = [...done, type];
+        completed += 1;
+        progress = total == 0 ? 1.0 : completed / total;
+        continue;
+      }
+
+      // Otherwise, create the real wallet now.
       dynamic options;
 
       // default options for monero
@@ -226,8 +282,8 @@ abstract class WalletGroupNewVMBase with Store {
         makeCurrent: false,
       );
       done = [...done, type];
-      progress =
-          done.length / (done.length + params.restTypes.length - done.length);
+      completed += 1;
+      progress = total == 0 ? 1.0 : completed / total;
     }
   }
 

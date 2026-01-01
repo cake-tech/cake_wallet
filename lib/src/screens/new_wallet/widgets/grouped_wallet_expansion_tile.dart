@@ -234,7 +234,12 @@ class _GroupedWalletExpansionTileBodyState
                                 color: effectiveTextColor,
                               ),
                         ),
-                      );
+                        subtitle: item.isReady ? null : Text(
+                          'inactive wallet',
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                color: effectiveTextColor.withAlpha(150),
+                              ),
+                      ));
                     }).toList(),
                   ),
                 ),

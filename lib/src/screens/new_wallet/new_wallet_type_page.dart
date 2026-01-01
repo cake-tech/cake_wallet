@@ -70,11 +70,10 @@ class NewWalletTypePage extends BasePage {
   Widget body(BuildContext context) => WalletTypeForm(
       walletImage: currentTheme.isDark ? walletTypeImage : walletTypeLightImage,
       isCreate: newWalletTypeArguments.isCreate,
+      inGroup: newWalletTypeArguments.inGroup,
       newWalletTypeViewModel: newWalletTypeViewModel,
       seedSettingsViewModel: seedSettingsViewModel,
       onTypeSelected: newWalletTypeArguments.onTypeSelected,
-      allowMultiSelect: newWalletTypeArguments.allowMultiSelect,
-      constrainBip39Only: newWalletTypeArguments.constrainBip39Only,
       preselectedTypes: newWalletTypeArguments.preselectedTypes,
       credentials: newWalletTypeArguments.credentials,
       hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
@@ -86,17 +85,16 @@ class WalletTypeForm extends StatefulWidget {
   WalletTypeForm(
       {required this.walletImage,
       required this.isCreate,
+      required this.inGroup,
       required this.newWalletTypeViewModel,
       required this.seedSettingsViewModel,
       this.onTypeSelected,
       this.hardwareWalletType,
-      this.allowMultiSelect = false,
-      this.constrainBip39Only = false,
       this.preselectedTypes,
       this.credentials,
       this.walletGroupKey,
       required this.currentTheme})
-      : filteredAvailableWalletTypes = constrainBip39Only
+      : filteredAvailableWalletTypes = inGroup
             ? availableWalletTypes
                 .where((type) =>
                     isBIP39Wallet(type) &&
@@ -105,12 +103,11 @@ class WalletTypeForm extends StatefulWidget {
             : availableWalletTypes;
 
   final bool isCreate;
+  final bool inGroup;
   final Image walletImage;
   final NewWalletTypeViewModel newWalletTypeViewModel;
   final SeedSettingsViewModel seedSettingsViewModel;
   final void Function(BuildContext, WalletType)? onTypeSelected;
-  final bool allowMultiSelect;
-  final bool constrainBip39Only;
   final Set<WalletType>? preselectedTypes;
   final List<WalletType> filteredAvailableWalletTypes;
   final Object? credentials;
@@ -159,15 +156,13 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     });
   }
 
-  bool allowMultiSelectionForType(WalletType type) =>
-      (widget.allowMultiSelect || widget.isCreate) && isBIP39Wallet(type);
 
-  bool isSelected(WalletType type) => allowMultiSelectionForType(type)
+  bool isSelected(WalletType type) => widget.inGroup
       ? false
       : (widget.newWalletTypeViewModel.itemSelection[type] ?? false);
 
   void onTypeTap(WalletType type) {
-    if (allowMultiSelectionForType(type)) {
+    if (widget.inGroup) {
       widget.newWalletTypeViewModel.deselectAllNonBIP39();
       widget.newWalletTypeViewModel.toggleSelection(type);
     } else {
@@ -254,7 +249,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                               key: ValueKey(
                                   'new_wallet_type_${type.name}_button_key'),
                               padding: EdgeInsets.only(left: 12, right: 30),
-                              leading: allowMultiSelectionForType(type)
+                              leading: widget.inGroup
                                   ? Padding(
                                       padding: const EdgeInsets.only(right: 12),
                                       child: StandardCheckbox(

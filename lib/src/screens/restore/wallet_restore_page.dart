@@ -317,8 +317,7 @@ class WalletRestorePage extends BasePage {
           arguments: NewWalletTypeArguments(
             onTypeSelected: null,
             isCreate: false,
-            allowMultiSelect: true,
-            constrainBip39Only: true,
+            inGroup: true,
             preselectedTypes: {walletRestoreViewModel.type},
             credentials: _credentials(),
           ),

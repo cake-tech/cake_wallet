@@ -22,7 +22,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
 
-  db = await openDatabase(dbFile.path, version: 1,
+  db = await openDatabase(dbFile.path, version: 2,
     onCreate: (Database db, int version) async {
       await db.execute(
         '''
@@ -47,7 +47,8 @@ CREATE TABLE WalletInfo (
   parentAddress TEXT,
   hashedWalletIdentifier TEXT,
   isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
-  sortOrder INTEGER DEFAULT (0) NOT NULL
+  sortOrder INTEGER DEFAULT (0) NOT NULL,
+  isReady INTEGER NOT NULL DEFAULT 1
 );
 ''');
 
@@ -100,7 +101,13 @@ CREATE TABLE "WalletInfoAddressMap" (
 );
         '''
       );
-    }
+    },
+    onUpgrade: (Database db, int oldVersion, int newVersion) async {
+      if (oldVersion < 2) {
+        await db.execute('ALTER TABLE WalletInfo ADD COLUMN isReady INTEGER NOT NULL DEFAULT 1;');
+      }
+    },
+
   );
 }
 

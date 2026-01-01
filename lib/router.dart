@@ -221,7 +221,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
             arguments: NewWalletArguments(type: type),
           );
         },
-        isCreate: true,
+        inGroup: false,
       );
 
       return handleRouteWithPlatformAwareness(
@@ -291,6 +291,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
               final arg = {'walletType': type};
               Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: arg);
             },
+            inGroup: false,
             isCreate: false,
           ),
         ),
@@ -331,6 +332,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
               Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: arg);
             },
             isCreate: false,
+            inGroup: false,
           ),
         ),
       );
@@ -389,6 +391,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
               Navigator.of(context).pushNamed(Routes.connectDevices, arguments: arguments);
             },
             isCreate: false,
+            inGroup: false,
             hardwareWalletType: hardwareWalletType,
           ),
         ),
@@ -401,6 +404,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
             onTypeSelected: (BuildContext context, WalletType type) =>
                 Navigator.of(context).pop(type),
             isCreate: false,
+            inGroup: false,
           ),
         ),
       );
