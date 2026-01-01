@@ -10,12 +10,14 @@ class ReceiveBottomButtons extends StatelessWidget {
   final VoidCallback onAmountButtonPressed;
   final VoidCallback onLabelButtonPressed;
   final VoidCallback onAccountsButtonPressed;
+  final bool showLabelButton;
+  final bool showAccountsButton;
 
-  const ReceiveBottomButtons({super.key, required this.largeQrMode, required this.onCopyButtonPressed, required this.onAccountsButtonPressed, required this.onAmountButtonPressed, required this.onLabelButtonPressed});
+
+  const ReceiveBottomButtons({super.key, required this.largeQrMode, required this.onCopyButtonPressed, required this.onAccountsButtonPressed, required this.onAmountButtonPressed, required this.onLabelButtonPressed, required this.showLabelButton, required this.showAccountsButton});
 
   @override
   Widget build(BuildContext context) {
-    final double targetHeight = largeQrMode ? 0 : 150;
     final double targetOpacity = largeQrMode ? 0 : 1;
 
     return ClipRect(
@@ -32,7 +34,8 @@ class ReceiveBottomButtons extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: Row(
               mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 16,
               children: [
               ModernButton.svg(
                 size: 60,
@@ -50,13 +53,15 @@ class ReceiveBottomButtons extends StatelessWidget {
                 onPressed: onAmountButtonPressed,
                 label: "Set Amount"
               ),
+              if(showLabelButton)
               ModernButton.svg(
                 size: 60,
                 iconSize: 32,
                 svgPath: "assets/new-ui/add-label.svg",
-                onPressed: onCopyButtonPressed,
+                onPressed: onLabelButtonPressed,
                 label: "Label"
               ),
+              if(showAccountsButton)
               ModernButton.svg(
                 size: 60,
                 iconSize: 32,

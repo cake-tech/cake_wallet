@@ -9,6 +9,8 @@ class ListItemTextFieldWidget extends StatefulWidget {
     required this.controller,
     this.validator,
     this.onChanged,
+    this.onFieldSubmitted,
+    this.focusNode,
     this.isFirstInSection = false,
     this.isLastInSection = false,
   });
@@ -18,6 +20,8 @@ class ListItemTextFieldWidget extends StatefulWidget {
   final TextEditingController controller;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onFieldSubmitted;
+  final FocusNode? focusNode;
   final bool isFirstInSection;
   final bool isLastInSection;
 
@@ -50,6 +54,8 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
                   controller: widget.controller,
                   validator: widget.validator,
                   onChanged: widget.onChanged,
+                  onFieldSubmitted: widget.onFieldSubmitted,
+                  focusNode: widget.focusNode,
                   style: textStyle,
                   decoration: InputDecoration(
                     labelText: widget.label,

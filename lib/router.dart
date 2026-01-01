@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
+import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -393,6 +394,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
             isCreate: false,
           ),
         ),
+      );
+
+    case Routes.receiveAddresses:
+      return handleRouteWithPlatformAwareness(
+          (context) =>getIt.get<NewAddressesPage>(param1: settings.arguments as bool)
       );
 
     case Routes.seed:
