@@ -8,7 +8,7 @@ String encodeLNURL(String url) {
 }
 
 bool isBolt11ZeroInvoice(String invoice) {
-  final request = Bech32Codec().decode(invoice, invoice.length);
+  final request = Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
 
   final prefix = ["lnbcrt", "lntbs", "lnbc", "lntb"]
       .firstWhere((prefix) => request.hrp.startsWith(prefix), orElse: () => "");

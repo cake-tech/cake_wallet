@@ -74,8 +74,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @override
   void onWalletChange(wallet) {
     currencies = wallet.balance.keys.toList();
-    if (coinTypeToSpendFrom == UnspentCoinType.lightning)
-    selectedCryptoCurrency = wallet.currency;
+    selectedCryptoCurrency =
+        coinTypeToSpendFrom == UnspentCoinType.lightning ? CryptoCurrency.btcln : wallet.currency;
     hasMultipleTokens = isEVMCompatibleChain(wallet.type) ||
         [WalletType.solana, WalletType.tron, WalletType.zano].contains(wallet.type);
 
