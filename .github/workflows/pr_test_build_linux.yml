@@ -252,7 +252,11 @@ jobs:
       - name: Generate localization
         run: |
           dart run tool/generate_localization.dart
-
+      - name: Workaround zcash
+        run: |
+          mkdir -p scripts/zcash_lib/assets/
+          touch scripts/zcash_lib/assets/sapling-spend.params
+          touch scripts/zcash_lib/assets/sapling-output.params
       - name: Build linux
         run: |
           flutter build linux --dart-define=hasDevOptions=true --release

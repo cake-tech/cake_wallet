@@ -370,6 +370,8 @@ class CommonTestFlows {
         return secrets.decredTestWalletSeeds;
       case WalletType.dogecoin:
         return secrets.dogeTestWalletSeeds;
+      case WalletType.zcash:
+        return secrets.zcashTestWalletSeeds;
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:

@@ -70,7 +70,9 @@ abstract class NodeListViewModelBase with Store {
   Future<void> delete(Node node) async => node.delete();
 
   @action
-  Future<void> setAsCurrent(Node node) async => settingsStore.nodes[_appStore.wallet!.type] = node;
+  Future<void> setAsCurrent(Node node) async {
+    settingsStore.nodes[_appStore.wallet!.type] = node;
+  }
 
   @action
   void _bindNodes() {
