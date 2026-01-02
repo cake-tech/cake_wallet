@@ -1,0 +1,305 @@
+import 'dart:async';
+import 'package:bip39/bip39.dart' as bip39;
+import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
+import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:get_it/get_it.dart';
+
+import 'advanced_privacy_settings_view_model.dart';
+
+part 'new_wallet_group_view_model.g.dart';
+
+class WalletGroupNewVM = WalletGroupNewVMBase with _$WalletGroupNewVM;
+
+abstract class WalletGroupNewVMBase with Store {
+  WalletGroupNewVMBase(this.appStore,
+      this.walletCreationService,
+      this.advancedPrivacySettingsViewModel, {
+        required this.walletNewVMBuilder,
+        required this.args,
+      })
+      : state = InitialExecutionState(),
+        name = '';
+
+  final AppStore appStore;
+  final WalletCreationService walletCreationService;
+  final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
+  final WalletNewVM Function(NewWalletArguments) walletNewVMBuilder;
+  final WalletGroupArguments args;
+
+  static const defaultMoneroOptions = [
+    defaultSeedLanguage,
+    MoneroSeedType.bip39
+  ];
+
+  @observable
+  String name;
+
+  @observable
+  String? walletPassword;
+
+  @observable
+  String? repeatedWalletPassword;
+
+  @observable
+  ExecutionState state;
+
+  @observable
+  double progress = 0.0;
+
+  @observable
+  List<WalletType> done = const [];
+
+  @observable
+  String? error;
+
+  bool isPassPhraseSupported(WalletType type) {
+    return AdvancedPrivacySettingsViewModelBase
+        .hasPassphraseOptionWalletTypes
+        .contains(type);
+  }
+
+  Future<bool> nameExists(String name) => walletCreationService.exists(name);
+
+  bool groupNameExists(String name) =>
+      walletCreationService.groupNameExists(name);
+
+  bool isGroupCreationDeferredType(WalletType type) =>
+      deferredGroupCreationTypes(type);
+
+  Future<String> _uniquePerTypeName(WalletType type) async {
+    final base = walletTypeToString(type);
+    var i = 1;
+    while (await walletCreationService.exists('$base $i')) {
+      i++;
+    }
+    return '$base $i';
+  }
+
+  String _uniqueGroupName(String preferred) {
+    var base = preferred
+        .trim()
+        .isEmpty ? 'Group' : preferred.trim();
+    if (!groupNameExists(base)) return base;
+
+    var i = 2;
+    while (groupNameExists('$base ($i)')) {
+      i++;
+    }
+    return '$base ($i)';
+  }
+
+  Future<void> _createPlaceholderForType({
+    required WalletType type,
+    required String finalName,
+    required String groupKey,
+  }) async {
+
+    // Reserve the future paths but DO NOT create files now
+    final dirPath = await pathForWalletDir(name: finalName, type: type);
+    final path = await pathForWallet(name: finalName, type: type);
+
+    final info = WalletInfo.external(
+      id: WalletBase.idFor(finalName, type),
+      name: finalName,
+      type: type,
+      isRecovery: false,
+      restoreHeight: 0,
+      date: DateTime.now(),
+      path: path,
+      dirPath: dirPath,
+      address: '',
+      showIntroCakePayCard: false,
+      derivationInfoId: null,
+      hardwareWalletType: null,
+      hashedWalletIdentifier: groupKey,
+      isReady: false,
+    );
+
+    await info.save();
+    printV('[INFO] Created placeholder for wallet type $type with name $finalName');
+  }
+
+  @action
+  Future<void> createNewGroup({dynamic options}) async {
+    try {
+      state = IsExecutingState();
+      error = null;
+      done = [];
+      progress = 0;
+
+      final types = args.types;
+      final currentType = args.currentType;
+
+      if (types.isEmpty) throw 'No wallet types provided.';
+      if (currentType == null) throw 'Current wallet type is not provided.';
+      if (!onlyBIP39Selected(types))
+        throw 'Only BIP39-based wallet types are supported in a group.';
+
+      var groupNameCandidate =
+      name
+          .trim()
+          .isEmpty ? await generateName() : name.trim();
+      final groupName = _uniqueGroupName(groupNameCandidate);
+
+      final providedMnemonic = args.mnemonic;
+      if (providedMnemonic != null && providedMnemonic.isEmpty) {
+        throw 'Provided mnemonic is empty.';
+      }
+
+
+      dynamic options;
+
+      // default options for monero
+      if (currentType == WalletType.monero) {
+        options = defaultMoneroOptions;
+      }
+
+      final currentWalletName = await _uniquePerTypeName(currentType);
+      await _createSingleWallet(
+        type: currentType,
+        finalName: currentWalletName,
+        isChildWallet: false,
+        mnemonic: providedMnemonic,
+        options: options,
+        makeCurrent: true,
+      );
+      done = [...done, currentType];
+      progress = done.length / types.length;
+
+      final currentWallet = appStore.wallet;
+      if (currentWallet == null)
+        throw Exception('First wallet was not set as current.');
+
+      final groupKey = currentWallet.walletInfo.hashedWalletIdentifier ?? '';
+      if (groupKey.isEmpty)
+        throw Exception(
+            'Failed to resolve wallet group key from first wallet.');
+
+      String? sharedMnemonic = providedMnemonic;
+      sharedMnemonic ??= currentWallet.seed;
+      if (sharedMnemonic == null || sharedMnemonic.isEmpty) {
+        throw Exception('Failed to resolve mnemonic (shared) for group.');
+      }
+
+
+      final String? sharedPassphrase =
+          args.passphrase ?? currentWallet.passphrase;
+
+      final restTypesRaw = types.where((type) => type != currentType).toList();
+
+      final excluded = <WalletType>[];
+      final restTypes = <WalletType>[];
+
+      for (final type in restTypesRaw) {
+        if (!isPassPhraseSupported(type) && sharedPassphrase != null &&
+            sharedPassphrase.isNotEmpty) {
+          excluded.add(type);
+        } else {
+          restTypes.add(type);
+        }
+      }
+
+      await walletCreationService.setGroupNameForKey(groupKey, groupName);
+
+      state = ExecutedSuccessfullyState(
+        payload: WalletGroupParams(
+          restTypes: restTypes,
+          excludedTypes: excluded,
+          sharedMnemonic: sharedMnemonic,
+          sharedPassphrase: sharedPassphrase,
+          isChildWallet: true,
+          groupKey: groupKey,
+        ),
+      );
+    } catch (e, s) {
+      printV('WalletGroupNewVM.create error: $e');
+      printV('Stack: $s');
+      error = e.toString();
+      state = FailureState(error!);
+    }
+  }
+
+  Future<void> createRestWallets(WalletGroupParams params) async {
+    await Future<void>.delayed(Duration.zero); // run on next event loop turn
+
+    final total = params.restTypes.length;
+    var completed = 0;
+
+    for (final type in params.restTypes) {
+      final walletName = await _uniquePerTypeName(type);
+
+      // If this type is deferred, create a DB placeholder only.
+      if (isGroupCreationDeferredType(type)) {
+        await _createPlaceholderForType(
+          type: type,
+          finalName: walletName,
+          groupKey: params.groupKey,
+        );
+        printV('[INFO] Deferred creation for wallet type $type with name $walletName');
+        done = [...done, type];
+        completed += 1;
+        progress = total == 0 ? 1.0 : completed / total;
+        continue;
+      }
+
+      // Otherwise, create the real wallet now.
+      dynamic options;
+
+      // default options for monero
+      if (type == WalletType.monero) {
+        options = defaultMoneroOptions;
+      }
+
+      if (params.sharedPassphrase != null &&
+          params.sharedPassphrase!.isNotEmpty) {
+        final sharedPassphraseMap = {'passphrase': params.sharedPassphrase!};
+        if (options is List) {
+          options = [...options, sharedPassphraseMap];
+        } else {
+          options = [sharedPassphraseMap];
+        }
+      }
+
+      await _createSingleWallet(
+        type: type,
+        finalName: walletName,
+        isChildWallet: params.isChildWallet,
+        mnemonic: params.sharedMnemonic,
+        options: options,
+        makeCurrent: false,
+      );
+      done = [...done, type];
+      completed += 1;
+      progress = total == 0 ? 1.0 : completed / total;
+    }
+  }
+
+  Future<void> _createSingleWallet({
+    required WalletType type,
+    required String finalName,
+    required bool isChildWallet,
+    required String? mnemonic,
+    required dynamic options,
+    required bool makeCurrent,
+  }) async {
+    final newArgs = NewWalletArguments(
+        type: type, mnemonic: mnemonic, isChildWallet: isChildWallet);
+
+    final walletNewVM = walletNewVMBuilder(newArgs);
+    walletNewVM.name = finalName;
+    await walletNewVM.create(options: options, makeCurrent: makeCurrent);
+  }
+}

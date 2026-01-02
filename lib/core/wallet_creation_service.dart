@@ -18,7 +18,12 @@ class WalletCreationService {
       required this.sharedPreferences,
       required this.settingsStore})
       : type = initialType {
-    changeWalletType(type: type);
+    if (initialType != WalletType.none) {
+      changeWalletType(type: initialType);
+    } else {
+      // Wait until type is provided
+      _service = null;
+    }
   }
 
   WalletType type;
@@ -28,15 +33,41 @@ class WalletCreationService {
   WalletService? _service;
 
   static const _isNewMoneroWalletPasswordUpdated = true;
+  static const _groupNameKeyPrefix = 'wallet_group_name_';
 
   void changeWalletType({required WalletType type}) {
     this.type = type;
+    if (type == WalletType.none) {
+      _service = null;
+      return;
+    }
     _service = getIt.get<WalletService>(param1: type);
+  }
+
+  List<String> getAllCustomGroupNames() {
+    final result = <String>[];
+    for (final key in sharedPreferences.getKeys()) {
+      if (!key.startsWith(_groupNameKeyPrefix)) continue;
+      final value = sharedPreferences.getString(key);
+      if (value != null && value.trim().isNotEmpty) {
+        result.add(value.trim());
+      }
+    }
+    return result;
+  }
+
+  Future<void> setGroupNameForKey(String groupKey, String name) async {
+    await sharedPreferences.setString('$_groupNameKeyPrefix$groupKey', name);
   }
 
   Future<bool> exists(String name) async {
     final walletName = name.toLowerCase();
     return (await WalletInfo.getAll()).any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
+  }
+
+  bool groupNameExists(String name) {
+    final groupName = name.toLowerCase();
+    return getAllCustomGroupNames().any((name) => name.toLowerCase() == groupName);
   }
 
   Future<bool> typeExists(WalletType type) async {
@@ -50,6 +81,7 @@ class WalletCreationService {
   }
 
   Future<WalletBase> create(WalletCredentials credentials, {bool? isTestnet}) async {
+    _ensureServiceAvailable();
     await checkIfExists(credentials.name);
 
     if (credentials.password == null) {
@@ -97,6 +129,8 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) async {
+
+    _ensureServiceAvailable();
     await checkIfExists(credentials.name);
 
     if (credentials.password == null) {
@@ -116,6 +150,8 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) async {
+
+    _ensureServiceAvailable();
     await checkIfExists(credentials.name);
 
     if (credentials.password == null) {
@@ -135,7 +171,10 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromHardwareWallet(WalletCredentials credentials) async {
+
+    _ensureServiceAvailable();
     await checkIfExists(credentials.name);
+
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
@@ -147,5 +186,9 @@ class WalletCreationService {
     }
 
     return wallet;
+  }
+
+  void _ensureServiceAvailable() {
+    if (_service == null || type == WalletType.none) throw Exception('Wallet type is not set for WalletCreationService');
   }
 }

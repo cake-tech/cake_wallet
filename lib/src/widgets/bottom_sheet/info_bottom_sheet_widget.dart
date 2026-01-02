@@ -34,9 +34,11 @@ class InfoBottomSheet extends BaseBottomSheet {
     this.contentImage,
     this.contentImageColor,
     this.contentImageSize,
+    this.contentSize,
     this.height = 200,
     this.content,
     this.bottomActionPanel,
+    this.bottomTextWidget,
     this.singleActionButtonText,
     this.onSingleActionButtonPressed,
     this.singleActionButtonKey,
@@ -68,7 +70,9 @@ class InfoBottomSheet extends BaseBottomSheet {
   final String? contentImage;
   final Color? contentImageColor;
   final String? content;
+  final double? contentSize;
   final Widget? bottomActionPanel;
+  final Widget? bottomTextWidget;
   final String? singleActionButtonText;
   final VoidCallback? onSingleActionButtonPressed;
   final Key? singleActionButtonKey;
@@ -89,8 +93,17 @@ class InfoBottomSheet extends BaseBottomSheet {
       child: Column(
         children: [
           if (contentImage != null)
-            Expanded(
+            contentImageSize == null ? Expanded(
               flex: 4,
+              child: ImageUtil.getImageFromPath(
+                imagePath: contentImage!,
+                svgImageColor: contentImageColor,
+                fit: BoxFit.contain,
+                borderRadius: 10,
+              ),
+            ) : Container(
+              height: contentImageSize,
+              padding: const EdgeInsets.only(top: 10, bottom: 10),
               child: ImageUtil.getImageFromPath(
                 imagePath: contentImage!,
                 svgImageColor: contentImageColor,
@@ -157,6 +170,8 @@ class InfoBottomSheet extends BaseBottomSheet {
                 ),
               ),
             ),
+          if(bottomTextWidget != null) bottomTextWidget!,
+
         ],
       ),
     );

@@ -47,7 +47,6 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   @observable
   WalletInfo? selectedSingleWallet;
 
-
   @observable
   bool isFetchingMnemonic;
 
@@ -162,6 +161,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
       name: info.name,
       type: info.type,
       key: info.id,
+      internalId: info.internalId,
       isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,

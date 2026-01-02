@@ -65,23 +65,28 @@ abstract class WalletCreationVMBase with Store {
   Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
 
   bool _isCreating = false;
-  Future<void> create({dynamic options}) async {
+
+    Future<void> create({dynamic options,bool makeCurrent = true, bool isGroupCreationDeferred = false, String? groupKey, int? walletInfoIdOverride,}) async {
     try {
       if (_isCreating) {
         printV("not creating because we don't feel like doing so");
         return;
       }
       _isCreating = true;
-      await _create(options: options);
+      await _create(options: options, makeCurrent: makeCurrent, isGroupCreationDeferred: isGroupCreationDeferred , walletInfoIdOverride: walletInfoIdOverride);
     } finally {
       _isCreating = false;
     }
   }
 
-  Future<void> _create({dynamic options}) async {
+  Future<void> _create({
+    dynamic options,
+    bool makeCurrent = true,
+    bool isGroupCreationDeferred = false,
+    int? walletInfoIdOverride,
+  }) async {
     final type = this.type;
     try {
-
       state = IsExecutingState();
       if (name.isEmpty) {
         name = await generateName();
@@ -90,20 +95,51 @@ abstract class WalletCreationVMBase with Store {
       if (hasWalletPassword && (walletPassword?.isEmpty ?? true)) {
         throw Exception(S.current.wallet_password_is_empty);
       }
-
       if (hasWalletPassword && walletPassword != repeatedWalletPassword) {
         throw Exception(S.current.repeated_password_is_incorrect);
       }
 
-      await walletCreationService.checkIfExists(name);
+      WalletInfo? placeholder;
+      int? keepSortOrder;
+      String? resolvedGroupKey;
+
+      if (walletInfoIdOverride != null) {
+        final rows = await WalletInfo.selectList('walletInfoId = ?', [walletInfoIdOverride]);
+        if (rows.isEmpty) {
+          throw Exception('Placeholder WalletInfo not found (id=$walletInfoIdOverride)');
+        }
+        placeholder = rows.first;
+
+        name = placeholder.name;
+        if (type != placeholder.type) {
+          throw Exception('Type mismatch: placeholder is ${placeholder.type}, requested $type');
+        }
+
+        keepSortOrder = placeholder.sortOrder;
+        resolvedGroupKey = placeholder.hashedWalletIdentifier ?? '';
+
+        // Clean children then delete the placeholder row
+        await WalletInfoAddressInfo.deleteByWalletInfoId(placeholder.internalId);
+        await WalletInfoAddressMap.deleteByWalletInfoId(placeholder.internalId);
+        // remove all possible address rows (used/hidden/manual)
+        for (final t in WalletInfoAddressType.values) {
+          await WalletInfoAddress.deleteByType(placeholder.internalId, t);
+        }
+        await WalletInfo.delete(placeholder);
+
+        //  skip duplicate-name check, we’re recreating same name
+      } else {
+        walletCreationService.checkIfExists(name);
+      }
+
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
 
       final credentials = getCredentials(options);
 
-      final di = ((credentials.derivationInfo?.derivationPath??"") == "") 
-        ? getDefaultCreateDerivation()
-        : credentials.derivationInfo;
+      final di = ((credentials.derivationInfo?.derivationPath ?? "") == "")
+          ? getDefaultCreateDerivation()
+          : credentials.derivationInfo;
 
       final diId = await di!.save();
       credentials.derivationInfo = di;
@@ -118,21 +154,44 @@ abstract class WalletCreationVMBase with Store {
         path: path,
         dirPath: dirPath,
         address: '',
-        showIntroCakePayCard: (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
+        showIntroCakePayCard:
+        (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfoId: diId,
         hardwareWalletType: credentials.hardwareWalletType,
+        hashedWalletIdentifier:
+        (resolvedGroupKey?.isNotEmpty ?? false) ? resolvedGroupKey : null,
+        isReady: !isGroupCreationDeferred,
+        sortOrder: keepSortOrder ?? 0,
       );
+
+      if (isGroupCreationDeferred) {
+        await credentials.walletInfo!.save();
+        state = ExecutedSuccessfullyState();
+        return;
+      }
 
       printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
       final wallet = await process(credentials);
 
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
-      credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
-      credentials.walletInfo!.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
-      credentials.walletInfo!.address = wallet.walletAddresses.address;
-      await credentials.walletInfo!.save();
-      await _appStore.changeCurrentWallet(wallet);
-      _appStore.authenticationStore.allowedCreate();
+
+      final wi = credentials.walletInfo!;
+      wi.isNonSeedWallet = isNonSeedWallet;
+
+      if ((wi.hashedWalletIdentifier ?? '').isEmpty) {
+        wi.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
+      }
+
+      wi.address = wallet.walletAddresses.address;
+      await wi.save();
+
+      if (makeCurrent) {
+        await _appStore.changeCurrentWallet(wallet);
+        _appStore.authenticationStore.allowedCreate();
+      } else {
+        await wallet.close(shouldCleanup: true);
+      }
+
       state = ExecutedSuccessfullyState();
     } catch (e, s) {
       printV("error: $e");

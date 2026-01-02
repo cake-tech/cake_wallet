@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -26,7 +29,10 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -170,6 +176,16 @@ class WalletListBodyState extends State<WalletListBody> {
                           updateFunction: widget.walletListViewModel.reorderAccordingToWalletList,
                           itemBuilder: (context, index) {
                             final group = widget.walletListViewModel.multiWalletGroups[index];
+                            final existingTypes = widget.walletListViewModel.getTypesInGroup(group);
+
+                            bool isBip39TypesLeft = false;
+                            for (var type in availableWalletTypes) {
+                              if (isBIP39Wallet(type) && !existingTypes.contains(type)) {
+                                isBip39TypesLeft = true;
+                                break;
+                              }
+                            }
+
                             final groupName =
                                 group.groupName ?? '${S.current.wallet_group} ${index + 1}';
 
@@ -177,52 +193,70 @@ class WalletListBodyState extends State<WalletListBody> {
                               index,
                               widget.walletListViewModel.expansionTileStateTrack[index] ?? false,
                             );
-
-                            return GroupedWalletExpansionTile(
-                              onExpansionChanged: (value) {
-                                widget.walletListViewModel.updateTileState(index, value);
-                                setState(() {});
-                              },
-                              shouldShowCurrentWalletPointer: true,
-                              borderRadius: BorderRadius.all(Radius.circular(16)),
-                              title: groupName,
-                              tileKey: ValueKey('group_wallets_expansion_tile_widget_$index'),
-                              leadingWidget: Icon(
-                                Icons.account_balance_wallet_outlined,
-                                size: 28,
-                              ),
-                              trailingWidget: EditWalletButtonWidget(
-                                width: 88,
-                                isGroup: true,
-                                isExpanded:
-                                    widget.walletListViewModel.expansionTileStateTrack[index]!,
-                                onTap: () {
-                                  final wallet = widget.walletListViewModel
-                                      .convertWalletInfoToWalletListItem(group.wallets.first);
-                                  Navigator.of(context).pushNamed(
-                                    Routes.walletEdit,
-                                    arguments: WalletEditPageArguments(
-                                      walletListViewModel: widget.walletListViewModel,
-                                      editingWallet: wallet,
-                                      isWalletGroup: true,
-                                      groupName: groupName,
+                          return GroupedWalletExpansionTile(
+                            onExpansionChanged: (value) {
+                              widget.walletListViewModel.updateTileState(index, value);
+                              setState(() {});
+                            },
+                            shouldShowCurrentWalletPointer: true,
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                            margin: EdgeInsets.only(left: 20, right: 20, bottom: 12),
+                            title: groupName,
+                            tileKey: ValueKey('group_wallets_expansion_tile_widget_$index'),
+                            leadingWidget: Icon(
+                              Icons.account_balance_wallet_outlined,
+                              size: 28,
+                            ),
+                            trailingWidget: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isBip39TypesLeft)
+                                AddWalletButtonWidget(
+                                  onTap: () {
+                                    final arguments = NewWalletTypeArguments(
+                                      inGroup: true,
+                                      preselectedTypes: existingTypes,
                                       walletGroupKey: group.groupKey,
-                                    ),
-                                  );
-                                },
-                              ),
-                              childWallets: group.wallets.map((walletInfo) {
-                                return widget.walletListViewModel
-                                    .convertWalletInfoToWalletListItem(walletInfo);
-                              }).toList(),
-                              isSelected: false,
-                              onChildItemTapped: (wallet) =>
-                                  wallet.isCurrent ? null : _loadWallet(wallet),
-                              childTrailingWidget: (item) {
-                                return item.isCurrent
-                                    ? SizedBox.shrink()
-                                    : EditWalletButtonWidget(
-                                        width: 60,
+                                    );
+                                    Navigator.of(context)
+                                        .popAndPushNamed(Routes.newWalletType, arguments: arguments);
+                                  },
+                                ),
+                                SizedBox(width: 6),
+                                EditWalletButtonWidget(
+                                  isGroup: true,
+                                  isExpanded:
+                                      widget.walletListViewModel.expansionTileStateTrack[index]!,
+                                  onTap: () {
+                                    final wallet = widget.walletListViewModel
+                                        .convertWalletInfoToWalletListItem(group.wallets.first);
+                                    Navigator.of(context).pushNamed(
+                                      Routes.walletEdit,
+                                      arguments: WalletEditPageArguments(
+                                        walletListViewModel: widget.walletListViewModel,
+                                        editingWallet: wallet,
+                                        isWalletGroup: true,
+                                        groupName: groupName,
+                                        walletGroupKey: group.groupKey,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                            childWallets: group.wallets.map((walletInfo) {
+                              return widget.walletListViewModel
+                                  .convertWalletInfoToWalletListItem(walletInfo);
+                            }).toList(),
+                            isSelected: false,
+                            onChildItemTapped: (wallet) =>
+                                wallet.isCurrent ? null : _loadWallet(wallet),
+                            childTrailingWidget: (item) {
+                              return item.isCurrent
+                                  ? SizedBox.shrink()
+                                  : Padding(
+                                      padding: const EdgeInsets.only(right: 12.0),
+                                      child: EditWalletButtonWidget(
                                         onTap: () => Navigator.of(context).pushNamed(
                                           Routes.walletEdit,
                                           arguments: WalletEditPageArguments(
@@ -230,7 +264,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                             editingWallet: item,
                                           ),
                                         ),
-                                      );
+                                      ));
                               },
                             );
                           },
@@ -303,7 +337,6 @@ class WalletListBodyState extends State<WalletListBody> {
                               trailingWidget: wallet.isCurrent
                                   ? null
                                   : EditWalletButtonWidget(
-                                      width: 64,
                                       onTap: () {
                                         Navigator.of(context).pushNamed(
                                           Routes.walletEdit,
@@ -348,7 +381,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   ),
                 ),
                 Container(
-                  height: 120,
+                  height: 220,
                   width: MediaQuery.of(context).size.width,
                   margin: EdgeInsets.only(bottom: 24),
                   padding: EdgeInsets.only(left: 16, right: 16),
@@ -383,6 +416,38 @@ class WalletListBodyState extends State<WalletListBody> {
                         text: S.of(context).wallet_list_restore_wallet,
                         color: Theme.of(context).colorScheme.surfaceContainer,
                         textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
+                      if (!isSingleCoin)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: PrimaryImageButton(
+                          image: Image.asset(
+                            'assets/images/new_wallet.png',
+                            height: 12,
+                            width: 12,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          key: ValueKey('wallet_list_page_create_new_group_button_key'),
+                          onPressed: () {
+                            final arguments = NewWalletTypeArguments(
+                                inGroup: true,
+                            );
+                              if (widget
+                                  .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
+                                widget.authService.authenticateAction(
+                                  context,
+                                  route: Routes.newWalletType,
+                                  conditionToDetermineIfToUse2FA: widget
+                                      .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+                                );
+                              } else {
+                                Navigator.of(context).pushNamed(Routes.newWalletType, arguments: arguments);
+                              }
+                          },
+                          text: 'Create New Group',
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                        ),
                       ),
                       SizedBox(height: 10.0),
                       PrimaryImageButton(
@@ -449,7 +514,17 @@ class WalletListBodyState extends State<WalletListBody> {
 
     _loadingWallet = true;
 
-    if (SettingsStoreBase.walletPasswordDirectInput) {
+    if (!wallet.isReady) {
+      final activated = await _activatePlaceholder(wallet);
+      _loadingWallet = false;
+      if (activated == true && responsiveLayoutUtil.shouldRenderMobileUI) {
+        if (!context.mounted) return;
+        await widget.onWalletLoaded.call(context);
+      }
+      return;
+    }
+
+      if (SettingsStoreBase.walletPasswordDirectInput) {
       Navigator.of(context).pushNamed(Routes.walletUnlockLoadable,
           arguments: WalletUnlockArguments(
               callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
@@ -535,6 +610,70 @@ class WalletListBodyState extends State<WalletListBody> {
     );
   }
 
+  Future<bool> _activatePlaceholder(WalletListItem wallet) async {
+    try {
+      final rows = await WalletInfo.selectList('walletInfoId = ?', [wallet.internalId]);
+      if (rows.isEmpty) {
+        await showBar(context, 'Activation Error', 'Missing WalletInfo for "${wallet.name}".');
+        return false;
+      }
+
+      final info = rows.first;
+      if (info.isReady == true) return true;
+
+      final current = widget.walletListViewModel.appStore.wallet;
+      if (current == null) {
+        await showBar(context, 'Activation Error', 'Open a wallet from this group first.');
+        return false;
+      }
+
+      final groupKey = info.hashedWalletIdentifier ?? '';
+      if (groupKey.isEmpty ||
+          current.walletInfo.hashedWalletIdentifier != groupKey) {
+        await showBar(context, 'Activation Error',
+            'Please open a wallet from this group before activating.');
+        return false;
+      }
+
+      final sharedMnemonic = current.seed ?? '';
+      final sharedPassphrase = current.passphrase ?? '';
+      if (sharedMnemonic.isEmpty) {
+        await showBar(context, 'Activation Error', 'Shared mnemonic is unavailable.');
+        return false;
+      }
+
+
+      final args = NewWalletArguments(
+        type: wallet.type,
+        mnemonic: sharedMnemonic,
+        isChildWallet: true,
+      );
+      final newVM = getIt<WalletNewVM>(param1: args);
+      newVM.name = info.name;
+
+      dynamic options;
+      if (sharedPassphrase.isNotEmpty) {
+        options = [
+          {'passphrase': sharedPassphrase},
+        ];
+      }
+
+      await newVM.create(
+        options: options,
+        makeCurrent: true,
+        isGroupCreationDeferred: false,
+        walletInfoIdOverride: info.internalId,
+      );
+
+      return true;
+    } catch (e) {
+      await ExceptionHandler.resetLastPopupDate();
+      await ExceptionHandler.onError(FlutterErrorDetails(exception: e));
+      await showBar(context, 'Activation Error', e.toString());
+      return false;
+    }
+  }
+
   void changeProcessText(String text) {
     _progressBar = createBar<void>(text, context, duration: null)..show(context);
   }
@@ -544,5 +683,49 @@ class WalletListBodyState extends State<WalletListBody> {
       _progressBar?.dismiss();
       _progressBar = null;
     });
+  }
+
+  Future<void> showBar(
+      BuildContext context, String title, String content) async =>
+      showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => AlertWithOneAction(
+            alertTitle: title,
+            alertContent: content,
+            buttonText: S.of(context).ok,
+            alertBarrierDismissible: false,
+            buttonAction: () => Navigator.of(context).pop()),
+      );
+}
+
+
+class AddWalletButtonWidget extends StatelessWidget {
+  const AddWalletButtonWidget({
+    required this.onTap,
+    super.key,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Center(
+        child: Container(
+          height: 40,
+          width: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).colorScheme.surface,
+          ),
+          child: Icon(
+            Icons.add,
+            size: 24,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
   }
 }

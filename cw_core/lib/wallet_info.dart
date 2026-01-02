@@ -332,7 +332,8 @@ class WalletInfo {
     this.hashedWalletIdentifier,
     this.isNonSeedWallet,
     this.sortOrder,
-  ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
+      )   : isReady = true,
+        _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
     required String id,
@@ -353,8 +354,9 @@ class WalletInfo {
     String? hashedWalletIdentifier,
     bool? isNonSeedWallet,
     int? sortOrder,
+    bool? isReady,
   }) {
-    return WalletInfo(
+    final wi = WalletInfo(
       0,
       id,
       name,
@@ -375,9 +377,11 @@ class WalletInfo {
       isNonSeedWallet ?? false,
       sortOrder ?? 0,
     );
+    wi.isReady = isReady ?? true;
+    return wi;
   }
 
-  static String get tableName => 'walletInfo'; 
+  static String get tableName => 'walletInfo';
   static String get selfIdColumn => "${tableName}Id";
 
   int internalId;
@@ -497,6 +501,7 @@ class WalletInfo {
   bool isNonSeedWallet;
  
   int sortOrder;
+  bool isReady;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 
@@ -546,10 +551,11 @@ class WalletInfo {
     "hashedWalletIdentifier": hashedWalletIdentifier,
     "isNonSeedWallet": isNonSeedWallet ? 1 : 0,
     "sortOrder": sortOrder,
+    "isReady": isReady ? 1 : 0,
   };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
-    return WalletInfo(
+    final wi = WalletInfo(
       json[selfIdColumn] as int,
       json['id'] as String,
       json['name'] as String,
@@ -570,6 +576,8 @@ class WalletInfo {
       (json['isNonSeedWallet'] as int) == 1,
       json['sortOrder'] as int? ?? 0,
     );
+    wi.isReady = (json['isReady'] as int? ?? 1) == 1;
+    return wi;
   }
 
   Future<int> save() async {
