@@ -1,95 +1,76 @@
+import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class ReceiveBottomButtons extends StatelessWidget {
   final bool largeQrMode;
-  const ReceiveBottomButtons({super.key, required this.largeQrMode});
+  final VoidCallback onCopyButtonPressed;
+  final VoidCallback onAmountButtonPressed;
+  final VoidCallback onLabelButtonPressed;
+  final VoidCallback onAccountsButtonPressed;
+  final bool showLabelButton;
+  final bool showAccountsButton;
+
+
+  const ReceiveBottomButtons({super.key, required this.largeQrMode, required this.onCopyButtonPressed, required this.onAccountsButtonPressed, required this.onAmountButtonPressed, required this.onLabelButtonPressed, required this.showLabelButton, required this.showAccountsButton});
 
   @override
   Widget build(BuildContext context) {
-    final double targetHeight = largeQrMode ? 0 : 150;
     final double targetOpacity = largeQrMode ? 0 : 1;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-      height: targetHeight,
-      child: AnimatedOpacity(
+    return ClipRect(
+      child: AnimatedAlign(
         duration: const Duration(milliseconds: 300),
-        opacity: targetOpacity,
         curve: Curves.easeOut,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainer,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                onPressed: () {},
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.book_outlined,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Accounts & Addresses',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
+        heightFactor: largeQrMode ? 0 : 1,
+        alignment: Alignment.bottomCenter,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 300),
+          opacity: targetOpacity,
+          curve: Curves.easeOut,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 16,
+              children: [
+              ModernButton.svg(
+                size: 60,
+                iconSize: 32,
+                svgPath: "assets/new-ui/copy.svg",
+                onPressed: onCopyButtonPressed,
+                label: "Copy",
+                iconColor: Theme.of(context).colorScheme.surfaceContainer,
+                backgroundColor: Theme.of(context).colorScheme.primary,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                onPressed: () {},
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Copy Address',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Icon(
-                      Icons.copy_all_outlined,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                  ],
-                ),
+              ModernButton.svg(
+                size: 60,
+                iconSize: 32,
+                svgPath: "assets/new-ui/set-amount.svg",
+                onPressed: onAmountButtonPressed,
+                label: "Set Amount"
               ),
-            ),
-          ],
+              if(showLabelButton)
+              ModernButton.svg(
+                size: 60,
+                iconSize: 32,
+                svgPath: "assets/new-ui/add-label.svg",
+                onPressed: onLabelButtonPressed,
+                label: "Label"
+              ),
+              if(showAccountsButton)
+              ModernButton.svg(
+                size: 60,
+                iconSize: 32,
+                svgPath: "assets/new-ui/addr-book.svg",
+                onPressed: onAccountsButtonPressed,
+                label: "Addresses"
+              ),
+            ],),
+          ),
         ),
       ),
     );

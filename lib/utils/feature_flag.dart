@@ -16,5 +16,5 @@ class FeatureFlag {
   static const bool customBackgroundEnabled = false;
   static const bool duressPinEnabled = true;
   static const bool hasNewUi = true;
-  static const bool hasNewUiExtraPages = false;
+  static const bool hasNewUiExtraPages = true;
 }
