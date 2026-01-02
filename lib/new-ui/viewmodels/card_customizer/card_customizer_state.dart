@@ -33,6 +33,16 @@ sealed class CardCustomizerState {
   Gradient get selectedColor => availableColors[selectedColorIndex];
 }
 
+final class CardCustomizerNotLoaded extends CardCustomizerState {
+  CardCustomizerNotLoaded(super.selectedDesignIndex, super.selectedColorIndex, super.availableDesigns, super.availableColors, super.accountName, super.accountIndex);
+
+  @override
+  CardCustomizerState copyWith({int? selectedDesignIndex, int? selectedColorIndex, List<CardDesign>? availableDesigns, List<Gradient>? availableColors, String? accountName, int? accountIndex}) {
+    // this is never gonna be copied. it's near-instantly replaced with initial
+    throw UnimplementedError();
+  }
+}
+
 final class CardCustomizerInitial extends CardCustomizerState {
   CardCustomizerInitial(
     int selectedDesignIndex,

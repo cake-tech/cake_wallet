@@ -17,4 +17,12 @@ class ColorSelected extends CardCustomizerEvent {
   ColorSelected(this.newColorIndex);
 }
 
+
+class AccountNameChanged extends CardCustomizerEvent {
+  final String newAccountName;
+
+  AccountNameChanged(this.newAccountName);
+}
+
+
 class DesignSaved extends CardCustomizerEvent {}

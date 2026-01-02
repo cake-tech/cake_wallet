@@ -35,13 +35,7 @@ class _CardsViewState extends State<CardsView> {
   static const Duration animDuration = Duration(milliseconds: 200);
   static const double overlapAmount = 60.0;
   late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
-  late final int numCards;
 
-  @override
-  void initState() {
-    super.initState();
-    numCards = widget.accountListViewModel?.accounts.length ?? 1;
-  }
 
   Widget _buildCard(int index, double parentWidth) {
     final numCards = widget.accountListViewModel?.accounts.length ?? 1;
@@ -72,6 +66,11 @@ class _CardsViewState extends State<CardsView> {
                 widget.accountListViewModel!.select(widget.accountListViewModel!.accounts[index]);
               _selectedIndex = index;
             });
+          },
+          onLongPress: () {
+            if(_selectedIndex == index) {
+              widget.dashboardViewModel.balanceViewModel.switchBalanceValue();
+            }
           },
           child: Observer(builder: (_) {
             final account = widget.accountListViewModel?.accounts[index];
@@ -153,9 +152,7 @@ class _CardsViewState extends State<CardsView> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final parentWidth = constraints.maxWidth;
+        final parentWidth = MediaQuery.of(context).size.width;
         final children = <Widget>[];
 
         if (_selectedIndex! >= (widget.accountListViewModel?.accounts.length ?? 1)) {
@@ -191,8 +188,6 @@ class _CardsViewState extends State<CardsView> {
               child: Stack(alignment: Alignment.center, children: children),
             ),
           ),
-        );
-      },
     );
   }
 

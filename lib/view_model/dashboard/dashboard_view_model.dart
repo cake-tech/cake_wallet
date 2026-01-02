@@ -287,9 +287,11 @@ abstract class DashboardViewModelBase with Store {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
 
-    reaction((_) => appStore.wallet, (wallet) {
+    _walletChangeDisposer?.reaction.dispose();
+    _walletChangeDisposer = reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
+      loadCardDesigns();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
 
@@ -360,7 +362,6 @@ abstract class DashboardViewModelBase with Store {
 
         cardDesigns.add(CardDesign.fromStyleSettings(setting, wallet.currency));
       }
-      printV("loaded card designs.");
   }
 
 
@@ -903,6 +904,8 @@ abstract class DashboardViewModelBase with Store {
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
   ReactionDisposer? _transactionDisposer;
+
+  ReactionDisposer? _walletChangeDisposer;
 
   @computed
   bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(wallet.type);

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -136,6 +137,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: SafeArea(
+        bottom: !(Platform.isIOS),
         top: false,
         child: Padding(
          padding: const EdgeInsets.only(bottom: barBottomPadding),

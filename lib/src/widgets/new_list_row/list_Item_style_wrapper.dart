@@ -41,25 +41,29 @@ class ListItemStyleWrapper extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: radius,
-      child: Container(
-          height: height,
-          decoration: BoxDecoration(
+      child: Column(
+        children: [
+          Container(
+              height: height,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainer,
+              ),
+              child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                      onTap: onTap,
+                      child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: builder(context, textStyle, labelStyle))))),
+          if(!isLastInSection) Container(
             color: theme.colorScheme.surfaceContainer,
-            border: isLastInSection
-                ? null
-                : Border(
-                    bottom: BorderSide(
-                      color: theme.colorScheme.surfaceContainerHigh,
-                    ),
-                  ),
-          ),
-          child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                  onTap: onTap,
-                  child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: builder(context, textStyle, labelStyle))))),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(height: 1, color: theme.colorScheme.surfaceContainerHigh),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
