@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show Platform;
+// File and Directory used for exporting and sharing utils for platforms
+import 'dart:io' show Platform, File, Directory;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/main.dart' show navigatorKey;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -35,7 +37,11 @@ import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
+import 'package:cake_wallet/view_model/dashboard/export_option.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
+import 'package:cake_wallet/utils/transaction_export_formatter.dart';
+import 'package:cake_wallet/utils/share_util.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
@@ -46,6 +52,7 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/file.dart';
@@ -54,14 +61,18 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cake_wallet/core/trade_monitor.dart';
+
+import 'package:cake_wallet/view_model/dashboard/export_option.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -185,7 +196,7 @@ abstract class DashboardViewModelBase with Store {
                 value: () => tradeFilterStore.displaySwapXyz,
                 caption: ExchangeProviderDescription.swapsXyz.title,
                 onChanged: () =>
-                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
           ]
         },
         subname = '',
@@ -326,6 +337,31 @@ abstract class DashboardViewModelBase with Store {
     reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
 
     tradeMonitor.monitorActiveTrades(wallet.id);
+
+    // Initialize export options
+    _initializeExportOptions();
+  }
+
+  void _initializeExportOptions() {
+    exportOptions = {
+      S.current.transactions: [
+        ExportOption(
+          title: 'Export as CSV',
+          icon: Icons.table_chart,
+          onTap: () => exportTransactionsAsCSV(),
+        ),
+        ExportOption(
+          title: 'Export as JSON',
+          icon: Icons.code,
+          onTap: () => exportTransactionsAsJSON(),
+        ),
+        ExportOption(
+          title: 'Export to Clipboard (CSV)',
+          icon: Icons.content_copy,
+          onTap: () => exportToClipboard(),
+        ),
+      ],
+    };
   }
 
   bool _isTransactionDisposerCallbackRunning = false;
@@ -376,6 +412,11 @@ abstract class DashboardViewModelBase with Store {
       balanceViewModel.mwebEnabled = mwebEnabled;
     }
   }
+
+  late final Map<String, List<ExportOption>> exportOptions;
+
+  @observable
+  bool isExporting = false;
 
   @observable
   WalletType type;
@@ -1201,5 +1242,227 @@ abstract class DashboardViewModelBase with Store {
 
   Future<void> refreshDashboard() async {
     reconnect();
+  }
+
+  // Export functionality
+  // TODO: Add user-cancellable exports with cancel button
+  // TODO: Add error retry dialogs with retry option
+  // TODO: Add progress percentage reporting during export
+
+  @action
+  Future<void> exportTransactionsAsCSV() async {
+    if (isExporting) return;
+
+    try {
+      final allTransactions = wallet.transactionHistory.transactions.values.toList();
+
+      // Sort transactions chronologically (oldest first)
+      final sortedTransactions = [...allTransactions]..sort((a, b) => a.date.compareTo(b.date));
+
+      isExporting = true;
+
+      // Format transactions in main isolate
+      final formattedData = sortedTransactions.map((tx) {
+        return TransactionExportFormatter.formatTransaction(tx, wallet.type);
+      }).toList();
+
+      // Build CSV string directly (no isolate needed for this)
+      final buffer = StringBuffer();
+      buffer.writeln(TransactionExportData.csvHeader());
+      for (final data in formattedData) {
+        buffer.writeln(data.toCsvRow());
+      }
+      final csvContent = buffer.toString();
+      printV('csvContent length: ${csvContent.length}');
+      printV(
+          'csvContent preview: ${csvContent.substring(0, csvContent.length > 500 ? 500 : csvContent.length)}');
+      // Save or share file based on platform
+      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      } else {
+        await _saveCSVToFile(csvContent);
+        await _shareCSVFile(csvContent);
+      }
+    } catch (e) {
+      printV('Error exporting transactions as CSV: $e');
+      Fluttertoast.showToast(
+        msg: 'Export failed: ${e.toString()}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } finally {
+      isExporting = false;
+    }
+  }
+
+  @action
+  Future<void> exportTransactionsAsJSON() async {
+    if (isExporting) return;
+
+    try {
+      final allTransactions = wallet.transactionHistory.transactions.values.toList();
+
+      // Sort transactions chronologically (oldest first)
+      final sortedTransactions = [...allTransactions]..sort((a, b) => a.date.compareTo(b.date));
+
+      isExporting = true;
+
+      // Format transactions in main isolate
+      final formattedData = sortedTransactions.map((tx) {
+        return TransactionExportFormatter.formatTransaction(tx, wallet.type);
+      }).toList();
+
+      // Build JSON string directly (no isolate needed for this)
+      final jsonList = formattedData.map((data) => data.toJson()).toList();
+      final jsonContent = json.encode(jsonList);
+      printV('jsonContent length: ${jsonContent.length}');
+      printV(jsonList);
+      // Save or share file based on platform
+      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+        await _saveJSONToFile(jsonContent);
+      } else {
+        await _shareJSONFile(jsonContent);
+      }
+    } catch (e) {
+      printV('Error exporting transactions as JSON: $e');
+      Fluttertoast.showToast(
+        msg: 'Export failed: ${e.toString()}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } finally {
+      isExporting = false;
+    }
+  }
+
+  @action
+  Future<void> exportToClipboard() async {
+    if (isExporting) return;
+
+    try {
+      final allTransactions = wallet.transactionHistory.transactions.values.toList();
+
+      // Sort transactions chronologically (oldest first)
+      final sortedTransactions = [...allTransactions]..sort((a, b) => a.date.compareTo(b.date));
+
+      isExporting = true;
+
+      // Format transactions in main isolate
+      final formattedData = sortedTransactions.map((tx) {
+        return TransactionExportFormatter.formatTransaction(tx, wallet.type);
+      }).toList();
+
+      // Build CSV string directly (no isolate needed for this)
+      final buffer = StringBuffer();
+      buffer.writeln(TransactionExportData.csvHeader());
+      for (final data in formattedData) {
+        buffer.writeln(data.toCsvRow());
+      }
+      final csvContent = buffer.toString();
+
+      // Copy to clipboard
+      await ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: csvContent));
+
+      Fluttertoast.showToast(
+        msg: S.current.copied_to_clipboard,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } catch (e) {
+      printV('Error copying transactions to clipboard: $e');
+      Fluttertoast.showToast(
+        msg: 'Export failed: ${e.toString()}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } finally {
+      isExporting = false;
+    }
+  }
+
+  Future<void> _saveCSVToFile(String csvContent) async {
+    // TODO: Test desktop file picker permissions on macOS/Linux
+    try {
+      String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save CSV Export',
+        fileName: 'transactions_${wallet.name}_${DateTime.now().millisecondsSinceEpoch}.csv',
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (outputFile != null) {
+        final file = File(outputFile);
+        await file.writeAsString(csvContent);
+
+        Fluttertoast.showToast(
+          msg: 'Export saved successfully',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+        );
+      }
+    } catch (e) {
+      printV('Error saving CSV file: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> _saveJSONToFile(String jsonContent) async {
+    try {
+      String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save JSON Export',
+        fileName: 'transactions_${wallet.name}_${DateTime.now().millisecondsSinceEpoch}.json',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (outputFile != null) {
+        final file = File(outputFile);
+        await file.writeAsString(jsonContent);
+
+        Fluttertoast.showToast(
+          msg: 'Export saved successfully',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+        );
+      }
+    } catch (e) {
+      printV('Error saving JSON file: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> _shareCSVFile(String csvContent) async {
+    try {
+      final tempDir = Directory.systemTemp;
+      final tempFile = File(
+          '${tempDir.path}/transactions_${wallet.name}_${DateTime.now().millisecondsSinceEpoch}.csv');
+      await tempFile.writeAsString(csvContent);
+
+      await ShareUtil.shareFile(
+        filePath: tempFile.path,
+        fileName: 'transactions_export.csv',
+        context: navigatorKey.currentContext!,
+      );
+    } catch (e) {
+      printV('Error sharing CSV file: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> _shareJSONFile(String jsonContent) async {
+    try {
+      final tempDir = Directory.systemTemp;
+      final tempFile = File(
+          '${tempDir.path}/transactions_${wallet.name}_${DateTime.now().millisecondsSinceEpoch}.json');
+      await tempFile.writeAsString(jsonContent);
+
+      await ShareUtil.shareFile(
+        filePath: tempFile.path,
+        fileName: 'transactions_export.json',
+        context: navigatorKey.currentContext!,
+      );
+    } catch (e) {
+      printV('Error sharing JSON file: $e');
+      rethrow;
+    }
   }
 }
