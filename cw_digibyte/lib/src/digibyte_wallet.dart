@@ -17,6 +17,7 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 import 'digibyte_wallet_addresses.dart';
+import 'digibyte_network.dart';
 
 part 'digibyte_wallet.g.dart';
 
@@ -99,8 +100,9 @@ abstract class DigibyteWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
-    final decoded = WifEncoder.decode(wif, netVer: DigibyteNetwork.mainnet.wifNetVer);
-    final seedBytes = Uint8List.fromList(decoded.privateKey);
+    final network = DigibyteNetwork.mainnet;
+    final decodedTuple = WifDecoder.decode(wif, netVer: network.wifNetVer);
+    final seedBytes = Uint8List.fromList(decodedTuple.item1);
 
     return DigibyteWallet(
       mnemonic: wif,
