@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/widgets/haven_wallet_removal_popup.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
 import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -144,7 +145,9 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget leading(BuildContext context) {
-    if (dashboardViewModel.isEVMWallet && dashboardViewModel.availableChains.isNotEmpty) {
+    if (FeatureFlag.isEVMChainSwitcherEnabled &&
+        dashboardViewModel.isEVMWallet &&
+        dashboardViewModel.availableChains.isNotEmpty) {
       return TextButton(
         style: TextButton.styleFrom(
           minimumSize: Size(50, 30),
