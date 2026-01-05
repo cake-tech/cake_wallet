@@ -1,4 +1,3 @@
-import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -19,16 +18,16 @@ Transactions
   Currency
   Note
 
+I've also included
+  Type (Sent/Received)
+  Block Height
+  Subwallet Number
+  Key (index)
+  Recipient Address (if applicable)
+  Tx Explorer Links
+
 Swaps
-  Timestamp/date
-  Deposit TXID
-  Amount
-  Currency
-  Withdrawal TXID
-  Amount
-  Currency
-  Provider
-  Rate
+  See swap_export_formatter.dart
 */
 
 /// Standardized transaction export data class containing all exportable fields
