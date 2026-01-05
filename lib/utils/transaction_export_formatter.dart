@@ -199,7 +199,7 @@ class TransactionExportFormatter {
         recipientAddress = moneroProp.recipientAddress.toString();
       }
 
-      final explorerLink = txId != 'N/A' && txId != tx.id ? 'https://xmrchain.net/tx/$txId' : 'N/A';
+      final explorerLink = txId != 'N/A' && txId != tx.id ? 'https://monero.com/tx/$txId' : 'N/A';
       printV("MONERO: $amount");
       return TransactionExportData(
         timestamp: timestamp,
