@@ -181,8 +181,8 @@ jobs:
           echo "const walletGroupSalt = '${{ secrets.WALLET_GROUP_SALT }}';" >> lib/.secrets.g.dart
           echo "const swapsXyzApiKey = '${{ secrets.SWAPSXYZ_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const nearIntentsBearerToken = '${{ secrets.NEAR_INTENTS_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
-          echo "const nearIntentsBearerToken = '${{ secrets.NEAR_INTENTS_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
-          echo "const nearIntentsBearerToken = '${{ secrets.NEAR_INTENTS_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const nearIntentsAppFee = '${{ secrets.NEAR_INTENTS_APP_FEE }}';" >> lib/.secrets.g.dart
+          echo "const nearIntentsAppFeeRecipient = '${{ secrets.NEAR_INTENTS_APP_FEE_RECIPIENT }}';" >> lib/.secrets.g.dart
 
       - name: Fetch prebuilt Torch
         run: |
