@@ -31,7 +31,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
   static const _slippageTolerance = 100; // 1%
   static const _appFees = 100; // 1%
-  static const _appFeeRecipient = '0x09c8e7b234540821b1dd1c6035fc92259f126077';
+  static const _appFeeRecipient = '';
 
   static const _memoRequiredCurrencies = <CryptoCurrency>[
     CryptoCurrency.xrp,
