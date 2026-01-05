@@ -8,6 +8,7 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -104,6 +105,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.arbitrum:
+      case WalletType.zcash:
         return false;
     }
   }
@@ -185,6 +187,9 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.wownero:
       case WalletType.zano:
         _settingsStore.priority[wallet.type] = monero!.getMoneroTransactionPriorityAutomatic();
+        break;
+      case WalletType.zcash:
+        _settingsStore.priority[wallet.type] = zcash!.getZcashTransactionPriorityAutomatic();
         break;
       case WalletType.bitcoin:
         _settingsStore.priority[wallet.type] = bitcoin!.getBitcoinTransactionPriorityMedium();

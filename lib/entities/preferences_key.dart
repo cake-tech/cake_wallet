@@ -22,6 +22,7 @@ class PreferencesKey {
   static const currentSolanaNodeIdKey = 'current_node_id_sol';
   static const currentTronNodeIdKey = 'current_node_id_trx';
   static const currentWowneroNodeIdKey = 'current_node_id_wow';
+  static const currentZcashNodeIdKey = 'current_node_id_zec';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';

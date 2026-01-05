@@ -253,6 +253,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.none:
       case WalletType.banano:
       case WalletType.haven:
+      case WalletType.zcash:
         break;
     }
 

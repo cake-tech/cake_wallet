@@ -14,6 +14,7 @@ const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
 const baseOutputPath = 'lib/base/base.dart';
 const arbitrumOutputPath = 'lib/arbitrum/arbitrum.dart';
+const zcashOutputPath = 'lib/zcash/zcash.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -36,6 +37,7 @@ Future<void> main(List<String> args) async {
   final hasDogecoin = args.contains('${prefix}dogecoin');
   final hasBase = args.contains('${prefix}base');
   final hasArbitrum = args.contains('${prefix}arbitrum');
+  final hasZcash = args.contains('${prefix}zcash');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -53,6 +55,7 @@ Future<void> main(List<String> args) async {
   await generateDogecoin(hasDogecoin);
   await generateBase(hasBase);
   await generateArbitrum(hasArbitrum);
+  await generateZcash(hasZcash);
 
   await generatePubspec(
     hasMonero: hasMonero,
@@ -71,6 +74,7 @@ Future<void> main(List<String> args) async {
     hasDogecoin: hasDogecoin,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
+    hasZcash: hasZcash,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -88,6 +92,7 @@ Future<void> main(List<String> args) async {
     hasDogecoin: hasDogecoin,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
+    hasZcash: hasZcash,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
@@ -1775,6 +1780,103 @@ abstract class Arbitrum {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateZcash(bool hasImplementation) async {
+  final outputFile = File(zcashOutputPath);
+  const zcashCommonHeaders = """
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/monero_transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/address_info.dart';
+import 'package:cw_core/receive_page_option.dart';
+
+""";
+  const zcashCWHeaders = """
+import 'package:cw_zcash/cw_zcash.dart';
+import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
+
+""";
+  const zcashCwPart = "part 'cw_zcash.dart';";
+  const zcashContent = """
+abstract class Zcash {
+  List<String> getZcashWordList(String language);
+  WalletService createZcashWalletService(bool isDirect);
+  WalletCredentials createZcashNewWalletCredentials(
+      {required String name,
+      WalletInfo? walletInfo,
+      String? password,
+      String? mnemonic,
+      required String? passphrase});
+  WalletCredentials createZcashRestoreWalletFromSeedCredentials(
+      {required String name,
+      required String mnemonic,
+      required String password,
+      String? passphrase});
+  WalletCredentials createZcashRestoreWalletFromPrivateKey(
+      {required String name, required String privateKey, required String password});
+  String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
+  Map<String, String> getKeys(Object wallet);
+
+  Object createZcashTransactionCredentials(
+    List<Output> outputs, {
+    required CryptoCurrency currency,
+    int? feeRate,
+  });
+
+  Object createZcashTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
+    required CryptoCurrency currency,
+    required int feeRate,
+  });
+
+  int formatterZcashParseAmount(String amount);
+  double formatterZcashAmountToDouble(
+      {TransactionInfo? transaction, BigInt? amount, int exponent = 18});
+  String formatterZcashAmountToString({required int amount});
+  
+  List<WalletInfoAddressInfo> getAddressInfos(Object wallet);
+  
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getZcashTransactionPriorityAutomatic();
+  TransactionPriority deserializeZcashTransactionPriority({required int raw});
+  List<TransactionPriority> getTransactionPriorities();
+  List<ReceivePageOption> getZcashReceivePageOptions(Object wallet);
+  ReceivePageOption getSelectedAddressType(Object wallet);
+  ZcashAddressType getZcashAddressType(ReceivePageOption option);
+  Future<void> setAddressType(Object wallet, dynamic option);
+  ZcashAddressType getOptionToType(ReceivePageOption option);
+  void unlockDatabase(String password);
+}
+
+  """;
+
+  const zcashEmptyDefinition = 'Zcash? zcash;\n';
+  const zcashCWDefinition = 'Zcash? zcash = CWZcash();\n';
+
+  final output = '$zcashCommonHeaders\n' +
+      (hasImplementation ? '$zcashCWHeaders\n' : '\n') +
+      (hasImplementation ? '$zcashCwPart\n\n' : '\n') +
+      (hasImplementation ? zcashCWDefinition : zcashEmptyDefinition) +
+      '\n' +
+      zcashContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generatePubspec({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1792,6 +1894,7 @@ Future<void> generatePubspec({
   required bool hasDogecoin,
   required bool hasBase,
   required bool hasArbitrum,
+  required bool hasZcash,
 }) async {
   const cwCore = """
   cw_core:
@@ -1867,6 +1970,10 @@ Future<void> generatePubspec({
   const cwArbitrum = """
   cw_arbitrum:
       path: ./cw_arbitrum
+  """;
+  const cwZcash = """
+  cw_zcash:
+      path: ./cw_zcash
   """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
@@ -1945,6 +2052,10 @@ Future<void> generatePubspec({
     output += '\n$cwArbitrum';
   }
 
+  if (hasZcash) {
+    output += '\n$cwZcash';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -1973,6 +2084,7 @@ Future<void> generateWalletTypes({
   required bool hasDogecoin,
   required bool hasBase,
   required bool hasArbitrum,
+  required bool hasZcash,
 }) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -2042,6 +2154,10 @@ Future<void> generateWalletTypes({
 
   if (hasDecred) {
     outputContent += '\tWalletType.decred,\n';
+  }
+
+  if (hasDecred) {
+    outputContent += '\tWalletType.zcash,\n';
   }
 
   // if (hasWownero) {

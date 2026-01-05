@@ -940,6 +940,9 @@ abstract class SettingsStoreBase with Store {
     if (node == null) {
       throw Exception('No node found for wallet type: ${walletType.toString()}');
     }
+    if (node.type != walletType) {
+      throw Exception("Node is not valid for $walletType (found: ${node.type}");
+    }
 
     return node;
   }
@@ -1141,6 +1144,7 @@ abstract class SettingsStoreBase with Store {
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
+    final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
 
@@ -1175,6 +1179,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
     final zanoNode = nodeSource.get(zanoNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
+    final zcashNode = nodeSource.get(zcashNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zcashDefaultNodeUri);
     final dogecoinNode = nodeSource.get(dogecoinNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
 
@@ -1266,6 +1272,10 @@ abstract class SettingsStoreBase with Store {
 
     if (zanoNode != null) {
       nodes[WalletType.zano] = zanoNode;
+    }
+
+    if (zcashNode != null) {
+      nodes[WalletType.zcash] = zcashNode;
     }
 
     if (decredNode != null) {
@@ -1663,6 +1673,7 @@ abstract class SettingsStoreBase with Store {
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
+    final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
@@ -1679,6 +1690,7 @@ abstract class SettingsStoreBase with Store {
     final tronNode = nodeSource.get(tronNodeId);
     final wowneroNode = nodeSource.get(wowneroNodeId);
     final zanoNode = nodeSource.get(zanoNodeId);
+    final zcashNode = nodeSource.get(zcashNodeId);
     final decredNode = nodeSource.get(decredNodeId);
     final dogecoinNode = nodeSource.get(dogecoinNodeId);
 
@@ -1737,6 +1749,10 @@ abstract class SettingsStoreBase with Store {
 
     if (zanoNode != null) {
       nodes[WalletType.zano] = zanoNode;
+    }
+
+    if (zcashNode != null) {
+      nodes[WalletType.zcash] = zcashNode;
     }
 
     if (decredNode != null) {
@@ -1898,8 +1914,13 @@ abstract class SettingsStoreBase with Store {
       case WalletType.dogecoin:
         await _sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.key as int);
         break;
-      default:
+      case WalletType.zcash:
+        await _sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.key as int);
         break;
+      case WalletType.none:
+        throw UnimplementedError();
+      case WalletType.banano:
+        throw UnimplementedError();
     }
 
     nodes[walletType] = node;

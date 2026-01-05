@@ -35,7 +35,7 @@ class AnonPayApi {
       clearnetUri: Uri.https(clearNetAuthority, "$anonPayStatus/$id"),
       onionUri: Uri.https(onionApiAuthority, "$anonPayStatus/$id"),
     );
-    
+
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final status = responseJSON['Status'] as String;
     final fiatAmount = responseJSON['Fiat_Amount'] as double?;

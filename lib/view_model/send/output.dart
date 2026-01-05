@@ -22,6 +22,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/format_fixed.dart';
@@ -134,6 +135,9 @@ abstract class OutputBase with Store {
           case WalletType.zano:
             _amount = zano!
                 .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
+            break;
+          case WalletType.zcash:
+            _amount = zcash!.formatterZcashParseAmount(_cryptoAmount);
             break;
           case WalletType.none:
           case WalletType.haven:
@@ -251,6 +255,7 @@ abstract class OutputBase with Store {
 
         case WalletType.haven:
         case WalletType.nano:
+        case WalletType.zcash:
         case WalletType.banano:
         case WalletType.none:
           // will not reach here as it doesn't have priority and this function is triggered only when priority changes

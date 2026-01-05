@@ -8,6 +8,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -158,6 +159,12 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.zano:
         return zano!.createZanoNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
+      case WalletType.zcash:
+        return zcash!.createZcashNewWalletCredentials(
           name: name,
           password: walletPassword,
           passphrase: passphrase,

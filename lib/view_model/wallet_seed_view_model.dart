@@ -73,7 +73,7 @@ abstract class WalletSeedViewModelBase with Store {
 
   bool shouldPerformVerification() {
     bool isCI = bool.fromEnvironment('CI_BUILD', defaultValue: false);
-    bool isDebug = kDebugMode;
+    bool isDebug = kDebugMode || kProfileMode;
 
     if (isDebug && !isCI) {
       printV("Skipping verification in debug mode - $isDebug (and when it's not in CI - $isCI).");

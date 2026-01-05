@@ -4,7 +4,6 @@ on:
   pull_request:
 
 jobs:
-
   # -----------------------------------------
   # PATH A: Internal PRs
   internal-build:

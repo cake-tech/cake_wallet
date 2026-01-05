@@ -907,6 +907,7 @@ abstract class DashboardViewModelBase with Store {
         return true;
       case WalletType.zano:
       case WalletType.haven:
+      case WalletType.zcash:
       case WalletType.none:
         return false;
     }
