@@ -6,6 +6,7 @@ import 'dart:developer';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
@@ -55,7 +56,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -71,22 +71,20 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   ExchangeViewModelBase(
-    AppStore appStore,
+    this._appStore,
     this.trades,
     this._exchangeTemplateStore,
     this.tradesStore,
-    this._settingsStore,
     this.sharedPreferences,
     this.contactListViewModel,
     this.unspentCoinsListViewModel,
     this.feesViewModel,
     this.fiatConversionStore,
-  )   : _cryptoNumberFormat = NumberFormat(),
-        isSendAllEnabled = false,
+  )   : isSendAllEnabled = false,
         isFixedRateMode = false,
         isReceiveAmountEntered = false,
-        depositAmount = '',
-        receiveAmount = '',
+        _depositAmount = '',
+        _receiveAmount = '',
         receiveAddress = '',
         depositAddress = '',
         isDepositAddressEnabled = false,
@@ -97,11 +95,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         limits = Limits(min: 0, max: 0),
         tradeState = ExchangeTradeStateInitial(),
         limitsState = LimitsInitialState(),
-        receiveCurrency = appStore.wallet!.currency,
-        depositCurrency = appStore.wallet!.currency,
+        receiveCurrency = _appStore.wallet!.currency,
+        depositCurrency = _appStore.wallet!.currency,
         providerList = [],
         selectedProviders = ObservableList<ExchangeProvider>(),
-        super(appStore: appStore) {
+        super(appStore: _appStore) {
     _useTorOnly = _settingsStore.exchangeStatus == ExchangeApiMode.torOnly;
     _setProviders();
     const excludeDepositCurrencies = [CryptoCurrency.btt];
@@ -148,8 +146,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     });
 
     isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
-    depositAmount = '';
-    receiveAmount = '';
+    _depositAmount = '';
+    _receiveAmount = '';
     receiveAddress = '';
     depositAddress =
         useSameWalletAddress(depositCurrency) ? wallet.walletAddresses.addressForExchange : '';
@@ -259,10 +257,22 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   ExchangeTradeState tradeState;
 
   @observable
-  String depositAmount;
+  String _depositAmount;
+
+  @computed
+  String get depositAmount =>
+      amountParsingProxy.getDisplayCryptoAmount(_depositAmount, depositCurrency);
 
   @observable
-  String receiveAmount;
+  String _receiveAmount;
+
+  @computed
+  String get receiveAmount =>
+      amountParsingProxy.getDisplayCryptoAmount(_receiveAmount, receiveCurrency);
+
+  @action
+  // only set canonical formated amounts here;
+  void setCanonicalReceiveAmount(String value) => _receiveAmount = value;
 
   @observable
   String depositAddress;
@@ -357,9 +367,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @observable
   ObservableList<CryptoCurrency> depositCurrencies;
 
-  final NumberFormat _cryptoNumberFormat;
-
-  final SettingsStore _settingsStore;
+  final AppStore _appStore;
+  SettingsStore get _settingsStore => _appStore.settingsStore;
 
   final ContactListViewModel contactListViewModel;
 
@@ -369,6 +378,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @observable
   double bestRate = 0.0;
+
+  @computed
+  bool get useSatoshiDeposit => _appStore.amountParsingProxy.useSatoshi(depositCurrency);
+
+  @computed
+  bool get useSatoshisReceive => _appStore.amountParsingProxy.useSatoshi(receiveCurrency);
+
+  @computed
+  AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   late Timer bestRateSync;
 
@@ -396,12 +414,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String get receiveAmountFiatFormatted {
     var amount = '0.00';
     try {
-      if (receiveAmount.isNotEmpty) {
+      if (_receiveAmount.isNotEmpty) {
         if (fiatConversionStore.prices[receiveCurrency] == null) return '';
 
         amount = calculateFiatAmount(
           price: fiatConversionStore.prices[receiveCurrency]!,
-          cryptoAmount: receiveAmount,
+          cryptoAmount: _receiveAmount,
         );
       }
     } catch (_) {
@@ -428,28 +446,26 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> changeReceiveAmount({required String amount}) async {
-    receiveAmount = amount;
+    amount = amountParsingProxy.getCanonicalCryptoAmount(amount, receiveCurrency);
+    
+    _receiveAmount = amount;
 
     if (amount.isEmpty) {
-      depositAmount = '';
-      receiveAmount = '';
+      _depositAmount = '';
+      _receiveAmount = '';
       return;
     }
 
-    final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
+    final _enteredAmount = double.tryParse(_receiveAmount.replaceAll(',', '.')) ?? 0;
 
     if (bestRate == 0) {
-      depositAmount = S.current.fetching;
+      _depositAmount = S.current.fetching;
 
       await calculateBestRate();
     }
 
-    _cryptoNumberFormat.maximumFractionDigits = depositMaxDigits;
-
-    depositAmount = _cryptoNumberFormat
-        .format(_enteredAmount / bestRate)
-        .toString()
-        .replaceAll(RegExp('\\,'), '');
+    final amount_ = _enteredAmount / bestRate;
+    _depositAmount = amount_.toString().withMaxDecimals(depositCurrency.decimals);
   }
 
   @action
@@ -459,19 +475,20 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (price == null || price == 0.0) return;
 
     final crypto = _enteredAmount / price;
-    final receiveAmountTmp = _cryptoNumberFormat.format(crypto);
-    if (receiveAmount != receiveAmountTmp) {
-      changeReceiveAmount(amount: receiveAmountTmp.withMaxDecimals(receiveCurrency.decimals));
+    final _receiveAmountTmp = crypto.toString().withMaxDecimals(receiveCurrency.decimals);
+    if (_receiveAmount != _receiveAmountTmp) {
+      changeReceiveAmount(amount: _receiveAmountTmp);
     }
   }
 
   @action
-  Future<void> changeDepositAmount({required String amount}) async {
-    depositAmount = amount;
+  Future<void> changeDepositAmount({required String amount, bool isCanonical = false}) async {
+    _depositAmount = isCanonical ? amount.replaceAll(',', '.') : _appStore.amountParsingProxy
+        .getCanonicalCryptoAmount(amount.replaceAll(',', '.'), depositCurrency);
 
     if (amount.isEmpty) {
-      depositAmount = '';
-      receiveAmount = '';
+      _depositAmount = '';
+      _receiveAmount = '';
       return;
     }
 
@@ -479,21 +496,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     /// as it should remain exactly what the user set
     if (isFixedRateMode) return;
 
-    final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
+    final _enteredAmount = double.tryParse(_depositAmount) ?? 0;
 
     /// in case the best rate was not calculated yet
     if (bestRate == 0) {
-      receiveAmount = S.current.fetching;
+      _receiveAmount = S.current.fetching;
 
       await calculateBestRate();
     }
 
-    _cryptoNumberFormat.maximumFractionDigits = receiveMaxDigits;
-
-    receiveAmount = _cryptoNumberFormat
-        .format(bestRate * _enteredAmount)
-        .toString()
-        .replaceAll(RegExp('\\,'), '');
+    final amount_ = _enteredAmount * bestRate;
+    _receiveAmount = amount_.toString().withMaxDecimals(receiveCurrency.decimals);
   }
 
   bool checkIfInputMeetsMinOrMaxCondition(String input) {
@@ -513,7 +526,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       bestRate = 0.0;
       return;
     }
-    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ??
+    final amount = double.tryParse(isFixedRateMode ? _receiveAmount : _depositAmount) ??
         initialAmountByAssets(isFixedRateMode ? receiveCurrency : depositCurrency);
 
     final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
@@ -639,7 +652,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   Future<void> createTrade() async {
     if (isSendAllEnabled) {
       await calculateDepositAllAmount();
-      final amount = double.tryParse(depositAmount);
+      final amount = double.tryParse(_depositAmount);
 
       if (limits.min != null && amount != null && amount < limits.min!) {
         tradeState = TradeIsCreatedFailure(
@@ -673,13 +686,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         if (!(await provider.checkIsAvailable())) continue;
 
         bestRate = providerRate;
-        await changeDepositAmount(amount: depositAmount);
+        await changeDepositAmount(amount: _depositAmount, isCanonical: true);
 
         final request = TradeRequest(
           fromCurrency: depositCurrency,
           toCurrency: receiveCurrency,
-          fromAmount: depositAmount.replaceAll(',', '.'),
-          toAmount: receiveAmount.replaceAll(',', '.'),
+          fromAmount: _depositAmount.replaceAll(',', '.'),
+          toAmount: _receiveAmount.replaceAll(',', '.'),
           refundAddress: depositAddress,
           toAddress: receiveAddress,
           isFixedRate: isFixedRateMode,
@@ -690,7 +703,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           await wallet.walletAddresses.saveAddressesInBox();
         }
 
-        var amount = isFixedRateMode ? receiveAmount : depositAmount;
+        var amount = isFixedRateMode ? _receiveAmount : _depositAmount;
         amount = amount.replaceAll(',', '.');
 
         if (limitsState is LimitsLoadedSuccessfully) {
@@ -751,8 +764,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void reset() {
     _initialPairBasedOnWallet();
     isReceiveAmountEntered = false;
-    depositAmount = '';
-    receiveAmount = '';
+    _depositAmount = '';
+    _receiveAmount = '';
     depositAddress =
         depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     receiveAddress =
@@ -792,11 +805,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             wallet.type == WalletType.litecoin ? UnspentCoinType.nonMweb : UnspentCoinType.any,
       );
 
-      changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
+      changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.from(amount)), isCanonical: true);
     } else if (wallet.type == WalletType.monero) {
       final amount = await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any);
 
-      changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
+      changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.from(amount)), isCanonical: true);
     }
   }
 
@@ -825,8 +838,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       _exchangeTemplateStore.remove(template: template);
 
   void _onPairChange() {
-    depositAmount = '';
-    receiveAmount = '';
+    _depositAmount = '';
+    _receiveAmount = '';
     bestRate = 0.0;
     loadLimits();
     _setAvailableProviders();
@@ -935,8 +948,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void saveSelectedProviders() {
-    depositAmount = '';
-    receiveAmount = '';
+    _depositAmount = '';
+    _receiveAmount = '';
     isFixedRateMode = false;
     _defineIsReceiveAmountEditable();
     bestRate = 0.0;

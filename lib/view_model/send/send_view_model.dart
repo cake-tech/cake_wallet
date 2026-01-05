@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
@@ -92,7 +93,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   SendViewModelBase(
-    AppStore appStore,
+    this._appStore,
     this.sendTemplateViewModel,
     this._fiatConversationStore,
     this.balanceViewModel,
@@ -103,22 +104,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.feesViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),
-        currencies = appStore.wallet!.balance.keys.toList(),
-        selectedCryptoCurrency = appStore.wallet!.currency,
-        hasMultipleTokens = isEVMCompatibleChain(appStore.wallet!.type) ||
-            appStore.wallet!.type == WalletType.solana ||
-            appStore.wallet!.type == WalletType.tron ||
-            appStore.wallet!.type == WalletType.zano,
+        currencies = _appStore.wallet!.balance.keys.toList(),
+        selectedCryptoCurrency = _appStore.wallet!.currency,
+        hasMultipleTokens = isEVMCompatibleChain(_appStore.wallet!.type) ||
+            [WalletType.solana, WalletType.tron, WalletType.zano].contains(_appStore.wallet!.type),
         outputs = ObservableList<Output>(),
-        _settingsStore = appStore.settingsStore,
-        fiatFromSettings = appStore.settingsStore.fiatCurrency,
-        super(appStore: appStore) {
-    outputs
-        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+        fiatFromSettings = _appStore.settingsStore.fiatCurrency,
+        super(appStore: _appStore) {
+    outputs.add(Output(wallet, _appStore, _fiatConversationStore, () => selectedCryptoCurrency));
 
-    unspentCoinsListViewModel.initialSetup().then((_) {
-      unspentCoinsListViewModel.resetUnspentCoinsInfoSelections();
-    });
+    unspentCoinsListViewModel
+        .initialSetup()
+        .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
   }
 
   PendingTransaction? _pendingApprovalTx;
@@ -136,17 +133,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
 
+  bool get isMwebAvailable => wallet.currency == CryptoCurrency.ltc && balanceViewModel.mwebEnabled;
+
   bool get isEVMWallet => isEVMCompatibleChain(walletType);
-  @action
-  void setShowAddressBookPopup(bool value) {
-    _settingsStore.showAddressBookPopupEnabled = value;
-  }
 
   @action
-  void addOutput() {
-    outputs
-        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
-  }
+  void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
+
+  @action
+  void addOutput() =>
+      outputs.add(Output(wallet, _appStore, _fiatConversationStore, () => selectedCryptoCurrency));
 
   @action
   void removeOutput(Output output) {
@@ -236,8 +232,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   CryptoCurrency get currency => wallet.currency;
 
+  String get feeCurrencySymbol => _appStore.amountParsingProxy.getCryptoSymbol(currency);
+
   Validator<String> amountValidator(Output output) => AmountValidator(
         currency: walletTypeToCryptoCurrency(wallet.type),
+        amountParsingProxy: _appStore.amountParsingProxy,
         minValue: isSendToSilentPayments(output)
             ?
             //  TODO: get from server
@@ -266,7 +265,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
-    return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
+
+    return _appStore.amountParsingProxy.getDisplayCryptoString(
+        wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance, selectedCryptoCurrency);
   }
 
   @action
@@ -293,14 +294,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
+        final sendingBalance =
+            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
+        return _appStore.amountParsingProxy
+            .getDisplayCryptoString(sendingBalance, walletTypeToCryptoCurrency(walletType));
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.decred:
-        return wallet.formatCryptoAmount(
-            (await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom)).toString());
+        final sendingBalance = await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
+        return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
       default:
         return balance;
     }
@@ -311,11 +316,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get pendingTransactionFiatAmountFormatted =>
-      isFiatDisabled ? '' : pendingTransactionFiatAmount + ' ' + fiat.title;
+      isFiatDisabled ? '' : '$pendingTransactionFiatAmount ${fiat.title}';
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
-      isFiatDisabled ? '' : pendingTransactionFeeFiatAmount + ' ' + fiat.title;
+      isFiatDisabled ? '' : '$pendingTransactionFeeFiatAmount ${fiat.title}';
 
   @computed
   bool get isReadyForSend =>
@@ -371,7 +376,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
-  final SettingsStore _settingsStore;
+  final AppStore _appStore;
+  SettingsStore get _settingsStore => _appStore.settingsStore;
   final SendTemplateViewModel sendTemplateViewModel;
   final BalanceViewModel balanceViewModel;
   final ContactListViewModel contactListViewModel;
@@ -379,6 +385,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   final FeesViewModel feesViewModel;
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
+
+  AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   @observable
   bool hasMultipleTokens;

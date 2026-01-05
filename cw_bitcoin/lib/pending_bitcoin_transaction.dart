@@ -104,10 +104,9 @@ class PendingBitcoinTransaction with PendingTransaction {
     try {
       final change = _tx.outputs.firstWhere((out) => out.isChange);
       if (changeAddressOverride != null) {
-        return PendingChange(
-            changeAddressOverride!, BtcUtils.fromSatoshi(change.amount));
+        return PendingChange(changeAddressOverride!, change.amount);
       }
-      return PendingChange(change.scriptPubKey.toAddress(network: network), BtcUtils.fromSatoshi(change.amount));
+      return PendingChange(change.scriptPubKey.toAddress(network: network), change.amount);
     } catch (_) {
       return null;
     }

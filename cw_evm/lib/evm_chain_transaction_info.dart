@@ -1,8 +1,6 @@
 // ignore_for_file: overridden_fields, annotate_overrides
-
-import 'dart:math';
-
 import 'package:cw_core/format_amount.dart';
+import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 
@@ -47,10 +45,8 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
   String get feeCurrency;
 
   @override
-  String amountFormatted() {
-    final amount = formatAmount((ethAmount / BigInt.from(10).pow(exponent)).toString());
-    return '${amount.substring(0, min(10, amount.length))} $tokenSymbol';
-  }
+  String amountFormatted() =>
+      '${formatFixed(ethAmount, exponent, fractionalDigits: 10)} $tokenSymbol';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -59,10 +55,7 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() {
-    final amount = (ethFee / BigInt.from(10).pow(18)).toString();
-    return '${amount.substring(0, min(18, amount.length))} $feeCurrency';
-  }
+  String feeFormatted() => '${formatFixed(ethFee, 18)} $feeCurrency';
 
   Map<String, dynamic> toJson() => {
         'id': id,

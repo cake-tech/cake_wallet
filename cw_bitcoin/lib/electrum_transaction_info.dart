@@ -225,11 +225,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   @override
   String amountFormatted() =>
-      '${formatAmount(bitcoinAmountToString(amount: amount))} ${walletTypeToCryptoCurrency(type).title}';
+      '${walletTypeToCryptoCurrency(type).formatAmount(BigInt.from(amount))} ${walletTypeToCryptoCurrency(type).title}';
 
   @override
   String? feeFormatted() => fee != null
-      ? '${formatAmount(bitcoinAmountToString(amount: fee!))} ${walletTypeToCryptoCurrency(type).title}'
+      ? '${walletTypeToCryptoCurrency(type).formatAmount(BigInt.from(fee!))} ${walletTypeToCryptoCurrency(type).title}'
       : '';
 
   @override

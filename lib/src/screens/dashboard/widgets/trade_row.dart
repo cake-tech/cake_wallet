@@ -1,15 +1,15 @@
-import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/utils/image_utill.dart';
-import 'package:flutter/material.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cw_core/crypto_currency.dart';
+import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/palette.dart";
+import "package:cake_wallet/utils/image_utill.dart";
+import "package:flutter/material.dart";
+import "package:cake_wallet/exchange/exchange_provider_description.dart";
 
 class TradeRow extends StatelessWidget {
   TradeRow({
     required this.provider,
-    required this.from,
-    required this.to,
+    required this.title,
+    required this.fromSymbol,
+    required this.toSymbol,
     required this.createdAtFormattedDate,
     this.onTap,
     this.formattedAmount,
@@ -20,8 +20,9 @@ class TradeRow extends StatelessWidget {
 
   final VoidCallback? onTap;
   final ExchangeProviderDescription provider;
-  final CryptoCurrency from;
-  final CryptoCurrency to;
+  final String fromSymbol;
+  final String toSymbol;
+  final String title;
   final String? createdAtFormattedDate;
   final String? formattedAmount;
   final String? formattedReceiveAmount;
@@ -29,9 +30,6 @@ class TradeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final amountCrypto = from.toString();
-    final receiveAmountCrypto = to.toString();
-
     return InkWell(
         onTap: onTap,
         child: Container(
@@ -72,7 +70,7 @@ class TradeRow extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
-                        '${from.toString()} → ${to.toString()}',
+                        title,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -80,7 +78,7 @@ class TradeRow extends StatelessWidget {
                       ),
                       formattedAmount != null
                           ? Text(
-                              formattedAmount! + ' ' + amountCrypto,
+                              "$formattedAmount $fromSymbol",
                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -105,7 +103,7 @@ class TradeRow extends StatelessWidget {
                           : Container(),
                       formattedReceiveAmount != null
                           ? Text(
-                              formattedReceiveAmount! + ' ' + receiveAmountCrypto,
+                              "$formattedReceiveAmount $toSymbol",
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w500,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,

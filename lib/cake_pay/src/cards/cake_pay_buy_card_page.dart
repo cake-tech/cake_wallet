@@ -619,11 +619,16 @@ class CakePayBuyCardPage extends BasePage {
                   titleIconPath: _sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: _sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: _sendViewModel.pendingTransaction!.amountFormatted,
+                  amountValue: _sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
+                      _sendViewModel.pendingTransaction!.amountFormatted,
+                      _sendViewModel.selectedCryptoCurrency),
                   quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
                   fiatAmountValue: _sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: S.of(bottomSheetContext).send_fee,
-                  feeValue: _sendViewModel.pendingTransaction!.feeFormatted,
+                  feeValue: "${_sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
+                      _sendViewModel.pendingTransaction!.feeFormattedValue,
+                      _sendViewModel.selectedCryptoCurrency)} ${_sendViewModel.amountParsingProxy
+                      .getCryptoSymbol(_sendViewModel.wallet.currency)}",
                   feeFiatAmount: _sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: displayingOutputs,
                   footerType: FooterType.slideActionButton,
@@ -640,6 +645,7 @@ class CakePayBuyCardPage extends BasePage {
                   },
                   change: _sendViewModel.pendingTransaction!.change,
                   isOpenCryptoPay: _sendViewModel.ocpRequest != null,
+                  amountParsingProxy: _sendViewModel.amountParsingProxy,
                 );
               },
             );

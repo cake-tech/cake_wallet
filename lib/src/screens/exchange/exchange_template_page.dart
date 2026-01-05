@@ -129,8 +129,10 @@ class ExchangeTemplatePage extends BasePage {
                                     Theme.of(context).colorScheme.surfaceContainerHighest,
                                 borderColor: Theme.of(context).colorScheme.outlineVariant,
                                 fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                                currencyValueValidator:
-                                    AmountValidator(currency: exchangeViewModel.depositCurrency),
+                                currencyValueValidator: AmountValidator(
+                                  currency: exchangeViewModel.depositCurrency,
+                                  amountParsingProxy: exchangeViewModel.amountParsingProxy,
+                                ),
                               ),
                             ),
                           ),
@@ -160,8 +162,10 @@ class ExchangeTemplatePage extends BasePage {
                                     Theme.of(context).colorScheme.surfaceContainerHighest,
                                 borderColor: Theme.of(context).colorScheme.outlineVariant,
                                 fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
-                                currencyValueValidator:
-                                    AmountValidator(currency: exchangeViewModel.receiveCurrency),
+                                currencyValueValidator: AmountValidator(
+                                  currency: exchangeViewModel.receiveCurrency,
+                                  amountParsingProxy: exchangeViewModel.amountParsingProxy,
+                                ),
                               ),
                             ),
                           )

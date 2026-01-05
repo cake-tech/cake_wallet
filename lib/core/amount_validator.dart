@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -6,6 +7,7 @@ import 'package:cw_core/currency.dart';
 class AmountValidator extends TextValidator {
   AmountValidator({
     required CryptoCurrency currency,
+    required AmountParsingProxy amountParsingProxy,
     bool isAutovalidate = false,
     String? minValue,
     String? maxValue,
@@ -17,11 +19,15 @@ class AmountValidator extends TextValidator {
     amountMinValidator = AmountMinValidator(
       minValue: minValue,
       isAutovalidate: isAutovalidate,
+      amountParsingProxy: amountParsingProxy,
+      cryptoCurrency: currency,
     );
 
     amountMaxValidator = AmountMaxValidator(
       maxValue: maxValue,
       isAutovalidate: isAutovalidate,
+      amountParsingProxy: amountParsingProxy,
+      cryptoCurrency: currency,
     );
   }
 
@@ -89,10 +95,14 @@ class AllAmountValidator extends TextValidator {
 class AmountMinValidator extends Validator<String> {
   final String? minValue;
   final bool isAutovalidate;
+  final AmountParsingProxy amountParsingProxy;
+  final CryptoCurrency cryptoCurrency;
 
   AmountMinValidator({
     this.minValue,
     required this.isAutovalidate,
+    required this.amountParsingProxy,
+    required this.cryptoCurrency,
   }) : super(errorMessage: S.current.error_text_input_below_minimum_limit);
 
   @override
@@ -105,6 +115,7 @@ class AmountMinValidator extends Validator<String> {
       return true;
     }
 
+    value = amountParsingProxy.getCanonicalCryptoAmount(value, cryptoCurrency);
     final valueInDouble = parseToDouble(value);
     final minInDouble = parseToDouble(minValue ?? '');
 
@@ -124,10 +135,14 @@ class AmountMinValidator extends Validator<String> {
 class AmountMaxValidator extends Validator<String> {
   final String? maxValue;
   final bool isAutovalidate;
+  final AmountParsingProxy amountParsingProxy;
+  final CryptoCurrency cryptoCurrency;
 
   AmountMaxValidator({
     this.maxValue,
     required this.isAutovalidate,
+    required this.amountParsingProxy,
+    required this.cryptoCurrency,
   }) : super(errorMessage: S.current.error_text_input_above_maximum_limit);
 
   @override
@@ -140,6 +155,7 @@ class AmountMaxValidator extends Validator<String> {
       return true;
     }
 
+    value = amountParsingProxy.getCanonicalCryptoAmount(value, cryptoCurrency);
     final valueInDouble = parseToDouble(value);
     final maxInDouble = parseToDouble(maxValue ?? '');
 

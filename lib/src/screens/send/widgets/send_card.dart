@@ -508,8 +508,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 sendAllButtonKey: ValueKey('send_page_send_all_button_key'),
                 currencyAmountTextFieldWidgetKey:
                     ValueKey('send_page_crypto_currency_amount_textfield_widget_key'),
-                selectedCurrency: sendViewModel.selectedCryptoCurrency.title,
-                selectedCurrencyDecimals: sendViewModel.selectedCryptoCurrency.decimals,
+                selectedCurrency: output.useSatoshi ? "SATS" : sendViewModel.selectedCryptoCurrency.title,
+                selectedCurrencyDecimals: output.useSatoshi ? 0 : sendViewModel.selectedCryptoCurrency.decimals,
                 amountFocusNode: widget.cryptoAmountFocus,
                 amountController: cryptoAmountController,
                 isAmountEditable: true,
@@ -650,9 +650,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      output.estimatedFee.toString() +
-                                          ' ' +
-                                          sendViewModel.currency.toString(),
+                                      '${output.estimatedFee} ${sendViewModel.feeCurrencySymbol}',
                                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -662,9 +660,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                       child: sendViewModel.isFiatDisabled
                                           ? const SizedBox(height: 14)
                                           : Text(
-                                              output.estimatedFeeFiatAmount +
-                                                  ' ' +
-                                                  sendViewModel.fiat.title,
+                                              '${output.estimatedFeeFiatAmount} ${sendViewModel.fiat.title}',
                                               style:
                                                   Theme.of(context).textTheme.bodySmall!.copyWith(
                                                         fontWeight: FontWeight.w600,
@@ -728,7 +724,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     ),
                   ),
                 ),
-              if (sendViewModel.currency == CryptoCurrency.ltc && sendViewModel.isMwebEnabled)
+              if (sendViewModel.isMwebAvailable)
                 Observer(
                   builder: (_) => Padding(
                     padding: EdgeInsets.only(top: 14),
@@ -790,8 +786,14 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.sendAll = false;
       }
 
-      if (amount != output.cryptoAmount) {
-        output.setCryptoAmount(amount);
+      if (S.current.all.contains(amount)) return;
+
+      final cAmount = sendViewModel.amountParsingProxy
+          .getDisplayCryptoAmount(output.cryptoAmount, sendViewModel.selectedCryptoCurrency);
+      if (amount != cAmount) {
+        final newAmount = sendViewModel.amountParsingProxy
+            .getCanonicalCryptoAmount(amount, sendViewModel.selectedCryptoCurrency);
+        output.setCryptoAmount(newAmount);
       }
     });
 
@@ -821,7 +823,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.setSendAll(await sendViewModel.sendingBalance);
       }
 
-      output.setCryptoAmount(cryptoAmountController.text);
+      output.setCryptoAmount(sendViewModel.amountParsingProxy
+          .getCanonicalCryptoAmount(cryptoAmountController.text, sendViewModel.selectedCryptoCurrency));
     });
 
     reaction((_) => output.fiatAmount, (String amount) {
@@ -835,8 +838,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.sendAll = false;
       }
 
-      if (amount != cryptoAmountController.text) {
-        cryptoAmountController.text = amount;
+      final cryptoAmount = sendViewModel.amountParsingProxy
+          .getCanonicalCryptoAmount(cryptoAmountController.text, sendViewModel.selectedCryptoCurrency);
+      if (amount != cryptoAmount) {
+        cryptoAmountController.text = sendViewModel.amountParsingProxy
+            .getDisplayCryptoAmount(amount, sendViewModel.selectedCryptoCurrency);
       }
     });
 

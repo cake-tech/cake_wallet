@@ -377,7 +377,7 @@ Future<void> setup({
       nodeListStore: getIt.get<NodeListStore>(),
       themeStore: getIt.get<ThemeStore>()));
   getIt.registerSingleton<TradesStore>(
-      TradesStore(tradesSource: _tradesSource, settingsStore: getIt.get<SettingsStore>()));
+      TradesStore(tradesSource: _tradesSource, appStore: getIt.get<AppStore>()));
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerFactory(() =>
@@ -547,7 +547,6 @@ Future<void> setup({
       _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
-      getIt.get<AppStore>().settingsStore,
       getIt.get<SharedPreferences>(),
       getIt.get<ContactListViewModel>(),
       getIt.get<UnspentCoinsListViewModel>(),
@@ -823,7 +822,7 @@ Future<void> setup({
 
   getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(
       getIt.get<AppStore>().wallet!,
-      getIt.get<AppStore>().settingsStore,
+      getIt.get<AppStore>(),
       getIt.get<SendTemplateStore>(),
       getIt.get<FiatConversionStore>()));
 
@@ -975,7 +974,7 @@ Future<void> setup({
               getIt.get<NanoAccountEditOrCreateViewModel>(param1: account)));
 
   getIt.registerFactory(() =>
-      DisplaySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<ThemeStore>()));
+      DisplaySettingsViewModel(getIt.get<AppStore>(), getIt.get<ThemeStore>()));
 
   getIt.registerFactory(() =>
       SilentPaymentsSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
@@ -1300,7 +1299,7 @@ Future<void> setup({
           transactionInfo: transactionInfo,
           transactionDescriptionBox: _transactionDescriptionBox,
           wallet: wallet,
-          settingsStore: getIt.get<SettingsStore>(),
+          appStore: getIt.get<AppStore>(),
           sendViewModel: getIt.get<SendViewModel>(),
           canReplaceByFee: canReplaceByFee,
         );
@@ -1441,7 +1440,7 @@ Future<void> setup({
       wallet: wallet!,
       unspentCoinsInfo: _unspentCoinsInfoSource,
       fiatConversationStore: getIt.get<FiatConversionStore>(),
-      settingsStore: getIt.get<SettingsStore>(),
+      appStore: getIt.get<AppStore>(),
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
     );
   });
