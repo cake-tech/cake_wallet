@@ -30,8 +30,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const _statusPath = '/status';
 
   static const _slippageTolerance = 100; // 1%
-  static const _appFees = 100; // 1%
-  static const _appFeeRecipient = '';
+  static const _appFeesNearIntents = secrets.nearIntentsAppFee;
+  static const _appFeeRecipientNearIntents = secrets.nearIntentsAppFeeRecipient;
 
   static const _memoRequiredCurrencies = <CryptoCurrency>[
     CryptoCurrency.xrp,
@@ -467,8 +467,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final _isoUtcDeadline = _buildDeadline();
     final appFees = [
       {
-        "recipient": _appFeeRecipient,
-        "fee": _appFees,
+        "recipient": _appFeeRecipientNearIntents,
+        "fee": _appFeesNearIntents,
       }
     ];
 
