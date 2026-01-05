@@ -180,6 +180,7 @@ jobs:
           echo "const kryptonimApiKey = '${{ secrets.KRYPTONIM_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const walletGroupSalt = '${{ secrets.WALLET_GROUP_SALT }}';" >> lib/.secrets.g.dart
           echo "const swapsXyzApiKey = '${{ secrets.SWAPSXYZ_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const nearIntentsBearerToken = '${{ secrets.NEAR_INTENTS_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
 
       - name: Fetch prebuilt Torch
         run: |

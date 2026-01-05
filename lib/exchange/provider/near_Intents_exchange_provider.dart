@@ -22,7 +22,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
   static const List<CryptoCurrency> _notSupported = [];
 
-  //static const apiKey = secrets.nearIntentsBearerToken;
+  static const apiKey = secrets.nearIntentsBearerToken;
   static const _baseUrl = '1click.chaindefuser.com';
   static const _versionPath = '/v0';
   static const _tokenPath = '/tokens';
@@ -30,6 +30,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const _statusPath = '/status';
 
   static const _slippageTolerance = 100; // 1%
+  static const _appFees = 100; // 1%
+  static const _appFeeRecipient = '0x09c8e7b234540821b1dd1c6035fc92259f126077';
 
   static const _memoRequiredCurrencies = <CryptoCurrency>[
     CryptoCurrency.xrp,
@@ -73,7 +75,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static final Map<String, String> _headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    //'Authorization': 'Bearer $apiKey',
+    'Authorization': '$apiKey',
   };
 
   static final _supportedTokensList = <Token>[];
@@ -460,10 +462,15 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     String? deadline,
     String? referral,
     int? quoteWaitingTimeMs,
-    List<Map<String, dynamic>>? appFees,
   }) async {
     final swapType = isFixedRateMode ? 'EXACT_OUTPUT' : 'EXACT_INPUT';
     final _isoUtcDeadline = _buildDeadline();
+    final appFees = [
+      {
+        "recipient": _appFeeRecipient,
+        "fee": _appFees,
+      }
+    ];
 
     final uri = Uri.https(_baseUrl, "$_versionPath$_quotePath");
 
@@ -491,7 +498,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       if (deadline != null) "deadline": deadline,
       if (referral != null) "referral": referral,
       if (quoteWaitingTimeMs != null) "quoteWaitingTimeMs": quoteWaitingTimeMs,
-      if (appFees != null) "appFees": appFees,
+      "appFees": appFees,
     };
 
     try {
