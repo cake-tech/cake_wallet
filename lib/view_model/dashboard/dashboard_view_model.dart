@@ -1278,8 +1278,10 @@ abstract class DashboardViewModelBase with Store {
           'csvContent preview: ${csvContent.substring(0, csvContent.length > 500 ? 500 : csvContent.length)}');
       // Save or share file based on platform
       if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-      } else {
+        // TODO: Test implementations on desktop platforms
         await _saveCSVToFile(csvContent);
+      } else {
+        // await _saveCSVToFile(csvContent); -- mobile file saving isn't really useful
         await _shareCSVFile(csvContent);
       }
     } catch (e) {
