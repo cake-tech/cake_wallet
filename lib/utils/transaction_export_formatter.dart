@@ -1,3 +1,4 @@
+import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -34,12 +35,13 @@ Swaps
 class TransactionExportData {
   TransactionExportData({
     required this.timestamp,
+    required this.txId,
     required this.amount,
+    required this.fee,
     required this.type,
     required this.height,
+    required this.note,
     required this.confirmations,
-    required this.txId,
-    required this.fee,
     required this.subwalletNumber,
     required this.key,
     required this.recipientAddress,
@@ -47,12 +49,13 @@ class TransactionExportData {
   });
 
   final String timestamp;
+  final String txId;
   final String amount;
+  final String fee;
   final String type;
   final String height;
+  final String note;
   final String confirmations;
-  final String txId;
-  final String fee;
   final String subwalletNumber;
   final String key;
   final String recipientAddress;
@@ -62,12 +65,12 @@ class TransactionExportData {
   String toCsvRow() {
     return [
       _escapeCsvField(timestamp),
+      _escapeCsvField(txId),
       _escapeCsvField(amount),
+      _escapeCsvField(fee),
       _escapeCsvField(type),
       _escapeCsvField(height),
       _escapeCsvField(confirmations),
-      _escapeCsvField(txId),
-      _escapeCsvField(fee),
       _escapeCsvField(subwalletNumber),
       _escapeCsvField(key),
       _escapeCsvField(recipientAddress),
@@ -79,12 +82,12 @@ class TransactionExportData {
   Map<String, dynamic> toJson() {
     return {
       'timestamp': timestamp,
+      'txId': txId,
       'amount': amount,
+      'fee': fee,
       'type': type,
       'height': height,
       'confirmations': confirmations,
-      'txId': txId,
-      'fee': fee,
       'subwalletNumber': subwalletNumber,
       'key': key,
       'recipientAddress': recipientAddress,
@@ -96,15 +99,18 @@ class TransactionExportData {
   /// Wraps in quotes if contains comma, newline, or quote
   /// Doubles internal quotes
   static String _escapeCsvField(String field) {
-    if (field.contains(',') || field.contains('\n') || field.contains('"') || field.contains('\r')) {
+    if (field.contains(',') ||
+        field.contains('\n') ||
+        field.contains('"') ||
+        field.contains('\r')) {
       return '"${field.replaceAll('"', '""')}"';
     }
     return field;
   }
 
-  /// Returns CSV header row
+  /// Returns generic CSV header row
   static String csvHeader() {
-    return 'Timestamp,Transaction Amount,Type,Block Height,Confirmations,Transaction ID,Fee,Subwallet Number,Key,Recipient Address,Explorer Link';
+    return 'Timestamp,Transaction ID,Amount,Fee,Type,Block Height,Confirmations,Subwallet Number,Key,Recipient Address,Explorer Link';
   }
 }
 
@@ -193,9 +199,10 @@ class TransactionExportFormatter {
       final fee = moneroProp.feeFormatted?.toString() ?? 'N/A';
       final subwalletNumber = moneroProp.addressIndex?.toString() ?? 'N/A';
       final key = moneroProp.key?.toString() ?? 'N/A';
-
+      final note = moneroProp.note?.toString() ?? '';
       // Override recipient address if available in Monero tx
-      if (moneroProp.recipientAddress != null && moneroProp.recipientAddress.toString().isNotEmpty) {
+      if (moneroProp.recipientAddress != null &&
+          moneroProp.recipientAddress.toString().isNotEmpty) {
         recipientAddress = moneroProp.recipientAddress.toString();
       }
 
@@ -206,6 +213,7 @@ class TransactionExportFormatter {
         amount: amount,
         type: type,
         height: height,
+        note: note,
         confirmations: confirmations,
         txId: txId,
         fee: fee,
@@ -227,27 +235,31 @@ class TransactionExportFormatter {
     String recipientAddress,
   ) {
     try {
-      final dynamic wowneroProp = tx;
+      final dynamic moneroProp = tx;
 
-      final amount = wowneroProp.amountFormatted?.toString() ?? 'N/A';
-      final height = wowneroProp.height?.toString() ?? 'N/A';
-      final confirmations = wowneroProp.confirmations?.toString() ?? 'N/A';
-      final txId = wowneroProp.txHash?.toString() ?? tx.id;
-      final fee = wowneroProp.feeFormatted?.toString() ?? 'N/A';
-      final subwalletNumber = wowneroProp.addressIndex?.toString() ?? 'N/A';
-      final key = wowneroProp.key?.toString() ?? 'N/A';
-
-      if (wowneroProp.recipientAddress != null && wowneroProp.recipientAddress.toString().isNotEmpty) {
-        recipientAddress = wowneroProp.recipientAddress.toString();
+      //final amount = moneroProp.amountFormatted?.toString() ?? 'N/A';
+      final amount = tx.amountFormatted().toString();
+      final height = moneroProp.height?.toString() ?? 'N/A';
+      final confirmations = moneroProp.confirmations?.toString() ?? 'N/A';
+      final txId = moneroProp.txHash?.toString() ?? tx.id;
+      final fee = moneroProp.feeFormatted?.toString() ?? 'N/A';
+      final subwalletNumber = moneroProp.addressIndex?.toString() ?? 'N/A';
+      final key = moneroProp.key?.toString() ?? 'N/A';
+      final note = moneroProp.note?.toString() ?? '';
+      // Override recipient address if available in Monero tx
+      if (moneroProp.recipientAddress != null &&
+          moneroProp.recipientAddress.toString().isNotEmpty) {
+        recipientAddress = moneroProp.recipientAddress.toString();
       }
 
-      final explorerLink = txId != 'N/A' && txId != tx.id ? 'https://explore.wownero.com/tx/$txId' : 'N/A';
-
+      final explorerLink = txId != 'N/A' && txId != tx.id ? 'wowNero.wow/$txId' : 'N/A';
+      printV("Wownero: $amount");
       return TransactionExportData(
         timestamp: timestamp,
         amount: amount,
         type: type,
         height: height,
+        note: note,
         confirmations: confirmations,
         txId: txId,
         fee: fee,
@@ -277,6 +289,7 @@ class TransactionExportFormatter {
       final confirmations = electrumProp.confirmations?.toString() ?? 'N/A';
       final txId = tx.id;
       final fee = electrumProp.feeFormatted?.toString() ?? 'N/A';
+      final note = electrumProp.note?.toString() ?? '';
 
       // Try to get recipient from transaction
       if (electrumProp.to != null && electrumProp.to.toString().isNotEmpty) {
@@ -310,6 +323,7 @@ class TransactionExportFormatter {
         txId: txId,
         fee: fee,
         subwalletNumber: 'N/A',
+        note: note,
         key: 'N/A',
         recipientAddress: recipientAddress,
         explorerLink: explorerLink,
@@ -319,7 +333,7 @@ class TransactionExportFormatter {
     }
   }
 
-  /// Formats EVM chain transaction (Ethereum, Polygon, Arbitrum, Base)
+  /// Formats EVM chain transaction (Ethereum, Polygon, Arbitrum, etc)
   static TransactionExportData _formatEVMTransaction(
     TransactionInfo tx,
     String timestamp,
@@ -334,6 +348,7 @@ class TransactionExportFormatter {
       final height = evmProp.height?.toString() ?? 'N/A';
       final confirmations = evmProp.confirmations?.toString() ?? 'N/A';
       final txId = tx.id;
+      final note = evmProp.note?.toString() ?? '';
       final fee = evmProp.feeFormatted?.toString() ?? 'N/A';
 
       if (evmProp.to != null && evmProp.to.toString().isNotEmpty) {
@@ -363,6 +378,7 @@ class TransactionExportFormatter {
         amount: amount,
         type: type,
         height: height,
+        note: note,
         confirmations: confirmations,
         txId: txId,
         fee: fee,
@@ -391,6 +407,7 @@ class TransactionExportFormatter {
       final confirmations = '1'; // Solana finality
       final txId = tx.id;
       final fee = solanaProp.feeFormatted?.toString() ?? 'N/A';
+      final note = solanaProp.note?.toString() ?? '';
 
       if (solanaProp.to != null && solanaProp.to.toString().isNotEmpty) {
         recipientAddress = solanaProp.to.toString();
@@ -403,6 +420,7 @@ class TransactionExportFormatter {
         amount: amount,
         type: type,
         height: height,
+        note: note,
         confirmations: confirmations,
         txId: txId,
         fee: fee,
@@ -431,6 +449,7 @@ class TransactionExportFormatter {
       final confirmations = '1';
       final txId = tx.id;
       final fee = tronProp.feeFormatted?.toString() ?? 'N/A';
+      final note = tronProp.note?.toString() ?? '';
 
       if (tronProp.to != null && tronProp.to.toString().isNotEmpty) {
         recipientAddress = tronProp.to.toString();
@@ -443,6 +462,7 @@ class TransactionExportFormatter {
         amount: amount,
         type: type,
         height: height,
+        note: note,
         confirmations: confirmations,
         txId: txId,
         fee: fee,
@@ -470,7 +490,7 @@ class TransactionExportFormatter {
       // final height = nanoProp.height?.toString() ?? 'N/A';
       // final confirmations = nanoProp.confirmed == true ? '1' : '0';
       // final txId = tx.id;
-      
+
       // if (nanoProp.to != null && nanoProp.to.toString().isNotEmpty) {
       //   recipientAddress = nanoProp.to.toString();
       // }
@@ -510,6 +530,7 @@ class TransactionExportFormatter {
       final confirmations = decredProp.confirmations?.toString() ?? 'N/A';
       final txId = tx.id;
       final fee = decredProp.feeFormatted?.toString() ?? 'N/A';
+      final note = decredProp.note?.toString() ?? '';
 
       if (decredProp.address != null && decredProp.address.toString().isNotEmpty) {
         recipientAddress = decredProp.address.toString();
@@ -522,6 +543,7 @@ class TransactionExportFormatter {
         amount: amount,
         type: type,
         height: height,
+        note: note,
         confirmations: confirmations,
         txId: txId,
         fee: fee,
@@ -542,11 +564,14 @@ class TransactionExportFormatter {
     String type,
     String recipientAddress,
   ) {
+    // To be finished
+
     return TransactionExportData(
       timestamp: timestamp,
       amount: 'N/A',
       type: type,
       height: 'N/A',
+      note: '',
       confirmations: 'N/A',
       txId: tx.id,
       fee: 'N/A',
