@@ -337,7 +337,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
         from: request.fromCurrency,
         to: request.toCurrency,
         provider: description,
-        inputAddress: request.refundAddress,
+        inputAddress: request.toAddress,
         refundAddress: request.refundAddress,
         state: TradeState.created,
         createdAt: DateTime.now(),
