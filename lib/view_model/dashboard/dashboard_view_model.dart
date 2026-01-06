@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io' show Platform, File, Directory;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/main.dart' show navigatorKey;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
@@ -20,6 +21,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/utils/swap_export_formatter.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
@@ -71,8 +73,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cake_wallet/core/trade_monitor.dart';
-
-import 'package:cake_wallet/view_model/dashboard/export_option.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -350,6 +350,7 @@ abstract class DashboardViewModelBase with Store {
           icon: Icons.table_chart,
           onTap: () => exportTransactionsAsCSV(),
         ),
+        // temporarily using for debug, expose these options
         ExportOption(
           title: 'Export as JSON',
           icon: Icons.code,
@@ -360,6 +361,11 @@ abstract class DashboardViewModelBase with Store {
           icon: Icons.content_copy,
           onTap: () => exportToClipboard(),
         ),
+        ExportOption(
+          title: 'Export Swaps',
+          icon: Icons.swap_horiz_outlined,
+          onTap: () => exportSwaps(),
+        )
       ],
     };
   }
@@ -1113,6 +1119,7 @@ abstract class DashboardViewModelBase with Store {
         context: context,
         builder: (BuildContext context) {
           return AlertWithOneAction(
+            return AlertWithOneAction(
               alertTitle: S.of(context).tor_connection,
               alertContent: S.of(context).tor_experimental,
               buttonText: S.of(context).ok,
@@ -1245,10 +1252,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   // Export functionality
-  // TODO: Add user-cancellable exports with cancel button
-  // TODO: Add error retry dialogs with retry option
-  // TODO: Add progress percentage reporting during export
-
+  // KB: TODO: - Move to TransactionExportFormatter class
+  // - Replace currently implemented sharing dialogue with the AlertWithTwoPopups widget used for Export Backup
   @action
   Future<void> exportTransactionsAsCSV() async {
     if (isExporting) return;
@@ -1266,7 +1271,7 @@ abstract class DashboardViewModelBase with Store {
         return TransactionExportFormatter.formatTransaction(tx, wallet.type);
       }).toList();
 
-      // Build CSV string directly (no isolate needed for this)
+      // Build CSV string
       final buffer = StringBuffer();
       buffer.writeln(TransactionExportData.csvHeader());
       for (final data in formattedData) {
@@ -1296,6 +1301,7 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  // KB: TODO: Either delete, or move to TransactionExportFormatter class for debug purposes
   @action
   Future<void> exportTransactionsAsJSON() async {
     if (isExporting) return;
@@ -1336,6 +1342,60 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  // KB: TODO: Move to SwapExporter class
+  // Replace the debug with the AlertWithTwoPopups widget used for Export Backup
+  @action
+  Future<dynamic> exportSwaps() async {
+    if (isExporting) return;
+
+    try {
+      isExporting = true;
+
+      final swaps = await tradesStore.trades
+          .where((trade) => trade.trade.walletId == wallet.id)
+          .toList(); // gives a TradeListItem
+      // Given the above, we can iterate through trade data
+      for (var item in swaps) {
+        printV('Swap: ${item.trade.id}, Status: ${item.trade.receiveAmount}');
+      }
+
+      final buffer = StringBuffer();
+
+      buffer.writeln(SwapExportData.csvHeader());
+      for (final data in swaps) {
+         buffer.writeln(SwapExportData.formatSwap(data.trade));
+      }
+
+      final csvContent = buffer.toString();
+
+      printV(csvContent);
+      // KB: TODO: Used this method during development for debugging
+      // Replace this with the AlertWithTwoPopups widget used for Export Backup
+      await ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: csvContent));
+
+      // Save or share file based on platform
+      // if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      //   await _saveJSONToFile(jsonContent);
+      // } else {
+      //   await _shareJSONFile(jsonContent);
+      // }
+      return;
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: 'Export failed: ${e.toString()}',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+      printV(e.toString());
+      rethrow;
+    } finally {
+      isExporting = false;
+    }
+  }
+
+  // Export functionality
+  // KB: TODO: Move to TransactionExportFormatter class
+  // - Replace currently implemented sharing dialogue with the AlertWithTwoPopups widget used for Export Backup
   @action
   Future<void> exportToClipboard() async {
     if (isExporting) return;
@@ -1347,13 +1407,12 @@ abstract class DashboardViewModelBase with Store {
       final sortedTransactions = [...allTransactions]..sort((a, b) => a.date.compareTo(b.date));
 
       isExporting = true;
-
-      // Format transactions in main isolate
+      // Format transactions in main isolate - this shouldn't be too costly
       final formattedData = sortedTransactions.map((tx) {
         return TransactionExportFormatter.formatTransaction(tx, wallet.type);
       }).toList();
 
-      // Build CSV string directly (no isolate needed for this)
+      // Build CSV string
       final buffer = StringBuffer();
       buffer.writeln(TransactionExportData.csvHeader());
       for (final data in formattedData) {
@@ -1381,6 +1440,9 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  // Export functionality
+  // KB: TODO: - Move to TransactionExportFormatter class
+  // - Replace currently implemented sharing dialogue with the AlertWithTwoPopups widget used for Export Backup
   Future<void> _saveCSVToFile(String csvContent) async {
     // TODO: Test desktop file picker permissions on macOS/Linux
     try {
@@ -1406,6 +1468,7 @@ abstract class DashboardViewModelBase with Store {
       rethrow;
     }
   }
+
 
   Future<void> _saveJSONToFile(String jsonContent) async {
     try {

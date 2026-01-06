@@ -57,11 +57,7 @@ class SwapExportData {
   final String withdrawalTxId;
   final String? receiveAmount;
   final String? providerName;
-  // Rate calculation can be done inside a method
-
-  // final TradeState? state;
-  // final String? swapPair; // (from currency -> to currency)
-  // final String rate;
+  // Rate calculation will need to be done inside a method. I don't see us storing fees anywhere
 
   static String _escapeCsvField(String field) {
     if (field.contains(',') ||
@@ -72,19 +68,6 @@ class SwapExportData {
     }
     return field;
   }
-
-  // static String toCsvRow() {
-  //   return [
-  //     _escapeCsvField(createdAt.toString()),
-  //     _escapeCsvField(depositTxId ?? ''),
-  //     _escapeCsvField(amount),
-  //     _escapeCsvField("${from?.fullName} -> ${to?.fullName}"),
-  //     // _escapeCsvField(description),
-  //     _escapeCsvField(providerName ?? ''),
-  //     _escapeCsvField(withdrawalTxId),
-  //     _escapeCsvField(receiveAmount ?? ''),
-  //   ].join("','");
-  // }
 
   static String csvHeader() {
     return 'Created At,Deposit TXID,Amount,Swap Pair,Provider Name,Withdrawal TXID,Receive Amount,Exchange Rate';
@@ -100,16 +83,18 @@ class SwapExportData {
 
     static _formatSwapData(Trade trade, String rate) {
       return [
-        trade.createdAt?.toIso8601String() ?? 'N/A',
-        trade.txId ?? 'N/A',
-        trade.amount,
-        '${trade.from?.fullName ?? 'N/A'} -> ${trade.to?.fullName ?? 'N/A'}',
-        trade.providerName ?? 'N/A',
-        trade.outputTransaction ?? 'N/A',
-        trade.receiveAmount ?? 'N/A',
-        rate,
-      ];
+        _escapeCsvField(trade.createdAt?.toIso8601String() ?? 'N/A'),
+        _escapeCsvField(trade.txId ?? 'N/A'),
+        _escapeCsvField(trade.amount),
+        _escapeCsvField('${trade.from?.fullName ?? 'N/A'} -> ${trade.to?.fullName ?? 'N/A'}'),
+        _escapeCsvField(trade.providerName ?? 'N/A'),
+        _escapeCsvField(trade.outputTransaction ?? 'N/A'),
+        _escapeCsvField(trade.receiveAmount ?? 'N/A'),
+        _escapeCsvField(rate),
+        "\r\n"
+      ].join(',');
     }
+
   }
 
   /// Returns generic CSV header row

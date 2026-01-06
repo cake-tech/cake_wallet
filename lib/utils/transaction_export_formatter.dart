@@ -74,10 +74,12 @@ class TransactionExportData {
       _escapeCsvField(key),
       _escapeCsvField(recipientAddress),
       _escapeCsvField(explorerLink),
+      "\r\n"
     ].join(',');
   }
 
   /// Converts export data to JSON map
+  // KB: TODO: Either remove or use for debugging
   Map<String, dynamic> toJson() {
     return {
       'timestamp': timestamp,
