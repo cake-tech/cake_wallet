@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -48,22 +49,101 @@ Swaps
   Amount
   Provider
   Rate
-  
 
-  
 I'm considering supplementing with: 
   Block explorer, 
   Status,
   Note(?)
 
 */
+Future<void> displayData(data) async {
+  printV("Displaying data: $data");
+  return;
+}
 
 // Standardized transaction export data class containing all exportable fields
 class SwapExportData {
   SwapExportData({
-    
+    required this.createdAt,
+    required this.depositTxId,
+    required this.amount,
+    required this.from,
+    required this.to,
+    required this.withdrawalTxId,
+    required this.withdrawalAmount,
+    required this.provider,
+    required this.rate,
+    required this.status,
+    required this.explorerLink,
   });
 
+  // Use mobx field TradeMonitor / TradesStore for status?
+
+  final String amount;
+  final ExchangeProviderDescription? description;
+  final CryptoCurrency? from, to;
+  final String createdAt;
+  final TradeState? state;
+  final String depositTxId;
+  final String receiveAmount;
+  final String swapPair; // (from currency -> to currency)
+  final String withdrawalTxId;
+  final String withdrawalAmount;
+  final String provider;
+  final String rate;
+  final String status;
+  final String explorerLink;
+
+  String toCsvRow() {
+    return [
+      _escapeCsvField(depositTxId),
+      _escapeCsvField(amount),
+      _escapeCsvField(createdAt),
+      _escapeCsvField(fee),
+      _escapeCsvField(type),
+      _escapeCsvField(height),
+      _escapeCsvField(confirmations),
+      _escapeCsvField(subwalletNumber),
+      _escapeCsvField(key),
+      _escapeCsvField(recipientAddress),
+      _escapeCsvField(explorerLink),
+    ].join(',');
+  }
+
+  /// Returns generic CSV header row
+  static String csvHeader() {
+    return 'Timestamp,Transaction ID,Amount,Fee,Type,Block Height,Confirmations,Subwallet Number,Key,Recipient Address,Explorer Link';
+  }
+
+  /// Escapes CSV field according to RFC 4180
+  /// Wraps in quotes if contains comma, newline, or quote
+  /// Doubles internal quotes
+  static String _escapeCsvField(String field) {
+    if (field.contains(',') ||
+        field.contains('\n') ||
+        field.contains('"') ||
+        field.contains('\r')) {
+      return '"${field.replaceAll('"', '""')}"';
+    }
+    return field;
+  }
+
+  /// Converts export data to CSV row with RFC 4180 escaping
+  // String toCsvRow() {
+  //   return [
+  //     _escapeCsvField(timestamp),
+  //     _escapeCsvField(depositTxId),
+  //     _escapeCsvField(depositAmount),
+  //     _escapeCsvField(swapPair),
+  //     _escapeCsvField(withdrawalTxId),
+  //     _escapeCsvField(withdrawalAmount),
+  //     _escapeCsvField(provider),
+  //     _escapeCsvField(rate),
+  //     _escapeCsvField(status),
+  //     _escapeCsvField(explorerLink),
+  //   ].join(',');
+  // }
+}
 //   final String timestamp;
 //   final String txId;
 //   final String amount;
