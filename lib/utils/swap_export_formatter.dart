@@ -1,11 +1,40 @@
+import 'dart:async';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:hive/hive.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+// From trade_monitor.dart -- TODO: remove unused when finished
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
+// Prolly remove these, we'll see
+import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
+
+// From transactions export formatter -- TODO: remove unused when finished
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:intl/intl.dart';
 
-// KB: TODO: this approach is not ideal for wallets with large numbers of transactions
-// TODO: should we add a balance at time of transaction field?
+// KB: TODO: this approach may be intensive to run on wallets with large numbers of transactions
+// We could consider an approach that runs in an isolate, but that doesn't make sense because user has taken an action
+// to export transactions, so some delay is acceptable. We can optimize later if needed
 
 /*
 
@@ -14,30 +43,26 @@ Swaps
   Timestamp/date
   Deposit TXID
   Amount
-  Currency
+  From Currency -> To Currency (swap pair header row)
   Withdrawal TXID
   Amount
-  Currency
   Provider
   Rate
+  
+
+  
+I'm considering supplementing with: 
+  Block explorer, 
+  Status,
+  Note(?)
+
 */
 
-/// Standardized transaction export data class containing all exportable fields
-// class TransactionExportData {
-//   TransactionExportData({
-//     required this.timestamp,
-//     required this.txId,
-//     required this.amount,
-//     required this.fee,
-//     required this.type,
-//     required this.height,
-//     required this.note,
-//     required this.confirmations,
-//     required this.subwalletNumber,
-//     required this.key,
-//     required this.recipientAddress,
-//     required this.explorerLink,
-//   });
+// Standardized transaction export data class containing all exportable fields
+class SwapExportData {
+  SwapExportData({
+    
+  });
 
 //   final String timestamp;
 //   final String txId;
