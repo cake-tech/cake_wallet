@@ -2,6 +2,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_zcash/cw_zcash.dart';
+import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:warp_api/warp_api.dart';
 
@@ -32,6 +33,8 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     switch (addressPageType) {
       case ZcashAddressType.transparent:
         return transparentAddress;
+      case ZcashAddressType.transparentRotated:
+        return transparentAddressRotated;
       case ZcashAddressType.shieldedSapling:
         return saplingAddress;
       case ZcashAddressType.shieldedOrchard:
@@ -49,7 +52,6 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   Future<void> setAddressType(final ZcashAddressType type) async {
-    printV("I do not mind doing a print here $type");
     addressPageType = ZcashReceivePageOption.typeFromString(type.toString());
     walletInfo.addressPageType = type.toString();
     await walletInfo.save();
@@ -61,6 +63,15 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
         _transparentAddress = WarpApi.getTAddr(ZcashWalletBase.coin, accountId);
       }
       return _transparentAddress ?? "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  String get transparentAddressRotated {
+    try {
+      final addr = ZcashTaddressRotation.addressForAccount(accountId);
+      return addr ?? "please wait...";
     } catch (e) {
       return "";
     }

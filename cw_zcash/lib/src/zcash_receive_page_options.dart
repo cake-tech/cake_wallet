@@ -1,7 +1,7 @@
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 
-enum ZcashAddressType { transparent, shieldedSapling, shieldedOrchard, unifiedType }
+enum ZcashAddressType { transparent, transparentRotated, shieldedSapling, shieldedOrchard, unifiedType }
 
 class ZcashReceivePageOption implements ReceivePageOption {
   const ZcashReceivePageOption._(this.type);
@@ -10,6 +10,8 @@ class ZcashReceivePageOption implements ReceivePageOption {
     switch (type) {
       case ZcashAddressType.transparent:
         return transparent;
+      case ZcashAddressType.transparentRotated:
+        return transparentRotated;
       case ZcashAddressType.shieldedSapling:
         return shieldedSapling;
       case ZcashAddressType.shieldedOrchard:
@@ -19,6 +21,7 @@ class ZcashReceivePageOption implements ReceivePageOption {
     }
   }
   static const transparent = ZcashReceivePageOption._(ZcashAddressType.transparent);
+  static const transparentRotated = ZcashReceivePageOption._(ZcashAddressType.transparentRotated);
   static const shieldedSapling = ZcashReceivePageOption._(ZcashAddressType.shieldedSapling);
   static const shieldedOrchard = ZcashReceivePageOption._(ZcashAddressType.shieldedOrchard);
   static const unified = ZcashReceivePageOption._(ZcashAddressType.unifiedType);
@@ -26,7 +29,8 @@ class ZcashReceivePageOption implements ReceivePageOption {
   final ZcashAddressType type;
 
   String get value => switch (type) {
-    ZcashAddressType.transparent => "Transparent",
+    ZcashAddressType.transparent => "Transparent (Static)",
+    ZcashAddressType.transparentRotated => "Transparent (Disposable)",
     ZcashAddressType.shieldedSapling => "Shielded (Sapling)",
     ZcashAddressType.shieldedOrchard => "Shielded (Orchard)",
     ZcashAddressType.unifiedType => "Unified",
@@ -41,6 +45,7 @@ class ZcashReceivePageOption implements ReceivePageOption {
     ZcashReceivePageOption.shieldedOrchard,
     ZcashReceivePageOption.shieldedSapling,
     ZcashReceivePageOption.transparent,
+    ZcashReceivePageOption.transparentRotated,
   ];
 
   ZcashAddressType toType() {

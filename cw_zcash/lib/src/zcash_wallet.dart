@@ -17,6 +17,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_zcash/cw_zcash.dart';
+import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
 import 'package:mobx/mobx.dart';
 import 'package:warp_api/warp_api.dart';
@@ -260,9 +261,9 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
         to: tx.address ?? '',
         memo: tx.memo,
       );
-      if (txInfo.additionalInfo['autoShield'] == true) {
-        continue;
-      }
+      // if (txInfo.additionalInfo['autoShield'] == true) {
+      //   continue;
+      // }
       result[txInfo.id] = txInfo;
     }
 
@@ -394,12 +395,14 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
 
       syncStatus = SyncronizingSyncStatus();
 
-      unawaited(_runWarpSync().catchError((final e) {
-        isNodeWorking = false;
-        printV("WarpSync error in startSync: $e");
-        syncStatus = FailedSyncStatus(error: e.toString());
-        _stopSyncStatusUpdates();
-      }));
+      unawaited(
+        _runWarpSync().catchError((final e) {
+          isNodeWorking = false;
+          printV("WarpSync error in startSync: $e");
+          syncStatus = FailedSyncStatus(error: e.toString());
+          _stopSyncStatusUpdates();
+        }),
+      );
     } catch (e) {
       isNodeWorking = false;
       printV("Sync error: $e");
@@ -446,13 +449,11 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
       }
 
       unawaited(
-        Future.delayed(Duration(seconds: 5)).then((_) {
+        Future.delayed(Duration(seconds: 2)).then((_) {
           _t = Timer.periodic(Duration(milliseconds: 100), _cancelSyncIfShould);
         }),
       );
-      final result = await ZcashWalletService.runInDbMutex(
-        () => WarpApi.warpSync(coin, accountId, true, 0, 100000, 0),
-      );
+      final result = await ZcashWalletService.runInDbMutex(() => WarpApi.warpSync(coin, accountId, true, 0, 100000, 0));
       printV("warpSync completed with result: $result");
 
       await _updateSyncStatus();
@@ -649,7 +650,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
     final recipient = Recipient(recipientBuilder.toBytes());
     final fee = FeeT(fee: 10000, minFee: 0, maxFee: 0, scheme: 0);
     final txPlan = await ZcashWalletService.runInDbMutex(
-      () async => WarpApi.prepareTx(
+      () => WarpApi.prepareTx(
         coin,
         accountId,
         [recipient],
@@ -789,7 +790,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
       passphrase = passphrase!.replaceAll(" ", "_");
       seed = "${seed} ${passphrase}";
     }
-    final accountId = await ZcashWalletService.runInDbMutex(() async => WarpApi.newAccount(coin, name, seed, 0));
+    final accountId = await ZcashWalletService.runInDbMutex(() => WarpApi.newAccount(coin, name, seed, 0));
     return accountId;
   }
 
@@ -859,12 +860,16 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
     if (_password == null) {
       throw Exception("Zcash wallet locked! Please contact support");
     }
-    WarpApi.setDbPasswd(coin, _password!+";cw_zcash");
+    if (!File(dbDataPath!).existsSync()) {
+      //TODO(mrcyjanek): copy-encrypt
+    }
+    WarpApi.setDbPasswd(coin, _password! + ";cw_zcash");
     WarpApi.initWallet(coin, dbDataPath!);
-    WarpApi.setDbPasswd(coin, _password!+";cw_zcash");
+    WarpApi.setDbPasswd(coin, _password! + ";cw_zcash");
     final spend = await rootBundle.load('scripts/zcash_lib/assets/sapling-spend.params');
     final output = await rootBundle.load('scripts/zcash_lib/assets/sapling-output.params');
     WarpApi.initProver(spend.buffer.asUint8List(), output.buffer.asUint8List());
+    await ZcashTaddressRotation.init();
     _initialized = true;
   }
 }
