@@ -202,7 +202,7 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
   }
 
   String? _getChainImagePath(int chainId) {
-    return getChainMonoImage(WalletType.evm, selectedChainId: chainId);
+    return getChainMonoImage(WalletType.ethereum, selectedChainId: chainId);
   }
 
   void _showTokenSelection(BuildContext context) async {
@@ -242,7 +242,7 @@ class _EVMPaymentFlowContentState extends State<_EVMPaymentFlowContent> {
 
     final allEVMWallets = await widget.paymentViewModel.getEVMCompatibleWallets();
 
-    final walletType = evm!.getWalletTypeByChainId(selectedChainId!) ?? WalletType.evm;
+    final walletType = evm!.getWalletTypeByChainId(selectedChainId!) ?? WalletType.ethereum;
 
     final detectionResult = AddressDetectionResult(
       address: widget.paymentRequest.address,

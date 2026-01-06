@@ -596,7 +596,7 @@ abstract class WalletKitServiceBase with Store {
 
   String getKeyForStoringTopicsForWallet() {
     try {
-      // For EVM wallets (both WalletType.evm and old types), use getKeys() to get all EVM keys
+      // For EVM wallets, use getKeys() to get all EVM keys
       // since the same address works across all EVM chains. For non-EVM wallets, use getKeysForChain()
       // to get keys specific to the current chain.
       List<ChainKeyModel> chainKeys;

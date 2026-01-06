@@ -18,13 +18,6 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.ltc;
     case WalletType.haven:
       return CryptoCurrency.xhv;
-    case WalletType.evm:
-      if (chainId == null) {
-        throw Exception(
-          'chainId required for WalletType.evm. Use wallet.currency instead of walletTypeToCryptoCurrency(wallet.type) for EVM wallets.',
-        );
-      }
-      return getCryptoCurrencyByChainId(chainId);
     case WalletType.ethereum:
       return CryptoCurrency.eth;
     case WalletType.base:

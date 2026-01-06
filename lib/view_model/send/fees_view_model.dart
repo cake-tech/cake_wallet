@@ -86,7 +86,6 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         return transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
       case WalletType.litecoin:
         return transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
-      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
@@ -192,7 +191,6 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.litecoin:
         _settingsStore.setPriority(wallet.type, bitcoin!.getLitecoinTransactionPriorityMedium());
         break;
-      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:

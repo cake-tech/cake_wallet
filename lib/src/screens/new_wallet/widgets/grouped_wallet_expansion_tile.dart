@@ -124,10 +124,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                         : SizedBox(width: 7),
                     SizedBox(width: 24),
                     Image.asset(
-                      walletTypeToCryptoCurrency(
-                        item.type,
-                        chainId: item.type == WalletType.evm ? 1 : null,
-                      ).iconPath!,
+                      walletTypeToCryptoCurrency(item.type).iconPath!,
                       width: 32,
                       height: 32,
                     ),

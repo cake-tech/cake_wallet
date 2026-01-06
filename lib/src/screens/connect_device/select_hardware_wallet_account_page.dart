@@ -151,7 +151,6 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                           image: Image.asset(
                             walletTypeToCryptoCurrency(
                               _walletHardwareRestoreVM.type,
-                              chainId: _walletHardwareRestoreVM.type == WalletType.evm ? 1 : null,
                             ).iconPath ?? '',
                             height: 24,
                             width: 24,

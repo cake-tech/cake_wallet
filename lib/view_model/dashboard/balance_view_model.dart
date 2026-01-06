@@ -173,7 +173,6 @@ abstract class BalanceViewModelBase with Store {
   String get additionalBalanceLabel {
     switch (wallet.type) {
       case WalletType.haven:
-      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:

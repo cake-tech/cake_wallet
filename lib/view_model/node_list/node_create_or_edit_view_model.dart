@@ -78,7 +78,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   bool get hasPathSupport {
     switch (_walletType) {
-      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:

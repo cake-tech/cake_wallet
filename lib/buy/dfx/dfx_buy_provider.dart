@@ -133,7 +133,6 @@ class DFXBuyProvider extends BuyProvider {
 
   Future<String> getSignature(String message, String walletAddress) async {
     switch (wallet.type) {
-      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:

@@ -1298,17 +1298,14 @@ abstract class EVMChainWalletBase
 
     final registry = EvmChainRegistry();
 
-    // For old wallet types (base, ethereum, polygon, arbitrum), always default to their
-    // wallet type's chainId when opening, ignoring any saved chainId.
-    // Users can then switch chains if desired.
-    // For WalletType.evm, use saved chainId or default to Ethereum (1)
-    final chainId = walletInfo.type == WalletType.evm
-        ? (savedChainId ?? 1)
-        : registry.getChainConfigByWalletType(walletInfo.type)?.chainId;
-
-    if (chainId == null) {
+    // Get chainId from wallet type, use saved chainId if available (for chain switching)
+    final defaultChainId = registry.getChainConfigByWalletType(walletInfo.type)?.chainId;
+    if (defaultChainId == null) {
       throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
     }
+
+    // Use saved chainId if available, otherwise default to wallet type's chainId
+    final chainId = savedChainId ?? defaultChainId;
 
     final chainConfig = registry.getChainConfig(chainId);
     if (chainConfig == null) {
@@ -1317,11 +1314,8 @@ abstract class EVMChainWalletBase
 
     final client = EVMChainClientFactory.createClient(chainId);
 
-    // For old wallet types, always use the wallet type's chainId as initialChainId
-    // (ignoring savedChainId to ensure they default to their specific chain)
-    // For WalletType.evm, use savedChainId if available, otherwise the computed chainId
-    final initialChainIdForWallet =
-        walletInfo.type == WalletType.evm ? (savedChainId ?? chainId) : chainId;
+    // Use saved chainId if available, otherwise use the computed chainId
+    final initialChainIdForWallet = savedChainId ?? chainId;
 
     return EVMChainWallet(
       walletInfo: walletInfo,

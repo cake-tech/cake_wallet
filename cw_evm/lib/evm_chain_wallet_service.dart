@@ -29,11 +29,7 @@ class EVMChainWalletService extends WalletService<
   final EvmChainRegistry _registry = EvmChainRegistry();
 
   List<WalletType> get _evmWalletTypes {
-    final registeredTypes = _registry.getRegisteredWalletTypes();
-    if (!registeredTypes.contains(WalletType.evm)) {
-      return [...registeredTypes, WalletType.evm];
-    }
-    return registeredTypes;
+    return _registry.getRegisteredWalletTypes();
   }
 
   Future<WalletInfo?> _findWalletByName(String name) async {
@@ -94,22 +90,20 @@ class EVMChainWalletService extends WalletService<
     bool? isTestnet,
   }) async {
     final walletInfo = credentials.walletInfo!;
-    const initialChainId = 1;
 
-    // Force WalletType.evm for new wallets
-    walletInfo.type = WalletType.evm;
-
-    final chainConfig = _registry.getChainConfig(initialChainId);
+    // Get chainId from wallet type
+    final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception('Chain config not found for chainId: $initialChainId');
+      throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
     }
+    final initialChainId = chainConfig.chainId;
 
     final client = EVMChainClientFactory.createClient(initialChainId);
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
     final mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
 
     final wallet = _createWalletInstance(
-      walletType: WalletType.evm,
+      walletType: walletInfo.type,
       walletInfo: walletInfo,
       derivationInfo: await walletInfo.getDerivationInfo(),
       mnemonic: mnemonic,
@@ -196,20 +190,18 @@ class EVMChainWalletService extends WalletService<
     bool? isTestnet,
   }) async {
     final walletInfo = credentials.walletInfo!;
-    const initialChainId = 1;
 
-    // Force WalletType.evm for new restores
-    walletInfo.type = WalletType.evm;
-
-    final chainConfig = _registry.getChainConfig(initialChainId);
+    // Get chainId from wallet type
+    final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception('Chain config not found for chainId: $initialChainId');
+      throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
     }
+    final initialChainId = chainConfig.chainId;
 
     final client = EVMChainClientFactory.createClient(initialChainId);
 
     final wallet = _createWalletInstance(
-      walletType: WalletType.evm,
+      walletType: walletInfo.type,
       walletInfo: walletInfo,
       derivationInfo: await walletInfo.getDerivationInfo(),
       mnemonic: credentials.mnemonic,
@@ -232,20 +224,18 @@ class EVMChainWalletService extends WalletService<
     bool? isTestnet,
   }) async {
     final walletInfo = credentials.walletInfo!;
-    const initialChainId = 1;
 
-    // Force WalletType.evm for new restores
-    walletInfo.type = WalletType.evm;
-
-    final chainConfig = _registry.getChainConfig(initialChainId);
+    // Get chainId from wallet type
+    final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception('Chain config not found for chainId: $initialChainId');
+      throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
     }
+    final initialChainId = chainConfig.chainId;
 
     final client = EVMChainClientFactory.createClient(initialChainId);
 
     final wallet = _createWalletInstance(
-      walletType: WalletType.evm,
+      walletType: walletInfo.type,
       walletInfo: walletInfo,
       derivationInfo: await walletInfo.getDerivationInfo(),
       privateKey: credentials.privateKey,
@@ -266,15 +256,13 @@ class EVMChainWalletService extends WalletService<
     EVMChainRestoreWalletFromHardware credentials,
   ) async {
     final walletInfo = credentials.walletInfo!;
-    const initialChainId = 1;
 
-    // Force WalletType.evm for new restores
-    walletInfo.type = WalletType.evm;
-
-    final chainConfig = _registry.getChainConfig(initialChainId);
+    // Get chainId from wallet type
+    final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception('Chain config not found for chainId: $initialChainId');
+      throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
     }
+    final initialChainId = chainConfig.chainId;
 
     final client = EVMChainClientFactory.createClient(initialChainId);
     final derivationInfo = await walletInfo.getDerivationInfo();
@@ -286,7 +274,7 @@ class EVMChainWalletService extends WalletService<
     await walletInfo.save();
 
     final wallet = _createWalletInstance(
-      walletType: WalletType.evm,
+      walletType: walletInfo.type,
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
       password: credentials.password!,
@@ -334,13 +322,10 @@ class EVMChainWalletService extends WalletService<
     String? passphrase,
     int? initialChainId,
   }) {
-    final chainConfig = walletType == WalletType.evm
-        ? (initialChainId != null ? _registry.getChainConfig(initialChainId) : null)
-        : _registry.getChainConfigByWalletType(walletType);
+    final chainConfig = _registry.getChainConfigByWalletType(walletType);
 
     if (chainConfig == null) {
-      throw Exception(
-          'Chain config not found for wallet type: $walletType${initialChainId != null ? ", chainId: $initialChainId" : ""}');
+      throw Exception('Chain config not found for wallet type: $walletType');
     }
 
     return EVMChainWallet(

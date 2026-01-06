@@ -140,7 +140,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: address.address);
       case WalletType.ethereum:
-      case WalletType.evm:
         return EthereumURI(amount: amount, address: address.address);
       case WalletType.bitcoinCash:
         return BitcoinCashURI(amount: amount, address: address.address);

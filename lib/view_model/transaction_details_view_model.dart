@@ -72,7 +72,6 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
-      case WalletType.evm:
         _addEVMListItems(tx, dateFormat);
         break;
       case WalletType.nano:
@@ -189,7 +188,6 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.haven:
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
       case WalletType.ethereum:
-      case WalletType.evm:
         return 'https://etherscan.io/tx/${txId}';
       case WalletType.base:
         return 'https://basescan.org/tx/${txId}';
@@ -238,7 +236,6 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
       case WalletType.ethereum:
-      case WalletType.evm:
         return S.current.view_transaction_on + 'etherscan.io';
       case WalletType.nano:
         return S.current.view_transaction_on + 'nanexplorer.com';

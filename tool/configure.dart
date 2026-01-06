@@ -1683,9 +1683,8 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.bitcoin,\n';
   }
 
-  final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum;
-  if (hasEVM) {
-    outputContent += '\tWalletType.evm,\n';
+  if (hasEthereum) {
+    outputContent += '\tWalletType.ethereum,\n';
   }
 
   if (hasBitcoin) {
@@ -1696,8 +1695,20 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.dogecoin,\n';
   }
 
+  if (hasBase) {
+    outputContent += '\tWalletType.base,\n';
+  }
+
+  if (hasArbitrum) {
+    outputContent += '\tWalletType.arbitrum,\n';
+  }
+
   if (hasBitcoinCash) {
     outputContent += '\tWalletType.bitcoinCash,\n';
+  }
+
+  if (hasPolygon) {
+    outputContent += '\tWalletType.polygon,\n';
   }
 
   if (hasSolana) {

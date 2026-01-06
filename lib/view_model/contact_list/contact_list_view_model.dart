@@ -49,7 +49,6 @@ abstract class ContactListViewModelBase with Store {
               name,
               walletTypeToCryptoCurrency(
                 info.type,
-                chainId: info.type == WalletType.evm ? evm!.getChainIdByWalletType(info.type) : null,
               ),
               walletType: info.type,
             ));
@@ -65,7 +64,6 @@ abstract class ContactListViewModelBase with Store {
             name,
             walletTypeToCryptoCurrency(
               info.type,
-              chainId: info.type == WalletType.evm ? evm!.getChainIdByWalletType(info.type) : null,
             ),
             walletType: info.type,
           ));
@@ -78,12 +76,11 @@ abstract class ContactListViewModelBase with Store {
             walletContacts.add(WalletContact(
               address,
               name,
-              walletTypeToCryptoCurrency(
-                info.type,
-                isTestnet:
-                    info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
-                chainId: info.type == WalletType.evm ? evm!.getChainIdByWalletType(info.type) : null,
-              ),
+          walletTypeToCryptoCurrency(
+            info.type,
+            isTestnet:
+                info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
+          ),
               walletType: info.type,
             ));
           });
@@ -97,7 +94,6 @@ abstract class ContactListViewModelBase with Store {
                   : null),
           walletTypeToCryptoCurrency(
             info.type,
-            chainId: info.type == WalletType.evm ? evm!.getChainIdByWalletType(info.type) : null,
           ),
           walletType: info.type,
         ));
@@ -183,20 +179,14 @@ abstract class ContactListViewModelBase with Store {
 
       final currentWalletType = _getWalletTypeFromCurrency(_currency);
 
-      // For WalletType.evm: show all EVM-compatible wallet contacts
-      // If we can't determine the wallet type from currency, assume it's WalletType.evm
-      if (currentWalletType == null || currentWalletType == WalletType.evm) {
+      // If we can't determine the wallet type from currency, show all EVM-compatible wallets
+      if (currentWalletType == null) {
         return isEVMCompatibleChain(contactWalletType);
       }
 
-      // For old individual EVM types (ethereum, polygon, base, arbitrum):
-      // Show wallets that match that wallet type, plus WalletType.evm wallets
+      // For EVM wallet types: show all EVM-compatible wallets
       if (isEVMCompatibleChain(currentWalletType)) {
-        if (contactWalletType == currentWalletType) {
-          return true;
-        }
-        // Also show WalletType.evm wallets (they can switch to any chain including this one)
-        if (contactWalletType == WalletType.evm) {
+        if (isEVMCompatibleChain(contactWalletType)) {
           return true;
         }
       }
@@ -206,18 +196,17 @@ abstract class ContactListViewModelBase with Store {
   }
 
   /// Get wallet type from currency (for EVM currencies)
-  /// Returns null if currency doesn't correspond to a specific old wallet type
-  /// (null means it could be WalletType.evm or we can't determine)
+  /// Returns null if currency doesn't correspond to a specific wallet type
   WalletType? _getWalletTypeFromCurrency(CryptoCurrency currency) {
     // ERC20 tokens don't have a specific wallet type - they could be from any EVM chain
     if (currency is Erc20Token) {
       return null;
     }
 
-    // Check for native EVM currencies with tags that indicate old wallet types
+    // Check for native EVM currencies with tags that indicate wallet types
     final tag = currency.tag?.toUpperCase();
 
-    // Currencies with tags (POL, BASE, ARB) indicate old wallet types
+    // Currencies with tags (POL, BASE, ARB) indicate wallet types
     if (tag == 'POL') {
       return WalletType.polygon;
     }
@@ -228,10 +217,9 @@ abstract class ContactListViewModelBase with Store {
       return WalletType.arbitrum;
     }
 
-    // ETH without a tag could be either WalletType.ethereum or WalletType.evm
-    // We can't determine, so return null (will be treated as WalletType.evm)
+    // ETH without a tag defaults to WalletType.ethereum
     if (currency == CryptoCurrency.eth) {
-      return null; // Could be WalletType.ethereum or WalletType.evm
+      return WalletType.ethereum;
     }
 
     // MATIC/Polygon currencies
@@ -252,8 +240,7 @@ abstract class ContactListViewModelBase with Store {
     if (chainId != null) {
       // Get wallet type from chainId
       final walletType = evm!.getWalletTypeByChainId(chainId);
-      // Only return old wallet types, not WalletType.evm
-      if (walletType != null && walletType != WalletType.evm) {
+      if (walletType != null) {
         return walletType;
       }
     }

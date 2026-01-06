@@ -87,7 +87,6 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
         return bitcoin!.getBitboxHardwareWalletService(bitboxManager, true);
       case WalletType.litecoin:
         return bitcoin!.getBitboxHardwareWalletService(bitboxManager, false);
-      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.getBitboxHardwareWalletService(bitboxManager);
@@ -102,7 +101,6 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
-      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));

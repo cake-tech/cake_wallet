@@ -185,7 +185,6 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
         return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.litecoin:
         return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
-      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
@@ -201,7 +200,6 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
         return bitcoin!.getLedgerHardwareWalletService(connection, true);
       case WalletType.litecoin:
         return bitcoin!.getLedgerHardwareWalletService(connection, false);
-      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.getLedgerHardwareWalletService(connection);

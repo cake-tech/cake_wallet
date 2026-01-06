@@ -2,7 +2,6 @@ import 'package:cw_core/wallet_type.dart';
 
 bool isBIP39Wallet(WalletType walletType) {
   switch (walletType) {
-    case WalletType.evm:
     case WalletType.ethereum:
     case WalletType.polygon:
     case WalletType.base:
@@ -39,7 +38,6 @@ bool isElectrumWallet(WalletType walletType) {
 
 bool hasTokens(WalletType walletType) {
   switch (walletType) {
-    case WalletType.evm:
     case WalletType.ethereum:
     case WalletType.polygon:
     case WalletType.solana:

@@ -229,9 +229,6 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.ethereum] = initialEthereumTransactionPriority;
     }
 
-    if (initialEVMTransactionPriority != null) {
-      priority[WalletType.evm] = initialEVMTransactionPriority;
-    }
 
     if (initialPolygonTransactionPriority != null) {
       priority[WalletType.polygon] = initialPolygonTransactionPriority;
@@ -296,7 +293,6 @@ abstract class SettingsStoreBase with Store {
         case WalletType.haven:
           key = PreferencesKey.havenTransactionPriority;
           break;
-        case WalletType.evm:
         case WalletType.ethereum:
           key = PreferencesKey.ethereumTransactionPriority;
           break;
@@ -961,7 +957,7 @@ abstract class SettingsStoreBase with Store {
         }
       }
 
-      throw Exception('No node found for WalletType.evm with chainId: $chainId');
+      throw Exception('No node found for EVM wallet type with chainId: $chainId');
     }
 
     final node = nodes[walletType];
@@ -999,37 +995,14 @@ abstract class SettingsStoreBase with Store {
 
   TransactionPriority? getPriority(WalletType walletType, {int? chainId}) {
     if (isEVMCompatibleChain(walletType)) {
-      if (chainId != null) {
-        if (!evm!.hasPriorityFee(chainId)) return null;
-
-        final chainSpecificWalletType = evm!.getWalletTypeByChainId(chainId);
-
-        if (chainSpecificWalletType != null) return priority[chainSpecificWalletType];
-
-        return priority[WalletType.evm];
-      }
-
+      if (chainId != null && !evm!.hasPriorityFee(chainId)) return null;
       return priority[walletType];
     }
 
     return priority[walletType];
   }
 
-  void setPriority(WalletType walletType, TransactionPriority priority, {int? chainId}) {
-    if (walletType == WalletType.evm && chainId != null) {
-      final chainSpecificWalletType = evm!.getWalletTypeByChainId(chainId);
-
-      if (chainSpecificWalletType != null) {
-        this.priority[chainSpecificWalletType] = priority;
-        return;
-      }
-
-      this.priority[WalletType.evm] = priority;
-      return;
-    }
-
-    this.priority[walletType] = priority;
-  }
+  void setPriority(WalletType walletType, TransactionPriority priority, {int? chainId}) => this.priority[walletType] = priority;
 
   bool isBitcoinBuyEnabled;
 
@@ -1614,8 +1587,6 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
       priority[WalletType.ethereum] = evm!.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
-      priority[WalletType.evm] = evm!.deserializeEVMTransactionPriority(
-          sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
     }
     if (evm != null &&
         sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
@@ -1966,18 +1937,14 @@ abstract class SettingsStoreBase with Store {
       case WalletType.haven:
         await _sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.key as int);
         break;
-      case WalletType.evm:
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
         final chainId = evm!.getChainIdByWalletType(node.type);
         final preferenceKey = _getEVMNodePreferenceKey(chainId);
         await _sharedPreferences.setInt(preferenceKey, node.key as int);
-        final walletTypeForChain = evm!.getWalletTypeByChainId(chainId);
-        if (walletTypeForChain != null) {
-          nodes[walletTypeForChain] = node;
-          return;
-        }
-        break;
-      case WalletType.ethereum:
-        await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);
+        nodes[node.type] = node;
         break;
       case WalletType.bitcoinCash:
         await _sharedPreferences.setInt(
@@ -1985,15 +1952,6 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.nano:
         await _sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.key as int);
-        break;
-      case WalletType.polygon:
-        await _sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
-        break;
-      case WalletType.base:
-        await _sharedPreferences.setInt(PreferencesKey.currentBaseNodeIdKey, node.key as int);
-        break;
-      case WalletType.arbitrum:
-        await _sharedPreferences.setInt(PreferencesKey.currentArbitrumNodeIdKey, node.key as int);
         break;
       case WalletType.solana:
         await _sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);

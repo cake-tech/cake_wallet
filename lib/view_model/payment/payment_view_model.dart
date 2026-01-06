@@ -36,7 +36,8 @@ abstract class PaymentViewModelBase with Store {
       return _lastDetectionResult!.chainId;
     }
 
-    if (detectedWalletType == WalletType.evm && _lastDetectionResult?.detectedCurrency != null) {
+    // If detected wallet type is EVM-compatible, get chainId from detected currency
+    if (_lastDetectionResult?.detectedCurrency != null) {
       return getChainIdByCryptoCurrency(_lastDetectionResult!.detectedCurrency!);
     }
 

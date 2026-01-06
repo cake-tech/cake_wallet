@@ -31,10 +31,8 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get canUseBlinkProtection {
     if (!isEVMCompatibleChain(type)) return false;
 
-    // For WalletType.evm, new wallets default to chainId 1 (Ethereum)
-    // For other wallet types, get the chainId from the wallet type
-
-    final chainId = type == WalletType.evm ? 1 : evm!.getChainIdByWalletType(type);
+    // Get the chainId from the wallet type
+    final chainId = evm!.getChainIdByWalletType(type);
 
     return canSupportBlinkProtection(chainId);
   }
@@ -51,7 +49,6 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     // convert to switch case so that it give a syntax error when adding a new wallet type
     // thus we don't forget about it
     switch (type) {
-      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
@@ -96,7 +93,6 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
-        WalletType.evm,
         WalletType.ethereum,
         WalletType.polygon,
         WalletType.base,

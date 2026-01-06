@@ -88,7 +88,6 @@ class WalletRestoreFromQRCode {
         raw: rawString,
         type: walletTypeToCryptoCurrency(
           type,
-          chainId: type == WalletType.evm ? evm!.getChainIdByWalletType(type) : null,
         ),
         requireSurroundingWhitespaces: false,
       );

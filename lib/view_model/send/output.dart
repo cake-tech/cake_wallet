@@ -112,7 +112,6 @@ abstract class OutputBase with Store {
           case WalletType.decred:
             _amount = decred!.formatterStringDoubleToDecredAmount(_cryptoAmount);
             break;
-          case WalletType.evm:
           case WalletType.ethereum:
           case WalletType.polygon:
           case WalletType.base:
@@ -207,7 +206,6 @@ abstract class OutputBase with Store {
           break;
 
         /// EVMs
-        case WalletType.evm:
         case WalletType.ethereum:
         case WalletType.polygon:
         case WalletType.base:

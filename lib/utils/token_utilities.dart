@@ -90,7 +90,6 @@ class TokenUtilities {
   }) async {
     final lower = address.toLowerCase();
     switch (walletType) {
-      case WalletType.evm:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:

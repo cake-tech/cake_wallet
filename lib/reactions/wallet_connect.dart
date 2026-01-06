@@ -7,7 +7,6 @@ import 'package:cake_wallet/evm/evm.dart';
 
 bool isEVMCompatibleChain(WalletType walletType) {
   switch (walletType) {
-    case WalletType.evm:
     case WalletType.polygon:
     case WalletType.ethereum:
     case WalletType.base:
@@ -49,7 +48,6 @@ bool isNFTACtivatedChain(WalletType walletType, int? chainId) {
 
 bool isWalletConnectCompatibleChain(WalletType walletType) {
   switch (walletType) {
-    case WalletType.evm:
     case WalletType.solana:
     case WalletType.polygon:
     case WalletType.ethereum:
@@ -84,7 +82,6 @@ String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType, {int? chai
 
 List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
   switch (walletType) {
-    case WalletType.evm:
     case WalletType.ethereum:
     case WalletType.polygon:
     case WalletType.base:

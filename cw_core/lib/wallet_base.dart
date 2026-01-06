@@ -29,7 +29,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   CryptoCurrency get currency => walletTypeToCryptoCurrency(
         type,
-        chainId: chainId ?? (type == WalletType.evm ? 1 : null),
+        chainId: chainId,
         isTestnet: isTestnet,
       );
 

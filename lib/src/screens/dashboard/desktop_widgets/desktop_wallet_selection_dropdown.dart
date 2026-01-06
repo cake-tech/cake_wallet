@@ -166,7 +166,6 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return litecoinIcon;
       case WalletType.haven:
         return havenIcon;
-      case WalletType.evm:
       case WalletType.ethereum:
         return ethereumIcon;
       case WalletType.bitcoinCash:

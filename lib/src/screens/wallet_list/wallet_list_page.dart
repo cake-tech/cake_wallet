@@ -290,7 +290,6 @@ class WalletListBodyState extends State<WalletListBody> {
                                     Image.asset(
                                       walletTypeToCryptoCurrency(
                                         wallet.type,
-                                        chainId: wallet.type == WalletType.evm ? 1 : null,
                                       ).iconPath!,
                                       width: 32,
                                       height: 32,

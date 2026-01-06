@@ -100,9 +100,6 @@ class _WalletSwitcherContent extends StatelessWidget {
                               Image.asset(
                                 walletTypeToCryptoCurrency(
                                   wallet.type,
-                                  chainId: wallet.type == WalletType.evm
-                                      ? evm!.getChainIdByWalletType(wallet.type)
-                                      : null,
                                 ).iconPath!,
                                 width: 32,
                                 height: 32,
