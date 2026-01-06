@@ -618,7 +618,7 @@ abstract class WalletKitServiceBase with Store {
       return PreferencesKey.walletConnectPairingTopicsListForWallet(publicKey);
     } catch (e) {
       return '';
-    } 
+    }
   }
 
   List<String> getPairingTopicsForWallet(String key) {

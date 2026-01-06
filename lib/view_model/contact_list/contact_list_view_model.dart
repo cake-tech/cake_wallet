@@ -76,11 +76,11 @@ abstract class ContactListViewModelBase with Store {
             walletContacts.add(WalletContact(
               address,
               name,
-          walletTypeToCryptoCurrency(
-            info.type,
-            isTestnet:
-                info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
-          ),
+              walletTypeToCryptoCurrency(
+                info.type,
+                isTestnet:
+                    info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
+              ),
               walletType: info.type,
             ));
           });

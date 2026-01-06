@@ -92,10 +92,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   void initState() {
     types = filteredTypes = availableWalletTypes
         .where((element) =>
-            (!widget.isHardwareWallet ||
-                DeviceConnectionType.supportedConnectionTypes(
-                        element, widget.hardwareWalletType!, Platform.isIOS)
-                    .isNotEmpty))
+            !widget.isHardwareWallet ||
+            DeviceConnectionType.supportedConnectionTypes(
+                    element, widget.hardwareWalletType!, Platform.isIOS)
+                .isNotEmpty)
         .toList();
     super.initState();
 
