@@ -41,18 +41,19 @@ import 'package:intl/intl.dart';
 
 Seth wanted:
 Swaps
-  Timestamp/date
-  Deposit TXID
-  Amount
-  From Currency -> To Currency (swap pair header row)
-  Withdrawal TXID
-  Amount
-  Provider
-  Rate
+  Timestamp/date - got
+  Deposit TXID - got
+  Amount - got
+  From Currency -> To Currency (swap pair header row) - got
+  Withdrawal TXID - got
+  Amount - got
+  Provider - got
+  Rate - will need to calculate from (deposit - fee) / (receive amount)
+  
 
 I'm considering supplementing with: 
   Block explorer, 
-  Status,
+  Status - this isn't easily accessed via TradeState
   Note(?)
 
 */
@@ -63,61 +64,48 @@ Future<void> displayData(data) async {
 
 // Standardized transaction export data class containing all exportable fields
 class SwapExportData {
-  SwapExportData({
-    required this.createdAt,
-    required this.depositTxId,
-    required this.amount,
-    required this.from,
-    required this.to,
-    required this.withdrawalTxId,
-    required this.withdrawalAmount,
-    required this.provider,
-    required this.rate,
-    required this.status,
-    required this.explorerLink,
-  });
+  SwapExportData(Trade trade)
+      : createdAt = trade.createdAt,
+        depositTxId = trade.txId,
+        amount = trade.amount,
+        from = trade.from,
+        to = trade.to,
+        withdrawalTxId = trade.outputTransaction ?? 'N/A',
+        providerName = trade.providerName,
+        receiveAmount = trade.receiveAmount;
+
+  // description = trade.exchangeProviderDescription,
+  // withdrawalTxId = trade.withdrawalTxId ?? 'N/A',
+  // withdrawalAmount = trade.withdrawalAmount ?? 'N/A',
+  // state = trade.state,
+  // receiveAmount = trade.receiveAmount ?? 'N/A',
+  // swapPair = '${trade.from?.symbol ?? 'N/A'} -> ${trade.to?.symbol ?? 'N/A'}',
+  // providerName = trade.exchangeProviderDescription.name,
+  // rate = trade.rate?.toString() ?? 'N/A',
+  // status = trade.state.toString().split('.').last,
+  // explorerLink = trade.getExplorerLink() ?? 'N/A';
 
   // Use mobx field TradeMonitor / TradesStore for status?
 
+  final DateTime? createdAt;
+  final String? depositTxId;
   final String amount;
-  final ExchangeProviderDescription? description;
   final CryptoCurrency? from, to;
-  final String createdAt;
-  final TradeState? state;
-  final String depositTxId;
-  final String receiveAmount;
-  final String swapPair; // (from currency -> to currency)
   final String withdrawalTxId;
-  final String withdrawalAmount;
-  final String provider;
-  final String rate;
-  final String status;
-  final String explorerLink;
+  final String? receiveAmount;
+  final String? providerName;
+  // Rate calculation can be done inside a method
 
-  String toCsvRow() {
-    return [
-      _escapeCsvField(depositTxId),
-      _escapeCsvField(amount),
-      _escapeCsvField(createdAt),
-      _escapeCsvField(fee),
-      _escapeCsvField(type),
-      _escapeCsvField(height),
-      _escapeCsvField(confirmations),
-      _escapeCsvField(subwalletNumber),
-      _escapeCsvField(key),
-      _escapeCsvField(recipientAddress),
-      _escapeCsvField(explorerLink),
-    ].join(',');
-  }
+  // final TradeState? state;
+  // final String? swapPair; // (from currency -> to currency)
+  // final String rate;
+  // final String status;
+  // final String explorerLink;
 
-  /// Returns generic CSV header row
-  static String csvHeader() {
-    return 'Timestamp,Transaction ID,Amount,Fee,Type,Block Height,Confirmations,Subwallet Number,Key,Recipient Address,Explorer Link';
-  }
+  // Function<Float64> calculateRate() {
 
-  /// Escapes CSV field according to RFC 4180
-  /// Wraps in quotes if contains comma, newline, or quote
-  /// Doubles internal quotes
+  // }
+
   static String _escapeCsvField(String field) {
     if (field.contains(',') ||
         field.contains('\n') ||
@@ -127,6 +115,54 @@ class SwapExportData {
     }
     return field;
   }
+
+  // static String toCsvRow() {
+  //   return [
+  //     _escapeCsvField(createdAt.toString()),
+  //     _escapeCsvField(depositTxId ?? ''),
+  //     _escapeCsvField(amount),
+  //     _escapeCsvField("${from?.fullName} -> ${to?.fullName}"),
+  //     // _escapeCsvField(description),
+  //     _escapeCsvField(providerName ?? ''),
+  //     _escapeCsvField(withdrawalTxId),
+  //     _escapeCsvField(receiveAmount ?? ''),
+  //   ].join("','");
+  // }
+
+  static String csvHeader() {
+    return 'Created At,Deposit TXID,Amount,Swap Pair,Provider Name,Withdrawal TXID,Receive Amount,Exchange Rate';
+  }
+
+  static dynamic formatSwap(Trade trade) {
+    final rate = (trade.receiveAmount != null && trade.amount.isNotEmpty)
+        ? (double.parse(trade.receiveAmount!) / double.parse(trade.amount)).toStringAsFixed(8)
+        : 'N/A';
+
+    return _formatSwapData(trade, rate);
+  }
+
+    static _formatSwapData(Trade trade, String rate) {
+      return [
+        trade.createdAt?.toIso8601String() ?? 'N/A',
+        trade.txId ?? 'N/A',
+        trade.amount,
+        '${trade.from?.fullName ?? 'N/A'} -> ${trade.to?.fullName ?? 'N/A'}',
+        trade.providerName ?? 'N/A',
+        trade.outputTransaction ?? 'N/A',
+        trade.receiveAmount ?? 'N/A',
+        rate,
+      ];
+    }
+  }
+
+  /// Returns generic CSV header row
+  // static String csvHeader() {
+  //   return 'Timestamp,Transaction ID,Amount,Fee,Type,Block Height,Confirmations,Subwallet Number,Key,Recipient Address,Explorer Link';
+  // }
+
+  /// Escapes CSV field according to RFC 4180
+  /// Wraps in quotes if contains comma, newline, or quote
+  /// Doubles internal quotes
 
   /// Converts export data to CSV row with RFC 4180 escaping
   // String toCsvRow() {
@@ -143,7 +179,6 @@ class SwapExportData {
   //     _escapeCsvField(explorerLink),
   //   ].join(',');
   // }
-}
 //   final String timestamp;
 //   final String txId;
 //   final String amount;
