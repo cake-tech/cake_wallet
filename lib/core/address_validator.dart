@@ -161,6 +161,8 @@ class AddressValidator extends TextValidator {
         pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       case CryptoCurrency.doge:
         pattern = r'^D[a-km-zA-HJ-NP-Z1-9]{25,34}';
+      case CryptoCurrency.xtm:
+        pattern = '[1-9A-HJ-NP-Za-km-z]{56}';
       default:
         return '';
     }
@@ -300,6 +302,8 @@ class AddressValidator extends TextValidator {
         return [45];
       case CryptoCurrency.near:
         return [64];
+      case CryptoCurrency.xtm:
+        return [56];
       case CryptoCurrency.btcln:
       case CryptoCurrency.kaspa:
       case CryptoCurrency.zano:
@@ -351,6 +355,8 @@ class AddressValidator extends TextValidator {
         pattern = '(T|t)[1-9A-HJ-NP-Za-km-z]{33}';
       case CryptoCurrency.zano:
         pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
+      case CryptoCurrency.xtm:
+        pattern = '[1-9A-HJ-NP-Za-km-z]{56}';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           pattern = '0x[0-9a-zA-Z]+';
