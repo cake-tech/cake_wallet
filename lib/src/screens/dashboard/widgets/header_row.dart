@@ -1,5 +1,5 @@
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/export_options_widget.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -68,8 +68,20 @@ class HeaderRow extends StatelessWidget {
                       : () {
                           showPopUp<void>(
                             context: context,
-                            builder: (context) => ExportOptionsWidget(
-                              exportOptions: dashboardViewModel.exportOptions,
+                            builder: (context) => AlertWithTwoActions(
+                              // TODO: replace alertTitle and alertContent text with localization strings
+                              alertTitle: "Export History",
+                              alertContent: 'Export your transaction and swap history',
+                              leftButtonText: S.of(context).share,
+                              rightButtonText: S.of(context).save,
+                              actionLeftButton: () {
+                                Navigator.of(context).pop();
+                                // TODO: Call exportAndShareUnifiedCSV();
+                              },
+                              actionRightButton: () {
+                                Navigator.of(context).pop();
+                                // TODO: Call exportAndSaveUnifiedCSV();
+                              },
                             ),
                           );
                         },
