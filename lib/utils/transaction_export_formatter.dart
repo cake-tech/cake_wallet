@@ -74,8 +74,8 @@ class TransactionExportData {
       _escapeCsvField(key),
       _escapeCsvField(recipientAddress),
       _escapeCsvField(explorerLink),
-      "\r\n"
-    ].join(',');
+      "\n"
+    ].join("','");
   }
 
   /// Converts export data to JSON map
@@ -119,18 +119,27 @@ class TransactionExportData {
 class TransactionExportFormatter {
   static final DateFormat _dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 
+  static String _escapeCsvField(String field) {
+    if (field.contains(',') ||
+        field.contains('\n') ||
+        field.contains('"') ||
+        field.contains('\r')) {
+      return '"${field.replaceAll('"', '""')}"';
+    }
+    return field;
+  }
+
   /// Formats any TransactionInfo into standardized export data
   /// Safely extracts properties based on wallet type
-  static TransactionExportData formatTransaction(
+  static String formatTransaction(
     TransactionInfo tx,
     WalletType walletType,
   ) {
     try {
-      printV(tx.amount);
-      printV(tx.amountFormatted());
       // Format timestamp
       final timestamp = _dateFormat.format(tx.date);
-
+      printV("Timestamp: $timestamp");
+      final timeString = '"$timestamp';
       // Format transaction type
       final type = tx.direction == TransactionDirection.incoming ? 'Received' : 'Sent';
 
@@ -143,47 +152,52 @@ class TransactionExportFormatter {
         recipientAddress = _extractRecipientAddress(tx) ?? 'Not known';
       }
 
+      printV("Figure out what we're processing this as for wallet type: $walletType");
       // Extract wallet-type-specific fields
       switch (walletType) {
         case WalletType.monero:
           return _formatMoneroTransaction(tx, timestamp, type, recipientAddress);
-        case WalletType.wownero:
-          return _formatWowneroTransaction(tx, timestamp, type, recipientAddress);
-        case WalletType.bitcoin:
-        case WalletType.litecoin:
-        case WalletType.bitcoinCash:
-        case WalletType.dogecoin:
-          return _formatElectrumTransaction(tx, timestamp, type, recipientAddress, walletType);
-        case WalletType.ethereum:
-        case WalletType.polygon:
-        case WalletType.arbitrum:
-        case WalletType.base:
-          return _formatEVMTransaction(tx, timestamp, type, recipientAddress, walletType);
-        case WalletType.solana:
-          return _formatSolanaTransaction(tx, timestamp, type, recipientAddress);
-        case WalletType.tron:
-          return _formatTronTransaction(tx, timestamp, type, recipientAddress);
-        case WalletType.nano:
-        case WalletType.banano:
-          return _formatNanoTransaction(tx, timestamp, type, recipientAddress);
-        case WalletType.decred:
-          return _formatDecredTransaction(tx, timestamp, type, recipientAddress);
+        // case WalletType.wownero:
+        //   return _formatWowneroTransaction(tx, timestamp, type, recipientAddress);
+        // case WalletType.bitcoin:
+        // case WalletType.litecoin:
+        // case WalletType.bitcoinCash:
+        // case WalletType.dogecoin:
+        //   return _formatElectrumTransaction(tx, timestamp, type, recipientAddress, walletType);
+        // case WalletType.ethereum:
+        // case WalletType.polygon:
+        // case WalletType.arbitrum:
+        // case WalletType.base:
+        //   return _formatEVMTransaction(tx, timestamp, type, recipientAddress, walletType);
+        // case WalletType.solana:
+        //   return _formatSolanaTransaction(tx, timestamp, type, recipientAddress);
+        // case WalletType.tron:
+        //   return _formatTronTransaction(tx, timestamp, type, recipientAddress);
+        // case WalletType.nano:
+        // case WalletType.banano:
+        //   return _formatNanoTransaction(tx, timestamp, type, recipientAddress);
+        // case WalletType.decred:
+        //   return _formatDecredTransaction(tx, timestamp, type, recipientAddress);
+        // default:
+        //   return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
         default:
-          return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
+          throw UnimplementedError();
       }
+      return ""; // Should never reach here
     } catch (e) {
       // Fallback to generic formatting if specific formatting fails
-      return _formatGenericTransaction(
-        tx,
-        _dateFormat.format(tx.date),
-        tx.direction == TransactionDirection.incoming ? 'Received' : 'Sent',
-        'Not known',
-      );
+      // return _formatGenericTransaction(
+      //   tx,
+      //   _dateFormat.format(tx.date),
+      //   tx.direction == TransactionDirection.incoming ? 'Received' : 'Sent',
+      //   'Not known',
+      // );
+      rethrow;
     }
   }
 
   /// Formats Monero transaction with all Monero-specific fields
-  static TransactionExportData _formatMoneroTransaction(
+  static String _formatMoneroTransaction(
     TransactionInfo tx,
     String timestamp,
     String type,
@@ -192,39 +206,41 @@ class TransactionExportFormatter {
     try {
       final dynamic moneroProp = tx;
 
-      //final amount = moneroProp.amountFormatted?.toString() ?? 'N/A';
+      //final amount = moneroProp.amount?.toString() ?? 'N/A';
       final amount = tx.amountFormatted().toString();
-      final height = moneroProp.height?.toString() ?? 'N/A';
-      final confirmations = moneroProp.confirmations?.toString() ?? 'N/A';
-      final txId = moneroProp.txHash?.toString() ?? tx.id;
-      final fee = moneroProp.feeFormatted?.toString() ?? 'N/A';
-      final subwalletNumber = moneroProp.addressIndex?.toString() ?? 'N/A';
-      final key = moneroProp.key?.toString() ?? 'N/A';
-      final note = moneroProp.note?.toString() ?? '';
+      final height = tx.height.toString();
+      //final confirmations = moneroProp.confirmations?.toString() ?? 'N/A';
+      final txId = tx.txHash.toString();
+      final fee = moneroProp.feeFormatted().toString();
+      final subwalletNumber = moneroProp.addressIndex.toString();
+      final key = moneroProp.key.toString();
+      //final note = moneroProp.note?.toString() ?? '';
       // Override recipient address if available in Monero tx
       if (moneroProp.recipientAddress != null &&
           moneroProp.recipientAddress.toString().isNotEmpty) {
         recipientAddress = moneroProp.recipientAddress.toString();
       }
 
-      final explorerLink = txId != 'N/A' && txId != tx.id ? 'https://monero.com/tx/$txId' : 'N/A';
-      printV("MONERO: $amount");
-      return TransactionExportData(
-        timestamp: timestamp,
-        amount: amount,
-        type: type,
-        height: height,
-        note: note,
-        confirmations: confirmations,
-        txId: txId,
-        fee: fee,
-        subwalletNumber: subwalletNumber,
-        key: key,
-        recipientAddress: recipientAddress,
-        explorerLink: explorerLink,
-      );
+      final explorerLink = txId != 'N/A' ? 'https://monero.com/tx/$txId' : 'N/A';
+      final formattedData = [
+        _escapeCsvField(timestamp),
+        _escapeCsvField(amount),
+        _escapeCsvField(type),
+        _escapeCsvField(height),
+        //_escapeCsvField(note),
+        _escapeCsvField(txId),
+        _escapeCsvField(fee),
+        _escapeCsvField(subwalletNumber),
+        _escapeCsvField(key),
+        _escapeCsvField(recipientAddress),
+        _escapeCsvField(explorerLink),
+      ].join("','");
+
+      var formattedString = "'" + formattedData + "'";
+      return formattedString;
     } catch (e) {
-      return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
+      rethrow;
+      //return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
     }
   }
 
@@ -235,43 +251,44 @@ class TransactionExportFormatter {
     String type,
     String recipientAddress,
   ) {
-    try {
-      final dynamic moneroProp = tx;
+    throw UnimplementedError("TODO: Implement Wownero transaction formatting");
+    // try {
+    //   final dynamic moneroProp = tx;
 
-      //final amount = moneroProp.amountFormatted?.toString() ?? 'N/A';
-      final amount = tx.amountFormatted().toString();
-      final height = moneroProp.height?.toString() ?? 'N/A';
-      final confirmations = moneroProp.confirmations?.toString() ?? 'N/A';
-      final txId = moneroProp.txHash?.toString() ?? tx.id;
-      final fee = moneroProp.feeFormatted?.toString() ?? 'N/A';
-      final subwalletNumber = moneroProp.addressIndex?.toString() ?? 'N/A';
-      final key = moneroProp.key?.toString() ?? 'N/A';
-      final note = moneroProp.note?.toString() ?? '';
-      // Override recipient address if available in Monero tx
-      if (moneroProp.recipientAddress != null &&
-          moneroProp.recipientAddress.toString().isNotEmpty) {
-        recipientAddress = moneroProp.recipientAddress.toString();
-      }
+    //   //final amount = moneroProp.amountFormatted?.toString() ?? 'N/A';
+    //   final amount = tx.amountFormatted().toString();
+    //   // final height = moneroProp.height.toString() ?? 'N/A';
+    //   // final confirmations = moneroProp.confirmations?.toString() ?? 'N/A';
+    //   final txId = moneroProp.txHash.toString() ?? tx.id;
+    //   final fee = moneroProp.feeFormatted.toString() ?? 'N/A';
+    //   final subwalletNumber = moneroProp.addressIndex?.toString() ?? 'N/A';
+    //   final key = moneroProp.key?.toString() ?? 'N/A';
+    //   final note = moneroProp.note?.toString() ?? '';
+    //   // Override recipient address if available in Monero tx
+    //   if (moneroProp.recipientAddress != null &&
+    //       moneroProp.recipientAddress.toString().isNotEmpty) {
+    //     recipientAddress = moneroProp.recipientAddress.toString();
+    //   }
 
-      final explorerLink = txId != 'N/A' && txId != tx.id ? 'wowNero.wow/$txId' : 'N/A';
-      printV("Wownero: $amount");
-      return TransactionExportData(
-        timestamp: timestamp,
-        amount: amount,
-        type: type,
-        height: height,
-        note: note,
-        confirmations: confirmations,
-        txId: txId,
-        fee: fee,
-        subwalletNumber: subwalletNumber,
-        key: key,
-        recipientAddress: recipientAddress,
-        explorerLink: explorerLink,
-      );
-    } catch (e) {
-      return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
-    }
+    //   final explorerLink = txId != 'N/A' && txId != tx.id ? 'wowNero.wow/$txId' : 'N/A';
+    //   printV("Wownero: $amount");
+    //   return TransactionExportData(
+    //     timestamp: timestamp,
+    //     amount: amount,
+    //     type: type,
+    //     height: height,
+    //     note: note,
+    //     confirmations: confirmations,
+    //     txId: txId,
+    //     fee: fee,
+    //     subwalletNumber: subwalletNumber,
+    //     key: key,
+    //     recipientAddress: recipientAddress,
+    //     explorerLink: explorerLink,
+    //   );
+    // } catch (e) {
+    //   return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
+    // }
   }
 
   /// Formats Bitcoin/Litecoin/Bitcoin Cash/Dogecoin transaction
@@ -284,7 +301,7 @@ class TransactionExportFormatter {
   ) {
     try {
       final dynamic electrumProp = tx;
-
+  
       final amount = electrumProp.amountFormatted?.toString() ?? 'N/A';
       final height = electrumProp.height?.toString() ?? 'N/A';
       final confirmations = electrumProp.confirmations?.toString() ?? 'N/A';

@@ -1224,9 +1224,7 @@ abstract class DashboardViewModelBase with Store {
   // KB: TODO: - Move to TransactionExportFormatter class
   // - Replace currently implemented sharing dialogue with the AlertWithTwoPopups widget used for Export Backup
   @action
-  Future<void> exportTransactionsAsCSV() async {
-    if (isExporting) return;
-
+  Future<String> exportTransactionsAsCSV() async {
     try {
       final allTransactions = wallet.transactionHistory.transactions.values.toList();
 
@@ -1243,21 +1241,14 @@ abstract class DashboardViewModelBase with Store {
       // Build CSV string
       final buffer = StringBuffer();
       buffer.writeln(TransactionExportData.csvHeader());
+
       for (final data in formattedData) {
-        buffer.writeln(data.toCsvRow());
+        buffer.writeln(data);
       }
+
       final csvContent = buffer.toString();
-      printV('csvContent length: ${csvContent.length}');
-      printV(
-          'csvContent preview: ${csvContent.substring(0, csvContent.length > 500 ? 500 : csvContent.length)}');
-      // Save or share file based on platform
-      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-        // TODO: Test implementations on desktop platforms
-        await _saveCSVToFile(csvContent);
-      } else {
-        // await _saveCSVToFile(csvContent); -- mobile file saving isn't really useful
-        await _shareCSVFile(csvContent);
-      }
+
+      return csvContent;
     } catch (e) {
       printV('Error exporting transactions as CSV: $e');
       Fluttertoast.showToast(
@@ -1265,51 +1256,53 @@ abstract class DashboardViewModelBase with Store {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
       );
+      isExporting = false;
+      rethrow;
     } finally {
       isExporting = false;
     }
   }
 
-  // KB: TODO: Either delete, or move to TransactionExportFormatter class for debug purposes
-  @action
-  Future<void> exportTransactionsAsJSON() async {
-    if (isExporting) return;
+  // // KB: TODO: Either delete, or move to TransactionExportFormatter class for debug purposes
+  // @action
+  // Future<void> exportTransactionsAsJSON() async {
+  //   if (isExporting) return;
 
-    try {
-      final allTransactions = wallet.transactionHistory.transactions.values.toList();
+  //   try {
+  //     final allTransactions = wallet.transactionHistory.transactions.values.toList();
 
-      // Sort transactions chronologically (oldest first)
-      final sortedTransactions = [...allTransactions]..sort((a, b) => a.date.compareTo(b.date));
+  //     // Sort transactions chronologically (oldest first)
+  //     final sortedTransactions = [...allTransactions]..sort((a, b) => a.date.compareTo(b.date));
 
-      isExporting = true;
+  //     isExporting = true;
 
-      // Format transactions in main isolate
-      final formattedData = sortedTransactions.map((tx) {
-        return TransactionExportFormatter.formatTransaction(tx, wallet.type);
-      }).toList();
+  //     // Format transactions in main isolate
+  //     final formattedData = sortedTransactions.map((tx) {
+  //       return TransactionExportFormatter.formatTransaction(tx, wallet.type);
+  //     }).toList();
 
-      // Build JSON string directly (no isolate needed for this)
-      final jsonList = formattedData.map((data) => data.toJson()).toList();
-      final jsonContent = json.encode(jsonList);
-      printV('jsonContent length: ${jsonContent.length}');
-      printV(jsonList);
-      // Save or share file based on platform
-      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-        await _saveJSONToFile(jsonContent);
-      } else {
-        await _shareJSONFile(jsonContent);
-      }
-    } catch (e) {
-      printV('Error exporting transactions as JSON: $e');
-      Fluttertoast.showToast(
-        msg: 'Export failed: ${e.toString()}',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-      );
-    } finally {
-      isExporting = false;
-    }
-  }
+  //     // Build JSON string directly (no isolate needed for this)
+  //     final jsonList = formattedData.map((data) => data.toJson()).toList();
+  //     final jsonContent = json.encode(jsonList);
+  //     printV('jsonContent length: ${jsonContent.length}');
+  //     printV(jsonList);
+  //     // Save or share file based on platform
+  //     if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+  //       await _saveJSONToFile(jsonContent);
+  //     } else {
+  //       await _shareJSONFile(jsonContent);
+  //     }
+  //   } catch (e) {
+  //     printV('Error exporting transactions as JSON: $e');
+  //     Fluttertoast.showToast(
+  //       msg: 'Export failed: ${e.toString()}',
+  //       toastLength: Toast.LENGTH_SHORT,
+  //       gravity: ToastGravity.BOTTOM,
+  //     );
+  //   } finally {
+  //     isExporting = false;
+  //   }
+  // }
 
   // KB: TODO: Move to SwapExporter class
   // Replace the debug with the AlertWithTwoPopups widget used for Export Backup
@@ -1332,15 +1325,16 @@ abstract class DashboardViewModelBase with Store {
 
       buffer.writeln(SwapExportData.csvHeader());
       for (final data in swaps) {
-         buffer.writeln(SwapExportData.formatSwap(data.trade));
+        buffer.writeln(SwapExportData.formatSwap(data.trade));
       }
 
       final csvContent = buffer.toString();
 
       printV(csvContent);
+      return csvContent;
       // KB: TODO: Used this method during development for debugging
       // Replace this with the AlertWithTwoPopups widget used for Export Backup
-      await ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: csvContent));
+      //await ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: csvContent));
 
       // Save or share file based on platform
       // if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
@@ -1348,7 +1342,6 @@ abstract class DashboardViewModelBase with Store {
       // } else {
       //   await _shareJSONFile(jsonContent);
       // }
-      return;
     } catch (e) {
       Fluttertoast.showToast(
         msg: 'Export failed: ${e.toString()}',
@@ -1385,7 +1378,9 @@ abstract class DashboardViewModelBase with Store {
       final buffer = StringBuffer();
       buffer.writeln(TransactionExportData.csvHeader());
       for (final data in formattedData) {
-        buffer.writeln(data.toCsvRow());
+        //final csvString = TransactionExportFormatter.formatTransaction(data, wallet.type);
+        buffer.writeln(data);
+        //buffer.writeln(data.toCsvRow());
       }
       final csvContent = buffer.toString();
 
@@ -1437,7 +1432,6 @@ abstract class DashboardViewModelBase with Store {
       rethrow;
     }
   }
-
 
   Future<void> _saveJSONToFile(String jsonContent) async {
     try {

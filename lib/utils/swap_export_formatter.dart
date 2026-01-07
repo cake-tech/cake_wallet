@@ -3,6 +3,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // From trade_monitor.dart -- TODO: remove unused when finished
@@ -48,7 +49,7 @@ class SwapExportData {
         providerName = trade.providerName,
         receiveAmount = trade.receiveAmount;
 
-  // TODO: Consider including status 
+  // TODO: Consider including status
 
   final DateTime? createdAt;
   final String? depositTxId;
@@ -73,29 +74,37 @@ class SwapExportData {
     return 'Created At,Deposit TXID,Amount,Swap Pair,Provider Name,Withdrawal TXID,Receive Amount,Exchange Rate';
   }
 
+  // There's a bug in the rate calculation
   static dynamic formatSwap(Trade trade) {
-    final rate = (trade.receiveAmount != null && trade.amount.isNotEmpty)
-        ? (double.parse(trade.receiveAmount!) / double.parse(trade.amount)).toStringAsFixed(8)
+    final rate = (trade.receiveAmount != null &&
+            trade.amount.isNotEmpty &&
+            trade.receiveAmount!.isNotEmpty)
+        ? (double.parse(trade.receiveAmount!) / double.parse(trade.amount)).toStringAsPrecision(16)
         : 'N/A';
+    printV(rate);
 
     return _formatSwapData(trade, rate);
   }
 
-    static _formatSwapData(Trade trade, String rate) {
-      return [
-        _escapeCsvField(trade.createdAt?.toIso8601String() ?? 'N/A'),
-        _escapeCsvField(trade.txId ?? 'N/A'),
-        _escapeCsvField(trade.amount),
-        _escapeCsvField('${trade.from?.fullName ?? 'N/A'} -> ${trade.to?.fullName ?? 'N/A'}'),
-        _escapeCsvField(trade.providerName ?? 'N/A'),
-        _escapeCsvField(trade.outputTransaction ?? 'N/A'),
-        _escapeCsvField(trade.receiveAmount ?? 'N/A'),
-        _escapeCsvField(rate),
-        "\r\n"
-      ].join(',');
-    }
+  static final DateFormat _dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 
+  static _formatSwapData(Trade trade, String rate) {
+    final timestamp = _dateFormat.format(trade.createdAt ?? DateTime.now());
+    final timestampString = "'" + timestamp;
+    var responseString = [
+      _escapeCsvField(timestampString),
+      _escapeCsvField(trade.txId ?? 'N/A'),
+      _escapeCsvField(trade.amount),
+      _escapeCsvField('${trade.from?.fullName ?? 'N/A'} -> ${trade.to?.fullName ?? 'N/A'}'),
+      _escapeCsvField(trade.providerName ?? 'N/A'),
+      _escapeCsvField(trade.outputTransaction ?? 'N/A'),
+      _escapeCsvField(trade.receiveAmount ?? 'N/A'),
+      _escapeCsvField(rate),
+    ].join("','");
+    responseString = responseString + "'";
+    return responseString;
   }
+}
 
   /// Returns generic CSV header row
   // static String csvHeader() {
