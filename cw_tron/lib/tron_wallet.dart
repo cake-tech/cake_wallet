@@ -355,6 +355,7 @@ abstract class TronWalletBase
     }
 
     final tronBalance = balance[CryptoCurrency.trx]?.balance ?? BigInt.zero;
+    final memo = tronCredentials.outputs.first.memo;
 
     final pendingTransaction = await _client.signTransaction(
       ownerPrivKey: _tronPrivateKey,
@@ -365,6 +366,7 @@ abstract class TronWalletBase
       currency: transactionCurrency,
       tronBalance: tronBalance,
       sendAll: shouldSendAll,
+      memo: memo,
     );
 
     return pendingTransaction;
