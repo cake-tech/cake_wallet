@@ -1234,6 +1234,24 @@ abstract class Solana {
     double amount,
     double fee,
   );
+
+  // Fast transaction update after sending
+  // Polls for a specific transaction by signature with exponential backoff
+  // Falls back to full refresh if transaction is not found after max retries
+  Future<void> pollForTransaction(
+    WalletBase wallet,
+    String signature, {
+    Duration initialDelay = const Duration(seconds: 1),
+    int maxRetries = 5,
+  });
+
+  // Updates balances for specific tokens by mint addresses
+  // Also updates native SOL balance
+  // If tokenMints is null or empty, updates all tokens (full refresh)
+  Future<void> updateTokenBalances(
+    WalletBase wallet, {
+    List<String>? tokenMints,
+  });
 }
 
 class JupiterSwapFailedException implements Exception {

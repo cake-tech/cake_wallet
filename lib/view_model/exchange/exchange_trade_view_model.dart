@@ -119,6 +119,19 @@ abstract class ExchangeTradeViewModelBase with Store {
       isEVMCompatibleChain(wallet.type) &&
       wallet.currency != trade.from;
 
+  /// Providers that should hide the "send from external" button
+  static const List<Type> _providersThatHideExternalSend = [
+    JupiterExchangeProvider,
+  ];
+
+  /// Returns true if the current provider should hide the external send button
+  bool get shouldHideExternalSendButton {
+    if (_provider == null) return false;
+    return _providersThatHideExternalSend.any(
+      (providerType) => _provider.runtimeType == providerType,
+    );
+  }
+
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
       ? '\n\n' + S.current.exchange_extra_info
       : '';

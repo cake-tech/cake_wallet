@@ -80,6 +80,8 @@ abstract class SolanaWalletBase
 
   late final SolanaWalletClient _client;
 
+  SolanaWalletClient get client => _client;
+
   @observable
   double? estimatedFee;
 
@@ -225,7 +227,7 @@ abstract class SolanaWalletBase
 
     final hasMultiDestination = outputs.length > 1;
 
-    await _updateBalance();
+    await updateTokenBalance();
 
     final transactionCurrency = balance.keys.firstWhere(
         (currency) =>
@@ -299,15 +301,59 @@ abstract class SolanaWalletBase
   Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async => {};
 
   @override
-  Future<void> updateTransactionsHistory() async {
+  Future<void> updateTransactionsHistory({List<String>? specificTokenMints}) async {
     await Future.wait([
       _updateNativeSOLTransactions(),
-      _updateSPLTokenTransactions(),
+      updateSPLTokenTransactions(specificMints: specificTokenMints),
     ]);
   }
 
+  /// Polls for a specific transaction by signature with exponential backoff
+  /// I'm using this in case we make the call to fetch the transaction and it has not finished its confirmations on the solana network and been indexed by the node networks we use.
+  Future<void> pollForTransaction({
+    required String signature,
+    Duration initialDelay = const Duration(seconds: 1),
+    int maxRetries = 5,
+  }) async {
+    final walletAddress = _solanaPublicKey.toAddress().address;
+
+    for (int i = 0; i < maxRetries; i++) {
+      await Future.delayed(initialDelay * (i + 1));
+
+      try {
+        final result = await _client.fetchTransactionBySignature(
+          signature: signature,
+          walletAddress: walletAddress,
+        );
+
+        if (result != null && result.transactions.isNotEmpty) {
+          await addTransactionsToTransactionHistory(result.transactions);
+
+          // Update only the tokens involved in this transaction
+          if (result.tokenMints.isNotEmpty) {
+            await Future.wait([
+              updateSPLTokenTransactions(specificMints: result.tokenMints),
+              updateTokenBalance(tokenMints: result.tokenMints),
+            ]);
+          } else {
+            // If no token mints, still update SOL balance
+            await updateTokenBalance(tokenMints: []);
+          }
+
+          return;
+        }
+      } catch (e) {
+        printV('Error polling for transaction (attempt ${i + 1}/$maxRetries): $e');
+      }
+    }
+
+    // Fallback to full refresh if not found after max retries
+    printV('Transaction not found after $maxRetries attempts, falling back to full refresh');
+    await updateTransactionsHistory();
+  }
+
   void updateTransactions(List<SolanaTransactionModel> updatedTx) {
-    _addTransactionsToTransactionHistory(updatedTx);
+    addTransactionsToTransactionHistory(updatedTx);
   }
 
   /// Fetches the native SOL transactions linked to the wallet Public Key
@@ -315,12 +361,17 @@ abstract class SolanaWalletBase
     final transactions =
         await _client.fetchTransactions(_solanaPublicKey.toAddress(), onUpdate: updateTransactions);
 
-    await _addTransactionsToTransactionHistory(transactions);
+    await addTransactionsToTransactionHistory(transactions);
   }
 
-  /// Fetches the SPL Tokens transactions linked to the token account Public Key
-  Future<void> _updateSPLTokenTransactions() async {
-    final tokens = balance.keys.whereType<SPLToken>().toList(growable: false);
+  Future<void> updateSPLTokenTransactions({List<String>? specificMints}) async {
+    final allTokens = balance.keys.whereType<SPLToken>().toList(growable: false);
+
+    // Filter to specific mints if provided
+    final tokens = specificMints != null
+        ? allTokens.where((t) => specificMints.contains(t.mintAddress)).toList(growable: false)
+        : allTokens;
+
     if (tokens.isEmpty) return;
 
     const int batchSize = 5;
@@ -347,12 +398,12 @@ abstract class SolanaWalletBase
       );
 
       for (final list in results) {
-        await _addTransactionsToTransactionHistory(list);
+        await addTransactionsToTransactionHistory(list);
       }
     }
   }
 
-  Future<void> _addTransactionsToTransactionHistory(
+  Future<void> addTransactionsToTransactionHistory(
     List<SolanaTransactionModel> transactions,
   ) async {
     final Map<String, SolanaTransactionInfo> result = {};
@@ -408,9 +459,9 @@ abstract class SolanaWalletBase
       }
 
       await Future.wait([
-        _updateBalance(),
+        updateTokenBalance(),
         _updateNativeSOLTransactions(),
-        _updateSPLTokenTransactions(),
+        updateSPLTokenTransactions(),
         _getEstimatedFees(),
       ]);
 
@@ -478,9 +529,11 @@ abstract class SolanaWalletBase
     );
   }
 
-  Future<void> _updateBalance() async {
-    balance[currency] = await _fetchSOLBalance();
-    await _fetchSPLTokensBalances();
+  Future<void> updateTokenBalance({List<String>? tokenMints}) async {
+    balance[CryptoCurrency.sol] = await _fetchSOLBalance();
+
+    await _updateSplTokenBalancesInternal(tokenMints: tokenMints);
+
     await save();
   }
 
@@ -490,7 +543,11 @@ abstract class SolanaWalletBase
     return SolanaBalance(balance);
   }
 
-  Future<void> _fetchSPLTokensBalances() async {
+  /// Internal helper to update SPL token balances.
+  /// When [tokenMints] is null or empty, updates all enabled tokens.
+  Future<void> _updateSplTokenBalancesInternal({
+    List<String>? tokenMints,
+  }) async {
     // Remove disabled tokens first to keep state clean
     for (var token in splTokensBox.values.where((t) => !t.enabled)) {
       balance.remove(token);
@@ -499,12 +556,18 @@ abstract class SolanaWalletBase
     final enabledTokens = splTokensBox.values.where((t) => t.enabled).toList(growable: false);
     if (enabledTokens.isEmpty) return;
 
+    final tokens = tokenMints == null || tokenMints.isEmpty
+        ? enabledTokens
+        : enabledTokens.where((t) => tokenMints.contains(t.mintAddress)).toList(growable: false);
+
+    if (tokens.isEmpty) return;
+
     const int batchSize = 5;
 
-    for (var i = 0; i < enabledTokens.length; i += batchSize) {
-      final batch = enabledTokens.sublist(
+    for (var i = 0; i < tokens.length; i += batchSize) {
+      final batch = tokens.sublist(
         i,
-        i + batchSize > enabledTokens.length ? enabledTokens.length : i + batchSize,
+        i + batchSize > tokens.length ? tokens.length : i + batchSize,
       );
 
       final results = await Future.wait(batch.map((token) async {
@@ -527,7 +590,7 @@ abstract class SolanaWalletBase
   }
 
   @override
-  Future<void>? updateBalance() async => await _updateBalance();
+  Future<void>? updateBalance() async => await updateTokenBalance();
 
   @override
   Future<bool> checkNodeHealth() async {
@@ -581,7 +644,7 @@ abstract class SolanaWalletBase
 
     balance.remove(token);
     await _removeTokenTransactionsInHistory(token);
-    _updateBalance();
+    updateTokenBalance();
   }
 
   Future<void> _removeTokenTransactionsInHistory(SPLToken token) async {
@@ -626,9 +689,9 @@ abstract class SolanaWalletBase
     }
 
     _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-      _updateBalance();
+      updateTokenBalance();
       _updateNativeSOLTransactions();
-      _updateSPLTokenTransactions();
+      updateSPLTokenTransactions();
       _getEstimatedFees();
     });
   }

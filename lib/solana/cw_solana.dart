@@ -322,4 +322,28 @@ class CWSolana extends Solana {
         return 'Jupiter swap failed (code: $errorCode): $errorMessage. Please try again.';
     }
   }
+
+  @override
+  Future<void> pollForTransaction(
+    WalletBase wallet,
+    String signature, {
+    Duration initialDelay = const Duration(seconds: 1),
+    int maxRetries = 5,
+  }) async {
+    final solanaWallet = wallet as SolanaWallet;
+    await solanaWallet.pollForTransaction(
+      signature: signature,
+      initialDelay: initialDelay,
+      maxRetries: maxRetries,
+    );
+  }
+
+  @override
+  Future<void> updateTokenBalances(
+    WalletBase wallet, {
+    List<String>? tokenMints,
+  }) async {
+    final solanaWallet = wallet as SolanaWallet;
+    await solanaWallet.updateTokenBalance(tokenMints: tokenMints);
+  }
 }

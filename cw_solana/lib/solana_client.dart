@@ -19,6 +19,17 @@ import 'package:on_chain/solana/src/models/pda/pda.dart';
 import 'package:on_chain/solana/src/rpc/models/models/confirmed_transaction_meta.dart';
 import '.secrets.g.dart' as secrets;
 
+/// Result object containing both parsed transactions and token mints
+class TransactionFetchResult {
+  final List<SolanaTransactionModel> transactions;
+  final List<String> tokenMints;
+
+  TransactionFetchResult({
+    required this.transactions,
+    required this.tokenMints,
+  });
+}
+
 class SolanaWalletClient {
   // Minimum amount in SOL to consider a transaction valid (to filter spam)
   static const double minValidAmount = 0.00000003;
@@ -320,7 +331,7 @@ class SolanaWalletClient {
     }
 
     // Next, we check if there are any SPL token balance changes
-    
+
     // There is a caveat though, Jupiter swaps token accounts might be intermediate accounts, so we need to check for that, otherwise we might miss some transactions
     final preTokenBalances = meta.preTokenBalances;
     final postTokenBalances = meta.postTokenBalances;
@@ -382,6 +393,41 @@ class SolanaWalletClient {
     final preTokenBalances = meta.preTokenBalances;
     final postTokenBalances = meta.postTokenBalances;
 
+    String? decreasedMintForWallet;
+    String? increasedMintForWallet;
+
+    if (preTokenBalances != null && postTokenBalances != null) {
+      for (final preTokenBal in preTokenBalances) {
+        final owner = preTokenBal.owner?.address ?? '';
+        if (owner != walletAddress) continue;
+
+        final mint = preTokenBal.mint.address;
+        final preAmount = preTokenBal.uiTokenAmount.uiAmount ?? 0.0;
+
+        double postAmount = preAmount;
+        for (final postTokenBal in postTokenBalances) {
+          final postOwner = postTokenBal.owner?.address ?? '';
+          final postMint = postTokenBal.mint.address;
+          if (postOwner == walletAddress && postMint == mint) {
+            postAmount = postTokenBal.uiTokenAmount.uiAmount ?? 0.0;
+            break;
+          }
+        }
+
+        final diff = postAmount - preAmount;
+        if (diff < 0 && decreasedMintForWallet == null) {
+          decreasedMintForWallet = mint;
+        } else if (diff > 0 && increasedMintForWallet == null) {
+          increasedMintForWallet = mint;
+        }
+      }
+    }
+
+    final bool isSplToSplSwap =
+        decreasedMintForWallet != null &&
+        increasedMintForWallet != null &&
+        decreasedMintForWallet != increasedMintForWallet;
+
     // Parse outgoing side (what was sent)
     double outgoingAmount = 0.0;
     String outgoingTokenSymbol = '';
@@ -389,8 +435,9 @@ class SolanaWalletClient {
     String? outgoingFrom;
     String? outgoingTo;
 
-    // First we check if there are any native SOL balance changes for the wallet
-    if (preBalances.isNotEmpty && postBalances.isNotEmpty) {
+    // First we check if there are any native SOL balance changes for the wallet.
+    // For pure SPL → SPL swaps, SOL changes are just fees, so we ignore them.
+    if (!isSplToSplSwap && preBalances.isNotEmpty && postBalances.isNotEmpty) {
       final maxLength =
           accountKeys.length < preBalances.length ? accountKeys.length : preBalances.length;
 
@@ -430,6 +477,10 @@ class SolanaWalletClient {
 
         if (owner == walletAddress) {
           final mint = preTokenBal.mint.address;
+          // For SPL → SPL swaps, we only treat the decreased mint as outgoing
+          if (isSplToSplSwap && mint != decreasedMintForWallet) {
+            continue;
+          }
           final preAmount = preTokenBal.uiTokenAmount.uiAmount ?? 0.0;
 
           // We find the corresponding post balance
@@ -599,7 +650,8 @@ class SolanaWalletClient {
 
     // Outgoing transaction model
     if (outgoingAmount > 0.0 && outgoingFrom != null && outgoingTo != null) {
-      final outgoingId = '${signature}_outgoing'; // We create a composite ID for the outgoing transaction
+      final outgoingId =
+          '${signature}_outgoing'; // We create a composite ID for the outgoing transaction
       swapTransactions.add(SolanaTransactionModel(
         isOutgoingTx: true,
         from: outgoingFrom,
@@ -617,7 +669,8 @@ class SolanaWalletClient {
 
     // Incoming transaction model
     if (incomingAmount > 0.0 && incomingFrom != null && incomingTo != null) {
-      final incomingId = '${signature}_incoming'; // We create a composite ID for the incoming transaction
+      final incomingId =
+          '${signature}_incoming'; // We create a composite ID for the incoming transaction
       swapTransactions.add(SolanaTransactionModel(
         isOutgoingTx: false,
         from: incomingFrom,
@@ -782,6 +835,77 @@ class SolanaWalletClient {
       tokenSymbol: tokenSymbol ?? '',
       fee: feeInSol,
     );
+  }
+
+  /// Fetches a specific transaction by signature and parses it
+  /// It returns a TransactionFetchResult object containing both transactions and token mints extracted from the transaction or null if the transaction is not found or cannot be parsed
+  Future<TransactionFetchResult?> fetchTransactionBySignature({
+    required String signature,
+    required String walletAddress,
+    String? splTokenSymbol,
+  }) async {
+    try {
+      final txResponse = await _provider!.request(
+        SolanaRPCGetTransaction(
+          transactionSignature: signature,
+          encoding: SolanaRPCEncoding.jsonParsed,
+          maxSupportedTransactionVersion: 1,
+          skipVerification: true,
+        ),
+      );
+
+      final versionedResponse = txResponse as VersionedTransactionResponse?;
+      if (versionedResponse == null) return null;
+
+      final tokenMints = _extractTokenMintsFromMeta(versionedResponse.meta);
+
+      final parsed = await parseTransaction(
+        txResponse: versionedResponse,
+        walletAddress: walletAddress,
+        splTokenSymbol: splTokenSymbol,
+      );
+
+      if (parsed == null) return null;
+
+      return TransactionFetchResult(
+        transactions: parsed,
+        tokenMints: tokenMints,
+      );
+    } catch (e) {
+      printV('Error fetching transaction by signature: $e');
+      return null;
+    }
+  }
+
+  /// Extracts token mint addresses from transaction metadata
+  /// It returns a list of unique token mint addresses (excluding wrapped SOL)
+  List<String> _extractTokenMintsFromMeta(ConfirmedTransactionMeta? meta) {
+    if (meta == null) return [];
+
+    final preTokenBalances = meta.preTokenBalances;
+    final postTokenBalances = meta.postTokenBalances;
+
+    final mints = <String>{};
+
+    if (preTokenBalances != null) {
+      for (final tokenBal in preTokenBalances) {
+        final mint = tokenBal.mint.address;
+        if (mint != 'So11111111111111111111111111111111111111112') {
+          mints.add(mint);
+        }
+      }
+    }
+
+    if (postTokenBalances != null) {
+      for (final tokenBal in postTokenBalances) {
+        final mint = tokenBal.mint.address;
+        if (mint != 'So11111111111111111111111111111111111111112') {
+          mints.add(mint);
+        }
+      }
+    }
+
+    return mints.toList();
   }
 
   /// Load the Address's transactions into the account

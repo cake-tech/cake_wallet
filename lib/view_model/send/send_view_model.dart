@@ -855,9 +855,25 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       await _updateSolanaTrade(signature: pendingTransaction!.id, isSuccess: true);
 
-      // Immediate transaction update for EVM chains, Solana, Tron, and Nano
-      if (isEVMWallet ||
-          [WalletType.solana, WalletType.tron, WalletType.nano].contains(walletType)) {
+      if (walletType == WalletType.solana) {
+        Future.delayed(Duration(seconds: 1), () async {
+          try {
+            // Updates tx history with the exact mints involved in transaction
+            // Also updates balances for the tokens involved in the transaction
+            await solana!.pollForTransaction(
+              wallet,
+              pendingTransaction!.id,
+              initialDelay: const Duration(seconds: 1),
+              maxRetries: 5,
+            );
+          } catch (e) {
+            printV('Failed to update transactions after send: $e');
+          }
+        });
+      }
+
+      // Immediate transaction update for EVM chains, Tron, and Nano
+      if (isEVMWallet || [WalletType.tron, WalletType.nano].contains(walletType)) {
         Future.delayed(Duration(seconds: 4), () async {
           try {
             await Future.wait([
