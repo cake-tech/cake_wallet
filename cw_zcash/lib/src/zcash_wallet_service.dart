@@ -54,7 +54,6 @@ class ZcashWalletService
         return;
       }
       autoshieldTx = shieldedList.readAsLinesSync().toSet();
-      printV("List: ${autoshieldTx}");
     } catch (e) {
       printV("loadShieldTxs failed: $e");
     }

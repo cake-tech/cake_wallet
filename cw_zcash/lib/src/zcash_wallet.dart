@@ -232,7 +232,15 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
   @override
   Future<Map<String, ZcashTransactionInfo>> fetchTransactions() async {
     await ZcashWalletService.loadShieldTxs();
-    final txs = await ZcashWalletService.runInDbMutex(() => WarpApi.getTxs(coin, accountId));
+    final txs = (await ZcashWalletService.runInDbMutex(() => WarpApi.getTxs(coin, accountId))).toList();
+    // ShieldedTx{id: 26, txId: 4d1be06ce2c2debec8d98ce4e9434c8aac27c980488b459017d423fdcab37f93, height: 3195705, shortTxId: 4d1be06c, timestamp: 1767730944, name: null, value: 1000000, address: null, memo: , messages: MemoVec{memos: null}}
+    printV("txs: ${txs.length}");
+    final shieldSendTxs = ZcashTaddressRotation.shieldedAccountsTx[accountId]?.map((final tx) => tx.txId);
+    txs.removeWhere((final t) => shieldSendTxs?.contains(t.txId) == true);
+    printV("txs: ${txs.length}");
+
+    txs.addAll(ZcashTaddressRotation.shieldedAccountsTx[accountId]??[]);
+    txs.sort((final a, final b) => a.height.compareTo(b.height));
     final Map<String, ZcashTransactionInfo> result = {};
 
     int currentHeight = 0;

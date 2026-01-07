@@ -46,6 +46,7 @@ class ZcashTaddressRotation {
 
   static Map<String, List<Account>> rotationAccounts = {};
   static Map<String, List<Account>> rotationAccountsUsable = {};
+  static Map<int, List<ShieldedTx>> shieldedAccountsTx = {};
   static Future<void> init() async {
     if (_isStarted) {
       return;
@@ -81,42 +82,56 @@ class ZcashTaddressRotation {
       "rotationAccounts": rotationAccounts.map(
         (final k, final v) => MapEntry(
           k,
-          v.map((final a) {
-            final fbBuilder = fb.Builder();
-            a.unpack().pack(fbBuilder);
-            return base64.encode(fbBuilder.buffer);
-          }).toList(),
+          v.map((final a) => _flatBuffersPack(a.unpack().pack)).toList(),
         ),
       ),
       "rotationAccountsUsable": rotationAccountsUsable.map(
         (final k, final v) => MapEntry(
           k,
-          v.map((final a) {
-            final fbBuilder = fb.Builder();
-            a.unpack().pack(fbBuilder);
-            return base64.encode(fbBuilder.buffer);
-          }).toList(),
+          v.map((final a) => _flatBuffersPack(a.unpack().pack)).toList(),
         ),
       ),
+      "shieldedAccountsTx": shieldedAccountsTx.map(
+        (final k, final v) => MapEntry(
+          k.toString(),
+          v.map((final a) => _flatBuffersPack(a.unpack().pack)).toList(),
+        ),
+      )
     };
-
+    
     return utf8.encode(jsonEncode(data));
   }
-
-  static Map<String, Map<String, List<Account>>> deserialize(final Uint8List bytes) {
-    final Map<String, dynamic> data = jsonDecode(utf8.decode(bytes));
-
-    return {
-      "rotationAccounts": (data["rotationAccounts"] as Map<String, dynamic>).map(
-        (final k, final v) =>
-            MapEntry(k, (v as List).map((final a) => Account(Uint8List.fromList(List<int>.from(base64.decode(a))))).toList()),
-      ),
-      "rotationAccountsUsable": (data["rotationAccountsUsable"] as Map<String, dynamic>).map(
-        (final k, final v) =>
-            MapEntry(k, (v as List).map((final a) => Account(Uint8List.fromList(List<int>.from(base64.decode(a))))).toList()),
-      ),
-    };
+  
+  static String _flatBuffersPack(final int Function(fb.Builder fbBuilder) pack) {
+    final fbBuilder = fb.Builder();
+    final offset = pack(fbBuilder);
+    fbBuilder.finish(offset);
+    return base64.encode(fbBuilder.buffer);
   }
+
+  static Map<String, Map<dynamic, List<dynamic>>> deserialize(final Uint8List bytes) {
+    try {
+      final Map<dynamic, dynamic> data = jsonDecode(utf8.decode(bytes));
+      return {
+        "rotationAccounts": (data["rotationAccounts"] as Map<String, dynamic>).map(
+          (final k, final v) =>
+              MapEntry(k, (v as List).map((final a) => Account(atob(a))).toList()),
+        ),
+        "rotationAccountsUsable": (data["rotationAccountsUsable"] as Map<String, dynamic>).map(
+          (final k, final v) =>
+              MapEntry(k, (v as List).map((final a) => Account(atob(a))).toList()),
+        ),
+        "shieldedAccountsTx": (data["shieldedAccountsTx"] as Map<String, dynamic>).map(
+          (final k, final v) =>
+              MapEntry(int.parse(k), (v as List).map((final a) => ShieldedTx(atob(a))).toList()),
+        ),
+      };
+    } catch (e) {
+      return {};
+    }
+  }
+
+  static Uint8List atob(final String value) => Uint8List.fromList(List<int>.from(base64.decode(value)));
 
   static Future<void> createAndSweepTAddresses() async {
     final chainHeight = await WarpApi.getLatestHeight(coin);
@@ -127,6 +142,7 @@ class ZcashTaddressRotation {
       printV("Waiting for sync to finish: chainHeight(${chainHeight}) != syncHeight(${syncHeight})");
       return;
     }
+    final Map<int, List<ShieldedTx>> newShieldedAccountsTx = {};
     final accounts = WarpApi.getAccountList(coin);
     if (accounts.isEmpty) return;
     final List<String> seeds = [];
@@ -161,9 +177,11 @@ class ZcashTaddressRotation {
     printV("rotationAccounts: ${rotationAccounts.length}");
 
     for (int i = 0; i < raKeys.length; i++) {
+      final acc = accountForSeed(raKeys[i])!;
+      newShieldedAccountsTx[acc.id] = [];
       rotationAccountsUsable[raKeys[i]]!.removeWhere((final a) {
         final txs = WarpApi.getTxsSync(coin, a.id);
-        // printV("txs is not empty: $txs");
+        newShieldedAccountsTx[acc.id]!.addAll(txs);
         return txs.isNotEmpty;
       });
     }
@@ -242,6 +260,29 @@ class ZcashTaddressRotation {
         return createAndSweepTAddresses();
       }
     }
+    final nsatKeys = newShieldedAccountsTx.keys.toList();
+    for (int i = 0; i < nsatKeys.length; i++) {
+      inner:
+      for (int j = 0; j < newShieldedAccountsTx[nsatKeys[i]]!.length; j++) {
+        final tx = newShieldedAccountsTx[nsatKeys[i]]?[j];
+        if (tx == null) {
+          continue inner;
+        }
+        final _txId = tx.txId;
+        if (_txId == null) {
+          continue inner;
+        }
+        printV("newtx: $tx");
+        if (tx.value > 0) {
+          continue inner;
+        }
+        if (ZcashWalletService.autoshieldTx.contains(_txId)) {
+          continue inner;
+        }
+        await ZcashWalletService.addShieldedTx(_txId);
+      }
+    }
+    shieldedAccountsTx = newShieldedAccountsTx.map((final k, final v) => MapEntry(k, v));
     await serializeToFile();
     return;
   }

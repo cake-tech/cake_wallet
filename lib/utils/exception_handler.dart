@@ -118,7 +118,7 @@ class ExceptionHandler {
 
     if (kDebugMode || kProfileMode) {
       FlutterError.presentError(errorDetails);
-      printV(errorDetails.toString());
+      errorDetails.toString().split("\n").forEach(printV);
       return;
     }
 
