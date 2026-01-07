@@ -699,7 +699,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             requestId?.isNotEmpty == true &&
             solana != null) {
           try {
-            final actualFee = double.tryParse(trade.memo ?? '0.0') ?? 0.0005;
+            final actualFee = trade.fee ?? 0.0005;
             // Fallback to estimate if not available
             final fee = actualFee > 0 ? actualFee : 0.0005;
 

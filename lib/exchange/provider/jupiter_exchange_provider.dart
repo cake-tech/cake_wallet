@@ -101,10 +101,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
       // - errorCode 1: Insufficient funds
       // - errorCode 2: Top up SOL for gas
       // - errorCode 3: Minimum amount for gasless
-      return Limits(
-        min: 0.0001, // Minimum reasonable amount for Solana swaps
-        max: 1000000.0, // High limit; actual max depends on liquidity
-      );
+      return Limits(min: null, max: null);
     } catch (e) {
       printV('fetchLimits error: $e');
       throw Exception('Error fetching limits: $e');
@@ -287,7 +284,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
       // Extract response data
       final transaction = orderData['transaction'] as String?;
       final requestId = orderData['requestId'] as String?;
-      final outAmount = orderData['outAmount'] as String;
+      final outAmount = orderData['outAmount'] as String? ?? '0.0';
 
       // Extract actual fees from order response (in lamports)
       final signatureFeeLamports = (orderData['signatureFeeLamports'] as num?)?.toInt() ?? 0;
@@ -349,7 +346,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
         userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? 'SOL'}',
         routerData: transaction,
         routerValue: requestId,
-        memo: totalFeeInSol.toString(),
+        fee: totalFeeInSol,
       );
     } catch (e, s) {
       ExchangeProviderLogger.logError(
