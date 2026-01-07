@@ -76,9 +76,8 @@ class CWZcash extends Zcash {
   }
 
   @override
-  double formatterZcashAmountToDouble(
-      {TransactionInfo? transaction, BigInt? amount, int exponent = 18}) {
-    throw UnimplementedError();
+  double formatterZcashAmountToDouble({TransactionInfo? transaction, BigInt? amount}) {
+    return cryptoAmountToDouble(amount: amount?.toInt()??0, divider: 1e8);
   }
 
   @override
@@ -203,6 +202,11 @@ class CWZcash extends Zcash {
   @override
   void unlockDatabase(String password) {
     return ZcashWalletBase.unlockDatabase(password);
+  }
+  
+  @override
+  Future<int> getHeightByDate(DateTime date) {
+    return ZcashWalletBase.getHeightByDate(date);
   }
 }
 

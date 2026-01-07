@@ -1,12 +1,17 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_zcash/cw_zcash.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
+import 'package:warp_api/data_fb_generated.dart';
 import 'package:warp_api/warp_api.dart';
 
 class PendingZcashTransaction with PendingTransaction {
-  PendingZcashTransaction({required this.zcashWallet, required this.credentials, required this.txPlan});
+  PendingZcashTransaction({required this.zcashWallet, required this.credentials, required this.txPlan, required this.fee});
 
   final ZcashWallet zcashWallet;
   final ZcashTransactionCredentials credentials;
@@ -21,24 +26,41 @@ class PendingZcashTransaction with PendingTransaction {
 
   @override
   String get amountFormatted {
-    final totalAmount = credentials.outputs.fold<int>(
-      0,
-      (final sum, final output) => sum + (output.formattedCryptoAmount ?? 0),
-    );
-    return '${walletTypeToCryptoCurrency(WalletType.zcash).formatAmount(BigInt.from(totalAmount))} ${walletTypeToCryptoCurrency(WalletType.zcash).title}';
+    return walletTypeToCryptoCurrency(WalletType.zcash).formatAmount(BigInt.from(totalAmount));
+  }
+
+  int get totalAmount {
+    return credentials.outputs.fold<int>(0, (final sum, final output) => sum + (output.formattedCryptoAmount ?? 0));
   }
 
   @override
-  String get feeFormatted => '0 ${walletTypeToCryptoCurrency(WalletType.zcash).title}';
+  String get feeFormatted => '$feeFormattedValue ${walletTypeToCryptoCurrency(WalletType.zcash).title}';
 
   @override
-  String get feeFormattedValue => '0';
+  late String feeFormattedValue = walletTypeToCryptoCurrency(WalletType.zcash).formatAmount(BigInt.from(fee));
+
+  int fee;
 
   @override
   Future<void> commit() async {
-    printV("commit(): $txPlan");
     _txId = await ZcashWalletService.runInDbMutex(
       () => WarpApi.signAndBroadcast(ZcashWalletBase.coin, zcashWallet.accountId, txPlan),
+    );
+    ZcashWalletBase.temporarySentTx[zcashWallet.accountId] ??= [];
+    ZcashWalletBase.temporarySentTx[zcashWallet.accountId]?.add(
+      ShieldedTx(
+        base64.decode(
+          ZcashTaddressRotation.flatBuffersPack(
+            ShieldedTxT(
+              id: Random().nextInt(pow(2, 32).toInt()),
+              txId: _txId?.trim(),
+              height: pow(2, 32).toInt() - 1,
+              timestamp: DateTime.now().millisecondsSinceEpoch~/1000,
+              value: -totalAmount,
+            ).pack,
+          ),
+        ),
+      ),
     );
     await zcashWallet.updateTransactions();
     await zcashWallet.updateBalance();

@@ -515,7 +515,7 @@
   "matrix_green_dark_theme": "Matrix Yeşil Koyu Tema",
   "max_amount": "Maks: ${value}",
   "max_value": "En fazla: ${value} ${currency}",
-  "memo": "Memo:",
+  "memo": "Memo",
   "message": "İleti",
   "message_verified": "Mesaj başarıyla doğrulandı",
   "messages": "Mesaj",

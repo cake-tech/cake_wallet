@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cw_core/crypto_currency.dart';
@@ -17,6 +18,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_zcash/cw_zcash.dart';
+import 'package:cw_zcash/src/util/crc32.dart';
 import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
 import 'package:mobx/mobx.dart';
@@ -226,23 +228,52 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
       ),
     );
 
-    return PendingZcashTransaction(zcashWallet: this as ZcashWallet, credentials: creds, txPlan: txPlan);
+    return PendingZcashTransaction(
+      zcashWallet: this as ZcashWallet,
+      credentials: creds,
+      txPlan: txPlan,
+      fee: internalCalculateEstimatedFee(creds.priority, null),
+    );
+  }
+  
+  static const _dispPhrase = "Received to disposable address";
+  Future<List<ShieldedTx>> getShieldTxForUi() async {
+    final tx = (ZcashTaddressRotation.shieldedAccountsTx[accountId]??<ShieldedTx>[]).map((final v) {
+      final unpacked = v.unpack();
+      unpacked.memo ??= "";
+      unpacked.memo = "${unpacked.memo}\n$_dispPhrase".trim();
+      final List<int> buff = base64.decode(ZcashTaddressRotation.flatBuffersPack(unpacked.pack));
+      return ShieldedTx(buff);
+    }).where((final t) => t.value > 0);
+    
+    return tx.toList();
   }
 
+  static Map<int, List<ShieldedTx>> temporarySentTx = {};
+
+
+  static String txChecksumKey(final ShieldedTx tx) {
+    final direction = tx.value > 0 ? TransactionDirection.incoming : TransactionDirection.outgoing;
+    return 'tx${direction}_${tx.id}_${tx.timestamp}_${CRC32.compute(tx.toString())}';
+  }
+  
   @override
   Future<Map<String, ZcashTransactionInfo>> fetchTransactions() async {
     await ZcashWalletService.loadShieldTxs();
     final txs = (await ZcashWalletService.runInDbMutex(() => WarpApi.getTxs(coin, accountId))).toList();
     // ShieldedTx{id: 26, txId: 4d1be06ce2c2debec8d98ce4e9434c8aac27c980488b459017d423fdcab37f93, height: 3195705, shortTxId: 4d1be06c, timestamp: 1767730944, name: null, value: 1000000, address: null, memo: , messages: MemoVec{memos: null}}
-    printV("txs: ${txs.length}");
-    final shieldSendTxs = ZcashTaddressRotation.shieldedAccountsTx[accountId]?.map((final tx) => tx.txId);
-    txs.removeWhere((final t) => shieldSendTxs?.contains(t.txId) == true);
-    printV("txs: ${txs.length}");
 
-    txs.addAll(ZcashTaddressRotation.shieldedAccountsTx[accountId]??[]);
+    final shieldTx = await getShieldTxForUi();
+
+    txs.addAll(shieldTx);
+    final txIds = txs.map((final tx) => tx.txId??'').toSet();
+    temporarySentTx[accountId]?.removeWhere((final ttx) => txIds.contains(ttx.txId));
+    if (temporarySentTx[accountId]?.isNotEmpty == true) {
+      txs.addAll(temporarySentTx[accountId]??[]);
+    }
+    
     txs.sort((final a, final b) => a.height.compareTo(b.height));
     final Map<String, ZcashTransactionInfo> result = {};
-
     int currentHeight = 0;
     try {
       currentHeight = await WarpApi.getLatestHeight(coin);
@@ -255,10 +286,11 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
 
       final confirmations = tx.height > 0 && currentHeight > 0 ? currentHeight - tx.height + 1 : 0;
 
-      final txId = tx.txId ?? tx.shortTxId ?? 'tx${direction}_${tx.id}_${tx.timestamp}';
+      final txChecksum = txChecksumKey(tx);
+      final txId = tx.txId ?? tx.shortTxId ?? txChecksum;
 
       final txInfo = ZcashTransactionInfo(
-        id: txId,
+        id: txId.trim().replaceAll('"', ''),
         amount: tx.value.abs(),
         fee: 0,
         direction: direction,
@@ -272,7 +304,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
       // if (txInfo.additionalInfo['autoShield'] == true) {
       //   continue;
       // }
-      result[txInfo.id] = txInfo;
+      result[txChecksum] = txInfo;
     }
 
     return result;
@@ -879,5 +911,9 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
     WarpApi.initProver(spend.buffer.asUint8List(), output.buffer.asUint8List());
     await ZcashTaddressRotation.init();
     _initialized = true;
+  }
+  
+  static Future<int> getHeightByDate(final DateTime date) {
+    return WarpApi.getBlockHeightByTime(coin, date);
   }
 }

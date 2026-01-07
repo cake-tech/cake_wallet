@@ -217,6 +217,10 @@ abstract class OutputBase with Store {
             estimatedFee = tron!.getTronTRC20EstimatedFee(_wallet).toString();
           }
           break;
+          
+        case WalletType.zcash:
+          estimatedFee = zcash!.formatterZcashAmountToDouble(amount: BigInt.from(fee)).toString();
+          break;
 
         /// EVMs
         case WalletType.ethereum:
@@ -255,7 +259,6 @@ abstract class OutputBase with Store {
 
         case WalletType.haven:
         case WalletType.nano:
-        case WalletType.zcash:
         case WalletType.banano:
         case WalletType.none:
           // will not reach here as it doesn't have priority and this function is triggered only when priority changes

@@ -29,7 +29,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   @computed
-  String get address {
+  String get latestAddress {
     switch (addressPageType) {
       case ZcashAddressType.transparent:
         return transparentAddress;
@@ -48,8 +48,17 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @observable
-  late ZcashAddressType addressPageType = ZcashReceivePageOption.typeFromString(walletInfo.addressPageType ?? "");
+  late ZcashAddressType _addressPageType = ZcashReceivePageOption.typeFromString(walletInfo.addressPageType ?? "");
 
+  @computed
+  ZcashAddressType get addressPageType => _addressPageType;
+  
+  @computed
+  set addressPageType(final ZcashAddressType newZat) {
+    _addressPageType = newZat;
+    address = latestAddress;
+  }
+  
   @action
   Future<void> setAddressType(final ZcashAddressType type) async {
     addressPageType = ZcashReceivePageOption.typeFromString(type.toString());
@@ -106,6 +115,8 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   bool containsAddress(final String address) {
     return this.address == address || addressesMap.values.contains(address);
   }
+  
+  static int get coin => ZcashWalletBase.coin;
 
   @override
   Future<void> init() async {
@@ -114,90 +125,31 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     usedAddresses = await walletInfo.getUsedAddresses();
     manualAddresses = await walletInfo.getManualAddresses();
     hiddenAddresses = await walletInfo.getHiddenAddresses();
-
-    if (addressInfos.isEmpty || addressesMap.isEmpty) {
-      final primaryAddr = address;
-      if (primaryAddr.isNotEmpty) {
-        addressesMap[primaryAddr] = primaryAddr;
-        allAddressesMap[primaryAddr] = primaryAddr;
-
-        addressInfos[unifiedType] ??= [];
-        if (!addressInfos[unifiedType]!.any((final info) => info.address == primaryAddr)) {
-          addressInfos[unifiedType]!.add(
-            WalletInfoAddressInfo(
-              walletInfoId: walletInfo.internalId,
-              mapKey: unifiedType,
-              accountIndex: accountId,
-              address: primaryAddr,
-              label: "Unified Address",
-            ),
-          );
-        }
-      }
-
-      final tAddr = transparentAddress;
-      if (tAddr.isNotEmpty && !addressesMap.containsKey(tAddr)) {
-        addressesMap[tAddr] = tAddr;
-        allAddressesMap[tAddr] = tAddr;
-
-        addressInfos[transparentType] ??= [];
-        if (!addressInfos[transparentType]!.any((final info) => info.address == tAddr)) {
-          addressInfos[transparentType]!.add(
-            WalletInfoAddressInfo(
-              walletInfoId: walletInfo.internalId,
-              mapKey: transparentType,
-              accountIndex: accountId,
-              address: tAddr,
-              label: "Transparent Address",
-            ),
-          );
-        }
-      }
-
-      final sAddr = saplingAddress;
-      if (sAddr.isNotEmpty && !addressesMap.containsKey(sAddr)) {
-        addressesMap[sAddr] = sAddr;
-        allAddressesMap[sAddr] = sAddr;
-
-        addressInfos[shieldedSaplingType] ??= [];
-        if (!addressInfos[shieldedSaplingType]!.any((final info) => info.address == sAddr)) {
-          addressInfos[shieldedSaplingType]!.add(
-            WalletInfoAddressInfo(
-              walletInfoId: walletInfo.internalId,
-              mapKey: shieldedSaplingType,
-              accountIndex: accountId,
-              address: sAddr,
-              label: "Shielded Address (Sapling)",
-            ),
-          );
-        }
-      }
-
-      final oAddr = orchardAddress;
-      if (oAddr.isNotEmpty && !addressesMap.containsKey(oAddr)) {
-        addressesMap[oAddr] = oAddr;
-        allAddressesMap[oAddr] = oAddr;
-
-        addressInfos[shieldedOrchardType] ??= [];
-        if (!addressInfos[shieldedOrchardType]!.any((final info) => info.address == oAddr)) {
-          addressInfos[shieldedOrchardType]!.add(
-            WalletInfoAddressInfo(
-              walletInfoId: walletInfo.internalId,
-              mapKey: shieldedOrchardType,
-              accountIndex: accountId,
-              address: oAddr,
-              label: "Shielded Address (Orchard)",
-            ),
-          );
-        }
-      }
-
-      await saveAddressesInBox();
-    }
+    
+    addressesMap = {"a": "b"};
+    
+    await ZcashTaddressRotation.init();
+    printV(ZcashTaddressRotation.rotationAccounts.keys);
+    int accountIndex = 0;
+    addressInfos = {
+      0: ZcashTaddressRotation.allAddressesForAccount(accountId)?.map((final v) {
+        return WalletInfoAddressInfo(
+          walletInfoId: walletInfo.internalId,
+          mapKey: ++accountIndex,
+          accountIndex: 0,
+          address: v,
+          label: "",
+        );
+      }).toList()??[],
+    };
+    usedAddresses = ZcashTaddressRotation.allUsedAddressesForAccount(accountId)?.toSet() ?? {};
+    
+    await saveAddressesInBox();
   }
 
   @override
-  String get latestAddress => address;
+  @observable
+  late String address = latestAddress;
 
   @override
   String get primaryAddress => address;
@@ -221,8 +173,6 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     _saplingAddress = null;
     _orchardAddress = null;
     _unifiedAddress = null;
-
-    await init();
   }
 
   @override
@@ -231,12 +181,10 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   @override
   Map<String, String> get usableAllAddressesMap => allAddressesMap;
 
-  @override
-  set address(final String address) {
-    throw UnimplementedError();
-  }
-
   List<WalletInfoAddressInfo> getAddressInfos() {
+    if (addressPageType != ZcashAddressType.transparentRotated) {
+      return [];
+    }
     final List<WalletInfoAddressInfo> allInfos = [];
     for (final entry in addressInfos.entries) {
       allInfos.addAll(entry.value);

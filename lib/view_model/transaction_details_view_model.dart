@@ -255,7 +255,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.arbitrum:
         return S.current.view_transaction_on + 'arbiscan.io';
       case WalletType.zcash:
-        return S.current.view_transaction_on + 'zcashexplorer.app';
+        return S.current.view_transaction_on + 'blockchair.com';
       case WalletType.none:
         return '';
     }

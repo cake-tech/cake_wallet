@@ -104,12 +104,12 @@ class TransactionsPage extends StatelessWidget {
                                   tags.add("MWEB");
                                 }
                               }
-
                               return Observer(
                                 builder: (_) => TransactionRow(
                                   key: item.key,
                                   onTap: () => Navigator.of(context)
                                       .pushNamed(Routes.transactionDetails, arguments: transaction),
+                                  isShield: transaction.additionalInfo["autoShield"] == true,
                                   direction: transaction.direction,
                                   formattedDate: DateFormat('HH:mm').format(transaction.date),
                                   formattedAmount: item.formattedCryptoAmount,

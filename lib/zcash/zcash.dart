@@ -1,5 +1,6 @@
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -10,7 +11,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/address_info.dart';
 import 'package:cw_core/receive_page_option.dart';
 
 
@@ -56,8 +56,7 @@ abstract class Zcash {
   });
 
   int formatterZcashParseAmount(String amount);
-  double formatterZcashAmountToDouble(
-      {TransactionInfo? transaction, BigInt? amount, int exponent = 18});
+  double formatterZcashAmountToDouble({TransactionInfo? transaction, BigInt? amount});
   String formatterZcashAmountToString({required int amount});
   
   List<WalletInfoAddressInfo> getAddressInfos(Object wallet);
@@ -72,6 +71,7 @@ abstract class Zcash {
   Future<void> setAddressType(Object wallet, dynamic option);
   ZcashAddressType getOptionToType(ReceivePageOption option);
   void unlockDatabase(String password);
+  Future<int> getHeightByDate(DateTime date);
 }
 
   

@@ -17,6 +17,7 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/svg.dart';
 
 class DesktopWalletSelectionDropDown extends StatefulWidget {
   final WalletListViewModel walletListViewModel;
@@ -154,7 +155,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
     });
   }
 
-  Image _imageFor({required WalletType type, bool? isTestnet}) {
+  Widget _imageFor({required WalletType type, bool? isTestnet}) {
     switch (type) {
       case WalletType.bitcoin:
         if (isTestnet == true) return tBitcoinIcon;

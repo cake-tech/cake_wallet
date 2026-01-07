@@ -515,7 +515,7 @@
   "matrix_green_dark_theme": "Tmavé téma Matrix Green",
   "max_amount": "Max: ${value}",
   "max_value": "Max: ${value} ${currency}",
-  "memo": "Memo:",
+  "memo": "Memo",
   "message": "Zpráva",
   "message_verified": "Zpráva byla úspěšně ověřena",
   "messages": "Zprávy",

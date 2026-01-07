@@ -316,7 +316,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       final addrInfos = zcash!.getAddressInfos(wallet);
       addrInfos.forEach((info) {
         addressList.add(
-            new WalletAddressListItem(isPrimary: false, address: wallet.walletAddresses.address, name: info.label));
+            new WalletAddressListItem(isPrimary: false, address: info.address, name: info.label));
       });
     }
 
@@ -416,7 +416,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.litecoin,
         WalletType.decred,
         WalletType.dogecoin,
-        // WalletType.zcash,
+        WalletType.zcash,
       ].contains(wallet.type);
 
   @computed
