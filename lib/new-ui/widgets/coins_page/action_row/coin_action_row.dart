@@ -4,6 +4,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/routes.dart';
@@ -14,6 +15,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../../pages/receive_page.dart';
 import '../../../pages/scan_page.dart';
@@ -44,9 +46,10 @@ class CoinActionRow extends StatelessWidget {
             label: S.of(context).send,
             action: () {
               if (FeatureFlag.hasNewUiExtraPages) {
-                showModalBottomSheet(
+                showMaterialModalBottomSheet(
                   context: context,
-                  builder: (context) => SendPage(),
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => ModalNavigator(rootPage: getIt.get<NewSendPage>()),
                 );
               } else {
                 Map<String, dynamic>? args;

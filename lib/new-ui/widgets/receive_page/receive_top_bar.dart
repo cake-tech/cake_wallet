@@ -1,20 +1,33 @@
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:flutter/material.dart';
 
+void nothing(){}
+
 class ModalTopBar extends StatelessWidget {
-  const ModalTopBar(
+  ModalTopBar(
       {super.key,
       required this.title,
-      required this.onLeadingPressed,
-      required this.onTrailingPressed,
+      this.onLeadingPressed=nothing,
+      this.onTrailingPressed=nothing,
       this.leadingIcon,
-      this.trailingIcon});
+      this.trailingIcon,
+      this.leadingWidget,
+      this.trailingWidget}) {
+    if(leadingIcon != null && leadingWidget != null) {
+      throw Exception("Cannot have both leadingIcon and leadingWidget");
+    }
+    if(trailingIcon != null && trailingWidget != null) {
+      throw Exception("Cannot have both trailingIcon and trailingWidget");
+    }
+  }
 
   final String title;
   final VoidCallback onLeadingPressed;
   final VoidCallback onTrailingPressed;
   final Widget? leadingIcon;
   final Widget? trailingIcon;
+  final Widget? leadingWidget;
+  final Widget? trailingWidget;
 
   static const buttonSize = 36.0;
 
@@ -22,22 +35,33 @@ class ModalTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 12.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          if (leadingIcon != null)
-            ModernButton(size: buttonSize, onPressed: onLeadingPressed, icon: leadingIcon!)
-          else
-            Container(width: buttonSize),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.headlineMedium,
+          Align(
+            alignment: Alignment.center,
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
           ),
-          if (trailingIcon != null)
-            ModernButton(size: buttonSize, onPressed: onTrailingPressed, icon: trailingIcon!)
-          else
-            Container(width: buttonSize),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (leadingIcon != null)
+                ModernButton(size: buttonSize, onPressed: onLeadingPressed, icon: leadingIcon!)
+              else if (leadingWidget != null) leadingWidget!
+              else
+                Container(width: buttonSize),
+
+              if (trailingIcon != null)
+                ModernButton(size: buttonSize, onPressed: onTrailingPressed, icon: trailingIcon!)
+              else if (trailingWidget != null) trailingWidget!
+              else
+                Container(width: buttonSize),
+            ],
+          ),
         ],
       ),
     );

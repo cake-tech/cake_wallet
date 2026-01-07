@@ -51,7 +51,9 @@ import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
+import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
@@ -871,6 +873,15 @@ Future<void> setup({
             walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
           ));
 
+  getIt.registerFactoryParam<NewSendPage, PaymentRequest?, UnspentCoinType?>(
+          (PaymentRequest? initialPaymentRequest, coinTypeToSpendFrom) => NewSendPage(
+        sendViewModel: getIt.get<SendViewModel>(param1: coinTypeToSpendFrom),
+        authService: getIt.get<AuthService>(),
+        initialPaymentRequest: initialPaymentRequest,
+        paymentViewModel: getIt.get<PaymentViewModel>(),
+        walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
+      ));
+
   getIt.registerFactory(
       () => SendTemplatePage(sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
 
@@ -1480,6 +1491,13 @@ Future<void> setup({
       (coinTypeToSpendFrom, _) => UnspentCoinsListPage(
           unspentCoinsListViewModel:
               getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom)));
+
+  getIt.registerFactoryParam<NewCoinControlPage, UnspentCoinType?, void>(
+          (coinTypeToSpendFrom, _) => NewCoinControlPage(
+          unspentCoinsListViewModel:
+          getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom))
+
+  );
 
   getIt.registerFactoryParam<UnspentCoinsDetailsViewModel, UnspentCoinsItem,
           UnspentCoinsListViewModel>(

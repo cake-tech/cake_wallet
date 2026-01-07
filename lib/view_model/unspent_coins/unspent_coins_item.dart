@@ -18,6 +18,7 @@ abstract class UnspentCoinsItemBase with Store, UnspentComparable {
     required this.vout,
     required this.keyImage,
     required this.isSilentPayment,
+    this.isBeingSaved = false
   });
 
   @observable
@@ -52,4 +53,8 @@ abstract class UnspentCoinsItemBase with Store, UnspentComparable {
 
   @observable
   bool isSilentPayment;
+
+
+  @observable
+  bool isBeingSaved;
 }
