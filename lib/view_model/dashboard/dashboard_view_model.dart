@@ -337,37 +337,6 @@ abstract class DashboardViewModelBase with Store {
     reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
 
     tradeMonitor.monitorActiveTrades(wallet.id);
-
-    // Initialize export options
-    _initializeExportOptions();
-  }
-
-  void _initializeExportOptions() {
-    exportOptions = {
-      S.current.transactions: [
-        ExportOption(
-          title: 'Export as CSV',
-          icon: Icons.table_chart,
-          onTap: () => exportTransactionsAsCSV(),
-        ),
-        // temporarily using for debug, expose these options
-        ExportOption(
-          title: 'Export as JSON',
-          icon: Icons.code,
-          onTap: () => exportTransactionsAsJSON(),
-        ),
-        ExportOption(
-          title: 'Export to Clipboard (CSV)',
-          icon: Icons.content_copy,
-          onTap: () => exportToClipboard(),
-        ),
-        ExportOption(
-          title: 'Export Swaps',
-          icon: Icons.swap_horiz_outlined,
-          onTap: () => exportSwaps(),
-        )
-      ],
-    };
   }
 
   bool _isTransactionDisposerCallbackRunning = false;
@@ -418,8 +387,6 @@ abstract class DashboardViewModelBase with Store {
       balanceViewModel.mwebEnabled = mwebEnabled;
     }
   }
-
-  late final Map<String, List<ExportOption>> exportOptions;
 
   @observable
   bool isExporting = false;
@@ -1115,10 +1082,10 @@ abstract class DashboardViewModelBase with Store {
   @action
   void setBuiltinTor(bool value, BuildContext context) {
     if (value) {
-      unawaited(showPopUp<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
+      unawaited(
+        showPopUp<bool>(
+          context: context,
+          builder: (BuildContext context) {
             return AlertWithOneAction(
               alertTitle: S.of(context).tor_connection,
               alertContent: S.of(context).tor_experimental,
@@ -1132,12 +1099,14 @@ abstract class DashboardViewModelBase with Store {
     settingsStore.currentBuiltinTor = value;
     if (value) {
       unawaited(ensureTorStarted(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == false) return; // return when tor got disabled in the meantime;
+        if (settingsStore.currentBuiltinTor == false)
+          return; // return when tor got disabled in the meantime;
         await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
       }));
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == true) return; // return when tor got enabled in the meantime;
+        if (settingsStore.currentBuiltinTor == true)
+          return; // return when tor got enabled in the meantime;
         await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
       }));
     }
