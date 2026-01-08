@@ -56,7 +56,6 @@ jobs:
 
       - name: Add secrets
         run: |
-          touch lib/.secrets.g.dart
           touch cw_evm/lib/.secrets.g.dart
           touch cw_solana/lib/.secrets.g.dart
           touch cw_core/lib/.secrets.g.dart
@@ -71,14 +70,14 @@ jobs:
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
-          
+
           echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
           echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
-          
+
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
-          
-          echo "${{ secrets.MAIN_SECRETS_FILE }}" >> lib/.secrets.g.dart
+
+          echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 
       - name: prepare monero_c and cache
         run: |
