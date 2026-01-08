@@ -181,6 +181,8 @@ jobs:
           echo "const walletGroupSalt = '${{ secrets.WALLET_GROUP_SALT }}';" >> lib/.secrets.g.dart
           echo "const swapsXyzApiKey = '${{ secrets.SWAPSXYZ_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const jupiterApiKey = '${{ secrets.JUPITER_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const jupiterReferralFeeBps = '${{ secrets.JUPITER_REFERRAL_FEE_BPS }}';" >> lib/.secrets.g.dart
+          echo "const jupiterReferralAccount = '${{ secrets.JUPITER_REFERRAL_ACCOUNT }}';" >> lib/.secrets.g.dart
 
       - name: Fetch prebuilt Torch
         run: |

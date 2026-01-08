@@ -118,6 +118,27 @@ class JupiterExchangeProvider extends ExchangeProvider {
     return headers;
   }
 
+  Map<String, String>? _getReferralFeeConfig() {
+    try {
+      final referralFeeBpsStr = secrets.jupiterReferralFeeBps;
+      final referralFeeBps = int.tryParse(referralFeeBpsStr) ?? 0;
+
+      final referralAccount = secrets.jupiterReferralAccount;
+
+      // Only enable if both are configured and valid
+      if (referralFeeBps <= 0 || referralFeeBps > 10000 || referralAccount.isEmpty) {
+        return null;
+      }
+
+      return {
+        'referralFee': referralFeeBps.toString(),
+        'referralAccount': referralAccount,
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
   @override
   Future<double> fetchRate({
     required CryptoCurrency from,
@@ -230,6 +251,12 @@ class JupiterExchangeProvider extends ExchangeProvider {
         if (!isInternalTransfer) 'receiver': request.toAddress,
       };
 
+      final referralFeeConfig = _getReferralFeeConfig();
+      if (referralFeeConfig != null) {
+        orderParams['referralFee'] = referralFeeConfig['referralFee']!;
+        orderParams['referralAccount'] = referralFeeConfig['referralAccount']!;
+      }
+
       final orderUri = Uri.https(_baseUrl, _orderPath, orderParams);
       final headers = _getHeaders();
 
@@ -286,7 +313,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
       final requestId = orderData['requestId'] as String?;
       final outAmount = orderData['outAmount'] as String? ?? '0.0';
 
-      // Extract actual fees from order response (in lamports)
+      // Extract network fees from order response (in lamports)
       final signatureFeeLamports = (orderData['signatureFeeLamports'] as num?)?.toInt() ?? 0;
 
       final prioritizationFeeLamports =
@@ -294,9 +321,14 @@ class JupiterExchangeProvider extends ExchangeProvider {
 
       final rentFeeLamports = (orderData['rentFeeLamports'] as num?)?.toInt() ?? 0;
 
-      // Convert total fees to SOL (1 SOL = 1e9 lamports)
-      final totalFeeLamports = signatureFeeLamports + prioritizationFeeLamports + rentFeeLamports;
-      final totalFeeInSol = totalFeeLamports / 1000000000.0;
+      final integratorFeeLamports = (orderData['integratorFeeLamports'] as num?)?.toInt() ?? 0;
+
+      final networkFeeLamports = signatureFeeLamports + prioritizationFeeLamports + rentFeeLamports;
+      final networkFeeInSol = networkFeeLamports / 1000000000.0;
+
+      final integratorFeeInSol = integratorFeeLamports / 1000000000.0;
+
+      final totalFeeInSol = networkFeeInSol + integratorFeeInSol;
 
       if (transaction == null || transaction.isEmpty) {
         throw Exception('No transaction returned from Jupiter order endpoint');

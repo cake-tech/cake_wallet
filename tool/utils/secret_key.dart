@@ -86,6 +86,8 @@ class SecretKey {
     SecretKey('walletGroupSalt', () => hex.encode(encrypt.Key.fromSecureRandom(16).bytes)),
     SecretKey('swapsXyzApiKey', () => ''),
     SecretKey('jupiterApiKey', () => ''),
+    SecretKey('jupiterReferralFeeBps', () => ''),
+    SecretKey('jupiterReferralAccount', () => ''),
   ];
 
   static final evmChainsSecrets = [
