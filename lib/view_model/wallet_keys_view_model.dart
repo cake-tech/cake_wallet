@@ -62,7 +62,7 @@ abstract class WalletKeysViewModelBase with Store {
   }
 
   bool get isBitcoin => _wallet.type == WalletType.bitcoin;
-  
+
   // this is incomplete, needs legacy seed toggle for XMR
   bool get shouldShowHeightBox => [WalletType.bitcoin, WalletType.zcash].contains(_wallet.type);
   final ObservableList<StandartListItem> items;
@@ -207,6 +207,9 @@ abstract class WalletKeysViewModelBase with Store {
         ]);
         break;
       case WalletType.minotari:
+        // Minotari uses BIP39 24-word mnemonic
+        // Seed will be displayed via the seed property once getMnemonic() FFI is implemented
+        break;
       case WalletType.none:
       case WalletType.haven:
         break;
@@ -309,6 +312,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'dogecoin-wallet';
       case WalletType.zcash:
         return 'zcash-wallet';
+      case WalletType.minotari:
+        return 'minotari-wallet';
       case WalletType.none:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
     }
