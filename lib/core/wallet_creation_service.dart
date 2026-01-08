@@ -97,7 +97,7 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) async {
-    checkIfExists(credentials.name);
+    await checkIfExists(credentials.name);
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
@@ -116,7 +116,7 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) async {
-    checkIfExists(credentials.name);
+    await checkIfExists(credentials.name);
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
@@ -135,7 +135,7 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromHardwareWallet(WalletCredentials credentials) async {
-    checkIfExists(credentials.name);
+    await checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);

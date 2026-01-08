@@ -95,7 +95,7 @@ abstract class WalletCreationVMBase with Store {
         throw Exception(S.current.repeated_password_is_incorrect);
       }
 
-      walletCreationService.checkIfExists(name);
+      await walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
 
