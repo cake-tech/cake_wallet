@@ -10,6 +10,7 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/service_status.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -608,6 +609,17 @@ abstract class DashboardViewModelBase with Store {
     final resp = await FlutterDaemon().getBackgroundSyncStatus();
     backgroundSyncEnabled = resp;
     return resp;
+  }
+
+  @action
+  void toggleSwitchStatusDisplayMode() {
+    if (status is SyncingSyncStatus && !((status as SyncingSyncStatus).shouldShowBlocksRemaining())) {
+      if (settingsStore.syncStatusDisplayMode == SyncStatusDisplayMode.eta) {
+        settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.blocksRemaining;
+      } else {
+        settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.eta;
+      }
+    }
   }
 
   @observable
