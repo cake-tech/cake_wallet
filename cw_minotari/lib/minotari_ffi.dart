@@ -1,197 +1,126 @@
-import 'dart:ffi';
-import 'dart:io';
-import 'package:ffi/ffi.dart';
-import 'package:cw_minotari/minotari_ffi_bindings.dart';
+import 'package:cw_minotari/src/rust/api/wallet.dart' as wallet_api;
+import 'package:cw_minotari/src/rust/api/balance.dart' as balance_api;
+import 'package:cw_minotari/src/rust/api/address.dart' as address_api;
+import 'package:cw_minotari/src/rust/api/db.dart' as db_api;
+import 'package:cw_minotari/src/rust/api/network.dart';
+import 'package:cw_minotari/src/rust/frb_generated.dart';
 
-/// Main FFI interface for interacting with the Minotari Rust library
+/// FFI interface for Minotari wallet using Flutter Rust Bridge
 class MinotariFfi {
-  late MinotariWalletFfiBindings _bindings;
-  Pointer<WalletHandle>? _walletHandle;
+  final String _walletName = 'default'; // We support a single wallet for now
+
   final String dataPath;
+  TariNetwork? _network;
+  bool _isInitialized = false;
 
-  MinotariFfi({required this.dataPath}) {
-    _bindings = MinotariWalletFfiBindings(_loadLibrary());
-    _bindings.minotari_init_logging();
+  static bool _rustLibInitialized = false;
+
+  MinotariFfi({required this.dataPath});
+
+  /// Ensure Rust library is initialized (lazy initialization)
+  static Future<void> _ensureRustLibInitialized() async {
+    if (!_rustLibInitialized) {
+      await RustLib.init();
+      _rustLibInitialized = true;
+    }
   }
 
-  /// Load the native library
-  DynamicLibrary _loadLibrary() {
-    if (Platform.isAndroid) {
-      return DynamicLibrary.open('libminotari_wallet_ffi.so');
-    } else if (Platform.isIOS) {
-      return DynamicLibrary.process();
-    } else if (Platform.isMacOS) {
-      return DynamicLibrary.open('libminotari_wallet_ffi.dylib');
-    } else if (Platform.isLinux) {
-      return DynamicLibrary.open('libminotari_wallet_ffi.so');
-    } else if (Platform.isWindows) {
-      return DynamicLibrary.open('minotari_wallet_ffi.dll');
-    }
-    throw UnsupportedError('Unsupported platform');
-  }
+  /// Create a new wallet
+  /// Rust generates mnemonic internally
+  Future<void> create({TariNetwork network = TariNetwork.mainNet}) async {
+    await _ensureRustLibInitialized();
 
-  /// Create a new wallet from mnemonic
-  Future<void> createFromMnemonic(String mnemonic, {String passphrase = ''}) async {
-    final mnemonicPtr = mnemonic.toNativeUtf8();
-    final dataPathPtr = dataPath.toNativeUtf8();
-    final passphrasePtr = passphrase.isEmpty ? nullptr : passphrase.toNativeUtf8();
-    final errorPtr = calloc<Pointer<Char>>();
+    await db_api.initializeDatabase(path: dataPath);
 
-    try {
-      _walletHandle = _bindings.minotari_wallet_create_from_mnemonic(
-        mnemonicPtr.cast(),
-        dataPathPtr.cast(),
-        passphrasePtr.cast(),
-        errorPtr,
-      );
+    // Create wallet using FFI - Rust generates mnemonic internally
+    await wallet_api.createWallet(network: network);
 
-      if (_walletHandle == nullptr) {
-        final errorMsg = errorPtr.value.cast<Utf8>().toDartString();
-        _bindings.minotari_string_free(errorPtr.value);
-        throw Exception('Failed to create wallet: $errorMsg');
-      }
-    } finally {
-      calloc.free(mnemonicPtr);
-      calloc.free(dataPathPtr);
-      if (passphrasePtr != nullptr) {
-        calloc.free(passphrasePtr);
-      }
-      calloc.free(errorPtr);
-    }
+    _network = network;
+    _isInitialized = true;
   }
 
   /// Restore wallet from mnemonic
-  Future<void> restore(String mnemonic, {String passphrase = ''}) async {
-    final mnemonicPtr = mnemonic.toNativeUtf8();
-    final dataPathPtr = dataPath.toNativeUtf8();
-    final passphrasePtr = passphrase.isEmpty ? nullptr : passphrase.toNativeUtf8();
-    final errorPtr = calloc<Pointer<Char>>();
+  Future<void> restore(
+    String mnemonic, {
+    String passphrase = '',
+    TariNetwork network = TariNetwork.mainNet,
+  }) async {
+    await _ensureRustLibInitialized();
 
-    try {
-      _walletHandle = _bindings.minotari_wallet_restore(
-        mnemonicPtr.cast(),
-        dataPathPtr.cast(),
-        passphrasePtr.cast(),
-        errorPtr,
-      );
+    await db_api.initializeDatabase(path: dataPath);
 
-      if (_walletHandle == nullptr) {
-        final errorMsg = errorPtr.value.cast<Utf8>().toDartString();
-        _bindings.minotari_string_free(errorPtr.value);
-        throw Exception('Failed to restore wallet: $errorMsg');
-      }
-    } finally {
-      calloc.free(mnemonicPtr);
-      calloc.free(dataPathPtr);
-      if (passphrasePtr != nullptr) {
-        calloc.free(passphrasePtr);
-      }
-      calloc.free(errorPtr);
+    // Convert mnemonic string to list of words
+    final seedWords = mnemonic.split(' ').where((word) => word.isNotEmpty).toList();
+
+    if (seedWords.length != 24) {
+      throw Exception('Invalid mnemonic: expected 24 words, got ${seedWords.length}');
     }
+
+    // Restore wallet using FFI
+    await wallet_api.restoreWallet(
+      seedWords: seedWords,
+      passphrase: passphrase.isEmpty ? null : passphrase,
+      network: network,
+    );
+
+    _network = network;
+    _isInitialized = true;
   }
 
   /// Get wallet address
   Future<String> getAddress() async {
-    if (_walletHandle == null) {
+    if (!_isInitialized) {
       throw Exception('Wallet not initialized');
     }
 
-    final errorPtr = calloc<Pointer<Char>>();
-
-    try {
-      final addressPtr = _bindings.minotari_wallet_get_address(_walletHandle!, errorPtr);
-
-      if (addressPtr == nullptr) {
-        final errorMsg = errorPtr.value.cast<Utf8>().toDartString();
-        _bindings.minotari_string_free(errorPtr.value);
-        throw Exception('Failed to get address: $errorMsg');
-      }
-
-      final address = addressPtr.cast<Utf8>().toDartString();
-      _bindings.minotari_string_free(addressPtr);
-      return address;
-    } finally {
-      calloc.free(errorPtr);
-    }
+    return await address_api.getAddress(
+      walletName: _walletName,
+      network: _network,
+    );
   }
 
   /// Get wallet balance
   Future<Map<String, int>> getBalance() async {
-    if (_walletHandle == null) {
+    if (!_isInitialized) {
       throw Exception('Wallet not initialized');
     }
 
-    final availablePtr = calloc<Uint64>();
-    final pendingIncomingPtr = calloc<Uint64>();
-    final pendingOutgoingPtr = calloc<Uint64>();
-    final errorPtr = calloc<Pointer<Char>>();
+    final balance = await balance_api.getBalance(walletName: _walletName);
 
-    try {
-      final result = _bindings.minotari_wallet_get_balance(
-        _walletHandle!,
-        availablePtr,
-        pendingIncomingPtr,
-        pendingOutgoingPtr,
-        errorPtr,
-      );
-
-      if (result != 0) {
-        final errorMsg = errorPtr.value.cast<Utf8>().toDartString();
-        _bindings.minotari_string_free(errorPtr.value);
-        throw Exception('Failed to get balance: $errorMsg');
-      }
-
-      return {
-        'available': availablePtr.value,
-        'pendingIncoming': pendingIncomingPtr.value,
-        'pendingOutgoing': pendingOutgoingPtr.value,
-      };
-    } finally {
-      calloc.free(availablePtr);
-      calloc.free(pendingIncomingPtr);
-      calloc.free(pendingOutgoingPtr);
-      calloc.free(errorPtr);
-    }
+    // Convert BigInt to int (Minotari uses micro-tari, which fits in int64)
+    return {
+      'available': balance.available.toInt(),
+      'pendingIncoming': balance.unconfirmed.toInt(),
+      'pendingOutgoing': balance.locked.toInt(),
+    };
   }
 
   /// Sync wallet with base node
+  /// Note: The current Rust FFI uses a scanner-based approach
+  /// This is a compatibility stub that will be replaced with proper scanner integration
   Future<void> sync(String baseNodeAddress) async {
-    if (_walletHandle == null) {
+    if (!_isInitialized) {
       throw Exception('Wallet not initialized');
     }
 
-    final addressPtr = baseNodeAddress.toNativeUtf8();
-    final errorPtr = calloc<Pointer<Char>>();
-
-    try {
-      final result = _bindings.minotari_wallet_sync(
-        _walletHandle!,
-        addressPtr.cast(),
-        errorPtr,
-      );
-
-      if (result != 0) {
-        final errorMsg = errorPtr.value.cast<Utf8>().toDartString();
-        _bindings.minotari_string_free(errorPtr.value);
-        throw Exception('Failed to sync wallet: $errorMsg');
-      }
-    } finally {
-      calloc.free(addressPtr);
-      calloc.free(errorPtr);
-    }
+    // TODO: Implement scanner-based sync
+    // For now, just update balance to trigger a refresh
+    await getBalance();
   }
 
-  /// Get mnemonic (placeholder - needs to be implemented in Rust)
+  /// Get mnemonic
+  /// Note: This needs to be implemented in the Rust layer
   String? getMnemonic() {
-    // TODO: Implement mnemonic retrieval from wallet
+    // TODO: Implement mnemonic retrieval from Rust wallet
     return null;
   }
 
   /// Dispose of the wallet handle
-  void dispose() {
-    if (_walletHandle != null) {
-      _bindings.minotari_wallet_free(_walletHandle!);
-      _walletHandle = null;
+  Future<void> dispose() async {
+    if (_isInitialized) {
+      await db_api.disconnectDatabase();
+      _isInitialized = false;
+      _network = null;
     }
   }
 }
