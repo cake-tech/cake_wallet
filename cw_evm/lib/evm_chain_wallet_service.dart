@@ -102,10 +102,17 @@ class EVMChainWalletService extends WalletService<
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
     final mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
 
+    final derivationInfo = await walletInfo.getDerivationInfo();
+    if (derivationInfo.derivationPath == null || derivationInfo.derivationPath!.isEmpty) {
+      derivationInfo.derivationPath = "m/44'/60'/0'/0";
+      derivationInfo.derivationType = DerivationType.bip39;
+      await derivationInfo.save();
+    }
+
     final wallet = _createWalletInstance(
       walletType: walletInfo.type,
       walletInfo: walletInfo,
-      derivationInfo: await walletInfo.getDerivationInfo(),
+      derivationInfo: derivationInfo,
       mnemonic: mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -200,10 +207,17 @@ class EVMChainWalletService extends WalletService<
 
     final client = EVMChainClientFactory.createClient(initialChainId);
 
+    final derivationInfo = await walletInfo.getDerivationInfo();
+    if (derivationInfo.derivationPath == null || derivationInfo.derivationPath!.isEmpty) {
+      derivationInfo.derivationPath = "m/44'/60'/0'/0";
+      derivationInfo.derivationType = DerivationType.bip39;
+      await derivationInfo.save();
+    }
+
     final wallet = _createWalletInstance(
       walletType: walletInfo.type,
       walletInfo: walletInfo,
-      derivationInfo: await walletInfo.getDerivationInfo(),
+      derivationInfo: derivationInfo,
       mnemonic: credentials.mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -234,10 +248,17 @@ class EVMChainWalletService extends WalletService<
 
     final client = EVMChainClientFactory.createClient(initialChainId);
 
+    final derivationInfo = await walletInfo.getDerivationInfo();
+    if (derivationInfo.derivationPath == null || derivationInfo.derivationPath!.isEmpty) {
+      derivationInfo.derivationPath = "m/44'/60'/0'/0";
+      derivationInfo.derivationType = DerivationType.bip39;
+      await derivationInfo.save();
+    }
+
     final wallet = _createWalletInstance(
       walletType: walletInfo.type,
       walletInfo: walletInfo,
-      derivationInfo: await walletInfo.getDerivationInfo(),
+      derivationInfo: derivationInfo,
       privateKey: credentials.privateKey,
       password: credentials.password!,
       client: client,
