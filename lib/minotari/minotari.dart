@@ -2,7 +2,6 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -16,6 +15,7 @@ import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_wallet_service.dart';
 import 'package:cw_minotari/minotari_transaction_priority.dart';
 import 'package:cw_minotari/pending_minotari_transaction.dart';
+import 'package:cw_minotari/src/rust/api/seeds.dart';
 
 part 'cw_minotari.dart';
 
@@ -30,7 +30,6 @@ abstract class Minotari {
 
   WalletCredentials createMinotariNewWalletCredentials({
     required String name,
-    String? mnemonic,
     WalletInfo? walletInfo,
   });
 
@@ -38,6 +37,7 @@ abstract class Minotari {
     required String name,
     required String mnemonic,
     required int height,
+    String? passphrase,
   });
 
   TransactionPriority getDefaultTransactionPriority();
