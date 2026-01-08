@@ -3,6 +3,7 @@
 import 'dart:math';
 
 import 'package:cw_core/format_amount.dart';
+import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
@@ -63,8 +64,8 @@ class EVMChainTransactionInfo extends TransactionInfo {
 
   @override
   String feeFormatted() {
-    final amount = (ethFee / BigInt.from(10).pow(18)).toString();
-    return '${amount.substring(0, min(18, amount.length))} $feeCurrency';
+    final amount = formatFixed(ethFee, 18);
+    return '$amount $feeCurrency';
   }
 
   factory EVMChainTransactionInfo.fromJson(Map<String, dynamic> data, int chainId) {
