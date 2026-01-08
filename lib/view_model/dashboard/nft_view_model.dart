@@ -98,7 +98,7 @@ abstract class NFTViewModelBase with Store {
         },
       );
 
-      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final decodedResponse = jsonDecode(response.body);
 
       if (wallet.type == WalletType.solana) {
         final results = await Future.wait(
@@ -115,7 +115,7 @@ abstract class NFTViewModelBase with Store {
 
         solanaNftAssetModels.addAll(results);
       } else {
-        final result = WalletNFTsResponseModel.fromJson(decodedResponse).result ?? [];
+        final result = WalletNFTsResponseModel.fromJson(decodedResponse as Map<String, dynamic>).result ?? [];
 
         nftAssetByWalletModels.clear();
 
