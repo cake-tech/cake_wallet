@@ -1124,8 +1124,7 @@ abstract class SettingsStoreBase with Store {
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
     final syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
-        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ??
-            SyncStatusDisplayMode.eta.name);
+        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.blocksRemaining.name);
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -1664,8 +1663,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
     syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
-        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ??
-            SyncStatusDisplayMode.eta.name);
+        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.blocksRemaining.name);
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
