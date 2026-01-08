@@ -15,6 +15,7 @@ class PolygonClient extends EVMChainClient {
     int? maxGas,
     EtherAmount? gasPrice,
     EtherAmount? maxFeePerGas,
+    int? nonce,
   }) {
     EtherAmount? finalGasPrice = gasPrice;
 
@@ -30,6 +31,7 @@ class PolygonClient extends EVMChainClient {
       data: data,
       maxGas: maxGas,
       gasPrice: finalGasPrice,
+      nonce: nonce,
       // maxFeePerGas: maxFeePerGas,
       // maxPriorityFeePerGas: maxPriorityFeePerGas,
     );

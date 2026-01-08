@@ -247,6 +247,13 @@ class EVMChainClient {
         currency == CryptoCurrency.baseEth ||
         currency == CryptoCurrency.arbEth;
 
+    // Get nonce with "pending" block tag to include pending transactions
+    // This prevents "Nonce too low" errors when sending multiple transactions quickly
+    final nonce = await _client!.getTransactionCount(
+      privateKey.address,
+      atBlock: const BlockNum.pending(),
+    );
+
     final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
@@ -257,6 +264,7 @@ class EVMChainClient {
       maxGas: estimatedGasUnits,
       maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
       gasPrice: gasPrice != null ? EtherAmount.fromInt(EtherUnit.wei, gasPrice) : null,
+      nonce: nonce,
     );
 
     Uint8List signedTransaction;
@@ -307,6 +315,11 @@ class EVMChainClient {
     int? gasPrice,
     bool useBlinkProtection = true,
   }) async {
+    final nonce = await _client!.getTransactionCount(
+      privateKey.address,
+      atBlock: const BlockNum.pending(),
+    );
+
     final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(contractAddress),
@@ -316,6 +329,7 @@ class EVMChainClient {
       maxGas: estimatedGasUnits,
       maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
       gasPrice: gasPrice != null ? EtherAmount.fromInt(EtherUnit.wei, gasPrice) : null,
+      nonce: nonce,
     );
 
     final erc20 = ERC20(
@@ -353,6 +367,7 @@ class EVMChainClient {
     EtherAmount? maxFeePerGas,
     Uint8List? data,
     int? maxGas,
+    int? nonce,
   }) {
     return Transaction(
       from: from,
@@ -363,6 +378,7 @@ class EVMChainClient {
       maxGas: maxGas,
       gasPrice: gasPrice,
       maxFeePerGas: maxFeePerGas,
+      nonce: nonce,
     );
   }
 

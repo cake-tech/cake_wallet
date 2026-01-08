@@ -15,7 +15,6 @@ class TradeRow extends StatelessWidget {
     this.formattedAmount,
     this.formattedReceiveAmount,
     required this.swapState,
-    required this.chainName,
     super.key,
   });
 
@@ -27,7 +26,6 @@ class TradeRow extends StatelessWidget {
   final String? formattedAmount;
   final String? formattedReceiveAmount;
   final TradeState swapState;
-  final String chainName;
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +73,7 @@ class TradeRow extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
-                        '${from.toString()}($chainName) → ${to.toString()}',
+                        '${from.toString()} → ${to.toString()}',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
