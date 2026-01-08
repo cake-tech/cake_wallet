@@ -1,17 +1,19 @@
 import 'dart:async';
+
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_minotari/minotari_balance.dart';
-import 'package:cw_minotari/minotari_transaction_info.dart';
+import 'package:cw_minotari/minotari_ffi.dart';
 import 'package:cw_minotari/minotari_transaction_history.dart';
+import 'package:cw_minotari/minotari_transaction_info.dart';
 import 'package:cw_minotari/minotari_wallet_addresses.dart';
-import 'package:cw_minotari/minotari_ffi_stub.dart';
 import 'package:mobx/mobx.dart';
 
 part 'minotari_wallet.g.dart';
@@ -30,16 +32,14 @@ abstract class MinotariWalletBase
           )
         }),
         _isTransactionUpdating = false,
-        _hasSyncAfterStartup = false,
         walletAddresses = MinotariWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
         super(walletInfo, derivationInfo) {
     transactionHistory = MinotariTransactionHistory();
   }
 
-  MinotariFfiStub? _ffi;
+  MinotariFfi? _ffi;
   bool _isTransactionUpdating;
-  bool _hasSyncAfterStartup;
 
   @override
   MinotariWalletAddresses walletAddresses;
@@ -63,13 +63,11 @@ abstract class MinotariWalletBase
 
   String get address => walletAddresses.address;
 
-  @override
   Future<void> init() async {
     final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
-    _ffi = MinotariFfiStub(dataPath: path);
+    _ffi = MinotariFfi(dataPath: path);
     await updateBalance();
     await updateTransactions();
-    _hasSyncAfterStartup = false;
   }
 
   @override
@@ -94,7 +92,6 @@ abstract class MinotariWalletBase
       await updateBalance();
       await updateTransactions();
       syncStatus = SyncedSyncStatus();
-      _hasSyncAfterStartup = true;
     } catch (e) {
       syncStatus = FailedSyncStatus();
       rethrow;
@@ -174,7 +171,7 @@ abstract class MinotariWalletBase
         );
       }
     } catch (e) {
-      print('Error updating balance: $e');
+      printV('Error updating balance: $e');
     }
   }
 
@@ -192,7 +189,7 @@ abstract class MinotariWalletBase
       _isTransactionUpdating = false;
     } catch (e) {
       _isTransactionUpdating = false;
-      print('Error updating transactions: $e');
+      printV('Error updating transactions: $e');
     }
   }
 }

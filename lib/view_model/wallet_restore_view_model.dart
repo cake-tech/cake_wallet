@@ -12,6 +12,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
@@ -223,6 +224,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             height: height,
           );
         case WalletType.minotari:
+          return minotari!.createMinotariRestoreWalletFromSeedCredentials(
+              name: name,
+              mnemonic: seed,
+              height: height,
+              passphrase: passphrase,
+          );
         case WalletType.none:
         case WalletType.haven:
           break;

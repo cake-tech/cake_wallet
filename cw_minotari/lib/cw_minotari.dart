@@ -7,5 +7,5 @@ export 'minotari_balance.dart';
 export 'minotari_transaction_info.dart';
 export 'minotari_transaction_history.dart';
 export 'minotari_transaction_priority.dart';
+export 'src/rust/api/network.dart';
 export 'pending_minotari_transaction.dart';
-export 'minotari_ffi_stub.dart';

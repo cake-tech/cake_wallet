@@ -1718,6 +1718,7 @@ abstract class Minotari {
     required String name,
     required String mnemonic,
     required int height,
+    String? passphrase,
   });
 
   TransactionPriority getDefaultTransactionPriority();
