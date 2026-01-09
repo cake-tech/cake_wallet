@@ -81,6 +81,25 @@ fi
   fi
 )
 
+#######################################
+# Build Android .so libraries
+#######################################
+
+# Only build Android libraries if ANDROID_HOME is set
+if [ -n "${ANDROID_HOME:-}" ] && [ -n "${ANDROID_NDK_VERSION:-}" ]; then
+  echo "📱 Building Android .so libraries..."
+  (
+    cd "$SCRIPTS_DIR/android" || exit 1
+    if [ -f "build_minotari.sh" ]; then
+      ./build_minotari.sh
+    else
+      echo "⚠️  build_minotari.sh not found, skipping Android build"
+    fi
+  )
+else
+  echo "⏭️  Skipping Android build (ANDROID_HOME or ANDROID_NDK_VERSION not set)"
+fi
+
 
 #######################################
 # Done
