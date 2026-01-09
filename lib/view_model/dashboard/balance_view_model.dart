@@ -2,6 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
@@ -20,8 +21,7 @@ part 'balance_view_model.g.dart';
 
 class BalanceRecord {
   const BalanceRecord(
-      {
-        required this.availableBalance,
+      {required this.availableBalance,
       required this.additionalBalance,
       required this.secondAvailableBalance,
       required this.secondAdditionalBalance,
@@ -115,6 +115,9 @@ abstract class BalanceViewModelBase with Store {
       wallet.type == WalletType.zano;
 
   @computed
+  bool get isEVMCompatible => isEVMCompatibleChain(wallet.type);
+
+  @computed
   bool get hasAccounts => wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
 
   @computed
@@ -125,7 +128,16 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get asset {
-    final typeFormatted = walletTypeToString(appStore.wallet!.type);
+    if (isEVMCompatibleChain(wallet.type)) {
+      final currentChain = evm!.getCurrentChain(wallet);
+      if (currentChain != null) {
+        return currentChain.name;
+      }
+
+      return walletTypeToString(wallet.type);
+    }
+
+    final typeFormatted = walletTypeToString(wallet.type);
 
     switch (wallet.type) {
       case WalletType.haven:
@@ -150,18 +162,15 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get availableBalanceLabel {
-
     if (displayMode == BalanceDisplayMode.hiddenBalance) {
       return S.current.show_balance;
-    }
-    else {
+    } else {
       return S.current.xmr_available_balance;
     }
   }
 
   @computed
   String get additionalBalanceLabel {
-
     switch (wallet.type) {
       case WalletType.haven:
       case WalletType.ethereum:
@@ -225,8 +234,10 @@ abstract class BalanceViewModelBase with Store {
                 fiatAdditionalBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 fiatAvailableBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 fiatFrozenBalance: isFiatDisabled ? '' : '',
-                fiatSecondAvailableBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
-                fiatSecondAdditionalBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
+                fiatSecondAvailableBalance:
+                    isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
+                fiatSecondAdditionalBalance:
+                    isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 asset: key,
                 formattedAssetTitle: _formatterAsset(key)));
       }
@@ -394,7 +405,6 @@ abstract class BalanceViewModelBase with Store {
 
     return balance;
   }
-
 
   @observable
   bool isShowCard;

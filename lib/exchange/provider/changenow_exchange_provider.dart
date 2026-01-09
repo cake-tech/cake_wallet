@@ -353,6 +353,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return 'lightning';
       case 'AVAXC':
         return 'cchain';
+      case 'ARB':
+        return 'arbitrum';
       default:
         return tag.toLowerCase();
     }

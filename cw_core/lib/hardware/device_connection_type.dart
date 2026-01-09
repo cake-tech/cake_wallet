@@ -15,7 +15,7 @@ enum DeviceConnectionType {
           WalletType.bitcoin,
           // WalletType.litecoin,
           WalletType.ethereum,
-          WalletType.polygon
+          WalletType.polygon,
         ].contains(walletType);
         break;
       case HardwareWalletType.ledger:
@@ -24,7 +24,7 @@ enum DeviceConnectionType {
           WalletType.bitcoin,
           WalletType.litecoin,
           WalletType.ethereum,
-          WalletType.polygon
+          WalletType.polygon,
         ].contains(walletType);
         break;
       case HardwareWalletType.trezor:

@@ -70,7 +70,7 @@ class WyreBuyProvider extends BuyProvider {
     final body = {
       'amount': amount,
       'sourceCurrency': sourceCurrency,
-      'destCurrency': walletTypeToCryptoCurrency(wallet.type).title,
+      'destCurrency': walletTypeToCryptoCurrency(wallet.type, chainId: wallet.chainId).title,
       'dest': walletTypeToString(wallet.type).toLowerCase() + ':' + wallet.walletAddresses.address,
       'referrerAccountId': _accountId,
       'lockFields': ['amount', 'sourceCurrency', 'destCurrency', 'dest']
@@ -100,7 +100,7 @@ class WyreBuyProvider extends BuyProvider {
     final body = {
       'amount': amount,
       'sourceCurrency': sourceCurrency,
-      'destCurrency': walletTypeToCryptoCurrency(wallet.type).title,
+      'destCurrency': walletTypeToCryptoCurrency(wallet.type, chainId: wallet.chainId).title,
       'dest': walletTypeToString(wallet.type).toLowerCase() + ':' + wallet.walletAddresses.address,
       'accountId': _accountId,
       'country': _countryCode

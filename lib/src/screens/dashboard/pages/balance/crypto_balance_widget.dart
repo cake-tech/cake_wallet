@@ -169,6 +169,21 @@ class CryptoBalanceWidget extends StatelessWidget {
           }),
           Observer(
             builder: (_) {
+              if (dashboardViewModel.balanceViewModel.formattedBalances.isEmpty) {
+                return Center(
+                  child: Container(
+                    child: Text(
+                      'Loading balances...',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            height: 1,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }
+
               return ListView.separated(
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,

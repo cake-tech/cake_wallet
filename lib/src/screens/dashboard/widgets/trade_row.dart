@@ -33,39 +33,40 @@ class TradeRow extends StatelessWidget {
     final receiveAmountCrypto = to.toString();
 
     return InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
-          color: Colors.transparent,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
-                      child: ImageUtil.getImageFromPath(
-                          imagePath: provider.image, height: 36, width: 36),),
-                  Positioned(
-                    right: 0,
-                    bottom: 2,
-                    child: Container(
-                      height: 8,
-                      width: 8,
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: _statusColor(context, swapState),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
+        color: Colors.transparent,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child:
+                      ImageUtil.getImageFromPath(imagePath: provider.image, height: 36, width: 36),
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 2,
+                  child: Container(
+                    height: 8,
+                    width: 8,
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: _statusColor(context, swapState),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                ],
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                  child: Column(
+                ),
+              ],
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(

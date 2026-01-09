@@ -338,6 +338,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.maticpoly:
       case CryptoCurrency.baseEth:
       case CryptoCurrency.arbEth:
+      case CryptoCurrency.arb:
         pattern = '0x[0-9a-zA-Z]+';
       case CryptoCurrency.nano:
         pattern = 'nano_[0-9a-zA-Z]{60}';

@@ -37,6 +37,9 @@ import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/store/app_store.dart';
 
 class SendCard extends StatefulWidget {
   SendCard({
@@ -176,6 +179,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             walletSwitcherViewModel,
             paymentRequest,
           );
+
           break;
         case PaymentFlowType.currentWalletCompatible:
         case PaymentFlowType.error:
@@ -221,7 +225,14 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             paymentRequest,
             result,
           ),
-          onSwap: () => _handleSwapFlow(paymentViewModel, result),
+          onSwap: (bottomSheetContext) =>
+              _handleSwapFlow(paymentViewModel, result, bottomSheetContext),
+          onSwitchNetwork: () => _handleSwitchNetwork(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
+            result,
+          ),
         );
       },
     );
@@ -245,10 +256,14 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           paymentViewModel: paymentViewModel,
           paymentRequest: paymentRequest,
           onNext: (PaymentFlowResult newResult) {
-            if (newResult.addressDetectionResult!.detectedWalletType ==
-                paymentViewModel.currentWalletType) {
+            final selectedChainId = newResult.chainId;
+            final isCompatible = selectedChainId == evm!.getSelectedChainId(sendViewModel.wallet);
+
+            if (isCompatible) {
               sendViewModel.setSelectedCryptoCurrency(
-                  newResult.addressDetectionResult!.detectedCurrency!.title);
+                newResult.addressDetectionResult!.detectedCurrency!.title,
+              );
+              _applyPaymentRequest(paymentRequest);
             } else {
               _showPaymentConfirmation(
                 paymentViewModel,
@@ -286,9 +301,22 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     final success = await walletSwitcherViewModel.switchToSelectedWallet();
 
     if (success) {
+      if (isEVMCompatibleChain(sendViewModel.wallet.type) && result.chainId != null) {
+        final appStore = getIt.get<AppStore>();
+        final node = appStore.settingsStore.getCurrentNode(
+          sendViewModel.wallet.type,
+          chainId: result.chainId,
+        );
+        await evm!.selectChain(sendViewModel.wallet, result.chainId!, node: node);
+      }
+
       await sendViewModel.wallet.updateBalance();
-      sendViewModel
-          .setSelectedCryptoCurrency(result.addressDetectionResult!.detectedCurrency!.title);
+
+      final detectedCurrency = result.addressDetectionResult!.detectedCurrency;
+      if (detectedCurrency != null) {
+        sendViewModel.setSelectedCryptoCurrency(detectedCurrency.title);
+      }
+
       _applyPaymentRequest(paymentRequest);
     }
   }
@@ -303,7 +331,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       Navigator.of(context).pop();
     }
 
-    if (result.wallet != null) {
+    if (result.type == PaymentFlowType.singleWallet && result.wallet != null) {
       walletSwitcherViewModel.selectWallet(result.wallet!);
       final success = await walletSwitcherViewModel.switchToSelectedWallet();
       if (success) {
@@ -321,6 +349,17 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             );
           }
         });
+
+        // If EVM wallet and chainId is specified, switch to that chain
+        if (isEVMCompatibleChain(sendViewModel.wallet.type) && result.chainId != null) {
+          final appStore = getIt.get<AppStore>();
+          final node = appStore.settingsStore.getCurrentNode(
+            sendViewModel.wallet.type,
+            chainId: result.chainId,
+          );
+          await evm!.selectChain(sendViewModel.wallet, result.chainId!, node: node);
+        }
+
         await Future.delayed(const Duration(seconds: 2));
         if (loadingBottomSheetContext != null && loadingBottomSheetContext!.mounted) {
           Navigator.of(loadingBottomSheetContext!).pop();
@@ -331,6 +370,94 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             .setSelectedCryptoCurrency(result.addressDetectionResult!.detectedCurrency!.title);
         _applyPaymentRequest(paymentRequest);
       }
+    } else if (result.wallets.isNotEmpty && result.wallets.length == 1) {
+      walletSwitcherViewModel.selectWallet(result.wallets.first);
+      final success = await walletSwitcherViewModel.switchToSelectedWallet();
+      if (success) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (BuildContext context) {
+                loadingBottomSheetContext = context;
+                return LoadingBottomSheet(
+                  titleText: S.of(context).loading_your_wallet,
+                );
+              },
+            );
+          }
+        });
+
+        // If EVM wallet and chainId is specified, switch to that chain
+        if (isEVMCompatibleChain(sendViewModel.wallet.type) && result.chainId != null) {
+          final appStore = getIt.get<AppStore>();
+          final node = appStore.settingsStore.getCurrentNode(
+            sendViewModel.wallet.type,
+            chainId: result.chainId,
+          );
+          await evm!.selectChain(sendViewModel.wallet, result.chainId!, node: node);
+        }
+
+        await Future.delayed(const Duration(seconds: 2));
+        if (loadingBottomSheetContext != null && loadingBottomSheetContext!.mounted) {
+          Navigator.of(loadingBottomSheetContext!).pop();
+        }
+
+        await sendViewModel.wallet.updateBalance();
+        sendViewModel
+            .setSelectedCryptoCurrency(result.addressDetectionResult!.detectedCurrency!.title);
+        _applyPaymentRequest(paymentRequest);
+      }
+    }
+  }
+
+  Future<void> _handleSwitchNetwork(
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest,
+    PaymentFlowResult result,
+  ) async {
+    if (result.type != PaymentFlowType.evmNetworkSelection || result.wallet == null) return;
+
+    if (context.mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          showModalBottomSheet<void>(
+            context: context,
+            isDismissible: false,
+            builder: (BuildContext context) {
+              loadingBottomSheetContext = context;
+              return LoadingBottomSheet(
+                titleText: S.of(context).loading_your_wallet,
+              );
+            },
+          );
+        }
+      });
+
+      await paymentViewModel.selectChain();
+
+      await Future.delayed(const Duration(seconds: 2));
+      if (loadingBottomSheetContext != null && loadingBottomSheetContext!.mounted) {
+        Navigator.of(loadingBottomSheetContext!).pop();
+      }
+
+      await sendViewModel.wallet.updateBalance();
+      final detectedCurrency = result.addressDetectionResult?.detectedCurrency;
+      if (detectedCurrency != null) {
+        sendViewModel.setSelectedCryptoCurrency(detectedCurrency.title);
+      }
+      _applyPaymentRequest(paymentRequest);
+    } catch (e) {
+      if (loadingBottomSheetContext != null && loadingBottomSheetContext!.mounted) {
+        Navigator.of(loadingBottomSheetContext!).pop();
+      }
+      printV('Switch network error: $e');
     }
   }
 
@@ -346,10 +473,17 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     noteController.text = paymentRequest.note;
   }
 
-  Future<void> _handleSwapFlow(PaymentViewModel paymentViewModel, PaymentFlowResult result) async {
-    if (mounted && Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    }
+  Future<void> _handleSwapFlow(
+    PaymentViewModel paymentViewModel,
+    PaymentFlowResult result,
+    BuildContext bottomSheetContext,
+  ) async {
+    Navigator.of(bottomSheetContext).pop();
+
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (!mounted) return;
+
     final bottomSheet = getIt.get<SwapConfirmationBottomSheet>(param1: result);
     await showModalBottomSheet<Trade?>(
       context: context,
@@ -549,31 +683,21 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                           builder: (context, snapshot) {
                             return GestureDetector(
                               onTap: () {
-                                sendViewModel.balanceViewModel
-                                    .switchBalanceValue();
+                                sendViewModel.balanceViewModel.switchBalanceValue();
                               },
                               child: Observer(builder: (_) {
-                                final hidden = sendViewModel
-                                        .balanceViewModel.displayMode ==
+                                final hidden = sendViewModel.balanceViewModel.displayMode ==
                                     BalanceDisplayMode.hiddenBalance;
                                 return Text(
                                   hidden
                                       ? S.of(context).show_balance_send_page
-                                      : (snapshot.data ??
-                                          sendViewModel.balance),
+                                      : (snapshot.data ?? sendViewModel.balance),
                                   // default to balance while loading
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall!
-                                      .copyWith(
+                                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                         fontWeight: FontWeight.w600,
                                         color: hidden
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .primary
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
+                                            ? Theme.of(context).colorScheme.primary
+                                            : Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                 );
                               }),

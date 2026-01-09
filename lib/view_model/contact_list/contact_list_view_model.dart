@@ -7,9 +7,12 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -44,7 +47,10 @@ abstract class ContactListViewModelBase with Store {
             walletContacts.add(WalletContact(
               address.address,
               name,
-              walletTypeToCryptoCurrency(info.type),
+              walletTypeToCryptoCurrency(
+                info.type,
+              ),
+              walletType: info.type,
             ));
           }
         }
@@ -56,7 +62,10 @@ abstract class ContactListViewModelBase with Store {
           walletContacts.add(WalletContact(
             address,
             name,
-            walletTypeToCryptoCurrency(info.type),
+            walletTypeToCryptoCurrency(
+              info.type,
+            ),
+            walletType: info.type,
           ));
         } else {
           addresses.forEach((address, label) {
@@ -67,10 +76,12 @@ abstract class ContactListViewModelBase with Store {
             walletContacts.add(WalletContact(
               address,
               name,
-              walletTypeToCryptoCurrency(info.type,
-                  isTestnet: info.network == null
-                      ? false
-                      : info.network!.toLowerCase().contains("testnet")),
+              walletTypeToCryptoCurrency(
+                info.type,
+                isTestnet:
+                    info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
+              ),
+              walletType: info.type,
             ));
           });
         }
@@ -81,7 +92,10 @@ abstract class ContactListViewModelBase with Store {
               key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
                   ? 0
                   : null),
-          walletTypeToCryptoCurrency(info.type),
+          walletTypeToCryptoCurrency(
+            info.type,
+          ),
+          walletType: info.type,
         ));
       }
     }
@@ -203,7 +217,6 @@ abstract class ContactListViewModelBase with Store {
         await sortGroupByType();
         break;
       case FilterListOrderType.Custom:
-      default:
         reorderAccordingToContactList();
         break;
     }

@@ -3,10 +3,12 @@
 import 'dart:math';
 
 import 'package:cw_core/format_amount.dart';
+import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_evm/utils/evm_chain_utils.dart';
 
-abstract class EVMChainTransactionInfo extends TransactionInfo {
+class EVMChainTransactionInfo extends TransactionInfo {
   EVMChainTransactionInfo({
     required this.id,
     required this.height,
@@ -22,6 +24,7 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
     required this.from,
     this.evmSignatureName,
     this.contractAddress,
+    required this.chainId,
   })  : amount = ethAmount.toInt(),
         fee = ethFee.toInt();
 
@@ -42,9 +45,10 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
   final String? from;
   final String? evmSignatureName;
   final String? contractAddress;
+  final int chainId;
 
-  //! Getter to be overridden in child classes
-  String get feeCurrency;
+  /// Get fee currency symbol based on wallet type
+  String get feeCurrency => EVMChainUtils.getFeeCurrency(chainId);
 
   @override
   String amountFormatted() {
@@ -60,8 +64,28 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
 
   @override
   String feeFormatted() {
-    final amount = (ethFee / BigInt.from(10).pow(18)).toString();
-    return '${amount.substring(0, min(18, amount.length))} $feeCurrency';
+    final amount = formatFixed(ethFee, 18);
+    return '$amount $feeCurrency';
+  }
+
+  factory EVMChainTransactionInfo.fromJson(Map<String, dynamic> data, int chainId) {
+    return EVMChainTransactionInfo(
+      id: data['id'] as String,
+      height: data['height'] as int,
+      ethAmount: BigInt.parse(data['amount'] as String),
+      exponent: data['exponent'] as int? ?? 18,
+      ethFee: BigInt.parse(data['fee'] as String),
+      direction: TransactionDirection.values[data['direction'] as int],
+      date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
+      isPending: data['isPending'] as bool? ?? false,
+      confirmations: data['confirmations'] as int,
+      tokenSymbol: data['tokenSymbol'] as String,
+      to: data['to'] as String?,
+      from: data['from'] as String?,
+      evmSignatureName: data['evmSignatureName'] as String?,
+      contractAddress: data['contractAddress'] as String?,
+      chainId: chainId,
+    );
   }
 
   Map<String, dynamic> toJson() => {
@@ -79,5 +103,6 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
         'from': from,
         'evmSignatureName': evmSignatureName,
         'contractAddress': contractAddress,
+        'chainId': chainId,
       };
 }

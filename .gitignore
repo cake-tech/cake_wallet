@@ -143,6 +143,7 @@ lib/decred/decred.dart
 lib/dogecoin/dogecoin.dart
 lib/base/base.dart
 lib/arbitrum/arbitrum.dart
+lib/evm/evm.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json
 ios/Runner/Assets.xcassets/AppIcon.appiconset/*.png

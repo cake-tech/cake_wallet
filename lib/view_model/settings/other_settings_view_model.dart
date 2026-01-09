@@ -15,27 +15,27 @@ import 'package:mobx/mobx.dart';
 
 part 'other_settings_view_model.g.dart';
 
-class OtherSettingsViewModel = OtherSettingsViewModelBase
-    with _$OtherSettingsViewModel;
+class OtherSettingsViewModel = OtherSettingsViewModelBase with _$OtherSettingsViewModel;
 
 abstract class OtherSettingsViewModelBase with Store {
   OtherSettingsViewModelBase(this._settingsStore, this._wallet, this.sendViewModel)
       : walletType = _wallet.type,
+        chainId = _wallet.chainId,
         currentVersion = '' {
-    PackageInfo.fromPlatform().then(
-        (PackageInfo packageInfo) => currentVersion = packageInfo.version);
+    PackageInfo.fromPlatform()
+        .then((PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
-    final priority = _settingsStore.priority[_wallet.type];
+    final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
     final priorities = priorityForWalletType(_wallet.type);
 
     if (!priorities.contains(priority) && priorities.isNotEmpty) {
-      _settingsStore.priority[_wallet.type] = priorities.first;
+      _settingsStore.setPriority(_wallet.type, priorities.first, chainId: _wallet.chainId);
     }
   }
 
   final WalletType walletType;
-  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-      TransactionInfo> _wallet;
+  final int? chainId;
+  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
 
   @observable
   String currentVersion;
@@ -45,7 +45,7 @@ abstract class OtherSettingsViewModelBase with Store {
 
   @computed
   TransactionPriority get transactionPriority {
-    final priority = _settingsStore.priority[walletType];
+    final priority = _settingsStore.getPriority(walletType, chainId: chainId);
 
     if (priority == null) {
       throw Exception('Unexpected type ${walletType.toString()}');
@@ -66,8 +66,12 @@ abstract class OtherSettingsViewModelBase with Store {
       ].contains(_wallet.hardwareWalletType);
 
   @computed
-  bool get displayTransactionPriority =>
-      !(changeRepresentativeEnabled || [WalletType.solana, WalletType.tron].contains(_wallet.type));
+  bool get displayTransactionPriority => !(changeRepresentativeEnabled ||
+      [
+        WalletType.solana,
+        WalletType.tron,
+        WalletType.arbitrum,
+      ].contains(_wallet.type));
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
@@ -95,22 +99,20 @@ abstract class OtherSettingsViewModelBase with Store {
       WalletType.dogecoin,
     ].contains(_wallet.type)) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
-      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate,
-          customRate: customValue);
+      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
     }
 
     return priority.toString();
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
-      _settingsStore.priority[walletType] = priority;
+      _settingsStore.setPriority(walletType, priority, chainId: chainId);
 
-  void onDisplayBitcoinPrioritySelected(
-      TransactionPriority priority, double customValue) {
+  void onDisplayBitcoinPrioritySelected(TransactionPriority priority, double customValue) {
     if (_wallet.type == WalletType.bitcoin) {
       _settingsStore.customBitcoinFeeRate = customValue.round();
     }
-    _settingsStore.priority[_wallet.type] = priority;
+    _settingsStore.setPriority(_wallet.type, priority, chainId: _wallet.chainId);
   }
 
   @action
@@ -120,13 +122,12 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   @computed
-  double get customBitcoinFeeRate =>
-      _settingsStore.customBitcoinFeeRate.toDouble();
+  double get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate.toDouble();
 
   int? get customPriorityItemIndex {
     final priorities = priorityForWalletType(walletType);
-    final customItem = priorities.firstWhereOrNull(
-        (element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+    final customItem = priorities
+        .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
     return customItem != null ? priorities.indexOf(customItem) : null;
   }
 

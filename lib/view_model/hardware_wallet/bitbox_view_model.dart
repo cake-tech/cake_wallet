@@ -3,8 +3,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
@@ -89,9 +88,8 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.litecoin:
         return bitcoin!.getBitboxHardwareWalletService(bitboxManager, false);
       case WalletType.ethereum:
-        return ethereum!.getBitboxHardwareWalletService(bitboxManager);
       case WalletType.polygon:
-        return polygon!.getBitboxHardwareWalletService(bitboxManager);
+        return evm!.getBitboxHardwareWalletService(bitboxManager);
       default:
         throw UnimplementedError();
     }
@@ -104,9 +102,8 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.litecoin:
         return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
-        return ethereum!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.polygon:
-        return polygon!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+        return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

@@ -4,10 +4,9 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
@@ -87,12 +86,10 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
@@ -1204,7 +1201,10 @@ Future<void> setup({
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.ethereum:
-        return ethereum!.createEthereumWalletService(SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
+        return evm!.createEVMWalletService(param1, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashWalletService(_unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.dogecoin:
@@ -1212,8 +1212,6 @@ Future<void> setup({
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoWalletService(SettingsStoreBase.walletPasswordDirectInput);
-      case WalletType.polygon:
-        return polygon!.createPolygonWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.solana:
         return solana!.createSolanaWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.tron:
@@ -1224,10 +1222,6 @@ Future<void> setup({
         return zano!.createZanoWalletService();
       case WalletType.decred:
         return decred!.createDecredWalletService(_unspentCoinsInfoSource);
-      case WalletType.base:
-        return base!.createBaseWalletService(SettingsStoreBase.walletPasswordDirectInput);
-      case WalletType.arbitrum:
-        return arbitrum!.createArbitrumWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.haven:
         return HavenWalletService();
       case WalletType.none:

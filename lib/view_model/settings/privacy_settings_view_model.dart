@@ -1,12 +1,10 @@
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -90,6 +88,11 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get useMempoolFeeAPI => _settingsStore.useMempoolFeeAPI;
 
   @computed
+  bool get useBlinkProtection => _settingsStore.useBlinkProtection;
+
+  bool get canUseBlinkProtection => canSupportBlinkProtection(_wallet.chainId);
+
+  @computed
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
 
   @computed
@@ -116,13 +119,13 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get usePayjoin => _settingsStore.usePayjoin;
 
-  bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
+  bool get canUseEtherscan => _wallet.chainId == 1;
 
-  bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
+  bool get canUsePolygonScan => _wallet.chainId == 137;
 
-  bool get canUseBaseScan => _wallet.type == WalletType.base;
+  bool get canUseBaseScan => _wallet.chainId == 8453;
 
-  bool get canUseArbiScan => _wallet.type == WalletType.arbitrum;
+  bool get canUseArbiScan => _wallet.chainId == 42161;
 
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
@@ -180,19 +183,19 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setUseEtherscan(bool value) {
     _settingsStore.useEtherscan = value;
-    ethereum!.updateEtherscanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
   void setUsePolygonScan(bool value) {
     _settingsStore.usePolygonScan = value;
-    polygon!.updatePolygonScanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
   void setUseBaseScan(bool value) {
     _settingsStore.useBaseScan = value;
-    base!.updateBaseScanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
@@ -204,11 +207,14 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setUseArbiScan(bool value) {
     _settingsStore.useArbiScan = value;
-    arbitrum!.updateArbitrumScanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
   void setUseMempoolFeeAPI(bool value) => _settingsStore.useMempoolFeeAPI = value;
+
+  @action
+  void setUseBlinkProtection(bool value) => _settingsStore.useBlinkProtection = value;
 
   @action
   void setUsePayjoin(bool value) {

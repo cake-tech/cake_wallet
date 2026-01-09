@@ -257,14 +257,18 @@ WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
       return WalletType.haven;
     case CryptoCurrency.eth:
       return WalletType.ethereum;
+    case CryptoCurrency.maticpoly:
+      return WalletType.polygon;
+    case CryptoCurrency.baseEth:
+      return WalletType.base;
+    case CryptoCurrency.arbEth:
+      return WalletType.arbitrum;
     case CryptoCurrency.bch:
       return WalletType.bitcoinCash;
     case CryptoCurrency.nano:
       return WalletType.nano;
     case CryptoCurrency.banano:
       return WalletType.banano;
-    case CryptoCurrency.maticpoly:
-      return WalletType.polygon;
     case CryptoCurrency.sol:
       return WalletType.solana;
     case CryptoCurrency.trx:
@@ -277,10 +281,6 @@ WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
       return WalletType.decred;
     case CryptoCurrency.doge:
       return WalletType.dogecoin;
-    case CryptoCurrency.baseEth:
-      return WalletType.base;
-    case CryptoCurrency.arbEth:
-      return WalletType.arbitrum;
     default:
       return null;
   }

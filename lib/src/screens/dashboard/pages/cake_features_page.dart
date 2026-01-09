@@ -59,7 +59,7 @@ class CakeFeaturesPage extends StatelessWidget {
                   ),
                 ),
                 Observer(builder: (_) {
-                  if (dashboardViewModel.type == WalletType.ethereum) {
+                  if (dashboardViewModel.wallet.chainId == 1) {
                     return DashBoardRoundedCardWidget(
                       shadowBlur: dashboardViewModel.getShadowBlur(),
                       shadowSpread: dashboardViewModel.getShadowSpread(),

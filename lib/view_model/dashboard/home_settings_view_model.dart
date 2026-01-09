@@ -1,13 +1,10 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/erc20_token_info_moralis.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -33,6 +30,23 @@ abstract class HomeSettingsViewModelBase with Store {
         isDeletingToken = false,
         isValidatingContractAddress = false {
     _updateTokensList();
+
+    // React to wallet changes
+    reaction((_) => _balanceViewModel.wallet, (_) {
+      _updateTokensList();
+    });
+    reaction((_) {
+      final wallet = _balanceViewModel.wallet;
+      if (isEVMCompatibleChain(wallet.type)) {
+        final selectedChainId = evm!.getSelectedChainId(wallet);
+        final erc20Currencies = evm!.getERC20Currencies(wallet);
+        return '${wallet.currency.title}_${selectedChainId}_${erc20Currencies.length}';
+      }
+      return null;
+    }, (_) async {
+      await Future.delayed(const Duration(milliseconds: 200));
+      _updateTokensList();
+    });
   }
 
   final SettingsStore _settingsStore;
@@ -76,21 +90,9 @@ abstract class HomeSettingsViewModelBase with Store {
   }) async {
     try {
       isAddingToken = true;
-      if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-        final erc20token = Erc20Token(
-          name: token.name,
-          symbol: token.title,
-          decimal: token.decimals,
-          contractAddress: contractAddress.toLowerCase(),
-          iconPath: token.iconPath,
-          isPotentialScam: token.isPotentialScam,
-        );
 
-        await ethereum!.addErc20Token(_balanceViewModel.wallet, erc20token);
-      }
-
-      if (_balanceViewModel.wallet.type == WalletType.polygon) {
-        final polygonToken = Erc20Token(
+      if (isEVMCompatibleChain(_balanceViewModel.wallet.type)) {
+        final evmToken = Erc20Token(
           name: token.name,
           symbol: token.title,
           decimal: token.decimals,
@@ -98,30 +100,7 @@ abstract class HomeSettingsViewModelBase with Store {
           iconPath: token.iconPath,
           isPotentialScam: token.isPotentialScam,
         );
-        await polygon!.addErc20Token(_balanceViewModel.wallet, polygonToken);
-      }
-
-      if (_balanceViewModel.wallet.type == WalletType.base) {
-        final baseToken = Erc20Token(
-          name: token.name,
-          symbol: token.title,
-          decimal: token.decimals,
-          contractAddress: contractAddress.toLowerCase(),
-          iconPath: token.iconPath,
-          isPotentialScam: token.isPotentialScam,
-        );
-        await base!.addErc20Token(_balanceViewModel.wallet, baseToken);
-      }
-      if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
-        final arbitrumToken = Erc20Token(
-          name: token.name,
-          symbol: token.title,
-          decimal: token.decimals,
-          contractAddress: contractAddress.toLowerCase(),
-          iconPath: token.iconPath,
-          isPotentialScam: token.isPotentialScam,
-        );
-        await arbitrum!.addErc20Token(_balanceViewModel.wallet, arbitrumToken);
+        await evm!.addErc20Token(_balanceViewModel.wallet, evmToken);
       }
 
       if (_balanceViewModel.wallet.type == WalletType.solana) {
@@ -153,20 +132,8 @@ abstract class HomeSettingsViewModelBase with Store {
 
   @action
   bool checkIfTokenIsAlreadyAdded(String contractAddress) {
-    if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-      return ethereum!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      return polygon!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.base) {
-      return base!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
-      return arbitrum!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    if (isEVMCompatibleChain(_balanceViewModel.wallet.type)) {
+      return evm!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.solana) {
@@ -188,20 +155,8 @@ abstract class HomeSettingsViewModelBase with Store {
   Future<void> deleteToken(CryptoCurrency token) async {
     try {
       isDeletingToken = true;
-      if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-        await ethereum!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
-      }
-
-      if (_balanceViewModel.wallet.type == WalletType.polygon) {
-        await polygon!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
-      }
-
-      if (_balanceViewModel.wallet.type == WalletType.base) {
-        await base!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
-      }
-
-      if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
-        await arbitrum!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
+      if (isEVMCompatibleChain(_balanceViewModel.wallet.type)) {
+        await evm!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
       }
 
       if (_balanceViewModel.wallet.type == WalletType.solana) {
@@ -237,7 +192,7 @@ abstract class HomeSettingsViewModelBase with Store {
 
       bool isUnverifiedContract = await _isContractUnverified(
         contractAddress,
-        chainId: getChainIdBasedOnWalletType(_balanceViewModel.wallet.type).toString(),
+        chainId: evm!.getSelectedChainId(_balanceViewModel.wallet).toString(),
       );
 
       final showWarningForContractAddress = isPotentialScamViaMoralis || isUnverifiedContract;
@@ -253,16 +208,10 @@ abstract class HomeSettingsViewModelBase with Store {
     List<String> defaultTokenAddresses = [];
     switch (_balanceViewModel.wallet.type) {
       case WalletType.ethereum:
-        defaultTokenAddresses = ethereum!.getDefaultTokenContractAddresses();
-        break;
       case WalletType.polygon:
-        defaultTokenAddresses = polygon!.getDefaultTokenContractAddresses();
-        break;
       case WalletType.base:
-        defaultTokenAddresses = base!.getDefaultTokenContractAddresses();
-        break;
       case WalletType.arbitrum:
-        defaultTokenAddresses = arbitrum!.getDefaultTokenContractAddresses();
+        defaultTokenAddresses = evm!.getDefaultTokenContractAddresses(_balanceViewModel.wallet);
         break;
       case WalletType.solana:
         defaultTokenAddresses = solana!.getDefaultTokenContractAddresses();
@@ -323,9 +272,9 @@ abstract class HomeSettingsViewModelBase with Store {
       }
 
       // Tokens whose contract have not been verified are potentially risky tokens.
-      if (tokenInfo.verifiedContract == false) {
-        return true;
-      }
+      // if (tokenInfo.verifiedContract == false) {
+      //   return true;
+      // }
 
       // Tokens with a security score less than 40 are potentially risky, requiring caution when dealing with them.
       if (tokenInfo.securityScore != null && tokenInfo.securityScore! < 40) {
@@ -391,20 +340,8 @@ abstract class HomeSettingsViewModelBase with Store {
   }
 
   Future<CryptoCurrency?> getToken(String contractAddress) async {
-    if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-      return await ethereum!.getErc20Token(_balanceViewModel.wallet, contractAddress);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      return await polygon!.getErc20Token(_balanceViewModel.wallet, contractAddress);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.base) {
-      return await base!.getErc20Token(_balanceViewModel.wallet, contractAddress);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
-      return await arbitrum!.getErc20Token(_balanceViewModel.wallet, contractAddress);
+    if (isEVMCompatibleChain(_balanceViewModel.wallet.type)) {
+      return await evm!.getErc20Token(_balanceViewModel.wallet, contractAddress);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.solana) {
@@ -438,24 +375,9 @@ abstract class HomeSettingsViewModelBase with Store {
   void changeTokenAvailability(CryptoCurrency token, bool value) async {
     token.enabled = value;
 
-    if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-      ethereum!.addErc20Token(_balanceViewModel.wallet, token as Erc20Token);
-      if (!value) ethereum!.removeTokenTransactionsInHistory(_balanceViewModel.wallet, token);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      polygon!.addErc20Token(_balanceViewModel.wallet, token as Erc20Token);
-      if (!value) polygon!.removeTokenTransactionsInHistory(_balanceViewModel.wallet, token);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.base) {
-      base!.addErc20Token(_balanceViewModel.wallet, token as Erc20Token);
-      if (!value) base!.removeTokenTransactionsInHistory(_balanceViewModel.wallet, token);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
-      arbitrum!.addErc20Token(_balanceViewModel.wallet, token as Erc20Token);
-      if (!value) arbitrum!.removeTokenTransactionsInHistory(_balanceViewModel.wallet, token);
+    if (isEVMCompatibleChain(_balanceViewModel.wallet.type)) {
+      evm!.addErc20Token(_balanceViewModel.wallet, token as Erc20Token);
+      if (!value) evm!.removeTokenTransactionsInHistory(_balanceViewModel.wallet, token);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.solana) {
@@ -495,32 +417,8 @@ abstract class HomeSettingsViewModelBase with Store {
 
     tokens.clear();
 
-    if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-      tokens.addAll(ethereum!
-          .getERC20Currencies(_balanceViewModel.wallet)
-          .where((element) => _matchesSearchText(element))
-          .toList()
-        ..sort(_sortFunc));
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      tokens.addAll(polygon!
-          .getERC20Currencies(_balanceViewModel.wallet)
-          .where((element) => _matchesSearchText(element))
-          .toList()
-        ..sort(_sortFunc));
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.base) {
-      tokens.addAll(base!
-          .getERC20Currencies(_balanceViewModel.wallet)
-          .where((element) => _matchesSearchText(element))
-          .toList()
-        ..sort(_sortFunc));
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
-      tokens.addAll(arbitrum!
+    if (isEVMCompatibleChain(_balanceViewModel.wallet.type)) {
+      tokens.addAll(evm!
           .getERC20Currencies(_balanceViewModel.wallet)
           .where((element) => _matchesSearchText(element))
           .toList()
@@ -586,20 +484,8 @@ abstract class HomeSettingsViewModelBase with Store {
       return solana!.getTokenAddress(asset);
     }
 
-    if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-      return ethereum!.getTokenAddress(asset);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      return polygon!.getTokenAddress(asset);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.base) {
-      return base!.getTokenAddress(asset);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.arbitrum) {
-      return arbitrum!.getTokenAddress(asset);
+    if (isEVMCompatibleChain(_balanceViewModel.wallet.type)) {
+      return evm!.getTokenAddress(asset);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.zano) {

@@ -57,7 +57,7 @@ class _WalletSwitcherContent extends StatelessWidget {
       builder: (context, snapshot) => Observer(
         builder: (_) {
           final List<WalletInfo> wallets = (snapshot.data ?? []);
-      
+
           if (viewModel.isProcessing) {
             return Container(
               height: 200,
@@ -68,7 +68,7 @@ class _WalletSwitcherContent extends StatelessWidget {
               ),
             );
           }
-      
+
           return Container(
             height: 400,
             child: Column(
@@ -79,7 +79,7 @@ class _WalletSwitcherContent extends StatelessWidget {
                     itemCount: wallets.length,
                     itemBuilder: (context, index) {
                       final wallet = wallets[index];
-      
+
                       return InkWell(
                         onTap: () {
                           viewModel.selectWallet(wallet);
@@ -97,7 +97,9 @@ class _WalletSwitcherContent extends StatelessWidget {
                           child: Row(
                             children: [
                               Image.asset(
-                                walletTypeToCryptoCurrency(wallet.type).iconPath!,
+                                walletTypeToCryptoCurrency(
+                                  wallet.type,
+                                ).iconPath!,
                                 width: 32,
                                 height: 32,
                               ),

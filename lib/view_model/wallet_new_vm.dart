@@ -1,14 +1,11 @@
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
@@ -21,10 +18,7 @@ import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-
-import '../polygon/polygon.dart';
 import 'advanced_privacy_settings_view_model.dart';
 
 part 'wallet_new_vm.g.dart';
@@ -51,8 +45,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   bool get hasLanguageSelector =>
       [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
 
-  bool get showLanguageSelector =>
-      newWalletArguments?.mnemonic == null && hasLanguageSelector;
+  bool get showLanguageSelector => newWalletArguments?.mnemonic == null && hasLanguageSelector;
 
   bool get hasSeedType =>
       newWalletArguments?.mnemonic == null &&
@@ -85,21 +78,10 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           mnemonic: newWalletArguments!.mnemonic,
         );
       case WalletType.ethereum:
-        return ethereum!.createEthereumNewWalletCredentials(
-          name: name,
-          password: walletPassword,
-          mnemonic: newWalletArguments!.mnemonic,
-          passphrase: passphrase,
-        );
+      case WalletType.polygon:
       case WalletType.base:
-        return base!.createBaseNewWalletCredentials(
-          name: name,
-          password: walletPassword,
-          mnemonic: newWalletArguments!.mnemonic,
-          passphrase: passphrase,
-        );
       case WalletType.arbitrum:
-        return arbitrum!.createArbitrumNewWalletCredentials(
+        return evm!.createEVMNewWalletCredentials(
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
@@ -127,13 +109,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           mnemonic: newWalletArguments!.mnemonic,
           passphrase: passphrase,
         );
-      case WalletType.polygon:
-        return polygon!.createPolygonNewWalletCredentials(
-          name: name,
-          password: walletPassword,
-          mnemonic: newWalletArguments!.mnemonic,
-          passphrase: passphrase,
-        );
+
       case WalletType.solana:
         return solana!.createSolanaNewWalletCredentials(
           name: name,

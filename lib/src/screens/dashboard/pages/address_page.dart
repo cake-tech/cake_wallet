@@ -207,40 +207,45 @@ class AddressPage extends BasePage {
                           ),
                     ),
                     SizedBox(height: 20),
-                    Center(
-                      child: SizedBox(
-                        height: 40,
-                        width: addressListViewModel.walletImages.length * 32.0,
-                        child: Stack(
-                          children: [
-                            for (int i = addressListViewModel.walletImages.length - 1; i >= 0; i--)
-                              Positioned(
-                                left: i * 25.0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Theme.of(context).colorScheme.surfaceContainer,
-                                      width: 3,
+                    Observer(
+                      builder: (_) {
+                        final walletImages = addressListViewModel
+                            .getWalletImages(addressListViewModel.selectedChainId);
+                        return Center(
+                          child: SizedBox(
+                            height: 40,
+                            width: walletImages.length * 32.0,
+                            child: Stack(
+                              children: [
+                                for (int i = walletImages.length - 1; i >= 0; i--)
+                                  Positioned(
+                                    left: i * 25.0,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Theme.of(context).colorScheme.surfaceContainer,
+                                          width: 3,
+                                        ),
+                                        color: Theme.of(context).colorScheme.surfaceContainer,
+                                        borderRadius: BorderRadius.circular(24),
+                                      ),
+                                      child: ClipOval(
+                                        child: CakeImageWidget(
+                                          height: 35,
+                                          width: 35,
+                                          imageUrl: walletImages[i],
+                                          color: walletImages.last == walletImages[i]
+                                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                                              : null,
+                                        ),
+                                      ),
                                     ),
-                                    color: Theme.of(context).colorScheme.surfaceContainer,
-                                    borderRadius: BorderRadius.circular(24),
                                   ),
-                                  child: ClipOval(
-                                    child: CakeImageWidget(
-                                      height: 35,
-                                      width: 35,
-                                      imageUrl: addressListViewModel.walletImages[i],
-                                      color: addressListViewModel.walletImages.last ==
-                                              addressListViewModel.walletImages[i]
-                                          ? Theme.of(context).colorScheme.onSurfaceVariant
-                                          : null,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
