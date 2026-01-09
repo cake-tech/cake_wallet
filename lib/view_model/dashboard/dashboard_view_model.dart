@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+// File and Directory used for exporting and sharing utils for platforms
 import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -37,6 +38,7 @@ import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.d
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
+import 'package:cake_wallet/utils/export_history.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
@@ -44,7 +46,6 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -57,6 +58,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -186,7 +188,7 @@ abstract class DashboardViewModelBase with Store {
                 value: () => tradeFilterStore.displaySwapXyz,
                 caption: ExchangeProviderDescription.swapsXyz.title,
                 onChanged: () =>
-                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
           ]
         },
         subname = '',
@@ -377,6 +379,9 @@ abstract class DashboardViewModelBase with Store {
       balanceViewModel.mwebEnabled = mwebEnabled;
     }
   }
+
+  @observable
+  bool isExporting = false;
 
   @observable
   WalletType type;
@@ -1080,10 +1085,11 @@ abstract class DashboardViewModelBase with Store {
   @action
   void setBuiltinTor(bool value, BuildContext context) {
     if (value) {
-      unawaited(showPopUp<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
+      unawaited(
+        showPopUp<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
               alertTitle: S.of(context).tor_connection,
               alertContent: S.of(context).tor_experimental,
               buttonText: S.of(context).ok,
@@ -1096,12 +1102,14 @@ abstract class DashboardViewModelBase with Store {
     settingsStore.currentBuiltinTor = value;
     if (value) {
       unawaited(ensureTorStarted(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == false) return; // return when tor got disabled in the meantime;
+        if (settingsStore.currentBuiltinTor == false)
+          return; // return when tor got disabled in the meantime;
         await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
       }));
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == true) return; // return when tor got enabled in the meantime;
+        if (settingsStore.currentBuiltinTor == true)
+          return; // return when tor got enabled in the meantime;
         await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
       }));
     }
@@ -1213,5 +1221,71 @@ abstract class DashboardViewModelBase with Store {
 
   Future<void> refreshDashboard() async {
     reconnect();
+  }
+
+  @action
+  Future<String> exportTransactionsAsCSV() async {
+    try {
+      isExporting = true;
+      final csvContent = ExportHistoryService.generateTransactionCSV(wallet: wallet);
+      return csvContent;
+    } catch (e) {
+      printV('Error exporting transactions as CSV: $e');
+      Fluttertoast.showToast(
+        msg: 'Export failed: ${e.toString()}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+      rethrow;
+    } finally {
+      isExporting = false;
+    }
+  }
+
+  @action
+  Future<String> exportSwaps() async {
+    if (isExporting) return '';
+
+    try {
+      isExporting = true;
+      final csvContent = ExportHistoryService.generateSwapCSV(
+        tradesStore: tradesStore,
+        walletId: wallet.id,
+      );
+      return csvContent;
+    } catch (e) {
+      printV('Error exporting swaps: $e');
+      Fluttertoast.showToast(
+        msg: 'Export failed: ${e.toString()}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+      rethrow;
+    } finally {
+      isExporting = false;
+    }
+  }
+
+  @action
+  Future<void> exportToClipboard(BuildContext context) async {
+    if (isExporting) return;
+
+    try {
+      isExporting = true;
+      await ExportHistoryService.exportToClipboard(
+        wallet: wallet,
+        tradesStore: tradesStore,
+        context: context,
+      );
+    } catch (e) {
+      printV('Error copying to clipboard: $e');
+      Fluttertoast.showToast(
+        msg: 'Export failed: ${e.toString()}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } finally {
+      isExporting = false;
+    }
   }
 }
