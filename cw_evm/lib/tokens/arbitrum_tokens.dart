@@ -6,6 +6,13 @@ class ArbitrumTokens {
   static List<Erc20Token> get tokens {
     final tokens = [
       Erc20Token(
+        name: "Arbitrum",
+        symbol: "ARB",
+        contractAddress: "0x912CE59144191C1204E64559FE8253a0e49E6548",
+        decimal: 18,
+        enabled: true,
+      ),
+      Erc20Token(
         name: "USD Coin",
         symbol: "USDC",
         contractAddress: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",

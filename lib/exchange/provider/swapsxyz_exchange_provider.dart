@@ -751,6 +751,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       'KAS' => 'KASPA',
       'TON' => 'TONCOIN',
       'BCH' => 'BITCOIN CASH',
+      'ARB' => 'ARBITRUM',
       _ => network.toUpperCase(),
     };
   }

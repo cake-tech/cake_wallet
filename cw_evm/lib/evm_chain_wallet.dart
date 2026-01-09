@@ -588,7 +588,7 @@ abstract class EVMChainWalletBase
         // For chains with base fee, add priority fee (if supported) and a buffer to account for base fee increases
         // Base fee can increase between estimation and transaction submission
         final baseFeeWithPriority = gasBaseFee + priorityFee;
-        
+
         // For chains without priority fees (e.g., Arbitrum), use a 5% buffer
         // For chains with priority fees (e.g., Ethereum), use a 15% buffer to account for base fee volatility
         // Base fee can increase significantly during high network activity
@@ -703,7 +703,8 @@ abstract class EVMChainWalletBase
     final transactionCurrency = balance.keys.firstWhere(
         (currency) =>
             currency.title == _credentials.currency.title &&
-            currency.tag == _credentials.currency.tag,
+            (currency.tag == _credentials.currency.tag ||
+                currency.tag == _credentials.currency.title),
         orElse: () => throw Exception(
             'Currency ${_credentials.currency.title} ${_credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
 
@@ -1240,7 +1241,7 @@ abstract class EVMChainWalletBase
 
   Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
     try {
-     return await _client.getErc20Token(contractAddress, chainName);
+      return await _client.getErc20Token(contractAddress, chainName);
     } catch (e) {
       printV('Error getting ERC20 token: $e');
       rethrow;

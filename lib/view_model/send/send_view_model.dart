@@ -803,7 +803,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type != WalletType.banano &&
         wallet.type != WalletType.solana &&
         wallet.type != WalletType.tron &&
-        wallet.chainId != 42161) {
+        wallet.type != WalletType.arbitrum) {
       // Wallet type is generic for all EVM chains, so we need to check the chainId
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }

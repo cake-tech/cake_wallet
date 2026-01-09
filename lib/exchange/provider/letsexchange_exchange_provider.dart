@@ -433,6 +433,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
           return 'ERC20';
         case 'BSC':
           return 'BEP20';
+        case 'ARB':
+          return 'ARBITRUM';
         default:
           return currency.tag!;
       }

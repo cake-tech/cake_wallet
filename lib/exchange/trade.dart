@@ -181,7 +181,9 @@ class Trade extends HiveObject {
     }
     final underscoreIndex = userCurrencyFromRaw!.indexOf('_');
     final title = userCurrencyFromRaw!.substring(0, underscoreIndex);
-    final tag = userCurrencyFromRaw!.substring(underscoreIndex + 1);
+    String tag = userCurrencyFromRaw!.substring(underscoreIndex + 1);
+
+    if (tag.contains('ARB')) tag = 'ARB';
 
     return CryptoCurrency(
       title: title,
