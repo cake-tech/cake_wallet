@@ -51,20 +51,28 @@ class ElectrumClient {
   final Map<String, String> _errors;
   ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
   Timer? _aliveTimer;
+  bool isFrigateServer = false;
   String unterminatedString;
+  List<String>? _cachedVersion;
 
   Uri? uri;
   bool? useSSL;
 
-  Future<void> connectToUri(Uri uri, {bool? useSSL}) async {
+  Future<void> connectToUri(Uri uri, {bool? useSSL, bool? isFrigateServer}) async {
     this.uri = uri;
     if (useSSL != null) {
       this.useSSL = useSSL;
     }
+    if (isFrigateServer != null) {
+      this.isFrigateServer = isFrigateServer;
+    }
     await connect(host: uri.host, port: uri.port);
   }
 
-  Future<void> connect({required String host, required int port}) async {
+  Future<void> connect({required String host, required int port, bool? isFrigateServer}) async {
+    if (isFrigateServer != null) {
+      this.isFrigateServer = isFrigateServer;
+    }
     _setConnectionStatus(ConnectionStatus.connecting);
 
     // Reset internal state to ensure clean connection
@@ -139,13 +147,36 @@ class ElectrumClient {
       cancelOnError: true,
     );
 
+    // in case it is required that server.version to be the FIRST message
+    // This must be called before any other requests (including ping)
+    try {
+      final versionResult = await version();
+
+      // Detect if this is a Frigate server from the version response
+      if (versionResult.isNotEmpty && versionResult.first.toLowerCase().contains('frigate')) {
+        isFrigateServer = true;
+      }
+    } catch (e) {}
+
     keepAlive();
   }
 
   void _parseResponse(String message) {
     try {
-      final response = json.decode(message) as Map<String, dynamic>;
-      _handleResponse(response);
+      final decoded = json.decode(message);
+
+      if (decoded is List) {
+        for (final item in decoded) {
+          if (item is Map<String, dynamic>) {
+            _handleResponse(item);
+          }
+        }
+        return;
+      }
+
+      if (decoded is Map<String, dynamic>) {
+        _handleResponse(decoded);
+      }
     } on FormatException catch (e) {
       final msg = e.message.toLowerCase();
 
@@ -196,14 +227,26 @@ class ElectrumClient {
     }
   }
 
-  Future<List<String>> version() =>
-      call(method: 'server.version', params: ["", "1.4"]).then((dynamic result) {
-        if (result is List) {
-          return result.map((dynamic val) => val.toString()).toList();
-        }
+  Future<List<String>> version() async {
+    // Return cached version if available (Electrum protocol only allows one server.version call per session)
+    if (_cachedVersion != null) {
+      return _cachedVersion!;
+    }
 
-        return [];
-      });
+    try {
+      final result =
+          await callWithTimeout(method: 'server.version', params: ["", "1.4"], timeout: 5000);
+      if (result is List) {
+        _cachedVersion = result.map((dynamic val) => val.toString()).toList();
+        return _cachedVersion!;
+      }
+      return [];
+    } on RequestFailedTimeoutException catch (_) {
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
 
   Future<Map<String, dynamic>> getBalance(String scriptHash, {bool throwOnError = false}) async {
     try {
@@ -337,6 +380,55 @@ class ElectrumClient {
   Future<dynamic> getTweaks({required int height}) async =>
       await callWithTimeout(method: 'blockchain.tweaks.subscribe', params: [height, 1, false]);
 
+  // Uses the Frigate Server method to remote scan, for a single fetch with the latest chainTip height
+  // to verify a response is received, useful to verify if this is a working Frigate server
+  Future<dynamic> getSilentpaymentsSubscribe(
+    String scanPrivateKey,
+    String spendPublicKey,
+    int chainTip,
+  ) async {
+    return callWithTimeout(
+      method: 'blockchain.silentpayments.subscribe',
+      params: [scanPrivateKey, spendPublicKey, chainTip],
+      timeout: 500,
+    );
+  }
+
+  // Frigate Server method to remote scan using the keys from the wallet
+  Future<BehaviorSubject<Map<String, dynamic>>?> silentpaymentsSubscribe(
+    String scanPrivateKey,
+    String spendPublicKey, {
+    int? start,
+    List<int>? labels,
+  }) async {
+    try {
+      if (!isConnected) {
+        return null;
+      }
+
+      final subscription = BehaviorSubject<Map<String, dynamic>>();
+      _regisrySubscription('blockchain.silentpayments.subscribe', subscription);
+
+      _id += 1;
+      socket!.write(jsonrpc(
+        method: 'blockchain.silentpayments.subscribe',
+        id: _id,
+        params: [scanPrivateKey, spendPublicKey, start ?? 0, labels ?? []],
+      ));
+
+      return subscription;
+    } catch (e) {
+      printV("silentpaymentsSubscribe $e");
+      return null;
+    }
+  }
+
+  // Frigate Server method to stop the remote scanning, previously initiated using the keys from the wallet
+  Future<dynamic> silentpaymentsUnsubscribe(String scanPrivateKey, String spendPublicKey) async =>
+      await callWithTimeout(
+          method: 'blockchain.silentpayments.unsubscribe',
+          params: [scanPrivateKey, spendPublicKey]);
+
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
         if (result is double) {
@@ -437,6 +529,8 @@ class ElectrumClient {
       }
       final subscription = BehaviorSubject<T>();
       _regisrySubscription(id, subscription);
+
+      _id += 1;
       socket!.write(jsonrpc(method: method, id: _id, params: params));
 
       return subscription;
@@ -448,7 +542,9 @@ class ElectrumClient {
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
-    if (!isConnected) return null;
+    if (!isConnected) {
+      return null;
+    }
 
     final completer = Completer<dynamic>();
     _id += 1;
@@ -463,7 +559,9 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
-      if (!isConnected) return null;
+      if (!isConnected) {
+        return null;
+      }
 
       final completer = Completer<dynamic>();
       _id += 1;
@@ -478,7 +576,6 @@ class ElectrumClient {
 
       return completer.future;
     } catch (e) {
-      printV("callWithTimeout $e");
       rethrow;
     }
   }
@@ -499,6 +596,7 @@ class ElectrumClient {
     // This preserves active subscriptions while clearing error state
     _errors.clear();
     unterminatedString = '';
+    _cachedVersion = null;
   }
 
   void _resetInternalStateCompletely() {
@@ -506,6 +604,7 @@ class ElectrumClient {
     _tasks.clear();
     _errors.clear();
     unterminatedString = '';
+    _cachedVersion = null;
   }
 
   void _registryTask(int id, Completer<dynamic> completer) =>
@@ -551,7 +650,11 @@ class ElectrumClient {
         break;
       case 'blockchain.tweaks.subscribe':
         final params = request['params'] as List<dynamic>;
-        _tasks[_tasks.keys.first]?.subject?.add(params.last);
+        _tasks[method]?.subject?.add(params.last);
+        break;
+      case 'blockchain.silentpayments.subscribe':
+        final params = request['params'] as Map<String, dynamic>;
+        _tasks[method]?.subject?.add(params);
         break;
       default:
         break;
@@ -571,15 +674,17 @@ class ElectrumClient {
 
   void _handleResponse(Map<String, dynamic> response) {
     final method = response['method'];
-    final id = response['id'] as String?;
+    // id can be String or a number, use toString() here to always return a String
+    final id = response['id'].toString();
     final result = response['result'];
 
     try {
       final error = response['error'] as Map<String, dynamic>?;
       if (error != null) {
         final errorMessage = error['message'] as String?;
+        final errorCode = error['code'];
         if (errorMessage != null) {
-          _errors[id!] = errorMessage;
+          _errors[id] = errorMessage;
         }
       }
     } catch (_) {}
@@ -587,7 +692,7 @@ class ElectrumClient {
     try {
       final error = response['error'] as String?;
       if (error != null) {
-        _errors[id!] = error;
+        _errors[id] = error;
       }
     } catch (_) {}
 
@@ -596,9 +701,7 @@ class ElectrumClient {
       return;
     }
 
-    if (id != null) {
-      _finish(id, result);
-    }
+    _finish(id, result);
   }
 
   String getErrorMessage(int id) => _errors[id.toString()] ?? '';
