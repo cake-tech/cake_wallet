@@ -636,11 +636,43 @@ abstract class EVMChainWalletBase
       42161 => CryptoCurrency.arbEth,
       _ => CryptoCurrency.eth,
     };
+    final nativeBal = balance[nativeCurrency]?.balance ?? BigInt.zero;
+    final requiredNative = valueWei + BigInt.from(gas.estimatedGasFee);
 
-    // Fallback for nodes that fail estimate (non-zero)
+    if (requiredNative > nativeBal) {
+      throw EVMChainTransactionFeesException(nativeCurrency.title);
+    }
+
+
+    bool _startsWith(String s, String p) => s.length >= p.length && s.substring(0, p.length).toLowerCase() == p.toLowerCase();
+
+    if (_startsWith(dataHex, '0xa9059cbb') && to.isNotEmpty) {
+      // Try find the token by contract address == `to`
+      Erc20Token? tokenObj;
+      for (final c in balance.keys) {
+        if (c is Erc20Token && c.contractAddress.toLowerCase() == to.toLowerCase()) {
+          tokenObj = c;
+          break;
+        }
+      }
+
+      if (tokenObj != null) {
+        final hex = dataHex.startsWith('0x') ? dataHex.substring(2) : dataHex;
+        if (hex.length >= 8 + 64 + 64) {
+          final amountHex = hex.substring(hex.length - 64);
+          final requiredToken = BigInt.parse(amountHex, radix: 16);
+          final tokenBal = balance[tokenObj]?.balance ?? BigInt.zero;
+
+          if (tokenBal < requiredToken) {
+            throw EVMChainTransactionCreationException(tokenObj);
+          }
+        }
+      }
+    }
+
+
     final gasUnits = gas.estimatedGasUnits == 0 ? 65000 : gas.estimatedGasUnits;
 
-    // Sign raw (native) tx with callData
     return _client.signTransaction(
       privateKey: _evmChainPrivateKey,
       toAddress: to,

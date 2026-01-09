@@ -38,6 +38,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     this.change,
     this.explanation,
     this.isOpenCryptoPay = false,
+    this.hideAddresses = false,
     this.cakePayBuyCardViewModel,
     this.quantity,
     Key? key,
@@ -68,6 +69,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final WalletType walletType;
   final PendingChange? change;
   final bool isOpenCryptoPay;
+  final bool hideAddresses;
   final CakePayBuyCardViewModel? cakePayBuyCardViewModel;
   final String? quantity;
   final String? explanation;
@@ -161,30 +163,36 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                   final _address = item.isParsedAddress ? item.extractedAddress : item.address;
                   final _amount = item.cryptoAmount.replaceAll(',', '.') + ' ${currency.title}';
                   return isBatchSending || (contactName.isNotEmpty && !isCakePayName)
-                      ? ExpansionAddressTile(
-                          contactType: isOpenCryptoPay ? 'Open CryptoPay' : S.of(context).contact,
-                          name: isBatchSending ? batchContactTitle : contactName,
-                          address: _address,
-                          amount: _amount,
-                          walletType: walletType,
-                          isBatchSending: isBatchSending,
-                          itemTitleTextStyle: itemTitleTextStyle,
-                          itemSubTitleTextStyle: itemSubTitleTextStyle,
-                          tileBackgroundColor: tileBackgroundColor,
-                        )
-                      : AddressTile(
-                          itemTitle: isCakePayName
-                              ? item.parsedAddress.profileName
-                              : S.of(context).address,
-                          imagePath: isCakePayName ? item.parsedAddress.profileImageUrl : null,
-                          itemTitleTextStyle: itemTitleTextStyle,
-                          walletType: walletType,
-                          amount: isCakePayName ? item.fiatAmount : _amount,
-                          address: _address,
-                          itemSubTitle: isCakePayName ? quantity : null,
-                          itemSubTitleTextStyle: itemSubTitleTextStyle,
-                          tileBackgroundColor: tileBackgroundColor,
-                        );
+                      ? Offstage(
+                          offstage: hideAddresses,
+                        child: ExpansionAddressTile(
+                            contactType: isOpenCryptoPay ? 'Open CryptoPay' : S.of(context).contact,
+                            name: isBatchSending ? batchContactTitle : contactName,
+                            address: _address,
+                            amount: _amount,
+                            walletType: walletType,
+                            isBatchSending: isBatchSending,
+                            itemTitleTextStyle: itemTitleTextStyle,
+                            itemSubTitleTextStyle: itemSubTitleTextStyle,
+                            tileBackgroundColor: tileBackgroundColor,
+                          ),
+                      )
+                      : Offstage(
+                          offstage: hideAddresses,
+                        child: AddressTile(
+                            itemTitle: isCakePayName
+                                ? item.parsedAddress.profileName
+                                : S.of(context).address,
+                            imagePath: isCakePayName ? item.parsedAddress.profileImageUrl : null,
+                            itemTitleTextStyle: itemTitleTextStyle,
+                            walletType: walletType,
+                            amount: isCakePayName ? item.fiatAmount : _amount,
+                            address: _address,
+                            itemSubTitle: isCakePayName ? quantity : null,
+                            itemSubTitleTextStyle: itemSubTitleTextStyle,
+                            tileBackgroundColor: tileBackgroundColor,
+                          ),
+                      );
                 },
               ),
               if (change != null)
