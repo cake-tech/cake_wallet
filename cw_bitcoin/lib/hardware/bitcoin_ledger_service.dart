@@ -18,6 +18,10 @@ class BitcoinLedgerService extends HardwareWalletService with BitcoinHardwareWal
   final LedgerConnection ledgerConnection;
   final BitcoinLedgerApp bitcoinLedgerApp;
 
+  void setAccountDerivationPath(String derivationPath) {
+    bitcoinLedgerApp.derivationPath = derivationPath;
+  }
+
   @override
   Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
     final masterFp = await bitcoinLedgerApp.getMasterFingerprint();
@@ -45,7 +49,7 @@ class BitcoinLedgerService extends HardwareWalletService with BitcoinHardwareWal
   }
 
   @override
-  Future<Uint8List> signTransaction({required String transaction}) =>
+  Future<Uint8List> signTransaction({required String transaction, String? derivationPath}) =>
       bitcoinLedgerApp.signPsbt(psbt: PsbtV2()..deserialize(base64Decode(transaction)));
 
   @override
