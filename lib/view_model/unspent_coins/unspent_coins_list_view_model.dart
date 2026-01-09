@@ -49,6 +49,12 @@ abstract class UnspentCoinsListViewModelBase with Store {
   @observable
   ObservableList<UnspentCoinsItem> items;
 
+  @computed
+  List<UnspentCoinsItem> get nonFrozenItems => items.where((e)=>!e.isFrozen).toList();
+
+  @computed
+  List<UnspentCoinsItem> get frozenItems => items.where((e)=>e.isFrozen).toList();
+
   final Map<String, Map<String, dynamic>> _originalState;
 
   @observable

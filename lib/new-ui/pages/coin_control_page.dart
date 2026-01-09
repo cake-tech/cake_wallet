@@ -3,8 +3,10 @@ import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import "package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart";
 
 class NewCoinControlPage extends StatefulWidget {
   const NewCoinControlPage({super.key, required this.unspentCoinsListViewModel});
@@ -22,6 +24,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
   void initState() {
     super.initState();
     _initialization = widget.unspentCoinsListViewModel.initialSetup();
+
   }
 
   @override
@@ -49,10 +52,18 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                     future: _initialization,
                     builder: (context, asyncSnapshot) {
                       if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                            child: CircularProgressIndicator(
-                          color: Theme.of(context).colorScheme.primary,
-                        ));
+                        return Expanded(
+                          child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                            spacing: 12,
+                            children: [
+                              CupertinoActivityIndicator(
+                              ),
+                              Text("Loading...")
+                            ],
+                          )),
+                        );
                       }
 
                       if (asyncSnapshot.hasError)
@@ -96,58 +107,44 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                               ),
                             ),
                           SizedBox(height: 15),
-                          widget.unspentCoinsListViewModel.items.isEmpty
-                              ? Center(
-                                  child: Text(
-                                  'No unspent coins available',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                      ),
-                                ))
-                              : Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                  child: ListView.separated(
-                                    shrinkWrap: true,
-                                    itemCount: widget.unspentCoinsListViewModel.items.length,
-                                    separatorBuilder: (_, __) => SizedBox(height: 15),
-                                    itemBuilder: (_, int index) {
-                                      return Observer(builder: (_) {
-                                        final item = widget.unspentCoinsListViewModel.items[index];
-                                        final fiatAmount = widget
-                                                .unspentCoinsListViewModel.fiatAmounts[item.hash] ??
-                                            '';
-                                        return GestureDetector(
-                                          onTap: () => Navigator.of(context).pushNamed(
-                                            Routes.unspentCoinsDetails,
-                                            arguments: [item, widget.unspentCoinsListViewModel],
-                                          ),
-                                          child: CoinControlListItem(
-                                            note: item.note,
-                                            amount: item.amount,
-                                            fiatAmount: fiatAmount,
-                                            address: item.address,
-                                            isSending: item.isSending,
-                                            isFrozen: item.isFrozen,
-                                            isChange: item.isChange,
-                                            isSilentPayment: item.isSilentPayment,
-                                            isLoading: item.isBeingSaved,
-                                            isFirst: index == 0,
-                                            isLast: index ==
-                                                widget.unspentCoinsListViewModel.items.length - 1,
-                                            onCheckBoxTap: item.isFrozen
-                                                ? null
-                                                : () async {
-                                                    item.isSending = !item.isSending;
-                                                    await widget.unspentCoinsListViewModel
-                                                        .saveUnspentCoinInfo(item);
-                                                  },
-                                          ),
-                                        );
-                                      });
-                                    },
-                                  ),
+                          if(widget.unspentCoinsListViewModel.nonFrozenItems.isEmpty && widget.unspentCoinsListViewModel.frozenItems.isEmpty)
+                          Center(
+                              child: Text(
+                                'No unspent coins available',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
+                              )),
+                          SizedBox(height: 15),
+                          Observer(
+                            builder: (_)=>widget.unspentCoinsListViewModel.nonFrozenItems.isEmpty
+                                ? SizedBox.shrink()
+                                : Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                    child: CoinControlListSection(items: widget.unspentCoinsListViewModel.nonFrozenItems, unspentCoinsListViewModel: widget.unspentCoinsListViewModel),
+                                  ),
+                          ),
+                          Observer(
+                            builder: (context) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Column(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (widget.unspentCoinsListViewModel.frozenItems.isNotEmpty)
+                                      Text("Frozen", style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurfaceVariant),),
+                                    if (widget.unspentCoinsListViewModel.frozenItems.isNotEmpty)
+                                      CoinControlListSection(
+                                          items: widget.unspentCoinsListViewModel.frozenItems,
+                                          unspentCoinsListViewModel:
+                                              widget.unspentCoinsListViewModel),
+                                  ],
+                                ),
+                              );
+                            },
+                          )
                         ],
                       );
                     })
@@ -159,3 +156,56 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
     );
   }
 }
+
+class CoinControlListSection extends StatelessWidget {
+  const CoinControlListSection({super.key, required this.items, required this.unspentCoinsListViewModel});
+
+  final List<UnspentCoinsItem> items;
+  final UnspentCoinsListViewModel unspentCoinsListViewModel;
+
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      shrinkWrap: true,
+      itemCount: items.length,
+      separatorBuilder: (_, __) => SizedBox(height: 15),
+      itemBuilder: (_, int index) {
+        return Observer(builder: (_) {
+          final item = items[index];
+          final fiatAmount =
+              unspentCoinsListViewModel.fiatAmounts[item.hash] ??
+              '';
+          return GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(
+              Routes.unspentCoinsDetails,
+              arguments: [item, unspentCoinsListViewModel],
+            ),
+            child: CoinControlListItem(
+              note: item.note,
+              amount: item.amount,
+              fiatAmount: fiatAmount,
+              address: item.address,
+              isSending: item.isSending,
+              isFrozen: item.isFrozen,
+              isChange: item.isChange,
+              isSilentPayment: item.isSilentPayment,
+              isLoading: item.isBeingSaved,
+              isFirst: index == 0,
+              isLast: index ==
+                  items.length - 1,
+              onCheckBoxTap: item.isFrozen
+                  ? null
+                  : () async {
+                item.isSending = !item.isSending;
+                await unspentCoinsListViewModel
+                    .saveUnspentCoinInfo(item);
+              },
+            ),
+          );
+        });
+      },
+    );
+  }
+}
+
