@@ -49,7 +49,7 @@ class BitcoinLedgerService extends HardwareWalletService with BitcoinHardwareWal
   }
 
   @override
-  Future<Uint8List> signTransaction({required String transaction, String? derivationPath}) =>
+  Future<Uint8List> signTransaction({required String transaction}) =>
       bitcoinLedgerApp.signPsbt(psbt: PsbtV2()..deserialize(base64Decode(transaction)));
 
   @override
