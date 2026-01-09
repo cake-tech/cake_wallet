@@ -20,6 +20,7 @@ dependencies:
       ref: 69b3276b090fa6ac01b4483ca3adca93a8e615be
   http: ^1.1.0
   path_provider: ^2.0.11
+  modal_bottom_sheet: ^3.0.0
   mobx: ^2.1.4
   flutter_mobx: 2.0.6+5
   flutter_slidable: ^3.0.1
@@ -57,6 +58,7 @@ dependencies:
   connectivity_plus: ^6.1.3
   keyboard_actions: ^4.0.1
   another_flushbar: ^1.12.29
+  progressive_blur: ^0.0.2
   archive: ^4.0.3
   cryptography: ^2.0.5
   file_picker:
@@ -87,6 +89,9 @@ dependencies:
   shared_preferences_android: ^2.4.8
   url_launcher_android: 6.3.14
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
+  bloc: ^9.0.0
+  flutter_bloc: ^9.1.0
+  equatable: ^2.0.0
   sensitive_clipboard:
     git:
       url: https://github.com/cake-tech/sensitive_clipboard
@@ -243,6 +248,11 @@ flutter:
     - assets/text/
     - assets/faq/
     - assets/animation/
+    - assets/new-ui/
+    - assets/new-ui/balance_card_icons/
+    - assets/new-ui/balance_card_backgrounds/
+    - assets/new-ui/settings_row_icons/
+    - assets/new-ui/chain_badges/
 
   fonts:
     - family: Lato
@@ -251,6 +261,16 @@ flutter:
         - asset: assets/fonts/Lato-Medium.ttf
         - asset: assets/fonts/Lato-Semibold.ttf
         - asset: assets/fonts/Lato-Bold.ttf
+
+    - family: Wix Madefor Text
+      fonts:
+        - asset: assets/fonts/WixMadeforText-Regular.ttf
+        - asset: assets/fonts/WixMadeforText-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/WixMadeforText-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/WixMadeforText-Bold.ttf
+          weight: 700
 
 msix_config:
   display_name: Cake Wallet

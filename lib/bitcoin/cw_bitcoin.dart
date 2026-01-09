@@ -264,6 +264,7 @@ class CWBitcoin extends Bitcoin {
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
         case UnspentCoinType.nonMweb:
           return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.lightning:
         case UnspentCoinType.any:
           return true;
       }
@@ -320,30 +321,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<ReceivePageOption> getBitcoinReceivePageOptions(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    final keys = bitcoinWallet.keys;
-    if (keys.privateKey.isEmpty) {
-      return BitcoinReceivePageOption.allViewOnly;
-    }
-    return BitcoinReceivePageOption.all;
-  }
-
-  @override
-  List<ReceivePageOption> getLitecoinReceivePageOptions(Object wallet) {
-    final litecoinWallet = wallet as ElectrumWallet;
-    if (Platform.isLinux ||
-        Platform.isMacOS ||
-        Platform.isWindows ||
-        litecoinWallet.isHardwareWallet) {
-      return BitcoinReceivePageOption.allLitecoin
-          .where((element) => element != BitcoinReceivePageOption.mweb)
-          .toList();
-    }
-    return BitcoinReceivePageOption.allLitecoin;
-  }
-
-  @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
     switch (option) {
       case BitcoinReceivePageOption.p2pkh:
@@ -361,6 +338,11 @@ class CWBitcoin extends Bitcoin {
         return SegwitAddresType.p2wpkh;
     }
   }
+
+  @override
+  BitcoinReceivePageOption getBitcoinLightningReceivePageOption() => BitcoinReceivePageOption.lightning;
+  @override
+  BitcoinReceivePageOption getBitcoinSegwitPageOption() => BitcoinReceivePageOption.p2wpkh;
 
   @override
   Future<List<DerivationType>> compareDerivationMethods(
@@ -703,6 +685,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
+    if (pendingTransaction is PendingLightningTransaction) return outputs;
+
     final pendingTx = pendingTransaction as PendingBitcoinTransaction;
 
     if (!pendingTx.hasSilentPayment) {
@@ -775,6 +759,15 @@ class CWBitcoin extends Bitcoin {
       final segwitAddress = electrumWallet.walletAddresses.allAddresses
           .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
       return segwitAddress.address;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<String?> getUnusedSpakDepositAddress(Object wallet) async {
+    try {
+      final bitcoinWallet = wallet as BitcoinWallet;
+      return wallet.lightningWallet?.getDepositAddress();
     } catch (_) {
       return null;
     }

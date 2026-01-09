@@ -37,9 +37,6 @@ dependencies:
     git:
       url: https://github.com/cake-tech/sp_scanner
       ref: sp_v4.0.1
-  bech32:
-    git:
-      url: https://github.com/cake-tech/bech32.git
   payjoin_flutter:
     git:
       url: https://github.com/konstantinullrich/payjoin-flutter
@@ -72,6 +69,10 @@ dependencies:
     git:
       url: https://github.com/mrcyjanek/bbqrdart
       ref: e867e3d0156d0b29858100f30adc2625b9dae586
+  breez_sdk_spark_flutter:
+    git:
+      url: https://github.com/breez/breez-sdk-spark-flutter
+      ref: 4fb31dd9a952290bcaf9ad0ec565003a7133e124
 
 dev_dependencies:
   flutter_test:

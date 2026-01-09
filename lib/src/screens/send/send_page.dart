@@ -1,13 +1,13 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
@@ -32,12 +32,12 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
@@ -98,8 +98,7 @@ class SendPage extends BasePage {
       size: 16,
     );
     final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
-
-    bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
+    final isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
     return MergeSemantics(
       child: SizedBox(
@@ -150,27 +149,25 @@ class SendPage extends BasePage {
 
   @override
   Widget trailing(context) => Observer(
-        builder: (_) {
-          return sendViewModel.isBatchSending
-              ? TrailButton(
-                  caption: S.of(context).remove,
-                  onPressed: () {
-                    var pageToJump = (controller.page?.round() ?? 0) - 1;
-                    pageToJump = pageToJump > 0 ? pageToJump : 0;
-                    final output = _defineCurrentOutput();
-                    sendViewModel.removeOutput(output);
-                    controller.jumpToPage(pageToJump);
-                  },
-                )
-              : TrailButton(
-                  caption: S.of(context).clear,
-                  onPressed: () {
-                    final output = _defineCurrentOutput();
-                    _formKey.currentState?.reset();
-                    output.reset();
-                  },
-                );
-        },
+        builder: (_) => sendViewModel.isBatchSending
+            ? TrailButton(
+                caption: S.of(context).remove,
+                onPressed: () {
+                  var pageToJump = (controller.page?.round() ?? 0) - 1;
+                  pageToJump = pageToJump > 0 ? pageToJump : 0;
+                  final output = _defineCurrentOutput();
+                  sendViewModel.removeOutput(output);
+                  controller.jumpToPage(pageToJump);
+                },
+              )
+            : TrailButton(
+                caption: S.of(context).clear,
+                onPressed: () {
+                  final output = _defineCurrentOutput();
+                  _formKey.currentState?.reset();
+                  output.reset();
+                },
+              ),
       );
 
   @override
@@ -183,7 +180,7 @@ class SendPage extends BasePage {
         return Observer(builder: (_) {
           List<Widget> sendCards = [];
           List<KeyboardActionsItem> keyboardActions = [];
-          for (var output in sendViewModel.outputs) {
+          for (final output in sendViewModel.outputs) {
             final isCurrent = sendViewModel.outputs.indexOf(output) == value;
             sendCards.add(
               SendCard(
@@ -500,9 +497,7 @@ class SendPage extends BasePage {
   BuildContext? loadingBottomSheetContext;
 
   void _setEffects(BuildContext context) {
-    if (_effectsInstalled) {
-      return;
-    }
+    if (_effectsInstalled) return;
 
     if (sendViewModel.isElectrumWallet) {
       bitcoin!.updateFeeRates(sendViewModel.wallet);
@@ -529,16 +524,14 @@ class SendPage extends BasePage {
           (_) {
             showPopUp<void>(
               context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                  key: ValueKey('send_page_send_failure_dialog_key'),
-                  buttonKey: ValueKey('send_page_send_failure_dialog_button_key'),
-                  alertTitle: S.of(context).error,
-                  alertContent: state.error,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop(),
-                );
-              },
+              builder: (context) => AlertWithOneAction(
+                key: ValueKey('send_page_send_failure_dialog_key'),
+                buttonKey: ValueKey('send_page_send_failure_dialog_button_key'),
+                alertTitle: S.of(context).error,
+                alertContent: state.error,
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop(),
+              ),
             );
           },
         );
@@ -557,7 +550,7 @@ class SendPage extends BasePage {
             showModalBottomSheet<void>(
               context: context,
               isDismissible: false,
-              builder: (BuildContext context) {
+              builder: (context) {
                 loadingBottomSheetContext = context;
                 return LoadingBottomSheet(
                   titleText: S.of(context).generating_transaction,
@@ -615,9 +608,7 @@ class SendPage extends BasePage {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (!context.mounted) {
-            return;
-          }
+          if (!context.mounted) return;
 
           newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
 
@@ -788,37 +779,34 @@ class SendPage extends BasePage {
   }
 
   Output _defineCurrentOutput() {
-    if (controller.page == null) {
-      throw Exception('Controller page is null');
-    }
+    if (controller.page == null) throw Exception('Controller page is null');
     final itemCount = controller.page!.round();
     return sendViewModel.outputs[itemCount];
   }
 
-  void showErrorValidationAlert(BuildContext context) async {
-    await showPopUp<void>(
+  void showErrorValidationAlert(BuildContext context) => showPopUp<void>(
         context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
-              alertTitle: S.of(context).error,
-              alertContent: 'Please, check receiver forms',
-              buttonText: S.of(context).ok,
-              buttonAction: () => Navigator.of(context).pop());
-        });
-  }
+        builder: (context) => AlertWithOneAction(
+          alertTitle: S.of(context).error,
+          alertContent: 'Please, check receiver forms',
+          buttonText: S.of(context).ok,
+          buttonAction: () => Navigator.of(context).pop(),
+        ),
+      );
 
   bool isRegularElectrumAddress(String address) {
     final supportedTypes = [CryptoCurrency.btc, CryptoCurrency.ltc, CryptoCurrency.bch];
     final excludedPatterns = [
       RegExp(AddressValidator.silentPaymentAddressPatternMainnet),
       RegExp(AddressValidator.silentPaymentAddressPatternTestnet),
-      RegExp(AddressValidator.mWebAddressPattern)
+      RegExp(AddressValidator.mWebAddressPattern),
+      RegExp(AddressValidator.bolt11InvoiceMatcher),
     ];
 
     final trimmed = address.trim();
 
     bool isValid = false;
-    for (var type in supportedTypes) {
+    for (final type in supportedTypes) {
       final addressPattern = AddressValidator.getAddressFromStringPattern(type);
       if (addressPattern != null) {
         final regex = RegExp('^$addressPattern\$');
@@ -829,23 +817,16 @@ class SendPage extends BasePage {
       }
     }
 
-    for (var pattern in excludedPatterns) {
-      if (pattern.hasMatch(trimmed)) {
-        return false;
-      }
+    for (final pattern in excludedPatterns) {
+      if (pattern.hasMatch(trimmed)) return false;
     }
 
     return isValid;
   }
 
   String _sendButtonText(BuildContext context) {
-    if (!sendViewModel.isReadyForSend) {
-      return S.of(context).synchronizing;
-    }
-    if (sendViewModel.payjoinUri != null) {
-      return S.of(context).send_payjoin;
-    } else {
-      return S.of(context).send;
-    }
+    if (!sendViewModel.isReadyForSend) return S.of(context).synchronizing;
+    if (sendViewModel.payjoinUri != null) return S.of(context).send_payjoin;
+    return S.of(context).send;
   }
 }

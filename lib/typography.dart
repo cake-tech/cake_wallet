@@ -1,6 +1,8 @@
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:flutter/material.dart';
 
 const latoFont = "Lato";
+const wixFont = "Wix Madefor Text";
 
 TextStyle textXxSmall({Color? color}) => _cakeRegular(10, color);
 
@@ -54,7 +56,7 @@ TextStyle _textStyle({
   Color? color,
 }) =>
     TextStyle(
-      fontFamily: latoFont,
+      fontFamily: FeatureFlag.hasNewUi ? wixFont : latoFont,
       fontSize: size,
       fontWeight: fontWeight,
       color: color ?? Colors.white,

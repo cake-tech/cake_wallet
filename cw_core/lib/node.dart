@@ -20,6 +20,7 @@ Uri createUriFromElectrumAddress(String address, String path) =>
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
   Node({
+    this.label,
     this.login,
     this.password,
     this.useSSL,
@@ -42,6 +43,7 @@ class Node extends HiveObject with Keyable {
       : uriRaw = map['uri'] as String? ?? '',
         path = map['path'] as String? ?? '',
         login = map['login'] as String?,
+        label = map['label'] as String?,
         password = map['password'] as String?,
         useSSL = map['useSSL'] as bool?,
         trusted = map['trusted'] as bool? ?? false,
@@ -87,6 +89,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(11, defaultValue: false)
   bool isEnabledForAutoSwitching;
 
+  @HiveField(12, defaultValue: '')
+  String? label;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -126,6 +131,7 @@ class Node extends HiveObject with Keyable {
       other is Node &&
       (other.uriRaw == uriRaw &&
           other.login == login &&
+          other.label == label &&
           other.password == password &&
           other.typeRaw == typeRaw &&
           other.useSSL == useSSL &&
@@ -137,6 +143,7 @@ class Node extends HiveObject with Keyable {
   int get hashCode =>
       uriRaw.hashCode ^
       login.hashCode ^
+      label.hashCode ^
       password.hashCode ^
       typeRaw.hashCode ^
       useSSL.hashCode ^

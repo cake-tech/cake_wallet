@@ -1,13 +1,18 @@
 import 'dart:io' show Platform;
+import 'dart:math';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
+import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/wallet_addresses.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -52,6 +57,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinAddressRecord>? initialMwebAddresses,
     Bip32Slip10Secp256k1? masterHd,
     BitcoinAddressType? initialAddressPageType,
+    this.lightningWallet,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         addressesByReceiveType =
             ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
@@ -65,7 +71,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         currentChangeAddressIndexByType = initialChangeAddressIndex ?? {},
         _addressPageType = initialAddressPageType ??
             (walletInfo.addressPageType != null
-                ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
+                ? walletInfo.addressPageType == LightningAddressType.p2l.value
+                    ? LightningAddressType.p2l
+                    : BitcoinAddressType.fromValue(walletInfo.addressPageType!)
                 : SegwitAddresType.p2wpkh),
         silentAddresses = ObservableList<BitcoinSilentPaymentAddressRecord>.of(
             (initialSilentAddresses ?? []).toSet()),
@@ -112,7 +120,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           ));
       }
     }
-
     updateAddressesByMatch();
   }
 
@@ -124,14 +131,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
+
   // TODO: add this variable in `bitcoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinSilentPaymentAddressRecord> silentAddresses;
+
   // TODO: add this variable in `litecoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinAddressRecord> mwebAddresses;
   final BasedUtxoNetwork network;
   final Bip32Slip10Secp256k1 mainHd;
   final Bip32Slip10Secp256k1 sideHd;
   final bool isHardwareWallet;
+  final LightningWallet? lightningWallet;
 
   @observable
   ObservableMap<BitcoinAddressType, String> lockedReceiveAddressByType;
@@ -148,6 +158,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @observable
   String? activeSilentAddress;
 
+  @observable
+  String? lightningAddress;
+
   @computed
   List<BitcoinAddressRecord> get allAddresses => _addresses;
 
@@ -160,6 +173,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
 
       return silentAddress.toString();
+    }
+
+    if (addressPageType == LightningAddressType.p2l) {
+      return lightningAddress ?? ":(";
     }
 
     final typeMatchingAddresses =
@@ -229,7 +246,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addressRecord.type == addressPageType) {
         lockedReceiveAddressByType[addressPageType] = addr;
       }
-
     } catch (e) {
       printV("ElectrumWalletAddressBase: set address ($addr): $e");
     }
@@ -465,7 +481,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     final firstSilentAddressRecord = silentAddresses.firstOrNull;
     if (firstSilentAddressRecord != null) {
-
       if (firstSilentAddressRecord.address != address) {
         addressesMap[firstSilentAddressRecord.address] = firstSilentAddressRecord.name.isEmpty
             ? "Silent Payments"
@@ -742,5 +757,33 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     silentAddresses.remove(addressRecord);
     updateAddressesByMatch();
+  }
+
+  @action
+  Future<void> setLightningAddress(String walletName) async {
+    if (lightningWallet == null) return;
+
+    final path = await pathForWalletDir(name: walletName, type: WalletType.bitcoin);
+    final initialized = await lightningWallet!.init(path);
+
+    if (!initialized) {
+      printV("Failed to initialize the lightning wallet");
+      return;
+    }
+
+    lightningAddress = await lightningWallet!.getAddress();
+
+    if (lightningAddress == null) {
+      final randomNumber = Random.secure().nextInt(9999);
+      final randomName = await generateName();
+      final username = "${randomName.replaceAll(" ", "")}$randomNumber".toLowerCase();
+      try {
+        lightningAddress = await lightningWallet!.registerAddress(username);
+      } catch (e) {
+        printV(e);
+        printV(username);
+        rethrow;
+      }
+    }
   }
 }

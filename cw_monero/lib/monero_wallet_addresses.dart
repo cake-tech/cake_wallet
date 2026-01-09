@@ -1,5 +1,5 @@
 import 'package:cw_core/account.dart';
-import 'package:cw_core/address_info.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
@@ -155,4 +155,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   @override
   bool containsAddress(String address) =>
       addressInfos[account?.id ?? 0]?.any((it) => it.address == address) ?? false;
+
+  @override
+  PaymentURI getPaymentUri(String amount) => MoneroURI(address: address, amount: amount);
 }
