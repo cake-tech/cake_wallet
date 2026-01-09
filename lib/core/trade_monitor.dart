@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -65,6 +66,8 @@ class TradeMonitor {
         return XOSwapExchangeProvider();
       case ExchangeProviderDescription.swapsXyz:
         return SwapsXyzExchangeProvider();
+      case ExchangeProviderDescription.nearIntents:
+        return NearIntentsExchangeProvider();
     }
     return null;
   }
