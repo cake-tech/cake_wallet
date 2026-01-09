@@ -157,42 +157,37 @@ class TransactionExportFormatter {
       switch (walletType) {
         case WalletType.monero:
           return _formatMoneroTransaction(tx, timestamp, type, recipientAddress);
-        // case WalletType.wownero:
-        //   return _formatWowneroTransaction(tx, timestamp, type, recipientAddress);
-        // case WalletType.bitcoin:
-        // case WalletType.litecoin:
-        // case WalletType.bitcoinCash:
-        // case WalletType.dogecoin:
-        //   return _formatElectrumTransaction(tx, timestamp, type, recipientAddress, walletType);
-        // case WalletType.ethereum:
-        // case WalletType.polygon:
-        // case WalletType.arbitrum:
-        // case WalletType.base:
-        //   return _formatEVMTransaction(tx, timestamp, type, recipientAddress, walletType);
-        // case WalletType.solana:
-        //   return _formatSolanaTransaction(tx, timestamp, type, recipientAddress);
-        // case WalletType.tron:
-        //   return _formatTronTransaction(tx, timestamp, type, recipientAddress);
-        // case WalletType.nano:
-        // case WalletType.banano:
-        //   return _formatNanoTransaction(tx, timestamp, type, recipientAddress);
-        // case WalletType.decred:
-        //   return _formatDecredTransaction(tx, timestamp, type, recipientAddress);
-        // default:
-        //   return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
+        case WalletType.wownero:
+          return _formatWowneroTransaction(tx, timestamp, type, recipientAddress);
+        case WalletType.bitcoin:
+        case WalletType.litecoin:
+        case WalletType.bitcoinCash:
+        case WalletType.dogecoin:
+          return _formatElectrumTransaction(tx, timestamp, type, recipientAddress, walletType);
+        case WalletType.ethereum:
+        case WalletType.polygon:
+        case WalletType.arbitrum:
+        case WalletType.base:
+          return _formatEVMTransaction(tx, timestamp, type, recipientAddress, walletType);
+        case WalletType.solana:
+          return _formatSolanaTransaction(tx, timestamp, type, recipientAddress);
+        case WalletType.tron:
+          return _formatTronTransaction(tx, timestamp, type, recipientAddress);
+        case WalletType.nano:
+        case WalletType.banano:
+          return _formatNanoTransaction(tx, timestamp, type, recipientAddress);
+        case WalletType.decred:
+          return _formatDecredTransaction(tx, timestamp, type, recipientAddress);
         default:
-          throw UnimplementedError();
+          return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
       }
-      return ""; // Should never reach here
     } catch (e) {
-      // Fallback to generic formatting if specific formatting fails
-      // return _formatGenericTransaction(
-      //   tx,
-      //   _dateFormat.format(tx.date),
-      //   tx.direction == TransactionDirection.incoming ? 'Received' : 'Sent',
-      //   'Not known',
-      // );
-      rethrow;
+      return _formatGenericTransaction(
+        tx,
+        _dateFormat.format(tx.date),
+        tx.direction == TransactionDirection.incoming ? 'Received' : 'Sent',
+        'Not known',
+      );
     }
   }
 
@@ -221,7 +216,7 @@ class TransactionExportFormatter {
         recipientAddress = moneroProp.recipientAddress.toString();
       }
 
-      final explorerLink = txId != 'N/A' ? 'https://monero.com/tx/$txId' : 'N/A';
+      final explorerLink = 'https://monero.com/tx/$txId';
       final formattedData = [
         _escapeCsvField(timestamp),
         _escapeCsvField(amount),
@@ -239,60 +234,59 @@ class TransactionExportFormatter {
       var formattedString = "'" + formattedData + "'";
       return formattedString;
     } catch (e) {
-      rethrow;
-      //return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
+      // rethrow;
+      return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
     }
   }
 
   /// Formats Wownero transaction (similar to Monero)
-  static TransactionExportData _formatWowneroTransaction(
+  static String _formatWowneroTransaction(
     TransactionInfo tx,
     String timestamp,
     String type,
     String recipientAddress,
   ) {
-    throw UnimplementedError("TODO: Implement Wownero transaction formatting");
-    // try {
-    //   final dynamic moneroProp = tx;
+    // throw UnimplementedError("TODO: Implement Wownero transaction formatting");
+    try {
+      final dynamic wowneroProp = tx;
 
-    //   //final amount = moneroProp.amountFormatted?.toString() ?? 'N/A';
-    //   final amount = tx.amountFormatted().toString();
-    //   // final height = moneroProp.height.toString() ?? 'N/A';
-    //   // final confirmations = moneroProp.confirmations?.toString() ?? 'N/A';
-    //   final txId = moneroProp.txHash.toString() ?? tx.id;
-    //   final fee = moneroProp.feeFormatted.toString() ?? 'N/A';
-    //   final subwalletNumber = moneroProp.addressIndex?.toString() ?? 'N/A';
-    //   final key = moneroProp.key?.toString() ?? 'N/A';
-    //   final note = moneroProp.note?.toString() ?? '';
-    //   // Override recipient address if available in Monero tx
-    //   if (moneroProp.recipientAddress != null &&
-    //       moneroProp.recipientAddress.toString().isNotEmpty) {
-    //     recipientAddress = moneroProp.recipientAddress.toString();
-    //   }
+      final amount = tx.amountFormatted().toString();
+      final height = tx.height.toString();
+      final txId = tx.txHash.toString();
+      final fee = wowneroProp.feeFormatted().toString();
+      final subwalletNumber = wowneroProp.addressIndex.toString();
+      final key = wowneroProp.key.toString();
+      // final note = wowneroProp.note?.toString() ?? '';
+      // Override recipient address if available in tx
+      if (wowneroProp.recipientAddress != null &&
+          wowneroProp.recipientAddress.toString().isNotEmpty) {
+        recipientAddress = wowneroProp.recipientAddress.toString();
+      }
 
-    //   final explorerLink = txId != 'N/A' && txId != tx.id ? 'wowNero.wow/$txId' : 'N/A';
-    //   printV("Wownero: $amount");
-    //   return TransactionExportData(
-    //     timestamp: timestamp,
-    //     amount: amount,
-    //     type: type,
-    //     height: height,
-    //     note: note,
-    //     confirmations: confirmations,
-    //     txId: txId,
-    //     fee: fee,
-    //     subwalletNumber: subwalletNumber,
-    //     key: key,
-    //     recipientAddress: recipientAddress,
-    //     explorerLink: explorerLink,
-    //   );
-    // } catch (e) {
-    //   return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
-    // }
+      final explorerLink = 'https://explore.wownero.com/tx/$txId';
+      final formattedData = [
+        _escapeCsvField(timestamp),
+        _escapeCsvField(amount),
+        _escapeCsvField(type),
+        _escapeCsvField(height),
+        //_escapeCsvField(note),
+        _escapeCsvField(txId),
+        _escapeCsvField(fee),
+        _escapeCsvField(subwalletNumber),
+        _escapeCsvField(key),
+        _escapeCsvField(recipientAddress),
+        _escapeCsvField(explorerLink),
+      ].join("','");
+
+      var formattedString = "'" + formattedData + "'";
+      return formattedString;
+    } catch (e) {
+      return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
+    }
   }
 
   /// Formats Bitcoin/Litecoin/Bitcoin Cash/Dogecoin transaction
-  static TransactionExportData _formatElectrumTransaction(
+  static String _formatElectrumTransaction(
     TransactionInfo tx,
     String timestamp,
     String type,
@@ -301,14 +295,15 @@ class TransactionExportFormatter {
   ) {
     try {
       final dynamic electrumProp = tx;
-  
-      final amount = electrumProp.amountFormatted?.toString() ?? 'N/A';
-      final height = electrumProp.height?.toString() ?? 'N/A';
-      final confirmations = electrumProp.confirmations?.toString() ?? 'N/A';
-      final txId = tx.id;
-      final fee = electrumProp.feeFormatted?.toString() ?? 'N/A';
-      final note = electrumProp.note?.toString() ?? '';
 
+      final amount = tx.amountFormatted().toString() ?? 'N/A';
+      final height = tx.height.toString() ?? 'N/A';
+      // final confirmations = tx.confirmations?.toString() ?? 'N/A';
+      final txId = tx.txHash.toString();
+      final fee = electrumProp.feeFormatted().toString();
+      final subwalletNumber = electrumProp.key.toString();
+      final key = electrumProp.key.toString();
+      // final note = electrumProp.note?.toString() ?? '';
       // Try to get recipient from transaction
       if (electrumProp.to != null && electrumProp.to.toString().isNotEmpty) {
         recipientAddress = electrumProp.to.toString();
@@ -332,27 +327,29 @@ class TransactionExportFormatter {
           explorerLink = 'N/A';
       }
 
-      return TransactionExportData(
-        timestamp: timestamp,
-        amount: amount,
-        type: type,
-        height: height,
-        confirmations: confirmations,
-        txId: txId,
-        fee: fee,
-        subwalletNumber: 'N/A',
-        note: note,
-        key: 'N/A',
-        recipientAddress: recipientAddress,
-        explorerLink: explorerLink,
-      );
+      final formattedData = [
+        _escapeCsvField(timestamp),
+        _escapeCsvField(amount),
+        _escapeCsvField(type),
+        _escapeCsvField(height),
+        //_escapeCsvField(note),
+        _escapeCsvField(txId),
+        _escapeCsvField(fee),
+        _escapeCsvField(subwalletNumber),
+        _escapeCsvField(key),
+        _escapeCsvField(recipientAddress),
+        _escapeCsvField(explorerLink),
+      ].join("','");
+
+      var formattedString = "'" + formattedData + "'";
+      return formattedString;
     } catch (e) {
       return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
     }
   }
 
   /// Formats EVM chain transaction (Ethereum, Polygon, Arbitrum, etc)
-  static TransactionExportData _formatEVMTransaction(
+  static String _formatEVMTransaction(
     TransactionInfo tx,
     String timestamp,
     String type,
@@ -362,15 +359,17 @@ class TransactionExportFormatter {
     try {
       final dynamic evmProp = tx;
 
-      final amount = evmProp.amountFormatted?.toString() ?? 'N/A';
-      final height = evmProp.height?.toString() ?? 'N/A';
-      final confirmations = evmProp.confirmations?.toString() ?? 'N/A';
+      final amount = tx.amountFormatted().toString();
+      final height = tx.height.toString();
+      //final confirmations = tx.confirmations?.toString() ?? 'N/A';
       final txId = tx.id;
-      final note = evmProp.note?.toString() ?? '';
+      // final note = tx.note?.toString() ?? '';
       final fee = evmProp.feeFormatted?.toString() ?? 'N/A';
+      final subwalletNumber = evmProp.addressIndex.toString();
+      final key = evmProp.key.toString();
 
       if (evmProp.to != null && evmProp.to.toString().isNotEmpty) {
-        recipientAddress = evmProp.to.toString();
+        recipientAddress = evmProp.recipientAddress.toString();
       }
 
       String explorerLink = 'N/A';
@@ -391,27 +390,29 @@ class TransactionExportFormatter {
           explorerLink = 'N/A';
       }
 
-      return TransactionExportData(
-        timestamp: timestamp,
-        amount: amount,
-        type: type,
-        height: height,
-        note: note,
-        confirmations: confirmations,
-        txId: txId,
-        fee: fee,
-        subwalletNumber: 'N/A',
-        key: 'N/A',
-        recipientAddress: recipientAddress,
-        explorerLink: explorerLink,
-      );
+      final formattedData = [
+        _escapeCsvField(timestamp),
+        _escapeCsvField(amount),
+        _escapeCsvField(type),
+        _escapeCsvField(height),
+        //_escapeCsvField(note),
+        _escapeCsvField(txId),
+        _escapeCsvField(fee),
+        _escapeCsvField(subwalletNumber),
+        _escapeCsvField(key),
+        _escapeCsvField(recipientAddress),
+        _escapeCsvField(explorerLink),
+      ].join("','");
+
+      var formattedString = "'" + formattedData + "'";
+      return formattedString;
     } catch (e) {
       return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
     }
   }
 
   /// Formats Solana transaction
-  static TransactionExportData _formatSolanaTransaction(
+  static String _formatSolanaTransaction(
     TransactionInfo tx,
     String timestamp,
     String type,
@@ -420,40 +421,43 @@ class TransactionExportFormatter {
     try {
       final dynamic solanaProp = tx;
 
-      final amount = solanaProp.amountFormatted?.toString() ?? 'N/A';
-      final height = 'N/A'; // Solana uses slots, not traditional height
-      final confirmations = '1'; // Solana finality
-      final txId = tx.id;
-      final fee = solanaProp.feeFormatted?.toString() ?? 'N/A';
-      final note = solanaProp.note?.toString() ?? '';
+      final amount = tx.amountFormatted().toString();
+      final height = tx.height.toString();
+      //final confirmations = moneroProp.confirmations?.toString() ?? 'N/A';
+      final txId = tx.txHash.toString();
+      final fee = solanaProp.feeFormatted().toString();
+      final subwalletNumber = solanaProp.addressIndex.toString();
+      final key = solanaProp.key.toString();
 
-      if (solanaProp.to != null && solanaProp.to.toString().isNotEmpty) {
-        recipientAddress = solanaProp.to.toString();
+      if (solanaProp.recipientAddress != null && solanaProp.recipientAddress.toString().isNotEmpty) {
+        recipientAddress = solanaProp.recipientAddress.toString();
       }
 
       final explorerLink = 'https://explorer.solana.com/tx/$txId';
 
-      return TransactionExportData(
-        timestamp: timestamp,
-        amount: amount,
-        type: type,
-        height: height,
-        note: note,
-        confirmations: confirmations,
-        txId: txId,
-        fee: fee,
-        subwalletNumber: 'N/A',
-        key: 'N/A',
-        recipientAddress: recipientAddress,
-        explorerLink: explorerLink,
-      );
+     final formattedData = [
+        _escapeCsvField(timestamp),
+        _escapeCsvField(amount),
+        _escapeCsvField(type),
+        _escapeCsvField(height),
+        //_escapeCsvField(note),
+        _escapeCsvField(txId),
+        _escapeCsvField(fee),
+        _escapeCsvField(subwalletNumber),
+        _escapeCsvField(key),
+        _escapeCsvField(recipientAddress),
+        _escapeCsvField(explorerLink),
+      ].join("','");
+
+      var formattedString = "'" + formattedData + "'";
+      return formattedString;
     } catch (e) {
       return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
     }
   }
 
   /// Formats Tron transaction
-  static TransactionExportData _formatTronTransaction(
+  static String _formatTronTransaction(
     TransactionInfo tx,
     String timestamp,
     String type,
@@ -461,41 +465,44 @@ class TransactionExportFormatter {
   ) {
     try {
       final dynamic tronProp = tx;
-
-      final amount = tronProp.amountFormatted?.toString() ?? 'N/A';
-      final height = 'N/A';
-      final confirmations = '1';
-      final txId = tx.id;
-      final fee = tronProp.feeFormatted?.toString() ?? 'N/A';
-      final note = tronProp.note?.toString() ?? '';
-
-      if (tronProp.to != null && tronProp.to.toString().isNotEmpty) {
-        recipientAddress = tronProp.to.toString();
+      final amount = tx.amountFormatted().toString();
+      final height = tx.height.toString();
+      //final confirmations = moneroProp.confirmations?.toString() ?? 'N/A';
+      final txId = tx.txHash.toString();
+      final fee = tronProp.feeFormatted().toString();
+      final subwalletNumber = tronProp.addressIndex.toString();
+      final key = tronProp.key.toString();
+      //final note = tronProp.note?.toString() ?? '';
+      if (tronProp.recipientAddress != null &&
+          tronProp.recipientAddress.toString().isNotEmpty) {
+        recipientAddress = tronProp.recipientAddress.toString();
       }
 
       final explorerLink = 'https://tronscan.org/#/transaction/$txId';
+      final formattedData = [
+        _escapeCsvField(timestamp),
+        _escapeCsvField(amount),
+        _escapeCsvField(type),
+        _escapeCsvField(height),
+        //_escapeCsvField(note),
+        _escapeCsvField(txId),
+        _escapeCsvField(fee),
+        _escapeCsvField(subwalletNumber),
+        _escapeCsvField(key),
+        _escapeCsvField(recipientAddress),
+        _escapeCsvField(explorerLink),
+      ].join("','");
 
-      return TransactionExportData(
-        timestamp: timestamp,
-        amount: amount,
-        type: type,
-        height: height,
-        note: note,
-        confirmations: confirmations,
-        txId: txId,
-        fee: fee,
-        subwalletNumber: 'N/A',
-        key: 'N/A',
-        recipientAddress: recipientAddress,
-        explorerLink: explorerLink,
-      );
+      var formattedString = "'" + formattedData + "'";
+      return formattedString;
     } catch (e) {
+      // rethrow;
       return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
     }
   }
 
   /// Formats Nano transaction
-  static TransactionExportData _formatNanoTransaction(
+  static String _formatNanoTransaction(
     TransactionInfo tx,
     String timestamp,
     String type,
@@ -534,7 +541,7 @@ class TransactionExportFormatter {
   }
 
   /// Formats Decred transaction
-  static TransactionExportData _formatDecredTransaction(
+  static String _formatDecredTransaction(
     TransactionInfo tx,
     String timestamp,
     String type,
@@ -543,40 +550,42 @@ class TransactionExportFormatter {
     try {
       final dynamic decredProp = tx;
 
-      final amount = decredProp.amountFormatted?.toString() ?? 'N/A';
-      final height = decredProp.height?.toString() ?? 'N/A';
-      final confirmations = decredProp.confirmations?.toString() ?? 'N/A';
-      final txId = tx.id;
-      final fee = decredProp.feeFormatted?.toString() ?? 'N/A';
-      final note = decredProp.note?.toString() ?? '';
-
-      if (decredProp.address != null && decredProp.address.toString().isNotEmpty) {
-        recipientAddress = decredProp.address.toString();
+      final amount = tx.amountFormatted().toString();
+      final height = tx.height.toString();
+      final txId = tx.txHash.toString();
+      final fee = decredProp.feeFormatted().toString();
+      final subwalletNumber = decredProp.addressIndex.toString();
+      final key = decredProp.key.toString();
+      if (decredProp.recipientAddress != null &&
+          decredProp.recipientAddress.toString().isNotEmpty) {
+        recipientAddress = decredProp.recipientAddress.toString();
       }
 
       final explorerLink = 'https://dcrdata.decred.org/tx/$txId';
+      final formattedData = [
+        _escapeCsvField(timestamp),
+        _escapeCsvField(amount),
+        _escapeCsvField(type),
+        _escapeCsvField(height),
+        //_escapeCsvField(note),
+        _escapeCsvField(txId),
+        _escapeCsvField(fee),
+        _escapeCsvField(subwalletNumber),
+        _escapeCsvField(key),
+        _escapeCsvField(recipientAddress),
+        _escapeCsvField(explorerLink),
+      ].join("','");
 
-      return TransactionExportData(
-        timestamp: timestamp,
-        amount: amount,
-        type: type,
-        height: height,
-        note: note,
-        confirmations: confirmations,
-        txId: txId,
-        fee: fee,
-        subwalletNumber: 'N/A',
-        key: 'N/A',
-        recipientAddress: recipientAddress,
-        explorerLink: explorerLink,
-      );
+      var formattedString = "'" + formattedData + "'";
+      return formattedString;
+
     } catch (e) {
       return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
     }
   }
 
   /// Generic fallback formatter for unknown or unsupported wallet types
-  static TransactionExportData _formatGenericTransaction(
+  static String _formatGenericTransaction(
     TransactionInfo tx,
     String timestamp,
     String type,
@@ -584,20 +593,47 @@ class TransactionExportFormatter {
   ) {
     // To be finished
 
-    return TransactionExportData(
-      timestamp: timestamp,
-      amount: 'N/A',
-      type: type,
-      height: 'N/A',
-      note: '',
-      confirmations: 'N/A',
-      txId: tx.id,
-      fee: 'N/A',
-      subwalletNumber: 'N/A',
-      key: 'N/A',
-      recipientAddress: recipientAddress,
-      explorerLink: 'N/A',
-    );
+    try {
+
+      final dynamic genericProp = tx;
+
+      //final amount = genericProp.amount?.toString() ?? 'N/A';
+      final amount = tx.amountFormatted().toString();
+      final height = tx.height.toString();
+      //final confirmations = genericProp.confirmations?.toString() ?? 'N/A';
+      final txId = tx.txHash.toString();
+      final fee = genericProp.feeFormatted().toString();
+      final subwalletNumber = genericProp.addressIndex.toString();
+      final key = genericProp.key.toString();
+      //final note = genericProp.note?.toString() ?? '';
+      // Override recipient address if available in generic tx
+      if (genericProp.recipientAddress != null &&
+          genericProp.recipientAddress.toString().isNotEmpty) {
+        recipientAddress = genericProp.recipientAddress.toString();
+      }
+
+      final explorerLink = 'N/A';
+
+      final formattedData = [
+        _escapeCsvField(timestamp),
+        _escapeCsvField(amount),
+        _escapeCsvField(type),
+        _escapeCsvField(height),
+        //_escapeCsvField(note),
+        _escapeCsvField(txId),
+        _escapeCsvField(fee),
+        _escapeCsvField(subwalletNumber),
+        _escapeCsvField(key),
+        _escapeCsvField(recipientAddress),
+        _escapeCsvField(explorerLink),
+      ].join("','");
+
+      var formattedString = "'" + formattedData + "'";
+      return formattedString;
+    } catch (e) {
+      // rethrow;
+      return _formatGenericTransaction(tx, timestamp, type, recipientAddress);
+    }
   }
 
   /// Attempts to extract recipient address from transaction based on generic field names
