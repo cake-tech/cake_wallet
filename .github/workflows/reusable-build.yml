@@ -68,6 +68,7 @@ jobs:
           echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const nowNodesApiKey = '${{ secrets.EVM_NOWNODES_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const blinkApiKey = '${{ secrets.BLINK_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
