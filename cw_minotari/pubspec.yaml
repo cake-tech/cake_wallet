@@ -35,5 +35,9 @@ ffigen:
     entry-points:
       - 'rust/target/minotari_wallet.h'
 
-# Flutter plugin configuration removed - will be added back when implementing real FFI
-# Currently using stub implementation without native code
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.cakewallet.cw_minotari
+        pluginClass: CwMinotariPlugin
