@@ -34,7 +34,17 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
       case ZcashAddressType.transparent:
         return transparentAddress;
       case ZcashAddressType.transparentRotated:
-        return transparentAddressRotated;
+        // just to display something, after the wallet is synced the address
+        // will start rotating, and since we can't rotate address until the wallet syncs
+        // we can't know if some T address already got used, so we would still default to
+        // the same address.
+        // So.. we can
+        // 1) display placeholder text (looks ugly)
+        // 2) display static address
+        // 3) display first address from rotated pool which is also static until synced
+        // 2 seems like an obvious winner simply because it offers little to no benefit over 3
+        // and is noticably less complex in implementation
+        return transparentAddressRotated ?? transparentAddress;
       case ZcashAddressType.shieldedSapling:
         return saplingAddress;
       case ZcashAddressType.shieldedOrchard:
@@ -52,13 +62,13 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
 
   @computed
   ZcashAddressType get addressPageType => _addressPageType;
-  
+
   @computed
   set addressPageType(final ZcashAddressType newZat) {
     _addressPageType = newZat;
     address = latestAddress;
   }
-  
+
   @action
   Future<void> setAddressType(final ZcashAddressType type) async {
     addressPageType = ZcashReceivePageOption.typeFromString(type.toString());
@@ -77,12 +87,12 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
-  String get transparentAddressRotated {
+  @computed
+  String? get transparentAddressRotated {
     try {
-      final addr = ZcashTaddressRotation.addressForAccount(accountId);
-      return addr ?? "please wait...";
+      return ZcashTaddressRotation.addressForAccount(accountId);
     } catch (e) {
-      return "";
+      return null;
     }
   }
 
@@ -109,13 +119,13 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
-  String get addressForExchange => address;
+  String get addressForExchange => transparentAddressRotated ?? transparentAddress;
 
   @override
   bool containsAddress(final String address) {
     return this.address == address || addressesMap.values.contains(address);
   }
-  
+
   static int get coin => ZcashWalletBase.coin;
 
   @override
@@ -125,25 +135,27 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     usedAddresses = await walletInfo.getUsedAddresses();
     manualAddresses = await walletInfo.getManualAddresses();
     hiddenAddresses = await walletInfo.getHiddenAddresses();
-    
+
     addressesMap = {"a": "b"};
-    
+
     await ZcashTaddressRotation.init();
     printV(ZcashTaddressRotation.rotationAccounts.keys);
     int accountIndex = 0;
     addressInfos = {
-      0: ZcashTaddressRotation.allAddressesForAccount(accountId)?.map((final v) {
-        return WalletInfoAddressInfo(
-          walletInfoId: walletInfo.internalId,
-          mapKey: ++accountIndex,
-          accountIndex: 0,
-          address: v,
-          label: "",
-        );
-      }).toList()??[],
+      0:
+          ZcashTaddressRotation.allAddressesForAccount(accountId)?.map((final v) {
+            return WalletInfoAddressInfo(
+              walletInfoId: walletInfo.internalId,
+              mapKey: ++accountIndex,
+              accountIndex: 0,
+              address: v,
+              label: "",
+            );
+          }).toList() ??
+          [],
     };
     usedAddresses = ZcashTaddressRotation.allUsedAddressesForAccount(accountId)?.toSet() ?? {};
-    
+
     await saveAddressesInBox();
   }
 

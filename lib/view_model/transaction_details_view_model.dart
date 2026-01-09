@@ -907,7 +907,6 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addZcashListItems(TransactionInfo tx, DateFormat dateFormat) {
     final memo = tx.additionalInfo['memo'] as String?;
-    final name = tx.additionalInfo['name'] as String?;
     
     final _items = [
       StandartListItem(
@@ -941,29 +940,11 @@ abstract class TransactionDetailsViewModelBase with Store {
           value: tx.feeFormatted()!,
           key: ValueKey('standard_list_item_transaction_details_fee_key'),
         ),
-      if (showRecipientAddress && tx.to != null && tx.to!.isNotEmpty)
-        StandartListItem(
-          title: S.current.transaction_details_recipient_address,
-          value: tx.to!,
-          key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
-        ),
-      if (tx.direction == TransactionDirection.incoming && tx.from != null && tx.from!.isNotEmpty)
-        StandartListItem(
-          title: S.current.transaction_details_source_address,
-          value: tx.from!,
-          key: ValueKey('standard_list_item_transaction_details_source_address_key'),
-        ),
       if (memo != null && memo.isNotEmpty)
         StandartListItem(
           title: S.current.memo,
           value: memo,
           key: ValueKey('standard_list_item_transaction_details_memo_key'),
-        ),
-      if (name != null && name.isNotEmpty)
-        StandartListItem(
-          title: S.current.transaction_details_title,
-          value: name,
-          key: ValueKey('standard_list_item_transaction_details_name_key'),
         ),
     ];
     items.addAll(_items);

@@ -18,6 +18,7 @@ dependencies:
   mutex: ^3.1.0
 
   path: any
+  flat_buffers: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_zcash/cw_zcash.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -11,7 +10,12 @@ import 'package:warp_api/data_fb_generated.dart';
 import 'package:warp_api/warp_api.dart';
 
 class PendingZcashTransaction with PendingTransaction {
-  PendingZcashTransaction({required this.zcashWallet, required this.credentials, required this.txPlan, required this.fee});
+  PendingZcashTransaction({
+    required this.zcashWallet,
+    required this.credentials,
+    required this.txPlan,
+    required this.fee,
+  });
 
   final ZcashWallet zcashWallet;
   final ZcashTransactionCredentials credentials;
@@ -53,9 +57,9 @@ class PendingZcashTransaction with PendingTransaction {
           ZcashTaddressRotation.flatBuffersPack(
             ShieldedTxT(
               id: Random().nextInt(pow(2, 32).toInt()),
-              txId: _txId?.trim(),
-              height: pow(2, 32).toInt() - 1,
-              timestamp: DateTime.now().millisecondsSinceEpoch~/1000,
+              txId: _txId,
+              height: 0,
+              timestamp: DateTime.now().millisecondsSinceEpoch ~/ 1000,
               value: -totalAmount,
             ).pack,
           ),

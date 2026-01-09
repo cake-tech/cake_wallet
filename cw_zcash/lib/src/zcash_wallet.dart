@@ -194,7 +194,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
         address: address,
         pools: recipientPools,
         amount: amount,
-        feeIncluded: false,
+        feeIncluded: output.sendAll,
         replyTo: false,
         memo: memo.isNotEmpty ? memo : null,
       );
@@ -235,28 +235,29 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
       fee: internalCalculateEstimatedFee(creds.priority, null),
     );
   }
-  
+
   static const _dispPhrase = "Received to disposable address";
   Future<List<ShieldedTx>> getShieldTxForUi() async {
-    final tx = (ZcashTaddressRotation.shieldedAccountsTx[accountId]??<ShieldedTx>[]).map((final v) {
-      final unpacked = v.unpack();
-      unpacked.memo ??= "";
-      unpacked.memo = "${unpacked.memo}\n$_dispPhrase".trim();
-      final List<int> buff = base64.decode(ZcashTaddressRotation.flatBuffersPack(unpacked.pack));
-      return ShieldedTx(buff);
-    }).where((final t) => t.value > 0);
-    
+    final tx = (ZcashTaddressRotation.shieldedAccountsTx[accountId] ?? <ShieldedTx>[])
+        .map((final v) {
+          final unpacked = v.unpack();
+          unpacked.memo ??= "";
+          unpacked.memo = "${unpacked.memo}\n$_dispPhrase".trim();
+          final List<int> buff = base64.decode(ZcashTaddressRotation.flatBuffersPack(unpacked.pack));
+          return ShieldedTx(buff);
+        })
+        .where((final t) => t.value > 0);
+
     return tx.toList();
   }
 
   static Map<int, List<ShieldedTx>> temporarySentTx = {};
 
-
   static String txChecksumKey(final ShieldedTx tx) {
     final direction = tx.value > 0 ? TransactionDirection.incoming : TransactionDirection.outgoing;
     return 'tx${direction}_${tx.id}_${tx.timestamp}_${CRC32.compute(tx.toString())}';
   }
-  
+
   @override
   Future<Map<String, ZcashTransactionInfo>> fetchTransactions() async {
     await ZcashWalletService.loadShieldTxs();
@@ -266,12 +267,10 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
     final shieldTx = await getShieldTxForUi();
 
     txs.addAll(shieldTx);
-    final txIds = txs.map((final tx) => tx.txId??'').toSet();
-    temporarySentTx[accountId]?.removeWhere((final ttx) => txIds.contains(ttx.txId));
-    if (temporarySentTx[accountId]?.isNotEmpty == true) {
-      txs.addAll(temporarySentTx[accountId]??[]);
-    }
-    
+    final txIds = txs.map((final tx) => tx.txId!.replaceAll('"', '')).toSet();
+    temporarySentTx[accountId]?.removeWhere((final ttx) => txIds.contains(ttx.txId!.replaceAll('"', '')));
+    txs.addAll(temporarySentTx[accountId] ?? []);
+
     txs.sort((final a, final b) => a.height.compareTo(b.height));
     final Map<String, ZcashTransactionInfo> result = {};
     int currentHeight = 0;
@@ -396,7 +395,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
       if ([13, 25].contains(seed.length)) {
         seed.removeLast();
       }
-      return seed.join(" ");
+      return seed.join(" ").trim();
     } catch (e) {
       return null;
     }
@@ -458,7 +457,12 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
     final zcashDir = await pathForWalletTypeDir(type: WalletType.zcash);
     final zcashInitialSync = File(p.join(zcashDir, ".initial-sync-marker"));
     if (!zcashInitialSync.existsSync()) {
-      final chainHeight = await WarpApi.getLatestHeight(coin);
+      int chainHeight = 3000000; // fallback if node is offline
+      try {
+        chainHeight = await WarpApi.getLatestHeight(coin);
+      } catch (e) {
+        printV("Error getting latest height: $e");
+      }
       await ZcashWalletService.runInDbMutex(() async => await WarpApi.rescanFrom(coin, chainHeight - 150000));
       zcashInitialSync.writeAsBytesSync([0x00]);
       zcashInitialSync.writeAsStringSync(chainHeight.toString(), mode: FileMode.writeOnlyAppend);
@@ -526,7 +530,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
   void _startPeriodicSync() {
     printV("_startPeriodicSync");
     _stopPeriodicSync();
-    _periodicSyncTimer = Timer.periodic(const Duration(seconds: 15), (_) async {
+    _periodicSyncTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
       try {
         final chainHeight = await WarpApi.getLatestHeight(coin);
         final dbHeight = WarpApi.getDbHeight(coin);
@@ -563,6 +567,9 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
       if (_initialSyncHeight <= 0 && syncHeight > 0) {
         _initialSyncHeight = syncHeight;
         printV("Initialized sync height to: $_initialSyncHeight");
+        if (syncHeight-10 > dbHeight.height) {
+          
+        }
       }
 
       if (chainHeight <= 0) {
@@ -631,13 +638,8 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
 
       syncStatus = SyncingSyncStatus(blocksLeft, ptc.clamp(0.0, 1.0));
 
-      if (blocksLeft % 10 == 0) {
-        await updateBalance();
-      }
-
-      if (blocksLeft % 50 == 0) {
-        await updateTransactions();
-      }
+      await updateBalance();
+      await updateTransactions();
     } catch (e) {
       printV("Sync status update error: $e");
     }
@@ -675,7 +677,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
       printV("Not autoshielding: chainHeight(${chainHeight}) != syncHeight(${syncHeight})");
       return;
     }
-    final bpConfirmed = WarpApi.getPoolBalances(coin, accountId, 11, false);
+    final bpConfirmed = WarpApi.getPoolBalances(coin, accountId, 0, false);
     if (bpConfirmed.transparent + bpConfirmed.sapling <= 20000) {
       return;
     }
@@ -688,7 +690,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
     );
 
     final recipient = Recipient(recipientBuilder.toBytes());
-    final fee = FeeT(fee: 10000, minFee: 0, maxFee: 0, scheme: 0);
+    final fee = FeeT(fee: 10000, minFee: 0, maxFee: 0, scheme: 1);
     final txPlan = await ZcashWalletService.runInDbMutex(
       () => WarpApi.prepareTx(
         coin,
@@ -727,7 +729,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
       final total = balances.orchard + balances.sapling + balances.transparent;
       final spendable = total - frozenBalance;
 
-      final confirmedPoolBalances = WarpApi.getPoolBalances(coin, accountId, 10, true);
+      final confirmedPoolBalances = WarpApi.getPoolBalances(coin, accountId, 3, true);
       final confirmedBalances = confirmedPoolBalances.unpack();
       final confirmedTotal = confirmedBalances.orchard + confirmedBalances.sapling + confirmedBalances.transparent;
       final confirmedSpendable = confirmedTotal - frozenBalance;
@@ -912,7 +914,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
     await ZcashTaddressRotation.init();
     _initialized = true;
   }
-  
+
   static Future<int> getHeightByDate(final DateTime date) {
     return WarpApi.getBlockHeightByTime(coin, date);
   }
