@@ -219,9 +219,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
         // SwapsXyzExchangeProvider(),
+        NearIntentsExchangeProvider(),
         TrocadorExchangeProvider(
             useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
-        NearIntentsExchangeProvider(),
       ];
 
   @observable
