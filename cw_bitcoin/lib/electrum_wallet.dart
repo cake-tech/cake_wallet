@@ -1821,23 +1821,6 @@ abstract class ElectrumWalletBase
       final bundle = await getTransactionExpanded(hash: tx.txHash);
       _updateInputsAndOutputs(tx, bundle);
       if (bundle.confirmations > 0) return null;
-
-      // Don't allow RBF for silent payment transactions
-      final silentPaymentAddresses = walletAddresses.allAddresses
-          .whereType<BitcoinSilentPaymentAddressRecord>()
-          .map((e) => e.address)
-          .toSet();
-
-      final outputs = bundle.originalTransaction.outputs;
-
-      final hasSilentPaymentOutput = outputs.any((output) {
-        final address = addressFromOutputScript(output.scriptPubKey, network);
-        return silentPaymentAddresses.contains(address);
-      });
-
-      if (hasSilentPaymentOutput) return null;
-
-
       return bundle.originalTransaction.canReplaceByFee ? bundle.originalTransaction.toHex() : null;
     } catch (e) {
       return null;
