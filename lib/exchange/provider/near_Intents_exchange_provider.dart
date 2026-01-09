@@ -609,7 +609,7 @@ class Token {
   final String blockchain;
   final String symbol;
   final double priceUsd;
-  final String priceUpdatedAt;
+  final String? priceUpdatedAt;
   final String? contractAddress;
 
   Token({
@@ -633,7 +633,7 @@ class Token {
       blockchain: json['blockchain'] as String,
       symbol: json['symbol'] as String,
       priceUsd: (json['price'] as num?)?.toDouble() ?? 0.0,
-      priceUpdatedAt: json['priceUpdatedAt'] as String,
+      priceUpdatedAt: json['priceUpdatedAt'] as String?,
       contractAddress: json['contractAddress'] as String?,
     );
   }
