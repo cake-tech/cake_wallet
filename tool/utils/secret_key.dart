@@ -88,6 +88,9 @@ class SecretKey {
     SecretKey('jupiterApiKey', () => ''),
     SecretKey('jupiterReferralFeeBps', () => ''),
     SecretKey('jupiterReferralAccount', () => ''),
+    SecretKey('nearIntentsBearerToken', () => ''),
+    SecretKey('nearIntentsAppFee', () => ''),
+    SecretKey('nearIntentsAppFeeRecipient', () => ''),
   ];
 
   static final evmChainsSecrets = [
