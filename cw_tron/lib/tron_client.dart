@@ -278,6 +278,7 @@ class TronClient {
     required CryptoCurrency currency,
     required BigInt tronBalance,
     required bool sendAll,
+    String? memo,
   }) async {
     // Get the owner tron address from the key
     final ownerAddress = ownerPrivKey.publicKey().toAddress();
@@ -316,6 +317,7 @@ class TronClient {
         totalAmount,
         tronBalance,
         sendAll,
+        memo: memo,
       );
     } else {
       final tokenAddress = (currency as TronToken).contractAddress;
@@ -326,6 +328,7 @@ class TronClient {
         totalAmount,
         tokenAddress,
         tronBalance,
+        memo: memo,
       );
     }
 
@@ -349,8 +352,9 @@ class TronClient {
     TronAddress receiverAddress,
     String amount,
     BigInt tronBalance,
-    bool sendAll,
-  ) async {
+    bool sendAll, {
+    String? memo,
+  }) async {
     // This is introduce to server as a limit in cases where feeLimit is 0
     // The transaction signing will fail if the feeLimit is explicitly 0.
     int defaultFeeLimit = 269000;
@@ -380,6 +384,7 @@ class TronClient {
       expiration: BigInt.from(expireTime.millisecondsSinceEpoch),
       contract: [transactionContract],
       timestamp: block.blockHeader.rawData.timestamp,
+      data: memo != null && memo.isNotEmpty ? utf8.encode(memo) : null,
     );
 
     final feeLimit = await getFeeLimit(rawTransaction, ownerAddress, receiverAddress);
@@ -405,8 +410,9 @@ class TronClient {
     TronAddress receiverAddress,
     String amount,
     String contractAddress,
-    BigInt tronBalance,
-  ) async {
+    BigInt tronBalance, {
+    String? memo,
+  }) async {
     final contract = ContractABI.fromJson(trc20Abi, isTron: true);
 
     final function = contract.functionFromName("transfer");
@@ -434,8 +440,13 @@ class TronClient {
       );
     }
 
+    // Add memo data to transaction before fee calculation to ensure accurate fee estimation
+    final transactionWithMemo = request.transactionRaw!.copyWith(
+      data: memo != null && memo.isNotEmpty ? utf8.encode(memo) : null,
+    );
+
     final feeLimit = await getFeeLimit(
-      request.transactionRaw!,
+      transactionWithMemo,
       ownerAddress,
       receiverAddress,
       energyUsed: request.energyUsed ?? 0,
@@ -450,7 +461,7 @@ class TronClient {
       );
     }
 
-    final rawTransaction = request.transactionRaw!.copyWith(
+    final rawTransaction = transactionWithMemo.copyWith(
       feeLimit: BigInt.from(feeLimit),
     );
 
