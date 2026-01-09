@@ -27,6 +27,7 @@ class Trade extends HiveObject {
     this.providerName,
     this.fromWalletAddress,
     this.memo,
+    this.fee,
     this.txId,
     this.isRefund,
     this.isSendAll,
@@ -167,6 +168,9 @@ class Trade extends HiveObject {
   @HiveField(33, defaultValue: false)
   bool? requiresTokenApproval;
 
+  @HiveField(34)
+  double? fee;
+
   CryptoCurrency? get userCurrencyFrom {
     if (userCurrencyFromRaw == null || userCurrencyFromRaw!.isEmpty) {
       return null;
@@ -291,6 +295,7 @@ class TradeAdapter extends TypeAdapter<Trade> {
       routerChainId: fields[31] as int?,
       sourceTokenAmountRaw: fields[32] as String?,
       requiresTokenApproval: fields[33] as bool?,
+      fee: fields[34] as double?,
     )
       ..providerRaw = fields[1] == null ? 0 : fields[1] as int
       ..fromRaw = (fields[2] as int?) ?? -1
@@ -369,7 +374,9 @@ class TradeAdapter extends TypeAdapter<Trade> {
       ..writeByte(32)
       ..write(obj.sourceTokenAmountRaw)
       ..writeByte(33)
-      ..write(obj.requiresTokenApproval);
+      ..write(obj.requiresTokenApproval)
+      ..writeByte(34)
+      ..write(obj.fee);
   }
 
   @override

@@ -22,9 +22,12 @@ import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -32,7 +35,6 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -123,6 +125,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   PendingTransaction? _pendingApprovalTx;
   bool _isSwapsXYZCallDataTx = false;
+
+  // Store trade and provider references for post-commit updates (e.g., Jupiter trade ID update)
+  Trade? _currentTrade;
+  ExchangeProvider? _currentProvider;
 
   @observable
   ExecutionState state;
@@ -495,6 +501,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider, Trade? trade}) async {
+    _currentTrade = trade;
+    _currentProvider = provider;
+
     try {
       if (!(state is IsExecutingState)) state = IsExecutingState();
 
@@ -682,6 +691,38 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
+      // Jupiter (Solana) swap path
+      if (walletType == WalletType.solana && trade != null && provider is JupiterExchangeProvider) {
+        final swapTransactionBase64 = trade.routerData;
+        final requestId = trade.routerValue;
+        if (swapTransactionBase64?.isNotEmpty == true &&
+            requestId?.isNotEmpty == true &&
+            solana != null) {
+          try {
+            final actualFee = trade.fee ?? 0.0005;
+            // Fallback to estimate if not available
+            final fee = actualFee > 0 ? actualFee : 0.0005;
+
+            final amount = double.tryParse(trade.amount) ?? 0.0;
+
+            pendingTransaction = await solana!.signAndPrepareJupiterSwapTransaction(
+              wallet,
+              swapTransactionBase64!,
+              requestId!,
+              trade.payoutAddress ?? '',
+              amount,
+              fee,
+            );
+
+            state = ExecutedSuccessfullyState();
+            return pendingTransaction;
+          } catch (e, s) {
+            printV('Jupiter swap error: $e\n$s');
+            throw Exception('Failed to process Jupiter swap: $e');
+          }
+        }
+      }
+
       // Regular flow
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
@@ -812,12 +853,33 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       state = TransactionCommitted();
 
-      // Immediate transaction update for EVM chains, Solana, Tron, and Nano
-      if (isEVMWallet ||
-          [WalletType.solana, WalletType.tron, WalletType.nano].contains(walletType)) {
+      await _updateSolanaTrade(signature: pendingTransaction!.id, isSuccess: true);
+
+      if (walletType == WalletType.solana) {
+        Future.delayed(Duration(seconds: 1), () async {
+          try {
+            // Updates tx history with the exact mints involved in transaction
+            // Also updates balances for the tokens involved in the transaction
+            await solana!.pollForTransaction(
+              wallet,
+              pendingTransaction!.id,
+              initialDelay: const Duration(seconds: 1),
+              maxRetries: 5,
+            );
+          } catch (e) {
+            printV('Failed to update transactions after send: $e');
+          }
+        });
+      }
+
+      // Immediate transaction update for EVM chains, Tron, and Nano
+      if (isEVMWallet || [WalletType.tron, WalletType.nano].contains(walletType)) {
         Future.delayed(Duration(seconds: 4), () async {
           try {
-            await wallet.updateTransactionsHistory();
+            await Future.wait([
+              wallet.updateTransactionsHistory(),
+              wallet.updateBalance() as Future<void>,
+            ]);
           } catch (e) {
             printV('Failed to update transactions after send: $e');
           }
@@ -831,7 +893,38 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
           DateTime.now().add(Duration(minutes: 1)).toIso8601String());
     } catch (e) {
+      if (e is JupiterSwapFailedException) {
+        await _updateSolanaTrade(signature: e.signature, isSuccess: false);
+      }
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
+      await _updateSolanaTrade(signature: '', isSuccess: false);
+    }
+  }
+
+  /// Update Jupiter trade with relevant details after transaction is committed
+  Future<void> _updateSolanaTrade({required String signature, required bool isSuccess}) async {
+    if (_currentTrade == null ||
+        _currentProvider?.title != 'Jupiter' ||
+        walletType != WalletType.solana) return;
+
+    _currentTrade!.txId = signature;
+
+    if (!isSuccess) {
+      _currentTrade!.stateRaw = TradeState.failed.raw;
+      if (_currentTrade!.isInBox) {
+        await _currentTrade!.save();
+      }
+    }
+
+    if (isSuccess) {
+      _currentTrade!.stateRaw = TradeState.completed.raw;
+
+      if (_currentTrade!.isInBox) {
+        await _currentTrade!.save();
+      }
+
+      _currentTrade = null;
+      _currentProvider = null;
     }
   }
 

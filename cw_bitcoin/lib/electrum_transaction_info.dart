@@ -25,6 +25,7 @@ class ElectrumTransactionBundle {
 class ElectrumTransactionInfo extends TransactionInfo {
   List<BitcoinSilentPaymentsUnspent>? unspents;
   bool isReceivedSilentPayment;
+  bool isHogEx;
 
   ElectrumTransactionInfo(
     this.type, {
@@ -42,6 +43,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     String? to,
     this.unspents,
     this.isReceivedSilentPayment = false,
+    this.isHogEx = false,
     Map<String, dynamic>? additionalInfo,
   }) {
     this.id = id;
@@ -174,6 +176,15 @@ class ElectrumTransactionInfo extends TransactionInfo {
       amount = receivedAmounts.reduce((a, b) => a + b);
     }
 
+    // MWEB HogEx
+    final isHogExTx = (BtcTransaction tx) {
+      if (tx.inputs.isEmpty || tx.inputs.first.txIndex > 0 || tx.outputs.isEmpty)
+        return false;
+      final b = tx.outputs.first.scriptPubKey.toBytes();
+      return b.length == 34 && b[0] == 88 && b[1] == 32;
+    };
+    final isHogEx = isHogExTx(bundle.originalTransaction) && isHogExTx(bundle.ins.first);
+
     final fee = inputAmount - totalOutAmount;
     return ElectrumTransactionInfo(type,
         id: bundle.originalTransaction.txId(),
@@ -186,6 +197,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         direction: direction,
         amount: amount,
         date: date,
+        isHogEx: isHogEx,
         confirmations: bundle.confirmations);
   }
 
