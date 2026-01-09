@@ -68,9 +68,9 @@ class ManageNodesPage extends BasePage {
                             nodeListViewModel?.nodes[index] ?? powNodeListViewModel!.nodes[index];
                         late bool isSelected;
                         if (isPow) {
-                          isSelected = node.keyIndex == powNodeListViewModel!.currentNode.keyIndex;
+                          isSelected = node.id == powNodeListViewModel!.currentNode.id;
                         } else {
-                          isSelected = node.keyIndex == nodeListViewModel!.currentNode.keyIndex;
+                          isSelected = node.id == nodeListViewModel!.currentNode.id;
                         }
                         final nodeListRow = NodeListRow(
                           title: node.uriRaw,

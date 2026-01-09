@@ -146,6 +146,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
 Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
   if (!reInitializing) await setDefaultMinimumWindowSize();
+  if(reInitializing) await reloadDb();
   await CakeHive.close();
   await initializeAppConfigs();
 }
@@ -159,9 +160,9 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(ContactAdapter());
   }
 
-  if (!CakeHive.isAdapterRegistered(Node.typeId)) {
-    CakeHive.registerAdapter(NodeAdapter());
-  }
+  // if (!CakeHive.isAdapterRegistered(Node.typeId)) {
+  //   CakeHive.registerAdapter(NodeAdapter());
+  // }
 
   if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
     CakeHive.registerAdapter(TransactionDescriptionAdapter());
@@ -230,9 +231,9 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
-  final nodes = await CakeHive.openBox<Node>(Node.boxName);
-  final powNodes =
-      await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
+  // final nodes = await CakeHive.openBox<Node>(Node.boxName);
+  // final powNodes =
+  //     await CakeHive.openBox<Node>(Node.tableName + "pow"); // must be different from Node.boxName
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
@@ -252,8 +253,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   await initialSetup(
     loadWallet: loadWallet,
     sharedPreferences: await SharedPreferences.getInstance(),
-    nodes: nodes,
-    powNodes: powNodes,
     contactSource: contacts,
     tradesSource: trades,
     ordersSource: orders,
@@ -273,8 +272,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
 Future<void> initialSetup({
   required bool loadWallet,
   required SharedPreferences sharedPreferences,
-  required Box<Node> nodes,
-  required Box<Node> powNodes,
   required Box<Contact> contactSource,
   required Box<Trade> tradesSource,
   required Box<Order> ordersSource,
@@ -296,12 +293,8 @@ Future<void> initialSetup({
       sharedPreferences: sharedPreferences,
       contactSource: contactSource,
       tradeSource: tradesSource,
-      nodes: nodes,
-      powNodes: powNodes,
       havenSeedStore: havenSeedStore);
   await setup(
-    nodeSource: nodes,
-    powNodeSource: powNodes,
     contactSource: contactSource,
     tradesSource: tradesSource,
     templates: templates,

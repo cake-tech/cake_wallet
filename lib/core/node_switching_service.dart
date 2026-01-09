@@ -11,7 +11,6 @@ class NodeSwitchingService {
   NodeSwitchingService({
     required this.appStore,
     required this.settingsStore,
-    required this.nodeSource,
   });
 
   static const int _healthCheckIntervalSeconds = 30;
@@ -35,7 +34,6 @@ class NodeSwitchingService {
 
   final AppStore appStore;
   final SettingsStore settingsStore;
-  final Box<Node> nodeSource;
 
   final Map<WalletType, List<dynamic>> _usedNodeKeys = {};
 
@@ -112,13 +110,13 @@ class NodeSwitchingService {
     WalletType walletType,
   ) async {
     for (final node in nodes) {
-      if (!_usedNodeKeys[walletType]!.contains(node.key)) {
+      if (!_usedNodeKeys[walletType]!.contains(node.id)) {
         final isActive = await node.requestNode();
         if (isActive) {
           return node;
         } else {
           printV('Node ${node.uriRaw} is not active. Marking as used.');
-          _usedNodeKeys[walletType]!.add(node.key);
+          _usedNodeKeys[walletType]!.add(node.id);
         }
       }
     }
@@ -142,7 +140,7 @@ class NodeSwitchingService {
       final currentNode = settingsStore.getCurrentNode(walletType);
 
       // Get all trusted nodes for this wallet type
-      final trustedNodes = nodeSource.values
+      final trustedNodes =(await Node.getAll())
           .where((node) => node.type == walletType && node.isEnabledForAutoSwitching)
           .toList();
 
@@ -156,8 +154,8 @@ class NodeSwitchingService {
       _usedNodeKeys.putIfAbsent(walletType, () => []);
 
       // Add current node to used list if not already there
-      if (!_usedNodeKeys[walletType]!.contains(currentNode.key)) {
-        _usedNodeKeys[walletType]!.add(currentNode.key);
+      if (!_usedNodeKeys[walletType]!.contains(currentNode.id)) {
+        _usedNodeKeys[walletType]!.add(currentNode.id);
       }
 
       // Try to find an active unused node
@@ -184,8 +182,8 @@ class NodeSwitchingService {
       }
 
       // Ensure the selected node is marked as used
-      if (!_usedNodeKeys[walletType]!.contains(nextNode.key)) {
-        _usedNodeKeys[walletType]!.add(nextNode.key);
+      if (!_usedNodeKeys[walletType]!.contains(nextNode.id)) {
+        _usedNodeKeys[walletType]!.add(nextNode.id);
       }
 
       printV(

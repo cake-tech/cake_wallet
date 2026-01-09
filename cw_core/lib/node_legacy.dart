@@ -1,27 +1,31 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
-
-import 'package:blockchain_utils/hex/hex.dart';
-import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/keyable.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'dart:convert';
+import 'package:hive/hive.dart';
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:crypto/crypto.dart';
-import 'package:sqflite/sqflite.dart';
+import 'dart:math' as math;
+import "package:cw_core/node.dart" as node_new;
+import 'package:convert/convert.dart';
 
-import 'db/sqlite.dart';
+import 'package:crypto/crypto.dart';
+
+// part 'node.g.dart';
+
+part "node_legacy.g.dart";
 
 Uri createUriFromElectrumAddress(String address, String path) =>
     Uri.tryParse('tcp://$address$path')!;
 
-class Node {
+@HiveType(typeId: Node.typeId)
+class Node extends HiveObject with Keyable {
   Node({
-    this.id = 0,
     this.login,
     this.password,
     this.useSSL,
-    this.isPow = false,
     this.trusted = false,
     this.socksProxyAddress,
     this.path = '',
@@ -38,107 +42,53 @@ class Node {
   }
 
   Node.fromMap(Map<String, Object?> map)
-      : id = (map[selfIdColumn] ?? 0) as int,
-        uriRaw = map['uri'] as String? ?? '',
+      : uriRaw = map['uri'] as String? ?? '',
         path = map['path'] as String? ?? '',
         login = map['login'] as String?,
         password = map['password'] as String?,
-        isPow = (map["isPow"] != null && map['isPow'] != 0) as bool? ?? false,
-        useSSL = (map['useSSL'] != 0) as bool?,
-        typeRaw = (map["typeRaw"] ?? 0) as int,
-        trusted = (map['trusted'] != 0) as bool? ?? false,
-        socksProxyAddress = map['socksProxyAddress'] as String?,
-        isEnabledForAutoSwitching = (map['isEnabledForAutoSwitching'] != 0) as bool? ?? false;
+        useSSL = map['useSSL'] as bool?,
+        trusted = map['trusted'] as bool? ?? false,
+        socksProxyAddress = map['socksProxyPort'] as String?,
+        isEnabledForAutoSwitching = map['isEnabledForAutoSwitching'] as bool? ?? false;
 
-  Map<String, dynamic> toMap() {
-    return {
-      selfIdColumn: id,
-      'uri': uriRaw,
-      'path': path,
-      'login': login,
-      'password': password,
-      "isPow": isPow,
-      'useSSL': useSSL,
-      "typeRaw": typeRaw,
-      'trusted': trusted,
-      'socksProxyAddress': socksProxyAddress,
-      'isEnabledForAutoSwitching': isEnabledForAutoSwitching,
-    };
-  }
+  static const typeId = NODE_TYPE_ID;
+  static const boxName = 'Nodes';
 
-  Future<int> delete() async {
-    return await db.delete(tableName, where: '${selfIdColumn} = ?', whereArgs: [id]);
-  }
-
-  static Future<int> deleteAll() async {
-    return await db.delete(tableName, where: "isPow = ?", whereArgs: [false]);
-  }
-
-  static Future<int> deleteAllPow() async {
-    return await db.delete(tableName, where: "isPow = ?", whereArgs: [true]);
-  }
-
-  Future<int> save() async {
-
-    final json = toMap();
-    if (json[selfIdColumn] == 0) {
-      json[selfIdColumn] = null;
-    }
-    id = await db.insert(tableName, json, conflictAlgorithm: ConflictAlgorithm.replace);
-    return id;
-  }
-
-
-  static Future<List<Node>> selectList(String where, List<dynamic> whereArgs, {String? orderBy}) async {
-    if(orderBy == null) {
-      orderBy = selfIdColumn;
-    }
-    final list = await db.query(
-      tableName,
-      where: where.isNotEmpty ? where : "1 = 1",
-      whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
-      orderBy: orderBy,
-    );
-    printV("selectList: $list");
-    return List.generate(list.length, (index) => Node.fromMap(list[index]));
-  }
-
-
-  static Future<List<Node>> getAll() async {
-    return selectList("isPow = ?", [false]);
-  }
-
-  static Future<List<Node>> getAllForWalletType(WalletType type) async {
-    return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), false]);
-  }
-
-  static Future<List<Node>> getAllForWalletTypePow(WalletType type) async {
-    return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), true]);
-  }
-
-  static Future<List<Node>> getAllPow() async {
-    return selectList("isPow = ?", [true]);
-  }
-
-
-  int id;
+  @HiveField(0, defaultValue: '')
   late String uriRaw;
+
+  @HiveField(1)
   String? login;
+
+  @HiveField(2)
   String? password;
+
+  @HiveField(3, defaultValue: 0)
   late int typeRaw;
+
+  @HiveField(4)
   bool? useSSL;
+
+  @HiveField(5, defaultValue: false)
   bool trusted;
-  bool isPow;
+
+  @HiveField(6)
   String? socksProxyAddress;
+
+  @HiveField(7, defaultValue: '')
   String? path;
+
+  @HiveField(8)
   bool? isElectrs;
+
+  @HiveField(9)
   bool? supportsSilentPayments;
+
+  @HiveField(10)
   bool? supportsMweb;
+
+  @HiveField(11, defaultValue: false)
   bool isEnabledForAutoSwitching;
-
-  static String get tableName => "Node";
-  static String get selfIdColumn => "${tableName}Id";
-
 
   bool get isSSL => useSSL ?? false;
 
@@ -177,14 +127,14 @@ class Node {
   @override
   bool operator ==(other) =>
       other is Node &&
-          (other.uriRaw == uriRaw &&
-              other.login == login &&
-              other.password == password &&
-              other.typeRaw == typeRaw &&
-              other.useSSL == useSSL &&
-              other.trusted == trusted &&
-              other.socksProxyAddress == socksProxyAddress &&
-              other.path == path);
+      (other.uriRaw == uriRaw &&
+          other.login == login &&
+          other.password == password &&
+          other.typeRaw == typeRaw &&
+          other.useSSL == useSSL &&
+          other.trusted == trusted &&
+          other.socksProxyAddress == socksProxyAddress &&
+          other.path == path);
 
   @override
   int get hashCode =>
@@ -197,10 +147,17 @@ class Node {
       socksProxyAddress.hashCode ^
       path.hashCode;
 
+  @override
+  dynamic get keyIndex {
+    _keyIndex ??= key;
+    return _keyIndex;
+  }
 
   WalletType get type => deserializeFromInt(typeRaw);
 
   set type(WalletType type) => typeRaw = serializeToInt(type);
+
+  dynamic _keyIndex;
 
   Future<bool> requestNode() async {
     try {
@@ -249,7 +206,7 @@ class Node {
         body: jsonBody,
       );
 
-
+      
       final resBody = json.decode(response.body) as Map<String, dynamic>;
 
       return resBody['result']['height'] != null;
@@ -292,14 +249,14 @@ class Node {
       final responseString = await response.body;
 
       if ((responseString.contains("400 Bad Request") // Some other generic error
-          ||
-          responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
-          ||
-          response.headers["location"] != null // Generic reverse proxy
-          ||
-          responseString
-              .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
-      ) &&
+              ||
+              responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+              ||
+              response.headers["location"] != null // Generic reverse proxy
+              ||
+              responseString
+                  .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+          ) &&
           !(useSSL ?? false)) {
         final oldUseSSL = useSSL;
         useSSL = true;
@@ -394,8 +351,8 @@ class Node {
   Future<bool> requestEthereumServer() async {
     try {
       final req = await ProxyWrapper().getHttpClient()
-          .getUrl(uri,)
-          .timeout(Duration(seconds: 15));
+        .getUrl(uri,)
+        .timeout(Duration(seconds: 15));
       final response = await req.close();
 
       return response.statusCode >= 200 && response.statusCode < 300;
@@ -406,13 +363,13 @@ class Node {
   }
 
   Future<bool> requestDecredNode() async {
-    if (uri.host == "default-spv-nodes") {
-      // Just show default port as ok. The wallet will connect to a list of known
-      // nodes automatically.
-      return true;
-    }
-    try {
-      final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+  if (uri.host == "default-spv-nodes") {
+    // Just show default port as ok. The wallet will connect to a list of known
+    // nodes automatically.
+    return true;
+  }
+  try {
+    final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
       socket.destroy();
       return true;
     } catch (_) {
@@ -420,9 +377,42 @@ class Node {
     }
   }
 
-
+Future<void> migrateToSqlite({required bool isPow}) async {
+    final newNode = node_new.Node(
+      login: login,
+      password: password,
+      type: type,
+      useSSL: useSSL,
+      trusted: trusted,
+      socksProxyAddress: socksProxyAddress,
+      isPow: isPow,
+      path: path,
+      uri: uriRaw,
+      isEnabledForAutoSwitching: isEnabledForAutoSwitching,
+    );
+    await newNode.save();
 }
 
+  static Future<void> migrateAllToSqlite(Box<Node> nodeBox, Box<Node> powNodeBox) async {
+    final list = nodeBox.values.toList();
+    final powList = powNodeBox.values.toList();
+    for (final node in list) {
+      await node.migrateToSqlite(isPow: false);
+      await node.delete();
+    }
+    for(final node in powList) {
+      await node.migrateToSqlite(isPow: true);
+      await node.delete();
+    }
+  }
+}
+
+/// https://github.com/ManyMath/digest_auth/
+/// HTTP Digest authentication.
+///
+/// Adapted from https://github.com/dart-lang/http/issues/605#issue-963962341.
+///
+/// Created because http_auth was not working for Monero daemon RPC responses.
 class DigestAuth {
   final String username;
   final String password;
@@ -554,7 +544,7 @@ class DaemonRpc {
     }
 
     final Map<String, dynamic> result =
-    jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
+        jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
     if (result['error'] != null) {
       throw Exception('RPC Error: ${result['error']}');
     }

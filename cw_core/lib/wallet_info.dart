@@ -7,6 +7,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/wallet_info_legacy.dart' as wiLegacy;
+import "package:cw_core/node_legacy.dart" as node_legacy;
 
 Future<void> performHiveMigration() async {
   try {
@@ -22,8 +23,17 @@ Future<void> performHiveMigration() async {
     if (!CakeHive.isAdapterRegistered(HARDWARE_WALLET_TYPE_TYPE_ID)) {
       CakeHive.registerAdapter(wiLegacy.HardwareWalletTypeAdapter());
     }
+    if(!CakeHive.isAdapterRegistered(node_legacy.Node.typeId)) {
+      CakeHive.registerAdapter(node_legacy.NodeAdapter());
+    }
     final walletInfoBox = await CakeHive.openBox<wiLegacy.WalletInfo>(wiLegacy.WalletInfo.boxName);
     await wiLegacy.WalletInfo.migrateAllToSqlite(walletInfoBox);
+
+
+    final nodeBox = await CakeHive.openBox<node_legacy.Node>(node_legacy.Node.boxName);
+    final powNodeBox = await CakeHive.openBox<node_legacy.Node>(node_legacy.Node.boxName+"pow");
+    await node_legacy.Node.migrateAllToSqlite(nodeBox, powNodeBox);
+
   } catch (e) {
     printV('Error performing Hive migration: $e, continuing anyway');
   }
