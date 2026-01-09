@@ -95,6 +95,19 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @observable
   String amount = '';
 
+  // NOT PRECISE! just for display purposes.
+  @computed
+  String get fiatAmount {
+    if(amount.isEmpty) return "";
+    if(!fiatConversionStore.prices.containsKey(wallet.currency)) return "";
+    return (double.parse(amount)*fiatConversionStore.prices[wallet.currency]!).toStringAsFixed(2);
+  }
+
+  @computed
+  FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
+
+
+
   @computed
   WalletType get type => wallet.type;
 
