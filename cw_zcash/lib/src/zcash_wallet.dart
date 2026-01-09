@@ -690,7 +690,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
     );
 
     final recipient = Recipient(recipientBuilder.toBytes());
-    final fee = FeeT(fee: 10000, minFee: 0, maxFee: 0, scheme: 1);
+    final fee = FeeT(fee: 10000, minFee: 0, maxFee: 0, scheme: 0);
     final txPlan = await ZcashWalletService.runInDbMutex(
       () => WarpApi.prepareTx(
         coin,
@@ -912,6 +912,7 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
     final output = await rootBundle.load('scripts/zcash_lib/assets/sapling-output.params');
     WarpApi.initProver(spend.buffer.asUint8List(), output.buffer.asUint8List());
     await ZcashTaddressRotation.init();
+    await ZcashTransactionInfo.init();
     _initialized = true;
   }
 

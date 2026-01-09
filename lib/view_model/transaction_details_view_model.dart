@@ -914,6 +914,12 @@ abstract class TransactionDetailsViewModelBase with Store {
         value: tx.txHash,
         key: ValueKey('standard_list_item_transaction_details_id_key'),
       ),
+      if (tx.to != null)
+        StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: tx.to!,
+          key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+        ),
       StandartListItem(
         title: S.current.transaction_details_date,
         value: dateFormat.format(tx.date),

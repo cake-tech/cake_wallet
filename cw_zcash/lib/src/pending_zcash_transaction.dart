@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_zcash/cw_zcash.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -66,6 +67,13 @@ class PendingZcashTransaction with PendingTransaction {
         ),
       ),
     );
+    await ZcashTransactionInfo.addCachedDestinationAddress(_txId??'', credentials.outputs.reduce((final o1, final o2) {
+      return OutputInfo(
+        address: o1.address + "," + o2.address,
+        sendAll: false,
+        isParsedAddress: false,
+      );
+    }).address);
     await zcashWallet.updateTransactions();
     await zcashWallet.updateBalance();
   }

@@ -1,9 +1,15 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zcash/cw_zcash.dart';
+import 'package:path/path.dart' as p;
 
 class ZcashTransactionInfo extends TransactionInfo {
   ZcashTransactionInfo({
@@ -26,7 +32,7 @@ class ZcashTransactionInfo extends TransactionInfo {
     this.date = date;
     this.isPending = isPending;
     this.confirmations = confirmations;
-    this.to = to;
+    this.to = getCachedDestinationAddress(id);
     if (memo != null && memo.isNotEmpty) {
       additionalInfo['memo'] = memo;
     }
@@ -41,7 +47,7 @@ class ZcashTransactionInfo extends TransactionInfo {
     //    --- == === cut here === == ---
     if (additionalInfo['autoShield'] == true) {
       additionalInfo['memo'] ??= '';
-      additionalInfo['memo'] += '\nThis is an auto-shield transaction';
+      additionalInfo['memo'] += '\This is an auto-shielding transaction. Enjoy default privacy!';
       additionalInfo['memo'] = additionalInfo['memo'].trim();
     }
   }
@@ -65,4 +71,30 @@ class ZcashTransactionInfo extends TransactionInfo {
   void changeFiatAmount(final String amount) => _fiatAmount = formatAmount(amount);
 
   String? get memo => additionalInfo['memo'] as String?;
+  
+  static Map<String, String> _destinationAddressMap = {};
+  
+  static String? getCachedDestinationAddress(final String txId) {
+    return _destinationAddressMap[txId];
+  }
+  
+  static Future<void> addCachedDestinationAddress(final String txId, final String address) async {
+    _destinationAddressMap[txId] = address;
+    final pfwt = await pathForWalletTypeDir(type: WalletType.zcash);
+    final f = File(p.join(pfwt, "sent-tx-map.json"));
+    f.writeAsStringSync(json.encode(f));
+  }
+  
+  static Future<void> init() async {
+    try {
+      final pfwt = await pathForWalletTypeDir(type: WalletType.zcash);
+      final f = File(p.join(pfwt, "sent-tx-map.json"));
+      if (!f.existsSync()) {
+        f.writeAsStringSync('{}');
+      }
+      _destinationAddressMap = json.decode(f.readAsStringSync());
+    } catch (e) {
+      printV("failed to deserialize: $e");
+    }
+  }
 }
