@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 // File and Directory used for exporting and sharing utils for platforms
-import 'dart:io' show Platform, File, Directory;
+import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/main.dart' show navigatorKey;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -21,7 +19,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/utils/swap_export_formatter.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
@@ -39,11 +36,8 @@ import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
-import 'package:cake_wallet/view_model/dashboard/export_option.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
-import 'package:cake_wallet/utils/transaction_export_formatter.dart';
-import 'package:cake_wallet/utils/share_util.dart';
-import 'package:cake_wallet/utils/clipboard_util.dart';
+import 'package:cake_wallet/utils/export_history.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
@@ -51,10 +45,8 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/file.dart';
@@ -63,7 +55,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -1220,34 +1211,11 @@ abstract class DashboardViewModelBase with Store {
     reconnect();
   }
 
-  // Export functionality
-  // KB: TODO: - Move to TransactionExportFormatter class
-  // - Replace currently implemented sharing dialogue with the AlertWithTwoPopups widget used for Export Backup
   @action
   Future<String> exportTransactionsAsCSV() async {
     try {
-      final allTransactions = wallet.transactionHistory.transactions.values.toList();
-
-      // Sort transactions chronologically (oldest first)
-      final sortedTransactions = [...allTransactions]..sort((a, b) => a.date.compareTo(b.date));
-
       isExporting = true;
-
-      // Format transactions in main isolate
-      final formattedData = sortedTransactions.map((tx) {
-        return TransactionExportFormatter.formatTransaction(tx, wallet.type);
-      }).toList();
-
-      // Build CSV string
-      final buffer = StringBuffer();
-      buffer.writeln(TransactionExportData.csvHeader());
-
-      for (final data in formattedData) {
-        buffer.writeln(data);
-      }
-
-      final csvContent = buffer.toString();
-
+      final csvContent = ExportHistoryService.generateTransactionCSV(wallet: wallet);
       return csvContent;
     } catch (e) {
       printV('Error exporting transactions as CSV: $e');
@@ -1256,144 +1224,49 @@ abstract class DashboardViewModelBase with Store {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
       );
-      isExporting = false;
       rethrow;
     } finally {
       isExporting = false;
     }
   }
 
-  // // KB: TODO: Either delete, or move to TransactionExportFormatter class for debug purposes
-  // @action
-  // Future<void> exportTransactionsAsJSON() async {
-  //   if (isExporting) return;
-
-  //   try {
-  //     final allTransactions = wallet.transactionHistory.transactions.values.toList();
-
-  //     // Sort transactions chronologically (oldest first)
-  //     final sortedTransactions = [...allTransactions]..sort((a, b) => a.date.compareTo(b.date));
-
-  //     isExporting = true;
-
-  //     // Format transactions in main isolate
-  //     final formattedData = sortedTransactions.map((tx) {
-  //       return TransactionExportFormatter.formatTransaction(tx, wallet.type);
-  //     }).toList();
-
-  //     // Build JSON string directly (no isolate needed for this)
-  //     final jsonList = formattedData.map((data) => data.toJson()).toList();
-  //     final jsonContent = json.encode(jsonList);
-  //     printV('jsonContent length: ${jsonContent.length}');
-  //     printV(jsonList);
-  //     // Save or share file based on platform
-  //     if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-  //       await _saveJSONToFile(jsonContent);
-  //     } else {
-  //       await _shareJSONFile(jsonContent);
-  //     }
-  //   } catch (e) {
-  //     printV('Error exporting transactions as JSON: $e');
-  //     Fluttertoast.showToast(
-  //       msg: 'Export failed: ${e.toString()}',
-  //       toastLength: Toast.LENGTH_SHORT,
-  //       gravity: ToastGravity.BOTTOM,
-  //     );
-  //   } finally {
-  //     isExporting = false;
-  //   }
-  // }
-
-  // KB: TODO: Move to SwapExporter class
-  // Replace the debug with the AlertWithTwoPopups widget used for Export Backup
   @action
-  Future<dynamic> exportSwaps() async {
-    if (isExporting) return;
+  Future<String> exportSwaps() async {
+    if (isExporting) return '';
 
     try {
       isExporting = true;
-
-      final swaps = await tradesStore.trades
-          .where((trade) => trade.trade.walletId == wallet.id)
-          .toList(); // gives a TradeListItem
-      // Given the above, we can iterate through trade data
-      for (var item in swaps) {
-        printV('Swap: ${item.trade.id}, Status: ${item.trade.receiveAmount}');
-      }
-
-      final buffer = StringBuffer();
-
-      buffer.writeln(SwapExportData.csvHeader());
-      for (final data in swaps) {
-        buffer.writeln(SwapExportData.formatSwap(data.trade));
-      }
-
-      final csvContent = buffer.toString();
-
-      printV(csvContent);
+      final csvContent = ExportHistoryService.generateSwapCSV(
+        tradesStore: tradesStore,
+        walletId: wallet.id,
+      );
       return csvContent;
-      // KB: TODO: Used this method during development for debugging
-      // Replace this with the AlertWithTwoPopups widget used for Export Backup
-      //await ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: csvContent));
-
-      // Save or share file based on platform
-      // if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-      //   await _saveJSONToFile(jsonContent);
-      // } else {
-      //   await _shareJSONFile(jsonContent);
-      // }
     } catch (e) {
+      printV('Error exporting swaps: $e');
       Fluttertoast.showToast(
         msg: 'Export failed: ${e.toString()}',
-        toastLength: Toast.LENGTH_LONG,
+        toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
       );
-      printV(e.toString());
       rethrow;
     } finally {
       isExporting = false;
     }
   }
 
-  // Export functionality
-  // KB: TODO: Move to TransactionExportFormatter class
-  // - Replace currently implemented sharing dialogue with the AlertWithTwoPopups widget used for Export Backup
   @action
-  Future<void> exportToClipboard() async {
+  Future<void> exportToClipboard(BuildContext context) async {
     if (isExporting) return;
 
     try {
-      final allTransactions = wallet.transactionHistory.transactions.values.toList();
-
-      // Sort transactions chronologically (oldest first)
-      final sortedTransactions = [...allTransactions]..sort((a, b) => a.date.compareTo(b.date));
-
       isExporting = true;
-      // Format transactions in main isolate - this shouldn't be too costly
-      final formattedData = sortedTransactions.map((tx) {
-        return TransactionExportFormatter.formatTransaction(tx, wallet.type);
-      }).toList();
-
-      // Build CSV string
-      final buffer = StringBuffer();
-      buffer.writeln(TransactionExportData.csvHeader());
-      for (final data in formattedData) {
-        //final csvString = TransactionExportFormatter.formatTransaction(data, wallet.type);
-        buffer.writeln(data);
-        //buffer.writeln(data.toCsvRow());
-      }
-      final csvContent = buffer.toString();
-
-      // Copy to clipboard
-      await ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: csvContent));
-
-      Fluttertoast.showToast(
-        msg: S.current.copied_to_clipboard,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
+      await ExportHistoryService.exportToClipboard(
+        wallet: wallet,
+        tradesStore: tradesStore,
+        context: context,
       );
     } catch (e) {
-      printV('Error copying transactions to clipboard: $e');
+      printV('Error copying to clipboard: $e');
       Fluttertoast.showToast(
         msg: 'Export failed: ${e.toString()}',
         toastLength: Toast.LENGTH_SHORT,
@@ -1401,96 +1274,6 @@ abstract class DashboardViewModelBase with Store {
       );
     } finally {
       isExporting = false;
-    }
-  }
-
-  // Export functionality
-  // KB: TODO: - Move to TransactionExportFormatter class
-  // - Replace currently implemented sharing dialogue with the AlertWithTwoPopups widget used for Export Backup
-  Future<void> _saveCSVToFile(String csvContent) async {
-    // TODO: Test desktop file picker permissions on macOS/Linux
-    try {
-      String? outputFile = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save CSV Export',
-        fileName: 'transactions_${wallet.name}_${DateTime.now().millisecondsSinceEpoch}.csv',
-        type: FileType.custom,
-        allowedExtensions: ['csv'],
-      );
-
-      if (outputFile != null) {
-        final file = File(outputFile);
-        await file.writeAsString(csvContent);
-
-        Fluttertoast.showToast(
-          msg: 'Export saved successfully',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-        );
-      }
-    } catch (e) {
-      printV('Error saving CSV file: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> _saveJSONToFile(String jsonContent) async {
-    try {
-      String? outputFile = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save JSON Export',
-        fileName: 'transactions_${wallet.name}_${DateTime.now().millisecondsSinceEpoch}.json',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
-
-      if (outputFile != null) {
-        final file = File(outputFile);
-        await file.writeAsString(jsonContent);
-
-        Fluttertoast.showToast(
-          msg: 'Export saved successfully',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-        );
-      }
-    } catch (e) {
-      printV('Error saving JSON file: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> _shareCSVFile(String csvContent) async {
-    try {
-      final tempDir = Directory.systemTemp;
-      final tempFile = File(
-          '${tempDir.path}/transactions_${wallet.name}_${DateTime.now().millisecondsSinceEpoch}.csv');
-      await tempFile.writeAsString(csvContent);
-
-      await ShareUtil.shareFile(
-        filePath: tempFile.path,
-        fileName: 'transactions_export.csv',
-        context: navigatorKey.currentContext!,
-      );
-    } catch (e) {
-      printV('Error sharing CSV file: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> _shareJSONFile(String jsonContent) async {
-    try {
-      final tempDir = Directory.systemTemp;
-      final tempFile = File(
-          '${tempDir.path}/transactions_${wallet.name}_${DateTime.now().millisecondsSinceEpoch}.json');
-      await tempFile.writeAsString(jsonContent);
-
-      await ShareUtil.shareFile(
-        filePath: tempFile.path,
-        fileName: 'transactions_export.json',
-        context: navigatorKey.currentContext!,
-      );
-    } catch (e) {
-      printV('Error sharing JSON file: $e');
-      rethrow;
     }
   }
 }
