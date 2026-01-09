@@ -17,6 +17,7 @@ class SelectButton extends StatelessWidget {
     this.deviceConnectionTypes,
     this.borderRadius,
     this.padding,
+    this.leading,
     super.key,
   });
 
@@ -34,6 +35,7 @@ class SelectButton extends StatelessWidget {
   final Color? borderColor;
   final BorderRadius? borderRadius;
   final EdgeInsets? padding;
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +78,7 @@ class SelectButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            leading ?? Offstage(),
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,

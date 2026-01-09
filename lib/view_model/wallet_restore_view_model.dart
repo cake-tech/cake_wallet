@@ -10,6 +10,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
@@ -25,6 +26,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:bip39/bip39.dart' as bip39;
 import 'package:mobx/mobx.dart';
 
 part 'wallet_restore_view_model.g.dart';
@@ -376,5 +378,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       return walletCreationService.restoreFromKeys(credentials, isTestnet: useTestnet);
     }
     return walletCreationService.restoreFromSeed(credentials, isTestnet: useTestnet);
+  }
+
+
+  bool canBeRestoredInGroup(WalletType type, String seed) {
+    return bip39.validateMnemonic(seed.trim().toLowerCase()) && isBIP39Wallet(type);
   }
 }

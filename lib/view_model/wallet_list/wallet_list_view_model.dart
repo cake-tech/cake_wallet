@@ -7,8 +7,8 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:cw_core/db/sqlite.dart' show db;
 
 part 'wallet_list_view_model.g.dart';
 
@@ -16,14 +16,14 @@ class WalletListViewModel = WalletListViewModelBase with _$WalletListViewModel;
 
 abstract class WalletListViewModelBase with Store {
   WalletListViewModelBase(
-    this._appStore,
+    this.appStore,
     this._walletLoadingService,
     this._walletManager,
   )   : wallets = ObservableList<WalletListItem>(),
         multiWalletGroups = ObservableList<WalletGroup>(),
         singleWalletsList = ObservableList<WalletListItem>(),
         expansionTileStateTrack = ObservableMap<int, bool>() {
-    setOrderType(_appStore.settingsStore.walletListOrder);
+    setOrderType(appStore.settingsStore.walletListOrder);
     updateList();
   }
 
@@ -53,17 +53,25 @@ abstract class WalletListViewModelBase with Store {
 
   @computed
   bool get shouldRequireTOTP2FAForAccessingWallet =>
-      _appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+      appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
 
   @computed
   bool get shouldRequireTOTP2FAForCreatingNewWallets =>
-      _appStore.settingsStore.shouldRequireTOTP2FAForCreatingNewWallets;
+      appStore.settingsStore.shouldRequireTOTP2FAForCreatingNewWallets;
 
-  final AppStore _appStore;
+  final AppStore appStore;
   final WalletManager _walletManager;
   final WalletLoadingService _walletLoadingService;
 
-  WalletType get currentWalletType => _appStore.wallet!.type;
+  WalletType get currentWalletType => appStore.wallet!.type;
+
+  Set<WalletType> getTypesInGroup(WalletGroup group) {
+    final types = <WalletType>{};
+    for (var wallet in group.wallets) {
+      types.add(wallet.type);
+    }
+    return types;
+  }
 
   Future<bool> requireHardwareWalletConnection(WalletListItem walletItem) async =>
       _walletLoadingService.requireHardwareWalletConnection(
@@ -77,13 +85,13 @@ abstract class WalletListViewModelBase with Store {
     // bool switchingToSameWalletType = walletItem.type == _appStore.wallet?.type;
     // await _appStore.wallet?.close(shouldCleanup: !switchingToSameWalletType);
     final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
-    await _appStore.changeCurrentWallet(wallet);
+    await appStore.changeCurrentWallet(wallet);
     updateList();
   }
 
-  FilterListOrderType? get orderType => _appStore.settingsStore.walletListOrder;
+  FilterListOrderType? get orderType => appStore.settingsStore.walletListOrder;
 
-  bool get ascending => _appStore.settingsStore.walletListAscending;
+  bool get ascending => appStore.settingsStore.walletListAscending;
 
   
   bool isUpdating = false;
@@ -128,7 +136,7 @@ abstract class WalletListViewModelBase with Store {
       return;
     }
 
-    _appStore.settingsStore.walletListOrder = FilterListOrderType.Custom;
+    appStore.settingsStore.walletListOrder = FilterListOrderType.Custom;
 
     // make a copy of the walletInfoSource:
     List<WalletInfo> wiList = await WalletInfo.getAll();
@@ -211,13 +219,13 @@ abstract class WalletListViewModelBase with Store {
   }
 
   void setAscending(bool ascending) {
-    _appStore.settingsStore.walletListAscending = ascending;
+    appStore.settingsStore.walletListAscending = ascending;
   }
 
   Future<void> setOrderType(FilterListOrderType? type) async {
     if (type == null) return;
 
-    _appStore.settingsStore.walletListOrder = type;
+    appStore.settingsStore.walletListOrder = type;
 
     switch (type) {
       case FilterListOrderType.CreationDate:
@@ -240,8 +248,10 @@ abstract class WalletListViewModelBase with Store {
       name: info.name,
       type: info.type,
       key: info.id,
-      isCurrent: info.name == _appStore.wallet?.name &&
-          info.type == _appStore.wallet?.type,
+      internalId: info.internalId,
+      isReady: info.isReady,
+      isCurrent: info.name == appStore.wallet?.name &&
+          info.type == appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
       isHardware: info.isHardwareWallet,

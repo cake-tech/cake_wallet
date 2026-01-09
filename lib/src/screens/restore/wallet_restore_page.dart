@@ -1,5 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.dart';
@@ -302,6 +304,27 @@ class WalletRestorePage extends BasePage {
       }
 
       this.derivationInfo = dInfo;
+
+      final seed = walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text;
+      final type = walletRestoreViewModel.type;
+
+      if (walletRestoreViewModel.mode == WalletRestoreMode.seed &&
+          walletRestoreViewModel.canBeRestoredInGroup(type,seed)) {
+
+
+        await Navigator.of(context).pushReplacementNamed(
+          Routes.newWalletType,
+          arguments: NewWalletTypeArguments(
+            onTypeSelected: null,
+            isCreate: false,
+            inGroup: true,
+            preselectedTypes: {walletRestoreViewModel.type},
+            credentials: _credentials(),
+          ),
+        );
+        _formProcessing = false;
+        return;
+      }
 
       await walletRestoreViewModel.create(options: _credentials());
       seedSettingsViewModel.setPassphrase(null);

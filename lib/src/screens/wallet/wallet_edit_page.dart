@@ -26,14 +26,17 @@ class WalletEditPage extends BasePage {
   })  : _formKey = GlobalKey<FormState>(),
         _labelController = TextEditingController(),
         walletEditViewModel = pageArguments.walletEditViewModel!,
+        _initialLabel = pageArguments.isWalletGroup ? pageArguments.groupName : pageArguments.editingWallet.name,
+        _isReady = pageArguments.editingWallet.isReady,
         super() {
-    _labelController.text =
-        pageArguments.isWalletGroup ? pageArguments.groupName : pageArguments.editingWallet.name;
+    _labelController.text = _initialLabel;
     _labelController.addListener(() => walletEditViewModel.newName = _labelController.text);
   }
 
   final GlobalKey<FormState> _formKey;
   final TextEditingController _labelController;
+  final bool _isReady;
+  final String _initialLabel;
 
   final WalletEditPageArguments pageArguments;
   final WalletEditViewModel walletEditViewModel;
@@ -56,6 +59,7 @@ class WalletEditPage extends BasePage {
             Expanded(
               child: Center(
                 child: BaseTextFormField(
+                  readOnly: !_isReady,
                   controller: _labelController,
                   hintText: S.of(context).wallet_list_wallet_name,
                   validator: WalletNameValidator(),
@@ -147,7 +151,7 @@ class WalletEditPage extends BasePage {
                           text: S.of(context).save,
                           color: Theme.of(context).colorScheme.primary,
                           textColor: Theme.of(context).colorScheme.onPrimary,
-                          isDisabled: walletEditViewModel.newName.isEmpty || isLoading,
+                          isDisabled: walletEditViewModel.newName.isEmpty || isLoading || _initialLabel == _labelController.text,
                         ),
                       ),
                     )

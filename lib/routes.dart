@@ -3,6 +3,7 @@ class Routes {
   static const welcomeWallet = '/welcome_create_restore_wallet';
   static const welcomePage = '/welcome_page';
   static const newWallet = '/new_wallet';
+  static const newWalletGroup = '/new_wallet_group';
   static const setupPin = '/setup_pin_code';
   static const newWalletFromWelcome = '/new_wallet_from_welcome';
   static const seed = '/seed';
