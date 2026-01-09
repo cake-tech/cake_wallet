@@ -31,6 +31,13 @@ abstract class SeedSettingsViewModelBase with Store {
       _appStore.settingsStore.nanoSeedType = derivationType;
 
   @computed
+  DecredSeedType get decredSeedType => _appStore.settingsStore.decredSeedType;
+
+  @action
+  void setDecredSeedType(DecredSeedType derivationType) =>
+      _appStore.settingsStore.decredSeedType = derivationType;
+
+  @computed
   String? get passphrase => this._seedSettingsStore.passphrase;
 
   @action

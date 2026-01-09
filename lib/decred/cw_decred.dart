@@ -5,18 +5,34 @@ class CWDecred extends Decred {
 
   @override
   WalletCredentials createDecredNewWalletCredentials(
-          {required String name, WalletInfo? walletInfo}) =>
-      DecredNewWalletCredentials(name: name, walletInfo: walletInfo);
+          {required String name,
+          WalletInfo? walletInfo,
+          required bool isBip39,
+          required String? mnemonic}) =>
+      DecredNewWalletCredentials(
+          name: name, walletInfo: walletInfo, isBip39: isBip39, mnemonic: mnemonic);
 
   @override
   WalletCredentials createDecredRestoreWalletFromSeedCredentials(
-          {required String name, required String mnemonic, required String password}) =>
-      DecredRestoreWalletFromSeedCredentials(name: name, mnemonic: mnemonic, password: password);
+          {required String name,
+          required String mnemonic,
+          required String password,
+          required String passphrase}) =>
+      DecredRestoreWalletFromSeedCredentials(
+          name: name, mnemonic: mnemonic, password: password, passphrase: passphrase);
 
   @override
   WalletCredentials createDecredRestoreWalletFromPubkeyCredentials(
           {required String name, required String pubkey, required String password}) =>
       DecredRestoreWalletFromPubkeyCredentials(name: name, pubkey: pubkey, password: password);
+
+  @override
+  WalletCredentials createDecredHardwareWalletCredentials(
+          {required String name,
+          required HardwareAccountData accountData,
+          WalletInfo? walletInfo}) =>
+      DecredRestoreWalletFromHardwareCredentials(
+          name: name, hwAccountData: accountData, walletInfo: walletInfo);
 
   @override
   WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource) {
@@ -109,5 +125,17 @@ class CWDecred extends Decred {
   String pubkey(Object wallet) {
     final decredWallet = wallet as DecredWallet;
     return decredWallet.pubkey;
+  }
+
+  @override
+  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
+    final decredWallet = wallet as DecredWallet;
+    final ledgerService = service as LedgerWalletService;
+    decredWallet.ledgerWalletService = ledgerService;
+  }
+
+  @override
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) {
+    return LedgerWalletService(connection);
   }
 }

@@ -5,6 +5,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
@@ -70,7 +71,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   }
 
   @override
-  WalletCredentials getCredentials(dynamic _options) {
+  WalletCredentials getCredentials(Map<String, dynamic>? options) {
     WalletCredentials credentials;
     switch (type) {
       case WalletType.bitcoin:
@@ -92,8 +93,12 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
           name: name,
           ledgerConnection: (hardwareWalletVM as LedgerViewModel).connection,
           password: password,
-          height: _options['height'] as int? ?? 0,
+          height: options?['height'] as int? ?? 0,
         );
+      case WalletType.decred:
+        credentials =
+            decred!.createDecredHardwareWalletCredentials(name: name, accountData: selectedAccount!);
+        break;
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

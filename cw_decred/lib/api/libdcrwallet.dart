@@ -176,14 +176,14 @@ class Libwallet {
               ptrsToFree: [cName, cNumBlocks],
             );
             break;
-          case "createsignedtransaction":
+          case "createtransaction":
             final name = args["name"] ?? "";
-            final signReq = args["signreq"] ?? "";
+            final signReq = args["req"] ?? "";
             final cName = name.toCString();
-            final cSignReq = signReq.toCString();
+            final cReq = signReq.toCString();
             res = executePayloadFn(
-              fn: () => dcrwalletApi.createSignedTransaction(cName, cSignReq),
-              ptrsToFree: [cName, cSignReq],
+              fn: () => dcrwalletApi.createTransaction(cName, cReq),
+              ptrsToFree: [cName, cReq],
             );
             break;
           case "sendrawtransaction":
@@ -299,9 +299,65 @@ class Libwallet {
               ptrsToFree: [cName],
             );
             break;
-          case "shutdown":
+          case "addrfromextendedkey":
+            final req = args["req"] ?? "";
+            final cReq = req.toCString();
+            res = executePayloadFn(
+              fn: () => dcrwalletApi.addrFromExtendedKey(cReq),
+              ptrsToFree: [cReq],
+            );
+            break;
+          case "createextendedkey":
+            final req = args["req"] ?? "";
+            final cReq = req.toCString();
+            res = executePayloadFn(
+              fn: () => dcrwalletApi.createExtendedKey(cReq),
+              ptrsToFree: [cReq],
+            );
+            break;
+          case "decodetx":
             final name = args["name"] ?? "";
-            // final cName = name.toCString();
+            final cName = name.toCString();
+            final txHex = args["txhex"] ?? "";
+            final cTxHex = txHex.toCString();
+            res = executePayloadFn(
+              fn: () => dcrwalletApi.decodeTx(cName, cTxHex),
+              ptrsToFree: [cName, cTxHex],
+            );
+            break;
+          case "gettxn":
+            final name = args["name"] ?? "";
+            final cName = name.toCString();
+            final hashes = args["hashes"] ?? "";
+            final cHashes = hashes.toCString();
+            res = executePayloadFn(
+              fn: () => dcrwalletApi.getTxn(cName, cHashes),
+              ptrsToFree: [cName, cHashes],
+            );
+            break;
+          case "validateaddr":
+            final name = args["name"] ?? "";
+            final cName = name.toCString();
+            final addr = args["addr"] ?? "";
+            final cAddr = addr.toCString();
+            res = executePayloadFn(
+              fn: () => dcrwalletApi.validateAddr(cName, cAddr),
+              ptrsToFree: [cName, cAddr],
+            );
+            break;
+          case "addsigs":
+            final name = args["name"] ?? "";
+            final cName = name.toCString();
+            final txHex = args["txhex"] ?? "";
+            final cTxHex = txHex.toCString();
+            final sigScripts = args["sigscripts"] ?? "";
+            final cSigScripts = sigScripts.toCString();
+            res = executePayloadFn(
+              fn: () => dcrwalletApi.addSigs(cName, cTxHex, cSigScripts),
+              ptrsToFree: [cName, cTxHex, cSigScripts],
+            );
+            break;
+          case "shutdown":
             executePayloadFn(
               fn: () => dcrwalletApi.shutdown(),
               ptrsToFree: [],
@@ -490,16 +546,15 @@ class Libwallet {
     return res.payload;
   }
 
-  Future<String> createSignedTransaction(
-      String walletName, String createSignedTransactionReq) async {
+  Future<String> createTransaction(String walletName, String createTransactionReq) async {
     if (_closed) throw StateError('Closed');
     final completer = Completer<Object?>.sync();
     final id = _idCounter++;
     _activeRequests[id] = completer;
     final req = {
-      "method": "createsignedtransaction",
+      "method": "createtransaction",
       "name": walletName,
-      "signreq": createSignedTransactionReq,
+      "req": createTransactionReq,
     };
     _commands.send((id, req));
     final res = await completer.future as PayloadResult;
@@ -674,6 +729,95 @@ class Libwallet {
     final req = {
       "method": "birthstate",
       "name": walletName,
+    };
+    _commands.send((id, req));
+    final res = await completer.future as PayloadResult;
+    return res.payload;
+  }
+
+  Future<String> addrFromExtendedKey(String afekReq) async {
+    if (_closed) throw StateError('Closed');
+    final completer = Completer<Object?>.sync();
+    final id = _idCounter++;
+    _activeRequests[id] = completer;
+    final req = {
+      "method": "addrfromextendedkey",
+      "req": afekReq,
+    };
+    _commands.send((id, req));
+    final res = await completer.future as PayloadResult;
+    return res.payload;
+  }
+
+  Future<String> createExtendedKey(String createReq) async {
+    if (_closed) throw StateError('Closed');
+    final completer = Completer<Object?>.sync();
+    final id = _idCounter++;
+    _activeRequests[id] = completer;
+    final req = {
+      "method": "createextendedkey",
+      "req": createReq,
+    };
+    _commands.send((id, req));
+    final res = await completer.future as PayloadResult;
+    return res.payload;
+  }
+
+  Future<String> decodeTx(String walletName, String txHex) async {
+    if (_closed) throw StateError('Closed');
+    final completer = Completer<Object?>.sync();
+    final id = _idCounter++;
+    _activeRequests[id] = completer;
+    final req = {
+      "method": "decodetx",
+      "name": walletName,
+      "txhex": txHex,
+    };
+    _commands.send((id, req));
+    final res = await completer.future as PayloadResult;
+    return res.payload;
+  }
+
+  Future<String> getTxn(String walletName, String hashes) async {
+    if (_closed) throw StateError('Closed');
+    final completer = Completer<Object?>.sync();
+    final id = _idCounter++;
+    _activeRequests[id] = completer;
+    final req = {
+      "method": "gettxn",
+      "name": walletName,
+      "hashes": hashes,
+    };
+    _commands.send((id, req));
+    final res = await completer.future as PayloadResult;
+    return res.payload;
+  }
+
+  Future<String> validateAddr(String walletName, String addr) async {
+    if (_closed) throw StateError('Closed');
+    final completer = Completer<Object?>.sync();
+    final id = _idCounter++;
+    _activeRequests[id] = completer;
+    final req = {
+      "method": "validateaddr",
+      "name": walletName,
+      "addr": addr,
+    };
+    _commands.send((id, req));
+    final res = await completer.future as PayloadResult;
+    return res.payload;
+  }
+
+  Future<String> addSigs(String walletName, String txHex, String sigScripts) async {
+    if (_closed) throw StateError('Closed');
+    final completer = Completer<Object?>.sync();
+    final id = _idCounter++;
+    _activeRequests[id] = completer;
+    final req = {
+      "method": "addsigs",
+      "name": walletName,
+      "txhex": txHex,
+      "sigscripts": sigScripts,
     };
     _commands.send((id, req));
     final res = await completer.future as PayloadResult;

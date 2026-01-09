@@ -367,12 +367,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
             });
       } else {
         await _walletNewVM.create(
-            options: _walletNewVM.hasLanguageSelector
-                ? [
-                    _languageSelectorKey.currentState?.selected ?? defaultSeedLanguage,
-                    widget._seedSettingsViewModel.moneroSeedType
-                  ]
-                : null);
+            options: {
+              'language': _languageSelectorKey.currentState?.selected ?? defaultSeedLanguage,
+              'moneroSeedType': widget._seedSettingsViewModel.moneroSeedType,
+              'decredSeedType': widget._seedSettingsViewModel.decredSeedType,
+            });
       }
     } catch (e) {
       _formProcessing = false;
