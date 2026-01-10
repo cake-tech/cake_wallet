@@ -724,6 +724,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
               tradesStore.setTrade(trade);
               if (trade.provider != ExchangeProviderDescription.thorChain) await trades.add(trade);
+
+              // Mark refund address as used in wallet addresses
+              final isAddressBelongToWallet = wallet.walletAddresses.containsAddress(depositAddress);
+
+              if (isElectrumWallet && isAddressBelongToWallet) {
+                  await bitcoin!.markAddressAsUsed(wallet,depositAddress);
+              }
+
               tradeState = TradeIsCreatedSuccessfully(trade: trade);
 
               /// return after the first successful trade

@@ -194,6 +194,42 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return typeMatchingReceiveAddresses.first.address;
   }
 
+  @override
+  String get addressForExchange {
+
+    // For BTC: never use Silent Payments address as exchange/refund address.
+    final current = address;
+
+    final bool isSilentPaymentsPage = addressPageType == SilentPaymentsAddresType.p2sp;
+
+    if (walletInfo.type == WalletType.bitcoin && (isSilentPaymentsPage)) {
+      final segwit = receiveAddresses
+          .where((e) => e.type == SegwitAddresType.p2wpkh && !e.isUsed && !e.isHidden)
+          .map((e) => e.address)
+          .toList();
+
+      final addr = segwit.isNotEmpty ? segwit.first : current;
+      return addr;
+    }
+
+    return current;
+  }
+
+  @action
+  Future<void> markAddressAsUsed(String addr) async {
+
+    try {
+      final addressRecord = _addresses.firstWhere(
+        (addressRecord) => addressRecord.address == addr,
+      );
+
+      addressRecord.setAsUsed();
+
+    } catch (e) {
+      printV("ElectrumWalletAddressBase: markAddressAsUsed ($addr): $e");
+    }
+  }
+
   @observable
   bool isEnabledAutoGenerateSubaddress = true;
 

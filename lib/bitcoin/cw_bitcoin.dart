@@ -839,4 +839,10 @@ class CWBitcoin extends Bitcoin {
 
     return addresses;
   }
+
+  @override
+  Future<void> markAddressAsUsed(Object wallet,String addr) async {
+    final _wallet = wallet as ElectrumWallet;
+    await _wallet.walletAddresses.markAddressAsUsed(addr);
+  }
 }
