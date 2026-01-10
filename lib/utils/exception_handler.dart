@@ -22,7 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ExceptionHandler {
   static bool _hasError = false;
   static const _coolDownDurationInDays =
-      bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode) ? 0 : 7;
+      bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode || kProfileMode) ? 0 : 7;
   static File? _file;
 
   static Future<void> _saveException(String? error, StackTrace? stackTrace,
@@ -118,7 +118,7 @@ class ExceptionHandler {
 
     if (kDebugMode || kProfileMode) {
       FlutterError.presentError(errorDetails);
-      printV(errorDetails.toString());
+      errorDetails.toString().split("\n").forEach(printV);
       return;
     }
 

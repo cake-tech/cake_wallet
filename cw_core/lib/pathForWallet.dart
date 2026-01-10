@@ -1,13 +1,23 @@
 import 'dart:io';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:path_provider/path_provider.dart';
 
-Future<String> pathForWalletDir({required String name, required  WalletType type}) async {
+Future<String> pathForWalletTypeDir({required WalletType type}) async {
   final root = await getAppDir();
   final prefix = walletTypeToString(type).toLowerCase();
   final walletsDir = Directory('${root.path}/wallets');
-  final walletDire = Directory('${walletsDir.path}/$prefix/$name');
+  final walletDir = Directory('${walletsDir.path}/$prefix');
+
+  if (!walletDir.existsSync()) {
+    walletDir.createSync(recursive: true);
+  }
+
+  return walletDir.path;
+}
+
+Future<String> pathForWalletDir({required String name, required WalletType type}) async {
+  final typeRoot = await pathForWalletTypeDir(type: type);
+  final walletDire = Directory('${typeRoot}/$name');
 
   if (!walletDire.existsSync()) {
     walletDire.createSync(recursive: true);

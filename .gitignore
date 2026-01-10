@@ -150,7 +150,7 @@ ios/Runner/Assets.xcassets/AppIcon.appiconset/*.png
 ios/Runner/Info.plist
 android/app/src/main/res/mipmap-*
 android/app/src/main/res/drawable/ic_launcher.png
-!android/app/src/main/res/drawable/launch_background.xml 
+!android/app/src/main/res/drawable/launch_background.xml
 !android/app/src/main/res/values/styles.xml
 assets/images/app_logo.png
 
@@ -215,3 +215,7 @@ flatpak-build/
 
 scripts/torch_dart/
 fiat-check-output.txt
+scripts/zcash_lib
+scripts/android/yttrium
+scripts/bitbox_flutter
+scripts/reown_flutter

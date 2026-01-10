@@ -63,6 +63,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     'TON': 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c',
     'XLM': 'GA3D5O2W7YQZJQ3H4Y5QW6N7V8X9Z0A1B2C3D4E5F6G7H8I9J0',
     'ADA': 'addr1vyc33hdv5vag52f3d8h0qsngu52vm27x28zkzru333jma9gaxd38v',
+    'ZEC': 't1VdfFUbyTT7ZSdeEaHuwB7veGD1NXoUhGS',
   };
 
   String getNearDummyAddress(CryptoCurrency currency) {
@@ -430,8 +431,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     try {
       final uri = Uri.https(_baseUrl, '$_versionPath$_tokenPath');
 
-      final response =
-          await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
       if (response.statusCode != 200) return [];
 
       final data = json.decode(response.body) as List<dynamic>;
@@ -536,6 +536,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final title = currency.title.toUpperCase();
     return switch (title) {
       'TZEC' => 'ZEC',
+      'ZZEC' => 'ZEC',
       _ => title,
     };
   }

@@ -220,8 +220,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 400 || responseBody["success"] == false) {
-        final error = responseBody['errors'][0]['msg'] as String;
-        
+        final List<dynamic> errorsList = responseBody['errors'] as List? ?? [];
+        final error = errorsList.isNotEmpty
+            ? (errorsList[0]['msg'] as String?) ?? responseBody.toString()
+            : responseBody.toString();
+
         ExchangeProviderLogger.logError(
           provider: description,
           function: 'createTrade',

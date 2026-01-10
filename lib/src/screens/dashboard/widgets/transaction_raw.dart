@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:flutter_svg/svg.dart';
 
 class TransactionRow extends StatelessWidget {
   TransactionRow({
@@ -10,6 +11,7 @@ class TransactionRow extends StatelessWidget {
     required this.tags,
     required this.title,
     required this.onTap,
+    this.isShield = false,
     super.key,
   });
 
@@ -20,6 +22,7 @@ class TransactionRow extends StatelessWidget {
   final String formattedFiatAmount;
   final String title;
   final List<String> tags;
+  final bool isShield;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +42,11 @@ class TransactionRow extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
-              child: Image.asset(direction == TransactionDirection.incoming
+              child: (isShield) ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SvgPicture.asset('assets/images/tx_shield.svg'),
+              ) : 
+                Image.asset(direction == TransactionDirection.incoming
                   ? 'assets/images/down_arrow.png'
                   : 'assets/images/up_arrow.png'),
             ),

@@ -515,7 +515,7 @@
   "matrix_green_dark_theme": "Tema Matrix verde scuro",
   "max_amount": "Max: ${value}",
   "max_value": "Max: ${value} ${currency}",
-  "memo": "Memo:",
+  "memo": "Memo",
   "message": "Messaggio",
   "message_verified": "Il messaggio è stato verificato con successo",
   "messages": "Messaggi",

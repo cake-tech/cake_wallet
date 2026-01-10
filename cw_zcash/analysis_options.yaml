@@ -1,0 +1,31 @@
+analyzer:
+  errors:
+    implementation_imports: ignore
+    must_be_immutable: ignore
+    overridden_fields: ignore
+  exclude:
+    - "**.g.dart"
+    - "external/**"
+
+linter:
+  rules:
+    unawaited_futures: true
+    avoid_print: false
+    parameter_assignments: true
+    prefer_const_declarations: true
+    prefer_final_fields: true
+    prefer_final_in_for_each: true
+    prefer_final_locals: true
+    prefer_final_parameters: true
+    avoid_void_async: true
+    require_trailing_commas: true
+    sort_child_properties_last: true
+    sort_constructors_first: true
+    sort_unnamed_constructors_first: true
+    unnecessary_async: true
+    unnecessary_await_in_return: true
+    unnecessary_string_interpolations: true
+    always_declare_return_types: true
+
+formatter:
+  page_width: 100

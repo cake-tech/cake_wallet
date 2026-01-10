@@ -48,6 +48,7 @@ import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -878,7 +879,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type != WalletType.banano &&
         wallet.type != WalletType.solana &&
         wallet.type != WalletType.tron &&
-        wallet.type != WalletType.arbitrum) {
+        wallet.type != WalletType.arbitrum &&
+        wallet.type != WalletType.zcash) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
 
@@ -935,6 +937,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.decred:
         this.coinTypeToSpendFrom = UnspentCoinType.any;
         return decred!.createDecredTransactionCredentials(outputs, priority!);
+      case WalletType.zcash:
+        return zcash!.createZcashTransactionCredentials(
+          outputs,
+          currency: selectedCryptoCurrency,
+          // priority: priority,
+        );
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

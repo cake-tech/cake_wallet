@@ -17,6 +17,7 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/svg.dart';
 
 class DesktopWalletSelectionDropDown extends StatefulWidget {
   final WalletListViewModel walletListViewModel;
@@ -48,6 +49,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final zanoIcon = Image.asset('assets/images/crypto/zano.webp', height: 24, width: 24);
   final decredIcon = Image.asset('assets/images/crypto/decred.webp', height: 24, width: 24);
   final dogeIcon = Image.asset('assets/images/crypto/dogecoin.webp', height: 24, width: 24);
+  final zcashIcon = Image.asset('assets/images/crypto/zcash.webp', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
@@ -153,7 +155,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
     });
   }
 
-  Image _imageFor({required WalletType type, bool? isTestnet}) {
+  Widget _imageFor({required WalletType type, bool? isTestnet}) {
     switch (type) {
       case WalletType.bitcoin:
         if (isTestnet == true) return tBitcoinIcon;
@@ -190,6 +192,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return baseIcon;
       case WalletType.arbitrum:
         return arbitrumIcon;
+      case WalletType.zcash:
+        return zcashIcon;
       case WalletType.none:
         return nonWalletTypeIcon;
     }

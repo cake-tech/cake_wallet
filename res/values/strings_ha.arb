@@ -515,7 +515,7 @@
   "matrix_green_dark_theme": "Matrix Green Dark Jigo",
   "max_amount": "Max: ${value}",
   "max_value": "Max: ${value} ${currency}",
-  "memo": "Memo:",
+  "memo": "Memo",
   "message": "Sako",
   "message_verified": "An yi nasarar tabbatar da sakon",
   "messages": "Manegiya",

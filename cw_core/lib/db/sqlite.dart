@@ -115,13 +115,23 @@ Future<Map<String, dynamic>> dumpDb() async {
   }
 }
 
-Future<List<String>> _getTableNames() async {
+Future<List<String>> _getTableNames(Database db) async {
   final tableNames = await db.rawQuery('SELECT name FROM sqlite_master WHERE type = "table"');
   return tableNames.map((e) => (e["name"]).toString()).toList();
 }
 
 Future<Map<String, dynamic>> _dumpDb() async {
-  final tableNames = await _getTableNames();
+  final tableNames = await _getTableNames(db);
+  final ret = <String, dynamic>{};
+  for (final tableName in tableNames) {
+    ret[tableName] = await db.query(tableName);
+  }
+  return ret;
+}
+
+Future<Map<String, dynamic>> dumpCustomDb(String path) async {
+  final db = await openDatabase(path);
+  final tableNames = await _getTableNames(db);
   final ret = <String, dynamic>{};
   for (final tableName in tableNames) {
     ret[tableName] = await db.query(tableName);

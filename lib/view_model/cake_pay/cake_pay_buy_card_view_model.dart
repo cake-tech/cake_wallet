@@ -139,11 +139,14 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
   @action
   Future<void> createOrder() async {
-    if (walletType != WalletType.bitcoin &&
-        walletType != WalletType.monero &&
-        walletType != WalletType.litecoin) {
+    if (![
+      WalletType.bitcoin,
+      WalletType.monero,
+      WalletType.litecoin,
+      WalletType.zcash,
+    ].contains(walletType)) {
       sendViewModel.state =
-          FailureState('Unsupported wallet type, please use Bitcoin, Monero, or Litecoin.');
+          FailureState('Unsupported wallet type, please use Bitcoin, Monero, Litecoin or Zcash.');
     }
     try {
       order = await _cakePayService.createOrder(

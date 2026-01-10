@@ -29,6 +29,7 @@
 		CE918BFA2D533ED4007F186E /* WowneroWallet.xcframework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CE918BF92D533ED4007F186E /* WowneroWallet.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CE918BFC2D533ED8007F186E /* ZanoWallet.xcframework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CE918BFB2D533ED8007F186E /* ZanoWallet.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CEAFE4A02C53926F009FF3AD /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C58D93382C00FAC6004BCF69 /* libresolv.tbd */; };
+		CEFC07A22EF2EEEB0012DB29 /* WarpApiFFI.xcframework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CEFC07A12EF2EEEB0012DB29 /* WarpApiFFI.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CFEFC24F82F78FE747DF1D22 /* LnurlPayInfo.swift in Resources */ = {isa = PBXBuildFile; fileRef = 58C22CBD8C22B9D6023D59F8 /* LnurlPayInfo.swift */; settings = {ASSET_TAGS = (BreezSDK, ); }; };
 		D0D7A0D4E13F31C4E02E235B /* ReceivePayment.swift in Resources */ = {isa = PBXBuildFile; fileRef = 91C524F800843E0A3F17E004 /* ReceivePayment.swift */; settings = {ASSET_TAGS = (BreezSDK, ); }; };
 		D3AD73A327249AFE8F016A51 /* BreezSDK.swift in Resources */ = {isa = PBXBuildFile; fileRef = ABD6FCBB0F4244B090459128 /* BreezSDK.swift */; settings = {ASSET_TAGS = (BreezSDK, ); }; };
@@ -46,6 +47,7 @@
 				CE918BF82D533ECE007F186E /* MoneroWallet.xcframework in CopyFiles */,
 				CE918BFA2D533ED4007F186E /* WowneroWallet.xcframework in CopyFiles */,
 				CE918BFC2D533ED8007F186E /* ZanoWallet.xcframework in CopyFiles */,
+				CEFC07A22EF2EEEB0012DB29 /* WarpApiFFI.xcframework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +90,7 @@
 		CE918BF72D533ECE007F186E /* MoneroWallet.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = MoneroWallet.xcframework; sourceTree = "<group>"; };
 		CE918BF92D533ED4007F186E /* WowneroWallet.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = WowneroWallet.xcframework; sourceTree = "<group>"; };
 		CE918BFB2D533ED8007F186E /* ZanoWallet.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = ZanoWallet.xcframework; sourceTree = "<group>"; };
+		CEFC07A12EF2EEEB0012DB29 /* WarpApiFFI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = WarpApiFFI.xcframework; path = ../../zcash_lib/WarpApiFFI.xcframework; sourceTree = "<group>"; };
 		D67E45DEB6E9449D981B35E0 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		DCEA540E3586164FB47AD13E /* LnurlPayInvoice.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LnurlPayInvoice.swift; path = "../.symlinks/plugins/breez_sdk/ios/bindings-swift/Sources/BreezSDK/Task/LnurlPayInvoice.swift"; sourceTree = "<group>"; };
 		F2F2EF79B5A1520AF76225B9 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
@@ -113,6 +116,7 @@
 				CE918BFB2D533ED8007F186E /* ZanoWallet.xcframework */,
 				CE918BF92D533ED4007F186E /* WowneroWallet.xcframework */,
 				CE918BF72D533ECE007F186E /* MoneroWallet.xcframework */,
+				CEFC07A12EF2EEEB0012DB29 /* WarpApiFFI.xcframework */,
 				C58D93382C00FAC6004BCF69 /* libresolv.tbd */,
 				0C9986A3251A932F00D566FD /* CryptoSwift.framework */,
 				B478EFCC3C0760ED97FFE561 /* Pods_Runner.framework */,
