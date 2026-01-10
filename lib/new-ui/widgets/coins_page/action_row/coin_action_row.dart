@@ -49,7 +49,7 @@ class CoinActionRow extends StatelessWidget {
                 showMaterialModalBottomSheet(
                   context: context,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => ModalNavigator(rootPage: getIt.get<NewSendPage>()),
+                  builder: (context) => ModalNavigator(rootPage: getIt.get<NewSendPage>(),parentContext: context,),
                 );
               } else {
                 Map<String, dynamic>? args;

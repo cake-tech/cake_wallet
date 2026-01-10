@@ -1,3 +1,4 @@
+
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -11,6 +12,9 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/widgets/picker.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
 import "package:cw_core/wallet_type.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
@@ -20,24 +24,18 @@ import 'package:cake_wallet/new-ui/widgets/send_page/recipient_dot_row.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_amount_input.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart' show Routes;
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/evm_payment_flow_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/simple_checkbox.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -51,7 +49,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewSendPage extends StatefulWidget {
   const NewSendPage(
@@ -91,252 +89,6 @@ class _NewSendPageState extends State<NewSendPage> {
     super.initState();
     _addInputControllers();
 
-    reaction((_) => widget.sendViewModel.state, (ExecutionState state) async {
-      if (dialogContext != null && dialogContext?.mounted == true) {
-        Navigator.of(dialogContext!).pop();
-      }
-
-      if (state is! IsExecutingState &&
-          loadingBottomSheetContext != null &&
-          loadingBottomSheetContext!.mounted) {
-        Navigator.of(loadingBottomSheetContext!).pop();
-      }
-
-      if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) {
-            showPopUp<void>(
-              context: context,
-              builder: (context) => AlertWithOneAction(
-                key: ValueKey('send_page_send_failure_dialog_key'),
-                buttonKey: ValueKey('send_page_send_failure_dialog_button_key'),
-                alertTitle: S.of(context).error,
-                alertContent: state.error,
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop(),
-              ),
-            );
-          },
-        );
-      }
-
-      if (state is IsExecutingState) {
-        // wait a bit to avoid showing the loading dialog if transaction is failed
-        await Future.delayed(const Duration(milliseconds: 300));
-        final currentState = widget.sendViewModel.state;
-        if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
-          return;
-        }
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            showModalBottomSheet<void>(
-              context: context,
-              isDismissible: false,
-              builder: (context) {
-                loadingBottomSheetContext = context;
-                return LoadingBottomSheet(
-                  titleText: S.of(context).generating_transaction,
-                );
-              },
-            );
-          }
-        });
-      }
-
-      if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (context.mounted) {
-            final result = await showModalBottomSheet<bool>(
-              context: context,
-              isDismissible: false,
-              isScrollControlled: true,
-              builder: (BuildContext bottomSheetContext) {
-                return Observer(
-                  builder: (_) => ConfirmSendingBottomSheet(
-                    key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
-                    titleText: S.of(bottomSheetContext).confirm_transaction,
-                    accessibleNavigationModeSlideActionButtonText: S.of(bottomSheetContext).send,
-                    footerType: FooterType.slideActionButton,
-                    isSlideActionEnabled: widget.sendViewModel.isReadyForSend,
-                    walletType: widget.sendViewModel.walletType,
-                    titleIconPath: widget.sendViewModel.selectedCryptoCurrency.iconPath,
-                    currency: widget.sendViewModel.selectedCryptoCurrency,
-                    amount: S.of(bottomSheetContext).send_amount,
-                    amountValue: widget.sendViewModel.pendingTransaction!.amountFormatted,
-                    fiatAmountValue: widget.sendViewModel.pendingTransactionFiatAmountFormatted,
-                    fee: isEVMCompatibleChain(widget.sendViewModel.walletType)
-                        ? S.of(bottomSheetContext).send_estimated_fee
-                        : S.of(bottomSheetContext).send_fee,
-                    feeValue: widget.sendViewModel.pendingTransaction!.feeFormatted,
-                    feeFiatAmount: widget.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-                    outputs: widget.sendViewModel.outputs,
-                    onSlideActionComplete: () async {
-                      Navigator.of(bottomSheetContext).pop(true);
-                      widget.sendViewModel.commitTransaction(context);
-                    },
-                    change: widget.sendViewModel.pendingTransaction!.change,
-                    isOpenCryptoPay: widget.sendViewModel.ocpRequest != null,
-                  ),
-                );
-              },
-            );
-
-            if (result == null) widget.sendViewModel.dismissTransaction();
-          }
-        });
-      }
-
-      if (state is TransactionCommitted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (!context.mounted) return;
-
-          newContactAddress = newContactAddress ?? widget.sendViewModel.newContactAddress();
-
-          if (newContactAddress?.address != null &&
-              isRegularElectrumAddress(newContactAddress!.address)) {
-            newContactAddress = null;
-          }
-
-          bool showContactSheet =
-              (newContactAddress != null && widget.sendViewModel.showAddressBookPopup);
-
-          await showModalBottomSheet<void>(
-            context: context,
-            isDismissible: false,
-            builder: (BuildContext bottomSheetContext) {
-              return showContactSheet && widget.sendViewModel.ocpRequest == null
-                  ? InfoBottomSheet(
-                      footerType: FooterType.doubleActionButton,
-                      titleText: S.of(bottomSheetContext).transaction_sent,
-                      contentImage: 'assets/images/contact.png',
-                      contentImageColor: Theme.of(context).colorScheme.onSurface,
-                      content: S.of(bottomSheetContext).add_contact_to_address_book,
-                      leftActionButtonKey:
-                          ValueKey('send_page_add_contact_bottom_sheet_no_button_key'),
-                      rightActionButtonKey:
-                          ValueKey('send_page_add_contact_bottom_sheet_yes_button_key'),
-                      bottomActionPanel: Padding(
-                        padding: const EdgeInsets.only(left: 34.0),
-                        child: Row(
-                          children: [
-                            SimpleCheckbox(
-                                onChanged: (value) =>
-                                    widget.sendViewModel.setShowAddressBookPopup(!value)),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Don’t ask me next time',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).textTheme.titleLarge!.color,
-                                decoration: TextDecoration.none,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      doubleActionLeftButtonText: 'No',
-                      doubleActionRightButtonText: 'Yes',
-                      onLeftActionButtonPressed: () {
-                        Navigator.of(bottomSheetContext).pop();
-                        if (context.mounted) {
-                          Navigator.of(context)
-                              .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-                        }
-                        RequestReviewHandler.requestReview();
-                        newContactAddress = null;
-                      },
-                      onRightActionButtonPressed: () {
-                        Navigator.of(bottomSheetContext).pop();
-                        RequestReviewHandler.requestReview();
-                        if (context.mounted) {
-                          Navigator.of(context).pushNamed(Routes.addressBookAddContact,
-                              arguments: newContactAddress);
-                        }
-                        newContactAddress = null;
-                      },
-                    )
-                  : InfoBottomSheet(
-                      footerType: FooterType.singleActionButton,
-                      titleText: S.of(bottomSheetContext).transaction_sent,
-                      contentImage: 'assets/images/birthday_cake.png',
-                      singleActionButtonText: S.of(bottomSheetContext).close,
-                      singleActionButtonKey: ValueKey('send_page_transaction_sent_button_key'),
-                      onSingleActionButtonPressed: () {
-                        Navigator.of(bottomSheetContext).pop();
-                        Future.delayed(Duration.zero, () {
-                          if (context.mounted) {
-                            Navigator.of(context)
-                                .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-                          }
-                          RequestReviewHandler.requestReview();
-                          newContactAddress = null;
-                        });
-                      },
-                    );
-            },
-          );
-
-          if (widget.initialPaymentRequest?.callbackUrl?.isNotEmpty ?? false) {
-            // wait a second so it's not as jarring:
-            await Future.delayed(Duration(seconds: 1));
-            try {
-              launchUrl(
-                Uri.parse(widget.initialPaymentRequest!.callbackUrl!),
-                mode: LaunchMode.externalApplication,
-              );
-            } catch (e) {
-              printV(e);
-            }
-          }
-
-          widget.sendViewModel.clearOutputs();
-        });
-      }
-
-      if (state is IsDeviceSigningResponseState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!context.mounted) return;
-
-          showModalBottomSheet<void>(
-            context: context,
-            isDismissible: false,
-            builder: (context) {
-              dialogContext = context;
-              return LoadingBottomSheet(titleText: S.of(context).processing_signed_tx);
-            },
-          );
-        });
-      }
-
-      if (state is IsAwaitingDeviceResponseState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!context.mounted) return;
-
-          showModalBottomSheet<void>(
-              context: context,
-              isDismissible: false,
-              builder: (context) {
-                dialogContext = context;
-                return InfoBottomSheet(
-                  footerType: FooterType.singleActionButton,
-                  titleText: S.of(context).proceed_on_device,
-                  contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
-                  contentImageColor: Theme.of(context).colorScheme.onSurface,
-                  content: S.of(context).proceed_on_device_description,
-                  singleActionButtonText: S.of(context).cancel,
-                  onSingleActionButtonPressed: () {
-                    widget.sendViewModel.state = InitialExecutionState();
-                    Navigator.of(context).pop();
-                  },
-                );
-              });
-        });
-      }
-    });
 
     reaction((_) => widget.sendViewModel.outputs[_selectedOutput].sendAll, ((bool all) {
       if (all) {
@@ -621,6 +373,9 @@ class _NewSendPageState extends State<NewSendPage> {
                                         }
                                       },
                                     );
+                                    showMaterialModalBottomSheet(context: context, builder: (context){
+                                      return SendConfirmSheet(sendViewModel: widget.sendViewModel,);
+                                    });
                                   },
                                   text: "Continue",
                                   color: Theme.of(context).colorScheme.primary,
@@ -996,7 +751,7 @@ class _NewSendPageState extends State<NewSendPage> {
     return isValid;
   }
 
-  Future<void> pickTransactionPriority(BuildContext context, Output output) async {
+  Future<void> pickTransactionPriority(BuildContext pageContext, Output output) async {
     final items = priorityForWalletType(widget.sendViewModel.walletType);
     final selectedItem = items.indexOf(widget.sendViewModel.feesViewModel.transactionPriority);
     final customItemIndex = widget.sendViewModel.feesViewModel.getCustomPriorityIndex(items);
@@ -1007,30 +762,39 @@ class _NewSendPageState extends State<NewSendPage> {
 
     FocusManager.instance.primaryFocus?.unfocus();
 
-    await showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
+    await showCupertinoModalBottomSheet(
+      context: pageContext,
+      expand: false,
+      builder: (BuildContext modalContext) {
         int selectedIdx = selectedItem;
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return Picker(
-              items: items,
-              displayItem: (TransactionPriority priority) => widget.sendViewModel.feesViewModel
-                  .displayFeeRate(priority, customFeeRate?.round()),
-              selectedAtIndex: selectedIdx,
-              customItemIndex: customItemIndex,
-              maxValue: maxCustomFeeRate,
-              title: S.of(context).please_select,
-              headerEnabled: !isBitcoinWallet,
-              closeOnItemSelected: !isBitcoinWallet,
-              mainAxisAlignment: MainAxisAlignment.center,
-              sliderValue: customFeeRate,
-              onSliderChanged: (double newValue) => setState(() => customFeeRate = newValue),
-              onItemSelected: (TransactionPriority priority) async {
-                widget.sendViewModel.feesViewModel.setTransactionPriority(priority);
-                setState(() => selectedIdx = items.indexOf(priority));
-                await output.calculateEstimatedFee();
-              },
+            return Container(
+              height: MediaQuery.of(context).size.height*0.4,
+              child: ModalNavigator(
+                parentContext: modalContext,
+                fullScreen: false,
+                  rootPage: NewPicker(
+                    title: "Set Fees",
+                      sliderPageTitle: "Custom Fee",
+                      sliderInitialValue: customFeeRate,
+                      sliderMaxValue: maxCustomFeeRate,
+                      sliderValueDescription: "sat/byte",
+                      items: items
+                          .map((item) => PickerItem<TransactionPriority>(
+                                title: item.title,
+                                subtitle: item.description,
+                                hint: item.hint,
+                                value: item,
+                        isSliderItem: items.indexOf(item) == customItemIndex,
+                              ))
+                          .toList(),
+                      onItemSelected: (TransactionPriority priority) async {
+                        widget.sendViewModel.feesViewModel.setTransactionPriority(priority);
+                        setState(() => selectedIdx = items.indexOf(priority));
+                        await output.calculateEstimatedFee();
+                      },
+                      selectedIndex: selectedIdx)),
             );
           },
         );

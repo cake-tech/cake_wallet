@@ -9,9 +9,11 @@ import 'package:flutter/material.dart';
 /// calling Navigator.of(context).pop() will pop the page INSIDE the modal sheet.
 /// if you want to pop the whole sheet, use Navigator.of(context, rootNavigator: true).pop().
 class ModalNavigator extends StatefulWidget {
-  const ModalNavigator({super.key, required this.rootPage});
+  const ModalNavigator({super.key, required this.rootPage, required this.parentContext, this.fullScreen = true});
 
   final Widget rootPage;
+  final BuildContext parentContext;
+  final bool fullScreen;
 
   @override
   State<ModalNavigator> createState() => _ModalNavigatorState();
@@ -23,7 +25,7 @@ class _ModalNavigatorState extends State<ModalNavigator> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height,
+      height: widget.fullScreen ? MediaQuery.of(context).size.height : null,
       child: Theme(
         data: Theme.of(context).copyWith(
           pageTransitionsTheme: PageTransitionsTheme(
@@ -38,19 +40,16 @@ class _ModalNavigatorState extends State<ModalNavigator> {
           ),
         ),
         child: PopScope(
-          canPop: false,
+          canPop: true,
           onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
 
             final navigator = _navigatorKey.currentState;
-            if (navigator != null) {
-              final popped = await navigator.maybePop();
-              if (popped) return;
+            if (navigator != null && await navigator.maybePop()) {
+              return;
             }
 
-            if (context.mounted) {
-              Navigator.of(context).pop();
-            }
+            Navigator.of(widget.parentContext).pop();
           },
           child: Navigator(
               key: _navigatorKey,
@@ -59,7 +58,12 @@ class _ModalNavigatorState extends State<ModalNavigator> {
                 printV(settings.name);
 
                 if (settings.name == "/")
-                  return handleRouteWithPlatformAwareness((context) => widget.rootPage,
+                  return handleRouteWithPlatformAwareness((context) => PopScope(
+                      canPop: false,
+                      onPopInvokedWithResult: (didPop, result) async {
+                        Navigator.of(widget.parentContext).pop();
+                      },
+                      child: widget.rootPage),
                       fullscreenDialog: false);
                 else
                   return createRoute(settings);
