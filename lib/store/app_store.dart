@@ -34,6 +34,9 @@ abstract class AppStoreBase with Store {
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet;
 
+  @observable
+  String? currentRouteName;
+
   WalletListStore walletList;
 
   SettingsStore settingsStore;

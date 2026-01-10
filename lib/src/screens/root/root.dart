@@ -36,6 +36,8 @@ class Root extends StatefulWidget {
     required this.tradeMonitor,
     required this.nodeSwitchingService,
     required this.trezorConnect,
+    this.initialQuickAction,
+    required this.quickActionsStream,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
@@ -47,6 +49,8 @@ class Root extends StatefulWidget {
   final TradeMonitor tradeMonitor;
   final NodeSwitchingService nodeSwitchingService;
   final TrezorConnect trezorConnect;
+  final String? initialQuickAction;
+  final Stream<Uri?> quickActionsStream;
 
   @override
   RootState createState() => RootState();
@@ -103,7 +107,18 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         handleDeepLinking(uri);
       });
 
+      // listen for quick actions
+      widget.quickActionsStream.listen((Uri? uri) {
+        handleDeepLinking(uri);
+      });
+
       handleDeepLinking(await getInitialUri());
+
+      if (widget.initialQuickAction != null) {
+        final uri = Uri.parse('cakewallet://quickaction/${widget.initialQuickAction}');
+        handleDeepLinking(uri);
+      }
+
     } catch (e) {
       printV(e);
     }
@@ -121,7 +136,14 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
     bool requireAuth = await widget.authService.requireAuth();
 
-    if (!requireAuth && widget.authenticationStore.state == AuthenticationState.allowed) {
+
+    if (widget.authenticationStore.state == AuthenticationState.allowedCreate) {
+      requireAuth = false;
+    }
+
+    if (!requireAuth &&
+        (widget.authenticationStore.state == AuthenticationState.allowed ||
+            widget.authenticationStore.state == AuthenticationState.allowedCreate)) {
       _navigateToDeepLinkScreen();
       return;
     }
@@ -129,7 +151,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     _deepLinksReactionDisposer = reaction(
       (_) => widget.authenticationStore.state,
       (AuthenticationState state) {
-        if (state == AuthenticationState.allowed) {
+        if (state == AuthenticationState.allowed || state == AuthenticationState.allowedCreate) {
           if (widget.appStore.wallet == null) {
             waitForWalletInstance(context);
           } else {
