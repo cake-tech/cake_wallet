@@ -56,6 +56,9 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedTitle {
+    if (transaction.additionalInfo['autoShield'] == true) {
+      return "Autoshield";
+    }
     if (transaction.direction == TransactionDirection.incoming) {
       return S.current.received;
     }

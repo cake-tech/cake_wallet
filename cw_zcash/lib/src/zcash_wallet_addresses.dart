@@ -58,14 +58,15 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @observable
-  late ZcashAddressType _addressPageType = ZcashReceivePageOption.typeFromString(walletInfo.addressPageType ?? "");
+  ZcashAddressType? _addressPageType;
 
   @computed
-  ZcashAddressType get addressPageType => _addressPageType;
+  ZcashAddressType get addressPageType => _addressPageType ?? ZcashAddressType.shieldedOrchard;
 
   @computed
   set addressPageType(final ZcashAddressType newZat) {
     _addressPageType = newZat;
+    init();
     address = latestAddress;
   }
 
@@ -154,14 +155,30 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
           }).toList() ??
           [],
     };
-    usedAddresses = ZcashTaddressRotation.allUsedAddressesForAccount(accountId)?.toSet() ?? {};
+    hiddenAddresses = ZcashTaddressRotation.allUsedAddressesForAccount(accountId)?.toSet() ?? {};
 
+    addressInfos[0]?.removeWhere((final test) => hiddenAddresses.contains(test.address));
+    if (_addressPageType == ZcashAddressType.transparentRotated) {
+      final addr = ZcashTaddressRotation.addressForAccount(accountId);
+      if (addr != null) {
+        address = addr;      
+      }
+    }
     await saveAddressesInBox();
   }
 
   @override
   @observable
-  late String address = latestAddress;
+  late String _address = latestAddress;
+
+  String get address {
+    if (addressPageType == ZcashAddressType.transparentRotated) {
+      return transparentAddressRotated ?? transparentAddress;
+    }
+    return _address;
+  }
+
+  void set address(final String _$address) => _address = _$address;
 
   @override
   String get primaryAddress => address;

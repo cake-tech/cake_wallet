@@ -75,14 +75,15 @@ class ZcashTransactionInfo extends TransactionInfo {
   static Map<String, String> _destinationAddressMap = {};
   
   static String? getCachedDestinationAddress(final String txId) {
-    return _destinationAddressMap[txId];
+    printV("$txId -> ${_destinationAddressMap.keys.join(",")}");
+    return _destinationAddressMap[txId] ?? _destinationAddressMap['"$txId"'] ?? _destinationAddressMap[txId.replaceAll('"', '')];
   }
   
   static Future<void> addCachedDestinationAddress(final String txId, final String address) async {
     _destinationAddressMap[txId] = address;
     final pfwt = await pathForWalletTypeDir(type: WalletType.zcash);
     final f = File(p.join(pfwt, "sent-tx-map.json"));
-    f.writeAsStringSync(json.encode(f));
+    f.writeAsStringSync(json.encode(_destinationAddressMap));
   }
   
   static Future<void> init() async {
@@ -92,9 +93,12 @@ class ZcashTransactionInfo extends TransactionInfo {
       if (!f.existsSync()) {
         f.writeAsStringSync('{}');
       }
-      _destinationAddressMap = json.decode(f.readAsStringSync());
-    } catch (e) {
-      printV("failed to deserialize: $e");
+      final tmpMap = json.decode(f.readAsStringSync());
+      tmpMap.forEach((final k, final v) {
+        _destinationAddressMap[k.toString()] = v.toString();
+      });
+    } catch (e, s) {
+      printV("failed to deserialize: $e, $s");
     }
   }
 }

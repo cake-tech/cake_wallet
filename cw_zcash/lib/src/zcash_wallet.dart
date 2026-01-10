@@ -725,21 +725,20 @@ abstract class ZcashWalletBase extends WalletBase<ZcashBalance, ZcashTransaction
       //     frozenBalance += note.value;
       //   }
       // }
-      final frozenBalance = balances.transparent;
       final total = balances.orchard + balances.sapling + balances.transparent;
-      final spendable = total - frozenBalance;
+      final spendable = total - balances.transparent;
 
       final confirmedPoolBalances = WarpApi.getPoolBalances(coin, accountId, 3, true);
       final confirmedBalances = confirmedPoolBalances.unpack();
       final confirmedTotal = confirmedBalances.orchard + confirmedBalances.sapling + confirmedBalances.transparent;
-      final confirmedSpendable = confirmedTotal - frozenBalance;
+      final confirmedSpendable = confirmedTotal - balances.transparent;
 
       unawaited(_autoShield());
 
       balance[CryptoCurrency.zec] = ZcashBalance(
         confirmed: confirmedSpendable,
         unconfirmed: spendable - confirmedSpendable,
-        frozen: frozenBalance,
+        frozen: 0,
       );
     } catch (e, stackTrace) {
       printV("Balance update error: $e");

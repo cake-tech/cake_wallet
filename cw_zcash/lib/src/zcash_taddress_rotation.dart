@@ -136,17 +136,16 @@ class ZcashTaddressRotation {
     try {
       final Map<dynamic, dynamic> data = jsonDecode(utf8.decode(bytes));
       rotationAccounts = (data["rotationAccounts"] as Map<String, dynamic>).map(
-        (final k, final v) => MapEntry(int.parse(k), (v as List).map((final a) => Account(atob(a))).toList()),
+        (final k, final v) => MapEntry(int.parse(k, radix: 16), (v as List).map((final a) => Account(atob(a))).toList()),
       );
       rotationAccountsUsable = (data["rotationAccountsUsable"] as Map<String, dynamic>).map(
-        (final k, final v) => MapEntry(int.parse(k), (v as List).map((final a) => Account(atob(a))).toList()),
+        (final k, final v) => MapEntry(int.parse(k, radix: 16), (v as List).map((final a) => Account(atob(a))).toList()),
       );
       shieldedAccountsTx = (data["shieldedAccountsTx"] as Map<String, dynamic>).map(
-        (final k, final v) => MapEntry(int.parse(k), (v as List).map((final a) => ShieldedTx(atob(a))).toList()),
+        (final k, final v) => MapEntry(int.parse(k, radix: 16), (v as List).map((final a) => ShieldedTx(atob(a))).toList()),
       );
     } catch (e) {
       rethrow;
-      return;
     }
   }
 

@@ -1214,9 +1214,6 @@ abstract class DashboardViewModelBase with Store {
     if (wallet.type == WalletType.ethereum && tx.evmSignatureName == 'approval')
       return ' (${tx.evmSignatureName})';
     
-    if (tx.additionalInfo['autoShield'] == true) {
-      return ' (auto-shield)';
-    }
     return '';
   }
 

@@ -42,7 +42,10 @@ class TransactionRow extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
-              child: (isShield) ? SvgPicture.asset('assets/images/tx_shield.svg') : 
+              child: (isShield) ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SvgPicture.asset('assets/images/tx_shield.svg'),
+              ) : 
                 Image.asset(direction == TransactionDirection.incoming
                   ? 'assets/images/down_arrow.png'
                   : 'assets/images/up_arrow.png'),
