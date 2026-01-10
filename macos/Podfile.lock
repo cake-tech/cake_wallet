@@ -1,7 +1,11 @@
 PODS:
   - bitbox_flutter (0.0.1):
     - FlutterMacOS
+  - breez_sdk_spark_flutter (0.4.2):
+    - FlutterMacOS
   - connectivity_plus (0.0.1):
+    - FlutterMacOS
+  - cw_decred (0.0.1):
     - FlutterMacOS
   - cw_mweb (0.0.1):
     - FlutterMacOS
@@ -79,7 +83,9 @@ PODS:
 
 DEPENDENCIES:
   - bitbox_flutter (from `Flutter/ephemeral/.symlinks/plugins/bitbox_flutter/macos`)
+  - breez_sdk_spark_flutter (from `Flutter/ephemeral/.symlinks/plugins/breez_sdk_spark_flutter/macos`)
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
+  - cw_decred (from `Flutter/ephemeral/.symlinks/plugins/cw_decred/macos`)
   - cw_mweb (from `Flutter/ephemeral/.symlinks/plugins/cw_mweb/macos`)
   - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
   - devicelocale (from `Flutter/ephemeral/.symlinks/plugins/devicelocale/macos`)
@@ -112,8 +118,12 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   bitbox_flutter:
     :path: Flutter/ephemeral/.symlinks/plugins/bitbox_flutter/macos
+  breez_sdk_spark_flutter:
+    :path: Flutter/ephemeral/.symlinks/plugins/breez_sdk_spark_flutter/macos
   connectivity_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
+  cw_decred:
+    :path: Flutter/ephemeral/.symlinks/plugins/cw_decred/macos
   cw_mweb:
     :path: Flutter/ephemeral/.symlinks/plugins/cw_mweb/macos
   device_info_plus:
@@ -163,7 +173,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   bitbox_flutter: 16088f5c7febacf894f4d07bbdfb441c9f0757fe
+  breez_sdk_spark_flutter: e9815ba6857cd3aed6046f468b96d4aab43edd2d
   connectivity_plus: 0a976dfd033b59192912fa3c6c7b54aab5093802
+  cw_decred: 0c93fbeb31bd97a6ad4ec5680960af0943bfca78
   cw_mweb: 7440b12ead811dda972a9918442ea2a458e8742c
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
   devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
@@ -192,4 +204,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 65ec1541137fb5b35d00490dec1bb48d4d9586bb
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2

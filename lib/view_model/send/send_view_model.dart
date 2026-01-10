@@ -111,6 +111,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         outputs = ObservableList<Output>(),
         _settingsStore = appStore.settingsStore,
         fiatFromSettings = appStore.settingsStore.fiatCurrency,
+        fiatCurrencies = FiatCurrency.all,
         super(appStore: appStore) {
     outputs
         .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
@@ -370,6 +371,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
+
+  set fiatCurrency(FiatCurrency value) {
+      _settingsStore.fiatCurrency = value;
+  }
+
+  List<FiatCurrency> fiatCurrencies;
 
   final SettingsStore _settingsStore;
   final SendTemplateViewModel sendTemplateViewModel;
