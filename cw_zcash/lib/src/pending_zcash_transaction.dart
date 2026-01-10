@@ -35,14 +35,20 @@ class PendingZcashTransaction with PendingTransaction {
   }
 
   int get totalAmount {
-    return credentials.outputs.fold<int>(0, (final sum, final output) => sum + (output.formattedCryptoAmount ?? 0));
+    return credentials.outputs.fold<int>(
+      0,
+      (final sum, final output) => sum + (output.formattedCryptoAmount ?? 0),
+    );
   }
 
   @override
-  String get feeFormatted => '$feeFormattedValue ${walletTypeToCryptoCurrency(WalletType.zcash).title}';
+  String get feeFormatted =>
+      '$feeFormattedValue ${walletTypeToCryptoCurrency(WalletType.zcash).title}';
 
   @override
-  late String feeFormattedValue = walletTypeToCryptoCurrency(WalletType.zcash).formatAmount(BigInt.from(fee));
+  late String feeFormattedValue = walletTypeToCryptoCurrency(
+    WalletType.zcash,
+  ).formatAmount(BigInt.from(fee));
 
   int fee;
 
@@ -67,13 +73,16 @@ class PendingZcashTransaction with PendingTransaction {
         ),
       ),
     );
-    await ZcashTransactionInfo.addCachedDestinationAddress(_txId??'', credentials.outputs.reduce((final o1, final o2) {
-      return OutputInfo(
-        address: o1.address + "," + o2.address,
-        sendAll: false,
-        isParsedAddress: false,
-      );
-    }).address);
+    await ZcashTransactionInfo.addCachedDestinationAddress(
+      _txId ?? '',
+      credentials.outputs.reduce((final o1, final o2) {
+        return OutputInfo(
+          address: o1.address + "," + o2.address,
+          sendAll: false,
+          isParsedAddress: false,
+        );
+      }).address,
+    );
     await zcashWallet.updateTransactions();
     await zcashWallet.updateBalance();
   }

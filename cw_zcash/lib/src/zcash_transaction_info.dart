@@ -71,21 +71,23 @@ class ZcashTransactionInfo extends TransactionInfo {
   void changeFiatAmount(final String amount) => _fiatAmount = formatAmount(amount);
 
   String? get memo => additionalInfo['memo'] as String?;
-  
-  static Map<String, String> _destinationAddressMap = {};
-  
+
+  static final Map<String, String> _destinationAddressMap = {};
+
   static String? getCachedDestinationAddress(final String txId) {
     printV("$txId -> ${_destinationAddressMap.keys.join(",")}");
-    return _destinationAddressMap[txId] ?? _destinationAddressMap['"$txId"'] ?? _destinationAddressMap[txId.replaceAll('"', '')];
+    return _destinationAddressMap[txId] ??
+        _destinationAddressMap['"$txId"'] ??
+        _destinationAddressMap[txId.replaceAll('"', '')];
   }
-  
+
   static Future<void> addCachedDestinationAddress(final String txId, final String address) async {
     _destinationAddressMap[txId] = address;
     final pfwt = await pathForWalletTypeDir(type: WalletType.zcash);
     final f = File(p.join(pfwt, "sent-tx-map.json"));
     f.writeAsStringSync(json.encode(_destinationAddressMap));
   }
-  
+
   static Future<void> init() async {
     try {
       final pfwt = await pathForWalletTypeDir(type: WalletType.zcash);

@@ -6,7 +6,7 @@ cd ..
 for i in cw_zcash;
 do
     dart fix --apply $i/
-    dart format --line-length=120 $i/
+    dart format --line-length=100 $i/
     if [[ ! "x$ABORT_ON_CHANGE" == "x" ]];
     then
         if [[ -z "$(git status --porcelain -- "$(find $i)")" ]];

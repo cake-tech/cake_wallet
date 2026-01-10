@@ -59,7 +59,8 @@ class ZcashWalletService
     }
   }
 
-  static bool walletFilesExist(final String path) => !File(path).existsSync() && !File('$path.keys').existsSync();
+  static bool walletFilesExist(final String path) =>
+      !File(path).existsSync() && !File('$path.keys').existsSync();
 
   @override
   WalletType getType() => type;
@@ -85,13 +86,21 @@ class ZcashWalletService
       throw Exception('Wallet not found');
     }
     try {
-      final wallet = await ZcashWalletBase.open(name: name, password: password, walletInfo: walletInfo);
+      final wallet = await ZcashWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
       await wallet.init();
       await saveBackup(name);
       return wallet;
     } catch (e) {
       await restoreWalletFilesFromBackup(name);
-      final wallet = await ZcashWalletBase.open(name: name, password: password, walletInfo: walletInfo);
+      final wallet = await ZcashWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
       await wallet.init();
       return wallet;
     }
@@ -140,12 +149,18 @@ class ZcashWalletService
   }
 
   @override
-  Future<ZcashWallet> restoreFromKeys(final ZcashFromKeysWalletCredentials credentials, {final bool? isTestnet}) async {
+  Future<ZcashWallet> restoreFromKeys(
+    final ZcashFromKeysWalletCredentials credentials, {
+    final bool? isTestnet,
+  }) async {
     throw UnimplementedError();
   }
 
   @override
-  Future<ZcashWallet> restoreFromSeed(final ZcashFromSeedWalletCredentials credentials, {final bool? isTestnet}) async {
+  Future<ZcashWallet> restoreFromSeed(
+    final ZcashFromSeedWalletCredentials credentials, {
+    final bool? isTestnet,
+  }) async {
     if (credentials.seed == null || credentials.seed!.isEmpty) {
       throw ZcashMnemonicIsIncorrectException();
     }
@@ -159,6 +174,8 @@ class ZcashWalletService
 
   @override
   Future<ZcashWallet> restoreFromHardwareWallet(final ZcashNewWalletCredentials credentials) {
-    throw UnimplementedError("Restoring a Zcash wallet from a hardware wallet is not yet supported!");
+    throw UnimplementedError(
+      "Restoring a Zcash wallet from a hardware wallet is not yet supported!",
+    );
   }
 }

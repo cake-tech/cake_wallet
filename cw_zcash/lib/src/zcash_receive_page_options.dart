@@ -1,7 +1,13 @@
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 
-enum ZcashAddressType { transparent, transparentRotated, shieldedSapling, shieldedOrchard, unifiedType }
+enum ZcashAddressType {
+  transparent,
+  transparentRotated,
+  shieldedSapling,
+  shieldedOrchard,
+  unifiedType,
+}
 
 class ZcashReceivePageOption implements ReceivePageOption {
   const ZcashReceivePageOption._(this.type);

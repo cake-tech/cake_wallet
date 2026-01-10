@@ -7,7 +7,12 @@ class ZcashNewWalletCredentials extends WalletCredentials {
     required final String? passphrase,
     final String? mnemonic,
     final int? seedPhraseLength,
-  }) : super(name: name, password: password, passphrase: passphrase, seedPhraseLength: seedPhraseLength) {
+  }) : super(
+         name: name,
+         password: password,
+         passphrase: passphrase,
+         seedPhraseLength: seedPhraseLength,
+       ) {
     this.mnemonic = mnemonic;
   }
 

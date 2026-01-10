@@ -86,28 +86,37 @@ class ZcashTaddressRotation {
   static Uint8List serialize() {
     final data = {
       "rotationAccounts": rotationAccounts.map(
-        (final k, final v) =>
-            MapEntry(k.toRadixString(16), v.map((final a) => flatBuffersPack(a.unpack().pack)).toList()),
+        (final k, final v) => MapEntry(
+          k.toRadixString(16),
+          v.map((final a) => flatBuffersPack(a.unpack().pack)).toList(),
+        ),
       ),
       if (kDebugMode)
         "_rotationAccounts": rotationAccounts.map(
-          (final k, final v) => MapEntry(k.toRadixString(16), v.map((final a) => a.toString()).toList()),
+          (final k, final v) =>
+              MapEntry(k.toRadixString(16), v.map((final a) => a.toString()).toList()),
         ),
       "rotationAccountsUsable": rotationAccountsUsable.map(
-        (final k, final v) =>
-            MapEntry(k.toRadixString(16), v.map((final a) => flatBuffersPack(a.unpack().pack)).toList()),
+        (final k, final v) => MapEntry(
+          k.toRadixString(16),
+          v.map((final a) => flatBuffersPack(a.unpack().pack)).toList(),
+        ),
       ),
       if (kDebugMode)
         "_rotationAccountsUsable": rotationAccountsUsable.map(
-          (final k, final v) => MapEntry(k.toRadixString(16), v.map((final a) => a.toString()).toList()),
+          (final k, final v) =>
+              MapEntry(k.toRadixString(16), v.map((final a) => a.toString()).toList()),
         ),
       "shieldedAccountsTx": shieldedAccountsTx.map(
-        (final k, final v) =>
-            MapEntry(k.toRadixString(16), v.map((final a) => flatBuffersPack(a.unpack().pack)).toList()),
+        (final k, final v) => MapEntry(
+          k.toRadixString(16),
+          v.map((final a) => flatBuffersPack(a.unpack().pack)).toList(),
+        ),
       ),
       if (kDebugMode)
         "_shieldedAccountsTx": shieldedAccountsTx.map(
-          (final k, final v) => MapEntry(k.toRadixString(16), v.map((final a) => a.toString()).toList()),
+          (final k, final v) =>
+              MapEntry(k.toRadixString(16), v.map((final a) => a.toString()).toList()),
         ),
     };
 
@@ -136,20 +145,30 @@ class ZcashTaddressRotation {
     try {
       final Map<dynamic, dynamic> data = jsonDecode(utf8.decode(bytes));
       rotationAccounts = (data["rotationAccounts"] as Map<String, dynamic>).map(
-        (final k, final v) => MapEntry(int.parse(k, radix: 16), (v as List).map((final a) => Account(atob(a))).toList()),
+        (final k, final v) => MapEntry(
+          int.parse(k, radix: 16),
+          (v as List).map((final a) => Account(atob(a))).toList(),
+        ),
       );
       rotationAccountsUsable = (data["rotationAccountsUsable"] as Map<String, dynamic>).map(
-        (final k, final v) => MapEntry(int.parse(k, radix: 16), (v as List).map((final a) => Account(atob(a))).toList()),
+        (final k, final v) => MapEntry(
+          int.parse(k, radix: 16),
+          (v as List).map((final a) => Account(atob(a))).toList(),
+        ),
       );
       shieldedAccountsTx = (data["shieldedAccountsTx"] as Map<String, dynamic>).map(
-        (final k, final v) => MapEntry(int.parse(k, radix: 16), (v as List).map((final a) => ShieldedTx(atob(a))).toList()),
+        (final k, final v) => MapEntry(
+          int.parse(k, radix: 16),
+          (v as List).map((final a) => ShieldedTx(atob(a))).toList(),
+        ),
       );
     } catch (e) {
       rethrow;
     }
   }
 
-  static Uint8List atob(final String value) => Uint8List.fromList(List<int>.from(base64.decode(value)));
+  static Uint8List atob(final String value) =>
+      Uint8List.fromList(List<int>.from(base64.decode(value)));
 
   static Future<void> createAndSweepTAddresses() async {
     int chainHeight = 0;
@@ -162,7 +181,9 @@ class ZcashTaddressRotation {
     final height = dbHeight.unpack();
     final syncHeight = height.height;
     if (chainHeight != syncHeight) {
-      printV("Waiting for sync to finish: chainHeight(${chainHeight}) != syncHeight(${syncHeight})");
+      printV(
+        "Waiting for sync to finish: chainHeight(${chainHeight}) != syncHeight(${syncHeight})",
+      );
       return;
     }
     final Map<int, List<ShieldedTx>> newShieldedAccountsTx = {};

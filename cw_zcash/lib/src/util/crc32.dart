@@ -21,7 +21,8 @@ class CRC32 {
     crc = crc ^ (0xffffffff);
 
     for (final byte in input) {
-      if (!(byte >= -128 && byte <= 255)) throw new FormatException("Invalid value in input: $byte");
+      if (!(byte >= -128 && byte <= 255))
+        throw new FormatException("Invalid value in input: $byte");
 
       final x = CRC32._table[(crc ^ byte) & 0xff];
       crc = (crc & 0xffffffff) >> 8; // crc >>> 8 (32-bit unsigned integer)

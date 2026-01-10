@@ -161,7 +161,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     if (_addressPageType == ZcashAddressType.transparentRotated) {
       final addr = ZcashTaddressRotation.addressForAccount(accountId);
       if (addr != null) {
-        address = addr;      
+        address = addr;
       }
     }
     await saveAddressesInBox();
