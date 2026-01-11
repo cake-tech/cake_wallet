@@ -5,7 +5,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -218,7 +218,7 @@ class SendTransactionDetails extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (sendViewModel.wallet is ElectrumWallet) ...[
+                  if (sendViewModel.isElectrumWallet) ...[
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Container(
@@ -238,7 +238,7 @@ class SendTransactionDetails extends StatelessWidget {
                                   color: Theme.of(context).colorScheme.onSurface)),
                           Column(
                             children: [
-                              Text((sendViewModel.wallet as ElectrumWallet).network.value,
+                              Text(bitcoin!.getNetworkName(sendViewModel.wallet),
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
