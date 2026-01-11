@@ -16,6 +16,7 @@ class RecipientDotRow extends StatefulWidget {
 class _RecipientDotRowState extends State<RecipientDotRow> {
   static const double _outputDotSize = 36;
   static const double _outputDotSpacing = 8;
+  static const double _deadzoneSize = 0.35;
   late ScrollController _outputDotsController;
   bool _wasScrollable = false;
 
@@ -41,6 +42,7 @@ class _RecipientDotRowState extends State<RecipientDotRow> {
 
   @override
   Widget build(BuildContext context) {
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final viewportWidth = constraints.maxWidth;
@@ -49,11 +51,11 @@ class _RecipientDotRowState extends State<RecipientDotRow> {
         final totalContentWidth = (widget.numDots * itemExtent) - _outputDotSpacing;
         final isScrollable = totalContentWidth > viewportWidth;
 
-        final sidePadding = isScrollable ? viewportWidth * 0.175 : 0.0;
+        final sidePadding = isScrollable ? viewportWidth * (_deadzoneSize/2) : 0.0;
 
         if (isScrollable && !_wasScrollable) {
           _outputDotsController
-              .jumpTo((widget.numDots * 0.175) * itemExtent - (_outputDotSpacing * 1.35));
+              .jumpTo((widget.numDots * (_deadzoneSize/2)) * itemExtent - (_outputDotSpacing * (_deadzoneSize+1)));
         }
 
         _wasScrollable = isScrollable;
@@ -90,7 +92,7 @@ class _RecipientDotRowState extends State<RecipientDotRow> {
                           final dotCenter = dotPosition.dx + (_outputDotSize / 2);
                           final viewportCenter = viewportWidth / 2;
                           final distance = (dotCenter - viewportCenter).abs();
-                          final threshold = viewportWidth * 0.35;
+                          final threshold = viewportWidth * _deadzoneSize;
                           final maxDistance = viewportWidth / 2;
 
                           if (distance > threshold) {
@@ -106,6 +108,7 @@ class _RecipientDotRowState extends State<RecipientDotRow> {
                       return Transform.scale(
                           scale: scale,
                           child: RecipientDot(
+                            textOpacity: scale,
                             size: _outputDotSize,
                             spacing: _outputDotSpacing,
                             index: index,
@@ -138,10 +141,11 @@ class RecipientDot extends StatefulWidget {
       required this.spacing,
       required this.index,
       required this.onTap,
-      required this.selected});
+      required this.selected, required this.textOpacity});
 
   final double size;
   final double spacing;
+  final double textOpacity;
   final int index;
   final VoidCallback onTap;
   final bool selected;
@@ -191,13 +195,16 @@ class _RecipientDotState extends State<RecipientDot> {
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
-                    child: Text((widget.index+1).toString(),
-                    style: TextStyle(
-                      color: widget.selected
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : Theme.of(context).colorScheme.onSurface,
-                      fontSize:14,fontWeight: FontWeight.w500
-                    ),),
+                    child: Opacity(
+                      opacity: widget.textOpacity,
+                      child: Text((widget.index+1).toString(),
+                      style: TextStyle(
+                        color: widget.selected
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface,
+                        fontSize:14,fontWeight: FontWeight.w500
+                      ),),
+                    ),
                   ),
                 ),
               ),
