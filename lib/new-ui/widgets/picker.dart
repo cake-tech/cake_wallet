@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
@@ -57,7 +59,7 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
     return Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -66,55 +68,58 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
             leadingIcon: Icon(Icons.arrow_back_ios_new),
             onLeadingPressed: Navigator.of(context).maybePop,
           ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.description != null && widget.description!.isNotEmpty)
-                  Text(widget.description!),
-                ...widget.items.map((item) {
-                  return Column(children: [
-                    if (item.isSliderItem)
-                      PickerSliderButton(
-                        item: item,
-                        isSelected: widget.items.indexOf(item) == item,
-                        onSelected: (item) {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => PickerSliderPage(
-                                  title: widget.sliderPageTitle,
-                                  sliderInitialValue: widget.sliderInitialValue!,
-                                  valueDescription: widget.sliderValueDescription ?? "",
-                                  sliderMaxValue: widget.sliderMaxValue!,
-                                  onSubmitted: (value) {
-                                    widget.onSliderChanged?.call(value);
-                                  })));
-                        },
-                        isFirst: widget.items.indexOf(item) == 0,
-                        isLast: widget.items.indexOf(item) == widget.items.length - 1,
-                      )
-                    else
-                      PickerRow(
-                        item: item,
-                        isSelected: widget.items.indexOf(item) == widget.selectedIndex,
-                        onSelected: _itemSelected,
-                        isFirst: widget.items.indexOf(item) == 0,
-                        isLast: widget.items.indexOf(item) == widget.items.length - 1,
-                      ),
-                    if (widget.items.indexOf(item) != widget.items.length - 1)
-                      Container(
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                          child: Container(
-                            height: 1,
-                            color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                          ),
+          SafeArea(
+            bottom: Platform.isAndroid,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.description != null && widget.description!.isNotEmpty)
+                    Text(widget.description!),
+                  ...widget.items.map((item) {
+                    return Column(children: [
+                      if (item.isSliderItem)
+                        PickerSliderButton(
+                          item: item,
+                          isSelected: widget.items.indexOf(item) == item,
+                          onSelected: (item) {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => PickerSliderPage(
+                                    title: widget.sliderPageTitle,
+                                    sliderInitialValue: widget.sliderInitialValue!,
+                                    valueDescription: widget.sliderValueDescription ?? "",
+                                    sliderMaxValue: widget.sliderMaxValue!,
+                                    onSubmitted: (value) {
+                                      widget.onSliderChanged?.call(value);
+                                    })));
+                          },
+                          isFirst: widget.items.indexOf(item) == 0,
+                          isLast: widget.items.indexOf(item) == widget.items.length - 1,
+                        )
+                      else
+                        PickerRow(
+                          item: item,
+                          isSelected: widget.items.indexOf(item) == widget.selectedIndex,
+                          onSelected: _itemSelected,
+                          isFirst: widget.items.indexOf(item) == 0,
+                          isLast: widget.items.indexOf(item) == widget.items.length - 1,
                         ),
-                      )
-                  ]);
-                })
-              ],
+                      if (widget.items.indexOf(item) != widget.items.length - 1)
+                        Container(
+                          color: Theme.of(context).colorScheme.surfaceContainer,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                            child: Container(
+                              height: 1,
+                              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                            ),
+                          ),
+                        )
+                    ]);
+                  })
+                ],
+              ),
             ),
           )
         ],
@@ -306,6 +311,7 @@ class _PickerSliderPageState<Item> extends State<PickerSliderPage<Item>> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       child: SafeArea(
         child: Column(
+          spacing: 36,
           mainAxisSize: MainAxisSize.max,
           children: [
             ModalTopBar(

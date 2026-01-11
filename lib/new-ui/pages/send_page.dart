@@ -107,7 +107,7 @@ class _NewSendPageState extends State<NewSendPage> {
       child: Container(
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
         child: SafeArea(
           child: Column(
             spacing: 12,
@@ -159,95 +159,103 @@ class _NewSendPageState extends State<NewSendPage> {
                         duration: Duration(milliseconds: 300),
                         child: Column(
                           key: ValueKey(_selectedOutput),
-                          spacing: 12,
+                          spacing: 24,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Address or alias"),
-                            NewSendAddressInput(
-                              addressController: _addressControllers[_selectedOutput],
-                              onURIScanned: (uri) async {
-                                output.resetParsedAddress();
-                                await output.fetchParsedAddress(context);
+                            Column(crossAxisAlignment:CrossAxisAlignment.start,
+                              spacing:12,children: [
+                              Text("Address or alias"),
+                              NewSendAddressInput(
+                                addressController: _addressControllers[_selectedOutput],
+                                onURIScanned: (uri) async {
+                                  output.resetParsedAddress();
+                                  await output.fetchParsedAddress(context);
 
-                                // Process the payment through the new flow
-                                await _handlePaymentFlow(
-                                  uri.toString(),
-                                  PaymentRequest.fromUri(uri),
-                                );
-                              },
-                              onPushAddressBookButton: (context) async {
-                                output.resetParsedAddress();
-                              },
-                              onSelectedContact: (contact) {
-                                output.loadContact(contact);
-                              },
-                              selectedCurrency: widget.sendViewModel.selectedCryptoCurrency,
+                                  // Process the payment through the new flow
+                                  await _handlePaymentFlow(
+                                    uri.toString(),
+                                    PaymentRequest.fromUri(uri),
+                                  );
+                                },
+                                onPushAddressBookButton: (context) async {
+                                  output.resetParsedAddress();
+                                },
+                                onSelectedContact: (contact) {
+                                  output.loadContact(contact);
+                                },
+                                selectedCurrency: widget.sendViewModel.selectedCryptoCurrency,
+                              ),
+                            ],
                             ),
-                            Text("Amount"),
-                            NewSendAmountInput(
-                              amountController: _amountControllers[_selectedOutput],
-                              currency: _fiatInputMode
-                                  ? widget.sendViewModel.fiatCurrency.title
-                                  : widget.sendViewModel.selectedCryptoCurrency.title,
-                              currencyIconPath: _fiatInputMode
-                                  ? ""
-                                  : widget.sendViewModel.selectedCryptoCurrency.iconPath ?? "",
-                              hasPicker: (_fiatInputMode || widget.sendViewModel.hasMultipleTokens),
-                              onPickerClicked: () {
-                                _presentCurrencyPicker(context);
-                              },
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  spacing: 8,
-                                  children: [
-                                    ModernButton.svg(
-                                        size: 28,
-                                        svgPath: "assets/new-ui/switch.svg",
-                                        iconSize: 18,
-                                        onPressed: () {
-                                          setState(() {
-                                            _fiatInputMode = !_fiatInputMode;
-                                            _amountControllers[_selectedOutput].text = _fiatInputMode
-                                                ? output.fiatAmount
-                                                : output.cryptoAmount;
-                                          });
-                                        }),
-                                    Observer(
-                                        builder: (_) => Text( _fiatInputMode
-                                            ? "${output.cryptoAmount.isEmpty ? "0" : output.cryptoAmount} ${widget.sendViewModel.selectedCryptoCurrency.title}"
-                                            : "${output.cryptoAmount.isEmpty ? "0" : output.fiatAmount} ${widget.sendViewModel.fiatCurrency.title}",)),
-                                  ],
-                                ),
-                                Row(
-                                  spacing: 8,
-                                  children: [
-                                    Text("Available"),
-                                    Material(
-                                        color: Theme.of(context).colorScheme.surfaceContainer,
-                                        borderRadius: BorderRadius.circular(99999),
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(99999),
-                                          onTap: () async {
-                                            output.setSendAll(
-                                                await widget.sendViewModel.sendingBalance);
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8.0, vertical: 4),
-                                            child: Text(
-                                              widget.sendViewModel.balance,
-                                              style: TextStyle(
-                                                  color: Theme.of(context).colorScheme.primary),
-                                            ),
-                                          ),
-                                        ))
-                                  ],
-                                )
-                              ],
-                            ),
+Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:12,children: [
+  Text("Amount"),
+  NewSendAmountInput(
+    amountController: _amountControllers[_selectedOutput],
+    currency: _fiatInputMode
+        ? widget.sendViewModel.fiatCurrency.title
+        : widget.sendViewModel.selectedCryptoCurrency.title,
+    currencyIconPath: _fiatInputMode
+        ? ""
+        : widget.sendViewModel.selectedCryptoCurrency.iconPath ?? "",
+    hasPicker: (_fiatInputMode || widget.sendViewModel.hasMultipleTokens),
+    onPickerClicked: () {
+      _presentCurrencyPicker(context);
+    },
+  ),
+  Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Row(
+        spacing: 8,
+        children: [
+          ModernButton.svg(
+              size: 28,
+              svgPath: "assets/new-ui/switch.svg",
+              iconSize: 18,
+              onPressed: () {
+                setState(() {
+                  _fiatInputMode = !_fiatInputMode;
+                  _amountControllers[_selectedOutput].text = _fiatInputMode
+                      ? output.fiatAmount
+                      : output.cryptoAmount;
+                });
+              }),
+          Observer(
+              builder: (_) => Text( _fiatInputMode
+                  ? "${output.cryptoAmount.isEmpty ? "0" : output.cryptoAmount} ${widget.sendViewModel.selectedCryptoCurrency.title}"
+                  : "${output.cryptoAmount.isEmpty ? "0" : output.fiatAmount} ${widget.sendViewModel.fiatCurrency.title}",)),
+        ],
+      ),
+      Row(
+        spacing: 8,
+        children: [
+          Text("Available"),
+          Material(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(99999),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(99999),
+                onTap: () async {
+                  output.setSendAll(
+                      await widget.sendViewModel.sendingBalance);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 4),
+                  child: Text(
+                    widget.sendViewModel.balance,
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                ),
+              ))
+        ],
+      )
+    ],
+  ),
+],),
+
+
                             NewListSections(sections: {
                               "": [
                                 ListItemDropdown(
@@ -373,7 +381,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                         }
                                       },
                                     );
-                                    showMaterialModalBottomSheet(context: context, builder: (context){
+                                    showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparent, builder: (context){
                                       return SendConfirmSheet(sendViewModel: widget.sendViewModel,);
                                     });
                                   },
@@ -769,8 +777,8 @@ class _NewSendPageState extends State<NewSendPage> {
         int selectedIdx = selectedItem;
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return Container(
-              height: MediaQuery.of(context).size.height*0.4,
+            return IntrinsicHeight(
+              // height: MediaQuery.of(context).size.height*0.4,
               child: ModalNavigator(
                 parentContext: modalContext,
                 fullScreen: false,
