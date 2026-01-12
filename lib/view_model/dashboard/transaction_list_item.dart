@@ -12,6 +12,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -55,6 +56,9 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedTitle {
+    if (transaction.additionalInfo['autoShield'] == true) {
+      return "Autoshield";
+    }
     if (transaction.direction == TransactionDirection.incoming) {
       return S.current.received;
     }
@@ -250,6 +254,11 @@ class TransactionListItem extends ActionListItem with Keyable {
             cryptoAmount: decred!.formatterDecredAmountToDouble(amount: transaction.amount),
             price: price);
         break;
+      case WalletType.zcash:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: zcash!.formatterZcashAmountToDouble(amount: BigInt.from(transaction.amount)),
+            price: price);
+      
       case WalletType.none:
       case WalletType.banano:
       case WalletType.haven:

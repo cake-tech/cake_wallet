@@ -6,6 +6,7 @@ import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -14,6 +15,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -264,6 +266,10 @@ class AddressPage extends BasePage {
         addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
         return;
       }
+      if (dashboardViewModel.type == WalletType.zcash) {
+        addressListViewModel.setAddressType(zcash!.getOptionToType(option));
+        return;
+      }
 
       switch (option) {
         case ReceivePageOption.anonPayInvoice:
@@ -307,6 +313,10 @@ class AddressPage extends BasePage {
           if (addressListViewModel.type == WalletType.bitcoin ||
               addressListViewModel.type == WalletType.litecoin) {
             addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
+          }
+          if (addressListViewModel.type == WalletType.zcash) {
+            printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
+            addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
           }
       }
     });

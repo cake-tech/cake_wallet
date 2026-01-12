@@ -332,6 +332,7 @@ class WalletInfo {
     this.hashedWalletIdentifier,
     this.isNonSeedWallet,
     this.sortOrder,
+    this.addressPageType,
   ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
@@ -374,6 +375,7 @@ class WalletInfo {
       hashedWalletIdentifier,
       isNonSeedWallet ?? false,
       sortOrder ?? 0,
+      null,
     );
   }
 
@@ -546,6 +548,7 @@ class WalletInfo {
     "hashedWalletIdentifier": hashedWalletIdentifier,
     "isNonSeedWallet": isNonSeedWallet ? 1 : 0,
     "sortOrder": sortOrder,
+    "addressPageType": addressPageType,
   };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -569,6 +572,7 @@ class WalletInfo {
       json['hashedWalletIdentifier'] as String?,
       (json['isNonSeedWallet'] as int) == 1,
       json['sortOrder'] as int? ?? 0,
+      json['addressPageType'] as String? ?? null,
     );
   }
 

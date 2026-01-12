@@ -39,7 +39,7 @@
         android:versionName="__versionName__"
         android:requestLegacyExternalStorage="true"
         android:extractNativeLibs="true">
-        <service 
+        <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
@@ -112,6 +112,7 @@
                 <data android:scheme="arbitrum" />
                 <data android:scheme="arbitrum-wallet" />
                 <data android:scheme="arbitrum_wallet" />
+                <data android:scheme="zcash-wallet" />
             </intent-filter>
             <!-- nano-gpt link scheme -->
             <intent-filter android:autoVerify="true">
@@ -139,7 +140,7 @@
                 android:resource="@xml/provider_paths" />
         </provider>
     </application>
-    
+
     <queries>
         <intent>
             <action android:name="android.intent.action.VIEW" />

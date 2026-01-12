@@ -129,6 +129,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.solana:
+      case WalletType.zcash:
       case WalletType.tron:
         items.addAll([
           if (_wallet.privateKey != null)
@@ -270,6 +271,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'decred-wallet';
       case WalletType.dogecoin:
         return 'dogecoin-wallet';
+      case WalletType.zcash:
+        return 'zcash-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()}');
     }

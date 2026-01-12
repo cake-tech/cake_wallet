@@ -34,10 +34,12 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/key.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
@@ -119,6 +121,12 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     if (FeatureFlag.hasDevOptions) {
       ProxyWrapper.logger = MemoryProxyLogger();
     }
+    var zcashPassword = await secureStorageShared.read(key: "com.cakewallet.cw_zcash/zec.db");
+    if (zcashPassword == null || zcashPassword.isEmpty) {
+      zcashPassword = generateKey().substring(0,32);
+      secureStorageShared.write(key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
+    }
+    zcash?.unlockDatabase(zcashPassword);
 
     // Basically when we're running a test
     if (topLevelKey != null) {
@@ -266,7 +274,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 54,
+    initialMigrationVersion: 55,
   );
 }
 

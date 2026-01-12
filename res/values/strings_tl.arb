@@ -515,7 +515,7 @@
   "matrix_green_dark_theme": "Matrix Green Dark Theme",
   "max_amount": "Max: ${value}",
   "max_value": "Max: ${value} ${currency}",
-  "memo": "Memo:",
+  "memo": "Memo",
   "message": "Mensahe",
   "message_verified": "Ang mensahe ay matagumpay na na -verify",
   "messages": "Mga mensahe",

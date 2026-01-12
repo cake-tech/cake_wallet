@@ -139,13 +139,13 @@ class AddressValidator extends TextValidator {
         pattern = 'zs[0-9a-zA-Z]{75}';
       case CryptoCurrency.zec:
         pattern =
-        '(?:'
-            't1[0-9A-Za-z]{33}'
-            '|t3[0-9A-Za-z]{33}'
-            '|zs[a-z0-9]{76}'
-            '|zxviews[a-z0-9]{278}'
-            '|u1[a-z0-9]{1,300}'
-            ')';
+          '(?:'
+          't1[0-9A-Za-z]{33}'
+          '|t3[0-9A-Za-z]{33}'
+          '|zs[a-z0-9]{76}'
+          '|zxviews[a-z0-9]{278}'
+          '|u1[a-z0-9]{1,300}'
+          ')';
       case CryptoCurrency.dcr:
         pattern = '(D|T|S)[ksecS]([0-9a-zA-Z])+';
       case CryptoCurrency.rvn:

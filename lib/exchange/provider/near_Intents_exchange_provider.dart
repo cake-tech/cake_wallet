@@ -431,8 +431,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     try {
       final uri = Uri.https(_baseUrl, '$_versionPath$_tokenPath');
 
-      final response =
-          await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
       if (response.statusCode != 200) return [];
 
       final data = json.decode(response.body) as List<dynamic>;

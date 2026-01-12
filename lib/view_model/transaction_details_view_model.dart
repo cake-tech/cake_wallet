@@ -100,6 +100,8 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.dogecoin:
         _addDogecoinListItems(tx, dateFormat);
         break;
+      case WalletType.zcash:
+        _addZcashListItems(tx, dateFormat);
       case WalletType.none:
       case WalletType.banano:
         break;
@@ -211,6 +213,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://basescan.org/tx/${txId}';
       case WalletType.arbitrum:
         return 'https://arbiscan.io/tx/${txId}';
+      case WalletType.zcash:
+        return 'https://blockchair.com/zcash/transaction/${txId}';
       case WalletType.none:
         return '';
     }
@@ -250,6 +254,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'basescan.org';
       case WalletType.arbitrum:
         return S.current.view_transaction_on + 'arbiscan.io';
+      case WalletType.zcash:
+        return S.current.view_transaction_on + 'blockchair.com';
       case WalletType.none:
         return '';
     }
@@ -896,6 +902,57 @@ abstract class TransactionDetailsViewModelBase with Store {
         ),
     ];
 
+    items.addAll(_items);
+  }
+
+  void _addZcashListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final memo = tx.additionalInfo['memo'] as String?;
+    
+    final _items = [
+      StandartListItem(
+        title: S.current.transaction_details_transaction_id,
+        value: tx.txHash,
+        key: ValueKey('standard_list_item_transaction_details_id_key'),
+      ),
+      if (tx.to != null)
+        StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: tx.to!,
+          key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+        ),
+      StandartListItem(
+        title: S.current.transaction_details_date,
+        value: dateFormat.format(tx.date),
+        key: ValueKey('standard_list_item_transaction_details_date_key'),
+      ),
+      StandartListItem(
+        title: S.current.confirmations,
+        value: tx.confirmations.toString(),
+        key: ValueKey('standard_list_item_transaction_confirmations_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_height,
+        value: '${tx.height ?? 0}',
+        key: ValueKey('standard_list_item_transaction_details_height_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_amount,
+        value: tx.amountFormatted(),
+        key: ValueKey('standard_list_item_transaction_details_amount_key'),
+      ),
+      if (tx.feeFormatted() != null && tx.feeFormatted()!.isNotEmpty)
+        StandartListItem(
+          title: S.current.transaction_details_fee,
+          value: tx.feeFormatted()!,
+          key: ValueKey('standard_list_item_transaction_details_fee_key'),
+        ),
+      if (memo != null && memo.isNotEmpty)
+        StandartListItem(
+          title: S.current.memo,
+          value: memo,
+          key: ValueKey('standard_list_item_transaction_details_memo_key'),
+        ),
+    ];
     items.addAll(_items);
   }
 

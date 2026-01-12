@@ -515,7 +515,7 @@
   "matrix_green_dark_theme": "Matrix Green Dark Theme",
   "max_amount": "Maksimum: ${value}",
   "max_value": "Maks.: ${value} ${currency}",
-  "memo": "Memo:",
+  "memo": "Memo",
   "message": "Poruka",
   "message_verified": "Poruka je uspješno provjerena",
   "messages": "Poruke",

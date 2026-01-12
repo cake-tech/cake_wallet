@@ -240,9 +240,12 @@ flutter:
     - assets/dogecoin_electrum_server_list.yml
     - assets/base_node_list.yml
     - assets/arbitrum_node_list.yml
+    - assets/zcash_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/
+    - scripts/zcash_lib/assets/sapling-spend.params
+    - scripts/zcash_lib/assets/sapling-output.params
 
   fonts:
     - family: Lato
