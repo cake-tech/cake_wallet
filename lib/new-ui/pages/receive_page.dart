@@ -87,9 +87,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(24),
           ),
         ),
         child: Column(

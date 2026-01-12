@@ -50,10 +50,14 @@ class ReceiveQrCode extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                         color: Colors.white,
                       ),
-                      // padding: const EdgeInsets.all(8.0),
-                      child: Observer(builder:(_)=> ClipRRect(
+                      child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
-                          child: QrImage(data: addressListViewModel.uri.toString()))),
+                          child: LayoutBuilder(
+                              builder: (context, constraints) => Observer(
+                                  builder: (_) => QrImage(
+                                      data: addressListViewModel.uri.toString(),
+                                      embeddedImagePath: addressListViewModel.qrImage,
+                                      size: constraints.maxWidth)))),
                     ),
                     AnimatedSize(
                         duration: Duration(milliseconds: 500),
