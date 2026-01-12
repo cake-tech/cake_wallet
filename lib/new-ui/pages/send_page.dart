@@ -100,314 +100,319 @@ class _NewSendPageState extends State<NewSendPage> {
 
   @override
   Widget build(BuildContext context) {
-    final output = widget.sendViewModel.outputs[_selectedOutput];
-
-    return SafeArea(
-      bottom: false,
-      child: Container(
-        decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-        child: SafeArea(
-          child: Column(
-            spacing: 12,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              ModalTopBar(
-                  title: "Send",
-                  leadingIcon: Icon(Icons.close),
-                  onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
-                trailingWidget: Observer(
-                  builder:(_)=> Row(
-                    spacing: 8,
-                    children: [
-                      if (widget.sendViewModel.outputs.length > 1)
-                        ModernButton(
-                            size: 36,
-                            icon: Icon(Icons.delete_forever_outlined),
-                            onPressed: () {
-                              final outputIndex = _selectedOutput;
-                              if (_selectedOutput != 0) {
-                                _setOutput(_selectedOutput - 1);
-                              } else {
-                                _setOutput(1);
-                              }
-                              _removeInputControllers(outputIndex);
-                              widget.sendViewModel.removeOutput(output);
-                              if (outputIndex == 0) _setOutput(0);
-                            }),
-                      ModernButton(
-                          size: 36,
-                          icon: Icon(Icons.add),
-                          onPressed: () {
-                            _addInputControllers();
-                            widget.sendViewModel.addOutput();
-                            _setOutput(widget.sendViewModel.outputs.length - 1);
-                          })
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      DirectionalAnimatedSwitcher(
-                        duration: Duration(milliseconds: 300),
-                        child: Column(
-                          key: ValueKey(_selectedOutput),
-                          spacing: 24,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(crossAxisAlignment:CrossAxisAlignment.start,
-                              spacing:12,children: [
-                              Text("Address or alias"),
-                              NewSendAddressInput(
-                                addressController: _addressControllers[_selectedOutput],
-                                onURIScanned: (uri) async {
-                                  output.resetParsedAddress();
-                                  await output.fetchParsedAddress(context);
-
-                                  // Process the payment through the new flow
-                                  await _handlePaymentFlow(
-                                    uri.toString(),
-                                    PaymentRequest.fromUri(uri),
-                                  );
-                                },
-                                onPushAddressBookButton: (context) async {
-                                  output.resetParsedAddress();
-                                },
-                                onSelectedContact: (contact) {
-                                  output.loadContact(contact);
-                                },
-                                selectedCurrency: widget.sendViewModel.selectedCryptoCurrency,
-                              ),
-                            ],
-                            ),
-Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:12,children: [
-  Text("Amount"),
-  NewSendAmountInput(
-    amountController: _amountControllers[_selectedOutput],
-    currency: _fiatInputMode
-        ? widget.sendViewModel.fiatCurrency.title
-        : widget.sendViewModel.selectedCryptoCurrency.title,
-    currencyIconPath: _fiatInputMode
-        ? ""
-        : widget.sendViewModel.selectedCryptoCurrency.iconPath ?? "",
-    hasPicker: (_fiatInputMode || widget.sendViewModel.hasMultipleTokens),
-    onPickerClicked: () {
-      _presentCurrencyPicker(context);
-    },
-  ),
-  Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Row(
-        spacing: 8,
-        children: [
-          ModernButton.svg(
-              size: 28,
-              svgPath: "assets/new-ui/switch.svg",
-              iconSize: 18,
-              onPressed: () {
-                setState(() {
-                  _fiatInputMode = !_fiatInputMode;
-                  _amountControllers[_selectedOutput].text = _fiatInputMode
-                      ? output.fiatAmount
-                      : output.cryptoAmount;
-                });
-              }),
-          Observer(
-              builder: (_) => Text( _fiatInputMode
-                  ? "${output.cryptoAmount.isEmpty ? "0" : output.cryptoAmount} ${widget.sendViewModel.selectedCryptoCurrency.title}"
-                  : "${output.cryptoAmount.isEmpty ? "0" : output.fiatAmount} ${widget.sendViewModel.fiatCurrency.title}",)),
-        ],
-      ),
-      Row(
-        spacing: 8,
-        children: [
-          Text("Available"),
-          Material(
-              color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(99999),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(99999),
-                onTap: () async {
-                  output.setSendAll(
-                      await widget.sendViewModel.sendingBalance);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 4),
-                  child: Text(
-                    widget.sendViewModel.balance,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary),
-                  ),
-                ),
-              ))
-        ],
-      )
-    ],
-  ),
-],),
 
 
-                            NewListSections(sections: {
-                              "": [
-                                ListItemDropdown(
-                                  keyValue: "",
-                                  label: "Advanced Settings",
-                                  onTap: () {
-                                    setState(() {
-                                      _advancedOptionsExpanded = !_advancedOptionsExpanded;
-                                    });
-                                  },
-                                ),
-                                if (_advancedOptionsExpanded && widget.sendViewModel.hasFees)
-                                  ListItemRegularRow(
-                                    keyValue: "",
-                                    label: "Fees",
-                                    subtitle: "~${output.estimatedFee} ${widget.sendViewModel.currency} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
-
-                                    onTap: () {
-                                      if (widget.sendViewModel.feesViewModel.hasFeesPriority)
-                                        pickTransactionPriority(context, output);
-                                    },
-                                  ),
-                                if (_advancedOptionsExpanded)
-                                  ListItemRegularRow(
-                                    keyValue: "",
-                                    label: "Coin Control",
-                                    onTap: () {
-                                      Navigator.of(context).pushNamed(Routes.unspentCoinsList);
-                                    },
-                                  )
-                              ]
-                            })
-                          ],
-                        ),
+    return Observer(
+      builder: (_) {
+        final output = widget.sendViewModel.outputs[_selectedOutput];
+        return SafeArea(
+          bottom: false,
+          child: Container(
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+            child: SafeArea(
+              child: Column(
+                spacing: 12,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  ModalTopBar(
+                      title: "Send",
+                      leadingIcon: Icon(Icons.close),
+                      onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
+                    trailingWidget: Observer(
+                      builder:(_)=> Row(
+                        spacing: 8,
+                        children: [
+                          if (widget.sendViewModel.outputs.length > 1)
+                            ModernButton(
+                                size: 36,
+                                icon: Icon(Icons.delete_forever_outlined),
+                                onPressed: () {
+                                  final outputIndex = _selectedOutput;
+                                  if (_selectedOutput != 0) {
+                                    _setOutput(_selectedOutput - 1);
+                                  } else {
+                                    _setOutput(1);
+                                  }
+                                  _removeInputControllers(outputIndex);
+                                  widget.sendViewModel.removeOutput(output);
+                                  if (outputIndex == 0) _setOutput(0);
+                                }),
+                          ModernButton(
+                              size: 36,
+                              icon: Icon(Icons.add),
+                              onPressed: () {
+                                _addInputControllers();
+                                widget.sendViewModel.addOutput();
+                                _setOutput(widget.sendViewModel.outputs.length - 1);
+                              })
+                        ],
                       ),
-                      Observer(
-                        builder: (_) => Column(
-                          spacing: 12,
-                          children: [
-                            if (!widget.sendViewModel.isReadyForSend)
-                              SendSyncingIndicator(status: widget.sendViewModel.wallet.syncStatus),
-                            if (widget.sendViewModel.outputs.length > 1)
-                              RecipientDotRow(
-                                numDots: widget.sendViewModel.outputs.length,
-                                onSelected: _setOutput,
-                                selectedDot: _selectedOutput,
-                              ),
-                            Observer(
-                              builder: (_) {
-                                return LoadingPrimaryButton(
-                                  key: ValueKey('send_page_send_button_key'),
-                                  onPressed: () async {
-                                    //TODO refactor this action. code was copied over from old ui. i don't like it.
-                                    //Request dummy node to get the focus out of the text fields
-                                    FocusScope.of(context).requestFocus(FocusNode());
-
-                                    if (widget.sendViewModel.state is IsExecutingState) return;
-                                    // if (_formKey.currentState != null &&
-                                    //     !_formKey.currentState!.validate()) {
-                                    //   if (sendViewModel.outputs.length > 1) {
-                                    //     showErrorValidationAlert(context);
-                                    //   }
-                                    //
-                                    //   return;
-                                    // }
-
-                                    final notValidItems = widget.sendViewModel.outputs
-                                        .where((item) =>
-                                            item.address.isEmpty || item.cryptoAmount.isEmpty)
-                                        .toList();
-
-                                    if (notValidItems.isNotEmpty) {
-                                      showErrorValidationAlert(context);
-                                      return;
-                                    }
-
-                                    if (widget.sendViewModel.wallet.isHardwareWallet) {
-                                      if (!widget
-                                          .sendViewModel.hardwareWalletViewModel!.isConnected) {
-                                        await Navigator.of(context).pushNamed(Routes.connectDevices,
-                                            arguments: ConnectDevicePageParams(
-                                              walletType: widget.sendViewModel.walletType,
-                                              hardwareWalletType: widget.sendViewModel.wallet
-                                                  .walletInfo.hardwareWalletType!,
-                                              onConnectDevice: (BuildContext context, _) {
-                                                widget.sendViewModel.hardwareWalletViewModel!
-                                                    .initWallet(widget.sendViewModel.wallet);
-                                                Navigator.of(context).pop();
-                                              },
-                                            ));
-                                      } else {
-                                        widget.sendViewModel.hardwareWalletViewModel!
-                                            .initWallet(widget.sendViewModel.wallet);
-                                      }
-                                    }
-
-                                    if (widget.sendViewModel.wallet.type == WalletType.monero) {
-                                      int amount = 0;
-                                      for (var item in widget.sendViewModel.outputs) {
-                                        amount += item.formattedCryptoAmount;
-                                      }
-                                      if (monero!
-                                          .needExportOutputs(widget.sendViewModel.wallet, amount)) {
-                                        await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
-                                            arguments:
-                                                monero!.exportOutputsUR(widget.sendViewModel.wallet));
-                                        await Future.delayed(Duration(
-                                            seconds: 1)); // wait for monero to refresh the state
-                                      }
-                                      if (monero!
-                                          .needExportOutputs(widget.sendViewModel.wallet, amount)) {
-                                        return;
-                                      }
-                                    }
-
-                                    final check = widget.sendViewModel.shouldDisplayTotp();
-                                    widget.authService.authenticateAction(
-                                      context,
-                                      conditionToDetermineIfToUse2FA: check,
-                                      onAuthSuccess: (value) async {
-                                        if (value) {
-                                          await widget.sendViewModel.createTransaction();
-                                        }
-                                      },
-                                    );
-                                    showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparent, builder: (context){
-                                      return SendConfirmSheet(sendViewModel: widget.sendViewModel,);
-                                    });
-                                  },
-                                  text: "Continue",
-                                  color: Theme.of(context).colorScheme.primary,
-                                  textColor: Theme.of(context).colorScheme.onPrimary,
-                                  isLoading: widget.sendViewModel.state is IsExecutingState ||
-                                      widget.sendViewModel.state is TransactionCommitting ||
-                                      widget.sendViewModel.state is IsAwaitingDeviceResponseState ||
-                                      widget.sendViewModel.state is LoadingTemplateExecutingState,
-                                  isDisabled: !widget.sendViewModel.isReadyForSend ||
-                                      widget.sendViewModel.state is ExecutedSuccessfullyState,
-                                );
-                              },
-                            )
-                          ],
-                        ),
-                      )
-                    ],
+                    ),
                   ),
-                ),
-              )
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          DirectionalAnimatedSwitcher(
+                            duration: Duration(milliseconds: 300),
+                            child: Column(
+                              key: ValueKey(_selectedOutput),
+                              spacing: 24,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(crossAxisAlignment:CrossAxisAlignment.start,
+                                  spacing:12,children: [
+                                  Text("Address or alias"),
+                                  NewSendAddressInput(
+                                    addressController: _addressControllers[_selectedOutput],
+                                    onURIScanned: (uri) async {
+                                      output.resetParsedAddress();
+                                      await output.fetchParsedAddress(context);
+
+                                      // Process the payment through the new flow
+                                      await _handlePaymentFlow(
+                                        uri.toString(),
+                                        PaymentRequest.fromUri(uri),
+                                      );
+                                    },
+                                    onPushAddressBookButton: (context) async {
+                                      output.resetParsedAddress();
+                                    },
+                                    onSelectedContact: (contact) {
+                                      output.loadContact(contact);
+                                    },
+                                    selectedCurrency: widget.sendViewModel.selectedCryptoCurrency,
+                                  ),
+                                ],
+                                ),
+        Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:12,children: [
+          Text("Amount"),
+          NewSendAmountInput(
+        amountController: _amountControllers[_selectedOutput],
+        currency: _fiatInputMode
+            ? widget.sendViewModel.fiatCurrency.title
+            : widget.sendViewModel.selectedCryptoCurrency.title,
+        currencyIconPath: _fiatInputMode
+            ? ""
+            : widget.sendViewModel.selectedCryptoCurrency.iconPath ?? "",
+        hasPicker: (_fiatInputMode || widget.sendViewModel.hasMultipleTokens),
+        onPickerClicked: () {
+          _presentCurrencyPicker(context);
+        },
+          ),
+          Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            spacing: 8,
+            children: [
+              ModernButton.svg(
+                  size: 28,
+                  svgPath: "assets/new-ui/switch.svg",
+                  iconSize: 18,
+                  onPressed: () {
+                    setState(() {
+                      _fiatInputMode = !_fiatInputMode;
+                      _amountControllers[_selectedOutput].text = _fiatInputMode
+                          ? output.fiatAmount
+                          : output.cryptoAmount;
+                    });
+                  }),
+              Observer(
+                  builder: (_) => Text( _fiatInputMode
+                      ? "${output.cryptoAmount.isEmpty ? "0" : output.cryptoAmount} ${widget.sendViewModel.selectedCryptoCurrency.title}"
+                      : "${output.cryptoAmount.isEmpty ? "0" : output.fiatAmount} ${widget.sendViewModel.fiatCurrency.title}",)),
             ],
           ),
-        ),
-      ),
+          Row(
+            spacing: 8,
+            children: [
+              Text("Available"),
+              Material(
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(99999),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(99999),
+                    onTap: () async {
+                      output.setSendAll(
+                          await widget.sendViewModel.sendingBalance);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 4),
+                      child: Text(
+                        widget.sendViewModel.balance,
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary),
+                      ),
+                    ),
+                  ))
+            ],
+          )
+        ],
+          ),
+        ],),
+
+
+                                NewListSections(sections: {
+                                  "": [
+                                    ListItemDropdown(
+                                      keyValue: "",
+                                      label: "Advanced Settings",
+                                      onTap: () {
+                                        setState(() {
+                                          _advancedOptionsExpanded = !_advancedOptionsExpanded;
+                                        });
+                                      },
+                                    ),
+                                    if (_advancedOptionsExpanded && widget.sendViewModel.hasFees)
+                                      ListItemRegularRow(
+                                        keyValue: "",
+                                        label: "Fees",
+                                        subtitle: "~${output.estimatedFee} ${widget.sendViewModel.currency} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
+
+                                        onTap: () {
+                                          if (widget.sendViewModel.feesViewModel.hasFeesPriority)
+                                            pickTransactionPriority(context, output);
+                                        },
+                                      ),
+                                    if (_advancedOptionsExpanded)
+                                      ListItemRegularRow(
+                                        keyValue: "",
+                                        label: "Coin Control",
+                                        onTap: () {
+                                          Navigator.of(context).pushNamed(Routes.unspentCoinsList);
+                                        },
+                                      )
+                                  ]
+                                })
+                              ],
+                            ),
+                          ),
+                          Observer(
+                            builder: (_) => Column(
+                              spacing: 12,
+                              children: [
+                                if (!widget.sendViewModel.isReadyForSend)
+                                  SendSyncingIndicator(status: widget.sendViewModel.wallet.syncStatus),
+                                if (widget.sendViewModel.outputs.length > 1)
+                                  RecipientDotRow(
+                                    numDots: widget.sendViewModel.outputs.length,
+                                    onSelected: _setOutput,
+                                    selectedDot: _selectedOutput,
+                                  ),
+                                Observer(
+                                  builder: (_) {
+                                    return LoadingPrimaryButton(
+                                      key: ValueKey('send_page_send_button_key'),
+                                      onPressed: () async {
+                                        //TODO refactor this action. code was copied over from old ui. i don't like it.
+                                        //Request dummy node to get the focus out of the text fields
+                                        FocusScope.of(context).requestFocus(FocusNode());
+
+                                        if (widget.sendViewModel.state is IsExecutingState) return;
+                                        // if (_formKey.currentState != null &&
+                                        //     !_formKey.currentState!.validate()) {
+                                        //   if (sendViewModel.outputs.length > 1) {
+                                        //     showErrorValidationAlert(context);
+                                        //   }
+                                        //
+                                        //   return;
+                                        // }
+
+                                        final notValidItems = widget.sendViewModel.outputs
+                                            .where((item) =>
+                                                item.address.isEmpty || item.cryptoAmount.isEmpty)
+                                            .toList();
+
+                                        if (notValidItems.isNotEmpty) {
+                                          showErrorValidationAlert(context);
+                                          return;
+                                        }
+
+                                        if (widget.sendViewModel.wallet.isHardwareWallet) {
+                                          if (!widget
+                                              .sendViewModel.hardwareWalletViewModel!.isConnected) {
+                                            await Navigator.of(context).pushNamed(Routes.connectDevices,
+                                                arguments: ConnectDevicePageParams(
+                                                  walletType: widget.sendViewModel.walletType,
+                                                  hardwareWalletType: widget.sendViewModel.wallet
+                                                      .walletInfo.hardwareWalletType!,
+                                                  onConnectDevice: (BuildContext context, _) {
+                                                    widget.sendViewModel.hardwareWalletViewModel!
+                                                        .initWallet(widget.sendViewModel.wallet);
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                ));
+                                          } else {
+                                            widget.sendViewModel.hardwareWalletViewModel!
+                                                .initWallet(widget.sendViewModel.wallet);
+                                          }
+                                        }
+
+                                        if (widget.sendViewModel.wallet.type == WalletType.monero) {
+                                          int amount = 0;
+                                          for (var item in widget.sendViewModel.outputs) {
+                                            amount += item.formattedCryptoAmount;
+                                          }
+                                          if (monero!
+                                              .needExportOutputs(widget.sendViewModel.wallet, amount)) {
+                                            await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
+                                                arguments:
+                                                    monero!.exportOutputsUR(widget.sendViewModel.wallet));
+                                            await Future.delayed(Duration(
+                                                seconds: 1)); // wait for monero to refresh the state
+                                          }
+                                          if (monero!
+                                              .needExportOutputs(widget.sendViewModel.wallet, amount)) {
+                                            return;
+                                          }
+                                        }
+
+                                        final check = widget.sendViewModel.shouldDisplayTotp();
+                                        widget.authService.authenticateAction(
+                                          context,
+                                          conditionToDetermineIfToUse2FA: check,
+                                          onAuthSuccess: (value) async {
+                                            if (value) {
+                                              showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparent, builder: (context){
+                                                return SendConfirmSheet(sendViewModel: widget.sendViewModel,);
+                                              });
+                                              await widget.sendViewModel.createTransaction();
+                                            }
+                                          },
+                                        );
+                                      },
+                                      text: "Continue",
+                                      color: Theme.of(context).colorScheme.primary,
+                                      textColor: Theme.of(context).colorScheme.onPrimary,
+                                      isLoading: widget.sendViewModel.state is IsExecutingState ||
+                                          widget.sendViewModel.state is TransactionCommitting ||
+                                          widget.sendViewModel.state is IsAwaitingDeviceResponseState ||
+                                          widget.sendViewModel.state is LoadingTemplateExecutingState,
+                                      isDisabled: !widget.sendViewModel.isReadyForSend ||
+                                          widget.sendViewModel.state is ExecutedSuccessfullyState,
+                                    );
+                                  },
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      }
     );
   }
 

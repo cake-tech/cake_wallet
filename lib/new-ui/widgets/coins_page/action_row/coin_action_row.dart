@@ -45,11 +45,12 @@ class CoinActionRow extends StatelessWidget {
             ),
             label: S.of(context).send,
             action: () {
+              final sendPage = getIt.get<NewSendPage>();
               if (FeatureFlag.hasNewUiExtraPages) {
                 showMaterialModalBottomSheet(
                   context: context,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => ModalNavigator(rootPage: getIt.get<NewSendPage>(),parentContext: context,),
+                  builder: (context) => ModalNavigator(rootPage: sendPage,parentContext: context,),
                 );
               } else {
                 Map<String, dynamic>? args;
