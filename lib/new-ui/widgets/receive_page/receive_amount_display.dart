@@ -1,4 +1,3 @@
-import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -42,7 +41,7 @@ class ReceiveAmountDisplay extends StatelessWidget {
                       spacing: 8.0,
                       children: [
                         Text(walletAddressListViewModel.amount, style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize:16,fontWeight: FontWeight.w500),),
-                        Text(walletAddressListViewModel.wallet.currency.name.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize:16,fontWeight: FontWeight.w500))
+                        Text(walletAddressListViewModel.tokenCurrency?.title.toUpperCase() ?? walletAddressListViewModel.wallet.currency.name.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize:16,fontWeight: FontWeight.w500))
                       ],
                     ),
                   ),

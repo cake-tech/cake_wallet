@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'dart:developer' as dev;
 
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
@@ -29,8 +30,10 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/amount_converter.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:intl/intl.dart';
@@ -75,7 +78,21 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   double? _fiatRate;
   String _rawAmount = '';
 
-  List<Currency> get currencies => [wallet.currency, ...FiatCurrency.all];
+  List<Currency> get currencies => [tokenCurrency ?? wallet.currency, ...FiatCurrency.all];
+
+  List<Currency> get tokenCurrencies => wallet.balance.keys.toList();
+
+  @observable
+  CryptoCurrency? tokenCurrency;
+
+
+  void setTokenCurrency(Currency curr) {
+    tokenCurrency = curr as CryptoCurrency;
+    if(selectedCurrency is CryptoCurrency) {
+      selectedCurrency = curr;
+    }
+  }
+
 
   String get buttonTitle {
     if (isElectrumWallet) {
@@ -94,6 +111,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   int get selectedCurrencyIndex => currencies.indexOf(selectedCurrency);
 
+  @computed
+  int get tokenCurrencyIndex => tokenCurrency == null ? 0 : tokenCurrencies.indexOf(tokenCurrency!);
+
   @observable
   String amount = '';
 
@@ -101,8 +121,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   String get fiatAmount {
     if(amount.isEmpty) return "";
-    if(!fiatConversionStore.prices.containsKey(wallet.currency)) return "";
-    return (double.parse(amount)*fiatConversionStore.prices[wallet.currency]!).toStringAsFixed(2);
+    if(!fiatConversionStore.prices.containsKey(tokenCurrency ??wallet.currency)) return "";
+    return (double.parse(amount)*fiatConversionStore.prices[tokenCurrency ?? wallet.currency]!).toStringAsFixed(2);
   }
 
   @computed
@@ -125,6 +145,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   bool get isPayjoinUnavailable =>
       wallet.type == WalletType.bitcoin && _settingsStore.usePayjoin && payjoinEndpoint.isEmpty;
 
+  @computed
   bool get isPayjoinAvailable => !isPayjoinUnavailable && !isSilentPayments && !isLightning;
 
   @observable
@@ -132,6 +153,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   Future<void> refreshUri() async {
+    if(tokenCurrency != null && wallet.type == WalletType.ethereum) {
+      uri = ERC681URI(chainId: 1, address: wallet.walletAddresses.address, amount: amount, contractAddress:(tokenCurrency as Erc20Token).contractAddress);
+      return;
+    }
     uri = await wallet.walletAddresses.getPaymentRequestUri(amount);
   }
 
@@ -382,7 +407,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.litecoin,
         WalletType.decred,
         WalletType.dogecoin,
-        WalletType.zcash,
       ].contains(wallet.type);
 
   @computed

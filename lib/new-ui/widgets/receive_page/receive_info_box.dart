@@ -1,12 +1,24 @@
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ReceiveInfoBox extends StatelessWidget {
-  const ReceiveInfoBox(
+  ReceiveInfoBox(
       {super.key, required this.iconPath, required this.message, required this.onDismissed});
 
-  final String iconPath;
-  final String message;
+  ReceiveInfoBox.forWalletType(WalletType type, {required this.onDismissed}) {
+    switch (type) {
+      case WalletType.ethereum:
+        iconPath = "assets/new-ui/chain_badges/ethereum.svg";
+        message = "Use this address to receive any token or collectible on Ethereum";
+      default:
+        iconPath = "assets/new-ui/info.svg";
+        message = "Your receive address will rotate every time you close and reopen this screen";
+    }
+  }
+
+  late final String iconPath;
+  late final String message;
   final VoidCallback onDismissed;
 
   @override

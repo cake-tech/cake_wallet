@@ -4,6 +4,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
@@ -47,31 +48,42 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 12,
                 children: [
-                  // TODO logic for setting token amount.
-                  // SizedBox(),
-                  // Text("Token"),
-                  // GestureDetector(
-                  //     child: Container(
-                  //       height: 60,
-                  //       decoration: BoxDecoration(
-                  //         color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  //         borderRadius: BorderRadius.circular(16),
-                  //       ),
-                  //       child: Row(
-                  //         mainAxisSize: MainAxisSize.max,
-                  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //         children: [
-                  //           Row(
-                  //             children: [
-                  //               Image.asset("assets/images/crypto/ethereum.webp", width: 32, height: 32),
-                  //               Text("ETH")
-                  //             ],
-                  //           ),
-                  //           RotatedBox(
-                  //               quarterTurns: 2, child: SvgPicture.asset("assets/new-ui/dropdown_arrow.svg"))
-                  //         ],
-                  //       ),
-                  //     )),
+                  if(widget.walletAddressListViewModel.tokenCurrencies.length>1)
+                  ...[
+                    Text("Token"),
+                    GestureDetector(
+                        onTap: (){
+                          _presentTokenCurrencyPicker(context);
+                        },
+                        child: Observer(
+                          builder:(_)=> Container(
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    spacing: 8,
+                                    children: [
+                                      Image.asset(widget.walletAddressListViewModel.tokenCurrency?.iconPath ?? widget.walletAddressListViewModel.currencies.first.iconPath??"", width: 32, height: 32),
+                                      Text((widget.walletAddressListViewModel.tokenCurrency ?? widget.walletAddressListViewModel.currencies.first as CryptoCurrency).title.toUpperCase())
+                                    ],
+                                  ),
+                                  RotatedBox(
+                                      quarterTurns: 2, child: SvgPicture.asset("assets/new-ui/dropdown_arrow.svg"))
+                                ],
+                              ),
+                            ),
+                          ),
+                        )),
+                  ],
+
                   SizedBox(),
                   Text("Amount"),
                   Row(
@@ -118,7 +130,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                       Expanded(
                         flex: 25,
                         child: GestureDetector(
-                          onTap: (){_presentCurrencyPicker(context);},
+                          onTap: (){_presentFiatCurrencyPicker(context);},
                           child: Container(
                             height: 60,
                             decoration: BoxDecoration(
@@ -136,6 +148,8 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                               children: [
                                 Observer(
                                   builder: (_)=>Text(
+                                    widget.walletAddressListViewModel.selectedCurrency is CryptoCurrency ?
+                                    (widget.walletAddressListViewModel.selectedCurrency as CryptoCurrency).title.toUpperCase() :
                                     widget.walletAddressListViewModel.selectedCurrency.name.toUpperCase(),
                                     style: TextStyle(
                                       color: Theme.of(context).colorScheme.onSurface,
@@ -172,7 +186,19 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
     );
   }
 
-  void _presentCurrencyPicker(BuildContext context) async {
+  void _presentTokenCurrencyPicker(BuildContext context) async {
+    await showPopUp(
+      builder: (_) => CurrencyPicker(
+        selectedAtIndex: widget.walletAddressListViewModel.tokenCurrencyIndex,
+        items: widget.walletAddressListViewModel.tokenCurrencies,
+        hintText: S.of(context).search_currency,
+        onItemSelected: widget.walletAddressListViewModel.setTokenCurrency,
+      ),
+      context: context,
+    );
+  }
+
+  void _presentFiatCurrencyPicker(BuildContext context) async {
     await showPopUp(
       builder: (_) => CurrencyPicker(
         selectedAtIndex: widget.walletAddressListViewModel.selectedCurrencyIndex,

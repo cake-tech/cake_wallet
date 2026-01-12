@@ -56,7 +56,7 @@ class ReceiveQrCode extends StatelessWidget {
                               builder: (context, constraints) => Observer(
                                   builder: (_) => QrImage(
                                       data: addressListViewModel.uri.toString(),
-                                      embeddedImagePath: addressListViewModel.qrImage,
+                                      embeddedImagePath: addressListViewModel.tokenCurrency != null ? addressListViewModel.tokenCurrency!.iconPath : addressListViewModel.qrImage,
                                       size: constraints.maxWidth)))),
                     ),
                     AnimatedSize(

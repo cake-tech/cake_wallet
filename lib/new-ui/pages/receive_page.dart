@@ -1,6 +1,4 @@
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_display.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_input.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_bottom_buttons.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_info_box.dart';
@@ -8,20 +6,19 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_seed_type.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_util.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
@@ -31,8 +28,8 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../widgets/receive_page/receive_seed_widget.dart';
-import '../widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_seed_widget.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 
 class NewReceivePage extends StatefulWidget {
   const NewReceivePage(
@@ -52,7 +49,6 @@ class NewReceivePage extends StatefulWidget {
 class _NewReceivePageState extends State<NewReceivePage> {
   bool _largeQrMode = false;
   bool _effectsInstalled = false;
-  bool _infoboxDimissed = false;
   late WalletAddressListItem _addressItemWithLabel;
 
 
@@ -75,6 +71,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
     _setEffects(context);
 
     final hasLabel = _addressItemWithLabel.name != null && _addressItemWithLabel.name!.isNotEmpty;
+    final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
 
     return SafeArea(
       child: Container(
@@ -98,12 +95,16 @@ class _NewReceivePageState extends State<NewReceivePage> {
             ModalTopBar(
               title: _largeQrMode ? "" : "Receive",
               leadingIcon: Icon(Icons.close),
-              trailingIcon: _largeQrMode ? Icon(Icons.share) : Icon(Icons.refresh),
+              trailingIcon: _largeQrMode ? Icon(Icons.share) : widget.addressListViewModel.hasAddressList ? Icon(Icons.refresh) : null,
               onLeadingPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
               },
               onTrailingPressed: () {
-                Share.share(widget.addressListViewModel.uri.address);
+                if(_largeQrMode) {
+                  Share.share(widget.addressListViewModel.uri.address);
+                } else if(widget.addressListViewModel.hasAddressList){
+                  createNewAddress(widget.addressListViewModel.wallet, "");
+                }
               },
             ),
             Expanded(
@@ -117,7 +118,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                     onTap: () {
                       setState(() {
                         _largeQrMode = !_largeQrMode;
-                        _infoboxDimissed = true;
+                        // _infoboxDimissed = true;
                       });
                     },
                     largeQrMode: _largeQrMode,
@@ -133,9 +134,10 @@ class _NewReceivePageState extends State<NewReceivePage> {
                         child: ReceiveLabelWidget(name: _addressItemWithLabel.name ?? "")),
                   ReceiveBottomButtons(
                     largeQrMode: _largeQrMode,
-                    showAccountsButton: true,
-                    showLabelButton: !hasLabel,
+                    showAccountsButton: widget.addressListViewModel.hasAddressList,
+                    showLabelButton: widget.addressListViewModel.hasAddressList && !hasLabel,
                     onCopyButtonPressed: () {
+                      printV(widget.addressListViewModel.items);
                       Clipboard.setData(
                           ClipboardData(text: widget.addressListViewModel.uri.address));
                     },
@@ -159,24 +161,17 @@ class _NewReceivePageState extends State<NewReceivePage> {
                     child: AnimatedAlign(
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeOutCubic,
-                      heightFactor: _infoboxDimissed ? 0 : 1,
+                      heightFactor: infoboxDismissed ? 0 : 1,
                       alignment: Alignment.center,
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 200),
-                        opacity: _infoboxDimissed ? 0 : 1,
+                        opacity: infoboxDismissed ? 0 : 1,
                         curve: Curves.easeOutCubic,
-                        child: ReceiveInfoBox(
-                            message:
-                                "Your receive address will rotate every time you close and reopen this screen",
-                            iconPath: "assets/new-ui/info.svg",
-                            onDismissed: () {
-                              setState(() {
-                                _infoboxDimissed = true;
-                              });
-                            }),
-                      ),
-                    ),
-                  )
+                        child: ReceiveInfoBox.forWalletType(
+                          widget.addressListViewModel.type,
+                          onDismissed: _dismissInfobox,
+                    )),
+                  ))
                 ],
               ),
             ),
@@ -184,6 +179,12 @@ class _NewReceivePageState extends State<NewReceivePage> {
         ),
       ),
     );
+  }
+
+  void _dismissInfobox() async {
+    widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed = true;
+    await widget.addressListViewModel.wallet.walletInfo.save();
+    setState(() {});
   }
 
 
