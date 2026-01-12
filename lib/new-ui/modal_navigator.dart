@@ -9,23 +9,59 @@ import 'package:flutter/material.dart';
 /// calling Navigator.of(context).pop() will pop the page INSIDE the modal sheet.
 /// if you want to pop the whole sheet, use Navigator.of(context, rootNavigator: true).pop().
 class ModalNavigator extends StatefulWidget {
-  const ModalNavigator({super.key, required this.rootPage, required this.parentContext, this.fullScreen = true});
+  const ModalNavigator({super.key, required this.rootPage, required this.parentContext, this.heightMode = ModalHeightModes.fullScreen});
 
   final Widget rootPage;
   final BuildContext parentContext;
-  final bool fullScreen;
+  final ModalHeightModes heightMode;
 
   @override
   State<ModalNavigator> createState() => _ModalNavigatorState();
 }
 
+enum ModalHeightModes {
+  /// just render as big a modal as possible
+  fullScreen,
+  /// after first frame, read height and lock to that height
+  autoLock,
+  /// let the content size itself. jumps around when pushing different-sized pages!
+  natural
+}
+
 class _ModalNavigatorState extends State<ModalNavigator> {
+  final GlobalKey _sheetKey = GlobalKey();
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  double? _sheetHeight;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = _sheetKey.currentContext;
+      if (context == null) return;
+      if(_sheetHeight != null) return;
+
+      final box = context.findRenderObject() as RenderBox;
+      setState(() {
+        _sheetHeight = box.size.height;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    late final double? height;
+    switch(widget.heightMode) {
+      case ModalHeightModes.fullScreen:
+        height = MediaQuery.of(context).size.height; break;
+        case ModalHeightModes.autoLock:
+        height = _sheetHeight; break;
+      case ModalHeightModes.natural:
+        height = null; break;
+    }
     return Container(
-      height: widget.fullScreen ? MediaQuery.of(context).size.height : null,
+      key:_sheetKey,
+      height: height,
       child: Theme(
         data: Theme.of(context).copyWith(
           pageTransitionsTheme: PageTransitionsTheme(

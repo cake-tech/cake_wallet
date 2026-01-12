@@ -47,10 +47,16 @@ class CoinActionRow extends StatelessWidget {
             action: () {
               final sendPage = getIt.get<NewSendPage>();
               if (FeatureFlag.hasNewUiExtraPages) {
-                showMaterialModalBottomSheet(
+                CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => ModalNavigator(rootPage: sendPage,parentContext: context,),
+                  barrierColor: Colors.black.withAlpha(85),
+                  builder: (context) => FractionallySizedBox(
+                      heightFactor: 0.97,
+                      child: Material(
+                          child: ModalNavigator(
+                        rootPage: sendPage,
+                        parentContext: context,
+                      ))),
                 );
               } else {
                 Map<String, dynamic>? args;

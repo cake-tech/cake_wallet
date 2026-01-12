@@ -4,6 +4,7 @@ import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 
 class PickerItem<Item> {
@@ -54,75 +55,98 @@ class NewPicker<Item> extends StatefulWidget {
 }
 
 class _NewPickerState<Item> extends State<NewPicker<Item>> {
+  late double? sliderCurrentValue;
+
+  @override
+  void initState() {
+    super.initState();
+    sliderCurrentValue = widget.sliderInitialValue;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ModalTopBar(
-            title: widget.title,
-            leadingIcon: Icon(Icons.arrow_back_ios_new),
-            onLeadingPressed: Navigator.of(context).maybePop,
-          ),
-          SafeArea(
-            bottom: Platform.isAndroid,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.description != null && widget.description!.isNotEmpty)
-                    Text(widget.description!),
-                  ...widget.items.map((item) {
-                    return Column(children: [
-                      if (item.isSliderItem)
-                        PickerSliderButton(
-                          item: item,
-                          isSelected: widget.items.indexOf(item) == item,
-                          onSelected: (item) {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => PickerSliderPage(
-                                    title: widget.sliderPageTitle,
-                                    sliderInitialValue: widget.sliderInitialValue!,
-                                    valueDescription: widget.sliderValueDescription ?? "",
-                                    sliderMaxValue: widget.sliderMaxValue!,
-                                    onSubmitted: (value) {
-                                      widget.onSliderChanged?.call(value);
-                                    })));
-                          },
-                          isFirst: widget.items.indexOf(item) == 0,
-                          isLast: widget.items.indexOf(item) == widget.items.length - 1,
-                        )
-                      else
-                        PickerRow(
-                          item: item,
-                          isSelected: widget.items.indexOf(item) == widget.selectedIndex,
-                          onSelected: _itemSelected,
-                          isFirst: widget.items.indexOf(item) == 0,
-                          isLast: widget.items.indexOf(item) == widget.items.length - 1,
-                        ),
-                      if (widget.items.indexOf(item) != widget.items.length - 1)
-                        Container(
-                          color: Theme.of(context).colorScheme.surfaceContainer,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                            child: Container(
-                              height: 1,
-                              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                            ),
-                          ),
-                        )
-                    ]);
-                  })
-                ],
-              ),
+    return Observer(
+      builder: (_)=>Container(
+        decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ModalTopBar(
+              title: widget.title,
+              leadingIcon: Icon(Icons.arrow_back_ios_new),
+              onLeadingPressed: Navigator.of(context).maybePop,
             ),
-          )
-        ],
+            SafeArea(
+              bottom: Platform.isAndroid,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.description != null && widget.description!.isNotEmpty)
+                      Text(widget.description!),
+                    ...widget.items.map((item) {
+                      final isSelected = widget.items.indexOf(item) == widget.selectedIndex;
+                      return Column( children: [
+                        if (item.isSliderItem)
+                          PickerSliderButton(
+                            key: ValueKey(isSelected),
+                            item: item,
+                            isSelected: isSelected,
+                            onSelected: (item) {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => PickerSliderPage(
+                                      title: widget.sliderPageTitle,
+                                      sliderInitialValue: sliderCurrentValue!,
+                                      valueDescription: widget.sliderValueDescription ?? "",
+                                      sliderMaxValue: widget.sliderMaxValue!,
+                                      onSubmitted: (value) {
+                                        setState(() {
+                                          sliderCurrentValue = value;
+                                        });
+                                        widget.onSliderChanged?.call(value);
+                                        widget.onItemSelected(item);
+                                      })));
+                            },
+                            isFirst: widget.items.indexOf(item) == 0,
+                            customSubtitle: "${sliderCurrentValue?.toInt()} ${widget.sliderValueDescription}",
+                            isLast: widget.items.indexOf(item) == widget.items.length - 1,
+                          )
+                        else
+                          PickerRow(
+                            item: item,
+                            isSelected: isSelected,
+                            onSelected: _itemSelected,
+                            isFirst: widget.items.indexOf(item) == 0,
+                            isLast: widget.items.indexOf(item) == widget.items.length - 1,
+                          ),
+                        if (widget.items.indexOf(item) != widget.items.length - 1)
+                          Container(
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: Container(
+                                height: 1,
+                                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                              ),
+                            ),
+                          )
+                      ]);
+                    }),
+                    SizedBox(height: 16),
+                    NewPrimaryButton(
+                        onPressed: Navigator.of(context).maybePop,
+                        text: "Continue",
+                        color: Theme.of(context).colorScheme.primary,
+                        textColor: Theme.of(context).colorScheme.onPrimary)
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -142,12 +166,13 @@ class PickerSliderButton<Item> extends StatelessWidget {
       required this.isSelected,
       required this.onSelected,
       required this.isFirst,
-      required this.isLast});
+      required this.isLast, this.customSubtitle});
 
   final PickerItem<Item> item;
   final bool isSelected;
   final bool isFirst;
   final bool isLast;
+  final String? customSubtitle;
   final Function(Item) onSelected;
 
   @override
@@ -157,7 +182,7 @@ class PickerSliderButton<Item> extends StatelessWidget {
         onSelected(item.value);
       },
       child: Container(
-        height: 48,
+        height: 64,
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: BorderRadius.vertical(
@@ -170,8 +195,10 @@ class PickerSliderButton<Item> extends StatelessWidget {
             children: [
               Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    spacing: 8,
                     children: [
                       Text(
                         item.title,
@@ -185,12 +212,20 @@ class PickerSliderButton<Item> extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 14,
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontWeight: FontWeight.w400))
+                                fontWeight: FontWeight.w400)),
+                      if(isSelected)  SvgPicture.asset(
+                        "assets/new-ui/arrow_right.svg",
+                        colorFilter:
+                        ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),)
                     ],
                   ),
-                  if (item.subtitle != null) Text(item.subtitle!)
+                  if (customSubtitle != null || item.subtitle != null)  Text(customSubtitle ?? item.subtitle!,style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w400))
                 ],
               ),
+              isSelected? NewSimpleCheckbox(value: true, onChanged: (val){}):
               SvgPicture.asset(
                 "assets/new-ui/arrow_right.svg",
                 colorFilter:
@@ -259,14 +294,19 @@ class PickerRow<Item> extends StatelessWidget {
                                 fontWeight: FontWeight.w400))
                     ],
                   ),
-                  item.subtitle != null ? Text(item.subtitle!) : SizedBox.shrink()
+                  item.subtitle != null ? Text(item.subtitle!,style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w400)) : SizedBox.shrink()
                 ],
               ),
-              NewSimpleCheckbox(
-                  value: isSelected,
-                  onChanged: (value) {
-                    onSelected(item.value);
-                  })
+              AnimatedSwitcher(
+                duration: Duration(milliseconds: 100),
+
+                  child: isSelected
+                      ? NewSimpleCheckbox(key: ValueKey(1), value: true, onChanged: (val){onSelected(item.value);})
+                      : NewSimpleCheckbox(key: ValueKey(0), value: false, onChanged: (val){onSelected(item.value);})
+              )
             ],
           ),
         ),
@@ -344,10 +384,13 @@ class _PickerSliderPageState<Item> extends State<PickerSliderPage<Item>> {
                 ],
               ),
             ),
-            NewPrimaryButton(onPressed: (){
-              widget.onSubmitted(sliderValue);
-              Navigator.of(context).pop();
-            }, text: "Continue", color: Theme.of(context).colorScheme.primary, textColor: Theme.of(context).colorScheme.onPrimary)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: NewPrimaryButton(onPressed: (){
+                widget.onSubmitted(sliderValue);
+                Navigator.of(context).pop();
+              }, text: "Continue", color: Theme.of(context).colorScheme.primary, textColor: Theme.of(context).colorScheme.onPrimary),
+            )
           ],
         ),
       ),

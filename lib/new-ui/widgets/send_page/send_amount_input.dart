@@ -31,12 +31,11 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
           child:Row(
             children: [
               Expanded(
-                // flex:9,
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   spacing: 8,
                   children: [
-                    Expanded(child: TextField(controller: widget.amountController,
+                    Expanded(child: TextField(keyboardType:TextInputType.numberWithOptions(signed: false,decimal: true),controller: widget.amountController,
                     decoration: InputDecoration(hintText: "0"),)),
                     FloatingIconButton(
                         iconPath: "assets/new-ui/paste.svg",

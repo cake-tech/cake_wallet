@@ -6,15 +6,15 @@ import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_dropdown.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/picker.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
 import "package:cw_core/wallet_type.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
@@ -33,7 +33,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.da
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -71,12 +70,9 @@ class NewSendPage extends StatefulWidget {
 }
 
 class _NewSendPageState extends State<NewSendPage> {
-  bool _advancedOptionsExpanded = false;
   bool _fiatInputMode = false;
   int _selectedOutput = 0;
 
-  // final TextEditingController _amountController = TextEditingController();
-  // final TextEditingController _addressController = TextEditingController();
 
   List<TextEditingController> _amountControllers = [];
   List<TextEditingController> _addressControllers = [];
@@ -258,39 +254,27 @@ class _NewSendPageState extends State<NewSendPage> {
           ),
         ],),
 
+AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
+    if (widget.sendViewModel.hasFees)
+      ListItemRegularRowWidget(
+        keyValue: "",
+        label: "Fees",
+        subtitle: "~${output.estimatedFee} ${widget.sendViewModel.currency} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
 
-                                NewListSections(sections: {
-                                  "": [
-                                    ListItemDropdown(
-                                      keyValue: "",
-                                      label: "Advanced Settings",
-                                      onTap: () {
-                                        setState(() {
-                                          _advancedOptionsExpanded = !_advancedOptionsExpanded;
-                                        });
-                                      },
-                                    ),
-                                    if (_advancedOptionsExpanded && widget.sendViewModel.hasFees)
-                                      ListItemRegularRow(
-                                        keyValue: "",
-                                        label: "Fees",
-                                        subtitle: "~${output.estimatedFee} ${widget.sendViewModel.currency} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
+        onTap: () {
+          if (widget.sendViewModel.feesViewModel.hasFeesPriority)
+            pickTransactionPriority(context, output);
+        },
+      ),
+      ListItemRegularRowWidget(
+        keyValue: "",
+        label: "Coin Control",
+        onTap: () {
+          Navigator.of(context).pushNamed(Routes.unspentCoinsList);
+        },
+      )
+  ]))
 
-                                        onTap: () {
-                                          if (widget.sendViewModel.feesViewModel.hasFeesPriority)
-                                            pickTransactionPriority(context, output);
-                                        },
-                                      ),
-                                    if (_advancedOptionsExpanded)
-                                      ListItemRegularRow(
-                                        keyValue: "",
-                                        label: "Coin Control",
-                                        onTap: () {
-                                          Navigator.of(context).pushNamed(Routes.unspentCoinsList);
-                                        },
-                                      )
-                                  ]
-                                })
                               ],
                             ),
                           ),
@@ -399,7 +383,8 @@ class _NewSendPageState extends State<NewSendPage> {
                                           widget.sendViewModel.state is ExecutedSuccessfullyState,
                                     );
                                   },
-                                )
+                                ),
+                                SizedBox(),
                               ],
                             ),
                           )
@@ -770,8 +755,7 @@ class _NewSendPageState extends State<NewSendPage> {
     final customItemIndex = widget.sendViewModel.feesViewModel.getCustomPriorityIndex(items);
     final isBitcoinWallet = widget.sendViewModel.walletType == WalletType.bitcoin;
     final maxCustomFeeRate = widget.sendViewModel.feesViewModel.maxCustomFeeRate?.toDouble();
-    double? customFeeRate =
-        isBitcoinWallet ? widget.sendViewModel.feesViewModel.customBitcoinFeeRate.toDouble() : null;
+
 
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -780,40 +764,47 @@ class _NewSendPageState extends State<NewSendPage> {
       expand: false,
       builder: (BuildContext modalContext) {
         int selectedIdx = selectedItem;
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return IntrinsicHeight(
-              // height: MediaQuery.of(context).size.height*0.4,
-              child: ModalNavigator(
-                parentContext: modalContext,
-                fullScreen: false,
-                  rootPage: NewPicker(
-                    title: "Set Fees",
-                      sliderPageTitle: "Custom Fee",
-                      sliderInitialValue: customFeeRate,
-                      sliderMaxValue: maxCustomFeeRate,
-                      sliderValueDescription: "sat/byte",
-                      items: items
-                          .map((item) => PickerItem<TransactionPriority>(
-                                title: item.title,
-                                subtitle: item.description,
-                                hint: item.hint,
-                                value: item,
-                        isSliderItem: items.indexOf(item) == customItemIndex,
-                              ))
-                          .toList(),
-                      onItemSelected: (TransactionPriority priority) async {
-                        widget.sendViewModel.feesViewModel.setTransactionPriority(priority);
-                        setState(() => selectedIdx = items.indexOf(priority));
-                        await output.calculateEstimatedFee();
-                      },
-                      selectedIndex: selectedIdx)),
+        return Observer(
+          builder: (context) {
+            double? customFeeRate =
+            isBitcoinWallet ? widget.sendViewModel.feesViewModel.customBitcoinFeeRate.toDouble() : null;
+            return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return IntrinsicHeight(
+                  // height: MediaQuery.of(context).size.height*0.4,
+                  child: ModalNavigator(
+                    parentContext: modalContext,
+                      heightMode: ModalHeightModes.autoLock,
+                      rootPage: NewPicker(
+                        title: "Set Fees",
+                          sliderPageTitle: "Custom Fee",
+                          sliderInitialValue: customFeeRate,
+                          sliderMaxValue: maxCustomFeeRate,
+                          sliderValueDescription: "sat/byte",
+                          items: items
+                              .map((item) => PickerItem<TransactionPriority>(
+                                    title: item.title,
+                                    subtitle: item.description,
+                                    hint: item.hint,
+                                    value: item,
+                            isSliderItem: items.indexOf(item) == customItemIndex,
+                                  ))
+                              .toList(),
+                          onItemSelected: (TransactionPriority priority) async {
+                            widget.sendViewModel.feesViewModel.setTransactionPriority(priority);
+                            setState(() => selectedIdx = items.indexOf(priority));
+                            await output.calculateEstimatedFee();
+                          },
+                          onSliderChanged: (double value) {
+                          widget.sendViewModel.feesViewModel.customBitcoinFeeRate = value.round();
+                          },
+                          selectedIndex: selectedIdx)),
+                );
+              },
             );
-          },
+          }
         );
       },
     );
-    if (isBitcoinWallet)
-      widget.sendViewModel.feesViewModel.customBitcoinFeeRate = customFeeRate!.round();
   }
 }
