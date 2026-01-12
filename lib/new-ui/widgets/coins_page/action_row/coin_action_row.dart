@@ -76,12 +76,13 @@ class CoinActionRow extends StatelessWidget {
             label: S.of(context).receive,
             action: () async {
               if (FeatureFlag.hasNewUiExtraPages) {
-                showModalBottomSheet(
+                final page = getIt.get<NewReceivePage>();
+                CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
-                  isScrollControlled: true,
+                  barrierColor: Colors.black.withAlpha(80),
                   builder: (context) => FractionallySizedBox(
-                    heightFactor: 0.9,
-                    child: ModalNavigator(rootPage: getIt.get<NewReceivePage>())
+                    heightFactor: 0.97,
+                    child: Material(child: ModalNavigator(rootPage: page))
                   ),
                 );
               } else {
