@@ -3,9 +3,9 @@ import 'package:cw_core/wallet_type.dart';
 
 CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false, int? chainId}) {
   if (chainId != null) {
-   return getCryptoCurrencyByChainId(chainId);
+    return getCryptoCurrencyByChainId(chainId);
   }
-  
+
   switch (type) {
     case WalletType.monero:
       return CryptoCurrency.xmr;
@@ -80,4 +80,12 @@ int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
     default:
       return null;
   }
+}
+
+CryptoCurrency getCryptoCurrencyForWalletListItem(WalletType type, {int? chainId}) {
+  if (type == WalletType.arbitrum) {
+    return CryptoCurrency.arb;
+  }
+
+  return walletTypeToCryptoCurrency(type, chainId: chainId);
 }
