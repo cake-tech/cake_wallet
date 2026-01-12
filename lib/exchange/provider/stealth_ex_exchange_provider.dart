@@ -439,6 +439,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
   String _getName(CryptoCurrency currency) {
     if (currency == CryptoCurrency.usdcEPoly) return 'usdce';
+    if (currency == CryptoCurrency.tzec) return 'zec';
     return currency.title.toLowerCase();
   }
 
@@ -454,6 +455,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
     if (currency.tag == null) return 'mainnet';
 
     if (currency == CryptoCurrency.maticpoly) return 'mainnet';
+    if (currency == CryptoCurrency.tzec) return 'mainnet';
 
     if (currency.tag == 'POLY') return 'matic';
 

@@ -347,9 +347,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
   static String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
-      case CryptoCurrency.zaddr:
-        return 'zec';
-      case CryptoCurrency.zec:
+      case CryptoCurrency.tzec:
         return 'zec';
       case CryptoCurrency.bnb:
         return currency.tag!.toLowerCase();

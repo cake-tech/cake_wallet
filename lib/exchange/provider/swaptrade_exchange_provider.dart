@@ -19,21 +19,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   SwapTradeExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
   static final List<CryptoCurrency> _notSupported = [
-    ...(CryptoCurrency.all
-        .where((element) => ![
-              CryptoCurrency.btc,
-              CryptoCurrency.sol,
-              CryptoCurrency.eth,
-              CryptoCurrency.ltc,
-              CryptoCurrency.ada,
-              CryptoCurrency.bch,
-              CryptoCurrency.usdterc20,
-              CryptoCurrency.usdttrc20,
-              CryptoCurrency.bnb,
-              CryptoCurrency.xmr,
               CryptoCurrency.zec,
-            ].contains(element))
-        .toList())
+              CryptoCurrency.zaddr,
   ];
 
   static final markup = secrets.swapTradeExchangeMarkup;
@@ -70,6 +57,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
+
+    if (_notSupported.contains(from) || _notSupported.contains(to)) {
+      throw Exception ('One of the selected currencies is not supported for limits.');
+    }
+
     try {
       final uri = Uri.https(apiAuthority, getCoins);
       final response = await ProxyWrapper().get(clearnetUri: uri);
@@ -109,6 +101,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       if (amount == 0) return 0.0;
+      if (_notSupported.contains(from) || _notSupported.contains(to)) return 0.0;
 
       final params = <String, dynamic>{};
       final body = <String, String>{
@@ -397,6 +390,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
   String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
+      case CryptoCurrency.tzec:
+        return 'ZEC';
       default:
         return currency.title.toUpperCase();
     }

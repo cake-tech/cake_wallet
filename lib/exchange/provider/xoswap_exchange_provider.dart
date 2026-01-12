@@ -15,7 +15,11 @@ import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 class XOSwapExchangeProvider extends ExchangeProvider {
   XOSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
-  static const List<CryptoCurrency> _notSupported = [];
+  static final List<CryptoCurrency> _notSupported = [
+    CryptoCurrency.zaddr,
+    CryptoCurrency.zec,
+
+  ];
 
   static const _apiAuthority = 'exchange.exodus.io';
   static const _apiPath = '/v3';
@@ -44,6 +48,10 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     'EOS': 'eosio',
     'XLM': 'stellar',
     'BASE': 'basemainnet',
+  };
+
+  final _title = <String, String>{
+    'tZEC': 'ZEC',
   };
   
   static const supportedTags = [
@@ -97,13 +105,14 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   Future<String?> _getAssets(CryptoCurrency currency) async {
+    if (_notSupported.contains(currency)) return null;
     if (currency.tag == null) return currency.title;
     try {
       final normalizedNetwork = _networks[currency.tag];
       if (normalizedNetwork == null) return null;
 
       final uri = Uri.https(_apiAuthority, _apiPath + _assets,
-          {'networks': normalizedNetwork, 'query': currency.title});
+          {'networks': normalizedNetwork, 'query': _title[currency.title] ?? currency.title});
 
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
       
@@ -117,7 +126,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
 
       final asset = assets.firstWhere(
-        (asset) => removeNonAlphanumeric((asset['symbol'] ?? '').toString()) == currency.title,
+        (asset) => removeNonAlphanumeric((asset['symbol'] ?? '').toString()) == (_title[currency.title] ?? currency.title),
         orElse: () => const {},
       );
 

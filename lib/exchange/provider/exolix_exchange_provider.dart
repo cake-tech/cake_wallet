@@ -24,22 +24,12 @@ class ExolixExchangeProvider extends ExchangeProvider {
   static const ratePath = '/api/v2/rate';
 
   static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.usdt,
     CryptoCurrency.xhv,
     CryptoCurrency.btt,
     CryptoCurrency.firo,
     CryptoCurrency.zaddr,
-    CryptoCurrency.xvg,
-    CryptoCurrency.kmd,
-    CryptoCurrency.paxg,
-    CryptoCurrency.rune,
-    CryptoCurrency.scrt,
-    CryptoCurrency.btcln,
-    CryptoCurrency.cro,
-    CryptoCurrency.ftm,
-    CryptoCurrency.frax,
+    CryptoCurrency.zec,
     CryptoCurrency.gusd,
-    CryptoCurrency.gtc,
     CryptoCurrency.weth,
   ];
 
@@ -67,6 +57,10 @@ class ExolixExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
+    if (_notSupported.contains(from) || _notSupported.contains(to)) {
+      throw Exception ('One of the selected currencies is not supported for limits.');
+    }
+
     final params = <String, String>{
       'rateType': _getRateType(isFixedRateMode),
       'amount': '1',
@@ -121,6 +115,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       if (amount == 0) return 0.0;
+      if (_notSupported.contains(from) || _notSupported.contains(to)) return 0.0;
 
       final params = {
         'coinFrom': _normalizeCurrency(from),
@@ -432,7 +427,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         return 'XNO';
       case CryptoCurrency.bttc:
         return 'BTT';
-      case CryptoCurrency.zec:
+      case CryptoCurrency.tzec:
         return 'ZEC';
       default:
         return currency.title;

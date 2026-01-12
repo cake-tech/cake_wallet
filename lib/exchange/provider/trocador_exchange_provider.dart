@@ -492,7 +492,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
-      case CryptoCurrency.zec:
+      case CryptoCurrency.tzec:
         return 'zec';
       case CryptoCurrency.usdcEPoly:
         return 'usdce';
