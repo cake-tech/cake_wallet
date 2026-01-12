@@ -464,7 +464,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final appFees = [
       {
         "recipient": _appFeeRecipientNearIntents,
-        "fee": 100,
+        "fee": _appFeesNearIntents,
       }
     ];
 
