@@ -47,7 +47,7 @@ abstract class ContactListViewModelBase with Store {
             walletContacts.add(WalletContact(
               address.address,
               name,
-              walletTypeToCryptoCurrency(
+              getCryptoCurrencyForWalletListItem(
                 info.type,
               ),
               walletType: info.type,
@@ -62,7 +62,7 @@ abstract class ContactListViewModelBase with Store {
           walletContacts.add(WalletContact(
             address,
             name,
-            walletTypeToCryptoCurrency(
+            getCryptoCurrencyForWalletListItem(
               info.type,
             ),
             walletType: info.type,
@@ -76,7 +76,7 @@ abstract class ContactListViewModelBase with Store {
             walletContacts.add(WalletContact(
               address,
               name,
-              walletTypeToCryptoCurrency(
+              getCryptoCurrencyForWalletListItem(
                 info.type,
                 isTestnet:
                     info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
@@ -92,7 +92,7 @@ abstract class ContactListViewModelBase with Store {
               key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
                   ? 0
                   : null),
-          walletTypeToCryptoCurrency(
+          getCryptoCurrencyForWalletListItem(
             info.type,
           ),
           walletType: info.type,

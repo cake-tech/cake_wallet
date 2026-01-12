@@ -82,10 +82,10 @@ int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
   }
 }
 
-CryptoCurrency getCryptoCurrencyForWalletListItem(WalletType type, {int? chainId}) {
+CryptoCurrency getCryptoCurrencyForWalletListItem(WalletType type, {bool isTestnet = false, int? chainId}) {
   if (type == WalletType.arbitrum) {
     return CryptoCurrency.arb;
   }
 
-  return walletTypeToCryptoCurrency(type, chainId: chainId);
+  return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId);
 }
