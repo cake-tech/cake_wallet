@@ -257,19 +257,19 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const zec = CryptoCurrency(title: 'ZEC', fullName: 'Zcash', raw: 107, name: 'zec', iconPath: 'assets/images/zec_icon.png', decimals: 8);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
-    [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
+    [...all, ...havenCurrencies, ...zcashCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
       acc.addAll({item.raw: item});
       return acc;
     });
 
   static final Map<String, CryptoCurrency> _nameCurrencyMap =
-    [...all, ...havenCurrencies].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
+    [...all, ...havenCurrencies, ...zcashCurrencies].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
       acc.addAll({item.name: item});
       return acc;
     });
 
   static final Map<String, CryptoCurrency> _fullNameCurrencyMap =
-    [...all, ...havenCurrencies].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
+    [...all, ...havenCurrencies, ...zcashCurrencies].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
       if(item.fullName != null){
         acc.addAll({item.fullName!.toLowerCase(): item});
       }
