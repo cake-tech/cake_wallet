@@ -17,10 +17,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class NearIntentsExchangeProvider extends ExchangeProvider {
-  NearIntentsExchangeProvider()
-      : super(pairList: supportedPairs(_notSupported));
-
-  static const List<CryptoCurrency> _notSupported = [];
+  NearIntentsExchangeProvider();
 
   static const apiKey = secrets.nearIntentsBearerToken;
   static const _baseUrl = '1click.chaindefuser.com';
@@ -44,7 +41,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     // UTXO
     'LTC': 'ltc1qhdwz74m3wuuhppv2mckagqk9e2e49z5j4kucnv',
     'BTC': 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080',
-    'ZZEC': 't1Zcash4hPS2bq8rTQkN9bKpZV1X4W3pZxK',
     'DOGE': 'D9t7rGQ9mE3hJ2z1w8pGQxkGmKjYwYc8pQ',
     'BCH': 'qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a',
 
@@ -468,7 +464,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final appFees = [
       {
         "recipient": _appFeeRecipientNearIntents,
-        "fee": _appFeesNearIntents,
+        "fee": 100,
       }
     ];
 
@@ -532,15 +528,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     };
   }
 
-  String _normalizeTitleToNearSymbol(CryptoCurrency currency) {
-    final title = currency.title.toUpperCase();
-    return switch (title) {
-      'TZEC' => 'ZEC',
-      'ZZEC' => 'ZEC',
-      _ => title,
-    };
-  }
-
   String? _normalizeTagToNearBlockchain(String? tag) {
     return switch (tag) {
       'TRX' => 'tron',
@@ -560,7 +547,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   Token? currencyToNearAssetId(CryptoCurrency currency, List<Token> supported) {
     if (supported.isEmpty) return null;
 
-    final symbol = _normalizeTitleToNearSymbol(currency).toUpperCase();
+    final symbol = currency.title.toUpperCase();
     final blockchain = _normalizeTagToNearBlockchain(currency.tag);
 
     // Native asset (no contract)

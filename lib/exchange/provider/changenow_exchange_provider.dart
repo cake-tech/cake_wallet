@@ -21,14 +21,8 @@ import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 class ChangeNowExchangeProvider extends ExchangeProvider {
   ChangeNowExchangeProvider({required SettingsStore settingsStore})
       : _settingsStore = settingsStore,
-        _lastUsedRateId = '',
-        super(pairList: supportedPairs(_notSupported));
+        _lastUsedRateId = '';
 
-  static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.zaddr,
-    CryptoCurrency.zec,
-    CryptoCurrency.xhv,
-  ];
 
   static final apiKey =
       isMoneroOnly ? secrets.changeNowMoneroApiKey : secrets.changeNowCakeWalletApiKey;
@@ -66,11 +60,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
     final headers = {apiHeaderKey: apiKey};
-
-    if (_notSupported.contains(from) || _notSupported.contains(to)) {
-      throw Exception ('One of the selected currencies is not supported for limits.');
-    }
-
     final params = <String, String>{
       'fromCurrency': _normalizeCurrency(from),
       'toCurrency': _normalizeCurrency(to),
@@ -106,7 +95,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       if (amount == 0) return 0.0;
-      if (_notSupported.contains(from) || _notSupported.contains(to)) return 0.0;
 
       final headers = {apiHeaderKey: apiKey};
       final isReverse = isReceiveAmount;
@@ -345,7 +333,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       throw "Only Bridged USDC (USDC.e) is allowed in ChangeNow";
     }
     switch (currency) {
-      case CryptoCurrency.tzec:
+      case CryptoCurrency.zec:
         return 'zec';
       default:
         return currency.title.toLowerCase();

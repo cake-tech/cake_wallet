@@ -16,22 +16,12 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ExolixExchangeProvider extends ExchangeProvider {
-  ExolixExchangeProvider() : super(pairList: supportedPairs(_notSupported));
+  ExolixExchangeProvider();
 
   static final apiKey = isMoneroOnly ? secrets.exolixMoneroApiKey : secrets.exolixCakeWalletApiKey;
   static const apiBaseUrl = 'exolix.com';
   static const transactionsPath = '/api/v2/transactions';
   static const ratePath = '/api/v2/rate';
-
-  static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.xhv,
-    CryptoCurrency.btt,
-    CryptoCurrency.firo,
-    CryptoCurrency.zaddr,
-    CryptoCurrency.zec,
-    CryptoCurrency.gusd,
-    CryptoCurrency.weth,
-  ];
 
   @override
   String get title => 'Exolix';
@@ -57,10 +47,6 @@ class ExolixExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    if (_notSupported.contains(from) || _notSupported.contains(to)) {
-      throw Exception ('One of the selected currencies is not supported for limits.');
-    }
-
     final params = <String, String>{
       'rateType': _getRateType(isFixedRateMode),
       'amount': '1',
@@ -115,7 +101,6 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       if (amount == 0) return 0.0;
-      if (_notSupported.contains(from) || _notSupported.contains(to)) return 0.0;
 
       final params = {
         'coinFrom': _normalizeCurrency(from),
@@ -427,7 +412,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         return 'XNO';
       case CryptoCurrency.bttc:
         return 'BTT';
-      case CryptoCurrency.tzec:
+      case CryptoCurrency.zec:
         return 'ZEC';
       default:
         return currency.title;

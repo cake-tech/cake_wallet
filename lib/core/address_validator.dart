@@ -135,8 +135,6 @@ class AddressValidator extends TextValidator {
             '|[13][a-km-zA-HJ-NP-Z1-9]{25,34}';
       case CryptoCurrency.hbar:
         pattern = '[0-9a-zA-Z.]+';
-      case CryptoCurrency.zaddr:
-        pattern = 'zs[0-9a-zA-Z]{75}';
       case CryptoCurrency.zec:
         pattern =
           '(?:'
@@ -289,8 +287,6 @@ class AddressValidator extends TextValidator {
         return [34];
       case CryptoCurrency.zen:
         return [35];
-      case CryptoCurrency.zaddr:
-        return null;
       case CryptoCurrency.zec:
         return null;
       case CryptoCurrency.kmd:

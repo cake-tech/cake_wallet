@@ -62,9 +62,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.hbar,
     CryptoCurrency.sc,
     CryptoCurrency.usdcsol,
-    CryptoCurrency.zaddr,
     CryptoCurrency.zec,
-    CryptoCurrency.tzec,
     CryptoCurrency.zen,
     CryptoCurrency.xvg,
     CryptoCurrency.usdcpoly,
@@ -186,8 +184,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const sol = CryptoCurrency(title: 'SOL', fullName: 'Solana', raw: 39, name: 'sol', iconPath: 'assets/images/crypto/solana.webp', decimals: 9);
   static const usdc = CryptoCurrency(title: 'USDC', tag: 'ETH', fullName: 'USD Coin', raw: 40, name: 'usdc', iconPath: 'assets/images/crypto/usdc.webp', decimals: 6);
   static const usdcsol = CryptoCurrency(title: 'USDC', tag: 'SOL', fullName: 'USDC Coin', raw: 41, name: 'usdcsol', iconPath: 'assets/images/crypto/usdc.webp', decimals: 6);
-  static const zaddr = CryptoCurrency(title: 'ZZEC', tag: 'ZEC', fullName: 'Shielded Zcash', raw: 42, name: 'zaddr', iconPath: 'assets/images/zec_icon.png', decimals: 8);
-  static const tzec = CryptoCurrency(title: 'tZEC', tag: 'ZEC', fullName: 'Transparent Zcash', raw: 43, name: 'zec', iconPath: 'assets/images/zec_icon.png', decimals: 8);
+  static const zec = CryptoCurrency(title: 'ZEC', fullName: 'Zcash', raw: 43, name: 'zec', iconPath: 'assets/images/zec_icon.png', decimals: 8);
   static const zen = CryptoCurrency(title: 'ZEN', fullName: 'Horizen', raw: 44, name: 'zen', iconPath: 'assets/images/zen_icon.png', decimals: 8);
   static const xvg = CryptoCurrency(title: 'XVG', fullName: 'Verge', raw: 45, name: 'xvg', iconPath: 'assets/images/xvg_icon.png', decimals: 8);
 
@@ -252,7 +249,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const baseEth = CryptoCurrency(title: 'ETH', tag: 'BASE', fullName: 'Ethereum', raw: 104, name: 'baseth', iconPath: 'assets/images/crypto/base_icon.webp', decimals: 18);
   static const usde = CryptoCurrency(title: 'USDE', tag: 'BASE', fullName: 'Ethena USDE', raw: 105, name: 'usde', iconPath: 'assets/images/crypto/ethena-usde-logo.png', decimals: 18);
   static const arbEth = CryptoCurrency(title: 'ETH', tag: 'ARB', fullName: 'Arbitrum', raw: 106, name: 'arbeth', iconPath: 'assets/images/crypto/arbitrum.webp', decimals: 18);
-  static const zec = CryptoCurrency(title: 'ZEC', tag: 'ZEC', fullName: 'Zcash', raw: 107, name: 'zec', iconPath: 'assets/images/zec_icon.png', decimals: 8);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {

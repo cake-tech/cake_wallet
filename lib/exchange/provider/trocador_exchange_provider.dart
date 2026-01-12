@@ -17,8 +17,7 @@ import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 class TrocadorExchangeProvider extends ExchangeProvider {
   TrocadorExchangeProvider({this.useTorOnly = false, this.providerStates = const {}})
       : _lastUsedRateId = '',
-        _provider = [],
-        super(pairList: supportedPairs(_notSupported));
+        _provider = [];
 
   bool useTorOnly;
   Map<String, bool> providerStates;
@@ -46,11 +45,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     'WizardSwap',
     'Quantex',
     'SwapSpace',
-  ];
-
-  static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.stx,
-    CryptoCurrency.zaddr,
   ];
 
   static final apiKey = isMoneroOnly ? secrets.trocadorMoneroApiKey : secrets.trocadorApiKey;
@@ -492,7 +486,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
-      case CryptoCurrency.tzec:
+      case CryptoCurrency.zec:
         return 'zec';
       case CryptoCurrency.usdcEPoly:
         return 'usdce';

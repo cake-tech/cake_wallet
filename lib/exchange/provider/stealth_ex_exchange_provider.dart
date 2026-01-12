@@ -15,9 +15,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class StealthExExchangeProvider extends ExchangeProvider {
-  StealthExExchangeProvider() : super(pairList: supportedPairs(_notSupported));
-
-  static const List<CryptoCurrency> _notSupported = [];
+  StealthExExchangeProvider();
 
   static final apiKey = secrets.stealthExBearerToken;
   static final _additionalFeePercent = double.tryParse(secrets.stealthExAdditionalFeePercent);
@@ -439,7 +437,6 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
   String _getName(CryptoCurrency currency) {
     if (currency == CryptoCurrency.usdcEPoly) return 'usdce';
-    if (currency == CryptoCurrency.tzec) return 'zec';
     return currency.title.toLowerCase();
   }
 
@@ -455,7 +452,6 @@ class StealthExExchangeProvider extends ExchangeProvider {
     if (currency.tag == null) return 'mainnet';
 
     if (currency == CryptoCurrency.maticpoly) return 'mainnet';
-    if (currency == CryptoCurrency.tzec) return 'mainnet';
 
     if (currency.tag == 'POLY') return 'matic';
 

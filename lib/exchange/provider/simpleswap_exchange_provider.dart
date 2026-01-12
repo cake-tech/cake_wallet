@@ -16,12 +16,8 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class SimpleSwapExchangeProvider extends ExchangeProvider {
-  SimpleSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
+  SimpleSwapExchangeProvider();
 
-  static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.zaddr,
-    CryptoCurrency.xhv,
-  ];
 
   static final apiKey =
       DeviceInfo.instance.isMobile ? secrets.simpleSwapApiKey : secrets.simpleSwapApiKeyDesktop;
@@ -347,7 +343,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
   static String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
-      case CryptoCurrency.tzec:
+      case CryptoCurrency.zec:
         return 'zec';
       case CryptoCurrency.bnb:
         return currency.tag!.toLowerCase();

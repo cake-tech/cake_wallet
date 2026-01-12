@@ -16,12 +16,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class LetsExchangeExchangeProvider extends ExchangeProvider {
-  LetsExchangeExchangeProvider() : super(pairList: supportedPairs(_notSupported));
-
-  static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.zaddr,
-    CryptoCurrency.zec,
-  ];
+  LetsExchangeExchangeProvider();
 
   static const apiKey = secrets.letsExchangeBearerToken;
   static const _baseUrl = 'api.letsexchange.io';
@@ -56,11 +51,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
-
-    if (_notSupported.contains(from) || _notSupported.contains(to)) {
-      throw Exception ('One of the selected currencies is not supported for limits.');
-    }
-
     final networkFrom = _getNetworkType(from);
     final networkTo = _getNetworkType(to);
 
@@ -93,9 +83,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isReceiveAmount
   }) async {
-
-    if (_notSupported.contains(from) || _notSupported.contains(to)) return 0.0;
-
     final networkFrom = _getNetworkType(from);
     final networkTo = _getNetworkType(to);
     try {
