@@ -20,35 +20,32 @@ class NewPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: SizedBox(
-        width: 340.0,
-        height: 52.0,
-        child: TextButton(
-          onPressed: onPressed,
-          style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all(color),
-              shape: WidgetStateProperty.all<RoundedSuperellipseBorder>(
-                RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.circular(16.0),
+    return SizedBox(
+      height: 52.0,
+      child: TextButton(
+        onPressed: onPressed,
+        style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.all(color),
+            shape: WidgetStateProperty.all<RoundedSuperellipseBorder>(
+              RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+            )),
+        child: Center(
+          child: Row(
+            spacing: 10,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if(image != null) image!,
+              Text(
+                text,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
                 ),
-              )),
-          child: Center(
-            child: Row(
-              spacing: 10,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                if(image != null) image!,
-                Text(
-                  text,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
-                )
-              ],
-            ),
+              )
+            ],
           ),
         ),
       ),

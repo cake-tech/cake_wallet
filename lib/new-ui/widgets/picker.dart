@@ -86,7 +86,8 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.description != null && widget.description!.isNotEmpty)
-                      Text(widget.description!),
+                      Text(widget.description!,textAlign: TextAlign.center,style: TextStyle(fontSize:14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurfaceVariant),),
+                    SizedBox(height:24),
                     ...widget.items.map((item) {
                       final isSelected = widget.items.indexOf(item) == widget.selectedIndex;
                       return Column( children: [

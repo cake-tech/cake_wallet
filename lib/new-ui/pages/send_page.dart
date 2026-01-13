@@ -794,6 +794,7 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
                       heightMode: ModalHeightModes.autoLock,
                       rootPage: NewPicker(
                         title: "Set Fees",
+                          description: "Depending on the fee amount, the deposit will go through faster",
                           sliderPageTitle: "Custom Fee",
                           sliderInitialValue: customFeeRate,
                           sliderMaxValue: maxCustomFeeRate,

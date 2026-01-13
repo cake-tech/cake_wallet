@@ -387,16 +387,20 @@ class TransactionErrorActions extends StatelessWidget {
         Row(
           spacing: 8,
           children: [
-            NewPrimaryButton(
-                onPressed: () {},
-                text: "More details",
-                color: Theme.of(context).colorScheme.surfaceContainer,
-                textColor: Theme.of(context).colorScheme.primary),
-            NewPrimaryButton(
-                onPressed: Navigator.of(context).pop,
-                text: "Close",
-                color: Theme.of(context).colorScheme.primary,
-                textColor: Theme.of(context).colorScheme.onPrimary),
+            Flexible(
+              child: NewPrimaryButton(
+                  onPressed: () {},
+                  text: "More details",
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  textColor: Theme.of(context).colorScheme.primary),
+            ),
+            Flexible(
+              child: NewPrimaryButton(
+                  onPressed: Navigator.of(context).pop,
+                  text: "Close",
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary),
+            ),
           ],
         )
       ],
