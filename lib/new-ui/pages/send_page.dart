@@ -376,8 +376,12 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
                                           conditionToDetermineIfToUse2FA: check,
                                           onAuthSuccess: (value) async {
                                             if (value) {
-                                              showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparent, builder: (context){
-                                                return SendConfirmSheet(sendViewModel: widget.sendViewModel,);
+                                              showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparent, builder: (context) {
+                                                return SendConfirmSheet(sendViewModel: widget
+                                                    .sendViewModel,);
+                                              }).then((value)async{
+                                                widget.sendViewModel.dismissTransaction();
+
                                               });
                                               await widget.sendViewModel.createTransaction();
                                             }
