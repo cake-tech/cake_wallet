@@ -14,6 +14,7 @@ class ReceiveInfoBox extends StatelessWidget {
       case WalletType.arbitrum:
       case WalletType.tron:
       case WalletType.polygon:
+      case WalletType.zano:
         iconPath = "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg";
         message = "Use this address to receive any token or collectible on ${walletTypeToString(type)}";
         break;
