@@ -33,6 +33,11 @@ class EVMChainClient {
   Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
+      if (secrets.etherScanApiKey.isEmpty) {
+        printV('Etherscan API key is empty, cannot fetch transactions');
+        return [];
+      }
+
       /// when adding new chains, make sure they are supported by the same api through https://docs.etherscan.io/supported-chains
       final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
         "chainid": "$chainId",
@@ -96,7 +101,8 @@ class EVMChainClient {
             .toList();
       }
 
-      printV('Etherscan API returned invalid response for internal transactions: status=${jsonResponse['status']}, statusCode=${response.statusCode}');
+      printV(
+          'Etherscan API returned invalid response for internal transactions: status=${jsonResponse['status']}, statusCode=${response.statusCode}');
       return [];
     } catch (e, stackTrace) {
       printV('Error fetching internal transactions: ${e.toString()}');
