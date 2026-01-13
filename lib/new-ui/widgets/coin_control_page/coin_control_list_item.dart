@@ -44,7 +44,7 @@ class CoinControlListItem extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0,vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

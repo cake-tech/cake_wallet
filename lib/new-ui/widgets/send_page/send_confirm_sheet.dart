@@ -78,7 +78,7 @@ class SendTransactionDetails extends StatelessWidget {
     final transaction = sendViewModel.pendingTransaction;
 
     final amount = (transaction == null)
-        ? sendViewModel.outputs.first.cryptoAmount
+        ? sendViewModel.outputs.first.roundedCryptoAmount(8)
         : transaction.amountFormatted;
 
     final fee = (transaction == null)

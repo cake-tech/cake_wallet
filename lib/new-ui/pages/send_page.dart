@@ -47,6 +47,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -128,7 +129,7 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.sendViewModel.outputs.length > 1)
                             ModernButton(
                                 size: 36,
-                                icon: Icon(Icons.delete_forever_outlined),
+                                icon: SvgPicture.asset("assets/new-ui/remove_recipient.svg",colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn),),
                                 onPressed: () {
                                   final outputIndex = _selectedOutput;
                                   if (_selectedOutput != 0) {
@@ -233,8 +234,8 @@ class _NewSendPageState extends State<NewSendPage> {
                   }),
               Observer(
                   builder: (_) => Text( _fiatInputMode
-                      ? "${output.cryptoAmount.isEmpty ? "0" : output.cryptoAmount} ${widget.sendViewModel.selectedCryptoCurrency.title}"
-                      : "${output.cryptoAmount.isEmpty ? "0" : output.fiatAmount} ${widget.sendViewModel.fiatCurrency.title}",)),
+                      ? "${output.cryptoAmount.isEmpty ? "0" : _wrapAmount(output.roundedCryptoAmount(6), 20)} ${widget.sendViewModel.selectedCryptoCurrency.title}"
+                      : "${output.cryptoAmount.isEmpty ? "0" : _wrapAmount(output.roundedFiatAmount(6), 20)} ${widget.sendViewModel.fiatCurrency.title}",)),
             ],
           ),
           Row(
@@ -822,5 +823,9 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
         );
       },
     );
+  }
+
+  String _wrapAmount(String amount, int maxChars) {
+    return amount.length <= maxChars ? amount : amount.substring(0, maxChars-3)+"...";
   }
 }
