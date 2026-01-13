@@ -30,7 +30,6 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_util.d
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cake_wallet/zano/zano.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
@@ -532,7 +531,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @action
   Future<void> rotateAddress() async{
     await createNewAddress(wallet, "");
-    if(wallet.type == WalletType.monero || wallet.walletAddresses is ElectrumWalletAddresses) {
+    if(isElectrumWallet) {
       wallet.walletAddresses.address = (addressList.last as WalletAddressListItem).address;
     }
   }
