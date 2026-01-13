@@ -581,10 +581,16 @@ abstract class EVMChainWalletBase
       final gasBaseFee = await _client.getGasBaseFee();
       final gasPrice = await _client.getGasUnitPrice();
 
+      // Validate that we got valid gas price
+      if (gasPrice <= 0) {
+        printV('Invalid gas price received: $gasPrice');
+        throw EVMChainTransactionFeesException('Failed to retrieve gas price from node');
+      }
+
       int maxFeePerGas;
       int adjustedGasPrice;
 
-      if (gasBaseFee != null) {
+      if (gasBaseFee != null && gasBaseFee > 0) {
         // For chains with base fee, add priority fee (if supported) and a buffer to account for base fee increases
         // Base fee can increase between estimation and transaction submission
         final baseFeeWithPriority = gasBaseFee + priorityFee;
@@ -613,6 +619,12 @@ abstract class EVMChainWalletBase
         data: data,
       );
 
+      // Validate that we got valid gas estimate
+      if (estimatedGas <= 0) {
+        printV('Invalid gas estimate received: $estimatedGas');
+        throw EVMChainTransactionFeesException('Failed to estimate gas units for transaction');
+      }
+
       final totalGasFee = estimatedGas * adjustedGasPrice;
 
       return GasParamsHandler(
@@ -622,7 +634,11 @@ abstract class EVMChainWalletBase
         gasPrice: adjustedGasPrice,
       );
     } catch (e) {
-      return GasParamsHandler.zero();
+      printV('Error calculating estimated fee: ${e.toString()}');
+      if (e is EVMChainTransactionFeesException) {
+        rethrow;
+      }
+      throw EVMChainTransactionFeesException('Failed to calculate transaction fees: ${e.toString()}');
     }
   }
 
@@ -796,7 +812,7 @@ abstract class EVMChainWalletBase
 
       // check the fees on the base currency
       if (estimatedFeesForTransaction > balance[currency]!.balance) {
-        throw EVMChainTransactionFeesException(currency.title);
+        throw EVMChainTransactionFeesException.fromCurrency(currency.title);
       }
 
       if (currencyBalance.balance < totalAmount) {

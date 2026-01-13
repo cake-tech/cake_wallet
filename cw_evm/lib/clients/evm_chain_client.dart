@@ -71,6 +71,11 @@ class EVMChainClient {
 
   Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
     try {
+      if (secrets.etherScanApiKey.isEmpty) {
+        log('Etherscan API key is empty, cannot fetch internal transactions');
+        return [];
+      }
+
       final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
         "chainid": "$chainId",
         "module": "account",
@@ -90,9 +95,11 @@ class EVMChainClient {
             .toList();
       }
 
+      log('Etherscan API returned invalid response for internal transactions: status=${jsonResponse['status']}, statusCode=${response.statusCode}');
       return [];
-    } catch (e) {
-      log(e.toString());
+    } catch (e, stackTrace) {
+      log('Error fetching internal transactions: ${e.toString()}');
+      log('Stack trace: ${stackTrace.toString()}');
       return [];
     }
   }
@@ -110,6 +117,11 @@ class EVMChainClient {
         isModifiedNodeUri = true;
         String nowNodeApiKey = secrets.nowNodesApiKey;
 
+        if (nowNodeApiKey.isEmpty) {
+          log('NowNodes API key is empty, cannot connect to ${node.uriRaw}');
+          return false;
+        }
+
         rpcUri = Uri.https(node.uriRaw, '/$nowNodeApiKey');
       }
 
@@ -117,6 +129,7 @@ class EVMChainClient {
 
       return true;
     } catch (e) {
+      log('Error connecting to node ${node.uriRaw}: ${e.toString()}');
       return false;
     }
   }
@@ -144,8 +157,9 @@ class EVMChainClient {
       final gasPrice = await _client!.getGasPrice();
 
       return gasPrice.getInWei.toInt();
-    } catch (_) {
-      return 0;
+    } catch (e) {
+      log('Error getting gas unit price: ${e.toString()}');
+      rethrow;
     }
   }
 
@@ -155,8 +169,9 @@ class EVMChainClient {
       final baseFee = blockInfo.baseFeePerGas;
 
       return baseFee?.getInWei.toInt();
-    } catch (_) {
-      return 0;
+    } catch (e) {
+      log('Error getting gas base fee: ${e.toString()}');
+      return null;
     }
   }
 
