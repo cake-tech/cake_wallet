@@ -22,6 +22,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 
 import 'package:cake_wallet/utils/list_item.dart';
+import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewAddressesPage extends StatefulWidget {
@@ -54,6 +55,8 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
   List<ListItem> items = [];
 
   late final TextEditingController _searchController;
+  
+  CardDesign? design;
 
   void updateItems() {
     setState(() {
@@ -70,7 +73,16 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
       ..addListener(() {
         setState(() {});
       });
-    ;
+
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      reaction((context) => widget.dashboardViewModel.cardDesigns.first, (value){
+        setState(() {
+          design = value;
+        });
+      });
+    });
+
+
   }
 
   @override
@@ -108,7 +120,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                           spacing: 16,
                           children: [
                             if(widget.dashboardViewModel.type == WalletType.monero || widget.dashboardViewModel.type == WalletType.wownero)
-                              AccountPreviewHeader(dashboardViewModel: widget.dashboardViewModel),
+                              Observer(builder: (_)=>AccountPreviewHeader(dashboardViewModel: widget.dashboardViewModel,design: design,)),
                             Text("Long press to edit address", style: TextStyle(
                               fontSize:10,
                               color: Theme.of(context).colorScheme.onSurfaceVariant
@@ -152,7 +164,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                     ),
                   ],
                 ),
-                AddressSearchBox(controller: _searchController),
+                Padding(padding:EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),child: AddressSearchBox(controller: _searchController)),
               ],
             ),
           )
@@ -212,9 +224,10 @@ class AddressSearchBox extends StatelessWidget {
 }
 
 class AccountPreviewHeader extends StatelessWidget {
-  AccountPreviewHeader({super.key, required this.dashboardViewModel});
+  AccountPreviewHeader({super.key, required this.dashboardViewModel, required this.design});
 
   final DashboardViewModel dashboardViewModel;
+  final CardDesign? design;
 
 
   @override
@@ -237,9 +250,7 @@ class AccountPreviewHeader extends StatelessWidget {
                   builder: (_) => BalanceCard(
                       borderRadius: 5,
                       width: 50,
-                      design: dashboardViewModel.cardDesigns.isNotEmpty
-                          ? dashboardViewModel.cardDesigns.first
-                          : CardDesign.genericDefault),
+                      design: design ?? CardDesign.genericDefault),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

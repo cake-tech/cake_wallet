@@ -15,7 +15,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
       description: "P2WSH", iconPath: "assets/new-ui/address-type-picker-icons/segwit.svg");
   static const p2pkh = BitcoinReceivePageOption._('Legacy',
       description: "P2PKH", iconPath: "assets/new-ui/address-type-picker-icons/legacy.svg");
-  static const mweb = BitcoinReceivePageOption._('MWEB', iconPath: "assets/new-ui/address-type-picker-icons/mweb.svg");
+  static const mweb = BitcoinReceivePageOption._('MWEB', iconPath: "assets/new-ui/address-type-picker-icons/mweb.svg",isCommon: true);
 
   static const silent_payments = BitcoinReceivePageOption._('Silent Payments',
       description: "Privacy-preserving static address",
