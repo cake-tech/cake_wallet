@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import "package:permission_handler_platform_interface/permission_handler_platform_interface.dart";
 
 class NewSendAddressInput extends StatelessWidget {
-  const NewSendAddressInput({super.key, required this.addressController, this.onURIScanned, this.onPushPasteButton, required this.selectedCurrency, this.onSelectedContact, this.onPushAddressBookButton});
+  const NewSendAddressInput({super.key, required this.addressController, this.onURIScanned, this.onPushPasteButton, required this.selectedCurrency, this.onSelectedContact, this.onPushAddressBookButton, required this.onEditingComplete});
 
   final TextEditingController addressController;
   final Function(Uri)? onURIScanned;
@@ -17,6 +17,7 @@ class NewSendAddressInput extends StatelessWidget {
   final Function(BuildContext)? onPushAddressBookButton;
   final Function(ContactBase)? onSelectedContact;
   final Currency selectedCurrency;
+  final VoidCallback onEditingComplete;
 
 
 
@@ -30,7 +31,7 @@ class NewSendAddressInput extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(child: TextField(controller: addressController,decoration: InputDecoration(
+          Expanded(child: TextField(onEditingComplete:onEditingComplete,controller: addressController,decoration: InputDecoration(
             hintText: "Search or enter"
           ))),
           Row(

@@ -92,6 +92,11 @@ class _NewSendPageState extends State<NewSendPage> {
         _amountControllers[_selectedOutput].text = S.current.all;
       }
     }));
+
+    reaction((_)=>widget.sendViewModel.outputs[_selectedOutput].address, ((address) {
+      _addressControllers[_selectedOutput].text = address;
+
+    }));
   }
 
   @override
@@ -176,6 +181,13 @@ class _NewSendPageState extends State<NewSendPage> {
                                         PaymentRequest.fromUri(uri),
                                       );
                                     },
+                                    onEditingComplete: (){
+                                      output.fetchParsedAddress(context).then((val){
+                                        if(_addressControllers[_selectedOutput].text != output.extractedAddress) {
+                                          _addressControllers[_selectedOutput].text = output.extractedAddress;
+                                        }
+                                      });
+                                    },
                                     onPushAddressBookButton: (context) async {
                                       output.resetParsedAddress();
                                     },
@@ -228,7 +240,7 @@ class _NewSendPageState extends State<NewSendPage> {
           Row(
             spacing: 8,
             children: [
-              Text("Available"),
+              Text("Max."),
               Material(
                   color: Theme.of(context).colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(99999),

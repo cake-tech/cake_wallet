@@ -76,7 +76,7 @@ class _ModalNavigatorState extends State<ModalNavigator> {
           ),
         ),
         child: PopScope(
-          canPop: true,
+          canPop: false,
           onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
 
