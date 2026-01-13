@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -72,7 +73,7 @@ class EVMChainClient {
   Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
     try {
       if (secrets.etherScanApiKey.isEmpty) {
-        log('Etherscan API key is empty, cannot fetch internal transactions');
+        printV('Etherscan API key is empty, cannot fetch internal transactions');
         return [];
       }
 
@@ -95,11 +96,11 @@ class EVMChainClient {
             .toList();
       }
 
-      log('Etherscan API returned invalid response for internal transactions: status=${jsonResponse['status']}, statusCode=${response.statusCode}');
+      printV('Etherscan API returned invalid response for internal transactions: status=${jsonResponse['status']}, statusCode=${response.statusCode}');
       return [];
     } catch (e, stackTrace) {
-      log('Error fetching internal transactions: ${e.toString()}');
-      log('Stack trace: ${stackTrace.toString()}');
+      printV('Error fetching internal transactions: ${e.toString()}');
+      printV('Stack trace: ${stackTrace.toString()}');
       return [];
     }
   }
@@ -118,7 +119,7 @@ class EVMChainClient {
         String nowNodeApiKey = secrets.nowNodesApiKey;
 
         if (nowNodeApiKey.isEmpty) {
-          log('NowNodes API key is empty, cannot connect to ${node.uriRaw}');
+          printV('NowNodes API key is empty, cannot connect to ${node.uriRaw}');
           return false;
         }
 
@@ -129,7 +130,7 @@ class EVMChainClient {
 
       return true;
     } catch (e) {
-      log('Error connecting to node ${node.uriRaw}: ${e.toString()}');
+      printV('Error connecting to node ${node.uriRaw}: ${e.toString()}');
       return false;
     }
   }
@@ -158,7 +159,7 @@ class EVMChainClient {
 
       return gasPrice.getInWei.toInt();
     } catch (e) {
-      log('Error getting gas unit price: ${e.toString()}');
+      printV('Error getting gas unit price: ${e.toString()}');
       rethrow;
     }
   }
@@ -170,7 +171,7 @@ class EVMChainClient {
 
       return baseFee?.getInWei.toInt();
     } catch (e) {
-      log('Error getting gas base fee: ${e.toString()}');
+      printV('Error getting gas base fee: ${e.toString()}');
       return null;
     }
   }
