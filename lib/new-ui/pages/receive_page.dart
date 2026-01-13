@@ -1,9 +1,11 @@
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_display.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_bottom_buttons.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_info_box.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_widget.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_large_amount_preview.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_seed_type.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -36,11 +38,12 @@ class NewReceivePage extends StatefulWidget {
       {super.key,
       required this.addressListViewModel,
       required this.receiveOptionViewModel,
-      required this.dashboardViewModel});
+      required this.dashboardViewModel, required this.lightningMode});
 
   final WalletAddressListViewModel addressListViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;
   final DashboardViewModel dashboardViewModel;
+  final bool lightningMode;
 
   @override
   State<NewReceivePage> createState() => _NewReceivePageState();
@@ -49,28 +52,38 @@ class NewReceivePage extends StatefulWidget {
 class _NewReceivePageState extends State<NewReceivePage> {
   bool _largeQrMode = false;
   bool _effectsInstalled = false;
-  late WalletAddressListItem _addressItemWithLabel;
+  late WalletAddressListItem? _addressItemWithLabel;
 
 
   @override
   void initState() {
     super.initState();
 
-    _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhere((item) {
-      return (item is WalletAddressListItem &&
-          item.address == widget.addressListViewModel.uri.address);
-    }) as WalletAddressListItem;
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      if(widget.lightningMode) {
+        widget.receiveOptionViewModel.selectReceiveOption(widget.receiveOptionViewModel.options.firstWhere((item)=>item.value.contains("Lightning")));
+      } else if(widget.addressListViewModel.wallet.type == WalletType.bitcoin) {
+        printV("dupa");
+        widget.receiveOptionViewModel.selectReceiveOption(bitcoin!.getSelectedAddressType(widget.addressListViewModel.wallet));
+      }
+
+    });
 
     reaction((_) => widget.addressListViewModel.uri, (newAddress) {
           _reloadAddressWithLabel(newAddress);
     });
+
+    _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull((item) {
+      return (item is WalletAddressListItem &&
+          item.address == widget.addressListViewModel.uri.address);
+    }) as WalletAddressListItem?;
   }
 
   @override
   Widget build(BuildContext context) {
     _setEffects(context);
 
-    final hasLabel = _addressItemWithLabel.name != null && _addressItemWithLabel.name!.isNotEmpty;
+    final hasLabel = _addressItemWithLabel?.name != null && _addressItemWithLabel!.name!.isNotEmpty;
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
 
     return SafeArea(
@@ -103,7 +116,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                 if(_largeQrMode) {
                   Share.share(widget.addressListViewModel.uri.address);
                 } else if(widget.addressListViewModel.hasAddressList){
-                  createNewAddress(widget.addressListViewModel.wallet, "");
+                  widget.addressListViewModel.rotateAddress();
                 }
               },
             ),
@@ -119,44 +132,57 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       setState(() {
                         _largeQrMode = !_largeQrMode;
                         // _infoboxDimissed = true;
+                        _dismissInfobox();
                       });
                     },
                     largeQrMode: _largeQrMode,
                   ),
                   ReceiveSeedTypeDisplay(
+                    lightningMode: widget.lightningMode,
                     receiveOptionViewModel: widget.receiveOptionViewModel,
+                    largeQrMode: _largeQrMode,
                   ),
                   ReceiveSeedWidget(
                     addressListViewModel: widget.addressListViewModel,
                   ),
                     GestureDetector(
                         onTap: _showLabelModal,
-                        child: ReceiveLabelWidget(name: _addressItemWithLabel.name ?? "")),
+                        child: ReceiveLabelWidget(name: _addressItemWithLabel?.name ?? "", largeQrMode: _largeQrMode,)),
                   ReceiveBottomButtons(
+                    key: const ValueKey(0),
                     largeQrMode: _largeQrMode,
                     showAccountsButton: widget.addressListViewModel.hasAddressList,
                     showLabelButton: widget.addressListViewModel.hasAddressList && !hasLabel,
                     onCopyButtonPressed: () {
                       printV(widget.addressListViewModel.items);
                       Clipboard.setData(
-                          ClipboardData(text: widget.addressListViewModel.uri.address));
+                        ClipboardData(text: widget.addressListViewModel.uri.address),
+                      );
                     },
                     onAmountButtonPressed: () {
                       showMaterialModalBottomSheet(
-                          context: context,
-                          backgroundColor: Colors.transparent,
-                          builder: (context) {
-                            return ReceiveAmountModal(
-                              walletAddressListViewModel: widget.addressListViewModel,
-                              onSubmitted: (amount) {}
-                            );
-                          });
+                        context: context,
+                        backgroundColor: Colors.transparent,
+                        barrierColor: Colors.black.withAlpha(80),
+                        builder: (context) {
+                          return ReceiveAmountModal(
+                            walletAddressListViewModel: widget.addressListViewModel,
+                            onSubmitted: (amount) {},
+                          );
+                        },
+                      );
                     },
                     onLabelButtonPressed: _showLabelModal,
                     onAccountsButtonPressed: () {
-                      Navigator.of(context).pushNamed(Routes.receiveAddresses, arguments: false);
+                      Navigator.of(context).pushNamed(
+                        Routes.receiveAddresses,
+                        arguments: false,
+                      );
                     },
                   ),
+                  ReceiveLargeAmountPreview(          amount: widget.addressListViewModel.amount,
+                      currency: widget.addressListViewModel.tokenCurrency?.title.toUpperCase() ??widget.addressListViewModel.wallet.currency.name.toUpperCase(),
+                          largeQrMode: _largeQrMode),
                   ClipRect(
                     child: AnimatedAlign(
                       duration: const Duration(milliseconds: 200),
@@ -255,6 +281,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
     showMaterialModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
+        barrierColor: Colors.black.withAlpha(80),
         builder: (context) {
           return getIt.get<ReceiveLabelModal>(param1: _addressItemWithLabel);
         }).then((value) {

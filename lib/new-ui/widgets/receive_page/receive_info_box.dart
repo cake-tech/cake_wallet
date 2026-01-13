@@ -9,8 +9,14 @@ class ReceiveInfoBox extends StatelessWidget {
   ReceiveInfoBox.forWalletType(WalletType type, {required this.onDismissed}) {
     switch (type) {
       case WalletType.ethereum:
-        iconPath = "assets/new-ui/chain_badges/ethereum.svg";
-        message = "Use this address to receive any token or collectible on Ethereum";
+      case WalletType.base:
+      case WalletType.solana:
+      case WalletType.arbitrum:
+      case WalletType.tron:
+      case WalletType.polygon:
+        iconPath = "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg";
+        message = "Use this address to receive any token or collectible on ${walletTypeToString(type)}";
+        break;
       default:
         iconPath = "assets/new-ui/info.svg";
         message = "Your receive address will rotate every time you close and reopen this screen";

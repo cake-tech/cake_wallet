@@ -1,43 +1,72 @@
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_selector.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ReceiveSeedTypeDisplay extends StatelessWidget {
-  const ReceiveSeedTypeDisplay({super.key, required this.receiveOptionViewModel});
+  const ReceiveSeedTypeDisplay({super.key, required this.receiveOptionViewModel, required this.largeQrMode, required this.lightningMode});
 
   final ReceiveOptionViewModel receiveOptionViewModel;
+  final bool largeQrMode;
+  final bool lightningMode;
 
   @override
   Widget build(BuildContext context) {
+
+
     return Observer(
-      builder: (_) => GestureDetector(
+      builder: (_) {
+
+
+        String text =receiveOptionViewModel.selectedReceiveOption.value;
+        if(largeQrMode && text == "Standard") {
+          text += " Address";
+        }
+
+        if(text == "mainnet") {
+          if(largeQrMode) {
+            text = "${receiveOptionViewModel.walletTypeString} Address";
+          } else {
+            text = "${receiveOptionViewModel.walletTypeString} (Mainnet)";
+          }
+        }
+        String? iconPath = receiveOptionViewModel.selectedReceiveOption.iconPath;
+        if(iconPath != null && receiveOptionViewModel.walletTypeString == "Litecoin" && text.contains("Standard")) {
+          iconPath = "assets/new-ui/address-type-picker-icons/litecoin.svg";
+        }
+
+
+
+        return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => _showPicker(context),
         child: Row(
+          key: ValueKey("$text$largeQrMode"),
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 12.0,
           children: [
-            if (receiveOptionViewModel.selectedReceiveOption.iconPath != null)
+            if (iconPath != null)
               SvgPicture.asset(
                 width: 32,
                 height: 32,
-                receiveOptionViewModel.selectedReceiveOption.iconPath!,
+                iconPath!,
                 colorFilter: ColorFilter.mode(
                   Theme.of(context).colorScheme.primary,
                   BlendMode.srcIn,
                 ),
               ),
             Text(
-              receiveOptionViewModel.selectedReceiveOption.value,
+              text,
               style: TextStyle(
                 fontSize: 16,
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
+            if(!largeQrMode)
             Container(
               width: 24,
               height: 24,
@@ -58,16 +87,19 @@ class ReceiveSeedTypeDisplay extends StatelessWidget {
             ),
           ],
         ),
-      ),
+      );
+      },
     );
   }
 
   void _showPicker(BuildContext context) async {
     showCupertinoModalBottomSheet(
         context: context,
+        barrierColor: Colors.black.withAlpha(80),
         builder: (context) {
           return Material(
               child: ReceiveAddressTypeSelector(
+                lightningMode: lightningMode,
             receiveOptionViewModel: receiveOptionViewModel,
           ));
         });

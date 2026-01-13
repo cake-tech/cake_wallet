@@ -3,15 +3,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 
 class ReceiveLabelWidget extends StatelessWidget {
-  const ReceiveLabelWidget({super.key, required this.name});
+  const ReceiveLabelWidget({super.key, required this.name, required this.largeQrMode});
 
   final String name;
+  final bool largeQrMode;
+
 
   @override
   Widget build(BuildContext context) {
     return                   AnimatedContainer(
       duration: Duration(milliseconds: 200),
-        height: name.isEmpty ? 0 : 36,
+        height: largeQrMode || name.isEmpty ? 0 : 36,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(999)
@@ -22,7 +24,7 @@ class ReceiveLabelWidget extends StatelessWidget {
             spacing: 8,
             mainAxisSize: MainAxisSize.min,
             children: [
-              SvgPicture.asset("assets/new-ui/label.svg", colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),),
+              ClipRect(child: SvgPicture.asset(width: 24, height: 24, "assets/new-ui/label.svg", colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),)),
               Text(name, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ],
           ),

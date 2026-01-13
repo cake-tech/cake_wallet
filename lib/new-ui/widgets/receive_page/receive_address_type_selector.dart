@@ -8,9 +8,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ReceiveAddressTypeSelector extends StatefulWidget {
-  const ReceiveAddressTypeSelector({super.key, required this.receiveOptionViewModel});
+  const ReceiveAddressTypeSelector({super.key, required this.receiveOptionViewModel, required this.lightningMode});
 
   final ReceiveOptionViewModel receiveOptionViewModel;
+  final bool lightningMode;
 
   static const otherOptionsExpandDuration = Duration(milliseconds: 300);
 
@@ -31,6 +32,15 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
   Widget build(BuildContext context) {
     final commonOptions =
         widget.receiveOptionViewModel.options.where((element) => element.isCommon).toList();
+    commonOptions.sort(
+          (a, b) {
+        if (widget.lightningMode && a.value.contains("Lightning")) return -1;
+        if (widget.lightningMode && b.value.contains("Lightning")) return 1;
+        if(!widget.lightningMode && a.value.contains("Standard")) return -1;
+        if(!widget.lightningMode && b.value.contains("Standard")) return 1;
+        return a.value.compareTo(b.value);
+      },
+    );
     final otherOptions =
         widget.receiveOptionViewModel.options.where((element) => !element.isCommon).toList();
 
@@ -76,6 +86,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                           widget.receiveOptionViewModel.selectReceiveOption(opt);
                           Navigator.of(context).pop();
                         },
+                        receiveOptionViewModel: widget.receiveOptionViewModel,
                       );
                     },
                     separatorBuilder: (context, index) {
@@ -173,6 +184,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                   widget.receiveOptionViewModel.selectReceiveOption(opt);
                                   Navigator.of(context).pop();
                                 },
+                                receiveOptionViewModel: widget.receiveOptionViewModel,
                               );
                             },
                             separatorBuilder: (context, index) {
@@ -208,19 +220,24 @@ class ReceiveAddressTypeRow extends StatelessWidget {
       required this.roundedTop,
       required this.roundedBottom,
       required this.selected,
-      required this.onItemTap});
+      required this.onItemTap, required this.receiveOptionViewModel});
 
   final ReceivePageOption option;
   final bool roundedTop;
   final bool roundedBottom;
   final bool selected;
   final VoidCallback onItemTap;
+  final ReceiveOptionViewModel receiveOptionViewModel;
 
   static const iconSize = 24.0;
   static const rowHeight = 64.0;
 
   @override
   Widget build(BuildContext context) {
+      String? iconPath = option.iconPath;
+    if(iconPath != null && receiveOptionViewModel.walletTypeString == "Litecoin" && option.value.contains("Standard")) {
+      iconPath = "assets/new-ui/address-type-picker-icons/litecoin.svg";
+    }
     return Material(
       color: Theme.of(context).colorScheme.surfaceContainer,
       borderRadius: BorderRadius.vertical(
@@ -247,8 +264,8 @@ class ReceiveAddressTypeRow extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    if (option.iconPath != null)
-                      SvgPicture.asset(option.iconPath!, width: iconSize, height: iconSize)
+                    if (iconPath != null)
+                      SvgPicture.asset(iconPath!, width: iconSize, height: iconSize)
                     else
                       Container(width: iconSize, height: iconSize),
                     Padding(

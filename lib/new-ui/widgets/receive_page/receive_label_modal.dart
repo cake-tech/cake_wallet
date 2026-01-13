@@ -50,80 +50,83 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16))
-      ),
-      child: Column(
-        spacing: 24,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ModalTopBar(title: "Label Address", leadingIcon: Icon(Icons.close), onLeadingPressed: Navigator.of(context).pop, onTrailingPressed: (){}),
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16))
+        ),
+        child: Column(
+          spacing: 24,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ModalTopBar(title: "Label Address", leadingIcon: Icon(Icons.close), onLeadingPressed: Navigator.of(context).pop, onTrailingPressed: (){}),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0),
-            child: Column(
-              spacing: 24,
-              children: [
-                Text("You can access and manage all your previously used addressses by pressing Addresses",textAlign: TextAlign.center,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              child: Column(
+                spacing: 24,
+                children: [
+                  Text("You can access and manage all your previously used addressses by pressing Addresses",textAlign: TextAlign.center,
 
 
-                  style: TextStyle(fontSize:12, color:Theme.of(context).colorScheme.onSurfaceVariant),),
-                NewListSections(sections: {"":[
-                  ListItemTextField(keyValue: "label", label: "Label")
-                ]}, controllers: {"label": _controller}),
+                    style: TextStyle(fontSize:12, color:Theme.of(context).colorScheme.onSurfaceVariant),),
+                  NewListSections(sections: {"":[
+                    ListItemTextField(keyValue: "label", label: "Label")
+                  ]}, controllers: {"label": _controller}),
 
-                SizedBox(
-                  height:36,
-                  child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: defaultLabels.length,
-                      separatorBuilder: (context, index){
-                        return SizedBox(width:8);
-                      },
-                      itemBuilder: (context, index){
-                        return Container(
-                          height: 36,
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                              borderRadius: BorderRadius.circular(999)
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(999),
-                            child: InkWell(
+                  SizedBox(
+                    height:36,
+                    child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: defaultLabels.length,
+                        separatorBuilder: (context, index){
+                          return SizedBox(width:8);
+                        },
+                        itemBuilder: (context, index){
+                          return Container(
+                            height: 36,
+                            decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(999)
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
                               borderRadius: BorderRadius.circular(999),
-                              onTap: (){
-                                _controller.text = defaultLabels[index];
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                child: Center(
-                                  child: Text(defaultLabels[index], style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).colorScheme.primary
-                                  ),),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(999),
+                                onTap: (){
+                                  _controller.text = defaultLabels[index];
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                  child: Center(
+                                    child: Text(defaultLabels[index], style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        color: Theme.of(context).colorScheme.primary
+                                    ),),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
+                          );
 
-                      }
+                        }
+                    ),
                   ),
-                ),
 
-                NewPrimaryButton(onPressed: (){
-                  widget.walletAddressEditOrCreateViewModel.label = _controller.text;
-                  widget.walletAddressEditOrCreateViewModel.save();
-                }, text: "Continue", color: Theme.of(context).colorScheme.primary, textColor: Theme.of(context).colorScheme.onPrimary)
-              ]
+                  NewPrimaryButton(onPressed: (){
+                    widget.walletAddressEditOrCreateViewModel.label = _controller.text;
+                    widget.walletAddressEditOrCreateViewModel.save().then((value) => Navigator.of(context).pop());
+                  }, text: "Continue", color: Theme.of(context).colorScheme.primary, textColor: Theme.of(context).colorScheme.onPrimary)
+                ]
+              ),
             ),
-          ),
-          SizedBox()
-            ],
-          )
+            SizedBox()
+              ],
+            )
+      ),
     );
   }
 }

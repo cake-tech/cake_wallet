@@ -835,10 +835,11 @@ Future<void> setup({
   );
 
 
-  getIt.registerFactory<NewReceivePage>(() => NewReceivePage(
+  getIt.registerFactoryParam<NewReceivePage, bool, void>((param1,param2) => NewReceivePage(
     addressListViewModel: getIt.get<WalletAddressListViewModel>(),
     receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(),
     dashboardViewModel: getIt.get<DashboardViewModel>(),
+    lightningMode:param1
   ));
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(

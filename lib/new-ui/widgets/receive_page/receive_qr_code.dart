@@ -16,12 +16,12 @@ class ReceiveQrCode extends StatelessWidget {
   final bool largeQrMode;
   final WalletAddressListViewModel addressListViewModel;
 
-  static const double largeQrModeBottomPadding = 50;
+  static const double largeQrModeBottomPadding = 70;
 
   @override
   Widget build(BuildContext context) {
     final double targetY = largeQrMode ? 60 : 0;
-    final double resolvedSize = MediaQuery.of(context).size.width * (largeQrMode ? 0.9 : 0.5);
+    final double resolvedSize = MediaQuery.of(context).size.width * (largeQrMode ? 0.85 : 0.5);
 
     return Stack(
       alignment: Alignment.topCenter,
@@ -34,7 +34,7 @@ class ReceiveQrCode extends StatelessWidget {
           onTap: onTap,
           child: TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0, end: targetY),
-            duration: const Duration(milliseconds: 500),
+            duration: const Duration(milliseconds: 400),
             curve: Curves.easeOut,
             builder: (context, value, child) {
               return Transform.translate(
@@ -42,7 +42,7 @@ class ReceiveQrCode extends StatelessWidget {
                 child: Column(
                   children: [
                     AnimatedContainer(
-                      duration: const Duration(milliseconds: 500),
+                      duration: const Duration(milliseconds: 400),
                       curve: Curves.easeOutCubic,
                       width: resolvedSize,
                       height: resolvedSize,
@@ -60,8 +60,8 @@ class ReceiveQrCode extends StatelessWidget {
                                       size: constraints.maxWidth)))),
                     ),
                     AnimatedSize(
-                        duration: Duration(milliseconds: 500),
-                        curve: Curves.easeOutCubic,
+                        duration: Duration(milliseconds: 300),
+                        // curve: Curves.easeOutCubic,
                         child: SizedBox(height: largeQrMode ? largeQrModeBottomPadding : 0))
                   ],
                 ),

@@ -76,7 +76,7 @@ class CoinActionRow extends StatelessWidget {
             label: S.of(context).receive,
             action: () async {
               if (FeatureFlag.hasNewUiExtraPages) {
-                final page = getIt.get<NewReceivePage>();
+                final page = getIt.get<NewReceivePage>(param1: lightningMode);
                 CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
                   barrierColor: Colors.black.withAlpha(80),
