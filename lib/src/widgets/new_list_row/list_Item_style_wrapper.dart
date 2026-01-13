@@ -7,7 +7,7 @@ class ListItemStyleWrapper extends StatelessWidget {
     required this.isLastInSection,
     required this.builder,
     this.onTap,
-    this.height = 48,
+    this.height = 50,
   });
 
   final bool isFirstInSection;

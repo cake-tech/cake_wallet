@@ -22,15 +22,15 @@ class NewPrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Flexible(
       child: SizedBox(
-        width: double.infinity,
+        width: 340.0,
         height: 52.0,
         child: TextButton(
           onPressed: onPressed,
           style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all(color),
-              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+              shape: WidgetStateProperty.all<RoundedSuperellipseBorder>(
+                RoundedSuperellipseBorder(
+                  borderRadius: BorderRadius.circular(16.0),
                 ),
               )),
           child: Center(
