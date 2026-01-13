@@ -183,7 +183,7 @@ class PickerSliderButton<Item> extends StatelessWidget {
       },
       child: Container(
         height: 64,
-        width: 340,
+        width: MediaQuery.of(context).size.height*0.9,
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: BorderRadius.vertical(
@@ -263,7 +263,7 @@ class PickerRow<Item> extends StatelessWidget {
       },
       child: Container(
         height: 64,
-        width: 340,
+        width: MediaQuery.of(context).size.height*0.9,
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: BorderRadius.vertical(
