@@ -97,6 +97,8 @@ class NFTListWidget extends StatelessWidget {
           if (nftViewModel.solanaNftAssetModels.isEmpty) return emptyMessage;
 
           return ListView.separated(
+            shrinkWrap: FeatureFlag.hasNewUi,
+            physics: FeatureFlag.hasNewUi ?  NeverScrollableScrollPhysics() : BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
             separatorBuilder: (context, index) => const SizedBox(height: 8),
             itemCount: nftViewModel.solanaNftAssetModels.length,
@@ -109,6 +111,8 @@ class NFTListWidget extends StatelessWidget {
           if (nftViewModel.nftAssetByWalletModels.isEmpty) return emptyMessage;
 
           return ListView.separated(
+            shrinkWrap: FeatureFlag.hasNewUi,
+            physics: FeatureFlag.hasNewUi ?  NeverScrollableScrollPhysics() : BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
             separatorBuilder: (context, index) => const SizedBox(height: 8),
             itemCount: nftViewModel.nftAssetByWalletModels.length,
