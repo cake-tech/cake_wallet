@@ -98,6 +98,8 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.zcash:
         _addZcashListItems(tx, dateFormat);
       case WalletType.minotari:
+        _addMinotariListItems(tx, dateFormat);
+        break;
       case WalletType.none:
       case WalletType.banano:
         break;
@@ -219,7 +221,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.zcash:
         return 'https://blockchair.com/zcash/transaction/${txId}';
       case WalletType.minotari:
-        /// TODO :Add Minotari explorer when available
+        return 'https://explore.tari.com/tx/${txId}'; // TODO verify
       case WalletType.none:
         return '';
     }
@@ -270,6 +272,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.zcash:
         return S.current.view_transaction_on + 'blockchair.com';
       case WalletType.minotari:
+        return S.current.view_transaction_on + 'explore.tari.com';
       case WalletType.none:
         return '';
     }
@@ -1000,6 +1003,43 @@ abstract class TransactionDetailsViewModelBase with Store {
         StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
       if (comment != null && comment.isNotEmpty)
         StandartListItem(title: S.current.transaction_details_title, value: comment),
+    ]);
+  }
+
+  void _addMinotariListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final feeFormatted = tx.feeFormatted();
+    items.addAll([
+      StandartListItem(
+        title: S.current.transaction_details_transaction_id,
+        value: tx.txHash,
+        key: ValueKey('standard_list_item_transaction_details_id_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_date,
+        value: dateFormat.format(tx.date),
+        key: ValueKey('standard_list_item_transaction_details_date_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_height,
+        value: '${tx.height}',
+        key: ValueKey('standard_list_item_transaction_details_height_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_amount,
+        value: tx.amountFormatted(),
+        key: ValueKey('standard_list_item_transaction_details_amount_key'),
+      ),
+      if (feeFormatted != null)
+        StandartListItem(
+          title: S.current.transaction_details_fee,
+          value: feeFormatted,
+          key: ValueKey('standard_list_item_transaction_details_fee_key'),
+        ),
+      StandartListItem(
+        title: S.current.confirmations,
+        value: '${tx.confirmations}',
+        key: ValueKey('standard_list_item_transaction_details_confirmations_key'),
+      ),
     ]);
   }
 }
