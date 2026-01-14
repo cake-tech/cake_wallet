@@ -322,24 +322,17 @@ abstract class MinotariWalletBase
         // Cast to proper type
         final txDto = txDynamic as DisplayedTransactionDto;
 
-        // Parse direction
         final directionStr = txDto.direction.toLowerCase();
         final direction = directionStr == 'inbound' || directionStr == 'incoming'
             ? TransactionDirection.incoming
             : TransactionDirection.outgoing;
 
-        // Parse status
         final statusStr = txDto.status.toLowerCase();
         // TODO use constants or enum!!
         final isPending = statusStr != 'completed' && statusStr != 'confirmed';
-
-        // Parse timestamp
         final date = DateTime.tryParse(txDto.blockchain.timestamp) ?? DateTime.now();
-
-        // Parse fee
         final fee = txDto.fee?.amount.toInt();
 
-        // Create transaction info
         final txInfo = MinotariTransactionInfo(
           id: txDto.id,
           amount: txDto.amount.toInt(),
@@ -351,14 +344,12 @@ abstract class MinotariWalletBase
           confirmations: txDto.blockchain.confirmations.toInt(),
         );
 
-        // Add to transaction history
         transactionHistory.transactions[txDto.id] = txInfo;
       } catch (e) {
         printV('Error processing transaction: $e');
       }
     }
 
-    // Save transaction history
     await transactionHistory.save();
   }
 }
