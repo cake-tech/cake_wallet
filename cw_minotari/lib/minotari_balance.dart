@@ -1,4 +1,5 @@
 import 'package:cw_core/balance.dart';
+import 'package:cw_minotari/minotari_amount_format.dart';
 
 class MinotariBalance extends Balance {
   final int available;
@@ -12,15 +13,16 @@ class MinotariBalance extends Balance {
   }) : super(available, pendingIncoming + pendingOutgoing);
 
   @override
-  String get formattedAvailableBalance => _formatBalance(available);
+  String get formattedAvailableBalance => minotariAmountToString(amount: available);
 
   @override
-  String get formattedAdditionalBalance => _formatBalance(pendingIncoming + pendingOutgoing);
+  String get formattedAdditionalBalance =>
+      minotariAmountToString(amount: pendingIncoming + pendingOutgoing);
 
-  String _formatBalance(int balance) {
-    // Minotari uses 6 decimal places (microTari)
-    final wholePart = balance ~/ 1000000;
-    final fractionalPart = balance % 1000000;
-    return '$wholePart.${fractionalPart.toString().padLeft(6, '0')}';
-  }
+  @override
+  String get formattedUnAvailableBalance => minotariAmountToString(amount: pendingOutgoing);
+
+  @override
+  String get formattedFullAvailableBalance =>
+      minotariAmountToString(amount: available + pendingIncoming);
 }
