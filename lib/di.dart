@@ -758,7 +758,7 @@ Future<void> setup({
     dashboardViewModel: getIt.get<DashboardViewModel>(),
   ));
 
-  getIt.registerFactory<NewHomePage>(()=>NewHomePage(dashboardViewModel: getIt.get<DashboardViewModel>()));
+  getIt.registerFactory<NewHomePage>(()=>NewHomePage(dashboardViewModel: getIt.get<DashboardViewModel>(),nftViewModel: getIt.get<NFTViewModel>(),));
 
   getIt.registerFactory<DesktopSidebarWrapper>(() {
     final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();

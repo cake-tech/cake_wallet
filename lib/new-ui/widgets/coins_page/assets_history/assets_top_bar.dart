@@ -6,10 +6,12 @@ class AssetsTopBar extends StatelessWidget {
     super.key,
     required this.onTabChange,
     required this.selectedTab,
+    required this.tabs,
   });
 
   final void Function(int) onTabChange;
   final int selectedTab;
+  final List<String> tabs;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,7 @@ class AssetsTopBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           LineTabSwitcher(
-            tabs: const ["Assets", "History"],
+            tabs: tabs,
             onTabChange: onTabChange,
             selectedTab: selectedTab,
           ),

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -50,17 +51,17 @@ class _NFTListingPageState extends State<NFTListingPage> {
               ),
             ),
             if (widget.nftViewModel.isLoading)
-              Expanded(
-                child: Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.primary,
-                    ),
+              Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).colorScheme.primary,
                   ),
                 ),
               )
-            else
+            else if(FeatureFlag.hasNewUi)
+        NFTListWidget(nftViewModel: widget.nftViewModel)
+              else
               Expanded(
                 child: NFTListWidget(nftViewModel: widget.nftViewModel),
               ),

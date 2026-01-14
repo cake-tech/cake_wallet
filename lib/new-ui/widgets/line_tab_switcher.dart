@@ -20,6 +20,7 @@ class LineTabSwitcher extends StatefulWidget {
 class _LineTabSwitcherState extends State<LineTabSwitcher> {
   List<GlobalKey> textWidgetKeys = [];
   List<Size> textWidgetSizes = [];
+  double totalWidth = 0;
   bool textWidgetsMeasured = false;
 
   double _calcBarLeft() {
@@ -51,6 +52,10 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
           .map((k) => k.currentContext!.size)
           .whereType<Size>()
           .toList();
+
+      for(final size in textWidgetSizes) {
+        totalWidth += size.width;
+      }
       textWidgetsMeasured = true;
     });
   }
@@ -66,13 +71,12 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-          width: 200,
           height: 40,
-          child: ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.tabs.length,
-            itemBuilder: (context, index) {
+          child: Row(
+            children: widget.tabs.map((item){
+
+              final index = widget.tabs.indexOf(item);
+
               return GestureDetector(
                 onTap: () {
                   widget.onTabChange(index);
@@ -93,7 +97,7 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
-                          widget.tabs[index],
+                          item,
                           key: textWidgetKeys[index],
                         ),
                       ),
@@ -101,11 +105,11 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                   ],
                 ),
               );
-            },
-          ),
+            }).toList()
+          )
         ),
         Container(
-          width: 200,
+          width: totalWidth,
           height: 2,
           child: Stack(
             children: [

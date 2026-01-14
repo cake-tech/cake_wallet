@@ -8,15 +8,17 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewHomePage extends StatefulWidget {
-  NewHomePage({super.key, required this.dashboardViewModel}) {}
+  NewHomePage({super.key, required this.dashboardViewModel, required this.nftViewModel});
 
   final DashboardViewModel dashboardViewModel;
+  final NFTViewModel nftViewModel;
 
   @override
   State<NewHomePage> createState() => _NewHomePageState();
@@ -140,6 +142,7 @@ class _NewHomePageState extends State<NewHomePage> {
                   );
                 },
                 child: AssetsHistorySection(
+                  nftViewModel: widget.nftViewModel,
                   dashboardViewModel: widget.dashboardViewModel,
                 ),
                 ),
