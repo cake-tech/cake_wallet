@@ -10,7 +10,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
@@ -26,9 +25,9 @@ import 'package:cw_evm/clients/evm_chain_client.dart';
 import 'package:cw_evm/evm_chain_client_factory.dart';
 import 'package:cw_evm/evm_chain_default_tokens.dart';
 import 'package:cw_evm/evm_chain_exceptions.dart';
-import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
+import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -745,11 +744,15 @@ abstract class EVMChainWalletBase
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
 
-      final totalOriginalAmount = EVMChainFormatter.parseEVMChainAmountToDouble(
-          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
-
-      totalAmount = parseFixed(
-          EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent), exponent);
+      totalAmount = outputs.fold<BigInt>(
+        BigInt.zero,
+        (acc, output) {
+          if (output.cryptoAmount != null && output.cryptoAmount!.isNotEmpty) {
+            return acc + EVMChainFormatter.parseEVMChainAmountToBigInt(output.cryptoAmount!);
+          }
+          return acc;
+        },
+      );
 
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
@@ -768,13 +771,11 @@ abstract class EVMChainWalletBase
     } else {
       final output = outputs.first;
       if (!output.sendAll) {
-        final totalOriginalAmount =
-            EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
-
-        totalAmount = parseFixed(
-          EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent),
-          exponent,
-        );
+        if (output.cryptoAmount != null && output.cryptoAmount!.isNotEmpty) {
+          totalAmount = EVMChainFormatter.parseEVMChainAmountToBigInt(output.cryptoAmount!);
+        } else {
+          totalAmount = BigInt.zero;
+        }
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {

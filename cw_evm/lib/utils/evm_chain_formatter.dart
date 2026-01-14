@@ -1,23 +1,34 @@
 import 'dart:math';
 
 class EVMChainFormatter {
-  static int _divider = 0;
+  static const int evmDecimals = 18;
 
   static int parseEVMChainAmount(String amount) {
     try {
-      final decimalLength = _getDividerForInput(amount);
-      _divider = decimalLength;
-      return (double.parse(amount) * pow(10, decimalLength)).round();
+      return (double.parse(amount) * pow(10, evmDecimals)).round();
     } catch (_) {
       return 0;
     }
   }
 
-  static double parseEVMChainAmountToDouble(int amount) {
+  /// Parse EVM chain amount to BigInt to avoid integer overflow for large amounts
+  static BigInt parseEVMChainAmountToBigInt(String amount) {
     try {
-      return amount / pow(10, _divider);
+      final parts = amount.replaceAll(',', '.').split('.');
+      final whole = parts[0].isEmpty ? '0' : parts[0];
+      final fraction = parts.length > 1 ? parts[1] : '';
+
+      final fractionPadded = fraction
+          .padRight(evmDecimals, '0')
+          .substring(0, evmDecimals > fraction.length ? evmDecimals : fraction.length);
+
+      final wholeBigInt = BigInt.parse(whole);
+      final fractionBigInt = BigInt.parse(fractionPadded);
+      final multiplier = BigInt.from(10).pow(evmDecimals);
+
+      return (wholeBigInt * multiplier) + fractionBigInt;
     } catch (_) {
-      return 0;
+      return BigInt.zero;
     }
   }
 
@@ -29,15 +40,5 @@ class EVMChainFormatter {
     }
 
     return parts.join(".");
-  }
-
-  static int _getDividerForInput(String amount) {
-    final result = amount.split('.');
-    if (result.length > 1) {
-      final decimalLength = result[1].length;
-      return decimalLength;
-    } else {
-      return 0;
-    }
   }
 }

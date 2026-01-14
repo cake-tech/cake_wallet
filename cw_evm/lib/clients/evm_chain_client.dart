@@ -59,6 +59,21 @@ class EVMChainClient {
         final res = (jsonResponse['result'] as List);
         res.removeWhere((e) => e['value'] == '0');
 
+        // Filter out spam native transactions below 0.00001 ETH (10000000000000 wei)
+        if (contractAddress == null) {
+          final spamThresholdWei = BigInt.from(10000000000000);
+          res.removeWhere((e) {
+            try {
+              final value = BigInt.parse(e['value'] ?? '0');
+              final isIncoming = e['to']?.toLowerCase() == address.toLowerCase() &&
+                  e['from']?.toLowerCase() != address.toLowerCase();
+              return isIncoming && value < spamThresholdWei;
+            } catch (_) {
+              return false;
+            }
+          });
+        }
+
         final symbol = EVMChainUtils.getFeeCurrency(chainId);
 
         return res
