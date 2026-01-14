@@ -2,6 +2,8 @@ import 'package:cw_minotari/src/rust/api/wallet.dart' as wallet_api;
 import 'package:cw_minotari/src/rust/api/balance.dart' as balance_api;
 import 'package:cw_minotari/src/rust/api/address.dart' as address_api;
 import 'package:cw_minotari/src/rust/api/db.dart' as db_api;
+import 'package:cw_minotari/src/rust/api/scanner.dart' as scanner_api;
+import 'package:cw_minotari/src/rust/api/transactions.dart' as transactions_api;
 import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/frb_generated.dart';
 
@@ -25,9 +27,19 @@ class MinotariFfi {
     }
   }
 
+  /// Open an existing wallet
+  Future<void> open(TariNetwork network) async {
+    await _ensureRustLibInitialized();
+
+    await db_api.initializeDatabase(path: dataPath);
+
+    _network = network;
+    _isInitialized = true;
+  }
+
   /// Create a new wallet
   /// Rust generates mnemonic internally
-  Future<void> create({TariNetwork network = TariNetwork.mainNet}) async {
+  Future<void> create(TariNetwork network) async {
     await _ensureRustLibInitialized();
 
     await db_api.initializeDatabase(path: dataPath);
@@ -41,9 +53,9 @@ class MinotariFfi {
 
   /// Restore wallet from mnemonic
   Future<void> restore(
-    String mnemonic, {
+    String mnemonic,
+    TariNetwork network, {
     String passphrase = '',
-    TariNetwork network = TariNetwork.mainNet,
   }) async {
     await _ensureRustLibInitialized();
 
@@ -95,17 +107,49 @@ class MinotariFfi {
     };
   }
 
-  /// Sync wallet with base node
-  /// Note: The current Rust FFI uses a scanner-based approach
-  /// This is a compatibility stub that will be replaced with proper scanner integration
-  Future<void> sync(String baseNodeAddress) async {
+  /// Start scanner-based blockchain sync
+  /// Returns a stream of scan events for progress updates and transaction discovery
+  Stream<scanner_api.ScanEventDto> startScan({
+    required String baseNodeAddress,
+    String password = '',
+    bool continuous = false,
+    int batchSize = 1000,
+    int pollIntervalSeconds = 60,
+  }) {
     if (!_isInitialized) {
       throw Exception('Wallet not initialized');
     }
 
-    // TODO: Implement scanner-based sync
-    // For now, just update balance to trigger a refresh
-    await getBalance();
+    final config = scanner_api.ScanConfiguration(
+      password: password,
+      baseUrl: baseNodeAddress,
+      batchSize: BigInt.from(batchSize),
+      continuous: continuous,
+      pollIntervalSeconds: BigInt.from(pollIntervalSeconds),
+    );
+
+    return scanner_api.startScan(config: config);
+  }
+
+  /// Stop the currently running scan
+  Future<void> stopScan() async {
+    await scanner_api.stopScan();
+  }
+
+  /// Get transaction history from the wallet
+  Future<List<transactions_api.DisplayedTransactionDto>> getTransactions({
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    if (!_isInitialized) {
+      throw Exception('Wallet not initialized');
+    }
+
+    return await transactions_api.getTransactions(
+      walletName: _walletName,
+      limit: limit,
+      offset: offset,
+    );
   }
 
   /// Get mnemonic

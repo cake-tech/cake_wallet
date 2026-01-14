@@ -374,6 +374,9 @@ class CommonTestFlows {
         return secrets.dogeTestWalletSeeds;
       case WalletType.zcash:
         return secrets.zcashTestWalletSeeds;
+      case WalletType.minotari:
+        // TODO: Add Minotari test seeds when available
+        return '';
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
