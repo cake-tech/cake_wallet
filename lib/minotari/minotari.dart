@@ -11,6 +11,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 
 
+import 'package:cw_minotari/minotari_amount_format.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_wallet_service.dart';
 import 'package:cw_minotari/minotari_transaction_priority.dart';
@@ -56,6 +57,6 @@ abstract class Minotari {
 
   String getAssetShortName(CryptoCurrency asset);
   String getAssetFullName(CryptoCurrency asset);
-}
 
-  
+  double formatterMinotariAmountToDouble({required int amount});
+}

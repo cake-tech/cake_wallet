@@ -101,8 +101,13 @@ class TxDetailRowDefinition {
       title: S.current.confirmations,
       valueGetter: (vm) => "${vm.transactionInfo.confirmations}/${vm.neededConfirmations}",
       applicable: (vm) =>
-          [...electrumWalletTypes, ...evmWalletTypes, WalletType.zcash, WalletType.monero]
-              .contains(vm.wallet.type) &&
+          [
+            ...electrumWalletTypes,
+            ...evmWalletTypes,
+            WalletType.zcash,
+            WalletType.monero,
+            WalletType.minotari
+          ].contains(vm.wallet.type) &&
           !isLightning(vm.transactionInfo),
       listItemBuilder: ConfirmationsListItem.new,
     ),
@@ -497,7 +502,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.zcash:
         return "https://blockchair.com/zcash/transaction/${txId}";
       case WalletType.minotari:
-        /// TODO :Add Minotari explorer when available
+        return 'https://explore.tari.com/tx/${txId}'; // TODO verify
       case WalletType.none:
         return "";
     }

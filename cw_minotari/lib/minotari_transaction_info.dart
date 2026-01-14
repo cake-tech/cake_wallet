@@ -1,6 +1,8 @@
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_minotari/minotari_amount_format.dart';
 
 class MinotariTransactionInfo extends TransactionInfo {
   MinotariTransactionInfo({
@@ -27,22 +29,18 @@ class MinotariTransactionInfo extends TransactionInfo {
   String? _fiatAmount;
 
   @override
-  String amountFormatted() {
-    // Minotari uses 6 decimal places (microTari)
-    return formatAmount((amount / 1000000).toString());
-  }
+  String amountFormatted() =>
+      '${formatAmount(minotariAmountToString(amount: amount))} ${CryptoCurrency.xtm.title}';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
 
   @override
-  void changeFiatAmount(String amount) {
-    _fiatAmount = amount;
-  }
+  void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
   String? feeFormatted() {
     if (fee == null) return null;
-    return formatAmount((fee! / 1000000).toString());
+    return '${formatAmount(minotariAmountToString(amount: fee!))} ${CryptoCurrency.xtm.title}';
   }
 }

@@ -118,4 +118,9 @@ class CWMinotari extends Minotari {
     }
     return asset.fullName ?? asset.title;
   }
+
+  @override
+  double formatterMinotariAmountToDouble({required int amount}) {
+    return minotariAmountToDouble(amount: amount);
+  }
 }
