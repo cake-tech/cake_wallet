@@ -1,5 +1,4 @@
 import 'package:cw_core/balance.dart';
-import 'package:cw_core/crypto_currency.dart';
 
 class MinotariBalance extends Balance {
   final int available;

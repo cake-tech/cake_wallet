@@ -32,10 +32,6 @@ class MinotariWalletService extends WalletService<
     MinotariNewWalletCredentials credentials, {
     bool? isTestnet,
   }) async {
-    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
-    final wallet = MinotariWallet(credentials.walletInfo!, derivationInfo);
-    await wallet.init();
-
     final path = await pathForWallet(
       name: credentials.name,
       type: getType(),
@@ -45,14 +41,24 @@ class MinotariWalletService extends WalletService<
 
     // Create wallet
     final network = _getNetwork(isTestnet);
-    await ffi.create(network: network);
+    await ffi.create(network);
+
+    // Save network to wallet info
+    credentials.walletInfo!.network = network.name;
+    await credentials.walletInfo!.save();
 
     // Get and set the wallet address
     final address = await ffi.getAddress();
+
+    // Now create the wallet instance and initialize with existing data
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    final wallet = MinotariWallet(credentials.walletInfo!, derivationInfo);
     wallet.walletAddresses.setAddress(address);
 
+    // Initialize wallet (this will open the database created above)
+    await wallet.init();
+
     await wallet.save();
-    await wallet.close();
 
     return wallet;
   }
@@ -118,10 +124,6 @@ class MinotariWalletService extends WalletService<
     MinotariRestoreWalletFromSeedCredentials credentials, {
     bool? isTestnet,
   }) async {
-    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
-    final wallet = MinotariWallet(credentials.walletInfo!, derivationInfo);
-    await wallet.init();
-
     final path = await pathForWallet(
       name: credentials.name,
       type: getType(),
@@ -133,16 +135,26 @@ class MinotariWalletService extends WalletService<
     final network = _getNetwork(isTestnet);
     await ffi.restore(
       credentials.mnemonic,
+      network,
       passphrase: credentials.passphrase ?? '',
-      network: network,
     );
+
+    // Save network to wallet info
+    credentials.walletInfo!.network = network.name;
+    await credentials.walletInfo!.save();
 
     // Get and set the wallet address
     final address = await ffi.getAddress();
+
+    // Now create the wallet instance and initialize with restored data
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    final wallet = MinotariWallet(credentials.walletInfo!, derivationInfo);
     wallet.walletAddresses.setAddress(address);
 
+    // Initialize wallet (this will open the database with restored data)
+    await wallet.init();
+
     await wallet.save();
-    await wallet.close();
 
     return wallet;
   }
