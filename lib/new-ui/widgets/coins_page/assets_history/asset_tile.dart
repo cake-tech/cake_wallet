@@ -2,9 +2,13 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 
 class AssetTile extends StatelessWidget {
-  const AssetTile({super.key, required this.dashboardViewModel});
+  const AssetTile({super.key, required this.name, required this.iconPath, required this.balance, required this.fiatBalance, required this.currency});
 
-  final DashboardViewModel dashboardViewModel;
+  final String name;
+  final String iconPath;
+  final String balance;
+  final String fiatBalance;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +41,7 @@ class AssetTile extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(width: 45, height: 45, child: Image.asset("assets/images/crypto/tether.webp")),
+                  Container(width: 45, height: 45, child: Image.asset(iconPath)),
                   SizedBox(width: 8.0),
                   Column(
                     spacing: 4.0,
@@ -45,11 +49,11 @@ class AssetTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "DummyCoin",
+                        name,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        "0.000 DMC",
+                        balance+" "+currency,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -60,7 +64,7 @@ class AssetTile extends StatelessWidget {
               ),
 
               Text(
-                "\$0.00",
+                fiatBalance,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),

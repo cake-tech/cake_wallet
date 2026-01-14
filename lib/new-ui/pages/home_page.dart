@@ -140,17 +140,11 @@ class _NewHomePageState extends State<NewHomePage> {
                     ],
                   );
                 },
-                child: HistorySection(
+                child: AssetsHistorySection(
                   dashboardViewModel: widget.dashboardViewModel,
                 ),
-                // child:_lightningMode
-                  //    ? LightningAssets(
-                         // dashboardViewModel: widget.dashboardViewModel,
-                        // )
-                  //    : HistorySection(
-                          //dashboardViewModel: widget.dashboardViewModel,
-                        // ),
                 ),
+              SizedBox(height: 24.0)
               ],
           ),
         ),

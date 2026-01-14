@@ -4,23 +4,24 @@ import 'package:flutter/material.dart';
 import 'assets_section.dart';
 import 'history_section.dart';
 
-class LightningAssets extends StatefulWidget {
-  LightningAssets({super.key, required this.dashboardViewModel});
+class AssetsHistorySection extends StatefulWidget {
+  AssetsHistorySection({super.key, required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
 
   @override
-  State<LightningAssets> createState() => _LightningAssetsState();
+  State<AssetsHistorySection> createState() => _AssetsHistorySectionState();
 }
 
-class _LightningAssetsState extends State<LightningAssets> {
-  late final List<Widget> lightningTabs;
+class _AssetsHistorySectionState extends State<AssetsHistorySection> {
+  late final List<Widget> tabs;
   int _selectedTab = 0;
 
   @override
   void initState() {
     super.initState();
-    lightningTabs = [
+    tabs = [
+      if(widget.dashboardViewModel.balanceViewModel.formattedBalances.length>1)
       AssetsSection(
         dashboardViewModel: widget.dashboardViewModel,
       ),
@@ -34,6 +35,7 @@ class _LightningAssetsState extends State<LightningAssets> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        if(tabs.length>1)
         AssetsTopBar(
           onTabChange: (index) {
             setState(() {
@@ -42,7 +44,7 @@ class _LightningAssetsState extends State<LightningAssets> {
           },
           selectedTab: _selectedTab,
         ),
-        lightningTabs[_selectedTab],
+        tabs[_selectedTab],
       ],
     );
   }
