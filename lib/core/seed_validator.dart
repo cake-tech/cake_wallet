@@ -2,7 +2,6 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/entities/mnemonic_item.dart';
 import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -58,7 +57,7 @@ class SeedValidator extends Validator<MnemonicItem> {
       case WalletType.zcash:
         return zcash!.getZcashWordList(language);
       case WalletType.minotari:
-        return minotari!.getMinotariWordList(language);
+        return getBitcoinWordList(language);
       case WalletType.none:
       case WalletType.haven:
         return [];

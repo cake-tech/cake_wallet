@@ -15,15 +15,12 @@ import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_wallet_service.dart';
 import 'package:cw_minotari/minotari_transaction_priority.dart';
 import 'package:cw_minotari/pending_minotari_transaction.dart';
-import 'package:cw_minotari/src/rust/api/seeds.dart';
 
 part 'cw_minotari.dart';
 
 Minotari? minotari = CWMinotari();
 
 abstract class Minotari {
-  List<String> getMinotariWordList(String language);
-
   WalletService createMinotariWalletService(
     Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   );
