@@ -14,8 +14,10 @@ import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/picker.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/l2_action_wallet_selector.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
+import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import "package:cw_core/wallet_type.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
@@ -71,8 +73,8 @@ class SendPageModes {
 
   const SendPageModes({required this.title, this.description, required this.showAddressField,this.helpContent, }
       );
-  
-  
+
+
   static const SendPageModes normal = SendPageModes(
     title:"Send",showAddressField:true
   );
@@ -120,6 +122,7 @@ class NewSendPage extends StatefulWidget {
       required this.sendViewModel,
       required this.paymentViewModel,
       required this.walletSwitcherViewModel,
+        required this.contactListViewModel,
       required this.authService,
       required SendPageParams params})
       : initialPaymentRequest = params.initialPaymentRequest,
@@ -128,6 +131,7 @@ class NewSendPage extends StatefulWidget {
   final SendViewModel sendViewModel;
   final PaymentViewModel paymentViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
+  final ContactListViewModel contactListViewModel;
   final AuthService authService;
   final PaymentRequest? initialPaymentRequest;
   final SendPageModes mode;
@@ -406,87 +410,28 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
                                   builder: (_) {
                                     return LoadingPrimaryButton(
                                       key: ValueKey('send_page_send_button_key'),
-                                      onPressed: () async {
-                                        //TODO refactor this action. code was copied over from old ui. i don't like it.
-                                        //Request dummy node to get the focus out of the text fields
-                                        FocusScope.of(context).requestFocus(FocusNode());
+                                      onPressed: (){
+                                        if(widget.mode == SendPageModes.normal) {
+                                          _handleSend();
+                                        } else if(widget.mode == SendPageModes.l2deposit) {
+                                          Navigator.of(context).push(CupertinoPageRoute(builder: (context) => Material(child: l2ActionWalletSelector(
+                                            showOtherWallets: false,
+                                            action: l2actions.deposit,
+                                            sendViewModel: widget.sendViewModel,
+                                            contactListViewModel: widget.contactListViewModel,
+                                            onSendInitiated: _handleSend,
+                                          ))));
+                                        } else if(widget.mode == SendPageModes.l2withdrawal) {
+                                          Navigator.of(context).push(CupertinoPageRoute(builder: (context) => Material(child: l2ActionWalletSelector(
+                                            showOtherWallets: false,
+                                            action: l2actions.withdraw,
+                                            sendViewModel: widget.sendViewModel,
+                                            contactListViewModel: widget.contactListViewModel,
 
-                                        if (widget.sendViewModel.state is IsExecutingState) return;
-                                        // if (_formKey.currentState != null &&
-                                        //     !_formKey.currentState!.validate()) {
-                                        //   if (sendViewModel.outputs.length > 1) {
-                                        //     showErrorValidationAlert(context);
-                                        //   }
-                                        //
-                                        //   return;
-                                        // }
-
-                                        final notValidItems = widget.sendViewModel.outputs
-                                            .where((item) =>
-                                                item.address.isEmpty || item.cryptoAmount.isEmpty)
-                                            .toList();
-
-                                        if (notValidItems.isNotEmpty) {
-                                          showErrorValidationAlert(context);
-                                          return;
+                                            onSendInitiated: _handleSend,
+                                          ))));
                                         }
 
-                                        if (widget.sendViewModel.wallet.isHardwareWallet) {
-                                          if (!widget
-                                              .sendViewModel.hardwareWalletViewModel!.isConnected) {
-                                            await Navigator.of(context).pushNamed(Routes.connectDevices,
-                                                arguments: ConnectDevicePageParams(
-                                                  walletType: widget.sendViewModel.walletType,
-                                                  hardwareWalletType: widget.sendViewModel.wallet
-                                                      .walletInfo.hardwareWalletType!,
-                                                  onConnectDevice: (BuildContext context, _) {
-                                                    widget.sendViewModel.hardwareWalletViewModel!
-                                                        .initWallet(widget.sendViewModel.wallet);
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                ));
-                                          } else {
-                                            widget.sendViewModel.hardwareWalletViewModel!
-                                                .initWallet(widget.sendViewModel.wallet);
-                                          }
-                                        }
-
-                                        if (widget.sendViewModel.wallet.type == WalletType.monero) {
-                                          int amount = 0;
-                                          for (var item in widget.sendViewModel.outputs) {
-                                            amount += item.formattedCryptoAmount;
-                                          }
-                                          if (monero!
-                                              .needExportOutputs(widget.sendViewModel.wallet, amount)) {
-                                            await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
-                                                arguments:
-                                                    monero!.exportOutputsUR(widget.sendViewModel.wallet));
-                                            await Future.delayed(Duration(
-                                                seconds: 1)); // wait for monero to refresh the state
-                                          }
-                                          if (monero!
-                                              .needExportOutputs(widget.sendViewModel.wallet, amount)) {
-                                            return;
-                                          }
-                                        }
-
-                                        final check = widget.sendViewModel.shouldDisplayTotp();
-                                        widget.authService.authenticateAction(
-                                          context,
-                                          conditionToDetermineIfToUse2FA: check,
-                                          onAuthSuccess: (value) async {
-                                            if (value) {
-                                              showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparent, builder: (context) {
-                                                return SendConfirmSheet(sendViewModel: widget
-                                                    .sendViewModel,);
-                                              }).then((value)async{
-                                                widget.sendViewModel.dismissTransaction();
-
-                                              });
-                                              await widget.sendViewModel.createTransaction();
-                                            }
-                                          },
-                                        );
                                       },
                                       text: "Continue",
                                       color: Theme.of(context).colorScheme.primary,
@@ -571,6 +516,89 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
         output.address = address;
       }
     });
+  }
+
+  void _handleSend() async {
+    //TODO refactor this action. code was copied over from old ui. i don't like it.
+    //Request dummy node to get the focus out of the text fields
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    if (widget.sendViewModel.state is IsExecutingState) return;
+    // if (_formKey.currentState != null &&
+    //     !_formKey.currentState!.validate()) {
+    //   if (sendViewModel.outputs.length > 1) {
+    //     showErrorValidationAlert(context);
+    //   }
+    //
+    //   return;
+    // }
+
+    final notValidItems = widget.sendViewModel.outputs
+        .where((item) =>
+    item.address.isEmpty || item.cryptoAmount.isEmpty)
+        .toList();
+
+    if (notValidItems.isNotEmpty) {
+      showErrorValidationAlert(context);
+      return;
+    }
+
+    if (widget.sendViewModel.wallet.isHardwareWallet) {
+      if (!widget
+          .sendViewModel.hardwareWalletViewModel!.isConnected) {
+        await Navigator.of(context).pushNamed(Routes.connectDevices,
+            arguments: ConnectDevicePageParams(
+              walletType: widget.sendViewModel.walletType,
+              hardwareWalletType: widget.sendViewModel.wallet
+                  .walletInfo.hardwareWalletType!,
+              onConnectDevice: (BuildContext context, _) {
+                widget.sendViewModel.hardwareWalletViewModel!
+                    .initWallet(widget.sendViewModel.wallet);
+                Navigator.of(context).pop();
+              },
+            ));
+      } else {
+        widget.sendViewModel.hardwareWalletViewModel!
+            .initWallet(widget.sendViewModel.wallet);
+      }
+    }
+
+    if (widget.sendViewModel.wallet.type == WalletType.monero) {
+      int amount = 0;
+      for (var item in widget.sendViewModel.outputs) {
+        amount += item.formattedCryptoAmount;
+      }
+      if (monero!
+          .needExportOutputs(widget.sendViewModel.wallet, amount)) {
+        await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
+            arguments:
+            monero!.exportOutputsUR(widget.sendViewModel.wallet));
+        await Future.delayed(Duration(
+            seconds: 1)); // wait for monero to refresh the state
+      }
+      if (monero!
+          .needExportOutputs(widget.sendViewModel.wallet, amount)) {
+        return;
+      }
+    }
+
+    final check = widget.sendViewModel.shouldDisplayTotp();
+    widget.authService.authenticateAction(
+      context,
+      conditionToDetermineIfToUse2FA: check,
+      onAuthSuccess: (value) async {
+        if (value) {
+          showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparent, builder: (context) {
+            return SendConfirmSheet(sendViewModel: widget
+                .sendViewModel,);
+          }).then((value)async{
+            widget.sendViewModel.dismissTransaction();
+
+          });
+          await widget.sendViewModel.createTransaction();
+        }
+      },
+    );
   }
 
   void _removeInputControllers(int index) {

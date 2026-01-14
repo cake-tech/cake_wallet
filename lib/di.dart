@@ -879,6 +879,7 @@ Future<void> setup({
       sendViewModel: getIt.get<SendViewModel>(param1: params.unspentCoinType),
       authService: getIt.get<AuthService>(),
       params: params,
+      contactListViewModel: getIt.get<ContactListViewModel>(),
       paymentViewModel: getIt.get<PaymentViewModel>(),
       walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
     );
