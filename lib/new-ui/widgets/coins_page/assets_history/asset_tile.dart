@@ -1,4 +1,3 @@
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 
 class AssetTile extends StatelessWidget {

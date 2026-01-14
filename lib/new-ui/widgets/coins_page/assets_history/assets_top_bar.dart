@@ -1,5 +1,4 @@
 import 'package:cake_wallet/new-ui/widgets/line_tab_switcher.dart';
-import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:flutter/material.dart';
 
 class AssetsTopBar extends StatelessWidget {
