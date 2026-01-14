@@ -1,16 +1,22 @@
 import 'dart:math';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import 'balance_card.dart';
 
@@ -234,13 +240,29 @@ class _CardsViewState extends State<CardsView> {
       unspentCoinType = UnspentCoinType.lightning;
     }
 
-    Navigator.pushNamed(
-      context,
-      Routes.send,
-      arguments: {
-        'paymentRequest': paymentRequest,
-        'coinTypeToSpendFrom': unspentCoinType,
-      },
-    );
+
+    if(FeatureFlag.hasNewUiExtraPages) {
+      final page = getIt.get<NewSendPage>(param1: SendPageParams(
+        initialPaymentRequest: paymentRequest,
+        unspentCoinType: unspentCoinType,
+        mode: SendPageModes.l2withdrawal,
+      ));
+      showCupertinoModalBottomSheet(context: context, builder: (context){
+        return FractionallySizedBox(
+          heightFactor: 0.55,
+          child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
+        );
+      });
+    } else {
+      Navigator.pushNamed(
+        context,
+        Routes.send,
+        arguments: {
+          'paymentRequest': paymentRequest,
+          'coinTypeToSpendFrom': unspentCoinType,
+        },
+      );
+    }
+ 
   }
 }

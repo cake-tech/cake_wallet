@@ -12,9 +12,11 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/picker.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import "package:cw_core/wallet_type.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
@@ -45,26 +47,90 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
+class SendPageHelpContent {
+  final String imagePath;
+  final String title;
+  final String description;
+  final String? disclaimer;
+
+  const SendPageHelpContent({required this.title, required this.imagePath, required this.description,this.disclaimer});
+}
+
+class SendPageModes {
+  final bool showAddressField;
+  final String title;
+  final String? description;
+  final SendPageHelpContent? helpContent;
+
+  const SendPageModes({required this.title, this.description, required this.showAddressField,this.helpContent, }
+      );
+  
+  
+  static const SendPageModes normal = SendPageModes(
+    title:"Send",showAddressField:true
+  );
+  static const SendPageModes l2deposit = SendPageModes(
+      title: "Deposit",
+      description: "to Lightning",
+      showAddressField: false,
+      helpContent: SendPageHelpContent(
+        title: "Deposit",
+          imagePath: "assets/new-ui/lightning_deposit_help.svg",
+          description:
+              "When you deposit to Lightning, you are swapping your on-chain Bitcoin from this wallet to your Lightning account.",
+          disclaimer:
+              "The new Lightning balance will not be available until the Bitcoin transaction is fully confirmed."));
+  static const SendPageModes l2withdrawal = SendPageModes(
+      title: "Withdraw",
+      description: "to on-chain",
+      showAddressField: false,
+      helpContent: SendPageHelpContent(
+        title: "Withdraw",
+          imagePath: "assets/new-ui/lightning_withdraw_help.svg",
+          description:
+              "When you withdraw from Lightning, you are moving some or all of your Lightning balance to on-chain Bitcoin.",
+          disclaimer:
+              "The new Bitcoin balance will not be available until the transaction is fully confirmed."));
+
+  static const all = [
+    normal,
+    l2deposit,
+    l2withdrawal,
+  ];
+}
+
+class SendPageParams {
+  PaymentRequest? initialPaymentRequest;
+  SendPageModes mode = SendPageModes.normal;
+  UnspentCoinType unspentCoinType = UnspentCoinType.any;
+
+  SendPageParams({this.initialPaymentRequest, this.mode=SendPageModes.normal, this.unspentCoinType=UnspentCoinType.any});
+}
+
 class NewSendPage extends StatefulWidget {
-  const NewSendPage(
+  NewSendPage(
       {super.key,
       required this.sendViewModel,
       required this.paymentViewModel,
       required this.walletSwitcherViewModel,
       required this.authService,
-      this.initialPaymentRequest});
+      required SendPageParams params})
+      : initialPaymentRequest = params.initialPaymentRequest,
+        mode = params.mode;
 
   final SendViewModel sendViewModel;
   final PaymentViewModel paymentViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
   final AuthService authService;
   final PaymentRequest? initialPaymentRequest;
+  final SendPageModes mode;
 
   @override
   State<NewSendPage> createState() => _NewSendPageState();
@@ -96,8 +162,31 @@ class _NewSendPageState extends State<NewSendPage> {
 
     reaction((_)=>widget.sendViewModel.outputs[_selectedOutput].address, ((address) {
       _addressControllers[_selectedOutput].text = address;
-
     }));
+
+    if (widget.initialPaymentRequest != null &&
+        widget.sendViewModel.walletCurrencyName == widget.initialPaymentRequest!.scheme.toLowerCase()) {
+      _addressControllers[0].text = widget.initialPaymentRequest!.address;
+      _amountControllers[0].text = widget.initialPaymentRequest!.amount;
+    }
+
+    /// if the current wallet doesn't match the one in the qr code
+    if (widget.initialPaymentRequest != null &&
+        widget.sendViewModel.walletCurrencyName != widget.initialPaymentRequest!.scheme.toLowerCase()) {
+      WidgetsBinding.instance.addPostFrameCallback(
+            (timeStamp) {
+          if (mounted) {
+            final prefix =
+            widget.initialPaymentRequest!.scheme.isNotEmpty ? "${widget.initialPaymentRequest!.scheme}:" : "";
+            final amount = widget.initialPaymentRequest!.amount.isNotEmpty
+                ? "?amount=${widget.initialPaymentRequest!.amount}"
+                : "";
+            final uri = prefix + widget.initialPaymentRequest!.address + amount;
+            _handlePaymentFlow(uri, widget.initialPaymentRequest!);
+          }
+        },
+      );
+    }
   }
 
   @override
@@ -119,7 +208,8 @@ class _NewSendPageState extends State<NewSendPage> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   ModalTopBar(
-                      title: "Send",
+                      title: widget.mode.title,
+                      subtitle: widget.mode.description,
                       leadingIcon: Icon(Icons.close),
                       onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
                     trailingWidget: Observer(
@@ -141,6 +231,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                   widget.sendViewModel.removeOutput(output);
                                   if (outputIndex == 0) _setOutput(0);
                                 }),
+                          if(widget.mode == SendPageModes.normal)
                           ModernButton(
                               size: 36,
                               icon: Icon(Icons.add),
@@ -148,7 +239,14 @@ class _NewSendPageState extends State<NewSendPage> {
                                 _addInputControllers();
                                 widget.sendViewModel.addOutput();
                                 _setOutput(widget.sendViewModel.outputs.length - 1);
-                              })
+                              }),
+                          if(widget.mode.helpContent != null)
+                            ModernButton(
+                              size:36,
+                              icon:SvgPicture.asset("assets/new-ui/help.svg",colorFilter:ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn),),
+                              onPressed:(){Navigator.of(context).push(CupertinoPageRoute(builder: (context) => Material(child: SendHelpPage(content: widget.mode.helpContent!))));
+                              }
+                            )
                         ],
                       ),
                     ),
@@ -167,6 +265,7 @@ class _NewSendPageState extends State<NewSendPage> {
                               spacing: 24,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                if(widget.mode.showAddressField)
                                 Column(crossAxisAlignment:CrossAxisAlignment.start,
                                   spacing:12,children: [
                                   Text("Address or alias"),
@@ -828,5 +927,45 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
 
   String _wrapAmount(String amount, int maxChars) {
     return amount.length <= maxChars ? amount : amount.substring(0, maxChars-3)+"...";
+  }
+}
+
+
+class SendHelpPage extends StatelessWidget {
+  const SendHelpPage({super.key, required this.content});
+
+  final SendPageHelpContent content;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ModalTopBar(
+      title: content.title,
+            leadingIcon: Icon(Icons.arrow_back_ios_new),
+            onLeadingPressed: Navigator.of(context).pop,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            child: Column(
+              spacing: 30,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                SvgPicture.asset(content.imagePath),
+                Text(content.description,textAlign: TextAlign.center,style: TextStyle(fontSize:14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurface),),
+                if(content.disclaimer != null)
+                  Text(
+                    content.disclaimer!,textAlign: TextAlign.center,style: TextStyle(fontSize:14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              ],
+            ),
+          ),
+          Padding(padding:EdgeInsets.symmetric(horizontal: 18),child: NewPrimaryButton(onPressed: Navigator.of(context).pop, text: "I understand", color: Theme.of(context).colorScheme.primary, textColor: Theme.of(context).colorScheme.onPrimary))
+        ],
+      ),
+    );
   }
 }

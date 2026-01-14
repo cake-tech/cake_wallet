@@ -873,14 +873,16 @@ Future<void> setup({
             walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
           ));
 
-  getIt.registerFactoryParam<NewSendPage, PaymentRequest?, UnspentCoinType?>(
-          (PaymentRequest? initialPaymentRequest, coinTypeToSpendFrom) => NewSendPage(
-        sendViewModel: getIt.get<SendViewModel>(param1: coinTypeToSpendFrom),
-        authService: getIt.get<AuthService>(),
-        initialPaymentRequest: initialPaymentRequest,
-        paymentViewModel: getIt.get<PaymentViewModel>(),
-        walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
-      ));
+  getIt.registerFactoryParam<NewSendPage, SendPageParams?, void>((params, _) {
+    params ??= SendPageParams();
+    return NewSendPage(
+      sendViewModel: getIt.get<SendViewModel>(param1: params.unspentCoinType),
+      authService: getIt.get<AuthService>(),
+      params: params,
+      paymentViewModel: getIt.get<PaymentViewModel>(),
+      walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
+    );
+  });
 
   getIt.registerFactory(
       () => SendTemplatePage(sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
