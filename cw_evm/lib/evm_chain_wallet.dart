@@ -748,7 +748,10 @@ abstract class EVMChainWalletBase
         BigInt.zero,
         (acc, output) {
           if (output.cryptoAmount != null && output.cryptoAmount!.isNotEmpty) {
-            return acc + EVMChainFormatter.parseEVMChainAmountToBigInt(output.cryptoAmount!);
+            return acc + EVMChainFormatter.parseEVMChainAmountToBigInt(
+              output.cryptoAmount!,
+              decimals: exponent,
+            );
           }
           return acc;
         },
@@ -772,7 +775,10 @@ abstract class EVMChainWalletBase
       final output = outputs.first;
       if (!output.sendAll) {
         if (output.cryptoAmount != null && output.cryptoAmount!.isNotEmpty) {
-          totalAmount = EVMChainFormatter.parseEVMChainAmountToBigInt(output.cryptoAmount!);
+          totalAmount = EVMChainFormatter.parseEVMChainAmountToBigInt(
+            output.cryptoAmount!,
+            decimals: exponent,
+          );
         } else {
           totalAmount = BigInt.zero;
         }

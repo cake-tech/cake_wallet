@@ -12,19 +12,20 @@ class EVMChainFormatter {
   }
 
   /// Parse EVM chain amount to BigInt to avoid integer overflow for large amounts
-  static BigInt parseEVMChainAmountToBigInt(String amount) {
+  /// [decimals] defaults to 18 for native ETH/POL, but should be set to token decimals for ERC20 tokens
+  static BigInt parseEVMChainAmountToBigInt(String amount, {int decimals = evmDecimals}) {
     try {
       final parts = amount.replaceAll(',', '.').split('.');
       final whole = parts[0].isEmpty ? '0' : parts[0];
       final fraction = parts.length > 1 ? parts[1] : '';
 
       final fractionPadded = fraction
-          .padRight(evmDecimals, '0')
-          .substring(0, evmDecimals > fraction.length ? evmDecimals : fraction.length);
+          .padRight(decimals, '0')
+          .substring(0, decimals > fraction.length ? decimals : fraction.length);
 
       final wholeBigInt = BigInt.parse(whole);
       final fractionBigInt = BigInt.parse(fractionPadded);
-      final multiplier = BigInt.from(10).pow(evmDecimals);
+      final multiplier = BigInt.from(10).pow(decimals);
 
       return (wholeBigInt * multiplier) + fractionBigInt;
     } catch (_) {
