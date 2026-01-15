@@ -15,6 +15,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 
 Future<void> bootstrapOffline() async {
   final authenticationStore = getIt.get<AuthenticationStore>();
@@ -42,5 +43,7 @@ void bootstrapOnline(GlobalKey<NavigatorState> navigatorKey, {required bool load
   startOnCurrentNodeChangeReaction(appStore);
   startFiatRateUpdate(appStore, settingsStore, fiatConversionStore);
 
-  getIt.get<NodeSwitchingService>().startHealthCheckTimer();
+  if (FeatureFlag.isAutomaticNodeSwitchingEnabled) {
+    getIt.get<NodeSwitchingService>().startHealthCheckTimer();
+  }
 }

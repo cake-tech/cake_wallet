@@ -3,6 +3,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -57,7 +58,10 @@ class NodeSwitchingService {
   Future<void> performHealthCheck() async {
     if (appStore.wallet == null) return;
 
-    if (!settingsStore.enableAutomaticNodeSwitching) return;
+    if (!FeatureFlag.isAutomaticNodeSwitchingEnabled ||
+        !settingsStore.enableAutomaticNodeSwitching) {
+      return;
+    }
 
     if (_isSwitching) return;
 
