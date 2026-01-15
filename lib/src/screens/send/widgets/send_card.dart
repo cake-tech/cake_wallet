@@ -7,7 +7,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dar
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/evm_payment_flow_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/token_selection_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
@@ -171,10 +171,27 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           );
           break;
         case PaymentFlowType.evmNetworkSelection:
-          await _showEVMPaymentFlow(
+          await _showTokenSelectionFlow(
             paymentViewModel,
             walletSwitcherViewModel,
             paymentRequest,
+            fixedNetwork: result.walletType,
+          );
+          break;
+        case PaymentFlowType.solanaTokenSelection:
+          await _showTokenSelectionFlow(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
+            fixedNetwork: WalletType.solana,
+          );
+          break;
+        case PaymentFlowType.tronTokenSelection:
+          await _showTokenSelectionFlow(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
+            fixedNetwork: WalletType.tron,
           );
           break;
         case PaymentFlowType.currentWalletCompatible:
@@ -227,11 +244,12 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     );
   }
 
-  Future<void> _showEVMPaymentFlow(
+  Future<void> _showTokenSelectionFlow(
     PaymentViewModel paymentViewModel,
     WalletSwitcherViewModel walletSwitcherViewModel,
-    PaymentRequest paymentRequest,
-  ) async {
+    PaymentRequest paymentRequest, {
+    WalletType? fixedNetwork,
+  }) async {
     if (!context.mounted) {
       return;
     }
@@ -241,9 +259,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       isDismissible: true,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return EVMPaymentFlowBottomSheet(
+        return TokenSelectionBottomSheet(
           paymentViewModel: paymentViewModel,
           paymentRequest: paymentRequest,
+          fixedNetwork: fixedNetwork,
           onNext: (PaymentFlowResult newResult) {
             if (newResult.addressDetectionResult!.detectedWalletType ==
                 paymentViewModel.currentWalletType) {
@@ -549,31 +568,21 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                           builder: (context, snapshot) {
                             return GestureDetector(
                               onTap: () {
-                                sendViewModel.balanceViewModel
-                                    .switchBalanceValue();
+                                sendViewModel.balanceViewModel.switchBalanceValue();
                               },
                               child: Observer(builder: (_) {
-                                final hidden = sendViewModel
-                                        .balanceViewModel.displayMode ==
+                                final hidden = sendViewModel.balanceViewModel.displayMode ==
                                     BalanceDisplayMode.hiddenBalance;
                                 return Text(
                                   hidden
                                       ? S.of(context).show_balance_send_page
-                                      : (snapshot.data ??
-                                          sendViewModel.balance),
+                                      : (snapshot.data ?? sendViewModel.balance),
                                   // default to balance while loading
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall!
-                                      .copyWith(
+                                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                         fontWeight: FontWeight.w600,
                                         color: hidden
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .primary
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
+                                            ? Theme.of(context).colorScheme.primary
+                                            : Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                 );
                               }),
