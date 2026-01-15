@@ -15,4 +15,5 @@ class FeatureFlag {
   static const bool customBackgroundEnabled = false;
   static const bool duressPinEnabled = true;
   static const bool isEVMChainSwitcherEnabled = false;
+  static const bool isAutomaticNodeSwitchingEnabled = false;
 }

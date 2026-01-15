@@ -336,7 +336,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       final success = await walletSwitcherViewModel.switchToSelectedWallet();
       if (success) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
+          if (mounted) {
             showModalBottomSheet<void>(
               context: context,
               isDismissible: false,
