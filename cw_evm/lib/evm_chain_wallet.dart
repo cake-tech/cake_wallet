@@ -618,12 +618,6 @@ abstract class EVMChainWalletBase
         data: data,
       );
 
-      // Validate that we got valid gas estimate
-      if (estimatedGas <= 0) {
-        printV('Invalid gas estimate received: $estimatedGas');
-        throw EVMChainTransactionFeesException('Failed to estimate gas units for transaction');
-      }
-
       final totalGasFee = estimatedGas * adjustedGasPrice;
 
       return GasParamsHandler(
@@ -637,7 +631,8 @@ abstract class EVMChainWalletBase
       if (e is EVMChainTransactionFeesException) {
         rethrow;
       }
-      throw EVMChainTransactionFeesException('Failed to calculate transaction fees: ${e.toString()}');
+      throw EVMChainTransactionFeesException(
+          'Failed to calculate transaction fees: ${e.toString()}');
     }
   }
 
@@ -748,10 +743,11 @@ abstract class EVMChainWalletBase
         BigInt.zero,
         (acc, output) {
           if (output.cryptoAmount != null && output.cryptoAmount!.isNotEmpty) {
-            return acc + EVMChainFormatter.parseEVMChainAmountToBigInt(
-              output.cryptoAmount!,
-              decimals: exponent,
-            );
+            return acc +
+                EVMChainFormatter.parseEVMChainAmountToBigInt(
+                  output.cryptoAmount!,
+                  decimals: exponent,
+                );
           }
           return acc;
         },
