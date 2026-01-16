@@ -24,6 +24,7 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
   int _selectedTab = 0;
 
   void reloadTabs() {
+    final oldTabLength = tabs.length;
     tabs = [
       HistorySection(
         dashboardViewModel: widget.dashboardViewModel,
@@ -43,9 +44,11 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
       if(isNFTACtivatedChain(widget.dashboardViewModel.wallet.type))
         "NFTs"
     ];
-    setState(() {
-      _selectedTab = 0;
-    });
+    if(oldTabLength!=tabs.length) {
+      setState(() {
+        _selectedTab = 0;
+      });
+    }
   }
 
   @override
