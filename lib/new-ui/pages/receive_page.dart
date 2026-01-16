@@ -11,8 +11,6 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_seed_type.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_util.dart';
-import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -111,7 +109,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
               leadingIcon: Icon(Icons.close),
               trailingIcon: _largeQrMode ? Icon(Icons.share) : widget.addressListViewModel.hasAddressList
                   /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
-                  && widget.receiveOptionViewModel.selectedReceiveOption != BitcoinReceivePageOption.mweb ? Icon(Icons.refresh) : null,
+                  && !(widget.receiveOptionViewModel.selectedReceiveOption.description??"").toLowerCase().contains("mweb") ? Icon(Icons.refresh) : null,
               onLeadingPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
               },
