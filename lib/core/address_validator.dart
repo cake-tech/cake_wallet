@@ -354,6 +354,15 @@ class AddressValidator extends TextValidator {
         pattern = '(T|t)[1-9A-HJ-NP-Za-km-z]{33}';
       case CryptoCurrency.zano:
         pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
+      case CryptoCurrency.zec:
+        pattern =
+        '(?:'
+            't1[0-9A-Za-z]{33}'
+            '|t3[0-9A-Za-z]{33}'
+            '|zs[a-z0-9]{76}'
+            '|zxviews[a-z0-9]{278}'
+            '|u1[a-z0-9]{1,300}'
+            ')';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           pattern = '0x[0-9a-zA-Z]+';
