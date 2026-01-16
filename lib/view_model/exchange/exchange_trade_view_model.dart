@@ -20,7 +20,6 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -356,7 +355,9 @@ abstract class ExchangeTradeViewModelBase with Store {
         wallet.currency == CryptoCurrency.baseEth && tradeFrom?.tag == CryptoCurrency.baseEth.tag;
 
     bool _isArbitrumToken() =>
-        wallet.currency == CryptoCurrency.arbEth && tradeFrom?.tag == CryptoCurrency.arbEth.tag;
+        wallet.currency == CryptoCurrency.arbEth &&
+        (tradeFrom?.tag == CryptoCurrency.arbEth.tag ||
+            tradeFrom?.title == CryptoCurrency.arbEth.tag); // This is to handle the CryptoCurrency.arb that doesn't have a tag but fully belongs to the Arbitrum chain
 
     bool _isTronToken() =>
         wallet.currency == CryptoCurrency.trx && tradeFrom?.tag == CryptoCurrency.trx.title;
@@ -502,5 +503,5 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   @computed
-  String get qrImage => getQrImage(wallet.type);
+  String get qrImage => getQrImage(wallet.type, selectedChainId: wallet.chainId);
 }

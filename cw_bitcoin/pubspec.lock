@@ -604,8 +604,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/ledger-bitcoin"
-      ref: dc42621f55702d0732681afc2f90bc0047f26633
-      resolved-ref: dc42621f55702d0732681afc2f90bc0047f26633
+      ref: "75bba8632c529debf30ee2b1858530009fa6440b"
+      resolved-ref: "75bba8632c529debf30ee2b1858530009fa6440b"
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.3"

@@ -16,25 +16,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class SwapTradeExchangeProvider extends ExchangeProvider {
-  SwapTradeExchangeProvider() : super(pairList: supportedPairs(_notSupported));
-
-  static final List<CryptoCurrency> _notSupported = [
-    ...(CryptoCurrency.all
-        .where((element) => ![
-              CryptoCurrency.btc,
-              CryptoCurrency.sol,
-              CryptoCurrency.eth,
-              CryptoCurrency.ltc,
-              CryptoCurrency.ada,
-              CryptoCurrency.bch,
-              CryptoCurrency.usdterc20,
-              CryptoCurrency.usdttrc20,
-              CryptoCurrency.bnb,
-              CryptoCurrency.xmr,
-              CryptoCurrency.zec,
-            ].contains(element))
-        .toList())
-  ];
+  SwapTradeExchangeProvider();
 
   static final markup = secrets.swapTradeExchangeMarkup;
 
@@ -220,8 +202,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 400 || responseBody["success"] == false) {
-        final error = responseBody['errors'][0]['msg'] as String;
-        
+        final List<dynamic> errorsList = responseBody['errors'] as List? ?? [];
+        final error = errorsList.isNotEmpty
+            ? (errorsList[0]['msg'] as String?) ?? responseBody.toString()
+            : responseBody.toString();
+
         ExchangeProviderLogger.logError(
           provider: description,
           function: 'createTrade',

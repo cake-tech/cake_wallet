@@ -253,6 +253,21 @@ class DogeURI extends PaymentURI {
   }
 }
 
+class ZcashURI extends PaymentURI {
+  ZcashURI({required super.amount, required super.address});
+
+  @override
+  String toString() {
+    var base = 'zcash:$address';
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 class ERC681URI extends PaymentURI {
   final int chainId;
   final String? contractAddress;

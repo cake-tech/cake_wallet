@@ -1,3 +1,5 @@
+import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -42,12 +44,13 @@ class Trade extends HiveObject {
     this.routerValue,
     this.routerChainId,
     this.sourceTokenAmountRaw,
-    this.requiresTokenApproval
+    this.requiresTokenApproval,
+    this.chainId,
   }) {
     if (provider != null) providerRaw = provider.raw;
 
     fromRaw = from?.raw ?? -1;
-    toRaw   = to?.raw   ?? -1;
+    toRaw = to?.raw ?? -1;
 
     if (state != null) stateRaw = state.raw;
   }
@@ -129,7 +132,9 @@ class Trade extends HiveObject {
   bool? isRefund;
 
   @HiveField(21)
-  bool? isSendAll; /// Must be set on createTrade;
+  bool? isSendAll;
+
+  /// Must be set on createTrade;
 
   @HiveField(22)
   String? router;
@@ -169,6 +174,9 @@ class Trade extends HiveObject {
   bool? requiresTokenApproval;
 
   @HiveField(34)
+  int? chainId;
+
+  @HiveField(35)
   double? fee;
 
   CryptoCurrency? get userCurrencyFrom {
@@ -177,7 +185,9 @@ class Trade extends HiveObject {
     }
     final underscoreIndex = userCurrencyFromRaw!.indexOf('_');
     final title = userCurrencyFromRaw!.substring(0, underscoreIndex);
-    final tag = userCurrencyFromRaw!.substring(underscoreIndex + 1);
+    String tag = userCurrencyFromRaw!.substring(underscoreIndex + 1);
+
+    if (tag.contains('ARB')) tag = 'ARB';
 
     return CryptoCurrency(
       title: title,
@@ -205,6 +215,12 @@ class Trade extends HiveObject {
     );
   }
 
+  String get chainName {
+    if (chainId == null) return '';
+
+    return evm!.getChainNameByChainId(chainId!).capitalized();
+  }
+
   static Trade fromMap(Map<String, Object?> map) {
     return Trade(
       id: map['id'] as String,
@@ -223,6 +239,7 @@ class Trade extends HiveObject {
       isSendAll: map['isSendAll'] as bool?,
       router: map['router'] as String?,
       extraId: map['extra_id'] as String?,
+      chainId: map['chain_id'] as int?,
     );
   }
 
@@ -243,6 +260,8 @@ class Trade extends HiveObject {
       'isSendAll': isSendAll,
       'router': router,
       'extra_id': extraId,
+      'chain_id': chainId,
+      'fee': fee,
     };
   }
 
@@ -295,7 +314,8 @@ class TradeAdapter extends TypeAdapter<Trade> {
       routerChainId: fields[31] as int?,
       sourceTokenAmountRaw: fields[32] as String?,
       requiresTokenApproval: fields[33] as bool?,
-      fee: fields[34] as double?,
+      chainId: fields[34] as int?,
+      fee: fields[35] as double?,
     )
       ..providerRaw = fields[1] == null ? 0 : fields[1] as int
       ..fromRaw = (fields[2] as int?) ?? -1
@@ -376,6 +396,8 @@ class TradeAdapter extends TypeAdapter<Trade> {
       ..writeByte(33)
       ..write(obj.requiresTokenApproval)
       ..writeByte(34)
+      ..write(obj.chainId)
+      ..writeByte(35)
       ..write(obj.fee);
   }
 

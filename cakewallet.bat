@@ -1,5 +1,5 @@
 @echo off
-set cw_win_app_config=--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --dogecoin --base
+set cw_win_app_config=--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --dogecoin --base --arbitrum
 set cw_root=%cd%
 set cw_archive_name=Cake Wallet.zip
 set cw_archive_path=%cw_root%\%cw_archive_name%
