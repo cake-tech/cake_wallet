@@ -18,6 +18,7 @@ import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/api/scanner.dart';
 import 'package:cw_minotari/src/rust/api/transactions.dart';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 
 part 'minotari_wallet.g.dart';
@@ -322,14 +323,36 @@ abstract class MinotariWalletBase
         // Cast to proper type
         final txDto = txDynamic as DisplayedTransactionDto;
 
-        final directionStr = txDto.direction.toLowerCase();
-        final direction = directionStr == 'inbound' || directionStr == 'incoming'
+        // Debug logging - show all FFI data (only in debug builds)
+        if (kDebugMode) {
+          printV('=== Minotari Transaction FFI Data ===');
+          printV('ID: ${txDto.id}');
+          printV('Direction: ${txDto.direction.name}');
+          printV('Source: ${txDto.source.name}');
+          printV('Status: ${txDto.status.name}');
+          printV('Amount: ${txDto.amount} (${txDto.amountDisplay})');
+          printV('Message: ${txDto.message ?? "none"}');
+          printV('Blockchain - Height: ${txDto.blockchain.blockHeight}, Timestamp: ${txDto.blockchain.timestamp}, Confirmations: ${txDto.blockchain.confirmations}');
+          if (txDto.fee != null) {
+            printV('Fee: ${txDto.fee!.amount} (${txDto.fee!.amountDisplay})');
+          } else {
+            printV('Fee: none');
+          }
+          if (txDto.counterparty != null) {
+            printV('Counterparty - Address: ${txDto.counterparty!.address}');
+            printV('Counterparty - Emoji: ${txDto.counterparty!.addressEmoji ?? "none"}');
+            printV('Counterparty - Label: ${txDto.counterparty!.label ?? "none"}');
+          } else {
+            printV('Counterparty: none');
+          }
+          printV('=====================================');
+        }
+
+        final direction = txDto.direction == DisplayedTransactionDirection.incoming
             ? TransactionDirection.incoming
             : TransactionDirection.outgoing;
 
-        final statusStr = txDto.status.toLowerCase();
-        // TODO use constants or enum!!
-        final isPending = statusStr != 'completed' && statusStr != 'confirmed';
+        final isPending = txDto.status != DisplayedTransactionStatus.confirmed;
         final date = DateTime.tryParse(txDto.blockchain.timestamp) ?? DateTime.now();
         final fee = txDto.fee?.amount.toInt();
 
@@ -343,6 +366,29 @@ abstract class MinotariWalletBase
           height: txDto.blockchain.blockHeight.toInt(),
           confirmations: txDto.blockchain.confirmations.toInt(),
         );
+
+        // Store additional data in additionalInfo map for transaction details display
+        txInfo.additionalInfo['source'] = txDto.source.name;
+        txInfo.additionalInfo['status'] = txDto.status.name;
+        txInfo.additionalInfo['amountDisplay'] = txDto.amountDisplay;
+
+        if (txDto.message != null && txDto.message!.isNotEmpty) {
+          txInfo.additionalInfo['message'] = txDto.message!;
+        }
+
+        if (txDto.fee != null) {
+          txInfo.additionalInfo['feeDisplay'] = txDto.fee!.amountDisplay;
+        }
+
+        if (txDto.counterparty != null) {
+          txInfo.additionalInfo['counterpartyAddress'] = txDto.counterparty!.address;
+          if (txDto.counterparty!.addressEmoji != null) {
+            txInfo.additionalInfo['counterpartyEmoji'] = txDto.counterparty!.addressEmoji!;
+          }
+          if (txDto.counterparty!.label != null && txDto.counterparty!.label!.isNotEmpty) {
+            txInfo.additionalInfo['counterpartyLabel'] = txDto.counterparty!.label!;
+          }
+        }
 
         transactionHistory.transactions[txDto.id] = txInfo;
       } catch (e) {
