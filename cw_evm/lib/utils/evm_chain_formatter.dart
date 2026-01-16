@@ -15,16 +15,28 @@ class EVMChainFormatter {
   /// [decimals] defaults to 18 for native ETH/POL, but should be set to token decimals for ERC20 tokens
   static BigInt parseEVMChainAmountToBigInt(String amount, {int decimals = evmDecimals}) {
     try {
-      final parts = amount.replaceAll(',', '.').split('.');
-      final whole = parts[0].isEmpty ? '0' : parts[0];
-      final fraction = parts.length > 1 ? parts[1] : '';
+      String cleanAmount = amount.replaceAll(',', '.');
 
-      final fractionPadded = fraction
-          .padRight(decimals, '0')
-          .substring(0, decimals > fraction.length ? decimals : fraction.length);
+      bool isNegative = cleanAmount.startsWith('-');
+      if (isNegative) {
+        cleanAmount = cleanAmount.substring(1);
+      }
+
+      final parts = cleanAmount.split('.');
+      String whole = parts[0].isEmpty ? '0' : parts[0];
+      String fraction = parts.length > 1 ? parts[1] : '';
+
+      // 3. Strict Truncation Logic
+      // If fraction is longer than decimals, strictly cut it off.
+      // If shorter, pad it with zeros.
+      if (fraction.length > decimals) {
+        fraction = fraction.substring(0, decimals);
+      } else {
+        fraction = fraction.padRight(decimals, '0');
+      }
 
       final wholeBigInt = BigInt.parse(whole);
-      final fractionBigInt = BigInt.parse(fractionPadded);
+      final fractionBigInt = BigInt.parse(fraction);
       final multiplier = BigInt.from(10).pow(decimals);
 
       return (wholeBigInt * multiplier) + fractionBigInt;
