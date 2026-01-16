@@ -188,7 +188,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         _settingsStore.setPriority(wallet.type, monero!.getMoneroTransactionPriorityAutomatic());
         break;
       case WalletType.zcash:
-        _settingsStore.setPriority[wallet.type] = zcash!.getZcashTransactionPriorityAutomatic();
+        _settingsStore.setPriority(wallet.type, zcash!.getZcashTransactionPriorityAutomatic());
         break;
       case WalletType.bitcoin:
         _settingsStore.setPriority(wallet.type, bitcoin!.getBitcoinTransactionPriorityMedium());
