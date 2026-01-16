@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vibration/vibration.dart';
 
 class ActionButton extends StatelessWidget {
   ActionButton({
@@ -29,7 +28,6 @@ class ActionButton extends StatelessWidget {
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
       onPressed: () {
-        HapticFeedback.lightImpact();
         if (route?.isNotEmpty ?? false) {
           Navigator.of(context, rootNavigator: true).pushNamed(route!);
         } else {
