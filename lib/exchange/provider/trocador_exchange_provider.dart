@@ -58,7 +58,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   static const coinPath = '/coin';
   static const providersListPath = '/exchanges';
 
-
   String _lastUsedRateId;
   List<dynamic> _provider;
 
@@ -95,7 +94,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     final uri = await _getUri(coinPath, params);
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
-    
 
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
@@ -113,13 +111,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount
-  }) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -137,7 +134,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
       final uri = await _getUri(newRatePath, params);
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
-      
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
@@ -234,7 +230,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       if (isFixedRateMode) 'amount_to': request.toAmount,
       'address': request.toAddress,
       'refund': request.refundAddress,
-      'refund_memo' : '0',
+      'refund_memo': '0',
     };
 
     if (isFixedRateMode) {
@@ -273,13 +269,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     final uri = await _getUri(createTradePath, params);
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
-    
-    
+
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
       final message = responseJSON['message'] as String;
-      
+
       ExchangeProviderLogger.logError(
         provider: description,
         function: 'createTrade',
@@ -298,7 +293,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
           'url': uri.toString(),
         },
       );
-      
+
       throw Exception('${error}\n$message');
     }
 
@@ -396,10 +391,10 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> findTradeById({required String id}) async {
     final uri = await _getUri(tradePath, {'id': id});
-    return ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey}).then((response) async {
+    return ProxyWrapper()
+        .get(clearnetUri: uri, headers: {'API-Key': apiKey}).then((response) async {
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
-      
 
       final responseListJson = json.decode(response.body) as List;
       final responseJSON = responseListJson.first;
@@ -416,15 +411,22 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final fromCurrency = responseJSON['ticker_from'] as String;
       final fromNetwork = responseJSON['network_from'] as String?;
       final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
-      final fromTag = _normalizedFromNetwork.isEmpty || _normalizedFromNetwork == fromCurrency.toUpperCase() || _normalizedFromNetwork == 'Mainnet'
-          ? null : _normalizedFromNetwork;
+      final fromTag = _normalizedFromNetwork.isEmpty ||
+              _normalizedFromNetwork == fromCurrency.toUpperCase() ||
+              _normalizedFromNetwork == 'Mainnet'
+          ? null
+          : _normalizedFromNetwork;
 
       final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
 
       final toCurrency = responseJSON['ticker_to'] as String;
       final networkTo = responseJSON['network_to'] as String?;
       final _normalizedToNetwork = _normalizeNetworkType(networkTo ?? '');
-      final toTag = _normalizedToNetwork.isEmpty || _normalizedToNetwork == toCurrency.toUpperCase() || _normalizedFromNetwork == 'Mainnet' ? null : _normalizedToNetwork;
+      final toTag = _normalizedToNetwork.isEmpty ||
+              _normalizedToNetwork == toCurrency.toUpperCase() ||
+              _normalizedFromNetwork == 'Mainnet'
+          ? null
+          : _normalizedToNetwork;
       final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
 
       return Trade(
@@ -442,7 +444,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         providerId: providerId,
         providerName: providerName,
         extraId: addressProviderMemo,
-        userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
+        userCurrencyFromRaw:
+            '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
         userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
       );
     });
@@ -451,7 +454,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   Future<List<TrocadorPartners>> fetchProviders() async {
     final uri = await _getUri(providersListPath, {'api_key': apiKey});
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    
 
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
@@ -479,6 +481,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'MATIC';
       case CryptoCurrency.zec:
         return 'Mainnet';
+      case CryptoCurrency.arb:
+        return 'Mainnet';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
     }
@@ -496,6 +500,10 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   String _normalizeTag(String tag) {
+    if (tag.contains('ARB')) {
+      return 'Arbitrum';
+    }
+
     switch (tag) {
       case 'ETH':
         return 'ERC20';
@@ -520,8 +528,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       _ => network,
     };
   }
-
-
 
   Future<Uri> _getUri(String path, Map<String, String> queryParams) async {
     final uri = Uri.http(onionApiAuthority, path, queryParams);

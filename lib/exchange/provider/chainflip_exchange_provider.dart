@@ -27,7 +27,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     CryptoCurrency.sol,
     CryptoCurrency.usdcsol,
     CryptoCurrency.arbEth,
-    // TODO: Add CryptoCurrency.usdcarb
+    CryptoCurrency.usdcArb,
     // TODO: Add CryptoCurrency.dot
     ];
 

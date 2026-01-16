@@ -257,6 +257,14 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                       widget.privacySettingsViewModel.setDisableBulletin(value);
                     },
                   ),
+                  if (widget.privacySettingsViewModel.canUseBlinkProtection)
+                    SettingsSwitcherCell(
+                      title: S.current.use_blink_protection,
+                      value: widget.privacySettingsViewModel.useBlinkProtection,
+                      onValueChange: (BuildContext _, bool value) {
+                        widget.privacySettingsViewModel.setUseBlinkProtection(value);
+                      },
+                    ),
                   SettingsSwitcherCell(
                     title: S.current.add_custom_node,
                     value: widget.privacySettingsViewModel.addCustomNode,

@@ -423,6 +423,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
     switch (tag) {
       case 'POLY':
         return 'Polygon';
+        case 'ARB':
+        return 'Arbitrum';
       default:
         return tag;
     }

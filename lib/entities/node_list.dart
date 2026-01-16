@@ -19,6 +19,7 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
     case WalletType.haven:
       path = 'assets/haven_node_list.yml';
       break;
+    // TODO: (refactoring) each wallet would have its path, so `wallet.nodePath` would be decided based on chain id in Evm wallet
     case WalletType.ethereum:
       path = 'assets/ethereum_server_list.yml';
       break;

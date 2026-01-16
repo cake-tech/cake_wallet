@@ -42,6 +42,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     'EOS': 'eosio',
     'XLM': 'stellar',
     'BASE': 'basemainnet',
+    'ARB': 'arbitrum',
   };
   
   static const supportedTags = [
@@ -62,6 +63,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     'EOS',
     'XLM',
     'BASE',
+    'ARB',
   ];
 
 

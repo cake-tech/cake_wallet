@@ -95,7 +95,6 @@ class TradeMonitor {
       }
 
       if (_tradeTimers.containsKey(trade.id)) {
-        printV('Trade ${trade.id} is already being monitored');
         continue;
       } else {
         _startTradeMonitoring(trade, provider!);
@@ -141,7 +140,6 @@ class TradeMonitor {
     }
 
     if (_isFinalState(trade.state)) {
-      printV('Skipping trade ${trade.id} because it\'s in a final state');
       return true;
     }
 
