@@ -21,6 +21,8 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
   List<GlobalKey> textWidgetKeys = [];
   List<Size> textWidgetSizes = [];
   double totalWidth = 0;
+  final double itemPadding = 16;
+  final double barPadding = 8;
   bool textWidgetsMeasured = false;
 
   double _calcBarLeft() {
@@ -31,10 +33,10 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
     }
 
     for (int i = 0; i < widget.selectedTab; i++) {
-      left += textWidgetSizes[i].width + 16.0;
+      left += textWidgetSizes[i].width + itemPadding;
     }
 
-    left += 8.0;
+    left += barPadding;
 
     return left;
   }
@@ -47,6 +49,7 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
   }
 
   void measure() {
+    if(textWidgetsMeasured) return;
     setState(() {
       textWidgetSizes = textWidgetKeys
           .map((k) => k.currentContext!.size)
@@ -54,8 +57,9 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
           .toList();
 
       for(final size in textWidgetSizes) {
-        totalWidth += size.width;
+        totalWidth += size.width+itemPadding;
       }
+      totalWidth += barPadding;
       textWidgetsMeasured = true;
     });
   }
@@ -82,7 +86,7 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                   widget.onTabChange(index);
                 },
                 child: Column(
-                  mainAxisSize: MainAxisSize.max,
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     AnimatedDefaultTextStyle(
@@ -95,7 +99,7 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                             : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        padding: EdgeInsets.symmetric(horizontal: itemPadding/2),
                         child: Text(
                           item,
                           key: textWidgetKeys[index],
