@@ -12,6 +12,7 @@ import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewHomePage extends StatefulWidget {
@@ -127,25 +128,12 @@ class _NewHomePageState extends State<NewHomePage> {
                 lightningMode: _lightningMode,
               ),
               CoinActionRow(lightningMode: _lightningMode),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                transitionBuilder: (child, animation) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-                layoutBuilder: (currentChild, previousChildren) {
-                  return Stack(
-                    alignment: Alignment.topCenter,
-                    children: [
-                      ...previousChildren,
-                      if (currentChild != null) currentChild,
-                    ],
-                  );
-                },
-                child: AssetsHistorySection(
+              Observer(
+                builder: (_)=>AssetsHistorySection(
                   nftViewModel: widget.nftViewModel,
                   dashboardViewModel: widget.dashboardViewModel,
                 ),
-                ),
+              ),
               SizedBox(height: 24.0)
               ],
           ),

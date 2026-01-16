@@ -11,20 +11,23 @@ class AssetsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length-1,
-      itemBuilder: (context, index) {
-        final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index+1);
-        return AssetTile(
-            name: balance.asset.fullName ?? balance.asset.name,
-            iconPath: balance.asset.iconPath??"",
-            balance: balance.availableBalance,
-            currency: balance.asset.title,
-            fiatBalance: balance.fiatAvailableBalance
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 64.0),
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length-1,
+        itemBuilder: (context, index) {
+          final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index+1);
+          return AssetTile(
+              name: balance.asset.fullName ?? balance.asset.name,
+              iconPath: balance.asset.iconPath??"",
+              balance: balance.availableBalance,
+              currency: balance.asset.title,
+              fiatBalance: balance.fiatAvailableBalance
+          );
+        },
+      ),
     );
   }
 }

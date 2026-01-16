@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:mobx/mobx.dart';
 import 'assets_section.dart';
 import 'history_section.dart';
 
@@ -18,32 +19,43 @@ class AssetsHistorySection extends StatefulWidget {
 }
 
 class _AssetsHistorySectionState extends State<AssetsHistorySection> {
-  late final List<Widget> tabs;
-  late final List<String> tabNames;
+  late List<Widget> tabs;
+  late List<String> tabNames;
   int _selectedTab = 0;
 
-  @override
-  void initState() {
-    super.initState();
+  void reloadTabs() {
     tabs = [
       HistorySection(
         dashboardViewModel: widget.dashboardViewModel,
       ),
       if(widget.dashboardViewModel.balanceViewModel.formattedBalances.length>1)
-      AssetsSection(
-        dashboardViewModel: widget.dashboardViewModel,
-      ),
+        AssetsSection(
+          dashboardViewModel: widget.dashboardViewModel,
+        ),
       if(isNFTACtivatedChain(widget.dashboardViewModel.wallet.type))
         NFTListingPage(nftViewModel: widget.nftViewModel)
     ];
-    
+
     tabNames = [
-        "History",
+      "History",
       if(widget.dashboardViewModel.balanceViewModel.formattedBalances.length>1)
         "Tokens",
       if(isNFTACtivatedChain(widget.dashboardViewModel.wallet.type))
         "NFTs"
     ];
+    setState(() {
+      _selectedTab = 0;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    reloadTabs();
+
+    reaction((_)=>widget.dashboardViewModel.balanceViewModel.formattedBalances, (value) {
+      reloadTabs();
+    });
   }
 
   @override
@@ -52,6 +64,7 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
       children: [
         if(tabs.length>1)
         AssetsTopBar(
+          dashboardViewModel: widget.dashboardViewModel,
           tabs: tabNames,
           onTabChange: (index) {
             setState(() {

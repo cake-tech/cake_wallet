@@ -25,6 +25,20 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
   final double barPadding = 8;
   bool textWidgetsMeasured = false;
 
+  @override
+  void didUpdateWidget(covariant LineTabSwitcher oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.tabs.length != widget.tabs.length) {
+      textWidgetKeys = List.generate(widget.tabs.length, (_) => GlobalKey());
+      textWidgetSizes = [];
+      totalWidth = 0;
+      textWidgetsMeasured = false;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) => measure());
+    }
+  }
+
   double _calcBarLeft() {
     double left = 0;
 
@@ -75,7 +89,7 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-          height: 40,
+          height: 28,
           child: Row(
             children: widget.tabs.map((item){
 
@@ -93,7 +107,8 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                       duration: Duration(milliseconds: 150),
                       style: DefaultTextStyle.of(context).style.copyWith(
                         inherit: true,
-                        fontSize: 22,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                         color: widget.selectedTab == index
                             ? Theme.of(context).colorScheme.onSurface
                             : Theme.of(context).colorScheme.onSurfaceVariant,
