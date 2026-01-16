@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -49,7 +50,7 @@ class ReceiveAmountDisplay extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("${walletAddressListViewModel.fiatAmount} ${walletAddressListViewModel.fiatCurrency.name}", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16,fontWeight: FontWeight.w500),),
+                  child: Text("${walletAddressListViewModel.selectedCurrency is FiatCurrency ? walletAddressListViewModel.selectedCurrencyFiatAmount : walletAddressListViewModel.fiatAmount} ${walletAddressListViewModel.selectedCurrency is FiatCurrency ? walletAddressListViewModel.selectedCurrency.name : walletAddressListViewModel.fiatCurrency.name}", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16,fontWeight: FontWeight.w500),),
                 )
               ],
             ),

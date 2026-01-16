@@ -1,6 +1,6 @@
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_selector.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
@@ -22,7 +22,7 @@ class ReceiveSeedTypeDisplay extends StatelessWidget {
 
 
         String text =receiveOptionViewModel.selectedReceiveOption.value;
-        if(largeQrMode && text == "Standard") {
+        if(largeQrMode && receiveOptionViewModel.selectedReceiveOption.addAddressWord ) {
           text += " Address";
         }
 
@@ -93,7 +93,7 @@ class ReceiveSeedTypeDisplay extends StatelessWidget {
   }
 
   void _showPicker(BuildContext context) async {
-    showCupertinoModalBottomSheet(
+    final res = await showCupertinoModalBottomSheet(
         context: context,
         barrierColor: Colors.black.withAlpha(80),
         builder: (context) {
@@ -103,5 +103,9 @@ class ReceiveSeedTypeDisplay extends StatelessWidget {
             receiveOptionViewModel: receiveOptionViewModel,
           ));
         });
+
+    if(res != null && res is ReceivePageOption){
+      receiveOptionViewModel.selectReceiveOption(res);
+    }
   }
 }

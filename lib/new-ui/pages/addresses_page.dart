@@ -162,6 +162,9 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                         ),
                       ),
                     ),
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: 72)
+                    )
                   ],
                 ),
                 Padding(padding:EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),child: AddressSearchBox(controller: _searchController)),

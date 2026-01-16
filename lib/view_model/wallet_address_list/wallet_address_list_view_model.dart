@@ -127,6 +127,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
+  String get selectedCurrencyFiatAmount {
+    if(_fiatRate == null) return "";
+    return (double.parse(amount)*_fiatRate!).toStringAsFixed(2);
+  }
+
+  @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
 

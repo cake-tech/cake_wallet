@@ -14,6 +14,7 @@ class ReceiveAddressTypeSelector extends StatefulWidget {
   final bool lightningMode;
 
   static const otherOptionsExpandDuration = Duration(milliseconds: 300);
+  static const otherOptionsTreshold = 3;
 
   @override
   State<ReceiveAddressTypeSelector> createState() => _ReceiveAddressTypeSelectorState();
@@ -31,7 +32,8 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
   @override
   Widget build(BuildContext context) {
     final commonOptions =
-        widget.receiveOptionViewModel.options.where((element) => element.isCommon).toList();
+        widget.receiveOptionViewModel.options.where((element) => element.isCommon ||
+            widget.receiveOptionViewModel.options.length <= ReceiveAddressTypeSelector.otherOptionsTreshold).toList();
     commonOptions.sort(
           (a, b) {
         if (widget.lightningMode && a.value.contains("Lightning")) return -1;
@@ -42,7 +44,8 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
       },
     );
     final otherOptions =
-        widget.receiveOptionViewModel.options.where((element) => !element.isCommon).toList();
+        widget.receiveOptionViewModel.options.where((element) => !element.isCommon && 
+            widget.receiveOptionViewModel.options.length > ReceiveAddressTypeSelector.otherOptionsTreshold).toList();
 
     return SafeArea(
       child: Container(
@@ -84,7 +87,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                         selected: widget.receiveOptionViewModel.selectedReceiveOption == opt,
                         onItemTap: () {
                           widget.receiveOptionViewModel.selectReceiveOption(opt);
-                          Navigator.of(context).pop();
+                          Navigator.of(context).pop(opt);
                         },
                         receiveOptionViewModel: widget.receiveOptionViewModel,
                       );
@@ -104,108 +107,109 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                   ),
                 ),
               ),
-              SizedBox(height: 24),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: [
-                      Material(
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                        borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
-                            bottom: _otherOptionsExpanded ? Radius.zero : Radius.circular(20)),
-                        child: InkWell(
-                          highlightColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              if(otherOptions.isNotEmpty)
+              ...[              SizedBox(height: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      children: [
+                        Material(
+                          color: Theme.of(context).colorScheme.surfaceContainer,
                           borderRadius: BorderRadius.vertical(
                               top: Radius.circular(20),
-                              bottom: !_otherOptionsExpanded ? Radius.zero : Radius.circular(20)),
-                          onTap: () {
-                            setState(() {
-                              _otherOptionsExpanded = !_otherOptionsExpanded;
-                            });
-                          },
-                          child: Container(
-                            height: 64.0,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "More options",
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        color: Theme.of(context).colorScheme.primary),
-                                  ),
-                                  AnimatedRotation(
-                                      duration:
-                                          ReceiveAddressTypeSelector.otherOptionsExpandDuration,
-                                      turns: _otherOptionsExpanded ? 0.0 : 0.5,
-                                      curve: Curves.easeOut,
-                                      child: SvgPicture.asset("assets/new-ui/dropdown_arrow.svg"))
-                                ],
+                              bottom: _otherOptionsExpanded ? Radius.zero : Radius.circular(20)),
+                          child: InkWell(
+                            highlightColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                                bottom: !_otherOptionsExpanded ? Radius.zero : Radius.circular(20)),
+                            onTap: () {
+                              setState(() {
+                                _otherOptionsExpanded = !_otherOptionsExpanded;
+                              });
+                            },
+                            child: Container(
+                              height: 64.0,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "More options",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context).colorScheme.primary),
+                                    ),
+                                    AnimatedRotation(
+                                        duration:
+                                        ReceiveAddressTypeSelector.otherOptionsExpandDuration,
+                                        turns: _otherOptionsExpanded ? 0.0 : 0.5,
+                                        curve: Curves.easeOut,
+                                        child: SvgPicture.asset("assets/new-ui/dropdown_arrow.svg"))
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      if (_otherOptionsExpanded)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 27.0),
-                          child: HorizontalSectionDivider(),
-                        ),
-                      AnimatedSize(
-                        duration: ReceiveAddressTypeSelector.otherOptionsExpandDuration,
-                        curve: Curves.easeOut,
-                        alignment: Alignment.topCenter,
-                        child: Container(
-                          height: _otherOptionsExpanded ? null : 0,
-                          child: ListView.separated(
-                            shrinkWrap: true,
-                            padding: EdgeInsets.zero,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: otherOptions.length,
-                            itemBuilder: (context, index) {
-                              final opt = otherOptions[index];
+                        if (_otherOptionsExpanded)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 27.0),
+                            child: HorizontalSectionDivider(),
+                          ),
+                        AnimatedSize(
+                          duration: ReceiveAddressTypeSelector.otherOptionsExpandDuration,
+                          curve: Curves.easeOut,
+                          alignment: Alignment.topCenter,
+                          child: Container(
+                            height: _otherOptionsExpanded ? null : 0,
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              padding: EdgeInsets.zero,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: otherOptions.length,
+                              itemBuilder: (context, index) {
+                                final opt = otherOptions[index];
 
-                              return ReceiveAddressTypeRow(
-                                option: opt,
-                                roundedTop: false,
-                                roundedBottom: index == otherOptions.length - 1,
-                                selected:
-                                    widget.receiveOptionViewModel.selectedReceiveOption == opt,
-                                onItemTap: () {
-                                  widget.receiveOptionViewModel.selectReceiveOption(opt);
-                                  Navigator.of(context).pop();
-                                },
-                                receiveOptionViewModel: widget.receiveOptionViewModel,
-                              );
-                            },
-                            separatorBuilder: (context, index) {
-                              if ((widget.receiveOptionViewModel.selectedReceiveOption ==
-                                      otherOptions[index]) ||
-                                  (index != otherOptions.length - 1 &&
-                                      widget.receiveOptionViewModel.selectedReceiveOption ==
-                                          otherOptions[index + 1])) return Container();
+                                return ReceiveAddressTypeRow(
+                                  option: opt,
+                                  roundedTop: false,
+                                  roundedBottom: index == otherOptions.length - 1,
+                                  selected:
+                                  widget.receiveOptionViewModel.selectedReceiveOption == opt,
+                                  onItemTap: () {
+                                    widget.receiveOptionViewModel.selectReceiveOption(opt);
+                                    Navigator.of(context).pop();
+                                  },
+                                  receiveOptionViewModel: widget.receiveOptionViewModel,
+                                );
+                              },
+                              separatorBuilder: (context, index) {
+                                if ((widget.receiveOptionViewModel.selectedReceiveOption ==
+                                    otherOptions[index]) ||
+                                    (index != otherOptions.length - 1 &&
+                                        widget.receiveOptionViewModel.selectedReceiveOption ==
+                                            otherOptions[index + 1])) return Container();
 
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 27.0),
-                                child: HorizontalSectionDivider(),
-                              );
-                            },
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 27.0),
+                                  child: HorizontalSectionDivider(),
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ),
+                ),],
               SizedBox(height: 24),
             ],
           )),

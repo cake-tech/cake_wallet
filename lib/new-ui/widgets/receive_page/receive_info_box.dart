@@ -6,8 +6,11 @@ class ReceiveInfoBox extends StatelessWidget {
   ReceiveInfoBox(
       {super.key, required this.iconPath, required this.message, required this.onDismissed});
 
-  ReceiveInfoBox.forWalletType(WalletType type, {required this.onDismissed}) {
+
+  static ReceiveInfoBox? forWalletType(WalletType type, {required VoidCallback onDismissed}) {
     switch (type) {
+      case WalletType.nano:
+        return null;
       case WalletType.ethereum:
       case WalletType.base:
       case WalletType.solana:
@@ -15,12 +18,18 @@ class ReceiveInfoBox extends StatelessWidget {
       case WalletType.tron:
       case WalletType.polygon:
       case WalletType.zano:
-        iconPath = "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg";
-        message = "Use this address to receive any token or collectible on ${walletTypeToString(type)}";
-        break;
+        return ReceiveInfoBox(
+          iconPath: "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg",
+          message:
+              "Use this address to receive any token or collectible on ${walletTypeToString(type)}",
+          onDismissed: onDismissed,
+        );
       default:
-        iconPath = "assets/new-ui/info.svg";
-        message = "Your receive address will rotate every time you close and reopen this screen";
+        return ReceiveInfoBox(
+          iconPath: "assets/new-ui/info.svg",
+          message: "Your receive address will rotate every time you close and reopen this screen",
+          onDismissed: onDismissed,
+        );
     }
   }
 

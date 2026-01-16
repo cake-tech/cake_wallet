@@ -12,6 +12,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_util.dart';
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -63,7 +64,6 @@ class _NewReceivePageState extends State<NewReceivePage> {
       if(widget.lightningMode) {
         widget.receiveOptionViewModel.selectReceiveOption(widget.receiveOptionViewModel.options.firstWhere((item)=>item.value.contains("Lightning")));
       } else if(widget.addressListViewModel.wallet.type == WalletType.bitcoin) {
-        printV("dupa");
         widget.receiveOptionViewModel.selectReceiveOption(bitcoin!.getSelectedAddressType(widget.addressListViewModel.wallet));
       }
 
@@ -85,6 +85,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
 
     final hasLabel = _addressItemWithLabel?.name != null && _addressItemWithLabel!.name!.isNotEmpty;
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
+    final infobox = ReceiveInfoBox.forWalletType(widget.addressListViewModel.type, onDismissed: _dismissInfobox);
 
     return SafeArea(
       child: Container(
@@ -108,13 +109,15 @@ class _NewReceivePageState extends State<NewReceivePage> {
             ModalTopBar(
               title: _largeQrMode ? "" : "Receive",
               leadingIcon: Icon(Icons.close),
-              trailingIcon: _largeQrMode ? Icon(Icons.share) : widget.addressListViewModel.hasAddressList ? Icon(Icons.refresh) : null,
+              trailingIcon: _largeQrMode ? Icon(Icons.share) : widget.addressListViewModel.hasAddressList
+                  /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
+                  && widget.receiveOptionViewModel.selectedReceiveOption != BitcoinReceivePageOption.mweb ? Icon(Icons.refresh) : null,
               onLeadingPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
               },
               onTrailingPressed: () {
                 if(_largeQrMode) {
-                  Share.share(widget.addressListViewModel.uri.address);
+                  Share.share(widget.addressListViewModel.uri.toString());
                 } else if(widget.addressListViewModel.hasAddressList){
                   widget.addressListViewModel.rotateAddress();
                 }
@@ -183,6 +186,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                   ReceiveLargeAmountPreview(          amount: widget.addressListViewModel.amount,
                       currency: widget.addressListViewModel.tokenCurrency?.title.toUpperCase() ??widget.addressListViewModel.wallet.currency.name.toUpperCase(),
                           largeQrMode: _largeQrMode),
+                  if(infobox != null)
                   ClipRect(
                     child: AnimatedAlign(
                       duration: const Duration(milliseconds: 200),
@@ -193,10 +197,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                         duration: const Duration(milliseconds: 200),
                         opacity: infoboxDismissed ? 0 : 1,
                         curve: Curves.easeOutCubic,
-                        child: ReceiveInfoBox.forWalletType(
-                          widget.addressListViewModel.type,
-                          onDismissed: _dismissInfobox,
-                    )),
+                        child: infobox),
                   ))
                 ],
               ),
