@@ -1,11 +1,15 @@
-import 'package:cw_minotari/src/rust/api/wallet.dart' as wallet_api;
-import 'package:cw_minotari/src/rust/api/balance.dart' as balance_api;
-import 'package:cw_minotari/src/rust/api/address.dart' as address_api;
-import 'package:cw_minotari/src/rust/api/db.dart' as db_api;
-import 'package:cw_minotari/src/rust/api/scanner.dart' as scanner_api;
-import 'package:cw_minotari/src/rust/api/transactions.dart' as transactions_api;
+import 'package:cw_minotari/src/rust/api/wallet.dart';
+import 'package:cw_minotari/src/rust/api/balance.dart' as balance;
+import 'package:cw_minotari/src/rust/api/address.dart' as address;
+import 'package:cw_minotari/src/rust/api/db.dart';
+import 'package:cw_minotari/src/rust/api/scanner.dart' as scanner;
+import 'package:cw_minotari/src/rust/api/transactions.dart' as transactions;
 import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/frb_generated.dart';
+
+/// TODO Default password for Minotari wallets (user can set wallet password in
+/// the future)
+const String kMinotariDefaultPassword = '';
 
 /// FFI interface for Minotari wallet using Flutter Rust Bridge
 class MinotariFfi {
@@ -31,7 +35,7 @@ class MinotariFfi {
   Future<void> open(TariNetwork network) async {
     await _ensureRustLibInitialized();
 
-    await db_api.initializeDatabase(path: dataPath);
+    await initializeDatabase(path: dataPath);
 
     _network = network;
     _isInitialized = true;
@@ -39,13 +43,13 @@ class MinotariFfi {
 
   /// Create a new wallet
   /// Rust generates mnemonic internally
-  Future<void> create(TariNetwork network) async {
+  Future<void> create(TariNetwork network, {String password = kMinotariDefaultPassword}) async {
     await _ensureRustLibInitialized();
 
-    await db_api.initializeDatabase(path: dataPath);
+    await initializeDatabase(path: dataPath);
 
     // Create wallet using FFI - Rust generates mnemonic internally
-    await wallet_api.createWallet(network: network);
+    await createWallet(network: network, password: password);
 
     _network = network;
     _isInitialized = true;
@@ -56,10 +60,11 @@ class MinotariFfi {
     String mnemonic,
     TariNetwork network, {
     String passphrase = '',
+    String password = kMinotariDefaultPassword,
   }) async {
     await _ensureRustLibInitialized();
 
-    await db_api.initializeDatabase(path: dataPath);
+    await initializeDatabase(path: dataPath);
 
     // Convert mnemonic string to list of words
     final seedWords = mnemonic.split(' ').where((word) => word.isNotEmpty).toList();
@@ -69,9 +74,10 @@ class MinotariFfi {
     }
 
     // Restore wallet using FFI
-    await wallet_api.restoreWallet(
+    // Note: password is for wallet encryption, passphrase is for seed derivation (BIP39)
+    await restoreWallet(
       seedWords: seedWords,
-      passphrase: passphrase.isEmpty ? null : passphrase,
+      password: password,
       network: network,
     );
 
@@ -85,7 +91,7 @@ class MinotariFfi {
       throw Exception('Wallet not initialized');
     }
 
-    return await address_api.getAddress(
+    return await address.getAddress(
       walletName: _walletName,
       network: _network,
     );
@@ -97,21 +103,21 @@ class MinotariFfi {
       throw Exception('Wallet not initialized');
     }
 
-    final balance = await balance_api.getBalance(walletName: _walletName);
+    final balanceData = await balance.getBalance(walletName: _walletName);
 
     // Convert BigInt to int (Minotari uses micro-tari, which fits in int64)
     return {
-      'available': balance.available.toInt(),
-      'pendingIncoming': balance.unconfirmed.toInt(),
-      'pendingOutgoing': balance.locked.toInt(),
+      'available': balanceData.available.toInt(),
+      'pendingIncoming': balanceData.unconfirmed.toInt(),
+      'pendingOutgoing': balanceData.locked.toInt(),
     };
   }
 
   /// Start scanner-based blockchain sync
   /// Returns a stream of scan events for progress updates and transaction discovery
-  Stream<scanner_api.ScanEventDto> startScan({
+  Stream<scanner.ScanEventDto> startScan({
     required String baseNodeAddress,
-    String password = '',
+    String password = kMinotariDefaultPassword,
     bool continuous = false,
     int batchSize = 1000,
     int pollIntervalSeconds = 60,
@@ -120,7 +126,7 @@ class MinotariFfi {
       throw Exception('Wallet not initialized');
     }
 
-    final config = scanner_api.ScanConfiguration(
+    final config = scanner.ScanConfiguration(
       password: password,
       baseUrl: baseNodeAddress,
       batchSize: BigInt.from(batchSize),
@@ -128,16 +134,16 @@ class MinotariFfi {
       pollIntervalSeconds: BigInt.from(pollIntervalSeconds),
     );
 
-    return scanner_api.startScan(config: config);
+    return scanner.startScan(config: config);
   }
 
   /// Stop the currently running scan
   Future<void> stopScan() async {
-    await scanner_api.stopScan();
+    await scanner.stopScan();
   }
 
   /// Get transaction history from the wallet
-  Future<List<transactions_api.DisplayedTransactionDto>> getTransactions({
+  Future<List<transactions.DisplayedTransactionDto>> getTransactions({
     int limit = 100,
     int offset = 0,
   }) async {
@@ -145,7 +151,7 @@ class MinotariFfi {
       throw Exception('Wallet not initialized');
     }
 
-    return await transactions_api.getTransactions(
+    return await transactions.getTransactions(
       walletName: _walletName,
       limit: limit,
       offset: offset,
@@ -162,7 +168,7 @@ class MinotariFfi {
   /// Dispose of the wallet handle
   Future<void> dispose() async {
     if (_isInitialized) {
-      await db_api.disconnectDatabase();
+      await disconnectDatabase();
       _isInitialized = false;
       _network = null;
     }
