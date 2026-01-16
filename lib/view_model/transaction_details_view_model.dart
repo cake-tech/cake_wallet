@@ -1008,7 +1008,14 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addMinotariListItems(TransactionInfo tx, DateFormat dateFormat) {
     final feeFormatted = tx.feeFormatted();
-    items.addAll([
+    final status = tx.additionalInfo['status'] as String?;
+    final source = tx.additionalInfo['source'] as String?;
+    final message = tx.additionalInfo['message'] as String?;
+    final counterpartyAddress = tx.additionalInfo['counterpartyAddress'] as String?;
+    final counterpartyEmoji = tx.additionalInfo['counterpartyEmoji'] as String?;
+    final counterpartyLabel = tx.additionalInfo['counterpartyLabel'] as String?;
+
+    final _items = <TransactionDetailsListItem>[
       StandartListItem(
         title: S.current.transaction_details_transaction_id,
         value: tx.txHash,
@@ -1019,10 +1026,27 @@ abstract class TransactionDetailsViewModelBase with Store {
         value: dateFormat.format(tx.date),
         key: ValueKey('standard_list_item_transaction_details_date_key'),
       ),
+      if (status != null)
+        StandartListItem(
+          title: 'Status',
+          value: status, // TODO: i18n translate status values
+          key: ValueKey('standard_list_item_transaction_details_status_key'),
+        ),
+      if (source != null)
+        StandartListItem(
+          title: 'Source',
+          value: source, // TODO: i18n translate source values
+          key: ValueKey('standard_list_item_transaction_details_source_key'),
+        ),
       StandartListItem(
         title: S.current.transaction_details_height,
         value: '${tx.height}',
         key: ValueKey('standard_list_item_transaction_details_height_key'),
+      ),
+      StandartListItem(
+        title: S.current.confirmations,
+        value: '${tx.confirmations}',
+        key: ValueKey('standard_list_item_transaction_details_confirmations_key'),
       ),
       StandartListItem(
         title: S.current.transaction_details_amount,
@@ -1035,11 +1059,50 @@ abstract class TransactionDetailsViewModelBase with Store {
           value: feeFormatted,
           key: ValueKey('standard_list_item_transaction_details_fee_key'),
         ),
-      StandartListItem(
-        title: S.current.confirmations,
-        value: '${tx.confirmations}',
-        key: ValueKey('standard_list_item_transaction_details_confirmations_key'),
-      ),
-    ]);
+    ];
+
+    // Add counterparty information based on transaction direction
+    if (counterpartyAddress != null) {
+      final addressTitle = tx.direction == TransactionDirection.incoming
+          ? S.current.transaction_details_source_address
+          : S.current.transaction_details_recipient_address;
+
+      // Combine address with emoji if available
+      final addressValue = counterpartyEmoji != null
+          ? '$counterpartyEmoji $counterpartyAddress'
+          : counterpartyAddress;
+
+      _items.add(
+        StandartListItem(
+          title: addressTitle,
+          value: addressValue,
+          key: ValueKey('standard_list_item_transaction_details_counterparty_address_key'),
+        ),
+      );
+
+      // Add counterparty label if available
+      if (counterpartyLabel != null && counterpartyLabel.isNotEmpty) {
+        _items.add(
+          StandartListItem(
+            title: 'Label',
+            value: counterpartyLabel,
+            key: ValueKey('standard_list_item_transaction_details_counterparty_label_key'),
+          ),
+        );
+      }
+    }
+
+    // Add message if available
+    if (message != null && message.isNotEmpty) {
+      _items.add(
+        StandartListItem(
+          title: 'Message',
+          value: message,
+          key: ValueKey('standard_list_item_transaction_details_message_key'),
+        ),
+      );
+    }
+
+    items.addAll(_items);
   }
 }
