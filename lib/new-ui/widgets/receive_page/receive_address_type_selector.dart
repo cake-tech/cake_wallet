@@ -86,7 +86,6 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                         roundedBottom: index == commonOptions.length - 1,
                         selected: widget.receiveOptionViewModel.selectedReceiveOption == opt,
                         onItemTap: () {
-                          widget.receiveOptionViewModel.selectReceiveOption(opt);
                           Navigator.of(context).pop(opt);
                         },
                         receiveOptionViewModel: widget.receiveOptionViewModel,
@@ -185,8 +184,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                   selected:
                                   widget.receiveOptionViewModel.selectedReceiveOption == opt,
                                   onItemTap: () {
-                                    widget.receiveOptionViewModel.selectReceiveOption(opt);
-                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pop(opt);
                                   },
                                   receiveOptionViewModel: widget.receiveOptionViewModel,
                                 );
