@@ -19,8 +19,8 @@ class AssetsHistorySection extends StatefulWidget {
 }
 
 class _AssetsHistorySectionState extends State<AssetsHistorySection> {
-  late List<Widget> tabs;
-  late List<String> tabNames;
+  List<Widget> tabs = [];
+  List<String> tabNames = [];
   int _selectedTab = 0;
 
   void reloadTabs() {
