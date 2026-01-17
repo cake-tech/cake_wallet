@@ -51,7 +51,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
         return orchardAddress;
       case ZcashAddressType.unifiedType:
         if (_unifiedAddress == null) {
-          _unifiedAddress = WarpApi.getAddress(ZcashWalletBase.coin, accountId, 7);
+          _unifiedAddress = WarpApi.getAddress(ZcashWalletBase.coin, accountId, 6);
         }
         return _unifiedAddress ?? "";
     }
