@@ -1,3 +1,4 @@
-Add Zcash wallet
-Generic enhancements
+Add Arbitrum
+EVM chains enhancements
+Integrate Jupiter swaps for Solana
 Bug fixes
