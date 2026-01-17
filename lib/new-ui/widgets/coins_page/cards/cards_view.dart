@@ -213,14 +213,28 @@ class _CardsViewState extends State<CardsView> {
       }
     }
 
-    Navigator.pushNamed(
-      context,
-      Routes.send,
-      arguments: {
-        'paymentRequest': paymentRequest,
-        'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
-      },
-    );
+    if(FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+      final page = getIt.get<NewSendPage>(param1: SendPageParams(
+        initialPaymentRequest: paymentRequest,
+        unspentCoinType: UnspentCoinType.nonMweb,
+        mode: SendPageModes.l2deposit,
+      ));
+      showCupertinoModalBottomSheet(context: context, builder: (context){
+        return FractionallySizedBox(
+            heightFactor: 0.65,
+            child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
+        );
+      });
+    } else {
+      Navigator.pushNamed(
+        context,
+        Routes.send,
+        arguments: {
+          'paymentRequest': paymentRequest,
+          'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
+        },
+      );
+    }
   }
 
   Future<void> withdrawFromL2() async {
@@ -241,7 +255,7 @@ class _CardsViewState extends State<CardsView> {
     }
 
 
-    if(FeatureFlag.hasNewUiExtraPages) {
+    if(FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
       final page = getIt.get<NewSendPage>(param1: SendPageParams(
         initialPaymentRequest: paymentRequest,
         unspentCoinType: unspentCoinType,

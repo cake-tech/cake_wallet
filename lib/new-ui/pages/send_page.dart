@@ -416,20 +416,21 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
                                         if(widget.mode == SendPageModes.normal) {
                                           _handleSend();
                                         } else if(widget.mode == SendPageModes.l2deposit) {
-                                          Navigator.of(context).push(CupertinoPageRoute(builder: (context) => Material(child: l2ActionWalletSelector(
+                                          Navigator.of(context).push(CupertinoPageRoute(builder: (context) => Material(child: L2ActionWalletSelector(
                                             showOtherWallets: false,
                                             action: l2actions.deposit,
                                             sendViewModel: widget.sendViewModel,
                                             contactListViewModel: widget.contactListViewModel,
+                                            walletSwitcherViewModel: widget.walletSwitcherViewModel,
                                             onSendInitiated: _handleSend,
                                           ))));
                                         } else if(widget.mode == SendPageModes.l2withdrawal) {
-                                          Navigator.of(context).push(CupertinoPageRoute(builder: (context) => Material(child: l2ActionWalletSelector(
+                                          Navigator.of(context).push(CupertinoPageRoute(builder: (context) => Material(child: L2ActionWalletSelector(
                                             showOtherWallets: false,
                                             action: l2actions.withdraw,
                                             sendViewModel: widget.sendViewModel,
                                             contactListViewModel: widget.contactListViewModel,
-
+                                            walletSwitcherViewModel: widget.walletSwitcherViewModel,
                                             onSendInitiated: _handleSend,
                                           ))));
                                         }

@@ -1,11 +1,9 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/wallet_contact.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -14,18 +12,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
-import "package:cw_core/crypto_currency.dart";
 
 enum l2actions { deposit, withdraw }
 
-class l2ActionWalletSelector extends StatefulWidget {
-  const l2ActionWalletSelector({
+class L2ActionWalletSelector extends StatefulWidget {
+  const L2ActionWalletSelector({
     super.key,
     required this.showOtherWallets,
     required this.sendViewModel,
     required this.action,
     required this.onSendInitiated,
     required this.contactListViewModel,
+    required this.walletSwitcherViewModel,
   });
 
   final bool showOtherWallets;
@@ -33,12 +31,14 @@ class l2ActionWalletSelector extends StatefulWidget {
   final l2actions action;
   final VoidCallback onSendInitiated;
   final ContactListViewModel contactListViewModel;
+  final WalletSwitcherViewModel walletSwitcherViewModel;
+
 
   @override
-  State<l2ActionWalletSelector> createState() => _l2ActionWalletSelectorState();
+  State<L2ActionWalletSelector> createState() => _L2ActionWalletSelectorState();
 }
 
-class _l2ActionWalletSelectorState extends State<l2ActionWalletSelector> {
+class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
   final TextEditingController addressController = TextEditingController();
   List<WalletInfo> items = [];
   bool textEntered = false;
@@ -91,8 +91,10 @@ class _l2ActionWalletSelectorState extends State<l2ActionWalletSelector> {
                               printV(widget.sendViewModel.wallet.type);
                               if (widget.sendViewModel.wallet.type.toString() ==
                                   "WalletType.bitcoin") {
-                                widget.sendViewModel.outputs.first.address = bitcoin!
-                                    .getUnusedSegwitAddress(widget.sendViewModel.wallet)!;
+                                if(widget.action == l2actions.withdraw){
+                                  widget.sendViewModel.outputs.first.address =
+                                      bitcoin!.getUnusedSegwitAddress(widget.sendViewModel.wallet)!;
+                                }
                                 widget.onSendInitiated();
                               }
                             }),
@@ -120,13 +122,13 @@ class _l2ActionWalletSelectorState extends State<l2ActionWalletSelector> {
                               onTap: () {
                                 Navigator.of(context).push(CupertinoPageRoute(
                                     builder: (context) => Material(
-                                        child: l2ActionWalletSelector(
+                                        child: L2ActionWalletSelector(
                                             showOtherWallets: true,
                                             sendViewModel: widget.sendViewModel,
                                             action: widget.action,
                                             onSendInitiated: widget.onSendInitiated,
                                             contactListViewModel:
-                                                widget.contactListViewModel))));
+                                                widget.contactListViewModel,walletSwitcherViewModel: widget.walletSwitcherViewModel,))));
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -150,6 +152,7 @@ class _l2ActionWalletSelectorState extends State<l2ActionWalletSelector> {
                             ),
                           ),
                         ),
+                        if(widget.action == l2actions.withdraw)
                         Row(
                           children: [
                             Flexible(
@@ -191,7 +194,44 @@ class _l2ActionWalletSelectorState extends State<l2ActionWalletSelector> {
                               ),
                             )
                           ],
-                        )
+                        ),
+                        if(widget.action == l2actions.deposit)
+                          Container(
+                            height: 64,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              color: Theme.of(context).colorScheme.surfaceContainer,
+                            ),
+                            child: Material(
+                              borderRadius: BorderRadius.circular(16),
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () {
+
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                  child: Row(
+                                    spacing: 10,
+                                    children: [
+                                      SvgPicture.asset(
+                                        "assets/new-ui/send_from_external.svg",
+                                        colorFilter: ColorFilter.mode(
+                                            Theme.of(context).colorScheme.primary,
+                                            BlendMode.srcIn),
+                                      ),
+                                      Text(
+                                        "Send from External",
+                                        style: TextStyle(
+                                            color: Theme.of(context).colorScheme.primary),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                     SizedBox()
@@ -211,8 +251,12 @@ class _l2ActionWalletSelectorState extends State<l2ActionWalletSelector> {
                               child: WalletRow(
                                 currencyIconPath: walletTypeToCryptoCurrency(item.type).iconPath ?? "",
                                 walletName: item.name,
-                                onTap: () {
-                                  widget.sendViewModel.outputs.first.address = item.address;
+                                onTap: () async {
+                                  if(widget.action == l2actions.withdraw) {
+                                    widget.sendViewModel.outputs.first.address = item.address;
+                                  } else if(widget.action == l2actions.deposit) {
+                                    await _handleChangeWallet(item);
+                                  }
                                   widget.onSendInitiated();
                                     },
                                   ),
@@ -228,6 +272,18 @@ class _l2ActionWalletSelectorState extends State<l2ActionWalletSelector> {
         )
       ],
     );
+  }
+
+  Future<void> _handleChangeWallet(WalletInfo wallet) async {
+    widget.walletSwitcherViewModel.selectWallet(wallet);
+    final success = await widget.walletSwitcherViewModel.switchToSelectedWallet();
+    if (success) {
+      await Future.delayed(const Duration(seconds: 2));
+      await widget.sendViewModel.wallet.updateBalance();
+      if(bitcoin != null) {
+        await bitcoin!.updateFeeRates(widget.sendViewModel.wallet);
+      }
+    }
   }
 }
 
