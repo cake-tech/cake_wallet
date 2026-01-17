@@ -1,13 +1,10 @@
+import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:flutter/material.dart';
 
 class AssetTile extends StatelessWidget {
-  const AssetTile({super.key, required this.name, required this.iconPath, required this.balance, required this.fiatBalance, required this.currency});
+  const AssetTile({super.key, required this.balance});
 
-  final String name;
-  final String iconPath;
-  final String balance;
-  final String fiatBalance;
-  final String currency;
+  final BalanceRecord balance;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +37,7 @@ class AssetTile extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(width: 45, height: 45, child: Image.asset(iconPath)),
+                  Container(width: 45, height: 45, child: Image.asset(balance.asset.iconPath??"")),
                   SizedBox(width: 8.0),
                   Column(
                     spacing: 4.0,
@@ -48,11 +45,11 @@ class AssetTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        name,
+                        balance.asset.fullName ?? balance.asset.name,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        balance+" "+currency,
+                        balance.availableBalance+" "+balance.asset.title,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -63,7 +60,7 @@ class AssetTile extends StatelessWidget {
               ),
 
               Text(
-                fiatBalance,
+                balance.fiatAvailableBalance,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),

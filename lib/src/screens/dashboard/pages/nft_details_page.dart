@@ -1,4 +1,3 @@
-import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/entities/solana_nft_asset_model.dart';
 import 'package:cake_wallet/entities/wallet_nft_response.dart';
@@ -37,26 +36,24 @@ class NFTDetailsPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    if(FeatureFlag.hasNewUi) {
-      return SizedBox.shrink();
-    }
-    final menuButton = Image.asset(
-      'assets/images/menu.png',
-      color: Theme.of(context).colorScheme.onSurface,
-    );
-
-    return Container(
-      alignment: Alignment.centerRight,
-      width: 40,
-      child: TextButton(
-        // FIX-ME: Style
-        //highlightColor: Colors.transparent,
-        //splashColor: Colors.transparent,
-        //padding: EdgeInsets.all(0),
-        onPressed: () => onOpenEndDrawer(),
-        child: Semantics(label: S.of(context).wallet_menu, child: menuButton),
-      ),
-    );
+    return SizedBox.shrink();
+    // final menuButton = Image.asset(
+    //   'assets/images/menu.png',
+    //   color: Theme.of(context).colorScheme.onSurface,
+    // );
+    //
+    // return Container(
+    //   alignment: Alignment.centerRight,
+    //   width: 40,
+    //   child: TextButton(
+    //     // FIX-ME: Style
+    //     //highlightColor: Colors.transparent,
+    //     //splashColor: Colors.transparent,
+    //     //padding: EdgeInsets.all(0),
+    //     onPressed: () => onOpenEndDrawer(),
+    //     child: Semantics(label: S.of(context).wallet_menu, child: menuButton),
+    //   ),
+    // );
   }
 
   @override

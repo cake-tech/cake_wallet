@@ -19,13 +19,7 @@ class AssetsSection extends StatelessWidget {
         itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length-1,
         itemBuilder: (context, index) {
           final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index+1);
-          return AssetTile(
-              name: balance.asset.fullName ?? balance.asset.name,
-              iconPath: balance.asset.iconPath??"",
-              balance: balance.availableBalance,
-              currency: balance.asset.title,
-              fiatBalance: balance.fiatAvailableBalance
-          );
+          return AssetTile(balance: balance);
         },
       ),
     );

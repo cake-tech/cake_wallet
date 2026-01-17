@@ -1,4 +1,3 @@
-import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -59,12 +58,8 @@ class _NFTListingPageState extends State<NFTListingPage> {
                   ),
                 ),
               )
-            else if(FeatureFlag.hasNewUi)
-        NFTListWidget(nftViewModel: widget.nftViewModel)
-              else
-              Expanded(
-                child: NFTListWidget(nftViewModel: widget.nftViewModel),
-              ),
+            else
+              NFTListWidget(nftViewModel: widget.nftViewModel)
           ],
         );
       },
@@ -98,10 +93,10 @@ class NFTListWidget extends StatelessWidget {
 
           return Padding(
             padding: EdgeInsets.only(
-                bottom:  FeatureFlag.hasNewUi ? 64 : 0),
+                bottom:  64),
             child: ListView.separated(
-              shrinkWrap: FeatureFlag.hasNewUi,
-              physics: FeatureFlag.hasNewUi ?  NeverScrollableScrollPhysics() : BouncingScrollPhysics(),
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
               separatorBuilder: (context, index) => const SizedBox(height: 8),
               itemCount: nftViewModel.solanaNftAssetModels.length,
@@ -116,10 +111,10 @@ class NFTListWidget extends StatelessWidget {
 
           return Padding(
             padding: EdgeInsets.only(
-               bottom:  FeatureFlag.hasNewUi ? 64 : 0),
+               bottom:  64),
             child: ListView.separated(
-              shrinkWrap: FeatureFlag.hasNewUi,
-              physics: FeatureFlag.hasNewUi ?  NeverScrollableScrollPhysics() : BouncingScrollPhysics(),
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
               separatorBuilder: (context, index) => const SizedBox(height: 8),
               itemCount: nftViewModel.nftAssetByWalletModels.length,
