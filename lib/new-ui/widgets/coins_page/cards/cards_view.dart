@@ -249,7 +249,7 @@ class _CardsViewState extends State<CardsView> {
       ));
       showCupertinoModalBottomSheet(context: context, builder: (context){
         return FractionallySizedBox(
-          heightFactor: 0.55,
+          heightFactor: 0.65,
           child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
         );
       });

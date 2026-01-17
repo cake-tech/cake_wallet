@@ -6,6 +6,7 @@ import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +15,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 
 class SendConfirmSheet extends StatefulWidget {
-  const SendConfirmSheet({super.key, required this.sendViewModel});
+  const SendConfirmSheet({super.key, required this.sendViewModel,this.isPage = false});
 
   final SendViewModel sendViewModel;
+  final bool isPage;
 
   @override
   State<SendConfirmSheet> createState() => _SendConfirmSheetState();
@@ -58,7 +60,7 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
                 offset: commited ? const Offset(-1, 0) : Offset.zero,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
-                child: SendTransactionDetails(sendViewModel: widget.sendViewModel),
+                child: SendTransactionDetails(sendViewModel: widget.sendViewModel,isPage: widget.isPage),
               ),
             ],
           );
@@ -69,12 +71,46 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
 }
 
 class SendTransactionDetails extends StatelessWidget {
-  const SendTransactionDetails({super.key, required this.sendViewModel});
+  const SendTransactionDetails({super.key, required this.sendViewModel, required this.isPage});
 
   final SendViewModel sendViewModel;
+  final bool isPage;
 
   @override
   Widget build(BuildContext context) {
+
+
+    return SafeArea(
+      child: LayoutBuilder(
+        builder: (context,constraints) {
+          return Column(key: ValueKey(0), mainAxisSize: isPage ? MainAxisSize.max : MainAxisSize.min, children: [
+          ModalTopBar(
+            title: "",
+            leadingWidget: Row(
+              spacing: 8,
+              children: [
+                if (sendViewModel.currency.iconPath != null)
+                  Image.asset(
+                    sendViewModel.currency.iconPath!,
+                    width: 28,
+                    height: 28,
+                  ),
+                Text(
+                  "Send",
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                )
+              ],
+            ),
+            trailingIcon: Icon(Icons.close),
+            onTrailingPressed: Navigator.of(context).pop,
+          ),isPage ? Expanded(child: _buildMainContent(context)) : _buildMainContent(context)
+        ]);
+        },
+      ),
+    );
+  }
+
+  Widget _buildMainContent(BuildContext context){
     final transaction = sendViewModel.pendingTransaction;
 
     final amount = (transaction == null)
@@ -91,154 +127,107 @@ class SendTransactionDetails extends StatelessWidget {
 
     final fiatFee = (transaction == null)
         ? sendViewModel.outputs.first.estimatedFeeFiatAmount +
-            " " +
-            sendViewModel.fiatCurrency.title
+        " " +
+        sendViewModel.fiatCurrency.title
         : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
 
     final address = sendViewModel.outputs.first.extractedAddress;
 
-    return Column(key: ValueKey(0), mainAxisSize: MainAxisSize.min, children: [
-      ModalTopBar(
-        title: "",
-        leadingWidget: Row(
-          spacing: 8,
-          children: [
-            if (sendViewModel.currency.iconPath != null)
-              Image.asset(
-                sendViewModel.currency.iconPath!,
-                width: 28,
-                height: 28,
-              ),
-            Text(
-              "Send",
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
-            )
-          ],
-        ),
-        trailingIcon: Icon(Icons.close),
-        onTrailingPressed: Navigator.of(context).pop,
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          spacing: 24,
-          children: [
-            Column(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 4,
-                  children: [
-                    Text(
-                      amount,
-                      style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).colorScheme.onSurface),
-                    ),
-                    Text(sendViewModel.currency.title,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child:Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        spacing: 24,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            spacing: 24,
+            children: [
+              Column(
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 4,
+                    children: [
+                      Text(
+                        amount,
                         style: TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.w400,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant))
-                  ],
-                ),
-                Text(
-                  fiatAmount,
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-              ],
-            ),
-            if (address.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 12,
-                children: [
+                            color: Theme.of(context).colorScheme.onSurface),
+                      ),
+                      Text(sendViewModel.currency.title,
+                          style: TextStyle(
+                              fontSize: 36,
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant))
+                    ],
+                  ),
                   Text(
-                    "Send to",
+                    fiatAmount,
                     style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 20,
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainer,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: AddressFormatter.buildSegmentedAddress(
-                          address: address,
-                          evenTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                    ),
-                  ),
                 ],
               ),
-            Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Fee",
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: Theme.of(context).colorScheme.onSurface)),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              fee,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            ),
-                            Text(fiatFee,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant))
-                          ],
-                        )
-                      ],
+              if (address.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 12,
+                  children: [
+                    Text(
+                      "Send to",
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
-                  ),
-                  if (sendViewModel.isElectrumWallet) ...[
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Container(
-                        height: 1,
-                        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: AddressFormatter.buildSegmentedAddress(
+                            address: address,
+                            evenTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                       ),
                     ),
+                  ],
+                ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
                     Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Network",
+                          Text("Fee",
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                   color: Theme.of(context).colorScheme.onSurface)),
                           Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(bitcoin!.getNetworkName(sendViewModel.wallet),
+                              Text(
+                                fee,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              ),
+                              Text(fiatFee,
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
@@ -247,37 +236,69 @@ class SendTransactionDetails extends StatelessWidget {
                           )
                         ],
                       ),
-                    )
-                  ],
-                ],
-              ),
-            ),
-            Observer(builder: (_) {
-              return Center(
-                child: AnimatedSize(
-                  alignment: Alignment.bottomCenter,
-                  duration: Duration(milliseconds: 150),
-                  curve: Curves.easeOutCubic,
-                  child: AnimatedSwitcher(
-                    duration: Duration(milliseconds: 150),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    child: Container(
-                      key: ValueKey(sendViewModel.state.runtimeType),
-                      child: _buildBottomWidget(
-                        context,
-                        sendViewModel.state.runtimeType,
+                    ),
+                    if (sendViewModel.isElectrumWallet) ...[
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Container(
+                          height: 1,
+                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                        ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Network",
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context).colorScheme.onSurface)),
+                            Column(
+                              children: [
+                                Text(bitcoin!.getNetworkName(sendViewModel.wallet),
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant))
+                              ],
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ],
+                ),
+              ),
+
+            ],
+          ),
+          Observer(builder: (_) {
+            return Center(
+              child: AnimatedSize(
+                alignment: Alignment.bottomCenter,
+                duration: Duration(milliseconds: 150),
+                curve: Curves.easeOutCubic,
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: 150),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  child: Container(
+                    key: ValueKey(sendViewModel.state.runtimeType),
+                    child: _buildBottomWidget(
+                      context,
+                      sendViewModel.state.runtimeType,
                     ),
                   ),
                 ),
-              );
-            }),
-            SizedBox(height: 24),
-          ],
-        ),
-      )
-    ]);
+              ),
+            );
+          }),
+          SizedBox(),
+        ],
+      ),
+    );
   }
 
   Widget _buildBottomWidget(BuildContext context, Type state) {

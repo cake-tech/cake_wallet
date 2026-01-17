@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
@@ -70,8 +71,9 @@ class SendPageModes {
   final String title;
   final String? description;
   final SendPageHelpContent? helpContent;
+  final bool showConfirmationAsModal;
 
-  const SendPageModes({required this.title, this.description, required this.showAddressField,this.helpContent, }
+  const SendPageModes({required this.title, this.description, required this.showAddressField,this.helpContent, this.showConfirmationAsModal=true}
       );
 
 
@@ -88,7 +90,7 @@ class SendPageModes {
           description:
               "When you deposit to Lightning, you are swapping your on-chain Bitcoin from this wallet to your Lightning account.",
           disclaimer:
-              "The new Lightning balance will not be available until the Bitcoin transaction is fully confirmed."));
+              "The new Lightning balance will not be available until the Bitcoin transaction is fully confirmed."),showConfirmationAsModal: false);
   static const SendPageModes l2withdrawal = SendPageModes(
       title: "Withdraw",
       description: "to on-chain",
@@ -99,7 +101,7 @@ class SendPageModes {
           description:
               "When you withdraw from Lightning, you are moving some or all of your Lightning balance to on-chain Bitcoin.",
           disclaimer:
-              "The new Bitcoin balance will not be available until the transaction is fully confirmed."));
+              "The new Bitcoin balance will not be available until the transaction is fully confirmed."),showConfirmationAsModal: false);
 
   static const all = [
     normal,
@@ -584,17 +586,33 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
 
     final check = widget.sendViewModel.shouldDisplayTotp();
     widget.authService.authenticateAction(
-      context,
+      navigatorKey.currentContext??context,
       conditionToDetermineIfToUse2FA: check,
       onAuthSuccess: (value) async {
         if (value) {
-          showMaterialModalBottomSheet(context: context,backgroundColor: Colors.transparent, builder: (context) {
-            return SendConfirmSheet(sendViewModel: widget
-                .sendViewModel,);
-          }).then((value)async{
-            widget.sendViewModel.dismissTransaction();
+          if (widget.mode.showConfirmationAsModal) {
+            showModalBottomSheet(
+              isScrollControlled: true,
+                context: navigatorKey.currentContext ?? context,
+                backgroundColor: Colors.transparent,
+                builder: (context) {
+                  return SendConfirmSheet(
+                    sendViewModel: widget.sendViewModel,
+                  );
+                }).then((value) async {
+              widget.sendViewModel.dismissTransaction();
+            });
+          } else {
+            Navigator.of(context).push(CupertinoPageRoute(
+                builder: (context) => Material(
+                        child: SendConfirmSheet(
+                          isPage: true,
+                      sendViewModel: widget.sendViewModel,
+                    )))).then((value) async {
+              widget.sendViewModel.dismissTransaction();
+            });
+          }
 
-          });
           await widget.sendViewModel.createTransaction();
         }
       },

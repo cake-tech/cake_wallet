@@ -41,20 +41,22 @@ class l2ActionWalletSelector extends StatefulWidget {
 class _l2ActionWalletSelectorState extends State<l2ActionWalletSelector> {
   final TextEditingController addressController = TextEditingController();
   List<WalletInfo> items = [];
+  bool textEntered = false;
 
   @override
   void initState() {
     super.initState();
-    if(widget.showOtherWallets) {
-      ()async{items.addAll((await WalletInfo.getAll()).where((item)=>item.type == WalletType.bitcoin));setState(() {
-
-      });}.call();
+    if (widget.showOtherWallets) {
+      () async {
+        items.addAll((await WalletInfo.getAll()).where((item) => item.type == WalletType.bitcoin));
+        setState(() {});
+      }.call();
     }
-    // if (widget.showOtherWallets) {
-    //   walletItems.addAll(widget.contactListViewModel.contactsToShow
-    //       .where((element) => element.type.name == CryptoCurrency.btc.name)
-    //       .toList());
-    // }
+    addressController.addListener((){
+      setState(() {
+        textEntered = addressController.text.isNotEmpty;
+      });
+    });
   }
 
   @override
@@ -96,6 +98,7 @@ class _l2ActionWalletSelectorState extends State<l2ActionWalletSelector> {
                             }),
                       ],
                     ),
+                    Spacer(),
                     Container(
                       height: 1,
                       color: Theme.of(context).colorScheme.surfaceContainer,
@@ -147,12 +150,51 @@ class _l2ActionWalletSelectorState extends State<l2ActionWalletSelector> {
                             ),
                           ),
                         ),
-                        NewSendAddressInput(
-                            addressController: addressController,
-                            selectedCurrency: widget.sendViewModel.selectedCryptoCurrency,
-                            onEditingComplete: () {})
+                        Row(
+                          children: [
+                            Flexible(
+                              child: NewSendAddressInput(
+                                  addressController: addressController,
+                                  selectedCurrency: widget.sendViewModel.selectedCryptoCurrency,
+                                  onEditingComplete: () {}),
+                            ),
+                            AnimatedScale(
+                              alignment: Alignment.centerLeft,
+                              scale: textEntered ? 1.0 : 0.0,
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeOutCubic,
+                              child: Row(
+                                children: [
+                                  SizedBox(width: textEntered ? 8 : 0),
+                                  GestureDetector(
+                                    onTap: () {
+                                      widget.sendViewModel.outputs.first.address =
+                                          addressController.text;
+                                      widget.onSendInitiated();
+                                    },
+                                    child: AnimatedContainer(
+                                      duration: const Duration(milliseconds: 200),
+                                      curve: Curves.easeOutCubic,
+                                      width: textEntered ? 48 : 0,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.arrow_forward_ios,
+                                        color: Theme.of(context).colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        )
                       ],
-                    )
+                    ),
+                    SizedBox()
                   ],
                   if (widget.showOtherWallets)
                     Observer(
@@ -172,11 +214,10 @@ class _l2ActionWalletSelectorState extends State<l2ActionWalletSelector> {
                                 onTap: () {
                                   widget.sendViewModel.outputs.first.address = item.address;
                                   widget.onSendInitiated();
-                                },
-                              ),
-                            );
-                          }
-                                                      ),
+                                    },
+                                  ),
+                                );
+                              }),
                         );
                       },
                     )
