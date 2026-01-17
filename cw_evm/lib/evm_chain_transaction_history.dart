@@ -3,7 +3,6 @@ import 'dart:core';
 import 'dart:developer';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
