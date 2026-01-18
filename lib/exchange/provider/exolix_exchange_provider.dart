@@ -16,32 +16,12 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ExolixExchangeProvider extends ExchangeProvider {
-  ExolixExchangeProvider() : super(pairList: supportedPairs(_notSupported));
+  ExolixExchangeProvider();
 
   static final apiKey = isMoneroOnly ? secrets.exolixMoneroApiKey : secrets.exolixCakeWalletApiKey;
   static const apiBaseUrl = 'exolix.com';
   static const transactionsPath = '/api/v2/transactions';
   static const ratePath = '/api/v2/rate';
-
-  static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.usdt,
-    CryptoCurrency.xhv,
-    CryptoCurrency.btt,
-    CryptoCurrency.firo,
-    CryptoCurrency.zaddr,
-    CryptoCurrency.xvg,
-    CryptoCurrency.kmd,
-    CryptoCurrency.paxg,
-    CryptoCurrency.rune,
-    CryptoCurrency.scrt,
-    CryptoCurrency.btcln,
-    CryptoCurrency.cro,
-    CryptoCurrency.ftm,
-    CryptoCurrency.frax,
-    CryptoCurrency.gusd,
-    CryptoCurrency.gtc,
-    CryptoCurrency.weth,
-  ];
 
   @override
   String get title => 'Exolix';
@@ -443,6 +423,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
     switch (tag) {
       case 'POLY':
         return 'Polygon';
+        case 'ARB':
+        return 'Arbitrum';
       default:
         return tag;
     }

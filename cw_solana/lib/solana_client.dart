@@ -33,7 +33,6 @@ class TransactionFetchResult {
 class SolanaWalletClient {
   // Minimum amount in SOL to consider a transaction valid (to filter spam)
   static const double minValidAmount = 0.00000003;
-  final httpClient = ProxyWrapper().getHttpClient();
   late final client = ProxyWrapper().getHttpIOClient();
   SolanaRPC? _provider;
 

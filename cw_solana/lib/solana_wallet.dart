@@ -98,7 +98,8 @@ abstract class SolanaWalletBase
 
   @override
   @observable
-  late ObservableMap<CryptoCurrency, SolanaBalance> balance;
+  ObservableMap<CryptoCurrency, SolanaBalance> balance =
+      ObservableMap<CryptoCurrency, SolanaBalance>();
 
   final Completer<SharedPreferences> _sharedPrefs = Completer();
 

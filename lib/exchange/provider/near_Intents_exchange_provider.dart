@@ -17,10 +17,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class NearIntentsExchangeProvider extends ExchangeProvider {
-  NearIntentsExchangeProvider()
-      : super(pairList: supportedPairs(_notSupported));
-
-  static const List<CryptoCurrency> _notSupported = [];
+  NearIntentsExchangeProvider();
 
   static const apiKey = secrets.nearIntentsBearerToken;
   static const _baseUrl = '1click.chaindefuser.com';
@@ -44,7 +41,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     // UTXO
     'LTC': 'ltc1qhdwz74m3wuuhppv2mckagqk9e2e49z5j4kucnv',
     'BTC': 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080',
-    'ZZEC': 't1Zcash4hPS2bq8rTQkN9bKpZV1X4W3pZxK',
     'DOGE': 'D9t7rGQ9mE3hJ2z1w8pGQxkGmKjYwYc8pQ',
     'BCH': 'qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a',
 
@@ -63,6 +59,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     'TON': 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c',
     'XLM': 'GA3D5O2W7YQZJQ3H4Y5QW6N7V8X9Z0A1B2C3D4E5F6G7H8I9J0',
     'ADA': 'addr1vyc33hdv5vag52f3d8h0qsngu52vm27x28zkzru333jma9gaxd38v',
+    'ZEC': 't1VdfFUbyTT7ZSdeEaHuwB7veGD1NXoUhGS',
   };
 
   String getNearDummyAddress(CryptoCurrency currency) {
@@ -430,8 +427,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     try {
       final uri = Uri.https(_baseUrl, '$_versionPath$_tokenPath');
 
-      final response =
-          await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
       if (response.statusCode != 200) return [];
 
       final data = json.decode(response.body) as List<dynamic>;
@@ -532,14 +528,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     };
   }
 
-  String _normalizeTitleToNearSymbol(CryptoCurrency currency) {
-    final title = currency.title.toUpperCase();
-    return switch (title) {
-      'TZEC' => 'ZEC',
-      _ => title,
-    };
-  }
-
   String? _normalizeTagToNearBlockchain(String? tag) {
     return switch (tag) {
       'TRX' => 'tron',
@@ -559,7 +547,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   Token? currencyToNearAssetId(CryptoCurrency currency, List<Token> supported) {
     if (supported.isEmpty) return null;
 
-    final symbol = _normalizeTitleToNearSymbol(currency).toUpperCase();
+    final symbol = currency.title.toUpperCase();
     final blockchain = _normalizeTagToNearBlockchain(currency.tag);
 
     // Native asset (no contract)

@@ -82,7 +82,7 @@ class MoonPayProvider extends BuyProvider {
 
   static String get _apiKey => secrets.moonPayApiKey;
 
-  String get currencyCode => walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
+  String get currencyCode => walletTypeToCryptoCurrency(wallet.type, chainId: wallet.chainId).title.toLowerCase();
 
   String get trackUrl => baseBuyUrl + '/transaction_receipt?transactionId=';
 

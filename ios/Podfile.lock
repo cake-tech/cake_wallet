@@ -139,6 +139,8 @@ PODS:
     - Flutter
   - wakelock_plus (0.0.1):
     - Flutter
+  - warp_api (0.0.1):
+    - Flutter
   - YttriumWrapper (0.8.35)
 
 DEPENDENCIES:
@@ -179,6 +181,7 @@ DEPENDENCIES:
   - universal_ble (from `.symlinks/plugins/universal_ble/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
+  - warp_api (from `.symlinks/plugins/warp_api/ios`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -264,6 +267,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   wakelock_plus:
     :path: ".symlinks/plugins/wakelock_plus/ios"
+  warp_api:
+    :path: ".symlinks/plugins/warp_api/ios"
 
 SPEC CHECKSUMS:
   bitbox_flutter: 506f80b961ddf646b0d80cef9f6eadaab96d91b0
@@ -309,6 +314,7 @@ SPEC CHECKSUMS:
   universal_ble: cf52a7b3fd2e7c14d6d7262e9fdadb72ab6b88a6
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   wakelock_plus: 76957ab028e12bfa4e66813c99e46637f367fc7e
+  warp_api: 4a60cc00440d5eb56ae4dbf75f89a34ed90ddf1b
   YttriumWrapper: 31e937fe9fbe0f1314d2ca6be9ce9b379a059966
 
 PODFILE CHECKSUM: 5296465b1c6d14d506230356756826012f65d97a

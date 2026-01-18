@@ -113,6 +113,9 @@ else()
   set(LIB_TRIPLET "x86_64-linux-gnu")
 endif()
 
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/zcash_lib/target/release/libwarp_api_ffi.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libwarp_api_ffi.so"
+  COMPONENT Runtime)
+
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/${LIB_TRIPLET}_libwallet2_api_c.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "monero_libwallet2_api_c.so"
   COMPONENT Runtime)
 
