@@ -89,6 +89,13 @@ class _PaymentConfirmationContent extends StatelessWidget {
     return false;
   }
 
+  /// Checks if flow type is token selection (EVM, Solana, or Tron)
+  bool _isTokenSelectionFlow(PaymentFlowType type) {
+    return type == PaymentFlowType.evmNetworkSelection ||
+        type == PaymentFlowType.solanaTokenSelection ||
+        type == PaymentFlowType.tronTokenSelection;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Observer(
@@ -127,14 +134,20 @@ class _PaymentConfirmationContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (paymentFlowResult.type == PaymentFlowType.evmNetworkSelection) ...[
+              if (_isTokenSelectionFlow(paymentFlowResult.type)) ...[
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
                     Image.asset(
-                      paymentFlowResult.addressDetectionResult!.detectedCurrency!.iconPath!,
+                      paymentFlowResult.addressDetectionResult?.detectedCurrency?.iconPath ??
+                          '',
                       width: 70,
                       height: 70,
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.currency_bitcoin,
+                        size: 70,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                     Positioned(
                       bottom: 0,
@@ -146,6 +159,11 @@ class _PaymentConfirmationContent extends StatelessWidget {
                         ).iconPath!,
                         width: 32,
                         height: 32,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.account_balance_wallet,
+                          size: 32,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                       ),
                     ),
                   ],
