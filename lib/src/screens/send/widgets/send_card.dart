@@ -361,7 +361,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         }
 
         await Future.delayed(const Duration(seconds: 2));
-        if (loadingBottomSheetContext != null && loadingBottomSheetContext!.mounted) {
+        if (loadingBottomSheetContext != null &&
+            loadingBottomSheetContext!.mounted &&
+            Navigator.canPop(loadingBottomSheetContext!)) {
           Navigator.of(loadingBottomSheetContext!).pop();
         }
 

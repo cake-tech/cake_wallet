@@ -300,7 +300,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
         bottomSectionPadding: EdgeInsets.all(24),
         bottomSection: Column(
           children: [
-            const SizedBox(height: 24),
+            const SizedBox(height: 4),
             LayoutBuilder(
               builder: (_, constraints) => SizedBox(
                 width: constraints.maxWidth * 0.8,

@@ -163,20 +163,21 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
         bottomSection: Column(
           children: [
-            PrimaryButton(
-              key: ValueKey('exchange_trade_page_send_from_external_button_key'),
-              text: S.current.send_from_external_wallet,
-              onPressed: () async {
-                Navigator.of(context).pushNamed(Routes.exchangeTradeExternalSendPage);
-              },
-              color: widget.exchangeTradeViewModel.isSendable
-                  ? Theme.of(context).colorScheme.surfaceContainer
-                  : Theme.of(context).colorScheme.primary,
-              textColor: widget.exchangeTradeViewModel.isSendable
-                  ? Theme.of(context).colorScheme.onSecondaryContainer
-                  : Theme.of(context).colorScheme.onPrimary,
-              isDisabled: widget.exchangeTradeViewModel.isSwapsXyzSendingEVMTokenSwap,
-            ),
+            if (!widget.exchangeTradeViewModel.shouldHideExternalSendButton)
+              PrimaryButton(
+                key: ValueKey('exchange_trade_page_send_from_external_button_key'),
+                text: S.current.send_from_external_wallet,
+                onPressed: () async {
+                  Navigator.of(context).pushNamed(Routes.exchangeTradeExternalSendPage);
+                },
+                color: widget.exchangeTradeViewModel.isSendable
+                    ? Theme.of(context).colorScheme.surfaceContainer
+                    : Theme.of(context).colorScheme.primary,
+                textColor: widget.exchangeTradeViewModel.isSendable
+                    ? Theme.of(context).colorScheme.onSecondaryContainer
+                    : Theme.of(context).colorScheme.onPrimary,
+                isDisabled: widget.exchangeTradeViewModel.isSwapsXyzSendingEVMTokenSwap,
+              ),
             SizedBox(height: 16),
             Observer(
               builder: (_) {
@@ -188,7 +189,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       !(sendingState is TransactionCommitted)),
                   child: LoadingPrimaryButton(
                     key: ValueKey('exchange_trade_page_send_from_cake_button_key'),
-                    isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty ||
+                    isDisabled: trade.inputAddress == null ||
+                        trade.inputAddress!.isEmpty ||
                         sendingState is ExecutedSuccessfullyState,
                     isLoading: sendingState is IsExecutingState,
                     onPressed: _onPressedSendFromCakeWallet,
@@ -213,8 +215,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
               walletType: sendVM.walletType,
-              hardwareWalletType:
-              sendVM.wallet.walletInfo.hardwareWalletType!,
+              hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
               onConnectDevice: (context, _) {
                 sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
                 Navigator.of(context).pop();
@@ -308,7 +309,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   return ConfirmSendingBottomSheet(
                     key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
                     footerType: FooterType.slideActionButton,
-                    isSlideActionEnabled: widget.exchangeTradeViewModel.sendViewModel.isReadyForSend,
+                    isSlideActionEnabled:
+                        widget.exchangeTradeViewModel.sendViewModel.isReadyForSend,
                     walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
                     titleText: S.of(bottomSheetContext).confirm_transaction,
                     titleIconPath:
@@ -338,8 +340,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 },
               );
 
-              if  (result == null) widget.exchangeTradeViewModel.sendViewModel.dismissTransaction();
-
+              if (result == null) widget.exchangeTradeViewModel.sendViewModel.dismissTransaction();
             }
           });
         }

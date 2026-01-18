@@ -21,6 +21,7 @@ import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -212,7 +213,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       ].contains(wallet.type);
 
   bool get hideAddressAfterExchange =>
-      [WalletType.monero, WalletType.wownero].contains(wallet.type);
+      [WalletType.monero, WalletType.wownero, WalletType.zcash].contains(wallet.type);
 
   bool _useTorOnly;
   final Box<Trade> trades;
@@ -229,6 +230,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         LetsExchangeExchangeProvider(),
         StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
+        JupiterExchangeProvider(),
         // SwapsXyzExchangeProvider(),
         NearIntentsExchangeProvider(),
         TrocadorExchangeProvider(
