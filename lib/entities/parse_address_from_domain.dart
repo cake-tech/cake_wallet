@@ -175,7 +175,7 @@ class AddressResolver {
     var addressPattern = AddressValidator.getAddressFromStringPattern(type);
 
     if (addressPattern == null) {
-      throw Exception('Unexpected token: $type for getAddressFromStringPattern');
+      return null;
     }
 
     if (requireSurroundingWhitespaces)

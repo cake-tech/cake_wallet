@@ -40,6 +40,8 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       ExchangeProviderDescription(title: 'Swaps.XYZ', raw: 14, image: 'assets/images/swaps_xyz.svg');
   static const nearIntents =
       ExchangeProviderDescription(title: 'Near Intents', raw: 15, image: 'assets/images/near.png');
+  static const jupiter =
+      ExchangeProviderDescription(title: 'Jupiter', raw: 16, image: 'assets/images/jupiter.png');
 
   static ExchangeProviderDescription deserialize({required int raw}) {
     switch (raw) {
@@ -75,6 +77,8 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
         return swapsXyz;
       case 15:
         return nearIntents;
+      case 16:
+        return jupiter;
       default:
         throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
     }

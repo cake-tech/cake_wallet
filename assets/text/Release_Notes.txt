@@ -1,1 +1,3 @@
+Add Zcash wallet
+Generic enhancements
 Bug fixes

@@ -85,6 +85,9 @@ class SecretKey {
     SecretKey('kryptonimApiKey', () => ''),
     SecretKey('walletGroupSalt', () => hex.encode(encrypt.Key.fromSecureRandom(16).bytes)),
     SecretKey('swapsXyzApiKey', () => ''),
+    SecretKey('jupiterApiKey', () => ''),
+    SecretKey('jupiterReferralFeeBps', () => ''),
+    SecretKey('jupiterReferralAccount', () => ''),
     SecretKey('nearIntentsBearerToken', () => ''),
     SecretKey('nearIntentsAppFee', () => ''),
     SecretKey('nearIntentsAppFeeRecipient', () => ''),
@@ -95,6 +98,7 @@ class SecretKey {
     SecretKey('polygonScanApiKey', () => ''),
     SecretKey('moralisApiKey', () => ''),
     SecretKey('nowNodesApiKey ', () => ''),
+    SecretKey('blinkApiKey', () => ''),
   ];
 
   static final solanaSecrets = [
