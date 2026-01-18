@@ -155,7 +155,8 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
           }).toList() ??
           [],
     };
-    hiddenAddresses = ZcashTaddressRotation.allUsedAddressesForAccount(accountId)?.toSet() ?? {};
+    hiddenAddresses.addAll(
+        ZcashTaddressRotation.allUsedAddressesForAccount(accountId)?.toSet() ?? {});
 
     addressInfos[0]?.removeWhere((final test) => hiddenAddresses.contains(test.address));
     if (_addressPageType == ZcashAddressType.transparentRotated) {
@@ -172,9 +173,11 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   late String _address = latestAddress;
 
   String get address {
-    if (addressPageType == ZcashAddressType.transparentRotated) {
-      return transparentAddressRotated ?? transparentAddress;
-    }
+    // ToDo (Czarek) this was preventing user selection from getting picked
+
+    // if (addressPageType == ZcashAddressType.transparentRotated) {
+    //   return transparentAddressRotated ?? transparentAddress;
+    // }
     return _address;
   }
 
