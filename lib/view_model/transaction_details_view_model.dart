@@ -555,7 +555,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final _items = [
       StandartListItem(
         title: S.current.transaction_details_transaction_id,
-        value: tx.txHash,
+        value: tx.txHash.replaceAll(RegExp(r'_(incoming|outgoing)$'), ''),
         key: ValueKey('standard_list_item_transaction_details_id_key'),
       ),
       StandartListItem(

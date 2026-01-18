@@ -531,9 +531,13 @@ abstract class SolanaWalletBase
   }
 
   Future<void> updateTokenBalance({List<String>? tokenMints}) async {
-    balance[CryptoCurrency.sol] = await _fetchSOLBalance();
-
-    await _updateSplTokenBalancesInternal(tokenMints: tokenMints);
+    // Fetch SOL and SPL token balances in parallel for better performance
+    await Future.wait([
+      _fetchSOLBalance().then((solBalance) {
+        balance[CryptoCurrency.sol] = solBalance;
+      }),
+      _updateSplTokenBalancesInternal(tokenMints: tokenMints),
+    ]);
 
     await save();
   }
