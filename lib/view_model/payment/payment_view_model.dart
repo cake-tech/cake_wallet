@@ -76,68 +76,26 @@ abstract class PaymentViewModelBase with Store {
 
       final currentWallet = appStore.wallet;
 
-      if (isEVMCompatibleChain(detectedWalletType!)) {
-        final isRawEvmInput = !addressData.contains(':') && _isEVMAddress(detectionResult.address);
-
-        // Check if the current wallet is also EVM
-        if (currentWallet != null && isEVMCompatibleChain(currentWallet.type)) {
-          final currentChainId = evm!.getSelectedChainId(currentWallet);
-          final detectedChainIdValue = this.detectedChainId;
-
-          if (detectedChainIdValue != null && currentChainId != null) {
-            // For raw EVM address input that only defaulted to chainId 1,
-            // always force the EVM ecosystem bottom sheet so the user
-            // can pick the actual network and token.
-            if (isRawEvmInput && detectedChainIdValue == 1) {
-              final allEVMWallets = await getEVMCompatibleWallets();
-
-              final currentWalletInfo = currentWallet.walletInfo;
-
-              final otherEVMWallets =
-                  allEVMWallets.where((w) => w.name != currentWallet.name).toList();
-
-              return PaymentFlowResult.evmNetworkSelection(
-                detectionResult,
-                compatibleWallets: otherEVMWallets,
-                wallet: currentWalletInfo,
-              );
-            }
-
-            if (detectedChainIdValue == currentChainId) {
-              return PaymentFlowResult.currentWalletCompatible();
-            }
-
-            final allEVMWallets = await getEVMCompatibleWallets();
-
-            final currentWalletInfo = currentWallet.walletInfo;
-
-            final otherEVMWallets =
-                allEVMWallets.where((w) => w.name != currentWallet.name).toList();
-
-            return PaymentFlowResult.evmNetworkSelection(
-              detectionResult,
-              compatibleWallets: otherEVMWallets,
-              wallet: currentWalletInfo,
-            );
-          }
-        }
-
-        // If the current wallet is not EVM or the chainId comparison failed
-        // We proceed with other checks
-        if (!addressData.contains(':') && _isEVMAddress(detectionResult.address)) {
-          final allEVMWallets = await getEVMCompatibleWallets();
-          return PaymentFlowResult.evmNetworkSelection(
-            detectionResult,
-            compatibleWallets: allEVMWallets,
-          );
-        }
-
-        // For EVM URIs, show network selection
-        final allEVMWallets = await getEVMCompatibleWallets();
-        return PaymentFlowResult.evmNetworkSelection(
+      if (detectedWalletType == WalletType.solana) {
+        final compatibleWallets = await getWalletsByType(WalletType.solana);
+        return PaymentFlowResult.solanaTokenSelection(
           detectionResult,
-          compatibleWallets: allEVMWallets,
+          compatibleWallets: compatibleWallets,
+          wallet: compatibleWallets.isNotEmpty ? compatibleWallets.first : null,
         );
+      }
+
+      if (detectedWalletType == WalletType.tron) {
+        final compatibleWallets = await getWalletsByType(WalletType.tron);
+        return PaymentFlowResult.tronTokenSelection(
+          detectionResult,
+          compatibleWallets: compatibleWallets,
+          wallet: compatibleWallets.isNotEmpty ? compatibleWallets.first : null,
+        );
+      }
+
+      if (isEVMCompatibleChain(detectedWalletType!)) {
+        return PaymentFlowResult.evmNetworkSelection(detectionResult);
       }
 
       if (currentWallet != null && currentWallet.type == detectedWalletType) {
@@ -170,10 +128,6 @@ abstract class PaymentViewModelBase with Store {
         appStore.settingsStore.getCurrentNode(detectedWalletType!, chainId: detectedChainId);
 
     await evm!.selectChain(appStore.wallet!, detectedChainId!, node: node);
-  }
-
-  bool _isEVMAddress(String address) {
-    return RegExp(r'^0x[a-fA-F0-9]{40}$').hasMatch(address);
   }
 
   Future<List<WalletInfo>> getWalletsByType(WalletType walletType) async {
@@ -229,6 +183,34 @@ class PaymentFlowResult {
       wallet: wallet,
     );
   }
+
+  /// Solana address detected - needs token selection
+  factory PaymentFlowResult.solanaTokenSelection(
+    AddressDetectionResult addressDetectionResult, {
+    List<WalletInfo>? compatibleWallets,
+    WalletInfo? wallet,
+  }) =>
+      PaymentFlowResult._(
+        type: PaymentFlowType.solanaTokenSelection,
+        addressDetectionResult: addressDetectionResult,
+        walletType: WalletType.solana,
+        wallets: compatibleWallets ?? [],
+        wallet: wallet,
+      );
+
+  /// Tron address detected - needs token selection
+  factory PaymentFlowResult.tronTokenSelection(
+    AddressDetectionResult addressDetectionResult, {
+    List<WalletInfo>? compatibleWallets,
+    WalletInfo? wallet,
+  }) =>
+      PaymentFlowResult._(
+        type: PaymentFlowType.tronTokenSelection,
+        addressDetectionResult: addressDetectionResult,
+        walletType: WalletType.tron,
+        wallets: compatibleWallets ?? [],
+        wallet: wallet,
+      );
 
   /// Current wallet is compatible
   factory PaymentFlowResult.currentWalletCompatible() =>
@@ -308,7 +290,9 @@ class PaymentFlowResult {
       PaymentFlowResult._(type: PaymentFlowType.incompatible, message: message);
 
   CryptoCurrency? get detectedCurrency {
-    if (type == PaymentFlowType.evmNetworkSelection) {
+    if (type == PaymentFlowType.evmNetworkSelection ||
+        type == PaymentFlowType.solanaTokenSelection ||
+        type == PaymentFlowType.tronTokenSelection) {
       return addressDetectionResult?.detectedCurrency;
     }
     if (walletType != null) {
@@ -328,6 +312,8 @@ enum PaymentFlowType {
   multipleWallets,
   noWallets,
   evmNetworkSelection,
+  solanaTokenSelection,
+  tronTokenSelection,
   error,
   incompatible,
 }

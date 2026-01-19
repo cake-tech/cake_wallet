@@ -649,6 +649,38 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
+      // Jupiter (Solana) swap path
+      if (walletType == WalletType.solana && trade != null && provider is JupiterExchangeProvider) {
+        final swapTransactionBase64 = trade.routerData;
+        final requestId = trade.routerValue;
+        if (swapTransactionBase64?.isNotEmpty == true &&
+            requestId?.isNotEmpty == true &&
+            solana != null) {
+          try {
+            final actualFee = trade.fee ?? 0.0005;
+            // Fallback to estimate if not available
+            final fee = actualFee > 0 ? actualFee : 0.0005;
+
+            final amount = double.tryParse(trade.amount) ?? 0.0;
+
+            pendingTransaction = await solana!.signAndPrepareJupiterSwapTransaction(
+              wallet,
+              swapTransactionBase64!,
+              requestId!,
+              trade.payoutAddress ?? '',
+              amount,
+              fee,
+            );
+
+            state = ExecutedSuccessfullyState();
+            return pendingTransaction;
+          } catch (e, s) {
+            printV('Jupiter swap error: $e\n$s');
+            throw Exception('Failed to process Jupiter swap: $e');
+          }
+        }
+      }
+
       // Regular flow
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
@@ -784,8 +816,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (walletType == WalletType.solana) {
         Future.delayed(Duration(seconds: 1), () async {
           try {
-            // Updates tx history with the exact mints involved in transaction
-            // Also updates balances for the tokens involved in the transaction
             await solana!.pollForTransaction(
               wallet,
               pendingTransaction!.id,
@@ -793,9 +823,62 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               maxRetries: 5,
             );
           } catch (e) {
-            printV('Failed to update transactions after send: $e');
+            printV('Failed to poll for transaction: $e');
           }
         });
+
+        // Update balances for currencies involved in swap
+        if (_currentTrade != null) {
+          Future.delayed(Duration(seconds: 2), () async {
+            try {
+              final tokenMints = <String>[];
+
+              // Extract from currency mint (skip native SOL)
+              if (_currentTrade!.from != null && _currentTrade!.from != CryptoCurrency.sol) {
+                try {
+                  final fromMint = solana!.getTokenAddress(_currentTrade!.from!);
+                  tokenMints.add(fromMint);
+                } catch (e) {
+                  printV('Error getting from currency mint: $e');
+                }
+              }
+
+              // Extract to currency mint (skip native SOL)
+              if (_currentTrade!.to != null && _currentTrade!.to != CryptoCurrency.sol) {
+                try {
+                  final toMint = solana!.getTokenAddress(_currentTrade!.to!);
+                  tokenMints.add(toMint);
+                } catch (e) {
+                  printV('Error getting to currency mint: $e');
+                }
+              }
+
+              if (tokenMints.isNotEmpty) {
+                solana!.updateTokenBalances(
+                  wallet,
+                  tokenMints: tokenMints,
+                );
+
+                // Retry after a bit more time to ensure balance is updated
+                Future.delayed(Duration(seconds: 2), () async {
+                  try {
+                    await solana!.updateTokenBalances(
+                      wallet,
+                      tokenMints: tokenMints,
+                    );
+                  } catch (e) {
+                    printV('Error retrying balance update: $e');
+                  }
+                });
+              }
+            } catch (e) {
+              printV('Failed to update balances after send: $e');
+            } finally {
+              _currentTrade = null;
+              _currentProvider = null;
+            }
+          });
+        }
       }
 
       // Immediate transaction update for EVM chains, Tron, and Nano
@@ -835,22 +918,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     _currentTrade!.txId = signature;
 
-    if (!isSuccess) {
-      _currentTrade!.stateRaw = TradeState.failed.raw;
-      if (_currentTrade!.isInBox) {
-        await _currentTrade!.save();
-      }
-    }
+    _currentTrade!.stateRaw = isSuccess ? TradeState.completed.raw : TradeState.failed.raw;
 
-    if (isSuccess) {
-      _currentTrade!.stateRaw = TradeState.completed.raw;
-
-      if (_currentTrade!.isInBox) {
-        await _currentTrade!.save();
-      }
-
-      _currentTrade = null;
-      _currentProvider = null;
+    if (_currentTrade!.isInBox) {
+      await _currentTrade!.save();
     }
   }
 

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/exchange/exchange_pair.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -23,9 +22,9 @@ class JupiterExchangeProvider extends ExchangeProvider {
   static const List<CryptoCurrency> _notSupported = [];
 
   static final List<CryptoCurrency> _supportedCurrencies = CryptoCurrency.all
-        .where((c) => c.tag == 'SOL' || c == CryptoCurrency.sol)
-        .where((c) => !_notSupported.contains(c))
-        .toList();
+      .where((c) => c.tag == 'SOL' || c == CryptoCurrency.sol)
+      .where((c) => !_notSupported.contains(c))
+      .toList();
 
   static const _baseUrl = 'api.jup.ag';
   static const _orderPath = '/ultra/v1/order';
