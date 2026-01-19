@@ -188,7 +188,6 @@ import 'package:cake_wallet/view_model/cake_pay/cake_pay_account_view_model.dart
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
-import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -442,10 +441,6 @@ Future<void> setup({
       newWalletArguments: newWalletArgs,
     ));
 
-
-  final walletList = await WalletInfo.getAll();
-  getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(walletList.isNotEmpty));
-
   getIt.registerFactory<WalletManager>(
     () => WalletManager(
       getIt.get<SharedPreferences>(),
@@ -579,6 +574,8 @@ Future<void> setup({
     sharedPreferences: getIt.get<SharedPreferences>(),
     keyService: getIt.get<KeyService>()));
 
+  final walletList = await WalletInfo.getAll();
+  
   getIt.registerFactory<AuthService>(
         () => AuthService(
         secureStorage: getIt.get<SecureStorage>(),
@@ -1326,7 +1323,6 @@ Future<void> setup({
       (newWalletTypeArguments, _) {
     return NewWalletTypePage(
       newWalletTypeArguments: newWalletTypeArguments,
-      newWalletTypeViewModel: getIt.get<NewWalletTypeViewModel>(),
     );
   });
 

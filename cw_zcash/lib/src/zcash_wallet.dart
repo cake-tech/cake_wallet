@@ -783,7 +783,7 @@ abstract class ZcashWalletBase
     final newWalletCredentials = credentials as ZcashNewWalletCredentials;
 
     String mnemonic;
-    if (newWalletCredentials.mnemonic != null && newWalletCredentials.mnemonic!.isNotEmpty) {
+    if (newWalletCredentials.mnemonic?.isNotEmpty == true) {
       mnemonic = newWalletCredentials.mnemonic!;
     } else {
       final strength = (newWalletCredentials.seedPhraseLength == 24) ? 256 : 128;
@@ -970,7 +970,56 @@ abstract class ZcashWalletBase
     _initialized = true;
   }
 
-  static Future<int> getHeightByDate(final DateTime date) {
-    return WarpApi.getBlockHeightByTime(coin, date);
+  static Future<int> getBlockHeightByTime(final DateTime time) async {
+    final genesisTime = DateTime.utc(2016, 10, 28);
+    const genesisHeight = 0;
+
+    final firstHalvingTime = DateTime.utc(2020, 11, 18);
+    const firstHalvingHeight = 1046400;
+
+    final secondHalvingTime = DateTime.utc(2024, 11, 23);
+    const secondHalvingHeight = 2726400;
+
+    final t = time.toUtc().millisecondsSinceEpoch;
+    final t0 = genesisTime.millisecondsSinceEpoch;
+    final t1 = firstHalvingTime.millisecondsSinceEpoch;
+    final t2 = secondHalvingTime.millisecondsSinceEpoch;
+
+    if (t <= t0) return genesisHeight;
+
+    if (t < t1) {
+      return _interpolate(genesisHeight, firstHalvingHeight, t0, t1, t);
+    }
+
+    if (t < t2) {
+      return _interpolate(firstHalvingHeight, secondHalvingHeight, t1, t2, t);
+    }
+
+    final secondsSince2 = (t - t2) / 1000.0;
+    final blocksSince2 = (secondsSince2 / 76.0).floor();
+    return secondHalvingHeight + blocksSince2;
+  }
+
+  static int _interpolate(
+    final int hStart,
+    final int hEnd,
+    final int tStart,
+    final int tEnd,
+    final int t,
+  ) {
+    if (tEnd == tStart) return hStart;
+    final ratio = (t - tStart) / (tEnd - tStart);
+    return (hStart + (hEnd - hStart) * ratio).round();
+  }
+
+  static Future<int> getHeightByDate(final DateTime date) async {
+    int height = await getBlockHeightByTime(date);
+    try {
+      final h2 = await WarpApi.getBlockHeightByTime(coin, date);
+      height = h2;
+    } catch (e) {
+      printV("getHeightByDate: $e");
+    }
+    return height;
   }
 }
