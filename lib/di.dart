@@ -1364,7 +1364,7 @@ Future<void> setup({
         return decred!.createDecredWalletService(
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.minotari:
-        return minotari!.createMinotariWalletService(_unspentCoinsInfoSource);
+        return minotari!.createMinotariWalletService();
       case WalletType.haven:
         return HavenWalletService();
       case WalletType.zcash:

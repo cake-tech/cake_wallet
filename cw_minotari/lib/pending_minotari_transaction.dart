@@ -1,5 +1,6 @@
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/output_info.dart';
+import 'package:cw_core/transaction_priority.dart';
 
 class PendingMinotariTransaction with PendingTransaction {
   final String id;
@@ -51,6 +52,10 @@ class PendingMinotariTransaction with PendingTransaction {
 
 class MinotariTransactionCredentials {
   final List<OutputInfo> outputs;
+  final TransactionPriority priority;
 
-  MinotariTransactionCredentials(this.outputs);
+  MinotariTransactionCredentials(
+    this.outputs, {
+    required this.priority,
+  });
 }

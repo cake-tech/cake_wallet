@@ -1,24 +1,25 @@
 import 'dart:io';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_ffi.dart';
 import 'package:cw_minotari/src/rust/api/network.dart';
-import 'package:hive/hive.dart';
+
+/// Encryption utils for Minotari - always use XChaCha20 (no legacy wallet support needed)
+final _encryptionFileUtils = encryptionFileUtilsFor(true);
 
 class MinotariWalletService extends WalletService<
     MinotariNewWalletCredentials,
     MinotariRestoreWalletFromSeedCredentials,
     MinotariRestoreWalletFromKeysCredentials,
     MinotariNewWalletCredentials> {
-  MinotariWalletService(this.unspentCoinsInfoSource);
-
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  MinotariWalletService();
 
   @override
   WalletType getType() => WalletType.minotari;
@@ -38,26 +39,39 @@ class MinotariWalletService extends WalletService<
     );
 
     final ffi = MinotariFfi(dataPath: path);
+    final passphrase = credentials.passphrase!;
 
-    // Create wallet
+    // Create wallet - get WalletCreationDetails with seed words
     final network = _getNetwork(isTestnet);
-    await ffi.create(network);
+    final walletInfo = credentials.walletInfo!;
+    final walletDetails = await ffi.create(network, passphrase: passphrase);
+
+    // Extract seed words from WalletCreationDetails
+    final seedWords = walletDetails.seedWords.words;
+    final mnemonic = seedWords.join(' ');
 
     // Save network to wallet info
-    credentials.walletInfo!.network = network.name;
-    await credentials.walletInfo!.save();
+    walletInfo.network = network.name;
+    await walletInfo.save();
 
     // Get and set the wallet address
-    final address = await ffi.getAddress();
+    final address = await ffi.getAddress(passphrase: passphrase);
 
-    // Now create the wallet instance and initialize with existing data
-    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
-    final wallet = MinotariWallet(credentials.walletInfo!, derivationInfo);
+    // Now create the wallet instance with the mnemonic
+    final derivationInfo = await walletInfo.getDerivationInfo();
+    final wallet = MinotariWallet(
+      walletInfo,
+      derivationInfo,
+      mnemonic: mnemonic,
+      passphrase: passphrase,
+      encryptionFileUtils: _encryptionFileUtils,
+    );
     wallet.walletAddresses.setAddress(address);
 
     // Initialize wallet (this will open the database created above)
     await wallet.init();
 
+    // Save wallet (this will save the keys file with mnemonic)
     await wallet.save();
 
     return wallet;
@@ -70,8 +84,25 @@ class MinotariWalletService extends WalletService<
       throw Exception('Wallet not found');
     }
 
+    // Load wallet keys (mnemonic) from encrypted .keys file
+    // Note: Minotari doesn't use password-based wallet encryption
+    final keysData = await WalletKeysFile.readKeysFile(
+      name,
+      getType(),
+      '', // Minotari doesn't use password for .keys file encryption
+      _encryptionFileUtils,
+    );
+
+    // Note: If the wallet was created with a BIP39 passphrase, it would need
+    // to be stored/retrieved. For now, we default to empty passphrase.
     final derivationInfo = await walletInfo.getDerivationInfo();
-    final wallet = MinotariWallet(walletInfo, derivationInfo);
+    final wallet = MinotariWallet(
+      walletInfo,
+      derivationInfo,
+      mnemonic: keysData.mnemonic,
+      passphrase: '', // Default passphrase - stored passphrase would be needed for non-empty
+      encryptionFileUtils: _encryptionFileUtils,
+    );
     await wallet.init();
 
     return wallet;
@@ -101,7 +132,12 @@ class MinotariWalletService extends WalletService<
     }
 
     final derivationInfo = await currentWalletInfo.getDerivationInfo();
-    final currentWallet = MinotariWallet(currentWalletInfo, derivationInfo);
+    final currentWallet = MinotariWallet(
+      currentWalletInfo,
+      derivationInfo,
+      passphrase: '', // Minotari doesn't use password
+      encryptionFileUtils: _encryptionFileUtils,
+    );
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -130,30 +166,39 @@ class MinotariWalletService extends WalletService<
     );
 
     final ffi = MinotariFfi(dataPath: path);
+    final passphrase = credentials.passphrase!;
+    final walletInfo = credentials.walletInfo!;
 
-    // Restore wallet from mnemonic with passphrase
+    // Restore wallet from mnemonic - get WalletCreationDetails with seed words
     final network = _getNetwork(isTestnet);
     await ffi.restore(
       credentials.mnemonic,
       network,
-      passphrase: credentials.passphrase ?? '',
+      passphrase: passphrase,
     );
 
     // Save network to wallet info
-    credentials.walletInfo!.network = network.name;
-    await credentials.walletInfo!.save();
+    walletInfo.network = network.name;
+    await walletInfo.save();
 
     // Get and set the wallet address
-    final address = await ffi.getAddress();
+    final address = await ffi.getAddress(passphrase: passphrase);
 
-    // Now create the wallet instance and initialize with restored data
-    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
-    final wallet = MinotariWallet(credentials.walletInfo!, derivationInfo);
+    // Now create the wallet instance with the mnemonic
+    final derivationInfo = await walletInfo.getDerivationInfo();
+    final wallet = MinotariWallet(
+      walletInfo,
+      derivationInfo,
+      mnemonic: credentials.mnemonic,
+      passphrase: passphrase,
+      encryptionFileUtils: _encryptionFileUtils,
+    );
     wallet.walletAddresses.setAddress(address);
 
     // Initialize wallet (this will open the database with restored data)
     await wallet.init();
 
+    // Save wallet (this will save the keys file with mnemonic)
     await wallet.save();
 
     return wallet;
@@ -180,8 +225,11 @@ class MinotariWalletService extends WalletService<
 }
 
 class MinotariNewWalletCredentials extends WalletCredentials {
-  MinotariNewWalletCredentials({required String name, WalletInfo? walletInfo})
-      : super(name: name, walletInfo: walletInfo);
+  MinotariNewWalletCredentials({
+    required String name,
+    required String passphrase,
+    WalletInfo? walletInfo,
+  }) : super(name: name, walletInfo: walletInfo, passphrase: passphrase);
 }
 
 class MinotariRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -189,8 +237,8 @@ class MinotariRestoreWalletFromSeedCredentials extends WalletCredentials {
     required String name,
     required this.mnemonic,
     required int height,
+    required String passphrase,
     WalletInfo? walletInfo,
-    String? passphrase,
   }) : super(
          name: name,
          height: height,

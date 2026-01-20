@@ -1,4 +1,5 @@
-import 'package:cw_minotari/src/rust/api/wallet.dart';
+import 'package:cw_minotari/src/rust/api/wallet.dart'
+    show WalletCreationDetails, createWallet, restoreWallet;
 import 'package:cw_minotari/src/rust/api/balance.dart' as balance;
 import 'package:cw_minotari/src/rust/api/address.dart' as address;
 import 'package:cw_minotari/src/rust/api/db.dart';
@@ -7,21 +8,28 @@ import 'package:cw_minotari/src/rust/api/transactions.dart' as transactions;
 import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/frb_generated.dart';
 
-/// TODO Default password for Minotari wallets (user can set wallet password in
-/// the future)
-const String kMinotariDefaultPassword = '';
-
 /// FFI interface for Minotari wallet using Flutter Rust Bridge
+/// Note: The Rust library uses "password" parameter name but it actually means
+/// BIP39 passphrase for seed derivation. We use "passphrase" in our Dart code
+/// for clarity.
 class MinotariFfi {
   final String _walletName = 'default'; // We support a single wallet for now
 
   final String dataPath;
-  TariNetwork? _network;
+  TariNetwork? _networkInternal;
   bool _isInitialized = false;
 
   static bool _rustLibInitialized = false;
 
   MinotariFfi({required this.dataPath});
+
+  /// Get the network, throws if wallet not initialized
+  TariNetwork get _network {
+    if (_networkInternal == null) {
+      throw Exception('Wallet not initialized - network not set');
+    }
+    return _networkInternal!;
+  }
 
   /// Ensure Rust library is initialized (lazy initialization)
   static Future<void> _ensureRustLibInitialized() async {
@@ -37,30 +45,36 @@ class MinotariFfi {
 
     await initializeDatabase(path: dataPath);
 
-    _network = network;
+    _networkInternal = network;
     _isInitialized = true;
   }
 
   /// Create a new wallet
   /// Rust generates mnemonic internally
-  Future<void> create(TariNetwork network, {String password = kMinotariDefaultPassword}) async {
+  /// Returns WalletCreationDetails which contains seed words
+  /// [passphrase] is the BIP39 passphrase for seed derivation
+  Future<WalletCreationDetails> create(TariNetwork network, {required String passphrase}) async {
     await _ensureRustLibInitialized();
 
     await initializeDatabase(path: dataPath);
 
     // Create wallet using FFI - Rust generates mnemonic internally
-    await createWallet(network: network, password: password);
+    // Note: Rust API uses "password" param name but it's actually the BIP39 passphrase
+    final details = await createWallet(network: network, password: passphrase);
 
-    _network = network;
+    _networkInternal = network;
     _isInitialized = true;
+
+    return details;
   }
 
   /// Restore wallet from mnemonic
-  Future<void> restore(
+  /// Returns WalletCreationDetails which contains seed words
+  /// [passphrase] is the BIP39 passphrase for seed derivation
+  Future<WalletCreationDetails> restore(
     String mnemonic,
     TariNetwork network, {
-    String passphrase = '',
-    String password = kMinotariDefaultPassword,
+    required String passphrase,
   }) async {
     await _ensureRustLibInitialized();
 
@@ -74,25 +88,29 @@ class MinotariFfi {
     }
 
     // Restore wallet using FFI
-    // Note: password is for wallet encryption, passphrase is for seed derivation (BIP39)
-    await restoreWallet(
+    // Note: Rust API uses "password" param name but it's actually the BIP39 passphrase
+    final details = await restoreWallet(
       seedWords: seedWords,
-      password: password,
+      password: passphrase,
       network: network,
     );
 
-    _network = network;
+    _networkInternal = network;
     _isInitialized = true;
+
+    return details;
   }
 
   /// Get wallet address
-  Future<String> getAddress() async {
+  /// [passphrase] is the BIP39 passphrase for seed derivation
+  Future<String> getAddress({required String passphrase}) async {
     if (!_isInitialized) {
       throw Exception('Wallet not initialized');
     }
 
     return await address.getAddress(
       walletName: _walletName,
+      passphrase: passphrase,
       network: _network,
     );
   }
@@ -115,9 +133,10 @@ class MinotariFfi {
 
   /// Start scanner-based blockchain sync
   /// Returns a stream of scan events for progress updates and transaction discovery
+  /// [passphrase] is the BIP39 passphrase for seed derivation
   Stream<scanner.ScanEventDto> startScan({
     required String baseNodeAddress,
-    String password = kMinotariDefaultPassword,
+    required String passphrase,
     bool continuous = false,
     int batchSize = 1000,
     int pollIntervalSeconds = 60,
@@ -126,8 +145,9 @@ class MinotariFfi {
       throw Exception('Wallet not initialized');
     }
 
+    // Note: Rust API uses "password" field name but it's actually the BIP39 passphrase
     final config = scanner.ScanConfiguration(
-      password: password,
+      password: passphrase,
       baseUrl: baseNodeAddress,
       batchSize: BigInt.from(batchSize),
       continuous: continuous,
@@ -158,19 +178,12 @@ class MinotariFfi {
     );
   }
 
-  /// Get mnemonic
-  /// Note: This needs to be implemented in the Rust layer
-  String? getMnemonic() {
-    // TODO: Implement mnemonic retrieval from Rust wallet
-    return null;
-  }
-
   /// Dispose of the wallet handle
   Future<void> dispose() async {
     if (_isInitialized) {
       await disconnectDatabase();
       _isInitialized = false;
-      _network = null;
+      _networkInternal = null;
     }
   }
 }
