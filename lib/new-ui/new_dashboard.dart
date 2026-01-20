@@ -36,20 +36,22 @@ class _NewDashboardState extends State<NewDashboard> {
         alignment: Alignment.bottomCenter,
         children: [
           widget.dashboardPageWidgets[_selectedPage],
-          Container(
-            height: 150,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: <Color>[
-                  context.customColors.backgroundGradientColor.withAlpha(5),
-                  context.customColors.backgroundGradientColor.withAlpha(50),
-                  context.customColors.backgroundGradientColor.withAlpha(100),
-                  context.customColors.backgroundGradientColor.withAlpha(150),
-                  context.customColors.backgroundGradientColor.withAlpha(200),
-                  context.customColors.backgroundGradientColor,
-                ],
+          IgnorePointer(
+            child: Container(
+              height: 150,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: <Color>[
+                    context.customColors.backgroundGradientColor.withAlpha(5),
+                    context.customColors.backgroundGradientColor.withAlpha(50),
+                    context.customColors.backgroundGradientColor.withAlpha(100),
+                    context.customColors.backgroundGradientColor.withAlpha(150),
+                    context.customColors.backgroundGradientColor.withAlpha(200),
+                    context.customColors.backgroundGradientColor,
+                  ],
+                ),
               ),
             ),
           ),
