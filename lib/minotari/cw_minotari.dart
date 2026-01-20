@@ -2,18 +2,17 @@ part of 'minotari.dart';
 
 class CWMinotari extends Minotari {
   @override
-  WalletService createMinotariWalletService(
-    Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-  ) =>
-      MinotariWalletService(unspentCoinsInfoSource);
+  WalletService createMinotariWalletService() => MinotariWalletService();
 
   @override
   WalletCredentials createMinotariNewWalletCredentials({
     required String name,
+    required String passphrase,
     WalletInfo? walletInfo,
   }) =>
       MinotariNewWalletCredentials(
         name: name,
+        passphrase: passphrase,
         walletInfo: walletInfo,
       );
 
@@ -22,49 +21,34 @@ class CWMinotari extends Minotari {
     required String name,
     required String mnemonic,
     required int height,
-    String? passphrase,
+    required String passphrase,
+    WalletInfo? walletInfo,
   }) =>
       MinotariRestoreWalletFromSeedCredentials(
         name: name,
         mnemonic: mnemonic,
         height: height,
         passphrase: passphrase,
+        walletInfo: walletInfo,
       );
 
   @override
-  TransactionPriority getDefaultTransactionPriority() {
-    // Minotari doesn't have fee priorities like Bitcoin
-    // Using a simple priority enum
-    return MinotariTransactionPriority.medium;
-  }
-
-  @override
-  TransactionPriority getMinotariTransactionPrioritySlow() =>
-      MinotariTransactionPriority.slow;
-
-  @override
-  TransactionPriority getMinotariTransactionPriorityMedium() =>
+  TransactionPriority getDefaultTransactionPriority() =>
       MinotariTransactionPriority.medium;
 
   @override
-  TransactionPriority getMinotariTransactionPriorityFast() =>
-      MinotariTransactionPriority.fast;
+  TransactionPriority deserializeMinotariTransactionPriority({required int raw}) =>
+      MinotariTransactionPriority.deserialize(raw: raw);
 
   @override
   List<TransactionPriority> getTransactionPriorities() =>
       MinotariTransactionPriority.all;
 
   @override
-  String getAddress(WalletBase wallet) =>
-      (wallet as MinotariWallet).walletAddresses.address;
-
-  @override
-  String? getSeed(WalletBase wallet) => (wallet as MinotariWallet).seed;
-
-  @override
   Object createMinotariTransactionCredentials(
-    List<Output> outputs,
-  ) =>
+    List<Output> outputs, {
+    TransactionPriority? priority,
+  }) =>
       MinotariTransactionCredentials(
         outputs.map((out) => OutputInfo(
           fiatAmount: out.fiatAmount,
@@ -76,51 +60,64 @@ class CWMinotari extends Minotari {
           isParsedAddress: out.isParsedAddress,
           formattedCryptoAmount: out.formattedCryptoAmount,
         )).toList(),
+        priority: priority ?? MinotariTransactionPriority.medium,
+      );
+
+  @override
+  Object createMinotariTransactionCredentialsRaw({
+    required List<OutputInfo> outputs,
+    TransactionPriority? priority,
+  }) =>
+      MinotariTransactionCredentials(
+        outputs,
+        priority: priority ?? MinotariTransactionPriority.medium,
       );
 
   @override
   int getHeightByDate({required DateTime date}) {
-    // TODO: Calculate block height from date
-    // For now, return 0 (sync from genesis)
+    // TODO: Implement proper block height calculation from date
     return 0;
   }
 
   @override
   Future<int> getCurrentHeight() async {
-    // TODO: Get current blockchain height from node
+    // TODO: Get current blockchain height from connected node
     return 0;
   }
 
   @override
-  TransactionHistoryBase getTransactionHistory(Object wallet) {
+  Map<String, String> getKeys(Object wallet) {
     final minotariWallet = wallet as MinotariWallet;
-    return minotariWallet.transactionHistory;
-  }
+    final keys = <String, String>{};
 
-  @override
-  Future<MinotariWallet> createMinotariWallet(WalletInfo walletInfo) async {
-    final derivationInfo = await walletInfo.getDerivationInfo();
-    return MinotariWallet(walletInfo, derivationInfo);
-  }
-
-  @override
-  String getAssetShortName(CryptoCurrency asset) {
-    if (asset == CryptoCurrency.xtm) {
-      return 'XTM';
+    final seed = minotariWallet.seed;
+    if (seed != null) {
+      keys['seed'] = seed;
     }
-    return asset.title;
+
+    // TODO: Add view key, spend key if Minotari exposes them
+    // keys['privateSpendKey'] = ...;
+    // keys['publicSpendKey'] = ...;
+
+    return keys;
   }
 
   @override
-  String getAssetFullName(CryptoCurrency asset) {
-    if (asset == CryptoCurrency.xtm) {
-      return 'Minotari';
-    }
-    return asset.fullName ?? asset.title;
+  int? getRestoreHeight(Object wallet) {
+    final minotariWallet = wallet as MinotariWallet;
+    // Return the wallet's restore height from walletInfo
+    return minotariWallet.walletInfo.restoreHeight;
   }
 
   @override
-  double formatterMinotariAmountToDouble({required int amount}) {
-    return minotariAmountToDouble(amount: amount);
-  }
+  String formatterMinotariAmountToString({required int amount}) =>
+      minotariAmountToString(amount: amount);
+
+  @override
+  double formatterMinotariAmountToDouble({required int amount}) =>
+      minotariAmountToDouble(amount: amount);
+
+  @override
+  int formatterMinotariParseAmount({required String amount}) =>
+      minotariParseAmount(amount: amount);
 }

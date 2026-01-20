@@ -1,15 +1,9 @@
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
-import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:hive/hive.dart';
-
 
 import 'package:cw_minotari/minotari_amount_format.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
@@ -22,12 +16,11 @@ part 'cw_minotari.dart';
 Minotari? minotari = CWMinotari();
 
 abstract class Minotari {
-  WalletService createMinotariWalletService(
-    Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-  );
+  WalletService createMinotariWalletService();
 
   WalletCredentials createMinotariNewWalletCredentials({
     required String name,
+    required String passphrase,
     WalletInfo? walletInfo,
   });
 
@@ -35,28 +28,31 @@ abstract class Minotari {
     required String name,
     required String mnemonic,
     required int height,
-    String? passphrase,
+    required String passphrase,
+    WalletInfo? walletInfo,
   });
 
   TransactionPriority getDefaultTransactionPriority();
-  TransactionPriority getMinotariTransactionPrioritySlow();
-  TransactionPriority getMinotariTransactionPriorityMedium();
-  TransactionPriority getMinotariTransactionPriorityFast();
+  TransactionPriority deserializeMinotariTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
 
-  String getAddress(WalletBase wallet);
-  String? getSeed(WalletBase wallet);
+  Object createMinotariTransactionCredentials(
+    List<Output> outputs, {
+    TransactionPriority? priority,
+  });
 
-  Object createMinotariTransactionCredentials(List<Output> outputs);
+  Object createMinotariTransactionCredentialsRaw({
+    required List<OutputInfo> outputs,
+    TransactionPriority? priority,
+  });
 
   int getHeightByDate({required DateTime date});
   Future<int> getCurrentHeight();
-  TransactionHistoryBase getTransactionHistory(Object wallet);
 
-  Future<MinotariWallet> createMinotariWallet(WalletInfo walletInfo);
+  Map<String, String> getKeys(Object wallet);
+  int? getRestoreHeight(Object wallet);
 
-  String getAssetShortName(CryptoCurrency asset);
-  String getAssetFullName(CryptoCurrency asset);
-
+  String formatterMinotariAmountToString({required int amount});
   double formatterMinotariAmountToDouble({required int amount});
+  int formatterMinotariParseAmount({required String amount});
 }
