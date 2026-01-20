@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/l2_send_external_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -12,6 +16,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 enum l2actions { deposit, withdraw }
 
@@ -42,6 +47,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
   final TextEditingController addressController = TextEditingController();
   List<WalletInfo> items = [];
   bool textEntered = false;
+  String? loadingWalletName;
 
   @override
   void initState() {
@@ -144,7 +150,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                                     Text(
                                       "Select other Wallet",
                                       style: TextStyle(
-                                          color: Theme.of(context).colorScheme.primary),
+                                          color: Theme.of(context).colorScheme.primary,fontWeight: FontWeight.w500,fontSize:15),
                                     )
                                   ],
                                 ),
@@ -207,8 +213,11 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                               color: Colors.transparent,
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(16),
-                                onTap: () {
-
+                                onTap: () async {
+                                  Navigator.of(context,rootNavigator: true).pop();
+                                showCupertinoModalBottomSheet(context: navigatorKey.currentContext??context, builder: (context){
+                                    return Material(child: L2SendExternalModal(sendViewModel: widget.sendViewModel));
+                                  });
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -224,7 +233,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                                       Text(
                                         "Send from External",
                                         style: TextStyle(
-                                            color: Theme.of(context).colorScheme.primary),
+                                            color: Theme.of(context).colorScheme.primary,fontWeight: FontWeight.w500,fontSize:15),
                                       )
                                     ],
                                   ),
@@ -237,33 +246,37 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                     SizedBox()
                   ],
                   if (widget.showOtherWallets)
-                    Observer(
-                      builder: (_) {
-                        printV(items);
-                        return Flexible(
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: items.length,
-                          itemBuilder:(context,index) {
+                    Flexible(
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
                             final item = items[index];
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8.0),
                               child: WalletRow(
-                                currencyIconPath: walletTypeToCryptoCurrency(item.type).iconPath ?? "",
+                                currencyIconPath:
+                                    walletTypeToCryptoCurrency(item.type).iconPath ?? "",
                                 walletName: item.name,
+                                isLoading: loadingWalletName == item.name,
                                 onTap: () async {
-                                  if(widget.action == l2actions.withdraw) {
+                                  if (widget.action == l2actions.withdraw) {
                                     widget.sendViewModel.outputs.first.address = item.address;
-                                  } else if(widget.action == l2actions.deposit) {
+                                    widget.onSendInitiated();
+                                  } else if (widget.action == l2actions.deposit) {
+                                    setState(() {
+                                      loadingWalletName = item.name;
+                                    });
                                     await _handleChangeWallet(item);
+                                    widget.onSendInitiated();
+                                    setState(() {
+                                      loadingWalletName = null;
+                                    });
                                   }
-                                  widget.onSendInitiated();
-                                    },
-                                  ),
-                                );
-                              }),
-                        );
-                      },
+                                },
+                              ),
+                            );
+                          }),
                     )
                 ],
               ),
@@ -275,11 +288,14 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
   }
 
   Future<void> _handleChangeWallet(WalletInfo wallet) async {
+    // this waits for the ui to animate nicely
+    // if wallet switching is done alongside animations, they lag HARD
+    await Future.delayed(const Duration(milliseconds: 500));
     widget.walletSwitcherViewModel.selectWallet(wallet);
     final success = await widget.walletSwitcherViewModel.switchToSelectedWallet();
     if (success) {
       await Future.delayed(const Duration(seconds: 2));
-      await widget.sendViewModel.wallet.updateBalance();
+      await widget.sendViewModel.updateWalletBalance();
       if(bitcoin != null) {
         await bitcoin!.updateFeeRates(widget.sendViewModel.wallet);
       }
@@ -289,11 +305,12 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
 
 class WalletRow extends StatelessWidget {
   const WalletRow(
-      {super.key, required this.currencyIconPath, required this.walletName, required this.onTap});
+      {super.key, required this.currencyIconPath, required this.walletName, required this.onTap, this.isLoading=false});
 
   final String currencyIconPath;
   final String walletName;
   final VoidCallback onTap;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -325,7 +342,7 @@ class WalletRow extends StatelessWidget {
                     Text(walletName)
                   ],
                 ),
-                Icon(
+                isLoading ? CupertinoActivityIndicator() : Icon(
                   Icons.chevron_right,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 )

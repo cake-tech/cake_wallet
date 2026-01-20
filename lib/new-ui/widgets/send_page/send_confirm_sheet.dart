@@ -38,33 +38,41 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      child: Observer(
-        builder: (_) {
-          final commited = widget.sendViewModel.state is TransactionCommitted;
-          return Stack(
-            fit: StackFit.loose,
-            children: [
-              Positioned.fill(
-                  child: AnimatedSlide(
-                offset: commited ? Offset.zero : const Offset(1, 0),
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutCubic,
-                child: const TransactionCommitedScreen(),
-              )),
-              AnimatedSlide(
-                offset: commited ? const Offset(-1, 0) : Offset.zero,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutCubic,
-                child: SendTransactionDetails(sendViewModel: widget.sendViewModel,isPage: widget.isPage),
-              ),
-            ],
-          );
-        },
+    return PopScope(
+      canPop: !widget.isPage,
+      onPopInvokedWithResult: (didPop, result) {
+        if (widget.isPage) {
+          Navigator.of(context, rootNavigator: true).pop();
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Observer(
+          builder: (_) {
+            final commited = widget.sendViewModel.state is TransactionCommitted;
+            return Stack(
+              fit: StackFit.loose,
+              children: [
+                Positioned.fill(
+                    child: AnimatedSlide(
+                  offset: commited ? Offset.zero : const Offset(1, 0),
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  child: const TransactionCommitedScreen(),
+                )),
+                AnimatedSlide(
+                  offset: commited ? const Offset(-1, 0) : Offset.zero,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  child: SendTransactionDetails(sendViewModel: widget.sendViewModel,isPage: widget.isPage),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
