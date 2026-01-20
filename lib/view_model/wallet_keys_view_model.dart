@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -207,8 +208,7 @@ abstract class WalletKeysViewModelBase with Store {
         ]);
         break;
       case WalletType.minotari:
-        // Minotari uses BIP39 24-word mnemonic
-        // Seed will be displayed via the seed property once getMnemonic() FFI is implemented
+        keys = minotari!.getKeys(_wallet);
         break;
       case WalletType.none:
       case WalletType.haven:
@@ -328,6 +328,9 @@ abstract class WalletKeysViewModelBase with Store {
     }
     if (_wallet.type == WalletType.zcash) {
       return zcash!.getKeys(_wallet)["restoreHeight"]?.toString();
+    }
+    if (_wallet.type == WalletType.minotari) {
+      return minotari!.getRestoreHeight(_wallet)?.toString();
     }
     if (_restoreHeightByTransactions != 0)
       return getRoundedRestoreHeight(_restoreHeightByTransactions);

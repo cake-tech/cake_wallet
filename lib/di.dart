@@ -1223,7 +1223,7 @@ Future<void> setup({
       case WalletType.decred:
         return decred!.createDecredWalletService(_unspentCoinsInfoSource);
       case WalletType.minotari:
-        return minotari!.createMinotariWalletService(_unspentCoinsInfoSource);
+        return minotari!.createMinotariWalletService();
       case WalletType.haven:
         return HavenWalletService();
       case WalletType.zcash:
