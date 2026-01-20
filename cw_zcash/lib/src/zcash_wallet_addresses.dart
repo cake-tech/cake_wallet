@@ -140,6 +140,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     usedAddresses = await walletInfo.getUsedAddresses();
     manualAddresses = await walletInfo.getManualAddresses();
     hiddenAddresses = await walletInfo.getHiddenAddresses();
+    address = latestAddress;
   }
 
   @override
