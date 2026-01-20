@@ -513,7 +513,7 @@ class AddressResolver {
         }
       }
     } catch (e) {
-      print('Error fetching zcash.me profile: $e');
+      printV('Error fetching zcash.me profile: $e');
     }
     return null;
   }
