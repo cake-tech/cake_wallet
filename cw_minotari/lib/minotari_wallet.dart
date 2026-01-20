@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -9,6 +10,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_minotari/minotari_balance.dart';
 import 'package:cw_minotari/minotari_ffi.dart';
 import 'package:cw_minotari/minotari_transaction_history.dart';
@@ -27,9 +29,16 @@ class MinotariWallet = MinotariWalletBase with _$MinotariWallet;
 
 abstract class MinotariWalletBase
     extends WalletBase<MinotariBalance, MinotariTransactionHistory, MinotariTransactionInfo>
-    with Store {
-  MinotariWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo)
-      : balance = ObservableMap.of({
+    with Store, WalletKeysFile {
+  MinotariWalletBase(
+    WalletInfo walletInfo,
+    DerivationInfo derivationInfo, {
+    String? mnemonic,
+    required String passphrase,
+    required this.encryptionFileUtils,
+  })  : _mnemonic = mnemonic,
+        _passphrase = passphrase,
+        balance = ObservableMap.of({
           CryptoCurrency.xtm: MinotariBalance(
             available: 0,
             pendingIncoming: 0,
@@ -48,6 +57,10 @@ abstract class MinotariWalletBase
   StreamSubscription<ScanEventDto>? _scannerSubscription;
   Node? _currentNode;
 
+  final String? _mnemonic;
+  final String _passphrase;
+  final EncryptionFileUtils encryptionFileUtils;
+
   @override
   MinotariWalletAddresses walletAddresses;
 
@@ -60,10 +73,18 @@ abstract class MinotariWalletBase
   ObservableMap<CryptoCurrency, MinotariBalance> balance;
 
   @override
-  String? get seed => _ffi?.getMnemonic();
+  String? get seed => _mnemonic;
 
+  /// For Minotari, password is not used for wallet encryption.
+  /// The passphrase is used for BIP39 seed derivation.
   @override
   String get password => '';
+
+  /// BIP39 passphrase used for seed derivation
+  String get passphrase => _passphrase;
+
+  @override
+  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic);
 
   @override
   Object get keys => {};
@@ -85,7 +106,7 @@ abstract class MinotariWalletBase
       await _ffi?.open(network);
 
       // Get the wallet address from the Rust layer (it's persisted there)
-      final address = await _ffi?.getAddress();
+      final address = await _ffi?.getAddress(passphrase: _passphrase);
       if (address != null && address.isNotEmpty) {
         walletAddresses.setAddress(address);
       } else {
@@ -136,6 +157,7 @@ abstract class MinotariWalletBase
       // Start the scanner stream
       final scanStream = _ffi?.startScan(
         baseNodeAddress: nodeUrl,
+        passphrase: _passphrase,
         continuous: false, // One-time sync
       );
 
@@ -224,6 +246,8 @@ abstract class MinotariWalletBase
   @override
   Future<void> save() async {
     // Wallet state is saved automatically by the Rust layer
+    // Save the keys file (mnemonic) - Minotari doesn't use password-based encryption
+    await saveKeysFile(password, encryptionFileUtils);
   }
 
   @override
