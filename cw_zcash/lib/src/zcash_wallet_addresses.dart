@@ -129,7 +129,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   }
 
   static int get coin => ZcashWalletBase.coin;
-  
+
   @override
   @observable
   Set<String> hiddenAddresses = {};
@@ -162,7 +162,8 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
           [],
     };
     hiddenAddresses.addAll(
-        ZcashTaddressRotation.allUsedAddressesForAccount(accountId)?.toSet() ?? {});
+      ZcashTaddressRotation.allUsedAddressesForAccount(accountId)?.toSet() ?? {},
+    );
 
     // addressInfos[0]?.removeWhere((final test) => hiddenAddresses.contains(test.address));
     if (_addressPageType == ZcashAddressType.transparentRotated) {
@@ -179,7 +180,6 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
 
   @computed
   String get address {
-
     return _address;
   }
 

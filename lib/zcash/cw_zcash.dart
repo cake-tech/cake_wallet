@@ -176,7 +176,7 @@ class CWZcash extends Zcash {
   }
 
   @override
-  ZcashAddressType getZcashAddressType(ReceivePageOption option) {
+  dynamic getZcashAddressType(ReceivePageOption option) {
     switch (option) {
       case ZcashReceivePageOption.unified:
         return ZcashAddressType.unifiedType;
@@ -196,7 +196,7 @@ class CWZcash extends Zcash {
   }
 
   @override
-  ZcashAddressType getOptionToType(ReceivePageOption option) {
+  dynamic getOptionToType(ReceivePageOption option) {
     return (option as ZcashReceivePageOption).toType();
   }
   

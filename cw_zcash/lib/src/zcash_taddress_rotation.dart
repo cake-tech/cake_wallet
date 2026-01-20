@@ -171,7 +171,6 @@ class ZcashTaddressRotation {
   static Uint8List atob(final String value) =>
       Uint8List.fromList(List<int>.from(base64.decode(value)));
 
-
   static Future<void> createAndSweepTAddresses() async {
     int chainHeight = 0;
     try {
@@ -234,10 +233,10 @@ class ZcashTaddressRotation {
         final txs = WarpApi.getTxsSync(coin, a.id);
         return txs.isNotEmpty;
       });
-      
+
       // remove hidden addresses
       final wis = await WalletInfo.selectList('type = ?', [WalletType.zcash.index]);
-      
+
       final List<String> hiddenAddresses_ = [];
       for (int k = 0; k < wis.length; k++) {
         final addrs = await wis[i].getHiddenAddresses();
@@ -394,7 +393,7 @@ class ZcashTaddressRotation {
   }
 
   static String? addressForAccount(final int accountId, final Set<String>? hiddenAddresses) {
-    final accs = rotationAccountsUsable[accountId]??[];
+    final accs = rotationAccountsUsable[accountId] ?? [];
     for (int i = 0; i < accs.length; i++) {
       final addr = WarpApi.getTAddr(coin, accs[i].id);
       if (hiddenAddresses?.contains(addr) == true) {
