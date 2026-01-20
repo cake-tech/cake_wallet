@@ -1862,6 +1862,10 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.solana,\n';
   }
 
+  if (hasZcash) {
+    outputContent += '\tWalletType.zcash,\n';
+  }
+
   if (hasTron) {
     outputContent += '\tWalletType.tron,\n';
   }
@@ -1872,10 +1876,6 @@ Future<void> generateWalletTypes({
 
   if (hasBitcoinCash) {
     outputContent += '\tWalletType.bitcoinCash,\n';
-  }
-
-  if (hasZcash) {
-    outputContent += '\tWalletType.zcash,\n';
   }
 
   if (hasBitcoin) {
