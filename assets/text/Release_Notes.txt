@@ -1,4 +1,5 @@
 Add Arbitrum
+Zcash improvements
 EVM chains enhancements
 Integrate Jupiter swaps for Solana
 Bug fixes
