@@ -1631,9 +1631,9 @@ abstract class Zcash {
   List<TransactionPriority> getTransactionPriorities();
   List<ReceivePageOption> getZcashReceivePageOptions(Object wallet);
   ReceivePageOption getSelectedAddressType(Object wallet);
-  ZcashAddressType getZcashAddressType(ReceivePageOption option);
+  dynamic getZcashAddressType(ReceivePageOption option);
   Future<void> setAddressType(Object wallet, dynamic option);
-  ZcashAddressType getOptionToType(ReceivePageOption option);
+  dynamic getOptionToType(ReceivePageOption option);
   void unlockDatabase(String password);
   Future<int> getHeightByDate(DateTime date);
 }

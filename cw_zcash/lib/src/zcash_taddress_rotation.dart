@@ -17,6 +17,7 @@ import 'dart:io';
 
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zcash/src/util/crc32.dart';
 import 'package:cw_zcash/src/zcash_wallet.dart';
@@ -232,6 +233,21 @@ class ZcashTaddressRotation {
         final txs = WarpApi.getTxsSync(coin, a.id);
         return txs.isNotEmpty;
       });
+
+      // remove hidden addresses
+      final wis = await WalletInfo.selectList('type = ?', [WalletType.zcash.index]);
+
+      final List<String> hiddenAddresses_ = [];
+      for (int k = 0; k < wis.length; k++) {
+        final addrs = await wis[i].getHiddenAddresses();
+        final addr2 = await wis[i].getUsedAddresses();
+        hiddenAddresses_.addAll(addrs);
+        hiddenAddresses_.addAll(addr2);
+      }
+      final Set<String> hiddenAddresses = hiddenAddresses_.toSet();
+      rotationAccountsUsable[raKeys[i]]!.removeWhere((final a) {
+        return hiddenAddresses.contains(WarpApi.getTAddr(coin, a.id));
+      });
     }
     printV("rotationAccountsUsable: ${rotationAccountsUsable.length}");
 
@@ -376,12 +392,16 @@ class ZcashTaddressRotation {
     }
   }
 
-  static String? addressForAccount(final int accountId) {
-    final acc = rotationAccountsUsable[accountId]?.firstOrNull;
-    if (acc == null) {
-      return null;
+  static String? addressForAccount(final int accountId, final Set<String>? hiddenAddresses) {
+    final accs = rotationAccountsUsable[accountId] ?? [];
+    for (int i = 0; i < accs.length; i++) {
+      final addr = WarpApi.getTAddr(coin, accs[i].id);
+      if (hiddenAddresses?.contains(addr) == true) {
+        continue;
+      }
+      return addr;
     }
-    return WarpApi.getTAddr(coin, acc.id);
+    return null;
   }
 
   static List<String>? allAddressesForAccount(final int accountId) {

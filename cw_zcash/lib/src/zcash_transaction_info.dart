@@ -75,7 +75,6 @@ class ZcashTransactionInfo extends TransactionInfo {
   static final Map<String, String> _destinationAddressMap = {};
 
   static String? getCachedDestinationAddress(final String txId) {
-    printV("$txId -> ${_destinationAddressMap.keys.join(",")}");
     return _destinationAddressMap[txId] ??
         _destinationAddressMap['"$txId"'] ??
         _destinationAddressMap[txId.replaceAll('"', '')];
