@@ -34,10 +34,11 @@ abstract class MinotariWalletBase
     WalletInfo walletInfo,
     DerivationInfo derivationInfo, {
     String? mnemonic,
-    required String passphrase,
+    required String password,
     required this.encryptionFileUtils,
+    this.passphrase,
   })  : _mnemonic = mnemonic,
-        _passphrase = passphrase,
+        _password = password,
         balance = ObservableMap.of({
           CryptoCurrency.xtm: MinotariBalance(
             available: 0,
@@ -57,8 +58,8 @@ abstract class MinotariWalletBase
   StreamSubscription<ScanEventDto>? _scannerSubscription;
   Node? _currentNode;
 
+  final String _password;
   final String? _mnemonic;
-  final String _passphrase;
   final EncryptionFileUtils encryptionFileUtils;
 
   @override
@@ -75,16 +76,16 @@ abstract class MinotariWalletBase
   @override
   String? get seed => _mnemonic;
 
-  /// For Minotari, password is not used for wallet encryption.
-  /// The passphrase is used for BIP39 seed derivation.
+  /// password - for encrypting/decrypting the .keys file
   @override
-  String get password => '';
+  String get password => _password;
 
   /// BIP39 passphrase used for seed derivation
-  String get passphrase => _passphrase;
+  @override
+  final String? passphrase;
 
   @override
-  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic);
+  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, passphrase: passphrase);
 
   @override
   Object get keys => {};
@@ -106,7 +107,7 @@ abstract class MinotariWalletBase
       await _ffi?.open(network);
 
       // Get the wallet address from the Rust layer (it's persisted there)
-      final address = await _ffi?.getAddress(passphrase: _passphrase);
+      final address = await _ffi?.getAddress(passphrase: passphrase ?? '');
       if (address != null && address.isNotEmpty) {
         walletAddresses.setAddress(address);
       } else {
@@ -139,6 +140,10 @@ abstract class MinotariWalletBase
     }
   }
 
+  /// TODO Sometimes receives an error "AnyhowException(Intermittent error:
+  /// Scanning error: Blockchain connection failed: Failed to get header at
+  /// height 186479)"
+  /// Need to investigate further
   @override
   Future<void> startSync() async {
     try {
@@ -157,7 +162,7 @@ abstract class MinotariWalletBase
       // Start the scanner stream
       final scanStream = _ffi?.startScan(
         baseNodeAddress: nodeUrl,
-        passphrase: _passphrase,
+        passphrase: passphrase ?? '',
         continuous: false, // One-time sync
       );
 
@@ -168,25 +173,36 @@ abstract class MinotariWalletBase
       // Listen to scan events
       _scannerSubscription = scanStream.listen(
         (event) {
-          _handleScanEvent(event);
+          try {
+            _handleScanEvent(event);
+          } catch (e) {
+            printV('Error handling scan event: $e');
+            syncStatus = FailedSyncStatus();
+          }
         },
         onError: (error) {
-          printV('Scanner error: $error');
+          printV('Scanner stream error: $error');
           syncStatus = FailedSyncStatus();
         },
         onDone: () async {
           // Scan completed, update balance and transactions
-          await updateBalance();
-          await updateTransactions();
-          syncStatus = SyncedSyncStatus();
+          try {
+            await updateBalance();
+            await updateTransactions();
+            syncStatus = SyncedSyncStatus();
+          } catch (e) {
+            printV('Error updating after scan: $e');
+            syncStatus = FailedSyncStatus();
+          }
         },
+        cancelOnError: true, // Stop listening after an error
       );
 
       syncStatus = SyncronizingSyncStatus();
     } catch (e) {
       printV('Error starting sync: $e');
       syncStatus = FailedSyncStatus();
-      rethrow;
+      // Don't rethrow - we've already set FailedSyncStatus
     }
   }
 
@@ -220,15 +236,19 @@ abstract class MinotariWalletBase
           },
         );
       },
-      transactionsReady: (dto) async {
+      transactionsReady: (dto) {
         printV('Transactions ready: ${dto.transactions.length} transactions');
-        // Update transactions immediately when discovered
-        await _processNewTransactions(dto.transactions);
+        // Update transactions immediately when discovered (fire-and-forget)
+        _processNewTransactions(dto.transactions).catchError((e) {
+          printV('Error processing new transactions: $e');
+        });
       },
-      transactionsUpdated: (dto) async {
+      transactionsUpdated: (dto) {
         printV('Transactions updated: ${dto.updatedTransactions.length} transactions');
-        // Update existing transactions
-        await _processNewTransactions(dto.updatedTransactions);
+        // Update existing transactions (fire-and-forget)
+        _processNewTransactions(dto.updatedTransactions).catchError((e) {
+          printV('Error processing updated transactions: $e');
+        });
       },
       error: (errorMessage) {
         printV('Scanner error: $errorMessage');
@@ -246,8 +266,11 @@ abstract class MinotariWalletBase
   @override
   Future<void> save() async {
     // Wallet state is saved automatically by the Rust layer
-    // Save the keys file (mnemonic) - Minotari doesn't use password-based encryption
-    await saveKeysFile(password, encryptionFileUtils);
+    // Save the keys file (mnemonic and passphrase)
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+      await saveKeysFile(password, encryptionFileUtils);
+      saveKeysFile(password, encryptionFileUtils, true); // backup
+    }
   }
 
   @override

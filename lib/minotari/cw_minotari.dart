@@ -7,11 +7,13 @@ class CWMinotari extends Minotari {
   @override
   WalletCredentials createMinotariNewWalletCredentials({
     required String name,
-    required String passphrase,
+    String? password,
+    String? passphrase,
     WalletInfo? walletInfo,
   }) =>
       MinotariNewWalletCredentials(
         name: name,
+        password: password,
         passphrase: passphrase,
         walletInfo: walletInfo,
       );
@@ -19,13 +21,15 @@ class CWMinotari extends Minotari {
   @override
   WalletCredentials createMinotariRestoreWalletFromSeedCredentials({
     required String name,
+    required String password,
     required String mnemonic,
     required int height,
-    required String passphrase,
+    String? passphrase,
     WalletInfo? walletInfo,
   }) =>
       MinotariRestoreWalletFromSeedCredentials(
         name: name,
+        password: password,
         mnemonic: mnemonic,
         height: height,
         passphrase: passphrase,
