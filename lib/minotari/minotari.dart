@@ -20,15 +20,17 @@ abstract class Minotari {
 
   WalletCredentials createMinotariNewWalletCredentials({
     required String name,
-    required String passphrase,
+    String? password,
+    String? passphrase,
     WalletInfo? walletInfo,
   });
 
   WalletCredentials createMinotariRestoreWalletFromSeedCredentials({
     required String name,
+    required String password,
     required String mnemonic,
     required int height,
-    required String passphrase,
+    String? passphrase,
     WalletInfo? walletInfo,
   });
 
