@@ -168,7 +168,7 @@ class BalanceCard extends StatelessWidget {
                               height: iconWidth,
                               width: iconWidth,
                               colorFilter: ColorFilter.mode(
-                                design.colors.backgroundImageColor.withAlpha(215),
+                                design.colors.backgroundImageColor.withAlpha(80),
                                 BlendMode.srcIn,
                               ),
                             )
