@@ -169,6 +169,7 @@ class CardDesign {
           begin: Alignment.topCenter, end: Alignment.bottomCenter
       ),
       backgroundType: CardDesignBackgroundTypes.svgFull,
+      colors: CardColorCombination.light,
       imagePath: "assets/new-ui/balance_card_backgrounds/ethereum.svg");
 
   static const btcSpecial = CardDesign(
@@ -255,10 +256,44 @@ class CardDesign {
       backgroundType: CardDesignBackgroundTypes.svgFull,
       imagePath: "assets/new-ui/balance_card_backgrounds/nano.svg");
 
+  static const polSpecial = CardDesign(
+      gradient: const LinearGradient(
+          colors: <Color>[Color(0xFF9E30FF), Color(0xFF7100BD)],
+          begin: Alignment.topCenter, end: Alignment.bottomCenter
+      ),
+      backgroundType: CardDesignBackgroundTypes.svgFull,
+      imagePath: "assets/new-ui/balance_card_backgrounds/polygon.svg");
+
+  static const dcrSpecial = CardDesign(
+      gradient: const LinearGradient(
+          colors: <Color>[Color(0xFF2871FF), Color(0xFF0057FF)],
+          begin: Alignment.topCenter, end: Alignment.bottomCenter
+      ),
+      backgroundType: CardDesignBackgroundTypes.svgFull,
+      imagePath: "assets/new-ui/balance_card_backgrounds/decred.svg");
+
+  static const zanoSpecial = CardDesign(
+      gradient: const LinearGradient(
+          colors: <Color>[Color(0xFF1316A2), Color(0xFF170068)],
+          begin: Alignment.topCenter, end: Alignment.bottomCenter
+      ),
+      colors: CardColorCombination.light,
+      backgroundType: CardDesignBackgroundTypes.svgFull,
+      imagePath: "assets/new-ui/balance_card_backgrounds/zano.svg");
+
+  static const baseSpecial = CardDesign(
+      gradient: const LinearGradient(
+          colors: <Color>[Color(0xFF003CFF), Color(0xFF000087)],
+          begin: Alignment.topCenter, end: Alignment.bottomCenter
+      ),
+      colors: CardColorCombination.light,
+      backgroundType: CardDesignBackgroundTypes.svgFull,
+      imagePath: "assets/new-ui/balance_card_backgrounds/base.svg");
+
   CardDesign withGradient(Gradient gradient) => CardDesign(
       gradient: gradient, colors: preferredColorCombinations[gradient] ?? colors, imagePath: imagePath, backgroundType: backgroundType);
 
-  static const List<CardDesign> all = [genericDefault, btc, eth, xmr, ltc, eth, pol, doge, base, sol, btcln, base, tron, zano, dcr, ethSpecial, btcSpecial, xmrSpecial, ltcSpecial, lnSpecial, tronSpecial, bchSpecial, wowSpecial, dogeSpecial];
+  static const List<CardDesign> all = [genericDefault, btc, eth, xmr, ltc, eth, pol, doge, base, sol, btcln, tron, zano, dcr, ethSpecial, btcSpecial, xmrSpecial, ltcSpecial, lnSpecial, tronSpecial, bchSpecial, wowSpecial, dogeSpecial, polSpecial, dcrSpecial, zanoSpecial];
 
   static CardDesign forCurrency(CryptoCurrency currency) {
     return defaultDesignsForCurrencies[currency] ?? genericDefault;
@@ -298,6 +333,10 @@ class CardDesign {
     CryptoCurrency.wow: wowSpecial,
     CryptoCurrency.doge: dogeSpecial,
     CryptoCurrency.nano: nanoSpecial,
+    CryptoCurrency.maticpoly: polSpecial,
+    CryptoCurrency.dcr: dcrSpecial,
+    CryptoCurrency.zano: zanoSpecial,
+    CryptoCurrency.baseEth: baseSpecial,
   };
 
   static Map<Gradient, CardColorCombination> preferredColorCombinations = {

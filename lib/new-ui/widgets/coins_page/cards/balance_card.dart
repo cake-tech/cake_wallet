@@ -58,7 +58,7 @@ class BalanceCard extends StatelessWidget {
       decoration: ShapeDecoration(
         gradient: design.gradient,
         shape: RoundedSuperellipseBorder(
-          side: const BorderSide(color: Color(0x77FFFFFF), width: 1),
+          side: const BorderSide(color: Color(0x44FFFFFF), width: 1),
           borderRadius: BorderRadiusGeometry.circular(borderRadius),
         ),
       ),
