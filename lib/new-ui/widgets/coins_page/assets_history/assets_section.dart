@@ -11,13 +11,17 @@ class AssetsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: 1,
-      itemBuilder: (context, index) {
-        return AssetTile(dashboardViewModel: dashboardViewModel,);
-      },
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 64.0),
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length-1,
+        itemBuilder: (context, index) {
+          final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index+1);
+          return AssetTile(balance: balance);
+        },
+      ),
     );
   }
 }

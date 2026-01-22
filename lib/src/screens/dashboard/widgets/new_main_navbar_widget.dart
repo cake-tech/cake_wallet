@@ -148,7 +148,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(barBorderRadius),
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
                 child: Container(
                     height: barHeight,
                     decoration: BoxDecoration(

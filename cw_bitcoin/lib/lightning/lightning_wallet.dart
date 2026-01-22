@@ -43,7 +43,7 @@ class LightningWallet {
           lnurlDomain: lnurlDomain,
           apiKey: apiKey,
           privateEnabledDefault: true,
-          maxDepositClaimFee: Fee.rate(satPerVbyte: BigInt.from(5))
+          maxDepositClaimFee: MaxFee.rate(satPerVbyte: BigInt.from(5))
       );
 
       final connectRequest = ConnectRequest(
@@ -256,9 +256,9 @@ class LightningWallet {
       };
 
       final claimError = deposit.claimError;
-      if (claimError is DepositClaimError_DepositClaimFeeExceeded) {
-        unclaimedDeposit["claimError"] = "DepositClaimFeeExceeded";
-        unclaimedDeposit["actualFee"] = claimError.actualFee;
+      if (claimError is DepositClaimError_MaxDepositClaimFeeExceeded) {
+        unclaimedDeposit["claimError"] = "DepositClaimError_MaxDepositClaimFeeExceeded";
+        unclaimedDeposit["actualFee"] = claimError.requiredFeeSats;
       } else if (claimError is DepositClaimError_MissingUtxo) {
         unclaimedDeposit["claimError"] = "MissingUtxo";
       } else if (claimError is DepositClaimError_Generic) {
@@ -275,7 +275,7 @@ class LightningWallet {
       request: ClaimDepositRequest(
         txid: txId,
         vout: vout,
-        maxFee: Fee.fixed(amount: newFee),
+        maxFee: MaxFee.fixed(amount: newFee),
       ),
     );
 
@@ -340,10 +340,11 @@ extension _ConfigCopyWith on Config {
     String? lnurlDomain,
     Network? network,
     int? syncIntervalSecs,
-    Fee? maxDepositClaimFee,
+    MaxFee? maxDepositClaimFee,
     bool? preferSparkOverLightning,
     bool? useDefaultExternalInputParsers,
     bool? privateEnabledDefault,
+    OptimizationConfig? optimizationConfig,
   }) =>
       Config(
         lnurlDomain: lnurlDomain ?? this.lnurlDomain,
@@ -355,5 +356,6 @@ extension _ConfigCopyWith on Config {
         useDefaultExternalInputParsers:
             useDefaultExternalInputParsers ?? this.useDefaultExternalInputParsers,
         privateEnabledDefault: privateEnabledDefault ?? this.privateEnabledDefault,
+        optimizationConfig: optimizationConfig ?? this.optimizationConfig,
       );
 }

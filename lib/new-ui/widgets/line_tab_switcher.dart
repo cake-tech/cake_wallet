@@ -20,7 +20,24 @@ class LineTabSwitcher extends StatefulWidget {
 class _LineTabSwitcherState extends State<LineTabSwitcher> {
   List<GlobalKey> textWidgetKeys = [];
   List<Size> textWidgetSizes = [];
+  double totalWidth = 0;
+  final double itemPadding = 16;
+  final double barPadding = 8;
   bool textWidgetsMeasured = false;
+
+  @override
+  void didUpdateWidget(covariant LineTabSwitcher oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.tabs.length != widget.tabs.length) {
+      textWidgetKeys = List.generate(widget.tabs.length, (_) => GlobalKey());
+      textWidgetSizes = [];
+      totalWidth = 0;
+      textWidgetsMeasured = false;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) => measure());
+    }
+  }
 
   double _calcBarLeft() {
     double left = 0;
@@ -30,10 +47,10 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
     }
 
     for (int i = 0; i < widget.selectedTab; i++) {
-      left += textWidgetSizes[i].width + 16.0;
+      left += textWidgetSizes[i].width + itemPadding;
     }
 
-    left += 8.0;
+    left += barPadding;
 
     return left;
   }
@@ -46,11 +63,17 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
   }
 
   void measure() {
+    if(textWidgetsMeasured) return;
     setState(() {
       textWidgetSizes = textWidgetKeys
           .map((k) => k.currentContext!.size)
           .whereType<Size>()
           .toList();
+
+      for(final size in textWidgetSizes) {
+        totalWidth += size.width+itemPadding;
+      }
+      totalWidth += barPadding;
       textWidgetsMeasured = true;
     });
   }
@@ -66,34 +89,34 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-          width: 200,
-          height: 40,
-          child: ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.tabs.length,
-            itemBuilder: (context, index) {
+          height: 28,
+          child: Row(
+            children: widget.tabs.map((item){
+
+              final index = widget.tabs.indexOf(item);
+
               return GestureDetector(
                 onTap: () {
                   widget.onTabChange(index);
                 },
                 child: Column(
-                  mainAxisSize: MainAxisSize.max,
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     AnimatedDefaultTextStyle(
                       duration: Duration(milliseconds: 150),
                       style: DefaultTextStyle.of(context).style.copyWith(
                         inherit: true,
-                        fontSize: 22,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                         color: widget.selectedTab == index
                             ? Theme.of(context).colorScheme.onSurface
                             : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        padding: EdgeInsets.symmetric(horizontal: itemPadding/2),
                         child: Text(
-                          widget.tabs[index],
+                          item,
                           key: textWidgetKeys[index],
                         ),
                       ),
@@ -101,11 +124,11 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                   ],
                 ),
               );
-            },
-          ),
+            }).toList()
+          )
         ),
         Container(
-          width: 200,
+          width: totalWidth,
           height: 2,
           child: Stack(
             children: [
