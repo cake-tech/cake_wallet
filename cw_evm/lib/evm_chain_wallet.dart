@@ -505,12 +505,14 @@ abstract class EVMChainWalletBase
 
         if (existingAddresses.contains(addr)) continue;
 
+        bool potentialScam = token.name.toLowerCase().contains('t.me') || token.name.toLowerCase().contains('telegram') || token.possibleSpam;
+
         final newToken = Erc20Token(
           name: token.name,
           symbol: token.symbol,
           contractAddress: addr,
           decimal: token.decimals,
-          enabled: !token.possibleSpam,
+          enabled: !potentialScam,
           iconPath: token.iconUrl,
           tag: EVMChainUtils.getDefaultTokenTag(selectedChainId),
           isPotentialScam: token.possibleSpam,
