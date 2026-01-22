@@ -50,6 +50,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -107,7 +108,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         selectedCryptoCurrency = _appStore.wallet!.currency,
         hasMultipleTokens = isEVMCompatibleChain(_appStore.wallet!.type) ||
             [WalletType.solana, WalletType.tron, WalletType.zano].contains(_appStore.wallet!.type),
-        selectedChainId = appStore.wallet!.chainId,
+        selectedChainId = _appStore.wallet!.chainId,
         outputs = ObservableList<Output>(),
         fiatFromSettings = _appStore.settingsStore.fiatCurrency,
         super(appStore: _appStore) {
@@ -326,7 +327,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.decred:
-        final sendingBalance = await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
+        final sendingBalance =
+            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
         return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
       default:
         return balance;
