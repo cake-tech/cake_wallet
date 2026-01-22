@@ -16,10 +16,8 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ChainflipExchangeProvider extends ExchangeProvider {
-  ChainflipExchangeProvider({required this.tradesStore})
-      : super(pairList: supportedPairs(_notSupported));
+  ChainflipExchangeProvider({required this.tradesStore});
 
-  static final List<CryptoCurrency> _notSupported = [];
   static final List<CryptoCurrency> _supported = [
     CryptoCurrency.btc,
     CryptoCurrency.eth,
@@ -29,7 +27,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     CryptoCurrency.sol,
     CryptoCurrency.usdcsol,
     CryptoCurrency.arbEth,
-    // TODO: Add CryptoCurrency.usdcarb
+    CryptoCurrency.usdcArb,
     // TODO: Add CryptoCurrency.dot
     ];
 
@@ -202,7 +200,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
       final swapResponse = await _openDepositChannel(swapParams);
 
-      final id = '${swapResponse['issuedBlock']}-${swapResponse['network'].toString().toUpperCase()}-${swapResponse['channelId']}';
+      final id = '${swapResponse['issuedBlock']}-${swapResponse['network'].toString()}-${swapResponse['channelId']}';
 
       ExchangeProviderLogger.logSuccess(
         provider: description,
@@ -268,11 +266,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     try {
       final channelParts = id.split('-');
+      final network = channelParts[1];
+      final normalizedNetwork = _normalizeNetworkName(network);
 
       final statusParams = {
         'apiKey': _affiliateKey,
         'issuedBlock': channelParts[0],
-        'network': channelParts[1],
+        'network': normalizedNetwork,
         'channelId': channelParts[2]
       };
 
@@ -333,6 +333,18 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
     return '$title.$tag';
   }
+
+  String _normalizeNetworkName (String name) {
+    final networkName = switch (name) {
+      'BITCOIN' => 'Bitcoin',
+      'ETHEREUM' => 'Ethereum',
+      'SOLANA' => 'Solana',
+      _ => name
+    };
+
+    return networkName;
+  }
+
 
   CryptoCurrency? _toCurrency(String name) {
     final currency = switch (name) {

@@ -2,6 +2,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 
 class AddressDetectionResult {
   AddressDetectionResult({
@@ -16,6 +17,7 @@ class AddressDetectionResult {
     this.callbackMessage,
     required this.isValid,
     this.errorMessage,
+    this.chainId,
   });
 
   final String address;
@@ -29,6 +31,7 @@ class AddressDetectionResult {
   final String? callbackMessage;
   final bool isValid;
   final String? errorMessage;
+  final int? chainId;
 }
 
 /// Universal address detector that can identify cryptocurrency addresses from various formats
@@ -70,11 +73,13 @@ class UniversalAddressDetector {
 
       // Determine currency from scheme
       final currency = CryptoCurrency.fromString(uri.scheme.toLowerCase());
+      final walletType = cryptoCurrencyToWalletType(currency);
+      final chainId = getChainIdByCryptoCurrency(currency);
 
       return AddressDetectionResult(
         address: paymentRequest.address,
         detectedCurrency: currency,
-        detectedWalletType: cryptoCurrencyToWalletType(currency),
+        detectedWalletType: walletType,
         amount: paymentRequest.amount,
         note: paymentRequest.note,
         scheme: paymentRequest.scheme,
@@ -82,6 +87,7 @@ class UniversalAddressDetector {
         callbackUrl: paymentRequest.callbackUrl,
         callbackMessage: paymentRequest.callbackMessage,
         isValid: true,
+        chainId: chainId,
       );
     } catch (e) {
       return AddressDetectionResult(
@@ -226,11 +232,15 @@ class UniversalAddressDetector {
     // Test each pattern in order of specificity
     for (final pattern in detectionPatterns) {
       if (pattern.pattern.hasMatch(cleanInput)) {
+        final walletType = cryptoCurrencyToWalletType(pattern.currency);
+        final chainId = getChainIdByCryptoCurrency(pattern.currency);
+
         return AddressDetectionResult(
           address: cleanInput,
           detectedCurrency: pattern.currency,
-          detectedWalletType: cryptoCurrencyToWalletType(pattern.currency),
+          detectedWalletType: walletType,
           isValid: true,
+          chainId: chainId,
         );
       }
     }

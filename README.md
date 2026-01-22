@@ -113,7 +113,7 @@ C5:40:53:AB:0F:10:D9:54:17:62:A3:DA:76:65:AE:3D:BA:5E:7C:74:3A:B4:F1:08:A5:34:9D
 
 We have 24/7 free support. Please contact support@cakewallet.com
 
-We have excellent user guides, which are also open-source and open for contributions: https://guides.cakewallet.com
+We have excellent user guides, which are also open-source and open for contributions: https://docs.cakewallet.com
 
 # Build Instructions
 
