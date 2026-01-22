@@ -402,6 +402,9 @@ abstract class EVMChainWalletBase
     await walletAddresses.init();
     await transactionHistory.init();
 
+    // check for Already existing scam tokens, cuz users can get scammed twice ¯\_(ツ)_/¯
+    await _checkForExistingScamTokens();
+
     switch (walletInfo.hardwareWalletType) {
       case HardwareWalletType.ledger:
         _evmChainPrivateKey = EvmLedgerCredentials(walletInfo.address);
@@ -433,9 +436,6 @@ abstract class EVMChainWalletBase
 
     await _discoverTokensFromMoralis();
 
-    // check for Already existing scam tokens, cuz users can get scammed twice ¯\_(ツ)_/¯
-    await _checkForExistingScamTokens();
-
     // Ensure balance is initialized for current currency (in case currency changed)
     if (!balance.containsKey(currency)) {
       balance[currency] = EVMChainERC20Balance(BigInt.zero);
@@ -444,38 +444,34 @@ abstract class EVMChainWalletBase
     await save();
   }
 
-  Future<void> _checkForExistingScamTokens() async {
+  bool isTokenPropertiesSuspicious(Erc20Token token) {
     final baseCurrencySymbols = CryptoCurrency.all.map((e) => e.title.toUpperCase()).toList();
 
+    bool isTokenWhitelisted = getDefaultTokenContractAddresses
+        .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
+
+    // Check if the token name contains suspicious t.me links or telegram channels/names
+    final hasSuspiciousTGData = token.name.toLowerCase().contains('t.me') ||
+        token.name.toLowerCase().contains('telegram') ||
+        token.symbol.toLowerCase().contains('t.me') ||
+        token.symbol.toLowerCase().contains('telegram');
+
+    // Normalize the token symbol to check for homoglyph spoofing attack, characters that look like ASCII (Cyrillic, Greek, etc.)
+    final normalizedSymbol = normalizeHomoglyphs(token.symbol.trim().toUpperCase());
+
+    // Check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
+    // if it is, then it's probably a scam unless it's in the whitelist
+    final hasSuspiciousSymbol = baseCurrencySymbols.contains(normalizedSymbol);
+
+    return hasSuspiciousTGData || (hasSuspiciousSymbol && !isTokenWhitelisted);
+  }
+
+  Future<void> _checkForExistingScamTokens() async {
     for (var token in erc20Currencies) {
       bool isPotentialScam = false;
 
-      bool isWhitelisted = getDefaultTokenContractAddresses
-          .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
-
-      final tokenSymbol = token.title.toUpperCase();
-
-      // Check if the token name contains suspicious t.me links or telegram channels/names
-      if (token.name.toLowerCase().contains('t.me') ||
-          token.name.toLowerCase().contains('telegram') ||
-          tokenSymbol.toLowerCase().contains('t.me') ||
-          tokenSymbol.toLowerCase().contains('telegram')) {
+      if (isTokenPropertiesSuspicious(token)) {
         isPotentialScam = true;
-      }
-
-      // Check if the token symbol is a homoglyph spoofing attack, characters that look like ASCII (Cyrillic, Greek, etc.)
-      final normalizedSymbol = normalizeHomoglyphs(tokenSymbol.trim().toUpperCase());
-
-      final hasSuspiciousName = baseCurrencySymbols.contains(normalizedSymbol) ||
-          baseCurrencySymbols.contains(tokenSymbol.trim().toUpperCase());
-
-      // check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
-      // if it is, then it's probably a scam unless it's in the whitelist
-      if (hasSuspiciousName && !isWhitelisted) {
-        isPotentialScam = true;
-      }
-
-      if (isPotentialScam) {
         token.isPotentialScam = true;
         token.iconPath = null;
         await token.save();
@@ -520,20 +516,20 @@ abstract class EVMChainWalletBase
 
         if (existingAddresses.contains(addr)) continue;
 
-        bool potentialScam = token.name.toLowerCase().contains('t.me') ||
-            token.name.toLowerCase().contains('telegram') ||
-            token.possibleSpam;
-
         final newToken = Erc20Token(
           name: token.name,
           symbol: token.symbol,
           contractAddress: addr,
           decimal: token.decimals,
-          enabled: !potentialScam,
           iconPath: token.iconUrl,
           tag: EVMChainUtils.getDefaultTokenTag(selectedChainId),
           isPotentialScam: token.possibleSpam,
         );
+
+        final isSuspicious = isTokenPropertiesSuspicious(newToken);
+
+        newToken.isPotentialScam = isSuspicious;
+        newToken.enabled = !isSuspicious;
 
         await evmChainErc20TokensBox.put(addr, newToken);
       }
