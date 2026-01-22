@@ -15,6 +15,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/homoglyph_normalizer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -454,9 +455,23 @@ abstract class EVMChainWalletBase
 
       final tokenSymbol = token.title.toUpperCase();
 
+      // Check if the token name contains suspicious t.me links or telegram channels/names
+      if (token.name.toLowerCase().contains('t.me') ||
+          token.name.toLowerCase().contains('telegram') ||
+          tokenSymbol.toLowerCase().contains('t.me') ||
+          tokenSymbol.toLowerCase().contains('telegram')) {
+        isPotentialScam = true;
+      }
+
+      // Check if the token symbol is a homoglyph spoofing attack, characters that look like ASCII (Cyrillic, Greek, etc.)
+      final normalizedSymbol = normalizeHomoglyphs(tokenSymbol.trim().toUpperCase());
+
+      final hasSuspiciousName = baseCurrencySymbols.contains(normalizedSymbol) ||
+          baseCurrencySymbols.contains(tokenSymbol.trim().toUpperCase());
+
       // check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
       // if it is, then it's probably a scam unless it's in the whitelist
-      if (baseCurrencySymbols.contains(tokenSymbol.trim().toUpperCase()) && !isWhitelisted) {
+      if (hasSuspiciousName && !isWhitelisted) {
         isPotentialScam = true;
       }
 
@@ -505,7 +520,9 @@ abstract class EVMChainWalletBase
 
         if (existingAddresses.contains(addr)) continue;
 
-        bool potentialScam = token.name.toLowerCase().contains('t.me') || token.name.toLowerCase().contains('telegram') || token.possibleSpam;
+        bool potentialScam = token.name.toLowerCase().contains('t.me') ||
+            token.name.toLowerCase().contains('telegram') ||
+            token.possibleSpam;
 
         final newToken = Erc20Token(
           name: token.name,
