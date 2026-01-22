@@ -210,6 +210,8 @@ abstract class EVMChainWalletBase
     // Reload ERC20 tokens box for the new chain
     await initErc20TokensBox();
 
+    await _discoverTokensFromMoralis();
+
     // Reload transaction history from the new chain's file
     await transactionHistory.init();
 
@@ -399,9 +401,6 @@ abstract class EVMChainWalletBase
     await walletAddresses.init();
     await transactionHistory.init();
 
-    // check for Already existing scam tokens, cuz users can get scammed twice ¯\_(ツ)_/¯
-    await _checkForExistingScamTokens();
-
     switch (walletInfo.hardwareWalletType) {
       case HardwareWalletType.ledger:
         _evmChainPrivateKey = EvmLedgerCredentials(walletInfo.address);
@@ -430,6 +429,11 @@ abstract class EVMChainWalletBase
         walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
         break;
     }
+
+    await _discoverTokensFromMoralis();
+
+    // check for Already existing scam tokens, cuz users can get scammed twice ¯\_(ツ)_/¯
+    await _checkForExistingScamTokens();
 
     // Ensure balance is initialized for current currency (in case currency changed)
     if (!balance.containsKey(currency)) {
@@ -478,6 +482,44 @@ abstract class EVMChainWalletBase
 
         await token.save();
       }
+    }
+  }
+
+  Future<void> _discoverTokensFromMoralis() async {
+    try {
+      if (!evmChainErc20TokensBox.isOpen) return;
+
+      final address = walletAddresses.address;
+
+      final chainName = EVMChainUtils.getDefaultTokenSymbol(selectedChainId).toLowerCase();
+
+      final walletTokens = await _client.fetchWalletTokensFromMoralis(address, chainName);
+
+      if (walletTokens.isEmpty) return;
+
+      final existingAddresses =
+          evmChainErc20TokensBox.values.map((t) => t.contractAddress.toLowerCase()).toSet();
+
+      for (final token in walletTokens) {
+        final addr = token.contractAddress.toLowerCase();
+
+        if (existingAddresses.contains(addr)) continue;
+
+        final newToken = Erc20Token(
+          name: token.name,
+          symbol: token.symbol,
+          contractAddress: addr,
+          decimal: token.decimals,
+          enabled: !token.possibleSpam,
+          iconPath: token.iconUrl,
+          tag: EVMChainUtils.getDefaultTokenTag(selectedChainId),
+          isPotentialScam: token.possibleSpam,
+        );
+
+        await evmChainErc20TokensBox.put(addr, newToken);
+      }
+    } catch (e) {
+      printV('Error getting wallet tokens from Moralis: ${e.toString()}');
     }
   }
 
