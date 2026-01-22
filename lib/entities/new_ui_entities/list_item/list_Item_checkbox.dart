@@ -5,10 +5,14 @@ class ListItemCheckbox extends ListItem {
   const ListItemCheckbox({
     required super.keyValue,
     required super.label,
+    this.subtitle,
+    this.iconPath,
     required this.value,
     required this.onChanged,
   });
 
   final ValueChanged<bool> onChanged;
   final bool value;
+  final String? subtitle;
+  final String? iconPath;
 }

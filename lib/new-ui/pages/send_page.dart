@@ -13,6 +13,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/picker.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
 import "package:cw_core/wallet_type.dart";
@@ -214,61 +215,32 @@ class _NewSendPageState extends State<NewSendPage> {
           _presentCurrencyPicker(context);
         },
           ),
-          Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            spacing: 8,
-            children: [
-              ModernButton.svg(
-                  size: 28,
-                  svgPath: "assets/new-ui/switch.svg",
-                  iconSize: 18,
-                  onPressed: () {
-                    setState(() {
-                      _fiatInputMode = !_fiatInputMode;
-                      _amountControllers[_selectedOutput].text = _fiatInputMode
-                          ? output.fiatAmount
-                          : output.cryptoAmount;
-                    });
-                  }),
-              Observer(
-                  builder: (_) => Text( _fiatInputMode
-                      ? "${output.cryptoAmount.isEmpty ? "0" : _wrapAmount(output.roundedCryptoAmount(6), 20)} ${widget.sendViewModel.selectedCryptoCurrency.title}"
-                      : "${output.cryptoAmount.isEmpty ? "0" : _wrapAmount(output.roundedFiatAmount(6), 20)} ${widget.sendViewModel.fiatCurrency.title}",)),
-            ],
-          ),
-          Row(
-            spacing: 8,
-            children: [
-              Text("Max."),
-              Material(
-                  color: Theme.of(context).colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(99999),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(99999),
-                    onTap: () async {
-                      output.setSendAll(
-                          await widget.sendViewModel.sendingBalance);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 4),
-                      child: Text(
-                        widget.sendViewModel.balance,
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary),
-                      ),
-                    ),
-                  ))
-            ],
-          )
-        ],
-          ),
-        ],),
-
-AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
-    if (widget.sendViewModel.hasFees)
+                                  FiatAmountBar(
+                                    fiatInputMode: _fiatInputMode,
+                                    onSwitchButtonPressed: () {
+                                      setState(() {
+                                        _fiatInputMode = !_fiatInputMode;
+                                        _amountControllers[_selectedOutput].text = _fiatInputMode
+                                            ? output.fiatAmount
+                                            : output.cryptoAmount;
+                                      });
+                                    },
+                                    fiatAmount: _wrapAmount(output.roundedFiatAmount(6), 20),
+                                    cryptoAmount: _wrapAmount(output.roundedCryptoAmount(6), 20),
+                                    allAmount: widget.sendViewModel.balance,
+                                    cryptoCurrency:
+                                        widget.sendViewModel.selectedCryptoCurrency.title,
+                                    fiatCurrency: widget.sendViewModel.fiatCurrency.title,
+                                    onAllButtonPressed: () async {
+                                      output.setSendAll(await widget.sendViewModel.sendingBalance);
+                                    },
+                                  ),
+                                ],
+                              ),
+                              AnimatedDropdown(
+                                  dropdownText: "Advanced Settings",
+                                  content: Column(children: [
+                                    if (widget.sendViewModel.hasFees)
       ListItemRegularRowWidget(
         keyValue: "",
         label: "Fees",

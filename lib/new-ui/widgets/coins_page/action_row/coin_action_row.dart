@@ -107,14 +107,18 @@ class CoinActionRow extends StatelessWidget {
             ),
             label: S.of(context).swap,
             action: () {
+              final page = getIt.get<NewSwapPage>();
               if (FeatureFlag.hasNewUiExtraPages) {
-                showModalBottomSheet(
+                CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
-                  isScrollControlled: true,
+                  barrierColor: Colors.black.withAlpha(85),
                   builder: (context) => FractionallySizedBox(
-                    heightFactor: 0.9,
-                    child: SwapPage(),
-                  ),
+                      heightFactor: 0.97,
+                      child: Material(
+                          child: ModalNavigator(
+                        rootPage: page,
+                        parentContext: context,
+                      ))),
                 );
               } else {
                 Navigator.of(context).pushNamed(Routes.exchange);

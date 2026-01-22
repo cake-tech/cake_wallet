@@ -158,6 +158,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
           keyValue: 'node_item_selector_row_key',
           label: 'Item Selector',
           onTap: () {},
+          options: ["Item"]
         ),
       ],
       'example dropdown': [

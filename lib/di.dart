@@ -54,6 +54,7 @@ import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
@@ -1187,6 +1188,12 @@ Future<void> setup({
   getIt.registerFactoryParam<ExchangePage, PaymentRequest?, void>(
       (PaymentRequest? paymentRequest, __) {
     return ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest);
+  });
+
+  getIt.registerFactoryParam<NewSwapPage, PaymentRequest?, void>(
+      (PaymentRequest? paymentRequest, __) {
+    return NewSwapPage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest,
+        walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>());
   });
 
   getIt.registerFactory(() => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
