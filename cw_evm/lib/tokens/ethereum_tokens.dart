@@ -75,6 +75,13 @@ class EthereumTokens {
         decimal: 8,
         enabled: false,
       ),
+      Erc20Token(
+        name: "Paxos Gold",
+        symbol: "PAXG",
+        contractAddress: "0x45804880de22913dafe09f4980848ece6ecbaf78",
+        decimal: 18,
+        enabled: false,
+      ),
     ];
 
     return tokens.map((token) {
