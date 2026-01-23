@@ -74,7 +74,7 @@ class SyncingSyncStatus extends SyncStatus {
     }
 
     // Show the placeholder ETA while gathering data
-    return '--:--';
+    return 'Calculating ETA...';
   }
 
   String? getFormattedEta() {
@@ -137,9 +137,9 @@ class SyncingSyncStatus extends SyncStatus {
     final seconds = twoDigits(duration.inSeconds.remainder(60));
 
     if (hours == '00') {
-      return '${minutes}m${seconds}s';
+      return '${minutes}m ${seconds}s';
     }
-    return '${hours}h${minutes}m${seconds}s';
+    return '${hours}h ${minutes}m ${seconds}s';
   }
 
   DateTime calculateEta() {

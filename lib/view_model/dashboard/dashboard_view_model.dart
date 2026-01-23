@@ -338,6 +338,23 @@ abstract class DashboardViewModelBase with Store {
 
   bool _isTransactionDisposerCallbackRunning = false;
 
+  @computed
+  bool get isSyncHeavy {
+    if ([WalletType.monero].contains(wallet.type)) {
+      return true;
+    }
+
+    if (silentPaymentsScanningActive) {
+      return true;
+    }
+
+    if (mwebEnabled) {
+      return true;
+    }
+
+    return false;
+  }
+
 
   Future<void> loadCardDesigns() async {
     if (cardDesigns.isNotEmpty) {
