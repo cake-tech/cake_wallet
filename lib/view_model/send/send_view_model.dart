@@ -372,6 +372,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
+  @action
   set fiatCurrency(FiatCurrency value) {
       _settingsStore.fiatCurrency = value;
   }
