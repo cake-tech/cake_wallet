@@ -318,15 +318,15 @@ class CardDesign {
 
   static const List<CardDesign> all = [genericDefault, btc, eth, xmr, ltc, eth, pol, doge, base, sol, btcln, tron, zano, dcr, arbitrum, zec, ethSpecial, btcSpecial, xmrSpecial, ltcSpecial, lnSpecial, tronSpecial, bchSpecial, wowSpecial, dogeSpecial, polSpecial, dcrSpecial, zanoSpecial, arbitrumSpecial, zecSpecial];
 
-  static CardDesign forCurrency(CryptoCurrency currency) {
-    return defaultDesignsForCurrencies[currency] ?? genericDefault;
-  }
-
   static CardDesign forCurrencySpecial(CryptoCurrency currency) {
     return specialDesignsForCurrencies[currency] ?? genericDefault;
   }
 
-  static const Map<CryptoCurrency, CardDesign> defaultDesignsForCurrencies = {
+  static CardDesign forCurrencyIcon(CryptoCurrency currency) {
+    return iconDesignsForCurrencies[currency] ?? genericDefault;
+  }
+
+  static const Map<CryptoCurrency, CardDesign> iconDesignsForCurrencies = {
     CryptoCurrency.xmr: xmr,
     CryptoCurrency.btc: btc,
     CryptoCurrency.eth: eth,
@@ -379,10 +379,28 @@ class CardDesign {
     CardDesign.gradientBlack: CardColorCombination.light,
   };
 
+  static Map<CryptoCurrency, Gradient> specialGradientsForCurrencies = {
+    CryptoCurrency.xmr: xmrSpecial.gradient,
+    CryptoCurrency.btc: btcSpecial.gradient,
+    CryptoCurrency.eth: ethSpecial.gradient,
+    CryptoCurrency.ltc: ltcSpecial.gradient,
+    CryptoCurrency.btcln: lnSpecial.gradient,
+    CryptoCurrency.trx: tronSpecial.gradient,
+    CryptoCurrency.sol: solSpecial.gradient,
+    CryptoCurrency.bch: bchSpecial.gradient,
+    CryptoCurrency.wow: wowSpecial.gradient,
+    CryptoCurrency.doge: dogeSpecial.gradient,
+    CryptoCurrency.nano: nanoSpecial.gradient,
+    CryptoCurrency.maticpoly: polSpecial.gradient,
+    CryptoCurrency.dcr: dcrSpecial.gradient,
+    CryptoCurrency.zano: zanoSpecial.gradient,
+    CryptoCurrency.baseEth: baseSpecial.gradient,
+  };
+
   static CardDesign fromStyleSettings(
       BalanceCardStyleSettings? setting, CryptoCurrency walletCurrency) {
     if (setting == null) {
-      return CardDesign.forCurrency(walletCurrency);
+      return CardDesign.forCurrencySpecial(walletCurrency);
     } else if (setting.backgroundImagePath.isNotEmpty) {
       return CardDesign(
         imagePath: setting.backgroundImagePath,
@@ -390,14 +408,20 @@ class CardDesign {
     } else if (setting.useSpecialDesign && setting.gradientIndex != -1) {
       return CardDesign.forCurrencySpecial(walletCurrency)
           .withGradient(CardDesign.allGradients[setting.gradientIndex]);
+    } else if (!setting.useSpecialDesign && setting.gradientIndex == -1) {
+      final gradient =
+          specialGradientsForCurrencies[walletCurrency] ??
+              genericDefault.gradient;
+      return CardDesign.forCurrencyIcon(walletCurrency)
+          .withGradient(gradient);
     } else if (setting.useSpecialDesign) {
       return CardDesign.forCurrencySpecial(walletCurrency);
     } else if (setting.gradientIndex != -1) {
-      return CardDesign.forCurrency(walletCurrency)
+      return CardDesign.forCurrencyIcon(walletCurrency)
           .withGradient(CardDesign.allGradients[setting.gradientIndex]);
     } else {
       printV("somehow, the user saved the design settings with literally no customization?");
-      return CardDesign.forCurrency(walletCurrency);
+      return CardDesign.forCurrencySpecial(walletCurrency);
     }
   }
 }
