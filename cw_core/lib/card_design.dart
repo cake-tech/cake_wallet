@@ -115,57 +115,55 @@ class CardDesign {
   static const genericDefault = CardDesign(gradient: gradientBlue);
 
   static const btc = CardDesign(
-      gradient: gradientYellow,
       imagePath: "assets/new-ui/balance_card_icons/bitcoin.svg");
 
   static const eth = CardDesign(
-      gradient: gradientPurple,
       imagePath: "assets/new-ui/balance_card_icons/ethereum.svg");
 
   static const btcln = CardDesign(
-      gradient: gradientSilver, imagePath: "assets/new-ui/balance_card_icons/lightning.svg");
+      imagePath: "assets/new-ui/balance_card_icons/lightning.svg");
 
   static const xmr = CardDesign(
-      gradient: gradientOrange, imagePath: "assets/new-ui/balance_card_icons/monero.svg");
+      imagePath: "assets/new-ui/balance_card_icons/monero.svg");
 
   static const ltc = CardDesign(
-      gradient: gradientBlue, imagePath: "assets/new-ui/balance_card_icons/litecoin.svg");
+      imagePath: "assets/new-ui/balance_card_icons/litecoin.svg");
 
   static const bch = CardDesign(
       gradient: gradientGreen, imagePath: "assets/new-ui/balance_card_icons/bitcoin_cash.svg");
 
   static const doge = CardDesign(
-      gradient: gradientGold, imagePath: "assets/new-ui/balance_card_icons/dogecoin.svg");
+      imagePath: "assets/new-ui/balance_card_icons/dogecoin.svg");
 
   static const base = CardDesign(
-      gradient: gradientBlue, imagePath: "assets/new-ui/balance_card_icons/base.svg");
+      imagePath: "assets/new-ui/balance_card_icons/base.svg");
 
   static const pol = CardDesign(
-      gradient: gradientPurple, imagePath: "assets/new-ui/balance_card_icons/polygon.svg");
+      imagePath: "assets/new-ui/balance_card_icons/polygon.svg");
 
   static const sol = CardDesign(
-      gradient: gradientPurple, imagePath: "assets/new-ui/balance_card_icons/solana.svg");
+      imagePath: "assets/new-ui/balance_card_icons/solana.svg");
 
   static const tron = CardDesign(
-      gradient: gradientRed, imagePath: "assets/new-ui/balance_card_icons/tron.svg");
+      imagePath: "assets/new-ui/balance_card_icons/tron.svg");
 
   static const nano = CardDesign(
-      gradient: gradientBlue, imagePath: "assets/new-ui/balance_card_icons/nano.svg");
+      imagePath: "assets/new-ui/balance_card_icons/nano.svg");
 
   static const zano = CardDesign(
-      gradient: gradientBlue, imagePath: "assets/new-ui/balance_card_icons/zano.svg");
+      imagePath: "assets/new-ui/balance_card_icons/zano.svg");
 
   static const wow = CardDesign(
-      gradient: gradientBlue, imagePath: "assets/new-ui/balance_card_icons/wownero.svg");
+      imagePath: "assets/new-ui/balance_card_icons/wownero.svg");
 
   static const dcr = CardDesign(
-      gradient: gradientBlue, imagePath: "assets/new-ui/balance_card_icons/decred.svg");
+      imagePath: "assets/new-ui/balance_card_icons/decred.svg");
 
   static const arbitrum = CardDesign(
-      gradient: gradientSilver, imagePath: "assets/new-ui/balance_card_icons/arbitrum.svg");
+      imagePath: "assets/new-ui/balance_card_icons/arbitrum.svg");
 
   static const zec = CardDesign(
-      gradient: gradientYellow, imagePath: "assets/new-ui/balance_card_icons/zcash.svg");
+      imagePath: "assets/new-ui/balance_card_icons/zcash.svg");
 
 
 
