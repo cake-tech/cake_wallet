@@ -179,7 +179,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                               final item = unspentCoinsListViewModel.items[index];
                               return Observer(
                                 builder: (_) {
-                                  final fiatAmount = unspentCoinsListViewModel.fiatAmounts[item.hash] ?? '';
+                                  final fiatAmount = unspentCoinsListViewModel.fiatAmounts[item.amount] ?? '';
                                   return GestureDetector(
                                     onTap: () => Navigator.of(context).pushNamed(
                                       Routes.unspentCoinsDetails,

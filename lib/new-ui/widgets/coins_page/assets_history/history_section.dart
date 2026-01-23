@@ -41,6 +41,10 @@ class HistorySection extends StatelessWidget {
               final transaction = item.transaction;
               final transactionType = dashboardViewModel.getTransactionType(transaction);
 
+              if (item.hasTokens && item.assetOfTransaction == null) {
+                return Container();
+              }
+
               CryptoCurrency? asset;
               if (transaction.additionalInfo["isLightning"] == true)
                 asset = CryptoCurrency.btcln;

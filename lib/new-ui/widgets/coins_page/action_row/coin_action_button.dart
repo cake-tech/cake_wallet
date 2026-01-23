@@ -1,5 +1,6 @@
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
 class CoinActionButton extends StatelessWidget {
@@ -39,7 +40,10 @@ class CoinActionButton extends StatelessWidget {
           child: IconButton(
             padding: EdgeInsets.zero,
             constraints: BoxConstraints(),
-            onPressed: action,
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              action();
+            },
             icon: icon,
             color: Theme.of(context).colorScheme.primary,
           ),
