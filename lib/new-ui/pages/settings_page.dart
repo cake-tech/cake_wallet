@@ -66,7 +66,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ModalNavigator(rootPage: SettingsMainPage());
+    return ModalNavigator(parentContext:context,rootPage: SettingsMainPage());
   }
 }
 

@@ -1,7 +1,6 @@
 import 'dart:core';
 import 'dart:developer' as dev;
 
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
@@ -416,6 +415,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.litecoin,
         WalletType.decred,
         WalletType.dogecoin,
+        WalletType.zcash
       ].contains(wallet.type);
 
   @computed
