@@ -159,7 +159,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   Future<void> refreshUri() async {
     if (tokenCurrency != null && isEVMCompatibleChain(wallet.type)) {
       uri = ERC681URI(
-          chainId: int.parse(getChainNameSpaceAndIdBasedOnWalletType(wallet.type)),
+          chainId: wallet.chainId ?? 1,
           address: wallet.walletAddresses.address,
           amount: amount,
           contractAddress: (tokenCurrency as Erc20Token).contractAddress);
