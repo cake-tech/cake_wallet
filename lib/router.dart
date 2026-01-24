@@ -400,8 +400,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.receiveAddresses:
       return handleRouteWithPlatformAwareness(
-          (context) =>getIt.get<NewAddressesPage>(param1: settings.arguments as bool)
-      );
+          (context) => getIt.get<NewAddressesPage>(param1: settings.arguments as bool));
 
     case Routes.seed:
       return handleRouteWithPlatformAwareness(

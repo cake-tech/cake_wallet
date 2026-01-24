@@ -55,7 +55,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
   List<ListItem> items = [];
 
   late final TextEditingController _searchController;
-  
+
   CardDesign? design;
 
   void updateItems() {
@@ -74,15 +74,13 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
         setState(() {});
       });
 
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      reaction((context) => widget.dashboardViewModel.cardDesigns.first, (value){
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      reaction((context) => widget.dashboardViewModel.cardDesigns.first, (value) {
         setState(() {
           design = value;
         });
       });
     });
-
-
   }
 
   @override
@@ -119,12 +117,19 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                         child: Column(
                           spacing: 16,
                           children: [
-                            if(widget.dashboardViewModel.type == WalletType.monero || widget.dashboardViewModel.type == WalletType.wownero)
-                              Observer(builder: (_)=>AccountPreviewHeader(dashboardViewModel: widget.dashboardViewModel,design: design,)),
-                            Text("Long press to edit address", style: TextStyle(
-                              fontSize:10,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant
-                            ),),
+                            if (widget.dashboardViewModel.type == WalletType.monero ||
+                                widget.dashboardViewModel.type == WalletType.wownero)
+                              Observer(
+                                  builder: (_) => AccountPreviewHeader(
+                                        dashboardViewModel: widget.dashboardViewModel,
+                                        design: design,
+                                      )),
+                            Text(
+                              "Long press to edit address",
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            ),
                             ShowHiddenButton()
                           ],
                         ),
@@ -162,12 +167,12 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                         ),
                       ),
                     ),
-                    SliverToBoxAdapter(
-                      child: SizedBox(height: 72)
-                    )
+                    SliverToBoxAdapter(child: SizedBox(height: 72))
                   ],
                 ),
-                Padding(padding:EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),child: AddressSearchBox(controller: _searchController)),
+                Padding(
+                    padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                    child: AddressSearchBox(controller: _searchController)),
               ],
             ),
           )
@@ -232,7 +237,6 @@ class AccountPreviewHeader extends StatelessWidget {
   final DashboardViewModel dashboardViewModel;
   final CardDesign? design;
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -251,9 +255,7 @@ class AccountPreviewHeader extends StatelessWidget {
               children: [
                 Observer(
                   builder: (_) => BalanceCard(
-                      borderRadius: 5,
-                      width: 50,
-                      design: design ?? CardDesign.genericDefault),
+                      borderRadius: 5, width: 50, design: design ?? CardDesign.genericDefault),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,7 +263,8 @@ class AccountPreviewHeader extends StatelessWidget {
                   children: [
                     Text(
                       monero?.getCurrentAccount(dashboardViewModel.wallet).label ??
-                      wownero?.getCurrentAccount(dashboardViewModel.wallet).label ?? "",
+                          wownero?.getCurrentAccount(dashboardViewModel.wallet).label ??
+                          "",
                       style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary),
                     ),
                     Text(

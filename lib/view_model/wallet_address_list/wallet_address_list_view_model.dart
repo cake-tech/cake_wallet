@@ -79,21 +79,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   double? _fiatRate;
   String _rawAmount = '';
 
-  List<Currency> get currencies => [tokenCurrency ?? wallet.currency, ...FiatCurrency.all];
+  List<Currency> get currencies =>
+      [tokenCurrency ?? wallet.currency, ...FiatCurrency.all];
 
   List<Currency> get tokenCurrencies => wallet.balance.keys.toList();
 
   @observable
   CryptoCurrency? tokenCurrency;
 
-
   void setTokenCurrency(Currency curr) {
     tokenCurrency = curr as CryptoCurrency;
-    if(selectedCurrency is CryptoCurrency) {
+    if (selectedCurrency is CryptoCurrency) {
       selectedCurrency = curr;
     }
   }
-
 
   String get buttonTitle {
     if (isElectrumWallet) {
@@ -121,21 +120,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   // NOT PRECISE! just for display purposes.
   @computed
   String get fiatAmount {
-    if(amount.isEmpty) return "";
-    if(!fiatConversionStore.prices.containsKey(tokenCurrency ??wallet.currency)) return "";
-    return (double.parse(amount)*fiatConversionStore.prices[tokenCurrency ?? wallet.currency]!).toStringAsFixed(2);
+    if (amount.isEmpty) return "";
+    if (!fiatConversionStore.prices.containsKey(tokenCurrency ?? wallet.currency)) return "";
+    return (double.parse(amount) * fiatConversionStore.prices[tokenCurrency ?? wallet.currency]!)
+        .toStringAsFixed(2);
   }
 
   @computed
   String get selectedCurrencyFiatAmount {
-    if(_fiatRate == null) return "";
-    return (double.parse(amount)*_fiatRate!).toStringAsFixed(2);
+    if (_fiatRate == null) return "";
+    return (double.parse(amount) * _fiatRate!).toStringAsFixed(2);
   }
 
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
-
-
 
   @computed
   WalletType get type => wallet.type;
@@ -160,8 +158,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   Future<void> refreshUri() async {
-    if(tokenCurrency != null && wallet.type == WalletType.ethereum) {
-      uri = ERC681URI(chainId: 1, address: wallet.walletAddresses.address, amount: amount, contractAddress:(tokenCurrency as Erc20Token).contractAddress);
+    if (tokenCurrency != null && isEVMCompatibleChain(wallet.type)) {
+      uri = ERC681URI(
+          chainId: int.parse(getChainNameSpaceAndIdBasedOnWalletType(wallet.type)),
+          address: wallet.walletAddresses.address,
+          amount: amount,
+          contractAddress: (tokenCurrency as Erc20Token).contractAddress);
       return;
     }
     uri = await wallet.walletAddresses.getPaymentRequestUri(amount);
@@ -535,9 +537,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.walletAddresses.address = address.address;
 
   @action
-  Future<void> rotateAddress() async{
+  Future<void> rotateAddress() async {
     await createNewAddress(wallet, "");
-    if(isElectrumWallet) {
+    if (isElectrumWallet) {
       wallet.walletAddresses.address = (addressList.last as WalletAddressListItem).address;
     }
   }

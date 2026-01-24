@@ -13,8 +13,15 @@ class ReceiveBottomButtons extends StatelessWidget {
   final bool showLabelButton;
   final bool showAccountsButton;
 
-
-  const ReceiveBottomButtons({super.key, required this.largeQrMode, required this.onCopyButtonPressed, required this.onAccountsButtonPressed, required this.onAmountButtonPressed, required this.onLabelButtonPressed, required this.showLabelButton, required this.showAccountsButton});
+  const ReceiveBottomButtons(
+      {super.key,
+      required this.largeQrMode,
+      required this.onCopyButtonPressed,
+      required this.onAccountsButtonPressed,
+      required this.onAmountButtonPressed,
+      required this.onLabelButtonPressed,
+      required this.showLabelButton,
+      required this.showAccountsButton});
 
   @override
   Widget build(BuildContext context) {
@@ -37,39 +44,37 @@ class ReceiveBottomButtons extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 16,
               children: [
-              ModernButton.svg(
-                size: 60,
-                iconSize: 32,
-                svgPath: "assets/new-ui/copy.svg",
-                onPressed: onCopyButtonPressed,
-                label: "Copy",
-                iconColor: Theme.of(context).colorScheme.surfaceContainer,
-                backgroundColor: Theme.of(context).colorScheme.primary,
-              ),
-              ModernButton.svg(
-                size: 60,
-                iconSize: 32,
-                svgPath: "assets/new-ui/set-amount.svg",
-                onPressed: onAmountButtonPressed,
-                label: "Set Amount"
-              ),
-              if(showLabelButton)
-              ModernButton.svg(
-                size: 60,
-                iconSize: 32,
-                svgPath: "assets/new-ui/add-label.svg",
-                onPressed: onLabelButtonPressed,
-                label: "Label"
-              ),
-              if(showAccountsButton)
-              ModernButton.svg(
-                size: 60,
-                iconSize: 32,
-                svgPath: "assets/new-ui/addr-book.svg",
-                onPressed: onAccountsButtonPressed,
-                label: "Addresses"
-              ),
-            ],),
+                ModernButton.svg(
+                  size: 60,
+                  iconSize: 32,
+                  svgPath: "assets/new-ui/copy.svg",
+                  onPressed: onCopyButtonPressed,
+                  label: "Copy",
+                  iconColor: Theme.of(context).colorScheme.surfaceContainer,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                ),
+                ModernButton.svg(
+                    size: 60,
+                    iconSize: 32,
+                    svgPath: "assets/new-ui/set-amount.svg",
+                    onPressed: onAmountButtonPressed,
+                    label: "Set Amount"),
+                if (showLabelButton)
+                  ModernButton.svg(
+                      size: 60,
+                      iconSize: 32,
+                      svgPath: "assets/new-ui/add-label.svg",
+                      onPressed: onLabelButtonPressed,
+                      label: "Label"),
+                if (showAccountsButton)
+                  ModernButton.svg(
+                      size: 60,
+                      iconSize: 32,
+                      svgPath: "assets/new-ui/addr-book.svg",
+                      onPressed: onAccountsButtonPressed,
+                      label: "Addresses"),
+              ],
+            ),
           ),
         ),
       ),

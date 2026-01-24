@@ -3,8 +3,8 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-class ReceiveSeedWidget extends StatelessWidget {
-  const ReceiveSeedWidget({super.key, required this.addressListViewModel});
+class ReceiveAddressWidget extends StatelessWidget {
+  const ReceiveAddressWidget({super.key, required this.addressListViewModel});
 
   final WalletAddressListViewModel addressListViewModel;
 
@@ -18,11 +18,10 @@ class ReceiveSeedWidget extends StatelessWidget {
           walletType: addressListViewModel.type,
           textAlign: TextAlign.center,
           evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurface,
-            fontFamily: "IBM Plex Mono"
-              ),
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface,
+              fontFamily: "IBM Plex Mono"),
         ),
       ),
     );

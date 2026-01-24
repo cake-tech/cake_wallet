@@ -6,7 +6,6 @@ class ReceiveInfoBox extends StatelessWidget {
   ReceiveInfoBox(
       {super.key, required this.iconPath, required this.message, required this.onDismissed});
 
-
   static ReceiveInfoBox? forWalletType(WalletType type, {required VoidCallback onDismissed}) {
     switch (type) {
       case WalletType.nano:

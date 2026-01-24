@@ -28,8 +28,11 @@ class ReceiveQrCode extends StatelessWidget {
       children: [
         AnimatedOpacity(
             duration: Duration(milliseconds: 300),
-            opacity: largeQrMode ? 1:0,
-            child: Image.asset("assets/images/cake_wordmark.png", scale: 1.7,)),
+            opacity: largeQrMode ? 1 : 0,
+            child: Image.asset(
+              "assets/images/cake_wordmark.png",
+              scale: 1.7,
+            )),
         GestureDetector(
           onTap: onTap,
           child: TweenAnimationBuilder<double>(
@@ -56,7 +59,9 @@ class ReceiveQrCode extends StatelessWidget {
                               builder: (context, constraints) => Observer(
                                   builder: (_) => QrImage(
                                       data: addressListViewModel.uri.toString(),
-                                      embeddedImagePath: addressListViewModel.tokenCurrency != null ? addressListViewModel.tokenCurrency!.iconPath : addressListViewModel.qrImage,
+                                      embeddedImagePath: addressListViewModel.tokenCurrency != null
+                                          ? addressListViewModel.tokenCurrency!.iconPath
+                                          : addressListViewModel.qrImage,
                                       size: constraints.maxWidth)))),
                     ),
                     AnimatedSize(

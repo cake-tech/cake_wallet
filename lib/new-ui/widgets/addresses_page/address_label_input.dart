@@ -6,10 +6,11 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_o
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
-
-
 class AddressLabelInputPopup extends StatefulWidget {
-  const AddressLabelInputPopup({super.key, required this.walletAddressEditOrCreateViewModel, });
+  const AddressLabelInputPopup({
+    super.key,
+    required this.walletAddressEditOrCreateViewModel,
+  });
 
   final WalletAddressEditOrCreateViewModel walletAddressEditOrCreateViewModel;
 
@@ -27,11 +28,12 @@ class _AddressLabelInputPopupState extends State<AddressLabelInputPopup> {
     _controller = TextEditingController();
     _focusNode = FocusNode();
 
-
-    reaction((_) => widget.walletAddressEditOrCreateViewModel.state, (AddressEditOrCreateState state) {
+    reaction((_) => widget.walletAddressEditOrCreateViewModel.state,
+        (AddressEditOrCreateState state) {
       if (state is AddressSavedSuccessfully) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) Navigator.of(context).pop(widget.walletAddressEditOrCreateViewModel.label);
+          if (context.mounted)
+            Navigator.of(context).pop(widget.walletAddressEditOrCreateViewModel.label);
         });
       }
     });
@@ -49,27 +51,34 @@ class _AddressLabelInputPopupState extends State<AddressLabelInputPopup> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
       child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: NewListSections(sections: {"":[
-            ListItemTextField(keyValue: "label", label: "Label", focusNode:_focusNode,onFieldSubmitted: (value){
-              widget.walletAddressEditOrCreateViewModel.label = value;
-              widget.walletAddressEditOrCreateViewModel.save();
-              // Navigator.of(context).pop();
-            })
-          ]},
-            controllers: {"label": _controller},
-          ),
-        ),]
-      ),
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: NewListSections(
+                sections: {
+                  "": [
+                    ListItemTextField(
+                        keyValue: "label",
+                        label: "Label",
+                        focusNode: _focusNode,
+                        onFieldSubmitted: (value) {
+                          widget.walletAddressEditOrCreateViewModel.label = value;
+                          widget.walletAddressEditOrCreateViewModel.save();
+                          // Navigator.of(context).pop();
+                        })
+                  ]
+                },
+                controllers: {"label": _controller},
+              ),
+            ),
+          ]),
     );
   }
 }

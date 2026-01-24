@@ -9,7 +9,8 @@ class LongPressMenuItem {
   final VoidCallback onSelected;
   final Color? color;
 
-  LongPressMenuItem({required this.label, required this.iconPath, required this.onSelected, this.color});
+  LongPressMenuItem(
+      {required this.label, required this.iconPath, required this.onSelected, this.color});
 }
 
 class LongPressMenu extends StatefulWidget {
@@ -27,7 +28,6 @@ class _LongPressMenuState extends State<LongPressMenu> {
   @override
   void initState() {
     super.initState();
-    // 2. Trigger the change AFTER the first frame renders
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _isVisible = true;

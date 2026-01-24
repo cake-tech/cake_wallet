@@ -392,8 +392,8 @@ class WalletInfo {
       hashedWalletIdentifier,
       isNonSeedWallet ?? false,
       sortOrder ?? 0,
-        receiveInfoboxDismissed ?? false
       null,
+      receiveInfoboxDismissed ?? false
     );
   }
 

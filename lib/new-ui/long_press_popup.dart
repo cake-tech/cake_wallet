@@ -4,7 +4,8 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 
 class LongPressPopupBuilder extends StatelessWidget {
-  const LongPressPopupBuilder({super.key, required this.child, required this.popup, this.spacing=8});
+  const LongPressPopupBuilder(
+      {super.key, required this.child, required this.popup, this.spacing = 8});
 
   final Widget child;
   final Widget popup;
@@ -43,7 +44,7 @@ class LongPressPopupBuilder extends StatelessWidget {
             ),
           ),
           Positioned(
-            left: offset.dx*2,
+            left: offset.dx * 2,
             top: offset.dy + size.height + spacing,
             child: Material(
               color: Colors.transparent,

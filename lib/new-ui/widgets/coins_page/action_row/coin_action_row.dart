@@ -81,9 +81,7 @@ class CoinActionRow extends StatelessWidget {
                   context: context,
                   barrierColor: Colors.black.withAlpha(80),
                   builder: (context) => FractionallySizedBox(
-                    heightFactor: 0.97,
-                    child: Material(child: ModalNavigator(rootPage: page))
-                  ),
+                      heightFactor: 0.97, child: Material(child: ModalNavigator(rootPage: page))),
                 );
               } else {
                 // ToDo: (Konsti) refactor as part of the derivation PR (I hate myself for it)

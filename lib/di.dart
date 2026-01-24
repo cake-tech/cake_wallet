@@ -834,13 +834,11 @@ Future<void> setup({
     ),
   );
 
-
-  getIt.registerFactoryParam<NewReceivePage, bool, void>((param1,param2) => NewReceivePage(
-    addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-    receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(),
-    dashboardViewModel: getIt.get<DashboardViewModel>(),
-    lightningMode:param1
-  ));
+  getIt.registerFactoryParam<NewReceivePage, bool, void>((param1, param2) => NewReceivePage(
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(),
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
+      lightningMode: param1));
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
       (WalletAddressListItem? item, _) =>
@@ -851,7 +849,6 @@ Future<void> setup({
           addressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
-
   getIt.registerFactoryParam<AddressLabelInputPopup, dynamic, void>((dynamic item, _) =>
       AddressLabelInputPopup(
           walletAddressEditOrCreateViewModel:
@@ -860,7 +857,7 @@ Future<void> setup({
   getIt.registerFactoryParam<ReceiveLabelModal, dynamic, void>((dynamic item, _) =>
       ReceiveLabelModal(
           walletAddressEditOrCreateViewModel:
-          getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
+              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
   getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(
       getIt.get<AppStore>().wallet!,
@@ -1086,12 +1083,13 @@ Future<void> setup({
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
   getIt.registerFactoryParam<NewAddressesPage, bool, void>(
-        (showHidden, _) => NewAddressesPage(
+    (showHidden, _) => NewAddressesPage(
       showHidden: showHidden,
       addressListViewModel: getIt<WalletAddressListViewModel>(),
       dashboardViewModel: getIt<DashboardViewModel>(),
     ),
   );
+
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
     return NodeListViewModel(_nodeSource, appStore);

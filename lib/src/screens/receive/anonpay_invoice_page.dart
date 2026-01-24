@@ -54,10 +54,13 @@ class AnonPayInvoicePage extends BasePage {
   bool get extendBodyBehindAppBar => true;
 
   @override
-  AppBarStyle get appBarStyle => FeatureFlag.hasNewUiExtraPages ? AppBarStyle.completelyTransparent : AppBarStyle.transparent;
+  AppBarStyle get appBarStyle =>
+      FeatureFlag.hasNewUiExtraPages ? AppBarStyle.completelyTransparent : AppBarStyle.transparent;
 
   @override
-  void onClose(BuildContext context) => FeatureFlag.hasNewUiExtraPages ? Navigator.of(context, rootNavigator: true).pop() : Navigator.popUntil(context, (route) => route.isFirst);
+  void onClose(BuildContext context) => FeatureFlag.hasNewUiExtraPages
+      ? Navigator.of(context, rootNavigator: true).pop()
+      : Navigator.popUntil(context, (route) => route.isFirst);
 
   @override
   Widget middle(BuildContext context) => PresentReceiveOptionPicker(

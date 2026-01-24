@@ -8,7 +8,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ReceiveAddressTypeSelector extends StatefulWidget {
-  const ReceiveAddressTypeSelector({super.key, required this.receiveOptionViewModel, required this.lightningMode});
+  const ReceiveAddressTypeSelector(
+      {super.key, required this.receiveOptionViewModel, required this.lightningMode});
 
   final ReceiveOptionViewModel receiveOptionViewModel;
   final bool lightningMode;
@@ -31,21 +32,27 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
 
   @override
   Widget build(BuildContext context) {
-    final commonOptions =
-        widget.receiveOptionViewModel.options.where((element) => element.isCommon ||
-            widget.receiveOptionViewModel.options.length <= ReceiveAddressTypeSelector.otherOptionsTreshold).toList();
+    final commonOptions = widget.receiveOptionViewModel.options
+        .where((element) =>
+            element.isCommon ||
+            widget.receiveOptionViewModel.options.length <=
+                ReceiveAddressTypeSelector.otherOptionsTreshold)
+        .toList();
     commonOptions.sort(
-          (a, b) {
+      (a, b) {
         if (widget.lightningMode && a.value.contains("Lightning")) return -1;
         if (widget.lightningMode && b.value.contains("Lightning")) return 1;
-        if(!widget.lightningMode && a.value.contains("Standard")) return -1;
-        if(!widget.lightningMode && b.value.contains("Standard")) return 1;
+        if (!widget.lightningMode && a.value.contains("Standard")) return -1;
+        if (!widget.lightningMode && b.value.contains("Standard")) return 1;
         return a.value.compareTo(b.value);
       },
     );
-    final otherOptions =
-        widget.receiveOptionViewModel.options.where((element) => !element.isCommon && 
-            widget.receiveOptionViewModel.options.length > ReceiveAddressTypeSelector.otherOptionsTreshold).toList();
+    final otherOptions = widget.receiveOptionViewModel.options
+        .where((element) =>
+            !element.isCommon &&
+            widget.receiveOptionViewModel.options.length >
+                ReceiveAddressTypeSelector.otherOptionsTreshold)
+        .toList();
 
     return SafeArea(
       child: Container(
@@ -106,8 +113,8 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                   ),
                 ),
               ),
-              if(otherOptions.isNotEmpty)
-              ...[              SizedBox(height: 24),
+              if (otherOptions.isNotEmpty) ...[
+                SizedBox(height: 24),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Container(
@@ -148,7 +155,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                     ),
                                     AnimatedRotation(
                                         duration:
-                                        ReceiveAddressTypeSelector.otherOptionsExpandDuration,
+                                            ReceiveAddressTypeSelector.otherOptionsExpandDuration,
                                         turns: _otherOptionsExpanded ? 0.0 : 0.5,
                                         curve: Curves.easeOut,
                                         child: SvgPicture.asset("assets/new-ui/dropdown_arrow.svg"))
@@ -182,7 +189,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                   roundedTop: false,
                                   roundedBottom: index == otherOptions.length - 1,
                                   selected:
-                                  widget.receiveOptionViewModel.selectedReceiveOption == opt,
+                                      widget.receiveOptionViewModel.selectedReceiveOption == opt,
                                   onItemTap: () {
                                     Navigator.of(context).pop(opt);
                                   },
@@ -191,7 +198,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                               },
                               separatorBuilder: (context, index) {
                                 if ((widget.receiveOptionViewModel.selectedReceiveOption ==
-                                    otherOptions[index]) ||
+                                        otherOptions[index]) ||
                                     (index != otherOptions.length - 1 &&
                                         widget.receiveOptionViewModel.selectedReceiveOption ==
                                             otherOptions[index + 1])) return Container();
@@ -207,7 +214,8 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                       ],
                     ),
                   ),
-                ),],
+                ),
+              ],
               SizedBox(height: 24),
             ],
           )),
@@ -222,7 +230,8 @@ class ReceiveAddressTypeRow extends StatelessWidget {
       required this.roundedTop,
       required this.roundedBottom,
       required this.selected,
-      required this.onItemTap, required this.receiveOptionViewModel});
+      required this.onItemTap,
+      required this.receiveOptionViewModel});
 
   final ReceivePageOption option;
   final bool roundedTop;
@@ -236,8 +245,10 @@ class ReceiveAddressTypeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      String? iconPath = option.iconPath;
-    if(iconPath != null && receiveOptionViewModel.walletTypeString == "Litecoin" && option.value.contains("Standard")) {
+    String? iconPath = option.iconPath;
+    if (iconPath != null &&
+        receiveOptionViewModel.walletTypeString == "Litecoin" &&
+        option.value.contains("Standard")) {
       iconPath = "assets/new-ui/address-type-picker-icons/litecoin.svg";
     }
     return Material(

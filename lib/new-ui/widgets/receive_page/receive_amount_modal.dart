@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
@@ -24,9 +25,15 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
   final TextEditingController _amountController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _amountController.text = widget.walletAddressListViewModel.amount;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: SafeArea(
         child: Container(
           decoration: BoxDecoration(
@@ -50,15 +57,14 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 12,
                   children: [
-                    if(widget.walletAddressListViewModel.tokenCurrencies.length>1)
-                    ...[
+                    if (widget.walletAddressListViewModel.tokenCurrencies.length > 1) ...[
                       Text("Token"),
                       GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             _presentTokenCurrencyPicker(context);
                           },
                           child: Observer(
-                            builder:(_)=> Container(
+                            builder: (_) => Container(
                               height: 60,
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.surfaceContainerHigh,
@@ -73,19 +79,30 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                     Row(
                                       spacing: 8,
                                       children: [
-                                        Image.asset(widget.walletAddressListViewModel.tokenCurrency?.iconPath ?? widget.walletAddressListViewModel.currencies.first.iconPath??"", width: 32, height: 32),
-                                        Text((widget.walletAddressListViewModel.tokenCurrency ?? widget.walletAddressListViewModel.currencies.first as CryptoCurrency).title.toUpperCase())
+                                        Image.asset(
+                                            widget.walletAddressListViewModel.tokenCurrency
+                                                    ?.iconPath ??
+                                                widget.walletAddressListViewModel.currencies.first
+                                                    .iconPath ??
+                                                "",
+                                            width: 32,
+                                            height: 32),
+                                        Text((widget.walletAddressListViewModel.tokenCurrency ??
+                                                widget.walletAddressListViewModel.currencies.first
+                                                    as CryptoCurrency)
+                                            .title
+                                            .toUpperCase())
                                       ],
                                     ),
                                     RotatedBox(
-                                        quarterTurns: 2, child: SvgPicture.asset("assets/new-ui/dropdown_arrow.svg"))
+                                        quarterTurns: 2,
+                                        child: SvgPicture.asset("assets/new-ui/dropdown_arrow.svg"))
                                   ],
                                 ),
                               ),
                             ),
                           )),
                     ],
-
                     SizedBox(),
                     Text("Amount"),
                     Row(
@@ -132,7 +149,9 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                         Expanded(
                           flex: 25,
                           child: GestureDetector(
-                            onTap: (){_presentFiatCurrencyPicker(context);},
+                            onTap: () {
+                              _presentFiatCurrencyPicker(context);
+                            },
                             child: Container(
                               height: 60,
                               decoration: BoxDecoration(
@@ -149,10 +168,15 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                 spacing: 4.0,
                                 children: [
                                   Observer(
-                                    builder: (_)=>Text(
-                                      widget.walletAddressListViewModel.selectedCurrency is CryptoCurrency ?
-                                      (widget.walletAddressListViewModel.selectedCurrency as CryptoCurrency).title.toUpperCase() :
-                                      widget.walletAddressListViewModel.selectedCurrency.name.toUpperCase(),
+                                    builder: (_) => Text(
+                                      widget.walletAddressListViewModel.selectedCurrency
+                                              is CryptoCurrency
+                                          ? (widget.walletAddressListViewModel.selectedCurrency
+                                                  as CryptoCurrency)
+                                              .title
+                                              .toUpperCase()
+                                          : widget.walletAddressListViewModel.selectedCurrency.name
+                                              .toUpperCase(),
                                       style: TextStyle(
                                         color: Theme.of(context).colorScheme.onSurface,
                                       ),

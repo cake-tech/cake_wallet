@@ -1,4 +1,6 @@
 import 'package:cake_wallet/core/utilities.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_type.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_display.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_bottom_buttons.dart';
@@ -7,7 +9,6 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_large_amount_preview.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_seed_type.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
@@ -29,7 +30,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_seed_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 
 class NewReceivePage extends StatefulWidget {
@@ -37,7 +37,8 @@ class NewReceivePage extends StatefulWidget {
       {super.key,
       required this.addressListViewModel,
       required this.receiveOptionViewModel,
-      required this.dashboardViewModel, required this.lightningMode});
+      required this.dashboardViewModel,
+      required this.lightningMode});
 
   final WalletAddressListViewModel addressListViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;
@@ -53,25 +54,26 @@ class _NewReceivePageState extends State<NewReceivePage> {
   bool _effectsInstalled = false;
   late WalletAddressListItem? _addressItemWithLabel;
 
-
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      if(widget.lightningMode) {
-        widget.receiveOptionViewModel.selectReceiveOption(widget.receiveOptionViewModel.options.firstWhere((item)=>item.value.contains("Lightning")));
-      } else if(widget.addressListViewModel.wallet.type == WalletType.bitcoin) {
-        widget.receiveOptionViewModel.selectReceiveOption(bitcoin!.getSelectedAddressType(widget.addressListViewModel.wallet));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.lightningMode) {
+        widget.receiveOptionViewModel.selectReceiveOption(widget.receiveOptionViewModel.options
+            .firstWhere((item) => item.value.contains("Lightning")));
+      } else if (widget.addressListViewModel.wallet.type == WalletType.bitcoin) {
+        widget.receiveOptionViewModel.selectReceiveOption(
+            bitcoin!.getSelectedAddressType(widget.addressListViewModel.wallet));
       }
-
     });
 
     reaction((_) => widget.addressListViewModel.uri, (newAddress) {
-          _reloadAddressWithLabel(newAddress);
+      _reloadAddressWithLabel(newAddress);
     });
 
-    _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull((item) {
+    _addressItemWithLabel =
+        widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull((item) {
       return (item is WalletAddressListItem &&
           item.address == widget.addressListViewModel.uri.address);
     }) as WalletAddressListItem?;
@@ -83,7 +85,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
 
     final hasLabel = _addressItemWithLabel?.name != null && _addressItemWithLabel!.name!.isNotEmpty;
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
-    final infobox = ReceiveInfoBox.forWalletType(widget.addressListViewModel.type, onDismissed: _dismissInfobox);
+    final infobox = ReceiveInfoBox.forWalletType(widget.addressListViewModel.type,
+        onDismissed: _dismissInfobox);
 
     return SafeArea(
       child: Container(
@@ -107,16 +110,23 @@ class _NewReceivePageState extends State<NewReceivePage> {
             ModalTopBar(
               title: _largeQrMode ? "" : "Receive",
               leadingIcon: Icon(Icons.close),
-              trailingIcon: _largeQrMode ? Icon(Icons.share) : widget.addressListViewModel.hasAddressList
-                  /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
-                  && !(widget.receiveOptionViewModel.selectedReceiveOption.description??"").toLowerCase().contains("mweb") ? Icon(Icons.refresh) : null,
+              trailingIcon: _largeQrMode
+                  ? Icon(Icons.share)
+                  : widget.addressListViewModel.hasAddressList
+                          /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
+                          &&
+                          !(widget.receiveOptionViewModel.selectedReceiveOption.description ?? "")
+                              .toLowerCase()
+                              .contains("mweb")
+                      ? Icon(Icons.refresh)
+                      : null,
               onLeadingPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
               },
               onTrailingPressed: () {
-                if(_largeQrMode) {
+                if (_largeQrMode) {
                   Share.share(widget.addressListViewModel.uri.toString());
-                } else if(widget.addressListViewModel.hasAddressList){
+                } else if (widget.addressListViewModel.hasAddressList) {
                   widget.addressListViewModel.rotateAddress();
                 }
               },
@@ -126,7 +136,10 @@ class _NewReceivePageState extends State<NewReceivePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  ReceiveAmountDisplay(walletAddressListViewModel: widget.addressListViewModel, largeQrMode: _largeQrMode,),
+                  ReceiveAmountDisplay(
+                    walletAddressListViewModel: widget.addressListViewModel,
+                    largeQrMode: _largeQrMode,
+                  ),
                   ReceiveQrCode(
                     addressListViewModel: widget.addressListViewModel,
                     onTap: () {
@@ -138,17 +151,20 @@ class _NewReceivePageState extends State<NewReceivePage> {
                     },
                     largeQrMode: _largeQrMode,
                   ),
-                  ReceiveSeedTypeDisplay(
+                  ReceiveAddressTypeDisplay(
                     lightningMode: widget.lightningMode,
                     receiveOptionViewModel: widget.receiveOptionViewModel,
                     largeQrMode: _largeQrMode,
                   ),
-                  ReceiveSeedWidget(
+                  ReceiveAddressWidget(
                     addressListViewModel: widget.addressListViewModel,
                   ),
-                    GestureDetector(
-                        onTap: _showLabelModal,
-                        child: ReceiveLabelWidget(name: _addressItemWithLabel?.name ?? "", largeQrMode: _largeQrMode,)),
+                  GestureDetector(
+                      onTap: _showLabelModal,
+                      child: ReceiveLabelWidget(
+                        name: _addressItemWithLabel?.name ?? "",
+                        largeQrMode: _largeQrMode,
+                      )),
                   ReceiveBottomButtons(
                     key: const ValueKey(0),
                     largeQrMode: _largeQrMode,
@@ -181,22 +197,24 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       );
                     },
                   ),
-                  ReceiveLargeAmountPreview(          amount: widget.addressListViewModel.amount,
-                      currency: widget.addressListViewModel.tokenCurrency?.title.toUpperCase() ??widget.addressListViewModel.wallet.currency.name.toUpperCase(),
-                          largeQrMode: _largeQrMode),
-                  if(infobox != null)
-                  ClipRect(
-                    child: AnimatedAlign(
+                  ReceiveLargeAmountPreview(
+                      amount: widget.addressListViewModel.amount,
+                      currency: widget.addressListViewModel.tokenCurrency?.title.toUpperCase() ??
+                          widget.addressListViewModel.wallet.currency.name.toUpperCase(),
+                      largeQrMode: _largeQrMode),
+                  if (infobox != null)
+                    ClipRect(
+                        child: AnimatedAlign(
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeOutCubic,
                       heightFactor: infoboxDismissed ? 0 : 1,
                       alignment: Alignment.center,
                       child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 200),
-                        opacity: infoboxDismissed ? 0 : 1,
-                        curve: Curves.easeOutCubic,
-                        child: infobox),
-                  ))
+                          duration: const Duration(milliseconds: 200),
+                          opacity: infoboxDismissed ? 0 : 1,
+                          curve: Curves.easeOutCubic,
+                          child: infobox),
+                    ))
                 ],
               ),
             ),
@@ -211,8 +229,6 @@ class _NewReceivePageState extends State<NewReceivePage> {
     await widget.addressListViewModel.wallet.walletInfo.save();
     setState(() {});
   }
-
-
 
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
