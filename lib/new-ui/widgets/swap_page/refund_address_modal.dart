@@ -70,6 +70,7 @@ class _RefundAddressModalState extends State<RefundAddressModal> {
                     spacing: 12,
                     children: [
                       NewSendAddressInput(
+                        bottomPadding: true,
                           addressController: addressController,
                           selectedCurrency: widget.selectedCurrency,
                           onEditingComplete: () {}),
@@ -86,7 +87,8 @@ class _RefundAddressModalState extends State<RefundAddressModal> {
                                 ? Theme.of(context).colorScheme.primary
                                 : Theme.of(context).colorScheme.onPrimary)
                     ],
-                  )
+                  ),
+                  SizedBox()
                 ],
               ),
             ),

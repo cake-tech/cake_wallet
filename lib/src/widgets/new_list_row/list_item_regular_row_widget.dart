@@ -13,6 +13,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
     this.onTap,
     this.isFirstInSection = false,
     this.isLastInSection = false,
+    this.showArrow = true
   });
 
   final String keyValue;
@@ -23,6 +24,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final bool showArrow;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +80,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                         style: labelStyle,
                       ),
                     ),
+                  if(showArrow)
                   Icon(
                     Icons.chevron_right,
                     color: theme.colorScheme.onSurfaceVariant,

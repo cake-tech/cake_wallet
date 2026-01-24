@@ -129,9 +129,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     /// if the provider is not in the user settings (user's first time or newly added provider)
     /// then use its default value decided by us
     selectedProviders = ObservableList.of(providerList
-        .where((element) => exchangeProvidersSelection[element.title] == null
-            ? element.isEnabled
-            : (exchangeProvidersSelection[element.title] as bool))
+        .where((element) =>
+            (!forceDecentralizedExchanges || !element.description.isCentralized) &&
+            (exchangeProvidersSelection[element.title] == null
+                ? element.isEnabled
+                : (exchangeProvidersSelection[element.title] as bool)))
         .toList());
 
     _setAvailableProviders();
@@ -168,6 +170,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         _onPairChange();
       }
     });
+
+    // providerDisplay is read by ui to display auto-selected provider.
+    // it's on a delay so it doesn't flicker.
+    reaction((_)=>bestRateProvider,(val) {
+      providerDisplay = val;
+    },delay: 300);
+
     receiveCurrencies = CryptoCurrency.all
         .where((cryptoCurrency) => !excludeReceiveCurrencies.contains(cryptoCurrency))
         .toList()
@@ -252,6 +261,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @observable
   ExchangeProvider? provider;
 
+  @observable
+  ExchangeProvider? providerDisplay;
+
   /// Maps in dart are not sorted by default
   /// SplayTreeMap is a map sorted by keys
   /// will use it to sort available providers
@@ -292,7 +304,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String get depositAmount => _depositAmount;
 
   set depositAmount(String value) {
-    printV(StackTrace.current);
     _depositAmount = value;
   }
 
@@ -400,6 +411,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     } else {
       return shouldDisplayTOTP2FAForExchangesToExternalWallet;
     }
+  }
+
+  @computed
+  bool get decentralizedExchangesPromptDismissed => _settingsStore.decentralizedExchangesPromptDismissed;
+
+  @action
+  void dismissDecentralizedExchangesPrompt() {
+    _settingsStore.decentralizedExchangesPromptDismissed = true;
   }
 
   @computed
@@ -1021,9 +1040,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String depositAvailableAmount = "";
 
   @action
-  void swapAmounts() {
-    depositAmount = receiveAmount;
-    receiveAmount = "";
+  void reverseSwapDirection() {
+    final tmpAmount = receiveAmount;
+    final tmpCurrency = depositCurrency;
+    changeDepositCurrency(currency: receiveCurrency);
+    changeReceiveCurrency(currency: tmpCurrency);
+    depositAmount = tmpAmount;
   }
 
   void updateTemplate() => _exchangeTemplateStore.update();

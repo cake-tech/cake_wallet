@@ -10,6 +10,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.onTap,
     this.isFirstInSection = false,
     this.isLastInSection = false, this.subtitle, this.iconPath,
   });
@@ -19,6 +20,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
   final String? subtitle;
   final String? iconPath;
   final bool value;
+  final VoidCallback? onTap;
   final ValueChanged<bool> onChanged;
   final bool isFirstInSection;
   final bool isLastInSection;
@@ -33,7 +35,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
-      onTap: () {
+      onTap: widget.onTap ?? () {
         widget.onChanged(!widget.value);
       },
       isFirstInSection: widget.isFirstInSection,

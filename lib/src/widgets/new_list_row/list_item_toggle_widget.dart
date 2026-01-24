@@ -9,6 +9,7 @@ class ListItemToggleWidget extends StatefulWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.leadingEndWidget,
     this.isFirstInSection = false,
     this.isLastInSection = false,
   });
@@ -17,6 +18,7 @@ class ListItemToggleWidget extends StatefulWidget {
   final String label;
   final bool value;
   final ValueChanged<bool> onChanged;
+  final Widget? leadingEndWidget;
   final bool isFirstInSection;
   final bool isLastInSection;
 
@@ -25,21 +27,17 @@ class ListItemToggleWidget extends StatefulWidget {
 }
 
 class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
-  late bool _value;
 
   @override
   void initState() {
     super.initState();
-    _value = widget.value;
   }
 
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
         onTap: () {
-          final newValue = !_value;
-          setState(() => _value = newValue);
-          widget.onChanged(newValue);
+          widget.onChanged(!widget.value);
         },
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
@@ -47,13 +45,17 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(widget.label, style: textStyle),
+              Row(
+                spacing: 8,
+                children: [
+                  Text(widget.label, style: textStyle),
+                  if(widget.leadingEndWidget != null) widget.leadingEndWidget!
+                ],
+              ),
               StandardSwitch(
-                value: _value,
+                value: widget.value,
                 onTapped: () {
-                  final newValue = !_value;
-                  setState(() => _value = newValue);
-                  widget.onChanged(newValue);
+                  widget.onChanged(!widget.value);
                 },
               ),
             ],

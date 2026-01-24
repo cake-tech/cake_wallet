@@ -7,11 +7,13 @@ class ListItemCheckbox extends ListItem {
     required super.label,
     this.subtitle,
     this.iconPath,
+    this.onTap,
     required this.value,
     required this.onChanged,
   });
 
   final ValueChanged<bool> onChanged;
+  final VoidCallback? onTap;
   final bool value;
   final String? subtitle;
   final String? iconPath;

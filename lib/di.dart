@@ -1056,8 +1056,12 @@ Future<void> setup({
       (CryptoCurrency? cur, _) =>
           ContactListViewModel(_contactSource, walletList, cur, getIt.get<SettingsStore>()));
 
-  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _) =>
-      ContactListPage(getIt.get<ContactListViewModel>(param1: cur), getIt.get<AuthService>()));
+  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, bool?>(
+      (CryptoCurrency? cur, bool? showAddContact) => ContactListPage(
+            getIt.get<ContactListViewModel>(param1: cur),
+            getIt.get<AuthService>(),
+            showAddButton: showAddContact ?? true,
+          ));
 
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));

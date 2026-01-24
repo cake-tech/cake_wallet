@@ -383,7 +383,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                                           onTap: () async {
                                             final contact = await Navigator.of(context).pushNamed(
                                               Routes.pickerAddressBook,
-                                              arguments: widget.initialCurrency,
+                                              arguments: [widget.initialCurrency, true],
                                             );
 
                                             if (contact is ContactBase) {

@@ -70,76 +70,85 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ModalTopBar(
-            title: "",
-            leadingWidget: SwapModalHeader(
-                fromIconPath: widget.exchangeTradeViewModel.trade.from?.iconPath ?? "",
-                toIconPath: widget.exchangeTradeViewModel.trade.to?.iconPath ?? ""),
-            trailingIcon: Icon(Icons.close),
-            onTrailingPressed: Navigator.of(context).maybePop,
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                spacing: 24,
-                children: [
-                  Observer(
-                    builder: (_) => NewListSections(showHeader: true, sections: {
-                      "Send": [
-                        ListItemRegularRow(
-                            keyValue: "send value",
-                            label: widget.exchangeTradeViewModel.trade.from?.fullName ?? "",
-                            iconPath: widget.exchangeTradeViewModel.trade.from?.iconPath ?? "",
-                            trailingText: widget.exchangeTradeViewModel.trade.amountFormatted() +
-                                " " +
-                                (widget.exchangeTradeViewModel.trade.from?.title ?? "")),
-                        ListItemRegularRow(
-                            keyValue: "fee",
-                            label: "Fee",
-                            trailingText:
-                                "${widget.exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${widget.exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})")
-                      ],
-                      "Receive": [
-                        ListItemRegularRow(
-                            keyValue: "receive value",
-                            label: widget.exchangeTradeViewModel.trade.to?.fullName ?? "",
-                            iconPath: widget.exchangeTradeViewModel.trade.to?.iconPath ?? "",
-                            trailingText: (widget.receiveAmount) +
-                                " " +
-                                (widget.exchangeTradeViewModel.trade.to?.title ?? "")),
-                      ],
-                      "Swap ID": [
-                        ListItemRegularRow(
-                            keyValue: "provider",
-                            label: widget.exchangeTradeViewModel.trade.provider.title,
-                            iconPath: widget.exchangeTradeViewModel.trade.provider.image,
-                            trailingText: widget.exchangeTradeViewModel.trade.id)
-                      ]
-                    }),
-                  ),
-                  widget.exchangeViewModel.isSendFromExternal
-                      ? NewPrimaryButton(
-                          onPressed: _showExternalSendModal,
-                          text: "Continue",
-                          color: Theme.of(context).colorScheme.primary,
-                          textColor: Theme.of(context).colorScheme.onPrimary)
-                      : SendConfirmBottomWidget(
-                          sendViewModel: widget.exchangeTradeViewModel.sendViewModel),
-                  SizedBox()
-                ],
-              ),
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ModalTopBar(
+              title: "",
+              leadingWidget: SwapModalHeader(
+                  fromIconPath: widget.exchangeTradeViewModel.trade.from?.iconPath ?? "",
+                  toIconPath: widget.exchangeTradeViewModel.trade.to?.iconPath ?? ""),
+              trailingIcon: Icon(Icons.close),
+              onTrailingPressed: Navigator.of(context).maybePop,
             ),
-          )
-        ],
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  spacing: 24,
+                  children: [
+                    Observer(
+                      builder: (_) => NewListSections(showHeader: true, sections: {
+                        "Send": [
+                          ListItemRegularRow(
+                              showArrow: false,
+                              keyValue: "send value",
+                              label: widget.exchangeTradeViewModel.trade.from?.fullName ?? "",
+                              iconPath: widget.exchangeTradeViewModel.trade.from?.iconPath ?? "",
+                              trailingText: widget.exchangeTradeViewModel.trade.amountFormatted() +
+                                  " " +
+                                  (widget.exchangeTradeViewModel.trade.from?.title ?? "")),
+                          ListItemRegularRow(
+                              showArrow: false,
+                              keyValue: "fee",
+                              label: "Fee",
+                              trailingText:
+                                  "${widget.exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${widget.exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})")
+                        ],
+                        "Receive": [
+                          ListItemRegularRow(
+                              showArrow: false,
+                              keyValue: "receive value",
+                              label: widget.exchangeTradeViewModel.trade.to?.fullName ?? "",
+                              iconPath: widget.exchangeTradeViewModel.trade.to?.iconPath ?? "",
+                              trailingText: (widget.receiveAmount) +
+                                  " " +
+                                  (widget.exchangeTradeViewModel.trade.to?.title ?? "")),
+                        ],
+                        "Swap ID": [
+                          ListItemRegularRow(
+                              showArrow: false,
+                              keyValue: "provider",
+                              label: widget.exchangeTradeViewModel.trade.provider.title,
+                              iconPath: widget.exchangeTradeViewModel.trade.provider.image,
+                              trailingText: widget.exchangeTradeViewModel.trade.id)
+                        ]
+                      }),
+                    ),
+                    widget.exchangeViewModel.isSendFromExternal
+                        ? NewPrimaryButton(
+                            onPressed: _showExternalSendModal,
+                            text: "Continue",
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary)
+                        : SendConfirmBottomWidget(
+                            sendViewModel: widget.exchangeTradeViewModel.sendViewModel),
+                    SizedBox()
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

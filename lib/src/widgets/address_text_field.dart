@@ -242,7 +242,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {
     final contact = await Navigator.of(context)
-        .pushNamed(Routes.pickerAddressBook, arguments: selectedCurrency);
+        .pushNamed(Routes.pickerAddressBook, arguments: [selectedCurrency, false]);
 
     if (contact is ContactBase) {
       controller?.text = contact.address;

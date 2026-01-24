@@ -12,11 +12,13 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart';
+import 'package:cake_wallet/new-ui/widgets/swap_page/swap_provider_initial_preference_modal.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
@@ -87,7 +89,23 @@ class _NewSwapPageState extends State<NewSwapPage> {
       _showFeeAlert(context);
     }
 
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!widget.exchangeViewModel.decentralizedExchangesPromptDismissed) {
+        showMaterialModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.transparent,
+            isDismissible: false,
+            builder: (context) {
+              return SwapProviderInitialPreferenceModal();
+            }).then((val) {
+          widget.exchangeViewModel.dismissDecentralizedExchangesPrompt();
+          if (val is bool && val == true && !widget.exchangeViewModel.forceDecentralizedExchanges) {
+            widget.exchangeViewModel.toggleForceDecentralizedExchanges();
+          }
+        });
+      }
+
       final depositAddressController = depositKey.currentState!.addressController;
       final depositAmountController = depositKey.currentState!.amountController;
       final receiveAddressController = receiveKey.currentState!.addressController;
@@ -471,10 +489,10 @@ class _NewSwapPageState extends State<NewSwapPage> {
                               color: Theme.of(context).colorScheme.surfaceContainerHigh,
                             ),
                             ModernButton.svg(
-                              size: 28,
-                              iconSize: 20,
+                              size: 36,
+                              iconSize: 24,
                               svgPath: "assets/new-ui/swap_amounts.svg",
-                              onPressed: widget.exchangeViewModel.swapAmounts,
+                              onPressed: widget.exchangeViewModel.reverseSwapDirection,
                             ),
                           ],
                         ),
@@ -523,79 +541,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                       spacing: 12,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Observer(builder: (_) {
-                          final provider = widget.exchangeViewModel.forcedProvider ??
-                              widget.exchangeViewModel.bestRateProvider;
-                          final rate = widget.exchangeViewModel.forcedProvider == null
-                              ? widget.exchangeViewModel.bestRate
-                              : widget.exchangeViewModel.forcedProviderRate;
-
-                          return GestureDetector(
-                            onTap: () {
-                              if (provider != null) {
-                                Navigator.of(context).push(CupertinoPageRoute(
-                                    builder: (context) => Material(
-                                        child: ProviderSelectorPage(
-                                            exchangeViewModel: widget.exchangeViewModel))));
-                              }
-                            },
-                            child: Container(
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surfaceContainer,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      spacing: 12,
-                                      children: [
-                                        if (provider != null)
-                                          provider.description.image.toLowerCase().endsWith("svg")
-                                              ? SvgPicture.asset(provider.description.image,
-                                                  width: 28, height: 28)
-                                              : Image.asset(provider.description.image,
-                                                  width: 28, height: 28),
-                                        if (provider == null) CupertinoActivityIndicator(),
-                                        Text(
-                                          provider?.title ?? "Finding provider...",
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400,
-                                              color: provider == null
-                                                  ? Theme.of(context).colorScheme.onSurfaceVariant
-                                                  : Theme.of(context).colorScheme.onSurface),
-                                        )
-                                      ],
-                                    ),
-                                    if (provider != null)
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "1 ${widget.exchangeViewModel.depositCurrency} ≈ ${rate.toStringAsFixed(2)} ${widget.exchangeViewModel.receiveCurrency}",
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w400,
-                                                color:
-                                                    Theme.of(context).colorScheme.onSurfaceVariant),
-                                          ),
-                                          SvgPicture.asset(
-                                            "assets/new-ui/chooser.svg",
-                                            colorFilter: ColorFilter.mode(
-                                                Theme.of(context).colorScheme.onSurfaceVariant,
-                                                BlendMode.srcIn),
-                                          )
-                                        ],
-                                      )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
+                        if(widget.exchangeViewModel.status is! SyncedSyncStatus)
+                        SendSyncingIndicator(status: widget.exchangeViewModel.status),
+                        SwapProviderPreview(exchangeViewModel: widget.exchangeViewModel),
                         Observer(
                           builder: (_) => LoadingPrimaryButton(
                             key: ValueKey('exchange_page_exchange_button_key'),
@@ -636,7 +584,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                     .presentProviderPicker(context),
                             color: Theme.of(context).colorScheme.primary,
                             textColor: Theme.of(context).colorScheme.onPrimary,
-                            isDisabled: widget.exchangeViewModel.selectedProviders.isEmpty,
+                            isDisabled: _swapButtonDisabled(),
                             isLoading: widget.exchangeViewModel.tradeState is TradeIsCreating,
                           ),
                         ),
@@ -651,7 +599,111 @@ class _NewSwapPageState extends State<NewSwapPage> {
       ),
     );
   }
+
+  bool _swapButtonDisabled() {
+    if(widget.exchangeViewModel.selectedProviders.isEmpty) {
+      return true;
+    }
+    if(widget.exchangeViewModel.receiveAddress.isEmpty) {
+      return true;
+    }
+    if(widget.exchangeViewModel.status is! SyncedSyncStatus) {
+      return true;
+    }
+    if(widget.exchangeViewModel.depositAmount.isEmpty) {
+      return true;
+    }
+    return false;
+  }
 }
+
+class SwapProviderPreview extends StatelessWidget {
+  const SwapProviderPreview({super.key, required this.exchangeViewModel});
+
+  final ExchangeViewModel exchangeViewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return                         Observer(builder: (_) {
+      if(exchangeViewModel.depositAmount.isEmpty) {
+        return SizedBox.shrink();
+      }
+
+      final provider = exchangeViewModel.forcedProvider ??
+          exchangeViewModel.providerDisplay;
+      final rate = exchangeViewModel.forcedProvider == null
+          ? exchangeViewModel.bestRate
+          : exchangeViewModel.forcedProviderRate;
+
+      return GestureDetector(
+        onTap: () {
+          if (provider != null) {
+            Navigator.of(context).push(CupertinoPageRoute(
+                builder: (context) => Material(
+                    child: ProviderSelectorPage(
+                        exchangeViewModel: exchangeViewModel))));
+          }
+        },
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  spacing: 12,
+                  children: [
+                    if (provider != null)
+                      provider.description.image.toLowerCase().endsWith("svg")
+                          ? SvgPicture.asset(provider.description.image,
+                          width: 28, height: 28)
+                          : Image.asset(provider.description.image,
+                          width: 28, height: 28),
+                    if (provider == null) CupertinoActivityIndicator(),
+                    Text(
+                      provider?.title ?? "Finding provider...",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: provider == null
+                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                              : Theme.of(context).colorScheme.onSurface),
+                    )
+                  ],
+                ),
+                if (provider != null)
+                  Row(
+                    children: [
+                      Text(
+                        "1 ${exchangeViewModel.depositCurrency} ≈ ${rate.toStringAsFixed(2)} ${exchangeViewModel.receiveCurrency}",
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color:
+                            Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
+                      SvgPicture.asset(
+                        "assets/new-ui/chooser.svg",
+                        colorFilter: ColorFilter.mode(
+                            Theme.of(context).colorScheme.onSurfaceVariant,
+                            BlendMode.srcIn),
+                      )
+                    ],
+                  )
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
+
 
 class SwapAmountBox extends StatefulWidget {
   SwapAmountBox({
@@ -729,9 +781,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
               color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         Container(
-          decoration: BoxDecoration(
+          decoration: ShapeDecoration(
               color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(16)),
+              shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(24))),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -741,6 +793,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                   children: [
                     Expanded(
                         child: TextField(
+                          keyboardType: TextInputType.numberWithOptions(signed:false,decimal:true),
                       controller: _fiatInputMode ? fiatAmountController : amountController,
                       style: TextStyle(
                           fontSize: 28,
@@ -766,15 +819,16 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           padding: const EdgeInsets.only(top: 4.0, bottom: 4, left: 4, right: 4),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            spacing: 10,
                             children: [
                               if (!_fiatInputMode)
                                 Image.asset(_selectedCurrency.iconPath ?? "",
                                     width: 28, height: 28),
+                              if(!_fiatInputMode) SizedBox(width:10),
                               Text(
                                 currencyToShow,
                                 textAlign: TextAlign.center,
                               ),
+                              if(!_fiatInputMode) SizedBox(width:10),
                               if (!_fiatInputMode)
                                 RotatedBox(
                                     quarterTurns: 2,
@@ -785,6 +839,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                       colorFilter: ColorFilter.mode(
                                           Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                                     )),
+                              if(!_fiatInputMode) SizedBox(width:4),
                             ],
                           ),
                         ),

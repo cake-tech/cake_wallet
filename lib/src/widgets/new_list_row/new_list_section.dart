@@ -96,6 +96,7 @@ class NewListSections extends StatelessWidget {
         onTap: tapHandlers[item.keyValue] ?? item.onTap,
         isFirstInSection: isFirst,
         isLastInSection: isLast,
+        showArrow: item.showArrow,
       );
     }
 
@@ -103,6 +104,7 @@ class NewListSections extends StatelessWidget {
       return ListItemToggleWidget(
         keyValue: item.keyValue,
         label: item.label,
+        leadingEndWidget: item.leadingEndWidget,
         value: getCheckboxValue!(item.keyValue),
         onChanged: (newValue) {
           updateCheckboxValue!(item.keyValue, newValue);
@@ -119,6 +121,7 @@ class NewListSections extends StatelessWidget {
         label: item.label,
         subtitle: item.subtitle,
         iconPath: item.iconPath,
+        onTap: item.onTap,
         value: getCheckboxValue!(item.keyValue),
         onChanged: (newValue) {
           updateCheckboxValue!(item.keyValue, newValue);

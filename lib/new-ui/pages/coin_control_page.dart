@@ -71,11 +71,14 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
 
                       return Column(
                         children: [
-                          ModalHeader(
-                            iconPath: "assets/new-ui/settings_row_icons/coin-control.svg",
-                            title: "Coin Control",
-                            message:
-                                "Filter outputs for this transaction. The changes you make here will only reflect on the current transaction.",
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: ModalHeader(
+                              iconPath: "assets/new-ui/settings_row_icons/coin-control.svg",
+                              title: "Coin Control",
+                              message:
+                                  "Filter outputs for this transaction. The changes you make here will only reflect on the current transaction.",
+                            ),
                           ),
                           if (widget.unspentCoinsListViewModel.items.isNotEmpty)
                             Padding(

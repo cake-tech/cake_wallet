@@ -53,6 +53,8 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
 
   @override
   Widget build(BuildContext context) {
+    final currency = widget.isSelectingReceiver ? widget.exchangeViewModel.receiveCurrency : widget.exchangeViewModel.depositCurrency;
+
     if (!_itemsLoaded) return SizedBox.shrink();
     return Container(
         decoration: BoxDecoration(
@@ -69,9 +71,15 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: ListView.builder(
-                    controller: ModalScrollController.of(context),
-                    itemCount: items.length,
+                  child: items.isEmpty
+                      ? Center(
+                          child: Text(
+                          "You have no ${widget.isSelectingReceiver ? currency.fullName : currency.fullName} wallets.",
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ))
+                      : ListView.builder(
+                          controller: ModalScrollController.of(context),
+                          itemCount: items.length,
                     itemBuilder: (context, index) {
                       final item = items[index];
 
@@ -83,9 +91,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                             !widget.exchangeViewModel.isSendFromExternal;
                       }
 
-                      final String currencyIconPath = widget.isSelectingReceiver
-                          ? widget.exchangeViewModel.receiveCurrency.iconPath ?? ""
-                          : widget.exchangeViewModel.depositCurrency.iconPath ?? "";
+                      final String currencyIconPath = currency.iconPath ?? "";
 
                       final bool hasAccounts =
                           item.type.toString() == "WalletType.monero" && widget.isSelectingReceiver;
@@ -148,7 +154,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                             child: NewSendAddressInput(
                                 addressController: addressController,
                                 selectedCurrency: widget.exchangeViewModel.receiveCurrency,
-                                onEditingComplete: () {}),
+                                onEditingComplete: () {}, bottomPadding: true,),
                           ),
                           AnimatedScale(
                             alignment: Alignment.centerLeft,

@@ -99,6 +99,7 @@ class PreferencesKey {
   static const showCameraConsent = 'show_camera_consent';
   static const showDecredInfoCard = 'show_decred_info_card';
   static const forceDecentralizedExchanges = 'force_decentralized_exchanges';
+  static const decentralizedExchangesPromptDismissed = 'decentralized_exchanges_prompt_dismissed';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';

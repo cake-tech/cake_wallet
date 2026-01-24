@@ -73,6 +73,7 @@ class SwapOptionsPage extends StatelessWidget {
                             label: "Set Refund Address",
                             onTap: () {
                               showModalBottomSheet(
+                                isScrollControlled: true,
                                   context: context,
                                   builder: (context) {
                                     return RefundAddressModal(

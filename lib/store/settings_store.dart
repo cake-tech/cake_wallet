@@ -108,6 +108,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialShouldRequireTOTP2FAForCreatingNewWallets,
       required bool initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
       required this.forceDecentralizedExchanges,
+      required this.decentralizedExchangesPromptDismissed,
       required this.sortBalanceBy,
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
@@ -671,6 +672,12 @@ abstract class SettingsStoreBase with Store {
         (bool forceDecentralizedExchanges) => _sharedPreferences.setBool(
             PreferencesKey.forceDecentralizedExchanges, forceDecentralizedExchanges));
 
+    reaction(
+        (_) => decentralizedExchangesPromptDismissed,
+        (bool forceDecentralizedExchanges) => _sharedPreferences.setBool(
+            PreferencesKey.decentralizedExchangesPromptDismissed,
+            decentralizedExchangesPromptDismissed));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -937,6 +944,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool forceDecentralizedExchanges;
 
+  @observable
+  bool decentralizedExchangesPromptDismissed;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
 
@@ -1077,6 +1087,7 @@ abstract class SettingsStoreBase with Store {
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
     final forceDecentralizedExchanges = await sharedPreferences.getBool(PreferencesKey.forceDecentralizedExchanges) ?? false;
+    final decentralizedExchangesPromptDismissed = await sharedPreferences.getBool(PreferencesKey.decentralizedExchangesPromptDismissed) ?? false;
     final syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
         sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.blocksRemaining.name);
     final exchangeStatus = ExchangeApiMode.deserialize(
@@ -1462,6 +1473,7 @@ abstract class SettingsStoreBase with Store {
       mwebNodeUri: mwebNodeUri,
       hasEnabledMwebBefore: hasEnabledMwebBefore,
       forceDecentralizedExchanges: forceDecentralizedExchanges,
+      decentralizedExchangesPromptDismissed: decentralizedExchangesPromptDismissed,
       initialEnableAutomaticNodeSwitching: enableAutomaticNodeSwitching,
       initialBackgroundImage: backgroundImage,
       initialMoneroTransactionPriority: moneroTransactionPriority,
