@@ -127,6 +127,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                 borderRadius: 10,
                                                 selected: false,
                                                 design: state.availableDesigns[index],
+                                                gradient: state.selectedDesign.gradient,
                                               ),
                                             ),
                                           );

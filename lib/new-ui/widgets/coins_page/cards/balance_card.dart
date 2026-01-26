@@ -15,6 +15,7 @@ class BalanceCard extends StatelessWidget {
     super.key,
     required this.width,
     required this.design,
+    this.gradient,
     this.borderRadius = 20,
     this.selected = false,
     this.accountName = "",
@@ -28,6 +29,7 @@ class BalanceCard extends StatelessWidget {
 
   final double width;
   final double borderRadius;
+  final Gradient? gradient;
   final String accountBalance;
   final String accountName;
   final String balance;
@@ -56,7 +58,7 @@ class BalanceCard extends StatelessWidget {
       width: width,
       height: height,
       decoration: ShapeDecoration(
-        gradient: design.gradient,
+        gradient: gradient ?? design.gradient,
         shape: RoundedSuperellipseBorder(
           side: const BorderSide(color: Color(0x44FFFFFF), width: 1),
           borderRadius: BorderRadiusGeometry.circular(borderRadius),
