@@ -72,7 +72,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void onWalletChange(wallet) {
     // FIXME this caused a bug when switching wallet, i can't figure out why it's here?
     // receiveCurrency = wallet.currency;
-    depositCurrency = wallet.currency;
+    // depositCurrency = wallet.currency;
   }
 
   ExchangeViewModelBase(
@@ -160,6 +160,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     receiveAddress = '';
     depositAddress =
         useSameWalletAddress(depositCurrency) ? wallet.walletAddresses.addressForExchange : '';
+
+    reaction((_) => receiveAddress, (_) => receiveAddressDisplayName = null);
 
     provider = providerList.firstOrNull;
     final initialProvider = provider;
@@ -315,6 +317,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @observable
   String receiveAddress;
+
+  @observable
+  String? receiveAddressDisplayName;
 
   @observable
   bool isDepositAddressEnabled;
@@ -577,14 +582,22 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (depositAmount.split(".").last.length <= digits) {
       return depositAmount;
     }
-    return double.parse(depositAmount).toStringAsPrecision(digits);
+    try {
+      return double.parse(depositAmount).toStringAsPrecision(digits);
+    } catch(e) {
+      return "0";
+    }
   }
 
   String roundedReceiveAmount(int digits) {
     if (receiveAmount.split(".").last.length <= digits) {
       return receiveAmount;
     }
-    return double.parse(receiveAmount).toStringAsPrecision(digits);
+    try {
+      return double.parse(receiveAmount).toStringAsPrecision(digits);
+    } catch(e) {
+      return "0";
+    }
   }
 
   String roundedReceiveAmountFiat(int digits) {
@@ -612,6 +625,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void changeReceiveCurrency({required CryptoCurrency currency}) {
+    if (!(currency.tag == receiveCurrency.tag ||
+        currency.tag == receiveCurrency.title ||
+        currency.title == receiveCurrency.tag ||
+        currency == receiveCurrency)) {
+      receiveAddress = "";
+    }
     receiveCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();

@@ -7,6 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
+class SwapAddressSelectionResult {
+  String? address;
+  String? walletName;
+  String? accountName;
+
+  SwapAddressSelectionResult({this.address, this.walletName, this.accountName});
+}
+
 class SwapAddressSelectionModal extends StatefulWidget {
   const SwapAddressSelectionModal(
       {super.key, required this.isSelectingReceiver, required this.exchangeViewModel});
@@ -106,9 +114,12 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                           iconPath: currencyIconPath,
                           isSelected: selected,
                           accounts: accounts,
-                          onAddressChosen: (address) {
-                            Navigator.of(context).pop(address);
-                          },
+                          onAddressChosen: (address, accountName) {
+                                  Navigator.of(context).pop(SwapAddressSelectionResult(
+                                      address: address,
+                                      walletName: item.name,
+                                      accountName: accountName));
+                                },
                         ),
                       );
                     },
@@ -125,7 +136,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                     ? GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () {
-                          Navigator.of(context).pop("");
+                          Navigator.of(context).pop(SwapAddressSelectionResult());
                         },
                         child: Container(
                           height: 64,
@@ -166,7 +177,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                                 SizedBox(width: textEntered ? 8 : 0),
                                 GestureDetector(
                                   onTap: () {
-                                    Navigator.of(context).pop(addressController.text);
+                                    Navigator.of(context).pop(SwapAddressSelectionResult(address:addressController.text));
                                   },
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
@@ -207,7 +218,7 @@ class SwapAddressSelectionModalRow extends StatefulWidget {
   final WalletInfo wallet;
   final String iconPath;
   final bool isSelected;
-  final Function(String) onAddressChosen;
+  final Function(String, String?) onAddressChosen;
   final List<WalletInfoAddressInfo>? accounts;
 
   @override
@@ -235,7 +246,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                     _isExpanded = !_isExpanded;
                   });
                 } else {
-                  widget.onAddressChosen(widget.wallet.address);
+                  widget.onAddressChosen(widget.wallet.address, null);
                 }
               },
               child: Container(
@@ -292,7 +303,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () {
-                                widget.onAddressChosen(item.address);
+                                widget.onAddressChosen(item.address, item.label);
                               },
                               child: SizedBox(
                                 height: 48,

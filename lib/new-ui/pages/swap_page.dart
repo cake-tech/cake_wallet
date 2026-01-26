@@ -28,6 +28,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
@@ -354,6 +355,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
     key.currentState!.changeSelectedCurrency(currency);
 
+    if(key == depositKey)
     key.currentState!.changeAddress(
         address:
             isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.addressForExchange : '');
@@ -865,15 +867,19 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                         }
                       },
                       onAllButtonPressed: widget.allAmount,
+
                       cryptoAmount: widget.isReceiverCard
                           ? widget.exchangeViewModel.roundedReceiveAmount(6)
                           : widget.exchangeViewModel.roundedDepositAmount(6),
+
                       fiatAmount: widget.isReceiverCard
                           ? widget.exchangeViewModel.roundedReceiveAmountFiat(6)
                           : widget.exchangeViewModel.roundedDepositAmountFiat(6),
+
                       cryptoCurrency: widget.isReceiverCard
                           ? widget.exchangeViewModel.receiveCurrency.title
                           : widget.exchangeViewModel.depositCurrency.title,
+
                       fiatCurrency: widget.exchangeViewModel.fiat.name),
                 ),
                 Observer(
@@ -883,6 +889,12 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                         (!widget.isReceiverCard && widget.exchangeViewModel.depositAddress.isEmpty);
                     final addressPickerText =
                         widget.isReceiverCard ? (addressEmpty ? "Select Receiver" : "To") : "From";
+                    final addressDescription = widget.isReceiverCard
+                        ? widget.exchangeViewModel.receiveAddressDisplayName ??
+                            _middleTruncate(widget.exchangeViewModel.receiveAddress, 8, 8)
+                        : widget.exchangeViewModel.isSendFromExternal
+                            ? "External"
+                            : widget.exchangeViewModel.wallet.name;
                     return Row(
                       spacing: 8,
                       children: [
@@ -916,9 +928,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                                     : Theme.of(context).colorScheme.onSurface),
                                           ),
                                           Text(
-                                              _buildAddressDescription(widget.isReceiverCard
-                                                  ? widget.exchangeViewModel.receiveAddress
-                                                  : widget.exchangeViewModel.depositAddress),
+                                            addressDescription,
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w500,
@@ -1052,28 +1062,34 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                 exchangeViewModel: widget.exchangeViewModel,
               ));
         });
-    if (res != null && res is String) {
+    if (res != null && res is SwapAddressSelectionResult) {
       if (widget.isReceiverCard) {
-        widget.exchangeViewModel.receiveAddress = res;
-      } else if (res.isEmpty) {
+        widget.exchangeViewModel.receiveAddress = res.address!;
+        if (res.walletName != null) {
+          if (res.accountName != null) {
+            widget.exchangeViewModel.receiveAddressDisplayName =
+                "${res.walletName} → ${res.accountName}";
+          } else {
+            widget.exchangeViewModel.receiveAddressDisplayName = res.walletName!;
+          }
+        }
+      } else if (res.address == null || res.address!.isEmpty) {
         widget.exchangeViewModel.isSendFromExternal = true;
         askForRefundAddress();
       } else {
         widget.exchangeViewModel.isSendFromExternal = false;
-        switchToDepositWallet(res);
+        switchToDepositWallet(res.walletName!);
       }
     }
   }
 
-  void switchToDepositWallet(String addr) async {
-    final wallets = await widget.walletSwitcherViewModel
-        .getWallets(cryptoCurrencyToWalletType(widget.exchangeViewModel.depositCurrency));
-    for (final wallet in wallets) {
-      if (wallet.address == addr) {
-        widget.walletSwitcherViewModel.selectWallet(wallet);
-        await widget.walletSwitcherViewModel.switchToSelectedWallet();
-      }
-    }
+  void switchToDepositWallet(String walletName) async {
+    final walletType = cryptoCurrencyOrTokenToWalletType(widget.exchangeViewModel.depositCurrency);
+    if (walletType == null) return;
+    final wallet = await WalletInfo.get(walletName, walletType);
+    if (wallet == null) return;
+    widget.walletSwitcherViewModel.selectWallet(wallet);
+    await widget.walletSwitcherViewModel.switchToSelectedWallet();
   }
 
   void askForRefundAddress() async {
@@ -1101,24 +1117,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       if (newText == "0.00") {
         fiatAmountController.text = "";
       } else {
-        fiatAmountController.text = newText;
+        fiatAmountController.text = newText.replaceFirst(".00", "");
       }
-    }
-  }
-
-  String _buildAddressDescription(String address) {
-    if (widget.isReceiverCard) {
-      final wallets = widget.exchangeViewModel.walletContactsToShow;
-      for (final wallet in wallets) {
-        if (wallet.address == address) {
-          return _prettifyAccountContactName(wallet.name);
-        }
-      }
-      return _middleTruncate(address, 8, 8);
-    } else {
-      return widget.exchangeViewModel.isSendFromExternal
-          ? "External"
-          : widget.exchangeViewModel.wallet.name;
     }
   }
 
