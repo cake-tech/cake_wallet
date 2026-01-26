@@ -3,8 +3,6 @@ PODS:
     - FlutterMacOS
   - connectivity_plus (0.0.1):
     - FlutterMacOS
-  - cw_mweb (0.0.1):
-    - FlutterMacOS
   - device_info_plus (0.0.1):
     - FlutterMacOS
   - devicelocale (0.0.1):
@@ -36,8 +34,6 @@ PODS:
     - FlutterMacOS
   - shared_preferences_foundation (0.0.1):
     - Flutter
-    - FlutterMacOS
-  - sp_scanner (0.0.1):
     - FlutterMacOS
   - sqflite_darwin (0.0.4):
     - Flutter
@@ -80,7 +76,6 @@ PODS:
 DEPENDENCIES:
   - bitbox_flutter (from `Flutter/ephemeral/.symlinks/plugins/bitbox_flutter/macos`)
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
-  - cw_mweb (from `Flutter/ephemeral/.symlinks/plugins/cw_mweb/macos`)
   - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
   - devicelocale (from `Flutter/ephemeral/.symlinks/plugins/devicelocale/macos`)
   - dnssec_proof (from `Flutter/ephemeral/.symlinks/plugins/dnssec_proof/macos`)
@@ -96,7 +91,6 @@ DEPENDENCIES:
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
   - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
-  - sp_scanner (from `Flutter/ephemeral/.symlinks/plugins/sp_scanner/macos`)
   - sqflite_darwin (from `Flutter/ephemeral/.symlinks/plugins/sqflite_darwin/darwin`)
   - sqlite3_flutter_libs (from `Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/darwin`)
   - torch_dart (from `Flutter/ephemeral/.symlinks/plugins/torch_dart/macos`)
@@ -114,8 +108,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/bitbox_flutter/macos
   connectivity_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
-  cw_mweb:
-    :path: Flutter/ephemeral/.symlinks/plugins/cw_mweb/macos
   device_info_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos
   devicelocale:
@@ -146,8 +138,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/share_plus/macos
   shared_preferences_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
-  sp_scanner:
-    :path: Flutter/ephemeral/.symlinks/plugins/sp_scanner/macos
   sqflite_darwin:
     :path: Flutter/ephemeral/.symlinks/plugins/sqflite_darwin/darwin
   sqlite3_flutter_libs:
@@ -164,7 +154,6 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   bitbox_flutter: 16088f5c7febacf894f4d07bbdfb441c9f0757fe
   connectivity_plus: 0a976dfd033b59192912fa3c6c7b54aab5093802
-  cw_mweb: 7440b12ead811dda972a9918442ea2a458e8742c
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
   devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
   dnssec_proof: d461cac7bd3301eb7447f87936745a0c1ae0a67e
@@ -181,7 +170,6 @@ SPEC CHECKSUMS:
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   share_plus: 1fa619de8392a4398bfaf176d441853922614e89
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  sp_scanner: 269d96e0ec3173e69156be7239b95182be3b8303
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
   sqlite3: 73513155ec6979715d3904ef53a8d68892d4032b
   sqlite3_flutter_libs: 86f82662868ee26ff3451f73cac9c5fc2a1f57fa
