@@ -24,6 +24,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.baseEth;
     case WalletType.arbitrum:
       return CryptoCurrency.arbEth;
+    case WalletType.bsc:
+      return CryptoCurrency.bnb;
     case WalletType.bitcoinCash:
       return CryptoCurrency.bch;
     case WalletType.nano:
@@ -62,6 +64,8 @@ CryptoCurrency getCryptoCurrencyByChainId(int chainId) {
       return CryptoCurrency.baseEth;
     case 42161:
       return CryptoCurrency.arbEth;
+    case 56:
+      return CryptoCurrency.bnb;
     default:
       return CryptoCurrency.eth;
   }
@@ -79,6 +83,8 @@ int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
       return 8453;
     case CryptoCurrency.arbEth:
       return 42161;
+    case CryptoCurrency.bnb:
+      return 56;
     default:
       return null;
   }
