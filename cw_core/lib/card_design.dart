@@ -360,8 +360,8 @@ class CardDesign {
     CryptoCurrency.dcr: dcrSpecial,
     CryptoCurrency.zano: zanoSpecial,
     CryptoCurrency.baseEth: baseSpecial,
-    // CryptoCurrency.arbitrum: arbitrumSpecial,
-    // CryptoCurrency.zec: zecSpecial,
+    CryptoCurrency.arbEth: arbitrumSpecial,
+    CryptoCurrency.zec: zecSpecial,
   };
 
   static Map<Gradient, CardColorCombination> preferredColorCombinations = {
@@ -393,6 +393,8 @@ class CardDesign {
     CryptoCurrency.dcr: dcrSpecial.gradient,
     CryptoCurrency.zano: zanoSpecial.gradient,
     CryptoCurrency.baseEth: baseSpecial.gradient,
+    CryptoCurrency.arbEth: arbitrumSpecial.gradient,
+    CryptoCurrency.zec: zecSpecial.gradient,
   };
 
   static CardDesign fromStyleSettings(
