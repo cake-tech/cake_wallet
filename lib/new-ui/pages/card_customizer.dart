@@ -126,6 +126,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                 width: 100,
                                                 borderRadius: 10,
                                                 selected: false,
+                                                designSwitchDuration: Duration(milliseconds: 300),
                                                 design: state.availableDesigns[index],
                                                 gradient: state.selectedDesign.gradient,
                                               ),
