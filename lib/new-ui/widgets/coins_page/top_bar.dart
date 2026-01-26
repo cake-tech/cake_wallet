@@ -371,7 +371,7 @@ class PulsingDot extends StatefulWidget {
 
   final double size = 5;
   final Color color = const Color(0xFFFFC414);
-  final Duration fadeOutDuration = const Duration(milliseconds: 900);
+  final Duration fadeOutDuration = const Duration(milliseconds: 2000);
   final Duration restDuration = const Duration(milliseconds: 2000);
   final double restOpacity = 0.3;
 
