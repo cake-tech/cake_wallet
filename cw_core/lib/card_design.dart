@@ -314,6 +314,9 @@ class CardDesign {
   CardDesign withGradient(Gradient gradient) => CardDesign(
       gradient: gradient, colors: preferredColorCombinations[gradient] ?? colors, imagePath: imagePath, backgroundType: backgroundType);
 
+  CardDesign withGradientAndColorCombination(Gradient gradient, CardColorCombination cardColorCombination) => CardDesign(
+      gradient: gradient, colors: cardColorCombination, imagePath: imagePath, backgroundType: backgroundType);
+
   static const List<CardDesign> all = [genericDefault, btc, eth, xmr, ltc, eth, pol, doge, base, sol, btcln, tron, zano, dcr, arbitrum, zec, ethSpecial, btcSpecial, xmrSpecial, ltcSpecial, lnSpecial, tronSpecial, bchSpecial, wowSpecial, dogeSpecial, polSpecial, dcrSpecial, zanoSpecial, arbitrumSpecial, zecSpecial];
 
   static CardDesign forCurrencySpecial(CryptoCurrency currency) {
@@ -377,26 +380,6 @@ class CardDesign {
     CardDesign.gradientBlack: CardColorCombination.light,
   };
 
-  static Map<CryptoCurrency, Gradient> specialGradientsForCurrencies = {
-    CryptoCurrency.xmr: xmrSpecial.gradient,
-    CryptoCurrency.btc: btcSpecial.gradient,
-    CryptoCurrency.eth: ethSpecial.gradient,
-    CryptoCurrency.ltc: ltcSpecial.gradient,
-    CryptoCurrency.btcln: lnSpecial.gradient,
-    CryptoCurrency.trx: tronSpecial.gradient,
-    CryptoCurrency.sol: solSpecial.gradient,
-    CryptoCurrency.bch: bchSpecial.gradient,
-    CryptoCurrency.wow: wowSpecial.gradient,
-    CryptoCurrency.doge: dogeSpecial.gradient,
-    CryptoCurrency.nano: nanoSpecial.gradient,
-    CryptoCurrency.maticpoly: polSpecial.gradient,
-    CryptoCurrency.dcr: dcrSpecial.gradient,
-    CryptoCurrency.zano: zanoSpecial.gradient,
-    CryptoCurrency.baseEth: baseSpecial.gradient,
-    CryptoCurrency.arbEth: arbitrumSpecial.gradient,
-    CryptoCurrency.zec: zecSpecial.gradient,
-  };
-
   static CardDesign fromStyleSettings(
       BalanceCardStyleSettings? setting, CryptoCurrency walletCurrency) {
     if (setting == null) {
@@ -409,11 +392,11 @@ class CardDesign {
       return CardDesign.forCurrencySpecial(walletCurrency)
           .withGradient(CardDesign.allGradients[setting.gradientIndex]);
     } else if (!setting.useSpecialDesign && setting.gradientIndex == -1) {
-      final gradient =
-          specialGradientsForCurrencies[walletCurrency] ??
-              genericDefault.gradient;
+      final specialColors =
+          specialDesignsForCurrencies[walletCurrency] ??
+              genericDefault;
       return CardDesign.forCurrencyIcon(walletCurrency)
-          .withGradient(gradient);
+          .withGradientAndColorCombination(specialColors.gradient, specialColors.colors);
     } else if (setting.useSpecialDesign) {
       return CardDesign.forCurrencySpecial(walletCurrency);
     } else if (setting.gradientIndex != -1) {
