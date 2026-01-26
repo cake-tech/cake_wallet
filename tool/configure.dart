@@ -34,8 +34,9 @@ Future<void> main(List<String> args) async {
   final hasDogecoin = args.contains('${prefix}dogecoin');
   final hasBase = args.contains('${prefix}base');
   final hasArbitrum = args.contains('${prefix}arbitrum');
+  final hasBsc = args.contains('${prefix}bsc');
   final hasZcash = args.contains('${prefix}zcash');
-  final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum;
+  final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc;
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -69,6 +70,7 @@ Future<void> main(List<String> args) async {
     hasDogecoin: hasDogecoin,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
+    hasBsc: hasBsc,
     hasZcash: hasZcash,
   );
   await generateWalletTypes(
@@ -87,6 +89,7 @@ Future<void> main(List<String> args) async {
     hasDogecoin: hasDogecoin,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
+    hasBsc: hasBsc,
     hasZcash: hasZcash,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
@@ -1674,6 +1677,7 @@ Future<void> generatePubspec({
   required bool hasDogecoin,
   required bool hasBase,
   required bool hasArbitrum,
+  required bool hasBsc,
   required bool hasZcash,
 }) async {
   const cwCore = """
@@ -1834,6 +1838,7 @@ Future<void> generateWalletTypes({
   required bool hasDogecoin,
   required bool hasBase,
   required bool hasArbitrum,
+  required bool hasBsc,
   required bool hasZcash,
 }) async {
   final walletTypesFile = File(walletTypesPath);
@@ -1888,6 +1893,10 @@ Future<void> generateWalletTypes({
 
   if (hasArbitrum) {
     outputContent += '\tWalletType.arbitrum,\n';
+  }
+
+  if (hasBsc) {
+    outputContent += '\tWalletType.bsc,\n';
   }
 
   if (hasPolygon) {
