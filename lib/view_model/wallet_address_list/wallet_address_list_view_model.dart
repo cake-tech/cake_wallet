@@ -1,7 +1,6 @@
 import 'dart:core';
 import 'dart:developer' as dev;
 
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
@@ -9,11 +8,10 @@ import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -28,6 +26,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_hidden
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
@@ -47,7 +46,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     required this.yatStore,
     required this.fiatConversionStore,
   })  : _baseItems = <ListItem>[],
-        selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
+        selectedCurrency = appStore.wallet!.currency,
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
         hasAccounts = [WalletType.monero, WalletType.wownero].contains(appStore.wallet!.type),
         _settingsStore = appStore.settingsStore,
@@ -55,12 +54,15 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _init();
   }
 
+  @computed
+  int? get selectedChainId => wallet.chainId;
+
   @override
   void onWalletChange(wallet) {
     _init();
 
-    selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
-    hasAccounts = [WalletType.monero, WalletType.wownero].contains(wallet.type);
+    selectedCurrency = wallet.currency;
+    hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven].contains(wallet.type);
   }
 
   static const String _cryptoNumberPattern = '0.00000000';
@@ -73,7 +75,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   double? _fiatRate;
   String _rawAmount = '';
 
-  List<Currency> get currencies => [walletTypeToCryptoCurrency(wallet.type), ...FiatCurrency.all];
+  List<Currency> get currencies => [wallet.currency, ...FiatCurrency.all];
 
   String get buttonTitle {
     if (isElectrumWallet) {
@@ -110,7 +112,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   bool get isPayjoinUnavailable =>
       wallet.type == WalletType.bitcoin && _settingsStore.usePayjoin && payjoinEndpoint.isEmpty;
 
-  @computed
   bool get isPayjoinAvailable => !isPayjoinUnavailable && !isSilentPayments && !isLightning;
 
   @observable
@@ -172,7 +173,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             address: address.address,
             txCount: address.txCount,
             balance: AmountConverter.amountIntToString(
-                walletTypeToCryptoCurrency(type), address.balance),
+              walletTypeToCryptoCurrency(type),
+              address.balance,
+            ),
             isChange: address.isChange,
           );
         });
@@ -188,7 +191,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             address: address.address,
             txCount: address.txCount,
             balance: AmountConverter.amountIntToString(
-                walletTypeToCryptoCurrency(type), address.balance),
+              walletTypeToCryptoCurrency(type),
+              address.balance,
+            ),
             isChange: address.isChange,
             isOneTimeReceiveAddress: true,
           );
@@ -205,7 +210,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
               address: subaddress.address,
               txCount: subaddress.txCount,
               balance: AmountConverter.amountIntToString(
-                  walletTypeToCryptoCurrency(type), subaddress.balance),
+                walletTypeToCryptoCurrency(type),
+                subaddress.balance,
+              ),
               isChange: subaddress.isChange);
         });
 
@@ -224,26 +231,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       }
     }
 
-    if (wallet.type == WalletType.ethereum) {
-      final primaryAddress = ethereum!.getAddress(wallet);
-
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
-    }
-
-    if (wallet.type == WalletType.polygon) {
-      final primaryAddress = polygon!.getAddress(wallet);
-
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
-    }
-
-    if (wallet.type == WalletType.base) {
-      final primaryAddress = base!.getAddress(wallet);
-
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
-    }
-
-    if (wallet.type == WalletType.arbitrum) {
-      final primaryAddress = arbitrum!.getAddress(wallet);
+    if (isEVMCompatibleChain(wallet.type)) {
+      final primaryAddress = evm!.getAddress(wallet);
 
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
@@ -270,6 +259,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (wallet.type == WalletType.decred) {
       final addrInfos = decred!.getAddressInfos(wallet);
+      addrInfos.forEach((info) {
+        addressList.add(
+            new WalletAddressListItem(isPrimary: false, address: info.address, name: info.label));
+      });
+    }
+
+    if (wallet.type == WalletType.zcash) {
+      final addrInfos = zcash!.getAddressInfos(wallet);
       addrInfos.forEach((info) {
         addressList.add(
             new WalletAddressListItem(isPrimary: false, address: info.address, name: info.label));
@@ -372,6 +369,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.litecoin,
         WalletType.decred,
         WalletType.dogecoin,
+        WalletType.zcash,
       ].contains(wallet.type);
 
   @computed
@@ -382,28 +380,50 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.dogecoin
       ].contains(wallet.type);
 
-  @computed
-  List<String> get walletImages {
+  List<String> getWalletImages(int? chainId) {
+    if (chainId != null) {
+      switch (chainId) {
+        case 1:
+          return [
+            'assets/images/eth_icon.svg',
+            'assets/images/usdc_icon.svg',
+            'assets/images/usdt_wallet_icon.svg',
+            'assets/images/deuro_icon.svg',
+            'assets/images/more_tokens.svg',
+          ];
+        case 137:
+          return [
+            'assets/images/pol_icon.svg',
+            'assets/images/eth_pol_icon.svg',
+            'assets/images/usdc_icon.svg',
+            'assets/images/usdt_wallet_icon.svg',
+            'assets/images/more_tokens.svg',
+          ];
+        case 8453:
+          return [
+            'assets/images/eth_icon.svg',
+            'assets/images/usdc_icon.svg',
+            'assets/images/more_tokens.svg',
+          ];
+        case 42161:
+          return [
+            'assets/images/crypto/arbitrum.webp',
+            'assets/images/usdc_icon.svg',
+            'assets/images/more_tokens.svg',
+          ];
+        default:
+          return [
+            'assets/images/eth_icon.svg',
+            'assets/images/usdc_icon.svg',
+            'assets/images/usdt_wallet_icon.svg',
+          ];
+      }
+    }
+
     switch (wallet.type) {
-      case WalletType.ethereum:
-        return [
-          'assets/images/eth_icon.svg',
-          'assets/images/usdc_icon.svg',
-          'assets/images/usdt_wallet_icon.svg',
-          'assets/images/deuro_icon.svg',
-          'assets/images/more_tokens.svg',
-        ];
       case WalletType.solana:
         return [
           'assets/images/sol_icon.svg',
-          'assets/images/usdc_icon.svg',
-          'assets/images/usdt_wallet_icon.svg',
-          'assets/images/more_tokens.svg',
-        ];
-      case WalletType.polygon:
-        return [
-          'assets/images/pol_icon.svg',
-          'assets/images/eth_pol_icon.svg',
           'assets/images/usdc_icon.svg',
           'assets/images/usdt_wallet_icon.svg',
           'assets/images/more_tokens.svg',
@@ -420,18 +440,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           'assets/images/zano_icon.svg',
           'assets/images/more_tokens.svg',
         ];
-      case WalletType.base:
-        return [
-          'assets/images/eth_icon.svg',
-          'assets/images/usdc_icon.svg',
-          'assets/images/more_tokens.svg',
-        ];
-      case WalletType.arbitrum:
-        return [
-          'assets/images/crypto/arbitrum.webp',
-          'assets/images/usdc_icon.svg',
-          'assets/images/more_tokens.svg',
-        ];
       default:
         return [];
     }
@@ -440,11 +448,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   String get qrImage {
     if (isLightning) return 'assets/images/btc_chain_qr_lightning.svg';
-    return getQrImage(type);
+    return getQrImage(type, selectedChainId: selectedChainId);
   }
 
   @computed
-  String get monoImage => getChainMonoImage(type);
+  String get monoImage => getChainMonoImage(type, selectedChainId: selectedChainId);
 
   @computed
   bool get isBalanceAvailable => isElectrumWallet;
@@ -487,6 +495,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if ([WalletType.bitcoin, WalletType.litecoin].contains(wallet.type)) {
       await bitcoin!.setAddressType(wallet, option);
     }
+    if (wallet.type == WalletType.zcash) {
+      await zcash!.setAddressType(wallet, option);
+    }
   }
 
   void _init() {
@@ -521,7 +532,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     selectedCurrency = currency;
 
     if (currency is FiatCurrency && _settingsStore.fiatCurrency != currency) {
-      final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
+      final cryptoCurrency = wallet.currency;
 
       dev.log("Requesting Fiat rate for $cryptoCurrency-$currency");
       FiatConversionService.fetchPrice(
@@ -552,7 +563,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   void _convertAmountToCrypto() {
-    final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
+    final cryptoCurrency = wallet.currency;
     final fiatRate = _fiatRate ?? (fiatConversionStore.prices[cryptoCurrency] ?? 0.0);
 
     if (fiatRate <= 0.0) {

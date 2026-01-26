@@ -346,6 +346,7 @@ class WalletInfo {
     this.hashedWalletIdentifier,
     this.isNonSeedWallet,
     this.sortOrder,
+    this.addressPageType,
   ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
@@ -388,6 +389,7 @@ class WalletInfo {
       hashedWalletIdentifier,
       isNonSeedWallet ?? false,
       sortOrder ?? 0,
+      null,
     );
   }
 
@@ -550,27 +552,27 @@ class WalletInfo {
   StreamController<String> _yatLastUsedAddressController;
 
   Map<String, dynamic> toJson() => {
-        selfIdColumn: internalId,
-        "id": id,
-        "name": name,
-        "type": type.index,
-        "isRecovery": isRecovery ? 1 : 0,
-        "restoreHeight": restoreHeight,
-        "timestamp": timestamp,
-        "dirPath": dirPath,
-        "path": path,
-        "address": address,
-        "yatEid": yatEid,
-        "yatLastUsedAddressRaw": yatLastUsedAddressRaw,
-        "showIntroCakePayCard": showIntroCakePayCard == true ? 1 : 0,
-        // SQL regression: null -> false
-        "walletInfoDerivationInfoId": derivationInfoId,
-        "hardwareWalletType": hardwareWalletType?.index,
-        "parentAddress": parentAddress,
-        "hashedWalletIdentifier": hashedWalletIdentifier,
-        "isNonSeedWallet": isNonSeedWallet ? 1 : 0,
-        "sortOrder": sortOrder,
-      };
+    selfIdColumn: internalId,
+    "id": id,
+    "name": name,
+    "type": type.index,
+    "isRecovery": isRecovery ? 1 : 0,
+    "restoreHeight": restoreHeight,
+    "timestamp": timestamp,
+    "dirPath": dirPath,
+    "path": path,
+    "address": address,
+    "yatEid": yatEid,
+    "yatLastUsedAddressRaw": yatLastUsedAddressRaw,
+    "showIntroCakePayCard": showIntroCakePayCard == true ? 1 : 0, // SQL regression: null -> false
+    "walletInfoDerivationInfoId": derivationInfoId,
+    "hardwareWalletType": hardwareWalletType?.index,
+    "parentAddress": parentAddress,
+    "hashedWalletIdentifier": hashedWalletIdentifier,
+    "isNonSeedWallet": isNonSeedWallet ? 1 : 0,
+    "sortOrder": sortOrder,
+    "addressPageType": addressPageType,
+  };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
     return WalletInfo(
@@ -595,6 +597,7 @@ class WalletInfo {
       json['hashedWalletIdentifier'] as String?,
       (json['isNonSeedWallet'] as int) == 1,
       json['sortOrder'] as int? ?? 0,
+      json['addressPageType'] as String? ?? null,
     );
   }
 

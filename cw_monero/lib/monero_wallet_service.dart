@@ -564,7 +564,7 @@ class MoneroWalletService extends WalletService<
   Future<bool> requireHardwareWalletConnection(String name) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      return false;
     }
     return walletInfo.isHardwareWallet;
   }

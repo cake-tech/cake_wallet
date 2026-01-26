@@ -214,7 +214,7 @@ class CWBitcoin extends Bitcoin {
         return estimatedTx.amount;
       }
 
-      final p2shAddr = sk.getPublic().toP2pkhInP2sh();
+      final p2shAddr = sk.getPublic().toP2pkhAddress();
       final estimatedTx = await electrumWallet.estimateSendAllTx(
         [BitcoinOutput(address: p2shAddr, value: BigInt.zero)],
         getFeeRate(
@@ -831,5 +831,10 @@ class CWBitcoin extends Bitcoin {
      } catch (e) {}
 
     return addresses;
+  }
+
+  @override
+  String getNetworkName(Object wallet) {
+    return (wallet as ElectrumWallet).network.value;
   }
 }

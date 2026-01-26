@@ -8,6 +8,8 @@ import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
@@ -85,6 +87,12 @@ abstract class ExchangeTradeViewModelBase with Store {
       case ExchangeProviderDescription.swapsXyz:
         _provider = SwapsXyzExchangeProvider();
         break;
+      case ExchangeProviderDescription.jupiter:
+        _provider = JupiterExchangeProvider();
+        break;
+      case ExchangeProviderDescription.nearIntents:
+        _provider = NearIntentsExchangeProvider();
+        break;
     }
 
     _updateItems();
@@ -113,6 +121,19 @@ abstract class ExchangeTradeViewModelBase with Store {
       (_provider is SwapsXyzExchangeProvider) &&
       isEVMCompatibleChain(wallet.type) &&
       wallet.currency != trade.from;
+
+  /// Providers that should hide the "send from external" button
+  static const List<Type> _providersThatHideExternalSend = [
+    JupiterExchangeProvider,
+  ];
+
+  /// Returns true if the current provider should hide the external send button
+  bool get shouldHideExternalSendButton {
+    if (_provider == null) return false;
+    return _providersThatHideExternalSend.any(
+      (providerType) => _provider.runtimeType == providerType,
+    );
+  }
 
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
       ? '\n\n' + S.current.exchange_extra_info
@@ -334,7 +355,9 @@ abstract class ExchangeTradeViewModelBase with Store {
         wallet.currency == CryptoCurrency.baseEth && tradeFrom?.tag == CryptoCurrency.baseEth.tag;
 
     bool _isArbitrumToken() =>
-        wallet.currency == CryptoCurrency.arbEth && tradeFrom?.tag == CryptoCurrency.arbEth.tag;
+        wallet.currency == CryptoCurrency.arbEth &&
+        (tradeFrom?.tag == CryptoCurrency.arbEth.tag ||
+            tradeFrom?.title == CryptoCurrency.arbEth.tag); // This is to handle the CryptoCurrency.arb that doesn't have a tag but fully belongs to the Arbitrum chain
 
     bool _isTronToken() =>
         wallet.currency == CryptoCurrency.trx && tradeFrom?.tag == CryptoCurrency.trx.title;
@@ -466,5 +489,5 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   @computed
-  String get qrImage => getQrImage(wallet.type);
+  String get qrImage => getQrImage(wallet.type, selectedChainId: wallet.chainId);
 }

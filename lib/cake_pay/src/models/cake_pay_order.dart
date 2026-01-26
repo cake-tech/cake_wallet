@@ -1,4 +1,4 @@
-enum CakePayPaymentMethod { BTC, BTC_LN, XMR, LTC, LTC_MWEB }
+enum CakePayPaymentMethod { BTC, BTC_LN, XMR, LTC, LTC_MWEB, ZEC }
 
 extension CakePayPaymentMethodLabel on CakePayPaymentMethod {
   String get label => switch (this) {
@@ -7,6 +7,7 @@ extension CakePayPaymentMethodLabel on CakePayPaymentMethod {
         CakePayPaymentMethod.XMR => 'Monero',
         CakePayPaymentMethod.LTC => 'Litecoin',
         CakePayPaymentMethod.LTC_MWEB => 'MWEB',
+        CakePayPaymentMethod.ZEC => 'Zcash',
       };
 }
 
@@ -63,7 +64,9 @@ class CakePayOrder {
       CakePayPaymentMethod.XMR => order.paymentData.xmr,
       CakePayPaymentMethod.LTC => order.paymentData.ltc,
       CakePayPaymentMethod.LTC_MWEB => order.paymentData.ltc_mweb,
-      _ => null
+      CakePayPaymentMethod.ZEC => order.paymentData.zec,
+      // TODO: Handle this case.
+      CakePayPaymentMethod.BTC_LN => throw UnimplementedError(),
     };
 
     if (data == null) return null;
@@ -87,6 +90,7 @@ class CakePayOrder {
       CakePayPaymentMethod.XMR => 'XMR',
       CakePayPaymentMethod.LTC => 'LTC',
       CakePayPaymentMethod.LTC_MWEB => 'LTC',
+      CakePayPaymentMethod.ZEC => 'ZEC',
     };
   }
 }
@@ -129,6 +133,7 @@ class PaymentData {
   final CryptoPaymentData? xmr;
   final CryptoPaymentData? ltc;
   final CryptoPaymentData? ltc_mweb;
+  final CryptoPaymentData? zec;
   final DateTime invoiceTime;
   final DateTime expirationTime;
   final int? commission;
@@ -139,6 +144,7 @@ class PaymentData {
     required this.xmr,
     required this.ltc,
     required this.ltc_mweb,
+    required this.zec,
     required this.invoiceTime,
     required this.expirationTime,
     required this.commission,
@@ -151,6 +157,7 @@ class PaymentData {
       xmr: map['XMR'] != null ? CryptoPaymentData.fromMap(map['XMR'] as Map<String, dynamic>) : null,
       ltc: map['LTC'] != null ? CryptoPaymentData.fromMap(map['LTC'] as Map<String, dynamic>) : null,
       ltc_mweb: map['LTC_MWEB'] != null ? CryptoPaymentData.fromMap(map['LTC_MWEB'] as Map<String, dynamic>) : null,
+      zec: map['ZEC_CHAIN'] != null ? CryptoPaymentData.fromMap(map['ZEC_CHAIN'] as Map<String, dynamic>) : null,
       invoiceTime: DateTime.fromMillisecondsSinceEpoch(map['invoice_time'] as int),
       expirationTime: DateTime.fromMillisecondsSinceEpoch(map['expiration_time'] as int),
       commission: map['commission'] as int?,

@@ -7,11 +7,13 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/page_indicator.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_listener_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/widgets/evm_switcher.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/haven_wallet_removal_popup.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
 import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -143,6 +145,36 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget leading(BuildContext context) {
+    if (FeatureFlag.isEVMChainSwitcherEnabled &&
+        dashboardViewModel.isEVMWallet &&
+        dashboardViewModel.availableChains.isNotEmpty) {
+      return TextButton(
+        style: TextButton.styleFrom(
+          minimumSize: Size(50, 30),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          alignment: Alignment.centerLeft,
+        ),
+        onPressed: () => showDialog(
+          context: context,
+          builder: (context) => EvmSwitcher(
+            chains: dashboardViewModel.availableChains,
+            currentChain: dashboardViewModel.currentChain,
+            onChainSelected: (chainId) => dashboardViewModel.selectChain(chainId),
+            hiddenChainIds: dashboardViewModel.settingsStore.evmHiddenChainIds,
+            onHiddenChanged: (hidden) =>
+                dashboardViewModel.settingsStore.setEvmHiddenChainIds(hidden),
+          ),
+        ),
+        child: Container(
+          child: SvgPicture.asset(
+            'assets/images/evm_switcher.svg',
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            height: 30,
+          ),
+        ),
+      );
+    }
+
     return Observer(
       builder: (context) {
         return ServicesUpdatesWidget(

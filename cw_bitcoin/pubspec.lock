@@ -613,8 +613,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/ledger-bitcoin"
-      ref: dc42621f55702d0732681afc2f90bc0047f26633
-      resolved-ref: dc42621f55702d0732681afc2f90bc0047f26633
+      ref: "75bba8632c529debf30ee2b1858530009fa6440b"
+      resolved-ref: "75bba8632c529debf30ee2b1858530009fa6440b"
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.3"
@@ -727,7 +727,7 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: cake-update-v2
+      ref: "096865a8c6b89c260beadfec04f7e184c40a3273"
       resolved-ref: "096865a8c6b89c260beadfec04f7e184c40a3273"
       url: "https://github.com/cake-tech/on_chain.git"
     source: git

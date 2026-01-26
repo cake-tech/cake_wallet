@@ -6,6 +6,7 @@ import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -14,6 +15,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -207,40 +209,45 @@ class AddressPage extends BasePage {
                           ),
                     ),
                     SizedBox(height: 20),
-                    Center(
-                      child: SizedBox(
-                        height: 40,
-                        width: addressListViewModel.walletImages.length * 32.0,
-                        child: Stack(
-                          children: [
-                            for (int i = addressListViewModel.walletImages.length - 1; i >= 0; i--)
-                              Positioned(
-                                left: i * 25.0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Theme.of(context).colorScheme.surfaceContainer,
-                                      width: 3,
+                    Observer(
+                      builder: (_) {
+                        final walletImages = addressListViewModel
+                            .getWalletImages(addressListViewModel.selectedChainId);
+                        return Center(
+                          child: SizedBox(
+                            height: 40,
+                            width: walletImages.length * 32.0,
+                            child: Stack(
+                              children: [
+                                for (int i = walletImages.length - 1; i >= 0; i--)
+                                  Positioned(
+                                    left: i * 25.0,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Theme.of(context).colorScheme.surfaceContainer,
+                                          width: 3,
+                                        ),
+                                        color: Theme.of(context).colorScheme.surfaceContainer,
+                                        borderRadius: BorderRadius.circular(24),
+                                      ),
+                                      child: ClipOval(
+                                        child: CakeImageWidget(
+                                          height: 35,
+                                          width: 35,
+                                          imageUrl: walletImages[i],
+                                          color: walletImages.last == walletImages[i]
+                                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                                              : null,
+                                        ),
+                                      ),
                                     ),
-                                    color: Theme.of(context).colorScheme.surfaceContainer,
-                                    borderRadius: BorderRadius.circular(24),
                                   ),
-                                  child: ClipOval(
-                                    child: CakeImageWidget(
-                                      height: 35,
-                                      width: 35,
-                                      imageUrl: addressListViewModel.walletImages[i],
-                                      color: addressListViewModel.walletImages.last ==
-                                              addressListViewModel.walletImages[i]
-                                          ? Theme.of(context).colorScheme.onSurfaceVariant
-                                          : null,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -262,6 +269,10 @@ class AddressPage extends BasePage {
       if (dashboardViewModel.type == WalletType.bitcoin &&
           bitcoin!.isBitcoinReceivePageOption(option)) {
         addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
+        return;
+      }
+      if (dashboardViewModel.type == WalletType.zcash) {
+        addressListViewModel.setAddressType(zcash!.getOptionToType(option));
         return;
       }
 
@@ -306,6 +317,10 @@ class AddressPage extends BasePage {
         default:
           if ([WalletType.bitcoin, WalletType.litecoin].contains(addressListViewModel.type)) {
             addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
+          }
+          if (addressListViewModel.type == WalletType.zcash) {
+            printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
+            addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
           }
       }
     });

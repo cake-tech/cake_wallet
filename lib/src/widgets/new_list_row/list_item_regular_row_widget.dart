@@ -31,7 +31,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
       onTap: onTap,
         isFirstInSection: isFirstInSection,
         isLastInSection: isLastInSection,
-        height: subtitle != null ? 60 : 48,
+        height: subtitle != null ? 64 : 50,
         builder: (context, textStyle, labelStyle) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -22,7 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ExceptionHandler {
   static bool _hasError = false;
   static const _coolDownDurationInDays =
-      bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode) ? 0 : 7;
+      bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode || kProfileMode) ? 0 : 7;
   static File? _file;
 
   static Future<void> _saveException(String? error, StackTrace? stackTrace,
@@ -118,7 +118,7 @@ class ExceptionHandler {
 
     if (kDebugMode || kProfileMode) {
       FlutterError.presentError(errorDetails);
-      printV(errorDetails.toString());
+      errorDetails.toString().split("\n").forEach(printV);
       return;
     }
 
@@ -295,6 +295,8 @@ class ExceptionHandler {
     "_getDismissibleFlushbar",
     "_QueuedFuture.execute (package:universal_ble/src/queue.dart:65)",
     "reown_core/relay_client/websocket/websocket_handler.dart",
+    "Image upload failed due to loss of GPU access",
+    'transport error',
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
