@@ -29,6 +29,8 @@ class EVMChainClientFactory {
         return BaseClient();
       case 42161:
         return ArbitrumClient();
+      case 56:
+        return EVMChainClient(chainId: chainId);
       default:
         return EVMChainClient(chainId: chainId);
     }

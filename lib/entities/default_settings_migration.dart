@@ -52,6 +52,7 @@ const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base.nownodes.io';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
+const bscDefaultNodeUri = 'bsc-dataseed1.binance.org';
 const zcashDefaultNodeUri = 'zec-node.cakewallet.com:443';
 
 Future<void> defaultSettingsMigration(
@@ -680,6 +681,8 @@ String _getDefaultNodeUri(WalletType type) {
       return baseDefaultNodeUri;
     case WalletType.arbitrum:
       return arbitrumDefaultNodeUri;
+    case WalletType.bsc:
+      return bscDefaultNodeUri;
     case WalletType.zcash:
       return zcashDefaultNodeUri;
     case WalletType.banano:
