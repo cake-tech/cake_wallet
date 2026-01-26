@@ -1005,6 +1005,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         return evm!.createEVMTransactionCredentials(
           outputs,
           priority: priority,

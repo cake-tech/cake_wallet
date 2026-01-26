@@ -126,6 +126,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           return BaseURI(amount: amount, address: address.address);
         case 42161:
           return ArbitrumURI(amount: amount, address: address.address);
+        case 56:
+          return BSCURI(amount: amount, address: address.address);
         default:
           return EthereumURI(amount: amount, address: address.address);
       }
@@ -166,6 +168,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return BaseURI(amount: amount, address: address.address);
       case WalletType.arbitrum:
         return ArbitrumURI(amount: amount, address: address.address);
+      case WalletType.bsc:
+        return BSCURI(amount: amount, address: address.address);
       case WalletType.zcash:
         return ZcashURI(amount: amount, address: address.address);
       case WalletType.none:
