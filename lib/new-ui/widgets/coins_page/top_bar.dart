@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/sync_status_title.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -159,10 +160,14 @@ class ChainIcon extends StatelessWidget {
             AnimatedOpacity(
               duration: Duration(milliseconds: 100),
               opacity: done ? 0 : 1,
-              child: CircularProgressIndicator(
-                value: progress,
-                color: Color(0xFFFFB84E),
-                strokeWidth: 2,
+              child: AnimatedSwitcher(
+                duration: Duration(milliseconds: 100),
+                child: CircularProgressIndicator(
+                  key: ValueKey(progress),
+                  value: progress,
+                  color: Color(0xFFFFB84E),
+                  strokeWidth: 2,
+                ),
               ),
             ),
             AnimatedScale(
@@ -229,14 +234,12 @@ class SyncBar extends StatelessWidget {
             alignment: Alignment.centerLeft,
             children: [
               if (_showDot())
-                Container(
-                    height: 5,
-                    width: 5,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(9999), color: Color(0xFFFFC414))),
+                PulsingDot(),
               if (_showFullBar())
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync);
+                  },
                   child: AnimatedSwitcher(
                     duration: Duration(milliseconds: 100),
                     child: Container(
@@ -358,5 +361,70 @@ class SyncBar extends StatelessWidget {
 
   bool _showDot() {
     return !isSyncHeavy && progressStatuses.contains(dashboardViewModel.status.runtimeType);
+  }
+}
+
+
+class PulsingDot extends StatefulWidget {
+  const PulsingDot({super.key,});
+
+
+  final double size = 5;
+  final Color color = const Color(0xFFFFC414);
+  final Duration fadeOutDuration = const Duration(milliseconds: 900);
+  final Duration restDuration = const Duration(milliseconds: 2000);
+  final double restOpacity = 0.3;
+
+  @override
+  State<PulsingDot> createState() => _PulsingDotState();
+}
+
+class _PulsingDotState extends State<PulsingDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+      vsync: this,
+      duration: widget.fadeOutDuration,
+      reverseDuration: Duration.zero,
+      value: 1.0,
+    );
+    _loop();
+  }
+
+  Future<void> _loop() async {
+    while (mounted) {
+      await controller.animateTo(
+        widget.restOpacity,
+        curve: Curves.easeOutQuad,
+        duration: widget.fadeOutDuration,
+      );
+      await Future.delayed(widget.restDuration);
+      controller.value = 1.0;
+    }
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: controller,
+      child: Container(
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          color: widget.color,
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
   }
 }
