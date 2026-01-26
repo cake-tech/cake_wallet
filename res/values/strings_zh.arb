@@ -102,6 +102,7 @@
   "Blocks_remaining": "剩余 ${status} 区块",
   "bluetooth": "蓝牙",
   "bright_theme": "明亮",
+  "bscscan_history": "BSC扫描历史",
   "bump_fee": "追加手续费(RBF)",
   "buy": "购买",
   "buy_alert_content": "目前仅支持购买比特币、以太坊、莱特币和门罗币。请创建或切换相应钱包。",

@@ -147,6 +147,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialEVMTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
       TransactionPriority? initialBaseTransactionPriority,
+      TransactionPriority? initialBscTransactionPriority,
       TransactionPriority? initialBitcoinCashTransactionPriority,
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
@@ -239,6 +240,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.base] = initialBaseTransactionPriority;
     }
 
+    if (initialBscTransactionPriority != null) {
+      priority[WalletType.bsc] = initialBscTransactionPriority;
+    }
+
     if (initialBitcoinCashTransactionPriority != null) {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
@@ -305,6 +310,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.base:
           key = PreferencesKey.baseTransactionPriority;
+          break;
+        case WalletType.bsc:
+          key = PreferencesKey.bscTransactionPriority;
           break;
         case WalletType.zano:
           key = PreferencesKey.zanoTransactionPriority;
@@ -1052,6 +1060,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? evmTransactionPriority;
     TransactionPriority? polygonTransactionPriority;
     TransactionPriority? baseTransactionPriority;
+    TransactionPriority? bscTransactionPriority;
     TransactionPriority? bitcoinCashTransactionPriority;
     TransactionPriority? wowneroTransactionPriority;
     TransactionPriority? zanoTransactionPriority;
@@ -1078,6 +1087,10 @@ abstract class SettingsStoreBase with Store {
     if (sharedPreferences.getInt(PreferencesKey.baseTransactionPriority) != null) {
       baseTransactionPriority = evm?.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
+    }
+    if (sharedPreferences.getInt(PreferencesKey.bscTransactionPriority) != null) {
+      bscTransactionPriority = evm?.deserializeEVMTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.bscTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       bitcoinCashTransactionPriority = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
@@ -1107,6 +1120,7 @@ abstract class SettingsStoreBase with Store {
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
     polygonTransactionPriority ??= evm?.getDefaultTransactionPriority();
     baseTransactionPriority ??= evm?.getDefaultTransactionPriority();
+    bscTransactionPriority ??= evm?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
@@ -1570,6 +1584,7 @@ abstract class SettingsStoreBase with Store {
       initialEVMTransactionPriority: evmTransactionPriority,
       initialPolygonTransactionPriority: polygonTransactionPriority,
       initialBaseTransactionPriority: baseTransactionPriority,
+      initialBscTransactionPriority: bscTransactionPriority,
       initialSyncMode: savedSyncMode,
       initialSyncAll: savedSyncAll,
       shouldShowYatPopup: shouldShowYatPopup,
@@ -1624,6 +1639,10 @@ abstract class SettingsStoreBase with Store {
     if (evm != null && sharedPreferences.getInt(PreferencesKey.baseTransactionPriority) != null) {
       priority[WalletType.base] = evm!.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
+    }
+    if (evm != null && sharedPreferences.getInt(PreferencesKey.bscTransactionPriority) != null) {
+      priority[WalletType.bsc] = evm!.deserializeEVMTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.bscTransactionPriority)!);
     }
     if (bitcoinCash != null &&
         sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {

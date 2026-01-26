@@ -142,6 +142,14 @@ class PrivacyPage extends BasePage {
                     _privacySettingsViewModel.setUseArbiScan(value);
                   },
                 ),
+              if (_privacySettingsViewModel.canUseBscScan)
+                SettingsSwitcherCell(
+                  title: S.current.bscscan_history,
+                  value: _privacySettingsViewModel.useBscScan,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseBscScan(value);
+                  },
+                ),
               if (_privacySettingsViewModel.canUseTronGrid)
                 SettingsSwitcherCell(
                   title: S.current.trongrid_history,

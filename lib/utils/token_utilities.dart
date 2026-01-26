@@ -187,7 +187,8 @@ class TokenUtilities {
 
     // Only check EVM registry for currencies that might be EVM-related
     final isPotentialEVM = isNativeToken(currency) ||
-        (tag != null && (tag == 'ETH' || tag == 'POL' || tag == 'BASE' || tag == 'ARB'));
+        (tag != null &&
+            (tag == 'ETH' || tag == 'POL' || tag == 'BASE' || tag == 'ARB' || tag == 'BSC'));
 
     if (isPotentialEVM) {
       // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')
@@ -202,11 +203,6 @@ class TokenUtilities {
     }
 
     // Fallback to hardcoded values for chains not in registry yet
-    // BSC (Binance Smart Chain)
-    if (title == 'bsc' || title == 'bnb' || tag == 'BSC') {
-      return 56;
-    }
-
     // Avalanche C-Chain
     if (title == 'avalanche' || title == 'avax' || tag == 'AVALANCHE') {
       return 43114;

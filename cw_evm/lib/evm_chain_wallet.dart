@@ -368,6 +368,7 @@ abstract class EVMChainWalletBase
       137 => "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
       8453 => "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
       42161 => "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+      56 => "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
       _ => throw Exception("Unsupported chain ID: $selectedChainId"),
     };
   }

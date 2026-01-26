@@ -102,6 +102,7 @@
   "Blocks_remaining": "Blocs Restants : ${status}",
   "bluetooth": "Bluetooth",
   "bright_theme": "Vif",
+  "bscscan_history": "Historique du BSCScan",
   "bump_fee": "Augmenter les frais",
   "buy": "Acheter",
   "buy_alert_content": "Actuellement, nous ne prenons en charge que l'achat de Bitcoin, Ethereum, Litecoin et Monero. Veuillez créer ou basculer vers votre portefeuille Bitcoin, Ethereum, Litecoin ou Monero.",

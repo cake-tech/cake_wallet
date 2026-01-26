@@ -6,16 +6,16 @@ class BSCTokens {
   static List<Erc20Token> get tokens {
     final tokens = [
       Erc20Token(
-        name: "Binance-Peg Ethereum",
-        symbol: "ETH",
-        contractAddress: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+        name: "Binance-Peg USD Coin",
+        symbol: "USDC",
+        contractAddress: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
         decimal: 18,
         enabled: true,
       ),
       Erc20Token(
-        name: "Binance-Peg USD Coin",
-        symbol: "USDC",
-        contractAddress: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+        name: "Binance-Peg Ethereum",
+        symbol: "ETH",
+        contractAddress: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
         decimal: 18,
         enabled: true,
       ),

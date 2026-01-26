@@ -24,8 +24,5 @@
   useSSL: true
   isEnabledForAutoSwitching: true
 -
-  uri: binance.llamarpc.com
-  useSSL: true
--
   uri: bsc-dataseed-public.bnbchain.org
   useSSL: true

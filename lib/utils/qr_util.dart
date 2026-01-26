@@ -12,6 +12,8 @@ String getQrImage(WalletType type, {int? selectedChainId}) {
         return 'assets/images/base_chain_QR.svg';
       case 42161:
         return 'assets/images/arbitrum_chain_QR.svg';
+      case 56:
+        return 'assets/images/bnb_chain_QR.svg';
       default:
         return 'assets/images/eth_chain_qr.svg';
     }
@@ -62,6 +64,8 @@ String getChainMonoImage(WalletType type, {int? selectedChainId}) {
         return 'assets/images/base_chain_mono.svg';
       case 42161:
         return 'assets/images/arbitrum_chain_mono.svg';
+      case 56:
+        return 'assets/images/bnb_chain_mono.svg';
       default:
         return 'assets/images/eth_chain_mono.svg';
     }

@@ -52,7 +52,7 @@ const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base.nownodes.io';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
-const bscDefaultNodeUri = 'bsc-dataseed1.binance.org';
+const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
 const zcashDefaultNodeUri = 'zec-node.cakewallet.com:443';
 
 Future<void> defaultSettingsMigration(
@@ -568,6 +568,14 @@ Future<void> defaultSettingsMigration(
             sharedPreferences: sharedPreferences,
             type: WalletType.zcash,
             currentNodePreferenceKey: PreferencesKey.currentZcashNodeIdKey,
+          );
+        case 56:
+          await addWalletNodeList(nodes: nodes, type: WalletType.bsc);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.bsc,
+            currentNodePreferenceKey: PreferencesKey.currentBscNodeIdKey,
           );
         default:
           break;
@@ -1094,6 +1102,7 @@ Future<void> checkCurrentNodes(
   final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
   final currentBaseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
   final currentArbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
+  final currentBscNodeId = sharedPreferences.getInt(PreferencesKey.currentBscNodeIdKey);
   final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
   final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentDecredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
@@ -1122,6 +1131,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBaseNodeId);
   final currentArbitrumNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentArbitrumNodeId);
+  final currentBscNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentBscNodeId);
   final currentNanoNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
   final currentDecredNodeServer =
@@ -1225,6 +1236,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: arbitrumDefaultNodeUri, type: WalletType.arbitrum);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentArbitrumNodeIdKey, node.key as int);
+  }
+
+  if (currentBscNodeServer == null) {
+    final node = Node(uri: bscDefaultNodeUri, type: WalletType.bsc);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentBscNodeIdKey, node.key as int);
   }
 
   if (currentSolanaNodeServer == null) {
