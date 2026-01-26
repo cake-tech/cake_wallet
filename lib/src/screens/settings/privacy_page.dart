@@ -102,6 +102,14 @@ class PrivacyPage extends BasePage {
                   _privacySettingsViewModel.setDisableBulletin(value);
                 },
               ),
+              if (_privacySettingsViewModel.canUseBlinkProtection)
+                SettingsSwitcherCell(
+                  title: S.current.use_blink_protection,
+                  value: _privacySettingsViewModel.useBlinkProtection,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseBlinkProtection(value);
+                  },
+                ),
               if (_privacySettingsViewModel.canUseEtherscan)
                 SettingsSwitcherCell(
                   title: S.current.etherscan_history,

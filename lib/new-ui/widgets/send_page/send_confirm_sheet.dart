@@ -1,12 +1,17 @@
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 
 class SendConfirmSheet extends StatefulWidget {

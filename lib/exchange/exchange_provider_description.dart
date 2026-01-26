@@ -39,6 +39,10 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       ExchangeProviderDescription(title: 'XOSwap', raw: 13, image: 'assets/new-ui/trade_providers/xoswap.svg', isCentralized: true);
   static const swapsXyz =
       ExchangeProviderDescription(title: 'Swaps.XYZ', raw: 14, image: 'assets/new-ui/trade_providers/swaps_xyz.svg', isCentralized: true);
+  static const nearIntents =
+      ExchangeProviderDescription(title: 'Near Intents', raw: 15, image: 'assets/images/near.png');
+  static const jupiter =
+      ExchangeProviderDescription(title: 'Jupiter', raw: 16, image: 'assets/images/jupiter.png');
 
   static ExchangeProviderDescription deserialize({required int raw}) {
     switch (raw) {

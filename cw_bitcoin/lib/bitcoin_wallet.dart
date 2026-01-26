@@ -16,6 +16,7 @@ import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
+import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -423,6 +424,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
 
     final psbtStr = base64Encode(psbt.serialize());
+    if (hardwareWalletService is BitcoinLedgerService && derivationInfo.derivationPath != null) {
+      (hardwareWalletService as BitcoinLedgerService)
+          .setAccountDerivationPath(derivationInfo.derivationPath!);
+    }
+
     final rawHex = await hardwareWalletService!.signTransaction(transaction: psbtStr);
     return BtcTransaction.fromRaw(BytesUtils.toHexString(rawHex));
   }

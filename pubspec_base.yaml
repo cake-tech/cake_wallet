@@ -131,7 +131,7 @@ dependencies:
   on_chain:
     git:
       url: https://github.com/cake-tech/on_chain.git
-      ref: cake-update-v2
+      ref: 096865a8c6b89c260beadfec04f7e184c40a3273
   reown_walletkit:
     path: ./scripts/reown_flutter/packages/reown_walletkit
   blockchain_utils:
@@ -157,6 +157,7 @@ dependencies:
       ref: b48a9defddce036048bae02e2069ebcbd6824afc
   torch_dart:
     path: ./scripts/torch_dart
+  quick_actions: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -222,6 +223,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/evm_switcher_icons/
     - assets/images/flags/
     - assets/images/hardware_wallet/
     - assets/images/crypto/
@@ -245,9 +247,12 @@ flutter:
     - assets/dogecoin_electrum_server_list.yml
     - assets/base_node_list.yml
     - assets/arbitrum_node_list.yml
+    - assets/zcash_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/
+    - scripts/zcash_lib/assets/sapling-spend.params
+    - scripts/zcash_lib/assets/sapling-output.params
     - assets/new-ui/
     - assets/new-ui/balance_card_icons/
     - assets/new-ui/balance_card_backgrounds/

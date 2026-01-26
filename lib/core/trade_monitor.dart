@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -65,6 +67,10 @@ class TradeMonitor {
         return XOSwapExchangeProvider();
       case ExchangeProviderDescription.swapsXyz:
         return SwapsXyzExchangeProvider();
+      case ExchangeProviderDescription.jupiter:
+        return JupiterExchangeProvider();
+      case ExchangeProviderDescription.nearIntents:
+        return NearIntentsExchangeProvider();
     }
     return null;
   }
@@ -92,7 +98,6 @@ class TradeMonitor {
       }
 
       if (_tradeTimers.containsKey(trade.id)) {
-        printV('Trade ${trade.id} is already being monitored');
         continue;
       } else {
         _startTradeMonitoring(trade, provider!);
@@ -138,7 +143,6 @@ class TradeMonitor {
     }
 
     if (_isFinalState(trade.state)) {
-      printV('Skipping trade ${trade.id} because it\'s in a final state');
       return true;
     }
 

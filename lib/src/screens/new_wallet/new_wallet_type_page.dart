@@ -13,7 +13,6 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
@@ -23,11 +22,9 @@ import 'package:flutter/material.dart';
 
 class NewWalletTypePage extends BasePage {
   NewWalletTypePage({
-    required this.newWalletTypeViewModel,
     required this.newWalletTypeArguments,
   });
 
-  final NewWalletTypeViewModel newWalletTypeViewModel;
   final NewWalletTypeArguments newWalletTypeArguments;
 
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
@@ -50,7 +47,6 @@ class NewWalletTypePage extends BasePage {
   Widget body(BuildContext context) => WalletTypeForm(
         walletImage: currentTheme.isDark ? walletTypeImage : walletTypeLightImage,
         isCreate: newWalletTypeArguments.isCreate,
-        newWalletTypeViewModel: newWalletTypeViewModel,
         onTypeSelected: newWalletTypeArguments.onTypeSelected,
         hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
       );
@@ -60,14 +56,12 @@ class WalletTypeForm extends StatefulWidget {
   WalletTypeForm({
     required this.walletImage,
     required this.isCreate,
-    required this.newWalletTypeViewModel,
     this.onTypeSelected,
     this.hardwareWalletType,
   });
 
   final bool isCreate;
   final Image walletImage;
-  final NewWalletTypeViewModel newWalletTypeViewModel;
   final void Function(BuildContext, WalletType)? onTypeSelected;
   final HardwareWalletType? hardwareWalletType;
 
@@ -143,7 +137,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                         child: SelectButton(
                           key: ValueKey('new_wallet_type_${type.name}_button_key'),
                           image: Image.asset(
-                            walletTypeToCryptoCurrency(type).iconPath ?? '',
+                            getCryptoCurrencyForWalletListItem(type).iconPath ?? '',
                             height: 24,
                             width: 24,
                           ),
@@ -195,9 +189,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     // If it's a restore flow, trigger the external callback
     // If it's not a BIP39 Wallet or if there are no other wallets, route to the newWallet page
     // Any other scenario, route to pre-existing seed page
+    final walletList = await WalletInfo.getAll();
     if (!widget.isCreate) {
       widget.onTypeSelected!(context, selected!);
-    } else if (!isBIP39Wallet(selected!) || !widget.newWalletTypeViewModel.hasExisitingWallet) {
+    } else if (!isBIP39Wallet(selected!) || walletList.isEmpty) {
       Navigator.of(context).pushNamed(
         Routes.newWallet,
         arguments: NewWalletArguments(type: selected!),

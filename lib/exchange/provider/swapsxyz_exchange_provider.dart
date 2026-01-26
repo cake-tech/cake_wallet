@@ -15,9 +15,7 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 class SwapsXyzExchangeProvider extends ExchangeProvider {
-  SwapsXyzExchangeProvider() : super(pairList: supportedPairs(_notSupported));
-
-  static const List<CryptoCurrency> _notSupported = [];
+  SwapsXyzExchangeProvider();
 
   static final _apiKey = secrets.swapsXyzApiKey;
   static const _baseUrl = 'api-v2.swaps.xyz';
@@ -751,6 +749,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       'KAS' => 'KASPA',
       'TON' => 'TONCOIN',
       'BCH' => 'BITCOIN CASH',
+      'ARB' => 'ARBITRUM',
       _ => network.toUpperCase(),
     };
   }

@@ -16,10 +16,8 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ChainflipExchangeProvider extends ExchangeProvider {
-  ChainflipExchangeProvider({required this.tradesStore})
-      : super(pairList: supportedPairs(_notSupported));
+  ChainflipExchangeProvider({required this.tradesStore});
 
-  static final List<CryptoCurrency> _notSupported = [];
   static final List<CryptoCurrency> _supported = [
     CryptoCurrency.btc,
     CryptoCurrency.eth,
@@ -29,7 +27,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     CryptoCurrency.sol,
     CryptoCurrency.usdcsol,
     CryptoCurrency.arbEth,
-    // TODO: Add CryptoCurrency.usdcarb
+    CryptoCurrency.usdcArb,
     // TODO: Add CryptoCurrency.dot
     ];
 
