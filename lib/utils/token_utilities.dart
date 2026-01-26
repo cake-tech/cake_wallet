@@ -89,6 +89,7 @@ class TokenUtilities {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         final tokens = await loadAllUniqueEvmTokens();
         for (final t in tokens) {
           if (t.contractAddress.toLowerCase() == lower) return t;
@@ -127,6 +128,7 @@ class TokenUtilities {
       WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
       WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
       WalletType.arbitrum => '${walletKey}_${Erc20Token.arbitrumBoxName}',
+      WalletType.bsc => '${walletKey}_${Erc20Token.ethereumBoxName}',
       _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
     };
   }

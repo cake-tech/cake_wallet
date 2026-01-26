@@ -1202,6 +1202,7 @@ Future<void> setup({
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         return evm!.createEVMWalletService(param1, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashWalletService(_unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
