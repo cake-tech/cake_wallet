@@ -368,7 +368,7 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get isSyncHeavy {
-    if ([WalletType.monero].contains(wallet.type)) {
+    if ([WalletType.monero, WalletType.wownero, WalletType.decred, WalletType.zcash].contains(wallet.type)) {
       return true;
     }
 
