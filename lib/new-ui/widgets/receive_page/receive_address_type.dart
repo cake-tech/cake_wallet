@@ -7,7 +7,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ReceiveAddressTypeDisplay extends StatelessWidget {
-  const ReceiveAddressTypeDisplay({super.key, required this.receiveOptionViewModel, required this.largeQrMode, required this.lightningMode});
+  const ReceiveAddressTypeDisplay(
+      {super.key,
+      required this.receiveOptionViewModel,
+      required this.largeQrMode,
+      required this.lightningMode});
 
   final ReceiveOptionViewModel receiveOptionViewModel;
   final bool largeQrMode;
@@ -15,79 +19,75 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Observer(
       builder: (_) {
-
-
-        String text =receiveOptionViewModel.selectedReceiveOption.value;
-        if(largeQrMode && receiveOptionViewModel.selectedReceiveOption.addAddressWord ) {
+        String text = receiveOptionViewModel.selectedReceiveOption.value;
+        if (largeQrMode && receiveOptionViewModel.selectedReceiveOption.addAddressWord) {
           text += " Address";
         }
 
-        if(text == "mainnet") {
-          if(largeQrMode) {
+        if (text == "mainnet") {
+          if (largeQrMode) {
             text = "${receiveOptionViewModel.walletTypeString} Address";
           } else {
             text = "${receiveOptionViewModel.walletTypeString} (Mainnet)";
           }
         }
         String? iconPath = receiveOptionViewModel.selectedReceiveOption.iconPath;
-        if(iconPath != null && receiveOptionViewModel.walletTypeString == "Litecoin" && text.contains("Standard")) {
+        if (iconPath != null &&
+            receiveOptionViewModel.walletTypeString == "Litecoin" &&
+            text.contains("Standard")) {
           iconPath = "assets/new-ui/address-type-picker-icons/litecoin.svg";
         }
 
-
-
         return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _showPicker(context),
-        child: Row(
-          key: ValueKey("$text$largeQrMode"),
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 12.0,
-          children: [
-            if (iconPath != null)
-              SvgPicture.asset(
-                width: 32,
-                height: 32,
-                iconPath!,
-                colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.primary,
-                  BlendMode.srcIn,
+          behavior: HitTestBehavior.opaque,
+          onTap: () => _showPicker(context),
+          child: Row(
+            key: ValueKey("$text$largeQrMode"),
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 12.0,
+            children: [
+              if (iconPath != null)
+                SvgPicture.asset(
+                  width: 32,
+                  height: 32,
+                  iconPath!,
+                  colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.primary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            if(!largeQrMode)
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(999999),
-              ),
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                constraints: BoxConstraints(),
-                onPressed: () => _showPicker(context),
-                icon: (Icon(
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20,
-                  Icons.keyboard_arrow_down,
-                )),
-              ),
-            ),
-          ],
-        ),
-      );
+              if (!largeQrMode)
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(999999),
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
+                    onPressed: () => _showPicker(context),
+                    icon: (Icon(
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                      Icons.keyboard_arrow_down,
+                    )),
+                  ),
+                ),
+            ],
+          ),
+        );
       },
     );
   }
@@ -99,12 +99,12 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
         builder: (context) {
           return Material(
               child: ReceiveAddressTypeSelector(
-                lightningMode: lightningMode,
+            lightningMode: lightningMode,
             receiveOptionViewModel: receiveOptionViewModel,
           ));
         });
 
-    if(res != null && res is ReceivePageOption){
+    if (res != null && res is ReceivePageOption) {
       receiveOptionViewModel.selectReceiveOption(res);
     }
   }
