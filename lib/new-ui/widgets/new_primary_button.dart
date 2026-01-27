@@ -1,3 +1,5 @@
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -8,10 +10,12 @@ class NewPrimaryButton extends StatelessWidget {
         required this.text,
         required this.color,
         required this.textColor,
+        this.isLoading = false,
         this.borderColor = Colors.transparent,
         super.key});
 
   final VoidCallback onPressed;
+  final bool isLoading;
   final SvgPicture? image;
   final Color color;
   final Color textColor;
@@ -32,7 +36,7 @@ class NewPrimaryButton extends StatelessWidget {
               ),
             )),
         child: Center(
-          child: Row(
+          child: isLoading ? CupertinoActivityIndicator() : Row(
             spacing: 10,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
