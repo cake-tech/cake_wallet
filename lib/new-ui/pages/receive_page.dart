@@ -87,7 +87,10 @@ class _NewReceivePageState extends State<NewReceivePage> {
     final hasLabel = _addressItemWithLabel?.name != null && _addressItemWithLabel!.name!.isNotEmpty;
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
     final infobox = ReceiveInfoBox.forWalletType(widget.addressListViewModel.type,
-        onDismissed: _dismissInfobox);
+        onDismissed: () {
+          widget.addressListViewModel.dismissInfobox();
+          setState(() {});
+        });
 
     return SafeArea(
       child: Container(
@@ -147,7 +150,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       setState(() {
                         _largeQrMode = !_largeQrMode;
                         // _infoboxDimissed = true;
-                        _dismissInfobox();
+                        widget.addressListViewModel.dismissInfobox();
                       });
                     },
                     largeQrMode: _largeQrMode,
@@ -223,12 +226,6 @@ class _NewReceivePageState extends State<NewReceivePage> {
         ),
       ),
     );
-  }
-
-  void _dismissInfobox() async {
-    widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed = true;
-    await widget.addressListViewModel.wallet.walletInfo.save();
-    setState(() {});
   }
 
   void _setEffects(BuildContext context) {

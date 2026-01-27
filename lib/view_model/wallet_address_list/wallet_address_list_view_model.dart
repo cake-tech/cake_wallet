@@ -131,6 +131,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     return (double.parse(amount) * _fiatRate!).toStringAsFixed(2);
   }
 
+  @action
+  Future<void> dismissInfobox() async {
+    wallet.walletInfo.receiveInfoboxDismissed = true;
+    await wallet.walletInfo.save();
+  }
+
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
