@@ -45,7 +45,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ModalTopBar(
-                title: "Set Amount",
+                title: S.of(context).set_amount,
                 onLeadingPressed: Navigator.of(context).pop,
                 onTrailingPressed: () {},
                 leadingIcon: Icon(Icons.close),
@@ -104,7 +104,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                           )),
                     ],
                     SizedBox(),
-                    Text("Amount"),
+                    Text(S.of(context).amount),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -195,7 +195,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                     ),
                     SizedBox(),
                     NewPrimaryButton(
-                      text: "Continue",
+                      text: S.of(context).continue_text,
                       onPressed: () {
                         widget.walletAddressListViewModel.changeAmount(_amountController.text);
                         Navigator.of(context).pop();

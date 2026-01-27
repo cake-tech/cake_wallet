@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/long_press_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
@@ -102,7 +103,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
         spacing: 12.0,
         children: [
           ModalTopBar(
-              title: widget.showHidden ? "Hidden addresses" : "Addresses",
+              title: widget.showHidden ? S.of(context).hidden_addresses : S.of(context).addresses,
               leadingIcon: Icon(Icons.arrow_back),
               onLeadingPressed: Navigator.of(context).pop,
               onTrailingPressed: () {}),
@@ -125,7 +126,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                                         design: design,
                                       )),
                             Text(
-                              "Long press to edit address",
+                              S.of(context).long_press_edit_address,
                               style: TextStyle(
                                   fontSize: 10,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -206,7 +207,7 @@ class AddressSearchBox extends StatelessWidget {
               child: TextField(
                 controller: controller,
                 decoration: InputDecoration(
-                  hintText: 'Search',
+                  hintText: S.of(context).search,
                   hintStyle: TextStyle(
                     fontWeight: FontWeight.w600,
                   ),
@@ -328,7 +329,7 @@ class AddressRow extends StatelessWidget {
           popup: LongPressMenu(
             items: [
               LongPressMenuItem(
-                  label: "Set label",
+                  label: S.of(context).set_label,
                   iconPath: "assets/new-ui/address_set_label.svg",
                   onSelected: () async {
                     Navigator.of(context, rootNavigator: true).pop();
@@ -341,7 +342,7 @@ class AddressRow extends StatelessWidget {
                     }
                   }),
               LongPressMenuItem(
-                  label: item.isHidden ? "Unhide address" : "Hide address",
+                  label: item.isHidden ? S.of(context).unhide_address : S.of(context).hide_address,
                   iconPath: "assets/new-ui/address_hide.svg",
                   onSelected: () {
                     Navigator.of(context, rootNavigator: true).pop();
@@ -403,12 +404,12 @@ class AddressRow extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "Transactions: ${item.txCount}",
+                              "${S.of(context).transactions}: ${item.txCount}",
                               style: TextStyle(
                                   fontSize: 12,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
-                            Text("Balance: ${item.balance}",
+                            Text("${S.of(context).balance}: ${item.balance}",
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant)),
@@ -453,7 +454,7 @@ class ShowHiddenButton extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Show hidden addresses"),
+                      Text(S.of(context).show_hidden_addresses),
                       RotatedBox(
                           quarterTurns: 1,
                           child: SvgPicture.asset("assets/new-ui/dropdown_arrow.svg"))

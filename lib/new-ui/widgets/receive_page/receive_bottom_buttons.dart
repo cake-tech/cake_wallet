@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -49,7 +50,7 @@ class ReceiveBottomButtons extends StatelessWidget {
                   iconSize: 32,
                   svgPath: "assets/new-ui/copy.svg",
                   onPressed: onCopyButtonPressed,
-                  label: "Copy",
+                  label: S.of(context).copy,
                   iconColor: Theme.of(context).colorScheme.surfaceContainer,
                   backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
@@ -58,21 +59,21 @@ class ReceiveBottomButtons extends StatelessWidget {
                     iconSize: 32,
                     svgPath: "assets/new-ui/set-amount.svg",
                     onPressed: onAmountButtonPressed,
-                    label: "Set Amount"),
+                    label: S.of(context).set_amount),
                 if (showLabelButton)
                   ModernButton.svg(
                       size: 60,
                       iconSize: 32,
                       svgPath: "assets/new-ui/add-label.svg",
                       onPressed: onLabelButtonPressed,
-                      label: "Label"),
+                      label: S.of(context).label),
                 if (showAccountsButton)
                   ModernButton.svg(
                       size: 60,
                       iconSize: 32,
                       svgPath: "assets/new-ui/addr-book.svg",
                       onPressed: onAccountsButtonPressed,
-                      label: "Addresses"),
+                      label: S.of(context).addresses),
               ],
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
@@ -67,7 +68,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
             shrinkWrap: true,
             children: [
               ModalTopBar(
-                  title: "Address Type",
+                  title: S.of(context).address_type,
                   leadingIcon: Icon(Icons.close),
                   onLeadingPressed: Navigator.of(context).pop,
                   onTrailingPressed: () {}),
@@ -147,7 +148,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      "More options",
+                                      S.of(context).more_options,
                                       style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w400,

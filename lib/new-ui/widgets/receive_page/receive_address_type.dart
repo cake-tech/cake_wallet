@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_selector.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
@@ -28,7 +29,7 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
 
         if (text == "mainnet") {
           if (largeQrMode) {
-            text = "${receiveOptionViewModel.walletTypeString} Address";
+            text = "${receiveOptionViewModel.walletTypeString} ${S.of(context).address}";
           } else {
             text = "${receiveOptionViewModel.walletTypeString} (Mainnet)";
           }

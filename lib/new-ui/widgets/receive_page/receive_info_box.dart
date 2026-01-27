@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -20,13 +21,13 @@ class ReceiveInfoBox extends StatelessWidget {
         return ReceiveInfoBox(
           iconPath: "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg",
           message:
-              "Use this address to receive any token or collectible on ${walletTypeToString(type)}",
+              "${S.current.infobox_multichain} ${walletTypeToString(type)}",
           onDismissed: onDismissed,
         );
       default:
         return ReceiveInfoBox(
           iconPath: "assets/new-ui/info.svg",
-          message: "Your receive address will rotate every time you close and reopen this screen",
+          message: S.current.infobox_rotation,
           onDismissed: onDismissed,
         );
     }
@@ -74,7 +75,7 @@ class ReceiveInfoBox extends StatelessWidget {
                       GestureDetector(
                           onTap: onDismissed,
                           child: Text(
-                            "Dismiss",
+                            S.of(context).dismiss,
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontSize: 12,

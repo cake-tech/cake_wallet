@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/utilities.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_type.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_display.dart';
@@ -172,7 +173,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ModalTopBar(
-              title: _largeQrMode ? "" : "Receive",
+              title: _largeQrMode ? "" : S.of(context).receive,
               leadingIcon: Icon(Icons.close),
               trailingIcon: _largeQrMode
                   ? Icon(Icons.share)

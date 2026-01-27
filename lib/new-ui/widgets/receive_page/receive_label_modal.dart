@@ -11,7 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
-const List<String> defaultLabels = ["Donation", "Savings", "Business", "Mining", "Salary"];
+
 
 class ReceiveLabelModal extends StatefulWidget {
   const ReceiveLabelModal({super.key, required this.walletAddressEditOrCreateViewModel});
@@ -45,6 +45,8 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> defaultLabels = [S.of(context).donation, S.of(context).savings, S.of(context).business, S.of(context).mining, S.of(context).salary];
+
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
@@ -56,7 +58,7 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ModalTopBar(
-                  title: "Label Address",
+                  title: S.of(context).label_address,
                   leadingIcon: Icon(Icons.close),
                   onLeadingPressed: Navigator.of(context).pop,
                   onTrailingPressed: () {}),
@@ -64,13 +66,13 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
                 child: Column(spacing: 24, children: [
                   Text(
-                    "You can access and manage all your previously used addressses by pressing Addresses",
+                    S.of(context).address_label_explainer,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   NewListSections(sections: {
-                    "": [ListItemTextField(keyValue: "label", label: "Label")]
+                    "": [ListItemTextField(keyValue: "label", label: S.of(context).label)]
                   }, controllers: {
                     "label": _controller
                   }),
