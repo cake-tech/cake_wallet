@@ -581,7 +581,7 @@ Future<void> defaultSettingsMigration(
             );
             ''');
           break;
-        case 56:
+        case 57:
           await db.execute('''
 ALTER TABLE WalletInfo ADD COLUMN receiveInfoboxDismissed DEFAULT FALSE;
           ''');
