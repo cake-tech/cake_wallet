@@ -49,43 +49,43 @@ String syncStatusTitle(SyncStatus syncStatus, SyncStatusDisplayMode syncStatusDi
     if (syncStatus.error != null) {
       return syncStatus.error!;
     }
-    return "Offline";
+    return S.current.sync_offline;
   }
 
   if (syncStatus is LostConnectionSyncStatus) {
-    return "Offline";
+    return S.current.sync_offline;
   }
 
   if (syncStatus is NotConnectedSyncStatus) {
-    return "Not Connected";
+    return S.current.sync_not_connected;
   }
 
   if (syncStatus is AttemptingSyncStatus) {
-    return "Attempting sync";
+    return S.current.sync_attempting;
   }
 
   if (syncStatus is ConnectingSyncStatus) {
-    return "Connecting";
+    return S.current.sync_connecting;
   }
 
   if (syncStatus is ConnectedSyncStatus) {
-    return "Connected";
+    return S.current.connected;
   }
 
   if (syncStatus is UnsupportedSyncStatus) {
-    return "Unsupported Node";
+    return S.current.sync_unsupported_node;
   }
 
   if (syncStatus is TimedOutSyncStatus) {
-    return "Sync Timed Out";
+    return S.current.sync_timed_out;
   }
 
   if (syncStatus is SyncronizingSyncStatus) {
-    return "Syncing";
+    return S.current.sync_syncing;
   }
 
   if (syncStatus is StartingScanSyncStatus) {
-    return "Starting scan (${(syncStatus.beginHeight.toString())})";
+    return "${S.current.sync_starting_scan} (${(syncStatus.beginHeight.toString())})";
   }
 
   if (syncStatus is AttemptingScanSyncStatus) {

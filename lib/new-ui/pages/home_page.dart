@@ -5,11 +5,12 @@ import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bl
 import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -66,77 +67,83 @@ class _NewHomePageState extends State<NewHomePage> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            spacing: 24.0,
-            children: [
-              TopBar(
-                dashboardViewModel: widget.dashboardViewModel,
-                lightningMode: _lightningMode,
-                onLightningSwitchPress: () {
-                  setState(() {
-                    _lightningMode = !_lightningMode;
-                  });
-                },
-                onSettingsButtonPress: () {
-                  showCupertinoModalBottomSheet(
-                      context: context,
-                      builder: (context) {
-                        return Material(
-                          child: NewSettingsPage(),
-                        );
-                      });
-                },
-              ),
-              WalletInfo(
-                lightningMode: _lightningMode,
-                hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
-                name: widget.dashboardViewModel.wallet.name,
-                onCustomizeButtonTap: () {
-                  showCupertinoModalBottomSheet(
-                      context: context,
-                      builder: (context) {
-                        return BlocProvider(
-                          create: (context) => getIt.get<CardCustomizerBloc>(),
-                          child: Material(
-                            child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
-                              listener: (context, state) {
-                                if (state is CardCustomizerSaved) {
-                                  widget.dashboardViewModel.loadCardDesigns();
-                                }
-                              },
-                              child: CardCustomizer(
-                                cryptoTitle:
-                                widget.dashboardViewModel.wallet.currency.fullName ??
-                                    widget.dashboardViewModel.wallet.currency.name,
-                                cryptoName: widget.dashboardViewModel.wallet.currency.name,
+        child: CustomScrollView(
+          physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          slivers:[
+            CupertinoSliverRefreshControl(
+              onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+            ),
+            SliverToBoxAdapter(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              spacing: 24.0,
+              children: [
+                TopBar(
+                  dashboardViewModel: widget.dashboardViewModel,
+                  lightningMode: _lightningMode,
+                  onLightningSwitchPress: () {
+                    setState(() {
+                      _lightningMode = !_lightningMode;
+                    });
+                  },
+                  onSettingsButtonPress: () {
+                    showCupertinoModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return Material(
+                            child: NewSettingsPage(),
+                          );
+                        });
+                  },
+                ),
+                WalletInfo(
+                  lightningMode: _lightningMode,
+                  hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
+                  name: widget.dashboardViewModel.wallet.name,
+                  onCustomizeButtonTap: () {
+                    showCupertinoModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return BlocProvider(
+                            create: (context) => getIt.get<CardCustomizerBloc>(),
+                            child: Material(
+                              child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
+                                listener: (context, state) {
+                                  if (state is CardCustomizerSaved) {
+                                    widget.dashboardViewModel.loadCardDesigns();
+                                  }
+                                },
+                                child: CardCustomizer(
+                                  cryptoTitle:
+                                  widget.dashboardViewModel.wallet.currency.fullName ??
+                                      widget.dashboardViewModel.wallet.currency.name,
+                                  cryptoName: widget.dashboardViewModel.wallet.currency.name,
+                                ),
                               ),
                             ),
-                          ),
+                          );
+                        },
                         );
-                      },
-                      );
-                },
-              ),
-              CardsView(
-                key: ValueKey(widget.dashboardViewModel.wallet.name),
-                dashboardViewModel: widget.dashboardViewModel,
-                accountListViewModel: accountListViewModel,
-                lightningMode: _lightningMode,
-              ),
-              CoinActionRow(lightningMode: _lightningMode),
-              Observer(
-                builder: (_)=>AssetsHistorySection(
-                  nftViewModel: widget.nftViewModel,
-                  dashboardViewModel: widget.dashboardViewModel,
+                  },
                 ),
-              ),
-              SizedBox(height: 24.0)
-              ],
-          ),
+                CardsView(
+                  key: ValueKey(widget.dashboardViewModel.wallet.name),
+                  dashboardViewModel: widget.dashboardViewModel,
+                  accountListViewModel: accountListViewModel,
+                  lightningMode: _lightningMode,
+                ),
+                CoinActionRow(lightningMode: _lightningMode),
+                Observer(
+                  builder: (_)=>AssetsHistorySection(
+                    nftViewModel: widget.nftViewModel,
+                    dashboardViewModel: widget.dashboardViewModel,
+                  ),
+                ),
+                SizedBox(height: 24.0)
+                ],
+            ),
+          ),]
         ),
       ),
     );
