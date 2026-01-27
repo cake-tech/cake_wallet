@@ -63,11 +63,7 @@ class ReceiveAmountDisplay extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text("${walletAddressListViewModel.selectedCurrency is FiatCurrency
-                          ? walletAddressListViewModel.selectedCurrencyFiatAmount
-                          : walletAddressListViewModel.fiatAmount} ${walletAddressListViewModel
-                          .selectedCurrency is FiatCurrency ? walletAddressListViewModel
-                          .selectedCurrency.name : walletAddressListViewModel.fiatCurrency.name}",
+                      child: Text(_getFiatAmount(),
                         style: TextStyle(color: Theme
                             .of(context)
                             .colorScheme
@@ -79,5 +75,13 @@ class ReceiveAmountDisplay extends StatelessWidget {
             ),
           ),
     );
+  }
+
+  String _getFiatAmount() {
+    if(walletAddressListViewModel.selectedCurrency is FiatCurrency) {
+      return "${walletAddressListViewModel.selectedCurrencyFiatAmount} ${walletAddressListViewModel.selectedCurrency.name}";
+    } else {
+      return "${walletAddressListViewModel.fiatAmount} ${walletAddressListViewModel.fiatCurrency.name}";
+    }
   }
 }
