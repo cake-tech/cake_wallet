@@ -425,6 +425,18 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       ].contains(wallet.type);
 
   @computed
+  bool get hasAddressRotation => [
+    WalletType.monero,
+    WalletType.wownero,
+    WalletType.haven,
+    WalletType.bitcoinCash,
+    WalletType.bitcoin,
+    WalletType.litecoin,
+    WalletType.decred,
+    WalletType.dogecoin,
+  ].contains(wallet.type);
+
+  @computed
   bool get isElectrumWallet => [
         WalletType.bitcoin,
         WalletType.litecoin,

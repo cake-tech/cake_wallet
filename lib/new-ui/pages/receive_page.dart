@@ -116,7 +116,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
               leadingIcon: Icon(Icons.close),
               trailingIcon: _largeQrMode
                   ? Icon(Icons.share)
-                  : widget.addressListViewModel.hasAddressList
+                  : widget.addressListViewModel.hasAddressRotation
                           /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
                           &&
                           !(widget.receiveOptionViewModel.selectedReceiveOption.description ?? "")
