@@ -64,7 +64,7 @@ class MinotariWalletService extends WalletService<
       derivationInfo,
       mnemonic: mnemonic,
       password: credentials.password!,
-      passphrase: credentials.passphrase,
+      passphrase: passphrase,
       encryptionFileUtils: _encryptionFileUtils,
     );
     wallet.walletAddresses.setAddress(address);
@@ -93,14 +93,15 @@ class MinotariWalletService extends WalletService<
       _encryptionFileUtils,
     );
 
-    // Note: If the wallet was created with a BIP39 passphrase, it would need
-    // to be stored/retrieved. For now, we default to empty passphrase.
+    // Ensure passphrase is never null - convert to empty string for consistency
+    // This is needed for both new wallets and existing wallets that may have null stored
+    final passphrase = keysData.passphrase ?? '';
     final derivationInfo = await walletInfo.getDerivationInfo();
     final wallet = MinotariWallet(
       walletInfo,
       derivationInfo,
       mnemonic: keysData.mnemonic,
-      passphrase: keysData.passphrase,
+      passphrase: passphrase,
       password: password,
       encryptionFileUtils: _encryptionFileUtils,
     );
@@ -156,6 +157,7 @@ class MinotariWalletService extends WalletService<
     throw UnimplementedError('Minotari wallets use mnemonic-based restoration');
   }
 
+  /// TODO : Need to generate a random passphrase if none is provided
   @override
   Future<WalletBase> restoreFromSeed(
     MinotariRestoreWalletFromSeedCredentials credentials, {
@@ -192,7 +194,7 @@ class MinotariWalletService extends WalletService<
       derivationInfo,
       mnemonic: credentials.mnemonic,
       password: credentials.password!,
-      passphrase: credentials.passphrase,
+      passphrase: passphrase,
       encryptionFileUtils: _encryptionFileUtils,
     );
     wallet.walletAddresses.setAddress(address);

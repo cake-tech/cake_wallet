@@ -37,22 +37,14 @@ class CWMinotari extends Minotari {
       );
 
   @override
-  TransactionPriority getDefaultTransactionPriority() =>
-      MinotariTransactionPriority.medium;
+  double? getMinotariEstimatedFee(Object wallet) {
+    // TODO: Use FFI estimateFee() when implemented to get accurate fee estimate.
+    const double placeholderFee = 26666;
+    return placeholderFee;
+  }
 
   @override
-  TransactionPriority deserializeMinotariTransactionPriority({required int raw}) =>
-      MinotariTransactionPriority.deserialize(raw: raw);
-
-  @override
-  List<TransactionPriority> getTransactionPriorities() =>
-      MinotariTransactionPriority.all;
-
-  @override
-  Object createMinotariTransactionCredentials(
-    List<Output> outputs, {
-    TransactionPriority? priority,
-  }) =>
+  Object createMinotariTransactionCredentials(List<Output> outputs) =>
       MinotariTransactionCredentials(
         outputs.map((out) => OutputInfo(
           fiatAmount: out.fiatAmount,
@@ -64,18 +56,11 @@ class CWMinotari extends Minotari {
           isParsedAddress: out.isParsedAddress,
           formattedCryptoAmount: out.formattedCryptoAmount,
         )).toList(),
-        priority: priority ?? MinotariTransactionPriority.medium,
       );
 
   @override
-  Object createMinotariTransactionCredentialsRaw({
-    required List<OutputInfo> outputs,
-    TransactionPriority? priority,
-  }) =>
-      MinotariTransactionCredentials(
-        outputs,
-        priority: priority ?? MinotariTransactionPriority.medium,
-      );
+  Object createMinotariTransactionCredentialsRaw(List<OutputInfo> outputs) =>
+      MinotariTransactionCredentials(outputs);
 
   @override
   int getHeightByDate({required DateTime date}) {

@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -208,6 +209,10 @@ abstract class OutputBase with Store {
         /// end EVMs
 
         case WalletType.minotari:
+          // Minotari has fixed fee (no priority selection), similar to Solana
+          estimatedFee = minotari!.getMinotariEstimatedFee(_wallet)?.toString() ?? '0.0';
+          break;
+
         case WalletType.haven:
         case WalletType.nano:
         case WalletType.banano:
