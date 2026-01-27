@@ -1,6 +1,6 @@
 # Minotari (XTM) Integration Status
 
-**Last Updated:** 2026-01-23
+**Last Updated:** 2026-01-27
 **Current Phase:** Final Testing & QA
 
 ---
@@ -275,7 +275,7 @@ iOS XCFramework configured with:
 
 ---
 
-## Phase 5: Integration Tasks (14 of 16 steps complete)
+## Phase 5: Integration Tasks (13 of 17 steps complete)
 
 ### 5.1 Pre-Wallet Creation ✅ DONE
 - ✅ DI registration (`lib/di.dart:1232`)
@@ -325,11 +325,11 @@ iOS XCFramework configured with:
 - `lib/entities/provider_types.dart` - Need to identify providers supporting XTM
 - **Blocker:** No known fiat on/off ramp providers currently support Minotari
 
-### 5.12 Restore QR ❌NOT DONE
-- `lib/view_model/restore/wallet_restore_from_qr_code.dart` - Add URI scheme
-- `AndroidManifestBase.xml` - Add Minotari URI scheme
-- `InfoBase.plist` (iOS) - Add Minotari URI scheme
-- **Note:** Low priority - address validation already works for pasted addresses
+### 5.12 Restore QR ✅ DONE
+- ✅ `lib/view_model/restore/wallet_restore_from_qr_code.dart` - Added `minotari`, `minotari-wallet`, `minotari_wallet` to `_walletTypeMap`
+- ✅ `android/app/src/main/AndroidManifestBase.xml` - Added Minotari URI schemes
+- ✅ `ios/Runner/InfoBase.plist` - Added Minotari URL schemes
+- **Completed:** 2026-01-27
 
 ### 5.13 Secrets Configuration ✅ DONE (N/A)
 - No external API keys required for Minotari
@@ -456,12 +456,14 @@ iOS XCFramework configured with:
 2. **iOS/Desktop Native Builds** - Requires rust cross-compilation setup
 
 ### Medium Priority
-3. **QR Restore URI Scheme** - Add `tari:` or `minotari:` URI scheme support
-4. **Sync Progress Percentage** - Needs chain tip height from Rust
+3. **Sync Progress Percentage** - Needs chain tip height from Rust
+
+### Postponed (Pending Protocol/Marketing Team)
+5. **Buy/Sell Providers** - Need to check which providers support XTM
+6. **Fiat Rate Updates** - Need to check XTM market data availability
 
 ### Low Priority (or N/A)
-5. **Buy/Sell Providers** - No known providers support XTM yet
-6. **Block Explorer** - Need official Minotari block explorer URL
+7. **Block Explorer** - Need official Minotari block explorer URL
 
 ---
 
@@ -477,6 +479,10 @@ iOS XCFramework configured with:
 2. **Official Block Explorer URL** - For transaction details "View in Explorer" link
 3. **macOS/Linux Native Libraries** - Need build scripts and CI setup (iOS done ✅)
 
+### Pending Protocol/Marketing Team Info
+4. **Buy/Sell Providers** - Which fiat on/off ramp providers support XTM?
+5. **Fiat Rate Data** - Is XTM listed on price aggregators for fiat conversion display?
+
 ---
 
 ## Progress Summary
@@ -490,7 +496,7 @@ iOS XCFramework configured with:
 | Phase 5: Integration Tasks | NEAR COMPLETE | 14/16 |
 | Phase 6: Testing | IN PROGRESS | 5/7 |
 
-**Overall: 46 of 50 steps complete (92%)**
+**Overall: 46 of 50 steps complete**
 
 ---
 
