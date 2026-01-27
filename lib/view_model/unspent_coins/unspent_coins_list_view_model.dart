@@ -49,10 +49,19 @@ abstract class UnspentCoinsListViewModelBase with Store {
   @observable
   ObservableList<UnspentCoinsItem> items;
 
+  @computed
+  List<UnspentCoinsItem> get nonFrozenItems => items.where((e)=>!e.isFrozen).toList();
+
+  @computed
+  List<UnspentCoinsItem> get frozenItems => items.where((e)=>e.isFrozen).toList();
+
   final Map<String, Map<String, dynamic>> _originalState;
 
   @observable
   bool isDisposing = false;
+
+  @observable
+  bool isSavingItems = false;
 
   @computed
   bool get isAllSelected => items.every((element) => element.isFrozen || element.isSending);
@@ -109,6 +118,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
+      item.isBeingSaved = true;
+      isSavingItems = true;
       final existingInfo = _unspentCoinsInfo.values
           .firstWhereOrNull((element) => element.walletId == wallet.id && element == item);
       if (existingInfo == null) return;
@@ -118,9 +129,13 @@ abstract class UnspentCoinsListViewModelBase with Store {
       existingInfo.note = item.note;
 
       await existingInfo.save();
+      item.isBeingSaved = false;
+      isSavingItems = false;
       _updateUnspentCoinsInfo();
     } catch (e) {
       printV('Error saving coin info: $e');
+      item.isBeingSaved = false;
+      isSavingItems = false;
     }
   }
 

@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 
-import 'package:cw_core/address_info.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_decred/api/libdcrwallet.dart';
@@ -12,11 +12,10 @@ part 'wallet_addresses.g.dart';
 class DecredWalletAddresses = DecredWalletAddressesBase with _$DecredWalletAddresses;
 
 abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
-  DecredWalletAddressesBase(WalletInfo walletInfo, Libwallet libwallet)
-      : _libwallet = libwallet,
-        super(walletInfo);
+  DecredWalletAddressesBase(super.walletInfo, this._libwallet, super.isTestnet);
+
   final Libwallet _libwallet;
-  String currentAddr = '';
+  String _currentAddr = '';
 
   @observable
   bool isEnabledAutoGenerateSubaddress = true;
@@ -26,14 +25,10 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   @computed
-  String get address {
-    return selectedAddr;
-  }
+  String get address => selectedAddr;
 
   @override
-  set address(value) {
-    selectedAddr = value;
-  }
+  set address(value) => selectedAddr = value;
 
   @override
   Future<void> init() async {
@@ -47,14 +42,13 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Future<void> updateAddressesInBox() async {
-    final addrs = await libAddresses();
-    final allAddrs = new List.from(addrs.usedAddrs)..addAll(addrs.unusedAddrs);
+    final addrs = await _libAddresses();
+    final allAddrs = List.from(addrs.usedAddrs)..addAll(addrs.unusedAddrs);
 
     // Add all addresses.
     allAddrs.forEach((addr) {
-      if (addressesMap.containsKey(addr)) {
-        return;
-      }
+      if (addressesMap.containsKey(addr)) return;
+
       addressesMap[addr] = "";
       addressInfos[0] ??= [];
       addressInfos[0]?.add(
@@ -70,44 +64,37 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
 
     // Add used addresses.
     addrs.usedAddrs.forEach((addr) {
-      if (!usedAddresses.contains(addr)) {
-        usedAddresses.add(addr);
-      }
+      if (!usedAddresses.contains(addr)) usedAddresses.add(addr);
     });
 
-    if (addrs.unusedAddrs.length > 0 && addrs.unusedAddrs[0] != currentAddr) {
-      currentAddr = addrs.unusedAddrs[0];
-      selectedAddr = currentAddr;
+    if (addrs.unusedAddrs.length > 0 && addrs.unusedAddrs[0] != _currentAddr) {
+      _currentAddr = addrs.unusedAddrs[0];
+      selectedAddr = _currentAddr;
     }
 
     await saveAddressesInBox();
   }
 
   List<WalletInfoAddressInfo> getAddressInfos() {
-    if (addressInfos.containsKey(0)) {
-      return addressInfos[0]!;
-    }
+    if (addressInfos.containsKey(0)) return addressInfos[0]!;
+
     return <WalletInfoAddressInfo>[];
   }
 
   Future<void> updateAddress(String address, String label) async {
-    if (!addressInfos.containsKey(0)) {
-      return;
-    }
+    if (!addressInfos.containsKey(0)) return;
+
     addressInfos[0]!.forEach((info) {
-      if (info.address == address) {
-        info.label = label;
-      }
+      if (info.address == address) info.label = label;
     });
     await saveAddressesInBox();
   }
 
-  Future<LibAddresses> libAddresses() async {
+  Future<_LibAddresses> _libAddresses() async {
     final nUsed = "10";
     var nUnused = "1";
-    if (this.isEnabledAutoGenerateSubaddress) {
-      nUnused = "3";
-    }
+    if (this.isEnabledAutoGenerateSubaddress) nUnused = "3";
+
     try {
       final res = await _libwallet.addresses(walletInfo.name, nUsed, nUnused);
       final decoded = json.decode(res);
@@ -115,10 +102,10 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
       final unusedAddrs = List<String>.from(decoded["unused"] ?? []);
       // index is the index of the first unused address.
       final index = decoded["index"] ?? 0;
-      return new LibAddresses(usedAddrs, unusedAddrs, index);
+      return _LibAddresses(usedAddrs, unusedAddrs, index);
     } catch (e) {
       printV(e);
-      return LibAddresses([], [], 0);
+      return _LibAddresses([], [], 0);
     }
   }
 
@@ -126,9 +113,8 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     // NOTE: This will ignore the gap limit and may cause problems when restoring from seed if too
     // many addresses are taken and not used.
     final addr = await _libwallet.newExternalAddress(walletInfo.name) ?? '';
-    if (addr == "") {
-      return;
-    }
+    if (addr == "") return;
+
     if (!addressesMap.containsKey(addr)) {
       addressesMap[addr] = "";
       addressInfos[0] ??= [];
@@ -145,11 +131,19 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     selectedAddr = addr;
     await saveAddressesInBox();
   }
+
+  @override
+  List<ReceivePageOption> get receivePageOptions => isTestnet
+      ? [
+          ReceivePageOption.testnet,
+          ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+        ]
+      : ReceivePageOptions;
 }
 
-class LibAddresses {
+class _LibAddresses {
   final List<String> usedAddrs, unusedAddrs;
   final int firstUnusedAddrIndex;
 
-  LibAddresses(this.usedAddrs, this.unusedAddrs, this.firstUnusedAddrIndex);
+  _LibAddresses(this.usedAddrs, this.unusedAddrs, this.firstUnusedAddrIndex);
 }

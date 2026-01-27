@@ -163,12 +163,6 @@ class CWZcash extends Zcash {
   }
 
   @override
-  List<ReceivePageOption> getZcashReceivePageOptions(Object wallet) {
-    // final zcashWallet = wallet as ZcashWallet;
-    return ZcashReceivePageOption.all;
-  }
-
-  @override
   ReceivePageOption getSelectedAddressType(Object wallet) {
     final zcashWallet = wallet as ZcashWallet;
     final t = (zcashWallet.walletAddresses as ZcashWalletAddresses).walletInfo.addressPageType??"";

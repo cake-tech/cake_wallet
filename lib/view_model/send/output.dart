@@ -92,6 +92,20 @@ abstract class OutputBase with Store {
   bool get isParsedAddress =>
       parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
 
+  String roundedCryptoAmount(int digits) {
+    if (cryptoAmount.split(".").last.length <= digits) {
+      return cryptoAmount;
+    }
+    return double.parse(cryptoAmount).toStringAsPrecision(digits);
+  }
+
+  String roundedFiatAmount(int digits) {
+    if (fiatAmount.split(".").last.length <= digits) {
+      return fiatAmount;
+    }
+    return double.parse(fiatAmount).toStringAsPrecision(digits);
+  }
+
   @observable
   String? stealthAddress;
 

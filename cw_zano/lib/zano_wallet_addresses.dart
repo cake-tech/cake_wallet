@@ -1,7 +1,6 @@
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_zano/zano_wallet_api.dart';
 import 'package:mobx/mobx.dart';
 
 part 'zano_wallet_addresses.g.dart';

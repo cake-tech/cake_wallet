@@ -181,7 +181,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.base:
       case WalletType.arbitrum:
         final asset = evm!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: evm!.formatterEVMAmountToDouble(transaction: transaction),
           price: price,
@@ -195,7 +195,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.solana:
         final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: solana!.getTransactionAmountRaw(transaction),
           price: price,
@@ -203,7 +203,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.tron:
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         final cryptoAmount = tron!.getTransactionAmountRaw(transaction);
         amount = calculateFiatAmountRaw(
           cryptoAmount: cryptoAmount,
@@ -216,7 +216,7 @@ class TransactionListItem extends ActionListItem with Keyable {
           amount = "0.00";
           break;
         }
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
             cryptoAmount: zano!.formatterIntAmountToDouble(
                 amount: transaction.amount, currency: asset, forFee: false),
@@ -231,7 +231,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         amount = calculateFiatAmountRaw(
             cryptoAmount: zcash!.formatterZcashAmountToDouble(amount: BigInt.from(transaction.amount)),
             price: price);
-      
+
       case WalletType.none:
       case WalletType.banano:
       case WalletType.haven:

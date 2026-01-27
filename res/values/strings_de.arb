@@ -96,6 +96,8 @@
   "biometric_auth_reason": "Scannen Sie Ihren Fingerabdruck zur Authentifizierung",
   "bitcoin_dark_theme": "Dunkles Bitcoin-Thema",
   "bitcoin_light_theme": "Bitcoin Light-Thema",
+  "bitcoin_lightning_deposit": "Einzahlen",
+  "bitcoin_lightning_withdraw": "Auszahlen",
   "bitcoin_payments_require_1_confirmation": "Bitcoin-Zahlungen erfordern 1 Bestätigung, was 20 Minuten oder länger dauern kann. Danke für Ihre Geduld! Sie erhalten eine E-Mail, wenn die Zahlung bestätigt ist.",
   "block_height": "Blockhöhe",
   "block_remaining": "1 Block verbleibend",

@@ -96,6 +96,8 @@
   "biometric_auth_reason": "تصدیق کرنے کے لیے اپنے فنگر پرنٹ کو اسکین کریں۔",
   "bitcoin_dark_theme": "بٹ کوائن ڈارک تھیم",
   "bitcoin_light_theme": "بٹ کوائن لائٹ تھیم",
+  "bitcoin_lightning_deposit": "جمع کروائیں",
+  "bitcoin_lightning_withdraw": "واپس لے لو",
   "bitcoin_payments_require_1_confirmation": "بٹ کوائن کی ادائیگی میں 1 تصدیق کی ضرورت ہوتی ہے ، جس میں 20 منٹ یا اس سے زیادہ وقت لگ سکتا ہے۔ آپ کے صبر کا شکریہ! ادائیگی کی تصدیق ہونے پر آپ کو ای میل کیا جائے گا۔",
   "block_height": "اونچائی کو بلاک کریں",
   "block_remaining": "1 بلاک باقی",

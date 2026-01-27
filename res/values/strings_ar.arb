@@ -96,6 +96,8 @@
   "biometric_auth_reason": "امسح بصمة إصبعك للمصادقة",
   "bitcoin_dark_theme": "موضوع البيتكوين الظلام",
   "bitcoin_light_theme": "موضوع البيتكوين الخفيفة",
+  "bitcoin_lightning_deposit": "إيداع",
+  "bitcoin_lightning_withdraw": "ينسحب",
   "bitcoin_payments_require_1_confirmation": "تتطلب مدفوعات Bitcoin تأكيدًا واحدًا ، والذي قد يستغرق 20 دقيقة أو أكثر. شكرا لصبرك! سيتم إرسال بريد إلكتروني إليك عند تأكيد الدفع.",
   "block_height": "ارتفاع كتلة",
   "block_remaining": "1 كتلة متبقية",

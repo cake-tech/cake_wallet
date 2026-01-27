@@ -96,6 +96,8 @@
   "biometric_auth_reason": "Zeskanuj odcisk palca, aby się uwierzytelnić",
   "bitcoin_dark_theme": "Ciemny motyw Bitcoin",
   "bitcoin_light_theme": "Jasny motyw Bitcoin",
+  "bitcoin_lightning_deposit": "Depozyt",
+  "bitcoin_lightning_withdraw": "Wycofać",
   "bitcoin_payments_require_1_confirmation": "Płatności Bitcoin wymagają jednego potwierdzenia, co może zająć 20 minut lub dłużej. Dziękujemy za cierpliwość! Otrzymasz e‑mail, gdy płatność zostanie potwierdzona.",
   "block_height": "Wysokość bloku",
   "block_remaining": "Pozostał 1 blok",

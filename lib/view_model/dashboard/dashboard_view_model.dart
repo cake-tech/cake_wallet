@@ -5,6 +5,8 @@ import 'dart:io' show Platform;
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import "package:cw_core/balance_card_style_settings.dart";
+import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -14,17 +16,12 @@ import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
-import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cake_wallet/utils/tor.dart';
-import 'package:cake_wallet/wownero/wownero.dart' as wow;
-import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
@@ -32,6 +29,9 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -42,14 +42,17 @@ import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.d
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/card_design.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -61,7 +64,6 @@ import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/evm/evm.dart';
 
@@ -199,6 +201,7 @@ abstract class DashboardViewModelBase with Store {
         name = appStore.wallet!.name,
         type = appStore.wallet!.type,
         transactions = ObservableList<TransactionListItem>(),
+        cardDesigns = ObservableList<CardDesign>(),
         wallet = appStore.wallet! {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
@@ -293,9 +296,11 @@ abstract class DashboardViewModelBase with Store {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
 
-    reaction((_) => appStore.wallet, (wallet) {
+    _walletChangeDisposer?.reaction.dispose();
+    _walletChangeDisposer = reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
+      loadCardDesigns();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
 
@@ -313,7 +318,9 @@ abstract class DashboardViewModelBase with Store {
       if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
         try {
           confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
+                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
+                  1;
         } catch (_) {}
       }
       return length * confirmations;
@@ -326,6 +333,8 @@ abstract class DashboardViewModelBase with Store {
         silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
       });
     }
+
+    loadCardDesigns();
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
@@ -356,6 +365,34 @@ abstract class DashboardViewModelBase with Store {
       ),
     );
   }
+
+
+  Future<void> loadCardDesigns() async {
+    if (cardDesigns.isNotEmpty) {
+      cardDesigns.clear();
+    }
+
+    final accountStyleSettings =
+          await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
+
+      late final int numAccounts;
+      if (wallet.type == WalletType.monero) {
+        numAccounts = monero!.getAccountList(wallet).accounts.length;
+      } else if (wallet.type == WalletType.wownero) {
+        numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
+      } else {
+        numAccounts = 1;
+      }
+
+      for (int i = 0; i < numAccounts; i++) {
+        final setting = accountStyleSettings
+            .where((e) => e.accountIndex == (balanceViewModel.hasAccounts ? i : -1))
+            .firstOrNull;
+
+        cardDesigns.add(CardDesign.fromStyleSettings(setting, wallet.currency));
+      }
+  }
+
 
   void _transactionDisposerCallback(int _) async {
     // Simple check to prevent the callback from being called multiple times in the same frame
@@ -425,8 +462,12 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool isShowThirdYatIntroduction;
 
+  @observable
+  ObservableList<CardDesign> cardDesigns;
+
   @computed
   bool get isDarkTheme => appStore.themeStore.currentTheme.isDark;
+
   @computed
   String get address => wallet.walletAddresses.address;
 
@@ -698,8 +739,11 @@ abstract class DashboardViewModelBase with Store {
   }
 
   bool get hasBgsyncNetworkConstraints => Platform.isAndroid;
+
   bool get hasBgsyncBatteryNotLowConstraints => Platform.isAndroid;
+
   bool get hasBgsyncChargingConstraints => Platform.isAndroid;
+
   bool get hasBgsyncDeviceIdleConstraints => Platform.isAndroid;
 
   @observable
@@ -928,6 +972,8 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _transactionDisposer;
 
+  ReactionDisposer? _walletChangeDisposer;
+
   ReactionDisposer? _chainChangeDisposer;
 
   @computed
@@ -1067,7 +1113,9 @@ abstract class DashboardViewModelBase with Store {
       if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
         try {
           confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
+                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
+                  1;
         } catch (_) {}
       }
       return length * confirmations;

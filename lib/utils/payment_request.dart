@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/payment_uris.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cake_wallet/nano/nano.dart';
 
 class PaymentRequest {

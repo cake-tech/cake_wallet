@@ -155,6 +155,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
     if (uri.contains('@') || paymentRequest.address.contains('@')) return;
 
+    if (OpenCryptoPayService.isOpenCryptoPayQR(uri)) {
+      sendViewModel.createOpenCryptoPayTransaction(uri);
+      return;
+    }
+
     try {
       final result = await paymentViewModel.processAddress(uri);
 
@@ -581,15 +586,14 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   focusNode: addressFocusNode,
                   controller: addressController,
                   onURIScanned: (uri) async {
-                    if (OpenCryptoPayService.isOpenCryptoPayQR(uri.toString())) {
-                      sendViewModel.createOpenCryptoPayTransaction(uri.toString());
-                    } else {
-                      // Process the payment through the new flow
-                      await _handlePaymentFlow(
-                        uri.toString(),
-                        PaymentRequest.fromUri(uri),
-                      );
-                    }
+                    output.resetParsedAddress();
+                    await output.fetchParsedAddress(context);
+
+                    // Process the payment through the new flow
+                    await _handlePaymentFlow(
+                      uri.toString(),
+                      PaymentRequest.fromUri(uri),
+                    );
                   },
                   options: [
                     AddressTextFieldOption.paste,
@@ -767,7 +771,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       ),
                 ),
               ),
-              if (sendViewModel.feesViewModel.hasFees)
+              if (sendViewModel.hasFees)
                 Observer(
                   builder: (_) => GestureDetector(
                     key: ValueKey('send_page_select_fee_priority_button_key'),
@@ -1003,6 +1007,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       if (output.address != address) {
         output.resetParsedAddress();
         output.address = address;
+
+        if (SendViewModelBase.isNonZeroAmountLightningInvoice(address)) {
+          sendViewModel.createTransaction();
+        }
       }
     });
 

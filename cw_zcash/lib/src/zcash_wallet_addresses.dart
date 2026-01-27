@@ -1,3 +1,4 @@
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -227,4 +228,13 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     }
     return allInfos;
   }
+
+  @override
+  List<ReceivePageOption> get receivePageOptions {
+    return [
+      ...ZcashReceivePageOption.all,
+      ...ReceivePageOptions.where((final element) => element != ReceivePageOption.mainnet)
+    ];
+  }
+
 }

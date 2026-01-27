@@ -96,6 +96,8 @@
   "biometric_auth_reason": "Отсканируйте свой отпечаток пальца для аутентификации",
   "bitcoin_dark_theme": "Биткойн Темная тема",
   "bitcoin_light_theme": "Светлая биткойн-тема",
+  "bitcoin_lightning_deposit": "Депозит",
+  "bitcoin_lightning_withdraw": "Отзывать",
   "bitcoin_payments_require_1_confirmation": "Биткойн-платежи требуют 1 подтверждения, что может занять 20 минут или дольше. Спасибо тебе за твое терпение! Вы получите электронное письмо, когда платеж будет подтвержден.",
   "block_height": "Высота блока",
   "block_remaining": "1 Блок остался",

@@ -1,5 +1,2 @@
-Add Arbitrum
-Zcash improvements
-EVM chains enhancements
-Integrate Jupiter swaps for Solana
-Bug fixes
+Add support to Bitcoin Lightning
+New Design

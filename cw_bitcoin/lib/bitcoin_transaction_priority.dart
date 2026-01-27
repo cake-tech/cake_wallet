@@ -1,16 +1,16 @@
 import 'package:cw_core/transaction_priority.dart';
 
 class BitcoinTransactionPriority extends TransactionPriority {
-  const BitcoinTransactionPriority({required String title, required int raw})
-      : super(title: title, raw: raw);
+  const BitcoinTransactionPriority({required String title, required int raw, String? description, String? hint})
+      : super(title: title, raw: raw, description: description, hint: hint);
 
   static const List<BitcoinTransactionPriority> all = [fast, medium, slow, custom];
   static const BitcoinTransactionPriority slow =
-      BitcoinTransactionPriority(title: 'Slow', raw: 0);
+      BitcoinTransactionPriority(title: 'Slow', description: "2 sat/byte", hint: "~ 24 h", raw: 0);
   static const BitcoinTransactionPriority medium =
-      BitcoinTransactionPriority(title: 'Medium', raw: 1);
+      BitcoinTransactionPriority(title: 'Medium', description: "3 sat/byte", hint: "~ 1 h", raw: 1);
   static const BitcoinTransactionPriority fast =
-      BitcoinTransactionPriority(title: 'Fast', raw: 2);
+      BitcoinTransactionPriority(title: 'Fast', description: "4 sat/byte", hint: "~ 30 min", raw: 2);
   static const BitcoinTransactionPriority custom =
   BitcoinTransactionPriority(title: 'Custom', raw: 3);
 
