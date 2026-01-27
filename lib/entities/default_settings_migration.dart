@@ -19,11 +19,14 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/node.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -569,6 +572,10 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentZcashNodeIdKey,
           );
         case 56:
+          await sharedPreferences.setString(
+              PreferencesKey.syncStatusDisplayMode, SyncStatusDisplayMode.blocksRemaining.name);
+          break;
+        case 57:
           await db.execute('''
             CREATE TABLE BalanceCardStyleSettings (
               walletInfoId INTEGER,
@@ -581,6 +588,10 @@ Future<void> defaultSettingsMigration(
             );
             ''');
           break;
+        case 58:
+          await db.execute('''
+ALTER TABLE WalletInfo ADD COLUMN receiveInfoboxDismissed DEFAULT FALSE;
+          ''');
 
         default:
           break;

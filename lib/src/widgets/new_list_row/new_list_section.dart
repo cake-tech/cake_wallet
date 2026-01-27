@@ -74,6 +74,9 @@ class NewListSections extends StatelessWidget {
         validator: item.validator,
         isFirstInSection: isFirst,
         isLastInSection: isLast,
+        onChanged: item.onChanged,
+        onFieldSubmitted: item.onFieldSubmitted,
+        focusNode: item.focusNode,
       );
     }
 
