@@ -1696,7 +1696,6 @@ import 'package:hive/hive.dart';
   const minotariCWHeaders = """
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_wallet_service.dart';
-import 'package:cw_minotari/minotari_transaction_priority.dart';
 import 'package:cw_minotari/pending_minotari_transaction.dart';
 """;
   const minotariCwPart = "part 'cw_minotari.dart';";
@@ -1721,16 +1720,13 @@ abstract class Minotari {
     String? passphrase,
   });
 
-  TransactionPriority getDefaultTransactionPriority();
-  TransactionPriority getMinotariTransactionPrioritySlow();
-  TransactionPriority getMinotariTransactionPriorityMedium();
-  TransactionPriority getMinotariTransactionPriorityFast();
-  List<TransactionPriority> getTransactionPriorities();
+  double? getMinotariEstimatedFee(Object wallet);
 
   String getAddress(WalletBase wallet);
   String? getSeed(WalletBase wallet);
 
   Object createMinotariTransactionCredentials(List<Output> outputs);
+  Object createMinotariTransactionCredentialsRaw(List<OutputInfo> outputs);
 
   int getHeightByDate({required DateTime date});
   Future<int> getCurrentHeight();

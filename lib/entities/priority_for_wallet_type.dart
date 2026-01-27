@@ -2,7 +2,6 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
@@ -35,6 +34,7 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.banano:
     case WalletType.solana:
     case WalletType.tron:
+    case WalletType.minotari:
       return [];
     case WalletType.zano:
       return zano!.getTransactionPriorities();
@@ -42,8 +42,6 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return decred!.getTransactionPriorities();
     case WalletType.zcash:
       return zcash!.getTransactionPriorities();
-    case WalletType.minotari:
-      return minotari!.getTransactionPriorities();
     case WalletType.none:
     case WalletType.haven:
       return [];
