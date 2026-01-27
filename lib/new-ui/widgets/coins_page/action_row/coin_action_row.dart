@@ -45,18 +45,22 @@ class CoinActionRow extends StatelessWidget {
             ),
             label: S.of(context).send,
             action: () {
-              final sendPage = getIt.get<NewSendPage>();
               if (FeatureFlag.hasNewUiExtraPages) {
+                final sendPage = getIt.get<NewSendPage>(
+                    param2: lightningMode ? UnspentCoinType.lightning : null);
+
                 CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
                   barrierColor: Colors.black.withAlpha(85),
                   builder: (context) => FractionallySizedBox(
-                      heightFactor: 0.97,
-                      child: Material(
-                          child: ModalNavigator(
+                    heightFactor: 0.97,
+                    child: Material(
+                      child: ModalNavigator(
                         rootPage: sendPage,
                         parentContext: context,
-                      ))),
+                      ),
+                    ),
+                  ),
                 );
               } else {
                 Map<String, dynamic>? args;

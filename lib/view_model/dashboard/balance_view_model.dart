@@ -13,9 +13,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -213,7 +211,6 @@ abstract class BalanceViewModelBase with Store {
   @computed
   Map<CryptoCurrency, BalanceRecord> get balances {
     return wallet.balance.map((key, value) {
-
       var secondAsset = key;
       if (key == CryptoCurrency.btc) {
         secondAsset = CryptoCurrency.btcln;
@@ -279,9 +276,9 @@ abstract class BalanceViewModelBase with Store {
           frozenBalance:
               (value.frozen ?? 0) > 0 ? _getFormattedCryptoAmount(key, value.frozen) : '',
           fiatFrozenBalance: frozenFiatBalance,
-          secondAvailableBalance: _getFormattedCryptoAmount(key, value.secondAvailable),
+          secondAvailableBalance: _getFormattedCryptoAmount(secondAsset, value.secondAvailable),
           fiatSecondAvailableBalance: secondAvailableFiatBalance,
-          secondAdditionalBalance: _getFormattedCryptoAmount(key, value.secondAdditional),
+          secondAdditionalBalance: _getFormattedCryptoAmount(secondAsset, value.secondAdditional),
           fiatSecondAdditionalBalance: secondAdditionalFiatBalance,
           asset: key,
           secondAsset: secondAsset,
@@ -323,8 +320,13 @@ abstract class BalanceViewModelBase with Store {
     }
   }
 
-  bool _hasAdditionalBalanceForWalletType(WalletType type) =>
-      [WalletType.monero, WalletType.wownero, WalletType.zano, WalletType.decred, WalletType.zcash].contains(type);
+  bool _hasAdditionalBalanceForWalletType(WalletType type) => [
+        WalletType.monero,
+        WalletType.wownero,
+        WalletType.zano,
+        WalletType.decred,
+        WalletType.zcash
+      ].contains(type);
 
   String _getFormattedCryptoAmount(CryptoCurrency cryptoCurrency, int? amount) {
     if (amount == null) return "";
@@ -426,11 +428,12 @@ abstract class BalanceViewModelBase with Store {
 
   String _formatterAsset(CryptoCurrency asset) {
     final assetString = asset.toString();
-    if (wallet.type == WalletType.haven && asset != CryptoCurrency.xhv &&
+    if (wallet.type == WalletType.haven &&
+        asset != CryptoCurrency.xhv &&
         assetString[0].toUpperCase() == 'X') {
       return assetString.replaceFirst('X', 'x');
     }
 
-    return asset.toString();
+    return appStore.amountParsingProxy.getCryptoSymbol(asset);
   }
 }

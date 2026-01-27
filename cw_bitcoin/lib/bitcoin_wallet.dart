@@ -314,6 +314,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     final lBalance = await lightningWallet!.getBalance();
 
+    this.balance[CryptoCurrency.btcln] =
+        ElectrumBalance(confirmed: lBalance.toInt(), unconfirmed: 0, frozen: 0);
+
     return ElectrumBalance(
       confirmed: balance.confirmed,
       unconfirmed: balance.unconfirmed,

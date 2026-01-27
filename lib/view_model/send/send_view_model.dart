@@ -106,7 +106,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),
         currencies = _appStore.wallet!.balance.keys.toList(),
-        selectedCryptoCurrency = _appStore.wallet!.currency,
+        selectedCryptoCurrency = coinTypeToSpendFrom == UnspentCoinType.lightning
+            ? CryptoCurrency.btcln
+            : _appStore.wallet!.currency,
         hasMultipleTokens = isEVMCompatibleChain(_appStore.wallet!.type) ||
             [WalletType.solana, WalletType.tron, WalletType.zano].contains(_appStore.wallet!.type),
         selectedChainId = _appStore.wallet!.chainId,
@@ -283,8 +285,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return balanceViewModel.balances.values.first.availableBalance;
     }
 
-    if (walletType == WalletType.bitcoin && coinTypeToSpendFrom == UnspentCoinType.lightning) {
-      return wallet.balance[selectedCryptoCurrency]!.formattedSecondAvailableBalance;
+    if (walletType == WalletType.bitcoin &&
+        selectedCryptoCurrency == CryptoCurrency.btcln &&
+        wallet.balance[selectedCryptoCurrency]?.available != null) {
+      return _appStore.amountParsingProxy.getDisplayCryptoString(
+          wallet.balance[selectedCryptoCurrency]!.available, selectedCryptoCurrency);
     }
 
     // Handle case where balance might not be available yet (e.g., during chain switch)
@@ -321,9 +326,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     switch (wallet.type) {
       case WalletType.bitcoin:
         if (coinTypeToSpendFrom == UnspentCoinType.lightning) return balance;
-        return _appStore.amountParsingProxy
-            .getDisplayCryptoString(
-            (await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),  walletTypeToCryptoCurrency(walletType)));
+        return _appStore.amountParsingProxy.getDisplayCryptoString(
+            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
+            walletTypeToCryptoCurrency(walletType));
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:

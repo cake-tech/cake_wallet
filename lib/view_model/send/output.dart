@@ -337,9 +337,12 @@ abstract class OutputBase with Store {
       var cryptoAmount_ =
           sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.');
 
+      var cryptoCurrency = cryptoCurrencyHandler() == CryptoCurrency.btcln
+          ? CryptoCurrency.btc
+          : cryptoCurrencyHandler();
+
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
-          cryptoAmount: cryptoAmount_);
+          price: _fiatConversationStore.prices[cryptoCurrency]!, cryptoAmount: cryptoAmount_);
       if (fiatAmount != fiat) {
         fiatAmount = fiat;
       }

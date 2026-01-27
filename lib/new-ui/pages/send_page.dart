@@ -122,7 +122,7 @@ class _NewSendPageState extends State<NewSendPage> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   ModalTopBar(
-                      title: "Send",
+                      title: S.of(context).send,
                       leadingIcon: Icon(Icons.close),
                       onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
                     trailingWidget: Observer(
@@ -132,9 +132,15 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.sendViewModel.outputs.length > 1)
                             ModernButton(
                                 size: 36,
-                                icon: SvgPicture.asset("assets/new-ui/remove_recipient.svg",colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn),),
-                                onPressed: () {
-                                  final outputIndex = _selectedOutput;
+                              icon: SvgPicture.asset(
+                                "assets/new-ui/remove_recipient.svg",
+                                colorFilter: ColorFilter.mode(
+                                  Theme.of(context).colorScheme.primary,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              onPressed: () {
+                                final outputIndex = _selectedOutput;
                                   if (_selectedOutput != 0) {
                                     _setOutput(_selectedOutput - 1);
                                   } else {
@@ -203,7 +209,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                 ],
                                 ),
         Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:12,children: [
-          Text("Amount"),
+          Text(S.of(context).amount),
           NewSendAmountInput(
         amountController: _amountControllers[_selectedOutput],
         currency: _fiatInputMode
@@ -251,8 +257,7 @@ class _NewSendPageState extends State<NewSendPage> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(99999),
                     onTap: () async {
-                      output.setSendAll(
-                          await widget.sendViewModel.sendingBalance);
+                      output.setSendAll(await widget.sendViewModel.sendingBalance);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -270,7 +275,7 @@ class _NewSendPageState extends State<NewSendPage> {
           ),
         ],),
 
-AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
+AnimatedDropdown(dropdownText: S.of(context).advanced_settings,content: Column(children: [
     if (widget.sendViewModel.hasFees)
       ListItemRegularRowWidget(
         keyValue: "",
@@ -284,7 +289,7 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
       ),
       ListItemRegularRowWidget(
         keyValue: "",
-        label: "Coin Control",
+        label: S.of(context).coin_control,
         onTap: () {
           Navigator.of(context).pushNamed(Routes.unspentCoinsList);
         },
@@ -454,8 +459,14 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
           output.sendAll = false;
         }
 
-        if (amount != output.cryptoAmount) {
-          output.setCryptoAmount(amount);
+        if (S.current.all.contains(amount)) return;
+
+        final cAmount = widget.sendViewModel.amountParsingProxy
+            .getDisplayCryptoAmount(output.cryptoAmount, widget.sendViewModel.selectedCryptoCurrency);
+        if (amount != cAmount) {
+          final newAmount = widget.sendViewModel.amountParsingProxy
+              .getCanonicalCryptoAmount(amount, widget.sendViewModel.selectedCryptoCurrency);
+          output.setCryptoAmount(newAmount);
         }
       }
     });
