@@ -19,11 +19,14 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/node.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,6 +55,7 @@ const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base.nownodes.io';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
+const zcashDefaultNodeUri = 'zec-node.cakewallet.com:443';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -560,19 +564,30 @@ Future<void> defaultSettingsMigration(
           await _backupWowneroSeeds(havenSeedStore);
           break;
         case 55:
-          await db.execute('''
-CREATE TABLE BalanceCardStyleSettings (
-  walletInfoId INTEGER,
-  accountIndex INTEGER DEFAULT -1,
-  gradientIndex INTEGER DEFAULT -1,
-  useSpecialDesign BOOLEAN DEFAULT FALSE,
-  backgroundImagePath TEXT DEFAULT "",
-  PRIMARY KEY (walletInfoId, accountIndex),
-  FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
-);
-''');
+          await addWalletNodeList(nodes: nodes, type: WalletType.zcash);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.zcash,
+            currentNodePreferenceKey: PreferencesKey.currentZcashNodeIdKey,
+          );
+        case 56:
+          await sharedPreferences.setString(
+              PreferencesKey.syncStatusDisplayMode, SyncStatusDisplayMode.blocksRemaining.name);
           break;
-
+        case 57:
+          await db.execute('''
+            CREATE TABLE BalanceCardStyleSettings (
+              walletInfoId INTEGER,
+              accountIndex INTEGER DEFAULT -1,
+              gradientIndex INTEGER DEFAULT -1,
+              useSpecialDesign BOOLEAN DEFAULT FALSE,
+              backgroundImagePath TEXT DEFAULT "",
+              PRIMARY KEY (walletInfoId, accountIndex),
+              FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
+            );
+            ''');
+          break;
         default:
           break;
       }
@@ -685,6 +700,8 @@ String _getDefaultNodeUri(WalletType type) {
       return baseDefaultNodeUri;
     case WalletType.arbitrum:
       return arbitrumDefaultNodeUri;
+    case WalletType.zcash:
+      return zcashDefaultNodeUri;
     case WalletType.banano:
     case WalletType.none:
       return '';
@@ -1105,6 +1122,7 @@ Future<void> checkCurrentNodes(
   final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
   final currentZanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
+  final currentZcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -1139,6 +1157,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentWowneroNodeId);
   final currentZanoNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
+  final currentZcashNode =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentZcashNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
@@ -1252,6 +1272,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: decredDefaultUri, type: WalletType.decred);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.key as int);
+  }
+
+  if (currentZcashNode == null) {
+    final node = Node(uri: zcashDefaultNodeUri, type: WalletType.zcash, useSSL: true);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.key as int);
   }
 }
 

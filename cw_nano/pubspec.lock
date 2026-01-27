@@ -572,8 +572,8 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "01cbbacbb05d2113aafa8b7c4a2bb766f749d8d8"
+      ref: "096865a8c6b89c260beadfec04f7e184c40a3273"
+      resolved-ref: "096865a8c6b89c260beadfec04f7e184c40a3273"
       url: "https://github.com/cake-tech/on_chain.git"
     source: git
     version: "3.7.0"

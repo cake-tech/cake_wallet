@@ -286,7 +286,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 'wallet_restore_from_seed_blockheight_textfield_key',
               ),
               onHeightOrDateEntered: widget.onHeightOrDateEntered,
-              hasDatePicker: [WalletType.monero, WalletType.wownero].contains(
+              hasDatePicker: [WalletType.monero, WalletType.wownero, WalletType.zcash].contains(
                 widget.type,
               ),
               walletType: widget.type,

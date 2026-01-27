@@ -86,6 +86,8 @@ PODS:
   - payjoin_flutter (0.23.0)
   - permission_handler_apple (9.3.0):
     - Flutter
+  - quick_actions_ios (0.0.1):
+    - Flutter
   - reown_yttrium (0.0.1):
     - Flutter
     - YttriumWrapper (= 0.8.35)
@@ -141,6 +143,8 @@ PODS:
     - Flutter
   - wakelock_plus (0.0.1):
     - Flutter
+  - warp_api (0.0.1):
+    - Flutter
   - YttriumWrapper (0.8.35)
 
 DEPENDENCIES:
@@ -170,6 +174,7 @@ DEPENDENCIES:
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - payjoin_flutter (from `.symlinks/plugins/payjoin_flutter/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - quick_actions_ios (from `.symlinks/plugins/quick_actions_ios/ios`)
   - reown_yttrium (from `.symlinks/plugins/reown_yttrium/ios`)
   - sensitive_clipboard (from `.symlinks/plugins/sensitive_clipboard/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
@@ -182,6 +187,7 @@ DEPENDENCIES:
   - universal_ble (from `.symlinks/plugins/universal_ble/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
+  - warp_api (from `.symlinks/plugins/warp_api/ios`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -245,6 +251,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/payjoin_flutter/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  quick_actions_ios:
+    :path: ".symlinks/plugins/quick_actions_ios/ios"
   reown_yttrium:
     :path: ".symlinks/plugins/reown_yttrium/ios"
   sensitive_clipboard:
@@ -269,6 +277,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   wakelock_plus:
     :path: ".symlinks/plugins/wakelock_plus/ios"
+  warp_api:
+    :path: ".symlinks/plugins/warp_api/ios"
 
 SPEC CHECKSUMS:
   bitbox_flutter: 506f80b961ddf646b0d80cef9f6eadaab96d91b0
@@ -300,6 +310,7 @@ SPEC CHECKSUMS:
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   payjoin_flutter: d9d4c8aa16bd5dfedb9b21d0edc8199e0187d96e
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  quick_actions_ios: 56f3cbaa71e94f212838d1f9fe354bd0734779bf
   reown_yttrium: c0e87e5965fa60a3559564cc35cffbba22976089
   SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a
   sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
@@ -315,6 +326,7 @@ SPEC CHECKSUMS:
   universal_ble: cf52a7b3fd2e7c14d6d7262e9fdadb72ab6b88a6
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   wakelock_plus: 76957ab028e12bfa4e66813c99e46637f367fc7e
+  warp_api: 4a60cc00440d5eb56ae4dbf75f89a34ed90ddf1b
   YttriumWrapper: 31e937fe9fbe0f1314d2ca6be9ce9b379a059966
 
 PODFILE CHECKSUM: 5296465b1c6d14d506230356756826012f65d97a

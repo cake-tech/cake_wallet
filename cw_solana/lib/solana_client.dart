@@ -19,10 +19,20 @@ import 'package:on_chain/solana/src/models/pda/pda.dart';
 import 'package:on_chain/solana/src/rpc/models/models/confirmed_transaction_meta.dart';
 import '.secrets.g.dart' as secrets;
 
+/// Result object containing both parsed transactions and token mints
+class TransactionFetchResult {
+  final List<SolanaTransactionModel> transactions;
+  final List<String> tokenMints;
+
+  TransactionFetchResult({
+    required this.transactions,
+    required this.tokenMints,
+  });
+}
+
 class SolanaWalletClient {
   // Minimum amount in SOL to consider a transaction valid (to filter spam)
   static const double minValidAmount = 0.00000003;
-  final httpClient = ProxyWrapper().getHttpClient();
   late final client = ProxyWrapper().getHttpIOClient();
   SolanaRPC? _provider;
 
@@ -156,7 +166,7 @@ class SolanaWalletClient {
     return estimatedFee;
   }
 
-  Future<SolanaTransactionModel?> parseTransaction({
+  Future<List<SolanaTransactionModel>?> parseTransaction({
     VersionedTransactionResponse? txResponse,
     required String walletAddress,
     String? splTokenSymbol,
@@ -179,6 +189,26 @@ class SolanaWalletClient {
       String signature = (txResponse.transaction?.signatures.isEmpty ?? true)
           ? ""
           : Base58Encoder.encode(txResponse.transaction!.signatures.first);
+
+      // We need to check if this is a swap transaction (both native SOL and SPL token balance changes)
+      final isSwap = _isSwapTransaction(meta, message, walletAddress);
+
+      if (isSwap) {
+        // We parse it separately, because we want to extract two separate transactions, the outgoing and incoming side of the swap
+        final swapTransactions = await _parseSwapTransaction(
+          message: message,
+          meta: meta,
+          fee: fee,
+          feeInSol: feeInSol,
+          walletAddress: walletAddress,
+          signature: signature,
+          blockTime: blockTime,
+          instructions: instructions,
+          splTokenSymbol: splTokenSymbol,
+        );
+
+        if (swapTransactions.isNotEmpty) return swapTransactions;
+      }
 
       for (final instruction in instructions) {
         final programId = message.accountKeys[instruction.programIdIndex];
@@ -206,7 +236,7 @@ class SolanaWalletClient {
           );
 
           if (transactionModel != null) {
-            return transactionModel;
+            return [transactionModel];
           }
         } else if (programId == SPLTokenProgramConst.tokenProgramId) {
           // For SPL Token transactions
@@ -225,7 +255,7 @@ class SolanaWalletClient {
           );
 
           if (transactionModel != null) {
-            return transactionModel;
+            return [transactionModel];
           }
         } else if (programId == AssociatedTokenAccountProgramConst.associatedTokenProgramId) {
           // For ATA program, we need to check if this is a create account transaction
@@ -253,7 +283,7 @@ class SolanaWalletClient {
 
           continue;
         } else {
-          return null;
+          continue;
         }
       }
     } catch (e, s) {
@@ -261,6 +291,401 @@ class SolanaWalletClient {
     }
 
     return null;
+  }
+
+  /// Detects if a transaction is a swap by checking for both native SOL
+  /// and SPL token balance changes involving the wallet address
+  bool _isSwapTransaction(
+    ConfirmedTransactionMeta meta,
+    VersionedMessage message,
+    String walletAddress,
+  ) {
+    bool hasNativeBalanceChange = false;
+    bool hasTokenBalanceChange = false;
+
+    // First we check if there are any native SOL balance changes for the wallet
+    final preBalances = meta.preBalances;
+    final postBalances = meta.postBalances;
+    final accountKeys = message.accountKeys;
+
+    if (preBalances.isNotEmpty && postBalances.isNotEmpty) {
+      final maxLength =
+          accountKeys.length < preBalances.length ? accountKeys.length : preBalances.length;
+
+      for (int i = 0; i < maxLength && i < postBalances.length; i++) {
+        final accountKey = accountKeys[i];
+        final accountAddress = accountKey.address;
+
+        if (accountAddress == walletAddress) {
+          final preBalance = preBalances[i];
+          final postBalance = postBalances[i];
+          final balanceChange = postBalance - preBalance;
+
+          if (balanceChange != BigInt.zero) {
+            hasNativeBalanceChange = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // Next, we check if there are any SPL token balance changes
+
+    // There is a caveat though, Jupiter swaps token accounts might be intermediate accounts, so we need to check for that, otherwise we might miss some transactions
+    final preTokenBalances = meta.preTokenBalances;
+    final postTokenBalances = meta.postTokenBalances;
+
+    if (preTokenBalances != null && postTokenBalances != null) {
+      bool hasTokenDecrease = false;
+      bool hasTokenIncrease = false;
+
+      for (final preTokenBal in preTokenBalances) {
+        final mint = preTokenBal.mint.address;
+        final preAmount = preTokenBal.uiTokenAmount.uiAmount ?? 0.0;
+
+        // We find the corresponding post balance by matching mint and owner
+        for (final postTokenBal in postTokenBalances) {
+          final postMint = postTokenBal.mint.address;
+          final postOwner = postTokenBal.owner?.address ?? '';
+          final preOwner = preTokenBal.owner?.address ?? '';
+          final postAmount = postTokenBal.uiTokenAmount.uiAmount ?? 0.0;
+
+          if (postMint == mint && postOwner == preOwner) {
+            final diff = postAmount - preAmount;
+            if (diff < 0) {
+              hasTokenDecrease = true;
+            } else if (diff > 0) {
+              hasTokenIncrease = true;
+            }
+            break;
+          }
+        }
+      }
+
+      // If we have both token decreases and increases, or if wallet sent SOL and there are token changes, it's likely a swap
+      if (hasNativeBalanceChange && (hasTokenDecrease || hasTokenIncrease)) {
+        hasTokenBalanceChange = true;
+      }
+    }
+
+    // It's a swap if both native and token balances changed
+    return hasNativeBalanceChange && hasTokenBalanceChange;
+  }
+
+  /// Parses a swap transaction and creates dual entries (outgoing and incoming)
+  Future<List<SolanaTransactionModel>> _parseSwapTransaction({
+    required VersionedMessage message,
+    required ConfirmedTransactionMeta meta,
+    required int fee,
+    required double feeInSol,
+    required String walletAddress,
+    required String signature,
+    required BigInt? blockTime,
+    required List<CompiledInstruction> instructions,
+    String? splTokenSymbol,
+  }) async {
+    final List<SolanaTransactionModel> swapTransactions = [];
+
+    final preBalances = meta.preBalances;
+    final postBalances = meta.postBalances;
+    final accountKeys = message.accountKeys;
+    final preTokenBalances = meta.preTokenBalances;
+    final postTokenBalances = meta.postTokenBalances;
+
+    String? decreasedMintForWallet;
+    String? increasedMintForWallet;
+
+    if (preTokenBalances != null && postTokenBalances != null) {
+      for (final preTokenBal in preTokenBalances) {
+        final owner = preTokenBal.owner?.address ?? '';
+        if (owner != walletAddress) continue;
+
+        final mint = preTokenBal.mint.address;
+        final preAmount = preTokenBal.uiTokenAmount.uiAmount ?? 0.0;
+
+        double postAmount = preAmount;
+        for (final postTokenBal in postTokenBalances) {
+          final postOwner = postTokenBal.owner?.address ?? '';
+          final postMint = postTokenBal.mint.address;
+          if (postOwner == walletAddress && postMint == mint) {
+            postAmount = postTokenBal.uiTokenAmount.uiAmount ?? 0.0;
+            break;
+          }
+        }
+
+        final diff = postAmount - preAmount;
+        if (diff < 0 && decreasedMintForWallet == null) {
+          decreasedMintForWallet = mint;
+        } else if (diff > 0 && increasedMintForWallet == null) {
+          increasedMintForWallet = mint;
+        }
+      }
+    }
+
+    final bool isSplToSplSwap =
+        decreasedMintForWallet != null &&
+        increasedMintForWallet != null &&
+        decreasedMintForWallet != increasedMintForWallet;
+
+    // Parse outgoing side (what was sent)
+    double outgoingAmount = 0.0;
+    String outgoingTokenSymbol = '';
+    String? outgoingMintAddress;
+    String? outgoingFrom;
+    String? outgoingTo;
+
+    // First we check if there are any native SOL balance changes for the wallet.
+    // For pure SPL → SPL swaps, SOL changes are just fees, so we ignore them.
+    if (!isSplToSplSwap && preBalances.isNotEmpty && postBalances.isNotEmpty) {
+      final maxLength =
+          accountKeys.length < preBalances.length ? accountKeys.length : preBalances.length;
+
+      for (int i = 0; i < maxLength && i < postBalances.length; i++) {
+        final accountKey = accountKeys[i];
+        final accountAddress = accountKey.address;
+
+        if (accountAddress == walletAddress) {
+          final preBalance = preBalances[i];
+          final postBalance = postBalances[i];
+          final balanceChange = preBalance - postBalance;
+
+          if (balanceChange > BigInt.zero) {
+            // The wallet sent SOL
+            outgoingAmount = balanceChange.toDouble() / SolanaUtils.lamportsPerSol;
+            outgoingTokenSymbol = 'SOL';
+            outgoingMintAddress = null;
+            outgoingFrom = walletAddress;
+            // We find the intermediate account or swap program account
+            if (instructions.isNotEmpty && instructions[0].accounts.isNotEmpty) {
+              final firstAccountIndex = instructions[0].accounts[0];
+              if (firstAccountIndex < accountKeys.length) {
+                outgoingTo = accountKeys[firstAccountIndex].address;
+              }
+            }
+            outgoingTo ??= walletAddress;
+            break;
+          }
+        }
+      }
+    }
+
+    // If no SOL outgoing, we check if there are any SPL token balance changes for the wallet
+    if (outgoingAmount == 0.0 && preTokenBalances != null) {
+      for (final preTokenBal in preTokenBalances) {
+        final owner = preTokenBal.owner?.address ?? '';
+
+        if (owner == walletAddress) {
+          final mint = preTokenBal.mint.address;
+          // For SPL → SPL swaps, we only treat the decreased mint as outgoing
+          if (isSplToSplSwap && mint != decreasedMintForWallet) {
+            continue;
+          }
+          final preAmount = preTokenBal.uiTokenAmount.uiAmount ?? 0.0;
+
+          // We find the corresponding post balance
+          for (final postTokenBal in postTokenBalances ?? []) {
+            final postOwner = postTokenBal.owner?.address ?? '';
+            final postMint = postTokenBal.mint.address;
+            final postAmount = postTokenBal.uiTokenAmount.uiAmount ?? 0.0;
+
+            if (postOwner == walletAddress && postMint == mint) {
+              final diff = preAmount - postAmount;
+
+              if (diff > 0) {
+                // The wallet sent tokens
+                outgoingAmount = diff.toDouble();
+                outgoingMintAddress = mint;
+                final token = await getTokenInfo(mint);
+                outgoingTokenSymbol = token?.symbol ?? 'TOKEN';
+                outgoingFrom = walletAddress;
+                // We find the intermediate account
+                if (instructions.isNotEmpty && instructions[0].accounts.isNotEmpty) {
+                  final firstAccountIndex = instructions[0].accounts[0];
+                  if (firstAccountIndex < accountKeys.length) {
+                    outgoingTo = accountKeys[firstAccountIndex].address;
+                  }
+                }
+                outgoingTo ??= walletAddress;
+                break;
+              }
+            }
+          }
+
+          if (outgoingAmount > 0) break;
+        }
+      }
+    }
+
+    // Parse incoming side (what was received)
+    double incomingAmount = 0.0;
+    String incomingTokenSymbol = '';
+    String? incomingMintAddress;
+    String? incomingFrom;
+    String? incomingTo;
+
+    // We check if there are any native SOL balance changes for the wallet
+    if (preBalances.isNotEmpty && postBalances.isNotEmpty) {
+      final maxLength =
+          accountKeys.length < preBalances.length ? accountKeys.length : preBalances.length;
+
+      for (int i = 0; i < maxLength && i < postBalances.length; i++) {
+        final accountKey = accountKeys[i];
+        final accountAddress = accountKey.address;
+
+        if (accountAddress == walletAddress) {
+          final preBalance = preBalances[i];
+          final postBalance = postBalances[i];
+          final balanceChange = postBalance - preBalance;
+
+          if (balanceChange > BigInt.zero) {
+            // The wallet received SOL
+            incomingAmount = balanceChange.toDouble() / SolanaUtils.lamportsPerSol;
+            incomingTokenSymbol = 'SOL';
+            incomingMintAddress = null;
+            incomingTo = walletAddress;
+            // We find the intermediate account
+            if (instructions.isNotEmpty && instructions[0].accounts.isNotEmpty) {
+              final firstAccountIndex = instructions[0].accounts[0];
+              if (firstAccountIndex < accountKeys.length) {
+                incomingFrom = accountKeys[firstAccountIndex].address;
+              }
+            }
+            incomingFrom ??= walletAddress;
+            break;
+          }
+        }
+      }
+    }
+
+    // If no SOL incoming, check SPL token incoming using ATA derivation
+    if (incomingAmount == 0.0 && preTokenBalances != null && postTokenBalances != null) {
+      // Collect all unique mints from token balances (excluding wrapped SOL)
+      final mints = <String>{};
+      for (final tokenBal in preTokenBalances) {
+        final mint = tokenBal.mint.address;
+        if (mint != 'So11111111111111111111111111111111111111112') {
+          mints.add(mint);
+        }
+      }
+      for (final tokenBal in postTokenBalances) {
+        final mint = tokenBal.mint.address;
+        if (mint != 'So11111111111111111111111111111111111111112') {
+          mints.add(mint);
+        }
+      }
+
+      // For each mint, we derive the wallet's ATA address and check for balance changes
+      for (final mint in mints) {
+        try {
+          final walletSolAddress = SolAddress(walletAddress);
+          final mintSolAddress = SolAddress(mint);
+
+          final ata = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+            mint: mintSolAddress,
+            owner: walletSolAddress,
+          );
+          final ataAddress = ata.address.address;
+
+          // We check if this ATA address appears in the account keys
+          int? ataAccountIndex;
+          for (int i = 0; i < accountKeys.length; i++) {
+            final accountKey = accountKeys[i];
+            if (accountKey.address == ataAddress) {
+              ataAccountIndex = i;
+              break;
+            }
+          }
+
+          // If ATA is in the transaction, we check for balance changes
+          if (ataAccountIndex != null) {
+            double preAmount = 0.0;
+            double postAmount = 0.0;
+
+            // We find the pre balance
+            for (final preTokenBal in preTokenBalances) {
+              final accountIndex = preTokenBal.accountIndex;
+              final tokenMint = preTokenBal.mint.address;
+              if (accountIndex == ataAccountIndex && tokenMint == mint) {
+                preAmount = preTokenBal.uiTokenAmount.uiAmount?.toDouble() ?? 0.0;
+                break;
+              }
+            }
+
+            // We find the post balance
+            for (final postTokenBal in postTokenBalances) {
+              final accountIndex = postTokenBal.accountIndex;
+              final tokenMint = postTokenBal.mint.address;
+              if (accountIndex == ataAccountIndex && tokenMint == mint) {
+                postAmount = postTokenBal.uiTokenAmount.uiAmount?.toDouble() ?? 0.0;
+                break;
+              }
+            }
+
+            final diff = postAmount - preAmount;
+            if (diff > 0) {
+              // The wallet received tokens
+              incomingAmount = diff.toDouble();
+              incomingMintAddress = mint;
+              final token = await getTokenInfo(mint);
+              incomingTokenSymbol = token?.symbol ?? 'TOKEN';
+              incomingTo = walletAddress;
+              // We find the intermediate account
+              if (instructions.isNotEmpty && instructions[0].accounts.isNotEmpty) {
+                final firstAccountIndex = instructions[0].accounts[0];
+                if (firstAccountIndex < accountKeys.length) {
+                  incomingFrom = accountKeys[firstAccountIndex].address;
+                }
+              }
+              incomingFrom ??= walletAddress;
+              break;
+            }
+          }
+        } catch (e) {
+          // We skip if the ATA derivation fails
+          continue;
+        }
+      }
+    }
+
+    // Outgoing transaction model
+    if (outgoingAmount > 0.0 && outgoingFrom != null && outgoingTo != null) {
+      final outgoingId =
+          '${signature}_outgoing'; // We create a composite ID for the outgoing transaction
+      swapTransactions.add(SolanaTransactionModel(
+        isOutgoingTx: true,
+        from: outgoingFrom,
+        to: outgoingTo,
+        id: outgoingId,
+        amount: outgoingAmount,
+        programId: outgoingMintAddress == null
+            ? SystemProgramConst.programId.address
+            : SPLTokenProgramConst.tokenProgramId.address,
+        blockTimeInInt: blockTime?.toInt() ?? 0,
+        tokenSymbol: outgoingTokenSymbol,
+        fee: feeInSol,
+      ));
+    }
+
+    // Incoming transaction model
+    if (incomingAmount > 0.0 && incomingFrom != null && incomingTo != null) {
+      final incomingId =
+          '${signature}_incoming'; // We create a composite ID for the incoming transaction
+      swapTransactions.add(SolanaTransactionModel(
+        isOutgoingTx: false,
+        from: incomingFrom,
+        to: incomingTo,
+        id: incomingId,
+        amount: incomingAmount,
+        programId: incomingMintAddress == null
+            ? SystemProgramConst.programId.address
+            : SPLTokenProgramConst.tokenProgramId.address,
+        blockTimeInInt: blockTime?.toInt() ?? 0,
+        tokenSymbol: incomingTokenSymbol,
+        fee: 0.0, // Fee only charged on outgoing side
+      ));
+    }
+
+    return swapTransactions;
   }
 
   Future<SolanaTransactionModel?> _parseNativeTransaction({
@@ -278,23 +703,33 @@ class SolanaWalletClient {
     String? sender;
     String? receiver;
 
-    for (int i = 0; i < meta.preBalances.length; i++) {
+    final accountKeysLength = message.accountKeys.length;
+    final balancesLength = meta.preBalances.length;
+    final maxLength = accountKeysLength < balancesLength ? accountKeysLength : balancesLength;
+
+    for (int i = 0; i < maxLength; i++) {
       final preBalance = meta.preBalances[i];
       final postBalance = meta.postBalances[i];
       final balanceChange = preBalance - postBalance;
 
       if (balanceChange > BigInt.zero) {
         // This account sent funds
-        sender = message.accountKeys[i].address;
-        totalBalanceChange += balanceChange;
+        if (i < accountKeysLength) {
+          sender = message.accountKeys[i].address;
+          totalBalanceChange += balanceChange;
+        }
       } else if (balanceChange < BigInt.zero) {
         // This account received funds
-        receiver = message.accountKeys[i].address;
+        if (i < accountKeysLength) {
+          receiver = message.accountKeys[i].address;
+        }
       }
     }
 
     // We subtract the fee from total balance change if the fee payer is the sender
-    if (sender == message.accountKeys[feePayerIndex].address) {
+    if (sender != null &&
+        feePayerIndex < message.accountKeys.length &&
+        sender == message.accountKeys[feePayerIndex].address) {
       totalBalanceChange -= BigInt.from(fee);
     }
 
@@ -401,6 +836,77 @@ class SolanaWalletClient {
     );
   }
 
+  /// Fetches a specific transaction by signature and parses it
+  /// It returns a TransactionFetchResult object containing both transactions and token mints extracted from the transaction or null if the transaction is not found or cannot be parsed
+  Future<TransactionFetchResult?> fetchTransactionBySignature({
+    required String signature,
+    required String walletAddress,
+    String? splTokenSymbol,
+  }) async {
+    try {
+      final txResponse = await _provider!.request(
+        SolanaRPCGetTransaction(
+          transactionSignature: signature,
+          encoding: SolanaRPCEncoding.jsonParsed,
+          maxSupportedTransactionVersion: 1,
+          skipVerification: true,
+        ),
+      );
+
+      final versionedResponse = txResponse as VersionedTransactionResponse?;
+      if (versionedResponse == null) return null;
+
+      final tokenMints = _extractTokenMintsFromMeta(versionedResponse.meta);
+
+      final parsed = await parseTransaction(
+        txResponse: versionedResponse,
+        walletAddress: walletAddress,
+        splTokenSymbol: splTokenSymbol,
+      );
+
+      if (parsed == null) return null;
+
+      return TransactionFetchResult(
+        transactions: parsed,
+        tokenMints: tokenMints,
+      );
+    } catch (e) {
+      printV('Error fetching transaction by signature: $e');
+      return null;
+    }
+  }
+
+  /// Extracts token mint addresses from transaction metadata
+  /// It returns a list of unique token mint addresses (excluding wrapped SOL)
+  List<String> _extractTokenMintsFromMeta(ConfirmedTransactionMeta? meta) {
+    if (meta == null) return [];
+
+    final preTokenBalances = meta.preTokenBalances;
+    final postTokenBalances = meta.postTokenBalances;
+
+    final mints = <String>{};
+
+    if (preTokenBalances != null) {
+      for (final tokenBal in preTokenBalances) {
+        final mint = tokenBal.mint.address;
+        if (mint != 'So11111111111111111111111111111111111111112') {
+          mints.add(mint);
+        }
+      }
+    }
+
+    if (postTokenBalances != null) {
+      for (final tokenBal in postTokenBalances) {
+        final mint = tokenBal.mint.address;
+        if (mint != 'So11111111111111111111111111111111111111112') {
+          mints.add(mint);
+        }
+      }
+    }
+
+    return mints.toList();
+  }
+
   /// Load the Address's transactions into the account
   Future<List<SolanaTransactionModel>> fetchTransactions(
     SolAddress address, {
@@ -431,11 +937,11 @@ class SolanaWalletClient {
               SolanaRPCGetTransaction(
                 transactionSignature: signature['signature'],
                 encoding: SolanaRPCEncoding.jsonParsed,
-                maxSupportedTransactionVersion: 0,
+                maxSupportedTransactionVersion: 1,
+                skipVerification: true,
               ),
             );
           } catch (e) {
-            // printV("Error fetching transaction: $e");
             return null;
           }
         }));
@@ -448,12 +954,17 @@ class SolanaWalletClient {
               walletAddress: walletAddress?.address ?? address.address,
             ));
 
-        final parsedTransactions = await Future.wait(parsedTransactionsFutures);
+        final parsedTransactionsLists = await Future.wait(parsedTransactionsFutures);
 
-        transactions.addAll(parsedTransactions.whereType<SolanaTransactionModel>().toList());
+        // We flatten the list of lists into a single list
+        for (final parsedList in parsedTransactionsLists) {
+          if (parsedList != null) {
+            transactions.addAll(parsedList);
+          }
+        }
 
         // Only update UI if we have new valid transactions
-        if (parsedTransactions.isNotEmpty) {
+        if (transactions.isNotEmpty) {
           onUpdate(List<SolanaTransactionModel>.from(transactions));
         }
 
@@ -672,6 +1183,7 @@ class SolanaWalletClient {
     required SolAddress sourceAccount,
     required int amount,
     required Commitment commitment,
+    required SolAddress tokenProgramId,
   }) async {
     final instructions = [
       SPLTokenProgram.transferChecked(
@@ -829,15 +1341,110 @@ class SolanaWalletClient {
     );
   }
 
+  /// Creates a transferChecked instruction with a custom token program ID.
+  /// This supports both standard SPL Token and Token-2022.
+  TransactionInstruction _createTransferCheckedInstruction({
+    required SolAddress tokenProgramId,
+    required SolAddress source,
+    required SolAddress destination,
+    required SolAddress mint,
+    required SolAddress owner,
+    required BigInt amount,
+    required int decimals,
+  }) {
+    // TransferChecked instruction format:
+    // - Instruction discriminator: 12 (u8)
+    // - Amount: 8 bytes (u64, little-endian)
+    // - Decimals: 1 byte (u8)
+
+    // Convert BigInt to 8-byte little-endian array
+    final amountBytes = <int>[];
+    var amountValue = amount.toUnsigned(64);
+    for (int i = 0; i < 8; i++) {
+      amountBytes.add((amountValue & BigInt.from(0xFF)).toInt());
+      amountValue = amountValue >> 8;
+    }
+
+    final instructionData = <int>[12, ...amountBytes, decimals];
+
+    // Account order for transferChecked:
+    // 0. source (writable)
+    // 1. mint (readonly)
+    // 2. destination (writable)
+    // 3. owner (signer)
+    final accounts = [
+      AccountMeta(
+        publicKey: source,
+        isWritable: true,
+        isSigner: false,
+      ),
+      AccountMeta(
+        publicKey: mint,
+        isWritable: false,
+        isSigner: false,
+      ),
+      AccountMeta(
+        publicKey: destination,
+        isWritable: true,
+        isSigner: false,
+      ),
+      AccountMeta(
+        publicKey: owner,
+        isWritable: false,
+        isSigner: true,
+      ),
+    ];
+
+    return TransactionInstruction.fromBytes(
+      programId: tokenProgramId,
+      instructionBytes: instructionData,
+      keys: accounts,
+    );
+  }
+
+  /// Gets the token program ID for a given mint address.
+  /// Returns the standard SPL Token program ID if the mint account cannot be fetched.
+  Future<SolAddress> _getTokenProgramId(SolAddress mintAddress) async {
+    try {
+      final mintAccountInfo = await _provider!.request(
+        SolanaRPCGetAccountInfo(
+          account: mintAddress,
+          commitment: Commitment.confirmed,
+        ),
+      );
+
+      // Determine the token program ID from the mint account owner
+      if (mintAccountInfo != null) {
+        return mintAccountInfo.owner;
+      }
+    } catch (e) {
+      // If we can't fetch mint info, default to standard SPL Token program
+      printV('Warning: Could not fetch mint account info: $e');
+    }
+
+    return SPLTokenProgramConst.tokenProgramId;
+  }
+
   Future<ProgramDerivedAddress?> _getOrCreateAssociatedTokenAccount({
     required SolanaPrivateKey payerPrivateKey,
     required SolAddress ownerAddress,
     required SolAddress mintAddress,
     required bool shouldCreateATA,
   }) async {
-    final associatedTokenAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+    // For transaction history loading (shouldCreateATA: false), try standard token program first
+    // to avoid unnecessary RPC call. Only fetch token program ID when creating accounts.
+    SolAddress tokenProgramId = SPLTokenProgramConst.tokenProgramId;
+    
+    if (shouldCreateATA) {
+      // Only fetch token program ID when we need to create an account
+      tokenProgramId = await _getTokenProgramId(mintAddress);
+    }
+
+    // Try with standard token program first (most common case)
+    var associatedTokenAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
       mint: mintAddress,
       owner: ownerAddress,
+      tokenProgramId: SPLTokenProgramConst.tokenProgramId,
     );
 
     SolanaAccountInfo? accountInfo;
@@ -852,10 +1459,40 @@ class SolanaWalletClient {
       accountInfo = null;
     }
 
-    // If account exists, we return the associated token account
+    // If account exists with standard program, return it
     if (accountInfo != null) return associatedTokenAccount;
 
-    if (!shouldCreateATA) return null;
+    // If not found and we're not creating, try Token-2022 as fallback
+    if (!shouldCreateATA) {
+      try {
+        final token2022ProgramId = await _getTokenProgramId(mintAddress);
+        if (token2022ProgramId.address != SPLTokenProgramConst.tokenProgramId.address) {
+          associatedTokenAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+            mint: mintAddress,
+            owner: ownerAddress,
+            tokenProgramId: token2022ProgramId,
+          );
+          
+          try {
+            accountInfo = await _provider!.request(
+              SolanaRPCGetAccountInfo(
+                account: associatedTokenAccount.address,
+                commitment: Commitment.confirmed,
+              ),
+            );
+            if (accountInfo != null) return associatedTokenAccount;
+          } catch (_) {}
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    // For account creation, use the detected token program ID
+    associatedTokenAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+      mint: mintAddress,
+      owner: ownerAddress,
+      tokenProgramId: tokenProgramId,
+    );
 
     final payerAddress = payerPrivateKey.publicKey().toAddress();
 
@@ -864,6 +1501,7 @@ class SolanaWalletClient {
       associatedToken: associatedTokenAccount.address,
       owner: ownerAddress,
       mint: mintAddress,
+      tokenProgramId: tokenProgramId,
     );
 
     final blockhash = await _getLatestBlockhash(Commitment.confirmed);
@@ -904,18 +1542,63 @@ class SolanaWalletClient {
 
     // Input by the user
     final amount = (inputAmount * math.pow(10, tokenDecimals)).toInt();
+
+    final tokenProgramId = await _getTokenProgramId(mintAddress);
+
     ProgramDerivedAddress? associatedSenderAccount;
+    SolAddress senderTokenProgramId = tokenProgramId;
+
     try {
       associatedSenderAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
         mint: mintAddress,
         owner: ownerPrivateKey.publicKey().toAddress(),
+        tokenProgramId: tokenProgramId,
       );
+
+      // Verify the account exists and get the actual program ID that owns it
+      final accountInfo = await _provider!.request(
+        SolanaRPCGetAccountInfo(
+          account: associatedSenderAccount.address,
+          commitment: Commitment.confirmed,
+        ),
+      );
+
+      if (accountInfo != null) {
+        senderTokenProgramId = accountInfo.owner;
+      } else {
+        associatedSenderAccount = null;
+      }
     } catch (e) {
       associatedSenderAccount = null;
     }
 
-    // Throw an appropriate exception if the sender has no associated
-    // token account
+    // If account doesn't exist with detected program ID, try standard token program as fallback
+    if (associatedSenderAccount == null &&
+        tokenProgramId.address != SPLTokenProgramConst.tokenProgramId.address) {
+      try {
+        associatedSenderAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+          mint: mintAddress,
+          owner: ownerPrivateKey.publicKey().toAddress(),
+          tokenProgramId: SPLTokenProgramConst.tokenProgramId,
+        );
+
+        final accountInfo = await _provider!.request(
+          SolanaRPCGetAccountInfo(
+            account: associatedSenderAccount.address,
+            commitment: Commitment.confirmed,
+          ),
+        );
+
+        if (accountInfo != null) {
+          senderTokenProgramId = accountInfo.owner;
+        } else {
+          associatedSenderAccount = null;
+        }
+      } catch (_) {
+        associatedSenderAccount = null;
+      }
+    }
+
     if (associatedSenderAccount == null) {
       throw SolanaNoAssociatedTokenAccountException(
         ownerPrivateKey.publicKey().toAddress().address,
@@ -923,35 +1606,76 @@ class SolanaWalletClient {
       );
     }
 
+    // Get or create recipient account using the sender's token program ID
+    // This ensures both accounts use the same program
     ProgramDerivedAddress? associatedRecipientAccount;
     try {
-      associatedRecipientAccount = await _getOrCreateAssociatedTokenAccount(
-        payerPrivateKey: ownerPrivateKey,
-        mintAddress: mintAddress,
-        ownerAddress: SolAddress(destinationAddress),
-        shouldCreateATA: true,
+      // First, try to get/create with the sender's actual program ID
+      final recipientPDA = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+        mint: mintAddress,
+        owner: SolAddress(destinationAddress),
+        tokenProgramId: senderTokenProgramId,
       );
-    } catch (e) {
-      associatedRecipientAccount = null;
 
+      // Check if account exists with correct program
+      SolanaAccountInfo? recipientInfo;
+      try {
+        recipientInfo = await _provider!.request(
+          SolanaRPCGetAccountInfo(
+            account: recipientPDA.address,
+            commitment: Commitment.confirmed,
+          ),
+        );
+      } catch (_) {
+        recipientInfo = null;
+      }
+
+      if (recipientInfo != null && recipientInfo.owner.address == senderTokenProgramId.address) {
+        associatedRecipientAccount = recipientPDA;
+      } else {
+        // Create the account with the correct program ID
+        final createATA = AssociatedTokenAccountProgram.associatedTokenAccount(
+          payer: ownerPrivateKey.publicKey().toAddress(),
+          associatedToken: recipientPDA.address,
+          owner: SolAddress(destinationAddress),
+          mint: mintAddress,
+          tokenProgramId: senderTokenProgramId,
+        );
+
+        final blockhash = await _getLatestBlockhash(Commitment.confirmed);
+        final createTransaction = SolanaTransaction(
+          payerKey: ownerPrivateKey.publicKey().toAddress(),
+          instructions: [createATA],
+          recentBlockhash: blockhash,
+          type: TransactionType.v0,
+        );
+
+        final serializedCreateTx = await _signTransactionInternal(
+          ownerPrivateKey: ownerPrivateKey,
+          transaction: createTransaction,
+        );
+
+        await sendTransaction(
+          serializedTransaction: serializedCreateTx,
+          commitment: Commitment.confirmed,
+        );
+
+        await Future.delayed(const Duration(seconds: 2));
+        associatedRecipientAccount = recipientPDA;
+      }
+    } catch (e) {
       throw SolanaCreateAssociatedTokenAccountException(e.toString());
     }
 
-    if (associatedRecipientAccount == null) {
-      throw SolanaCreateAssociatedTokenAccountException(
-        'Error fetching recipient associated token account',
-      );
-    }
-
-    final transferInstructions = SPLTokenProgram.transferChecked(
-      layout: SPLTokenTransferCheckedLayout(
-        amount: BigInt.from(amount),
-        decimals: tokenDecimals,
-      ),
-      mint: mintAddress,
+    // Create transferChecked instruction with the correct token program ID
+    final transferInstructions = _createTransferCheckedInstruction(
+      tokenProgramId: senderTokenProgramId,
       source: associatedSenderAccount.address,
       destination: associatedRecipientAccount.address,
+      mint: mintAddress,
       owner: ownerPrivateKey.publicKey().toAddress(),
+      amount: BigInt.from(amount),
+      decimals: tokenDecimals,
     );
 
     final latestBlockHash = await _getLatestBlockhash(commitment);
@@ -970,6 +1694,7 @@ class SolanaWalletClient {
       sourceAccount: associatedSenderAccount.address,
       amount: amount,
       commitment: commitment,
+      tokenProgramId: tokenProgramId,
     );
 
     final fee = await _getFeeFromCompiledMessage(message, commitment);

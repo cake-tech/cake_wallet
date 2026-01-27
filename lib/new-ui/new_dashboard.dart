@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:progressive_blur/progressive_blur.dart';
 import '../view_model/dashboard/dashboard_view_model.dart';
 
@@ -31,40 +32,42 @@ class _NewDashboardState extends State<NewDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          widget.dashboardPageWidgets[_selectedPage],
-          IgnorePointer(
-            child: Container(
-              height: 150,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: <Color>[
-                    context.customColors.backgroundGradientColor.withAlpha(5),
-                    context.customColors.backgroundGradientColor.withAlpha(50),
-                    context.customColors.backgroundGradientColor.withAlpha(100),
-                    context.customColors.backgroundGradientColor.withAlpha(150),
-                    context.customColors.backgroundGradientColor.withAlpha(200),
-                    context.customColors.backgroundGradientColor,
-                  ],
+    return CupertinoScaffold(
+      body: Material(
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            widget.dashboardPageWidgets[_selectedPage],
+            IgnorePointer(
+              child: Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: <Color>[
+                      context.customColors.backgroundGradientColor.withAlpha(5),
+                      context.customColors.backgroundGradientColor.withAlpha(50),
+                      context.customColors.backgroundGradientColor.withAlpha(100),
+                      context.customColors.backgroundGradientColor.withAlpha(150),
+                      context.customColors.backgroundGradientColor.withAlpha(200),
+                      context.customColors.backgroundGradientColor,
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          NewMainNavBar(
-            dashboardViewModel: widget.dashboardViewModel,
-            selectedIndex: _selectedPage,
-            onItemTap: (index) {
-              setState(() {
-                _selectedPage = index;
-              });
-            },
-          )
-        ],
+            NewMainNavBar(
+              dashboardViewModel: widget.dashboardViewModel,
+              selectedIndex: _selectedPage,
+              onItemTap: (index) {
+                setState(() {
+                  _selectedPage = index;
+                });
+              },
+            )
+          ],
+        ),
       ),
     );
   }
