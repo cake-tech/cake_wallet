@@ -5,8 +5,13 @@ import 'package:cw_minotari/src/rust/api/address.dart' as address;
 import 'package:cw_minotari/src/rust/api/db.dart';
 import 'package:cw_minotari/src/rust/api/scanner.dart' as scanner;
 import 'package:cw_minotari/src/rust/api/transactions.dart' as transactions;
+import 'package:cw_minotari/src/rust/api/send_transaction.dart' as send_tx;
 import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/frb_generated.dart';
+
+// Re-export send transaction types for callers
+export 'package:cw_minotari/src/rust/api/send_transaction.dart'
+    show SendTransactionEvent, TransactionStage;
 
 /// FFI interface for Minotari wallet using Flutter Rust Bridge
 /// Note: The Rust library uses "password" parameter name but it actually means
@@ -31,11 +36,16 @@ class MinotariFfi {
     return _networkInternal!;
   }
 
-  /// Ensure Rust library is initialized (lazy initialization)
   static Future<void> _ensureRustLibInitialized() async {
     if (!_rustLibInitialized) {
       await RustLib.init();
       _rustLibInitialized = true;
+    }
+  }
+
+  void _ensureWalletInitialized() {
+    if (!_isInitialized) {
+      throw Exception('Wallet not initialized');
     }
   }
 
@@ -104,9 +114,7 @@ class MinotariFfi {
   /// Get wallet address
   /// [passphrase] is the BIP39 passphrase for seed derivation
   Future<String> getAddress({required String passphrase}) async {
-    if (!_isInitialized) {
-      throw Exception('Wallet not initialized');
-    }
+    _ensureWalletInitialized();
 
     return await address.getAddress(
       walletName: _walletName,
@@ -117,9 +125,7 @@ class MinotariFfi {
 
   /// Get wallet balance
   Future<Map<String, int>> getBalance() async {
-    if (!_isInitialized) {
-      throw Exception('Wallet not initialized');
-    }
+    _ensureWalletInitialized();
 
     final balanceData = await balance.getBalance(walletName: _walletName);
 
@@ -141,9 +147,7 @@ class MinotariFfi {
     int batchSize = 1000,
     int pollIntervalSeconds = 60,
   }) {
-    if (!_isInitialized) {
-      throw Exception('Wallet not initialized');
-    }
+    _ensureWalletInitialized();
 
     // Note: Rust API uses "password" field name but it's actually the BIP39 passphrase
     final config = scanner.ScanConfiguration(
@@ -167,15 +171,46 @@ class MinotariFfi {
     int limit = 100,
     int offset = 0,
   }) async {
-    if (!_isInitialized) {
-      throw Exception('Wallet not initialized');
-    }
+    _ensureWalletInitialized();
 
     return await transactions.getTransactions(
       walletName: _walletName,
       limit: limit,
       offset: offset,
     );
+  }
+
+  /// Send a transaction to the specified recipient
+  /// Returns a stream of transaction events for progress updates
+  ///
+  /// [seedWords] - The wallet's mnemonic seed words (24 words)
+  /// [passphrase] - BIP39 passphrase for seed derivation
+  /// [recipientAddress] - The Tari address to send to
+  /// [amount] - Amount in microTari
+  /// [baseNodeUrl] - The base node URL for broadcasting
+  /// [paymentId] - Optional payment ID/message
+  Stream<send_tx.SendTransactionEvent> sendTransaction({
+    required List<String> seedWords,
+    required String passphrase,
+    required String recipientAddress,
+    required BigInt amount,
+    required String baseNodeUrl,
+    String? paymentId,
+  }) {
+    _ensureWalletInitialized();
+
+    final details = send_tx.SendTransactionDetails(
+      seedWords: seedWords,
+      passphrase: passphrase,
+      network: _network,
+      baseUrl: baseNodeUrl,
+      walletName: _walletName,
+      recipientAddress: recipientAddress,
+      amount: amount,
+      paymentId: paymentId,
+    );
+
+    return send_tx.sendTransaction(details: details);
   }
 
   /// Dispose of the wallet handle

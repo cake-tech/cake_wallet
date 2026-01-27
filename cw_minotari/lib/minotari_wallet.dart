@@ -16,11 +16,11 @@ import 'package:cw_minotari/minotari_ffi.dart';
 import 'package:cw_minotari/minotari_transaction_history.dart';
 import 'package:cw_minotari/minotari_transaction_info.dart';
 import 'package:cw_minotari/minotari_wallet_addresses.dart';
+import 'package:cw_minotari/pending_minotari_transaction.dart';
 import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/api/scanner.dart';
 import 'package:cw_minotari/src/rust/api/transactions.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 
 part 'minotari_wallet.g.dart';
@@ -259,8 +259,127 @@ abstract class MinotariWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    // TODO: Implement transaction creation
-    throw UnimplementedError('createTransaction not yet implemented');
+    final creds = credentials as MinotariTransactionCredentials;
+
+    // Validate we have seed words
+    final mnemonic = _mnemonic;
+    if (mnemonic == null || mnemonic.isEmpty) {
+      throw Exception('Wallet seed not available. Cannot create transaction.');
+    }
+
+    // Validate we have a connected node
+    final currentNode = _currentNode;
+    if (currentNode == null) {
+      throw Exception('No node connected. Call connectToNode first.');
+    }
+
+    // Validate FFI is initialized
+    final ffi = _ffi;
+    if (ffi == null) {
+      throw Exception('Wallet not initialized.');
+    }
+
+    // Get the first output (Minotari doesn't support multiple outputs yet)
+    if (creds.outputs.isEmpty) {
+      throw Exception('No outputs specified for transaction.');
+    }
+
+    final output = creds.outputs.first;
+    final recipientAddress = output.isParsedAddress
+        ? output.extractedAddress ?? output.address
+        : output.address;
+
+    // Calculate amount - handle sendAll and nullable formattedCryptoAmount
+    final int amount;
+    if (output.sendAll) {
+      amount = balance[CryptoCurrency.xtm]?.available ?? 0;
+    } else {
+      final formattedAmount = output.formattedCryptoAmount;
+      if (formattedAmount == null || formattedAmount <= 0) {
+        throw Exception('Invalid amount specified.');
+      }
+      amount = formattedAmount;
+    }
+
+    if (amount <= 0) {
+      throw Exception('Invalid amount: $amount');
+    }
+
+    if (recipientAddress.isEmpty) {
+      throw Exception('Recipient address is empty.');
+    }
+
+    // Prepare seed words as list
+    final seedWords = mnemonic.split(' ').where((w) => w.isNotEmpty).toList();
+    if (seedWords.length != 24) {
+      throw Exception('Invalid seed: expected 24 words, got ${seedWords.length}');
+    }
+
+    final nodeUrl = currentNode.uri.toString();
+
+    // TODO Estimated fee (Minotari calculates actual fee during transaction construction)
+    // Use the placeholder estimate from calculateEstimatedFee
+    final fee = 27777; // Placeholder fixed fee for Minotari
+
+    // Get note/payment ID if provided
+    final note = output.note;
+    final paymentId = (note != null && note.isNotEmpty) ? note : null;
+
+    // Create the send transaction callback
+    Future<String> sendTransactionCallback() async {
+      final completer = Completer<String>();
+
+      final stream = ffi.sendTransaction(
+        seedWords: seedWords,
+        passphrase: passphrase ?? '',
+        recipientAddress: recipientAddress,
+        amount: BigInt.from(amount),
+        baseNodeUrl: nodeUrl,
+        paymentId: paymentId,
+      );
+
+      stream.listen(
+        (event) {
+          printV('Send transaction stage: ${event.stage.name} - ${event.details}');
+
+          if (event.stage == TransactionStage.completed) {
+            // The details field contains the transaction ID on completion
+            if (!completer.isCompleted) {
+              completer.complete(event.details);
+            }
+          }
+        },
+        onError: (Object error) {
+          printV('Send transaction error: $error');
+          if (!completer.isCompleted) {
+            completer.completeError(error);
+          }
+        },
+        onDone: () {
+          // If stream completes without reaching 'completed' stage, something went wrong
+          if (!completer.isCompleted) {
+            completer.completeError(Exception('Transaction stream ended unexpectedly'));
+          }
+        },
+        cancelOnError: true,
+      );
+
+      // Wait for transaction to complete
+      final txId = await completer.future;
+
+      // Update balance and transactions after send
+      await updateBalance();
+      await updateTransactions();
+
+      return txId;
+    }
+
+    return PendingMinotariTransaction(
+      amount: amount,
+      fee: fee,
+      recipientAddress: recipientAddress,
+      sendTransaction: sendTransactionCallback,
+    );
   }
 
   @override
@@ -298,32 +417,29 @@ abstract class MinotariWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    // Stub implementation - return 0 fee for now
-    return 0;
-  }
+  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
 
   @override
   Future<bool> checkNodeHealth() async {
-    // Stub implementation - always return true
+    // TODO Stub implementation - always return true
     return true;
   }
 
   @override
   Future<Map<String, MinotariTransactionInfo>> fetchTransactions() async {
-    // Stub implementation - return empty map
+    // TODO Stub implementation - return empty map
     return {};
   }
 
   @override
   Future<String> signMessage(String message, {String? address}) async {
-    // Stub implementation
+    // TODO Stub implementation
     throw UnimplementedError('signMessage not yet implemented');
   }
 
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address}) async {
-    // Stub implementation
+    // TODO Stub implementation
     return false;
   }
 
@@ -344,9 +460,7 @@ abstract class MinotariWalletBase
 
   Future<void> updateTransactions() async {
     try {
-      if (_isTransactionUpdating) {
-        return;
-      }
+      if (_isTransactionUpdating) return;
 
       _isTransactionUpdating = true;
 
@@ -369,31 +483,6 @@ abstract class MinotariWalletBase
       try {
         // Cast to proper type
         final txDto = txDynamic as DisplayedTransactionDto;
-
-        // Debug logging - show all FFI data (only in debug builds)
-        if (kDebugMode) {
-          printV('=== Minotari Transaction FFI Data ===');
-          printV('ID: ${txDto.id}');
-          printV('Direction: ${txDto.direction.name}');
-          printV('Source: ${txDto.source.name}');
-          printV('Status: ${txDto.status.name}');
-          printV('Amount: ${txDto.amount} (${txDto.amountDisplay})');
-          printV('Message: ${txDto.message ?? "none"}');
-          printV('Blockchain - Height: ${txDto.blockchain.blockHeight}, Timestamp: ${txDto.blockchain.timestamp}, Confirmations: ${txDto.blockchain.confirmations}');
-          if (txDto.fee != null) {
-            printV('Fee: ${txDto.fee!.amount} (${txDto.fee!.amountDisplay})');
-          } else {
-            printV('Fee: none');
-          }
-          if (txDto.counterparty != null) {
-            printV('Counterparty - Address: ${txDto.counterparty!.address}');
-            printV('Counterparty - Emoji: ${txDto.counterparty!.addressEmoji ?? "none"}');
-            printV('Counterparty - Label: ${txDto.counterparty!.label ?? "none"}');
-          } else {
-            printV('Counterparty: none');
-          }
-          printV('=====================================');
-        }
 
         final direction = txDto.direction == DisplayedTransactionDirection.incoming
             ? TransactionDirection.incoming

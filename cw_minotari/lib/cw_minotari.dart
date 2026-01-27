@@ -6,6 +6,5 @@ export 'minotari_wallet_addresses.dart';
 export 'minotari_balance.dart';
 export 'minotari_transaction_info.dart';
 export 'minotari_transaction_history.dart';
-export 'minotari_transaction_priority.dart';
 export 'src/rust/api/network.dart';
 export 'pending_minotari_transaction.dart';
