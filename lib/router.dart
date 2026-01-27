@@ -437,6 +437,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: initialPaymentRequest,
           param2: coinTypeToSpendFrom,
         ),
+        settings: settings,
       );
 
     case Routes.sendTemplate:
