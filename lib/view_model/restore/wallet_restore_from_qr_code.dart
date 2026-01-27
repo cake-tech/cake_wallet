@@ -58,6 +58,9 @@ class WalletRestoreFromQRCode {
     'zcash': WalletType.zcash,
     'zcash-wallet': WalletType.zcash,
     'zcash_wallet': WalletType.zcash,
+    'minotari': WalletType.minotari,
+    'minotari-wallet': WalletType.minotari,
+    'minotari_wallet': WalletType.minotari,
   };
 
   static WalletType? _extractWalletType(String code) {

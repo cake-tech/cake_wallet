@@ -382,6 +382,26 @@
                 <string>zcash-wallet</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>minotari</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>minotari</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>minotari-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>minotari-wallet</string>
+            </array>
+        </dict>
     </array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>

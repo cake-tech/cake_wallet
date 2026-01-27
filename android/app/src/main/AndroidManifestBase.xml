@@ -117,6 +117,9 @@
                 <data android:scheme="bsc_wallet" />
                 <data android:scheme="zcash" />
                 <data android:scheme="zcash-wallet" />
+                <data android:scheme="minotari" />
+                <data android:scheme="minotari-wallet" />
+                <data android:scheme="minotari_wallet" />
             </intent-filter>
             <!-- nano-gpt link scheme -->
             <intent-filter android:autoVerify="true">
