@@ -345,6 +345,7 @@ class CardDesign {
     CryptoCurrency.zano: zano,
     CryptoCurrency.arbEth: arbitrum,
     CryptoCurrency.zec: zec,
+    CryptoCurrency.dcr: dcr,
 
   };
 
