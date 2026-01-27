@@ -854,9 +854,10 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                       foregroundElementColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                       textColor: Theme.of(context).colorScheme.onSurfaceVariant,
                       fiatInputMode: _fiatInputMode,
-                      allAmount:
-                          widget.isReceiverCard || widget.exchangeViewModel.isSendFromExternal
-                              ? null
+                      allAmount: widget.isReceiverCard ||
+                              widget.exchangeViewModel.isSendFromExternal ||
+                              !widget.exchangeViewModel.hasAllAmount
+                          ? null
                               : widget.exchangeViewModel.depositAvailableAmount,
                       onSwitchButtonPressed: () {
                         setState(() {
@@ -1024,7 +1025,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       context: context,
       builder: (_) => CurrencyPicker(
         key: ValueKey('send_page_currency_picker_dialog_button_key'),
-        selectedAtIndex: currencies.indexOf(widget.exchangeViewModel.depositCurrency),
+        selectedAtIndex: currencies.indexOf(widget.isReceiverCard
+            ? widget.exchangeViewModel.receiveCurrency
+            : widget.exchangeViewModel.depositCurrency),
         items: currencies,
         hintText: S.of(context).search_currency,
         onItemSelected: (Currency cur) async {
