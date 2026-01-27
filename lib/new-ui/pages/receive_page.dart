@@ -52,7 +52,6 @@ class NewReceivePage extends StatefulWidget {
 
 class _NewReceivePageState extends State<NewReceivePage> {
   bool _largeQrMode = false;
-  bool _effectsInstalled = false;
   late WalletAddressListItem? _addressItemWithLabel;
 
   @override
@@ -78,12 +77,73 @@ class _NewReceivePageState extends State<NewReceivePage> {
       return (item is WalletAddressListItem &&
           item.address == widget.addressListViewModel.uri.address);
     }) as WalletAddressListItem?;
+
+
+    reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption,
+            (ReceivePageOption option) {
+          if (widget.dashboardViewModel.type == WalletType.bitcoin &&
+              bitcoin!.isBitcoinReceivePageOption(option)) {
+            widget.addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
+            return;
+          }
+          if (widget.dashboardViewModel.type == WalletType.zcash) {
+            widget.addressListViewModel.setAddressType(zcash!.getOptionToType(option));
+            return;
+          }
+
+          switch (option) {
+            case ReceivePageOption.anonPayInvoice:
+              Navigator.pushNamed(
+                context,
+                Routes.anonPayInvoicePage,
+                arguments: [widget.addressListViewModel.address.address, option],
+              );
+              break;
+            case ReceivePageOption.anonPayDonationLink:
+              final sharedPreferences = getIt.get<SharedPreferences>();
+              final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
+              final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
+              final donationWalletName =
+              sharedPreferences.getString(PreferencesKey.donationLinkWalletName);
+
+              if (clearnetUrl != null &&
+                  onionUrl != null &&
+                  widget.addressListViewModel.wallet.name == donationWalletName) {
+                Navigator.pushNamed(
+                  context,
+                  Routes.anonPayReceivePage,
+                  arguments: AnonPayReceivePageArgs(
+                    invoiceInfo: AnonpayDonationLinkInfo(
+                      clearnetUrl: clearnetUrl,
+                      onionUrl: onionUrl,
+                      address: widget.addressListViewModel.address.address,
+                    ),
+                    qrImage: widget.addressListViewModel.qrImage,
+                  ),
+                );
+              } else {
+                Navigator.pushNamed(
+                  context,
+                  Routes.anonPayInvoicePage,
+                  arguments: [widget.addressListViewModel.address.address, option],
+                );
+              }
+              break;
+            default:
+              if ([WalletType.bitcoin, WalletType.litecoin]
+                  .contains(widget.addressListViewModel.type)) {
+                widget.addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
+              }
+              if (widget.addressListViewModel.type == WalletType.zcash) {
+                printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
+                widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
+              }
+          }
+        });
   }
 
   @override
   Widget build(BuildContext context) {
-    _setEffects(context);
-
     final hasLabel = _addressItemWithLabel?.name != null && _addressItemWithLabel!.name!.isNotEmpty;
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
     final infobox = ReceiveInfoBox.forWalletType(widget.addressListViewModel.type,
@@ -226,76 +286,6 @@ class _NewReceivePageState extends State<NewReceivePage> {
         ),
       ),
     );
-  }
-
-  void _setEffects(BuildContext context) {
-    if (_effectsInstalled) {
-      return;
-    }
-
-    reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption,
-        (ReceivePageOption option) {
-      if (widget.dashboardViewModel.type == WalletType.bitcoin &&
-          bitcoin!.isBitcoinReceivePageOption(option)) {
-        widget.addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
-        return;
-      }
-      if (widget.dashboardViewModel.type == WalletType.zcash) {
-        widget.addressListViewModel.setAddressType(zcash!.getOptionToType(option));
-        return;
-      }
-
-      switch (option) {
-        case ReceivePageOption.anonPayInvoice:
-          Navigator.pushNamed(
-            context,
-            Routes.anonPayInvoicePage,
-            arguments: [widget.addressListViewModel.address.address, option],
-          );
-          break;
-        case ReceivePageOption.anonPayDonationLink:
-          final sharedPreferences = getIt.get<SharedPreferences>();
-          final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
-          final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
-          final donationWalletName =
-              sharedPreferences.getString(PreferencesKey.donationLinkWalletName);
-
-          if (clearnetUrl != null &&
-              onionUrl != null &&
-              widget.addressListViewModel.wallet.name == donationWalletName) {
-            Navigator.pushNamed(
-              context,
-              Routes.anonPayReceivePage,
-              arguments: AnonPayReceivePageArgs(
-                invoiceInfo: AnonpayDonationLinkInfo(
-                  clearnetUrl: clearnetUrl,
-                  onionUrl: onionUrl,
-                  address: widget.addressListViewModel.address.address,
-                ),
-                qrImage: widget.addressListViewModel.qrImage,
-              ),
-            );
-          } else {
-            Navigator.pushNamed(
-              context,
-              Routes.anonPayInvoicePage,
-              arguments: [widget.addressListViewModel.address.address, option],
-            );
-          }
-          break;
-        default:
-          if ([WalletType.bitcoin, WalletType.litecoin]
-              .contains(widget.addressListViewModel.type)) {
-            widget.addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
-          }
-          if (widget.addressListViewModel.type == WalletType.zcash) {
-            printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
-            widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
-          }
-      }
-    });
-
-    _effectsInstalled = true;
   }
 
   void _showLabelModal() {
