@@ -130,7 +130,7 @@ class CardDesign {
       imagePath: "assets/new-ui/balance_card_icons/litecoin.svg");
 
   static const bch = CardDesign(
-      gradient: gradientGreen, imagePath: "assets/new-ui/balance_card_icons/bitcoin_cash.svg");
+      imagePath: "assets/new-ui/balance_card_icons/bitcoin_cash.svg");
 
   static const doge = CardDesign(
       imagePath: "assets/new-ui/balance_card_icons/dogecoin.svg");
@@ -273,6 +273,7 @@ class CardDesign {
           colors: <Color>[Color(0xFF2871FF), Color(0xFF0057FF)],
           begin: Alignment.topCenter, end: Alignment.bottomCenter
       ),
+      colors: CardColorCombination.light,
       backgroundType: CardDesignBackgroundTypes.svgFull,
       imagePath: "assets/new-ui/balance_card_backgrounds/decred.svg");
 
@@ -368,7 +369,7 @@ class CardDesign {
   };
 
   static Map<Gradient, CardColorCombination> preferredColorCombinations = {
-    CardDesign.gradientOrange: CardColorCombination.light,
+    CardDesign.gradientOrange: CardColorCombination.dark,
     CardDesign.gradientYellow: CardColorCombination.dark,
     CardDesign.gradientGreen: CardColorCombination.light,
     CardDesign.gradientBlue: CardColorCombination.dark,
