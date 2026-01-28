@@ -289,7 +289,7 @@ class CardDesign {
           colors: <Color>[Color(0xFF0004B4), Color(0xFF170069)],
           begin: Alignment.topCenter, end: Alignment.bottomCenter
       ),
-      colors: CardColorCombination.light,
+      colors: CardColorCombination.black,
       backgroundType: CardDesignBackgroundTypes.svgFull,
       imagePath: "assets/new-ui/balance_card_backgrounds/zano.svg");
 
