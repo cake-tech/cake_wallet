@@ -68,9 +68,7 @@ class MinotariFfi {
 
     await initializeDatabase(path: dataPath);
 
-    // Create wallet using FFI - Rust generates mnemonic internally
-    // Note: Rust API uses "password" param name but it's actually the BIP39 passphrase
-    final details = await createWallet(network: network, password: passphrase);
+    final details = await createWallet(network: network, passphrase: passphrase);
 
     _networkInternal = network;
     _isInitialized = true;
@@ -97,11 +95,9 @@ class MinotariFfi {
       throw Exception('Invalid mnemonic: expected 24 words, got ${seedWords.length}');
     }
 
-    // Restore wallet using FFI
-    // Note: Rust API uses "password" param name but it's actually the BIP39 passphrase
     final details = await restoreWallet(
       seedWords: seedWords,
-      password: passphrase,
+      passphrase: passphrase,
       network: network,
     );
 
@@ -149,9 +145,8 @@ class MinotariFfi {
   }) {
     _ensureWalletInitialized();
 
-    // Note: Rust API uses "password" field name but it's actually the BIP39 passphrase
     final config = scanner.ScanConfiguration(
-      password: passphrase,
+      passphrase: passphrase,
       baseUrl: baseNodeAddress,
       batchSize: BigInt.from(batchSize),
       continuous: continuous,
