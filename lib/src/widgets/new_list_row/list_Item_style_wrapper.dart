@@ -6,12 +6,14 @@ class ListItemStyleWrapper extends StatelessWidget {
     required this.isFirstInSection,
     required this.isLastInSection,
     required this.builder,
+    this.hasImage,
     this.onTap,
     this.height = 50,
   });
 
   final bool isFirstInSection;
   final bool isLastInSection;
+  final bool ?hasImage;
   final double height;
   final VoidCallback? onTap;
   final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
@@ -39,31 +41,41 @@ class ListItemStyleWrapper extends StatelessWidget {
       bottom: Radius.circular(isLastInSection ? 16 : 0),
     );
 
-    return ClipRRect(
-      borderRadius: radius,
-      child: Column(
-        children: [
-          Container(
-              height: height,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainer,
+      return ClipRSuperellipse(
+        borderRadius: radius,
+        child: Column(
+          children: [
+            Container(
+                height: height,
+                decoration: ShapeDecoration(
+                  shape: RoundedSuperellipseBorder(
+                    borderRadius: radius,
+                  ),
+                  color: theme.colorScheme.surfaceContainer,
+                ),
+                child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                        onTap: onTap,
+                        child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: builder(context, textStyle, labelStyle))))),
+            if(hasImage == true && isLastInSection == false) Container(
+              color: theme.colorScheme.surfaceContainer,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 48, right: 13),
+                child: Container(height: 1, color: theme.colorScheme.surfaceContainerHigh),
               ),
-              child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                      onTap: onTap,
-                      child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: builder(context, textStyle, labelStyle))))),
-          if(!isLastInSection) Container(
-            color: theme.colorScheme.surfaceContainer,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(height: 1, color: theme.colorScheme.surfaceContainerHigh),
+            )
+            else if(!isLastInSection) Container(
+              color: theme.colorScheme.surfaceContainer,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 13),
+                child: Container(height: 1, color: theme.colorScheme.surfaceContainerHigh),
+              ),
+            )
+          ],
             ),
-          )
-        ],
-      ),
-    );
+      );
   }
 }

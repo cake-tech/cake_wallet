@@ -107,7 +107,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                   commonOptions[index + 1])) return Container();
 
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 36.0),
+                        padding: const EdgeInsets.only(left: 44.0, right: 36.0),
                         child: HorizontalSectionDivider(),
                       );
                     },
@@ -168,7 +168,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                         ),
                         if (_otherOptionsExpanded)
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 27.0),
+                            padding: const EdgeInsets.only(left: 44.0, right: 36.0),
                             child: HorizontalSectionDivider(),
                           ),
                         AnimatedSize(
@@ -205,7 +205,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                             otherOptions[index + 1])) return Container();
 
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 27.0),
+                                  padding: const EdgeInsets.only(left: 44.0, right: 36.0),
                                   child: HorizontalSectionDivider(),
                                 );
                               },
