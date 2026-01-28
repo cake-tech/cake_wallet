@@ -49,14 +49,14 @@ class CoinActionRow extends StatelessWidget {
               if (FeatureFlag.hasNewUiExtraPages) {
                 CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
-                  barrierColor: Colors.black.withAlpha(85),
-                  builder: (context) => FractionallySizedBox(
-                      heightFactor: 0.97,
-                      child: Material(
-                          child: ModalNavigator(
-                        rootPage: sendPage,
-                        parentContext: context,
-                      ))),
+                  barrierColor: Colors.black.withAlpha(60),
+                  builder: (context) {
+                    return Material(
+                        child: ModalNavigator(
+                      rootPage: sendPage,
+                      parentContext: context,
+                    ));
+                  },
                 );
               } else {
                 Map<String, dynamic>? args;
@@ -79,9 +79,10 @@ class CoinActionRow extends StatelessWidget {
                 final page = getIt.get<NewReceivePage>(param1: lightningMode);
                 CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
-                  barrierColor: Colors.black.withAlpha(80),
-                  builder: (context) => FractionallySizedBox(
-                      heightFactor: 0.97, child: Material(child: ModalNavigator(parentContext:context,rootPage: page))),
+                  barrierColor: Colors.black.withAlpha(60),
+                  builder: (context) {
+                      return Material(child: ModalNavigator(parentContext:context,rootPage: page));
+                  },
                 );
               } else {
                 // ToDo: (Konsti) refactor as part of the derivation PR (I hate myself for it)
