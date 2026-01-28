@@ -50,7 +50,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     required this.fiatConversionStore,
   })  : trade = tradesStore.trade!,
         isSendable = _checkIfCanSend(tradesStore, wallet),
-        isSwapsXYZContractCall = _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
+        isSwapsXYZCanSendFromExternal = _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
         items = ObservableList<ExchangeTradeItem>() {
     setUpOutput();
     switch (trade.provider) {
@@ -119,7 +119,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   bool isSendable;
 
 
-  bool isSwapsXYZContractCall;
+  bool isSwapsXYZCanSendFromExternal;
 
   /// Providers that should hide the "send from external" button
   static const List<Type> _providersThatHideExternalSend = [
@@ -129,6 +129,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   /// Returns true if the current provider should hide the external send button
   bool get shouldHideExternalSendButton {
     if (_provider == null) return false;
+    if (isSwapsXYZCanSendFromExternal) return false;
     return _providersThatHideExternalSend.any(
       (providerType) => _provider.runtimeType == providerType,
     );
@@ -302,7 +303,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       ]);
 
       items.add(
-        isSwapsXYZContractCall
+        isSwapsXYZCanSendFromExternal
             ? ExchangeTradeItem(
             title: S.current.send_to_this_address('${tradeFrom}', tagFrom) +
                 ':',

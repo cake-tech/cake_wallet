@@ -892,14 +892,19 @@ abstract class EVMChainWalletBase
         }
       }
 
+      // if token found, parse the amount from dataHex and check balance
+      // the amount is in the last 64 hex chars
+      // if balance is insufficient, throw exception to prevent transaction creation
       if (tokenObj != null) {
         final hex = dataHex.startsWith('0x') ? dataHex.substring(2) : dataHex;
+
+        // ensure the dataHex is long enough to contain the amount
         if (hex.length >= 8 + 64 + 64) {
           final amountHex = hex.substring(hex.length - 64);
-          final requiredToken = BigInt.parse(amountHex, radix: 16);
-          final tokenBal = balance[tokenObj]?.balance ?? BigInt.zero;
+          final requiredTokenBalance = BigInt.parse(amountHex, radix: 16);
+          final tokenBalance = balance[tokenObj]?.balance ?? BigInt.zero;
 
-          if (tokenBal < requiredToken) {
+          if (tokenBalance < requiredTokenBalance) {
             throw EVMChainTransactionCreationException(tokenObj);
           }
         }

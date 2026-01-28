@@ -28,6 +28,7 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
@@ -729,11 +730,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
               final canCreateTrade = await isCanCreateTrade(trade);
               if (!canCreateTrade.result) {
-                tradeState = TradeIsCreatedFailure(
-                  title: S.current.trade_not_created,
-                  error: canCreateTrade.errorMessage ?? '',
-                );
-                return;
+                continue;
               }
 
               tradesStore.setTrade(trade);
@@ -741,11 +738,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               tradeState = TradeIsCreatedSuccessfully(trade: trade);
 
               /// return after the first successful trade
-              return;
-            } on SwapXyzProviderException catch (e) {
-              tradeState = TradeIsCreatedFailure(
-                title: S.current.trade_not_created,
-                error: e.message);
               return;
             } catch (e) {
               continue;
@@ -1056,7 +1048,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         bool _isSplToken() =>
             wallet.currency == CryptoCurrency.sol && tradeFrom.tag == CryptoCurrency.sol.title;
 
-        if(!(_isEthToken() || _isPolygonToken() || _isBaseToken() || _isTronToken() || _isSplToken())) {
+        bool isArbitrumToken() =>
+            wallet.currency == CryptoCurrency.arbEth && tradeFrom.tag == CryptoCurrency.arbEth.tag;
+
+        if(!(_isEthToken() || _isPolygonToken() || _isBaseToken() || _isTronToken() || _isSplToken() || isArbitrumToken())) {
           return CreateTradeResult(
             result: false,
             errorMessage: 'This token isn’t supported on the current wallet/network for Swaps.xyz. Switch to a supported wallet or asset',

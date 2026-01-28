@@ -165,11 +165,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
         bottomSection: Column(
           children: [
-// <<<<<<< HEAD
-            // Offstage(
-            //   offstage: !widget.exchangeTradeViewModel.isSwapsXYZContractCall,
-            //   child: PrimaryButton(
-
             if (!widget.exchangeTradeViewModel.shouldHideExternalSendButton)
               PrimaryButton(
                 key: ValueKey('exchange_trade_page_send_from_external_button_key'),
@@ -183,7 +178,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 textColor: widget.exchangeTradeViewModel.isSendable
                     ? Theme.of(context).colorScheme.onSecondaryContainer
                     : Theme.of(context).colorScheme.onPrimary,
-                isDisabled: widget.exchangeTradeViewModel.isSwapsXyzSendingEVMTokenSwap,
               ),
 
             SizedBox(height: 16),
@@ -302,11 +296,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             final trade = widget.exchangeTradeViewModel.trade;
 
-            final isSwapsXYZContractCall = !widget.exchangeTradeViewModel.isSwapsXYZContractCall;
-
-            final amountValue = isSwapsXYZContractCall
-                ? trade.amount
-                : widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted;
+            final amountValue = widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal
+                ? widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted
+                : trade.amount;
 
             if (context.mounted) {
               final result = await showModalBottomSheet<bool>(
@@ -337,7 +329,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
                         .pendingTransactionFeeFiatAmountFormatted,
                     outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
-                    hideAddresses: isSwapsXYZContractCall,
+                    hideAddresses: widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal,
                     onSlideActionComplete: () async {
                       if (bottomSheetContext.mounted && Navigator.canPop(bottomSheetContext)) {
                         Navigator.of(bottomSheetContext).pop(true);

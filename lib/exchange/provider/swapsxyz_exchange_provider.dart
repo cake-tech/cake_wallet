@@ -47,6 +47,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   @override
   bool get isEnabled => true;
 
+  // There is an issue with fixed-rate swaps on Swaps.XYZ
+  // when they don't guarantee that the trade will be created at the requested amount.
   @override
   bool get supportsFixedRate => false;
 
@@ -339,30 +341,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
       final txId = data['txId'] as String? ?? '';
 
-      final requestedOut = isFixedRateMode
-          ? BigInt.tryParse(formattedAmount.replaceAll('n', '')) ?? BigInt.zero
-          : BigInt.zero;
-
-      if (isFixedRateMode) {
-        final amountOut = data['amountOut'] as Map<String, dynamic>?;
-
-        if (amountOut == null ||
-            (amountOut['symbol'] as String?)?.toUpperCase() !=
-                _normalizeCakeNativeTokenName(request.toCurrency.title)) {
-          throw Exception(
-              'No amountOut info in getAction response for fixed rate');
-        }
-
-        final amountOutStr = amountOut['amount']?.toString() ?? '0';
-        final amountOutBigInt =
-            BigInt.tryParse(amountOutStr.replaceAll('n', '')) ?? BigInt.zero;
-
-        if (amountOutBigInt != requestedOut) {
-          throw SwapXyzProviderException(
-              'Requested fixed receive amount unavailable for Swaps.XYZ. Try adjusting the amount or using floating rate.');
-        }
-      }
-
       final vmId = data['vmId'] as String? ?? '';
       final txObj = (data['tx'] as Map?) ?? const {};
 
@@ -419,8 +397,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       );
 
       return trade;
-    } on SwapXyzProviderException {
-      rethrow;
     } catch (e) {
       printV('createTrade error: $e');
       throw TradeNotCreatedException(description, description: e.toString());
@@ -850,13 +826,4 @@ class _PathInfo {
   final String minToAmountHuman;
 
   _PathInfo({required this.supportsExactOut, required this.minToAmountHuman});
-}
-
-class SwapXyzProviderException implements Exception {
-  final String message;
-
-  const SwapXyzProviderException([this.message = '']);
-
-  @override
-  String toString() => 'SwapXyzFixedAmountNotAvailable: $message';
 }
