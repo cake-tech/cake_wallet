@@ -129,7 +129,9 @@ abstract class ExchangeTradeViewModelBase with Store {
   /// Returns true if the current provider should hide the external send button
   bool get shouldHideExternalSendButton {
     if (_provider == null) return false;
-    if (isSwapsXYZCanSendFromExternal) return false;
+
+    if (!isSwapsXYZCanSendFromExternal) return true;
+
     return _providersThatHideExternalSend.any(
       (providerType) => _provider.runtimeType == providerType,
     );
