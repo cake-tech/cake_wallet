@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/svg.dart';
 
 class MenuWidget extends StatefulWidget {
   MenuWidget(this.dashboardViewModel, Key? key);
@@ -40,7 +41,8 @@ class MenuWidgetState extends State<MenuWidget> {
         this.wowneroIcon = Image.asset('assets/images/crypto/wownero.webp'),
         this.zanoIcon = Image.asset('assets/images/crypto/zano.webp'),
         this.decredIcon = Image.asset('assets/images/crypto/decred.webp'),
-        this.dogecoinIcon = Image.asset('assets/images/crypto/dogecoin.webp');
+        this.dogecoinIcon = Image.asset('assets/images/crypto/dogecoin.webp'),
+        this.zcashIcon = Image.asset('assets/images/crypto/zcash.webp');
 
   final largeScreen = 731;
 
@@ -70,6 +72,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image zanoIcon;
   Image decredIcon;
   Image dogecoinIcon;
+  Image zcashIcon;
 
   @override
   void initState() {
@@ -229,7 +232,7 @@ class MenuWidgetState extends State<MenuWidget> {
     );
   }
 
-  Image _iconFor({required WalletType type}) {
+  Widget _iconFor({required WalletType type}) {
     switch (type) {
       case WalletType.monero:
         return moneroIcon;
@@ -265,6 +268,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return decredIcon;
       case WalletType.dogecoin:
         return dogecoinIcon;
+      case WalletType.zcash:
+        return zcashIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }

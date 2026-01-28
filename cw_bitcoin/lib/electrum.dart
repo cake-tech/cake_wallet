@@ -40,7 +40,7 @@ class ElectrumClient {
         unterminatedString = '';
 
   static const connectionTimeout = Duration(seconds: 5);
-  static const aliveTimerDuration = Duration(seconds: 4);
+  static const aliveTimerDuration = Duration(seconds: 5);
 
   bool get isConnected => socket != null && socket?.isClosed == false;
   ProxySocket? socket;
@@ -121,6 +121,7 @@ class ElectrumClient {
         final errorMsg = error.toString();
         printV(errorMsg);
         unterminatedString = '';
+        socket?.destroy();
         socket = null;
         _setConnectionStatus(ConnectionStatus.disconnected);
       },
@@ -128,11 +129,9 @@ class ElectrumClient {
         printV("SOCKET CLOSED!!!!!");
         unterminatedString = '';
         try {
-          if (host == socket?.address.host || socket == null) {
-            _setConnectionStatus(ConnectionStatus.disconnected);
-            socket?.destroy();
-            socket = null;
-          }
+          _setConnectionStatus(ConnectionStatus.disconnected);
+          socket?.destroy();
+          socket = null;
         } catch (e) {
           printV("onDone: $e");
         }

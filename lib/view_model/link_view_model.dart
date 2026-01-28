@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
@@ -21,10 +23,13 @@ class LinkViewModel {
   final AuthenticationStore authenticationStore;
   final GlobalKey<NavigatorState> navigatorKey;
   Uri? currentLink;
+  bool readyToOpenPage = false;
 
   bool get _isValidPaymentUri => currentLink?.path.isNotEmpty ?? false;
   bool get isWalletConnectLink => currentLink?.authority == 'wc';
   bool get isNanoGptLink => currentLink?.scheme == 'nano-gpt';
+  bool get isQuickActionLink =>
+      currentLink?.scheme == 'cakewallet' && currentLink?.host == 'quickaction';
 
   String? getRouteToGo() {
     if (isWalletConnectLink) {
@@ -33,6 +38,19 @@ class LinkViewModel {
         return null;
       }
       return Routes.walletConnectConnectionsListing;
+    }
+
+    // Check for a quick action first.
+    if (isQuickActionLink) {
+      final action = currentLink!.pathSegments.isNotEmpty ? currentLink!.pathSegments.first : null;
+      switch (action) {
+        case 'send':
+          return Routes.send;
+        case 'receive':
+          return Routes.addressPage;
+        default:
+          return null;
+      }
     }
 
     if (authenticationStore.state == AuthenticationState.uninitialized) {
@@ -60,6 +78,10 @@ class LinkViewModel {
   dynamic getRouteArgs() {
     if (isWalletConnectLink) {
       return currentLink;
+    }
+
+    if (isQuickActionLink) {
+      return null;
     }
 
     if (isNanoGptLink) {
@@ -93,11 +115,25 @@ class LinkViewModel {
     } catch (_) {}
   }
 
+  Future<void> markReadyToOpenPage() async {
+    readyToOpenPage = true;
+    await handleLink();
+  }
+
   Future<void> handleLink() async {
+    if (!readyToOpenPage) {
+      return;
+    }
+
     String? route = getRouteToGo();
     dynamic args = getRouteArgs();
     if (route != null) {
       if (appStore.wallet == null) {
+        return;
+      }
+
+      // Prevent navigating to the same route again.
+      if (appStore.currentRouteName == route) {
         return;
       }
 
@@ -106,11 +142,21 @@ class LinkViewModel {
           await _errorToast(S.current.nano_gpt_thanks_message, fontSize: 14);
         }
       }
+
+      // Quick actions must reset navigation to Dashboard → TargetPage
+      if (isQuickActionLink) {
+        currentLink = null;
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          route,
+          ModalRoute.withName(Routes.dashboard),
+          arguments: args,
+        );
+        return;
+      }
+
+      // Normal navigation flow
       currentLink = null;
-      navigatorKey.currentState?.pushNamed(
-        route,
-        arguments: args,
-      );
+      navigatorKey.currentState?.pushNamed(route, arguments: args);
     }
   }
 }

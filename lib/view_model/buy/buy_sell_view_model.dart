@@ -367,8 +367,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     for (var methods in result) {
       for (var method in methods) {
         final alreadyExists = tempPaymentMethods.any((m) {
-          return m.paymentMethodType == method.paymentMethodType &&
-              m.customTitle == method.customTitle;
+          return m.paymentMethodType == method.paymentMethodType;
         });
 
         if (!alreadyExists) {
@@ -436,7 +435,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return;
     }
 
-    validQuotes.sort((a, b) => a.rate.compareTo(b.rate));
+    if (isBuyAction) {
+      validQuotes.sort((a, b) => b.payout.compareTo(a.payout));
+    } else {
+      validQuotes.sort((a, b) => a.payout.compareTo(b.payout));
+    }
+
 
     final Set<String> addedProviders = {};
     final List<Quote> uniqueProviderQuotes = validQuotes.where((element) {
@@ -463,8 +467,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (sortedRecommendedQuotes.isNotEmpty) {
       sortedRecommendedQuotes.first
-        ..setIsBestRate = true
-        ..recommendations.insert(0, ProviderRecommendation.bestRate);
+        ..setIsBestRate = true;
       bestRateQuote = sortedRecommendedQuotes.first;
 
       sortedRecommendedQuotes.sort((a, b) {
@@ -472,6 +475,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         if (b.provider is OnRamperBuyProvider) return 1;
         return 0;
       });
+
+      final Quote effectiveBestRateQuote =
+      sortedRecommendedQuotes.reduce((a, b) {
+        return isBuyAction ? a.rate < b.rate ? a : b : a.rate > b.rate ? a : b;
+      });
+
+
+      effectiveBestRateQuote.recommendations
+          .add(ProviderRecommendation.bestRate);
 
       selectedQuote = sortedRecommendedQuotes.first;
       sortedRecommendedQuotes.first.setIsSelected = true;

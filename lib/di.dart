@@ -4,10 +4,9 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
@@ -63,6 +62,7 @@ import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/view_model/start_tor_view_model.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
@@ -87,12 +87,10 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
@@ -190,7 +188,6 @@ import 'package:cake_wallet/view_model/cake_pay/cake_pay_account_view_model.dart
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
-import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -224,7 +221,6 @@ import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
-import 'package:cake_wallet/store/secret_store.dart';
 import 'package:cake_wallet/store/seed_settings_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
@@ -417,9 +413,6 @@ Future<void> setup({
       appName: "Cake Wallet"));
   getIt.registerLazySingleton(() => TrezorViewModel(getIt<TrezorConnect>()));
 
-  final secretStore = await SecretStoreBase.load(getIt.get<SecureStorage>());
-
-  getIt.registerSingleton<SecretStore>(secretStore);
 
   getIt.registerFactory<KeyService>(() => KeyService(getIt.get<SecureStorage>()));
 
@@ -447,10 +440,6 @@ Future<void> setup({
       getIt.get<SeedSettingsViewModel>(),
       newWalletArguments: newWalletArgs,
     ));
-
-
-  final walletList = await WalletInfo.getAll();
-  getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(walletList.isNotEmpty));
 
   getIt.registerFactory<WalletManager>(
     () => WalletManager(
@@ -585,6 +574,8 @@ Future<void> setup({
     sharedPreferences: getIt.get<SharedPreferences>(),
     keyService: getIt.get<KeyService>()));
 
+  final walletList = await WalletInfo.getAll();
+  
   getIt.registerFactory<AuthService>(
         () => AuthService(
         secureStorage: getIt.get<SecureStorage>(),
@@ -1116,7 +1107,7 @@ Future<void> setup({
   getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
         appStore: getIt.get<AppStore>(),
         wallet: getIt.get<AppStore>().wallet!,
-        isTestEnvironment: kDebugMode,
+        isTestEnvironment: kDebugMode || kProfileMode,
       ));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
@@ -1208,7 +1199,10 @@ Future<void> setup({
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.ethereum:
-        return ethereum!.createEthereumWalletService(SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
+        return evm!.createEVMWalletService(param1, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashWalletService(_unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.dogecoin:
@@ -1216,8 +1210,6 @@ Future<void> setup({
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoWalletService(SettingsStoreBase.walletPasswordDirectInput);
-      case WalletType.polygon:
-        return polygon!.createPolygonWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.solana:
         return solana!.createSolanaWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.tron:
@@ -1228,12 +1220,10 @@ Future<void> setup({
         return zano!.createZanoWalletService();
       case WalletType.decred:
         return decred!.createDecredWalletService(_unspentCoinsInfoSource);
-      case WalletType.base:
-        return base!.createBaseWalletService(SettingsStoreBase.walletPasswordDirectInput);
-      case WalletType.arbitrum:
-        return arbitrum!.createArbitrumWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.haven:
         return HavenWalletService();
+      case WalletType.zcash:
+        return zcash!.createZcashWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.none:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
@@ -1333,7 +1323,6 @@ Future<void> setup({
       (newWalletTypeArguments, _) {
     return NewWalletTypePage(
       newWalletTypeArguments: newWalletTypeArguments,
-      newWalletTypeViewModel: getIt.get<NewWalletTypeViewModel>(),
     );
   });
 
@@ -1354,13 +1343,15 @@ Future<void> setup({
       _transactionDescriptionBox,
       getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
 
-  getIt.registerFactory(() => BackupViewModel(
-      getIt.get<SecureStorage>(), getIt.get<SecretStore>(), getIt.get<BackupServiceV3>()));
 
   getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
 
-  getIt.registerFactory(
-      () => EditBackupPasswordViewModel(getIt.get<SecureStorage>(), getIt.get<SecretStore>()));
+  getIt.registerLazySingleton<EditBackupPasswordViewModel>(
+    () => EditBackupPasswordViewModel(getIt.get<SecureStorage>()),
+  );
+
+  getIt.registerFactory(() => BackupViewModel(
+      getIt.get<SecureStorage>(),getIt.get<BackupServiceV3>(), getIt.get<EditBackupPasswordViewModel>()));
 
   getIt.registerFactory(() => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
@@ -1426,8 +1417,7 @@ Future<void> setup({
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>(
       (Order order, _) => OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
 
-  getIt.registerFactory(() =>
-      SupportViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>()));
+  getIt.registerFactory(() => SupportViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
@@ -1615,13 +1605,17 @@ Future<void> setup({
   getIt.registerFactory(() => DevExchangeProviderLogsPage(getIt.get<ExchangeProviderLogsViewModel>()));
 
   getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
-  
+
   getIt.registerFactory(() => DEuroViewModel(
-    getIt<AppStore>(),
-    getIt<BalanceViewModel>(),
-    getIt<SettingsStore>(),
-    getIt<FiatConversionStore>(),
-  ));
+        getIt<AppStore>(),
+        getIt<BalanceViewModel>(),
+        getIt<SettingsStore>(),
+        getIt<FiatConversionStore>(),
+        getIt.get<AppStore>().wallet!.isHardwareWallet
+            ? getIt<HardwareWalletViewModel>(
+                param1: getIt.get<AppStore>().wallet!.hardwareWalletType!)
+            : null,
+      ));
 
   getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));
 

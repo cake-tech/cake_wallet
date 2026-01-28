@@ -4,18 +4,25 @@ import 'dart:io';
 import 'package:cw_core/root_dir.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-late Database db; 
+late Database db;
 
 Future<void> initDb({String? pathOverride}) async {
-  if (Platform.isLinux || Platform.isWindows) { 
+  if (Platform.isLinux || Platform.isWindows) {
     databaseFactory = databaseFactoryFfi;
   }
-  if (Platform.isWindows) {
-    pathOverride ??= "${(await getAppDir()).path}/cake.db";
+
+  // getAppDir is predictable on all platforms and ensures the db gets included in backups.
+  final dbFileOld = File("${await getDatabasesPath()}/cake.db");
+  final dbFile = File("${(await getAppDir()).path}/cake.db");
+
+  if (Platform.isAndroid && dbFileOld.existsSync() && dbFileOld.path != dbFile.path) {
+    final copied = dbFileOld.copySync(dbFile.path);
+    if (copied.existsSync()) {
+      dbFileOld.deleteSync();
+    }
   }
-  db = await openDatabase(
-    pathOverride ?? "cake.db",
-    version: 1,
+
+  db = await openDatabase(dbFile.path, version: 1,
     onCreate: (Database db, int version) async {
       await db.execute(
         '''
@@ -108,13 +115,23 @@ Future<Map<String, dynamic>> dumpDb() async {
   }
 }
 
-Future<List<String>> _getTableNames() async {
+Future<List<String>> _getTableNames(Database db) async {
   final tableNames = await db.rawQuery('SELECT name FROM sqlite_master WHERE type = "table"');
   return tableNames.map((e) => (e["name"]).toString()).toList();
 }
 
 Future<Map<String, dynamic>> _dumpDb() async {
-  final tableNames = await _getTableNames();
+  final tableNames = await _getTableNames(db);
+  final ret = <String, dynamic>{};
+  for (final tableName in tableNames) {
+    ret[tableName] = await db.query(tableName);
+  }
+  return ret;
+}
+
+Future<Map<String, dynamic>> dumpCustomDb(String path) async {
+  final db = await openDatabase(path);
+  final tableNames = await _getTableNames(db);
   final ret = <String, dynamic>{};
   for (final tableName in tableNames) {
     ret[tableName] = await db.query(tableName);

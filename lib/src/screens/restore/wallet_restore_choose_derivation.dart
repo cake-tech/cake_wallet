@@ -17,7 +17,6 @@ class WalletRestoreChooseDerivationPage extends BasePage {
       );
 
   final WalletRestoreChooseDerivationViewModel walletRestoreChooseDerivationViewModel;
-  DerivationType derivationType = DerivationType.unknown;
 
   @override
   Widget body(BuildContext context) {

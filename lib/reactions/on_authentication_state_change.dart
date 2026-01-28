@@ -15,6 +15,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
@@ -40,23 +41,19 @@ void startAuthenticationStateChange(
   _onAuthenticationStateChange ??= autorun((_) async {
     final state = authenticationStore.state;
 
-    if (state == AuthenticationState.installed &&
-        !SettingsStoreBase.walletPasswordDirectInput) {
+    if (state == AuthenticationState.installed && !SettingsStoreBase.walletPasswordDirectInput) {
       try {
         if (!(await requireHardwareWalletConnection())) await loadCurrentWallet();
       } catch (error, stack) {
         loginError = error;
         await ExceptionHandler.resetLastPopupDate();
-        await ExceptionHandler.onError(
-            FlutterErrorDetails(exception: error, stack: stack));
+        await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
       }
       return;
     }
 
-    if ([AuthenticationState.allowed, AuthenticationState.allowedCreate]
-        .contains(state)) {
-      if (state == AuthenticationState.allowed &&
-          (await requireHardwareWalletConnection())) {
+    if ([AuthenticationState.allowed, AuthenticationState.allowedCreate].contains(state)) {
+      if (state == AuthenticationState.allowed && (await requireHardwareWalletConnection())) {
         await navigatorKey.currentState!.pushNamedAndRemoveUntil(
           Routes.connectDevices,
           (route) => false,
@@ -64,8 +61,21 @@ void startAuthenticationStateChange(
             walletType: WalletType.monero,
             hardwareWalletType: HardwareWalletType.ledger,
             onConnectDevice: (context, ledgerVM) async {
-              if (ledgerVM is LedgerViewModel)
+              if (ledgerVM is LedgerViewModel) {
                 monero!.setGlobalLedgerConnection(ledgerVM.connection);
+              } else {
+                await showPopUp<void>(
+                  context: context,
+                  builder: (context) => AlertWithOneAction(
+                    alertTitle: "Unexpected Error",
+                    alertContent:
+                        "Unexpected Error while trying to connect to the device (UnexpectedViewModel: ${ledgerVM.toString()})",
+                    buttonText: S.of(context).try_again,
+                    buttonAction: Navigator.of(context).pop,
+                  ),
+                );
+                return;
+              }
               showPopUp<void>(
                 context: context,
                 builder: (context) => AlertWithOneAction(
@@ -116,15 +126,18 @@ void startAuthenticationStateChange(
 
         // await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.connectDevices, (route) => false, arguments: ConnectDevicePageParams(walletType: walletType, onConnectDevice: onConnectDevice));
       } else {
-        await navigatorKey.currentState!
-            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+        navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
       }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final linkViewModel = getIt.get<LinkViewModel>();
+        linkViewModel.markReadyToOpenPage();
+      });
+
       if (!(await authenticatedErrorStreamController.stream.isEmpty)) {
         await ExceptionHandler.showError(
             (await authenticatedErrorStreamController.stream.first).toString());
         authenticatedErrorStreamController.stream.drain();
       }
-      return;
     }
   });
 }

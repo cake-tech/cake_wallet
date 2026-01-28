@@ -15,6 +15,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -164,7 +165,8 @@ class AddressResolver {
     "xmr",
     "xyz",
     "zil",
-    "zone"
+    "zone",
+    "pizza"
   ];
 
   static String? extractAddressByType(
@@ -174,7 +176,7 @@ class AddressResolver {
     var addressPattern = AddressValidator.getAddressFromStringPattern(type);
 
     if (addressPattern == null) {
-      throw Exception('Unexpected token: $type for getAddressFromStringPattern');
+      return null;
     }
 
     if (requireSurroundingWhitespaces)
@@ -215,6 +217,19 @@ class AddressResolver {
   Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency) async {
     final ticker = currency.title;
     try {
+      if (text.startsWith("zcash.me")) {
+        final parts = text.split("/");
+        final handle = parts.last;
+        if (parts.length == 2 && handle.isNotEmpty) {
+          final extractZcashAddress = await _fetchZcashAddress(handle);
+          if (extractZcashAddress != null) {
+            return ParsedAddress.zcashAddress(
+              address: extractZcashAddress,
+              name: handle,
+            );
+          }
+        }
+      }
       // twitter handle example: @username
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
         if (currency == CryptoCurrency.zano && settingsStore.lookupsZanoAlias) {
@@ -292,7 +307,7 @@ class AddressResolver {
             final addressFromPinnedTweet = extractAddressByType(
                 raw: pinnedTweet,
                 type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency),
-                requireSurroundingWhitespaces: false);
+                requireSurroundingWhitespaces: true);
             if (addressFromPinnedTweet != null) {
               return ParsedAddress.fetchTwitterAddress(
                   address: addressFromPinnedTweet,
@@ -331,7 +346,7 @@ class AddressResolver {
               await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
 
           if (mastodonUser != null) {
-            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency, requireSurroundingWhitespaces: false);
+            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency, requireSurroundingWhitespaces: true);
 
             if (addressFromBio != null && addressFromBio.isNotEmpty) {
               return ParsedAddress.fetchMastodonAddress(
@@ -347,7 +362,7 @@ class AddressResolver {
                 final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
                 String? addressFromPinnedPost =
                     extractAddressByType(raw: userPinnedPostsText, type: currency,
-                        requireSurroundingWhitespaces: false);
+                        requireSurroundingWhitespaces: true);
 
                 if (addressFromPinnedPost != null && addressFromPinnedPost.isNotEmpty) {
                   return ParsedAddress.fetchMastodonAddress(
@@ -477,5 +492,29 @@ class AddressResolver {
     }
 
     return ParsedAddress(addresses: [text]);
+  }
+
+  Future<String?> _fetchZcashAddress(String handle) async {
+    final url = Uri.parse('https://zcash.me/$handle');
+
+    try {
+      final response = await ProxyWrapper().get(clearnetUri: url);
+
+      if (response.statusCode == 200) {
+        final addressRegex = RegExp(
+          r'(t1[0-9A-Za-z]{33}|t3[0-9A-Za-z]{33}|zs[a-z0-9]{76}|u1[a-z0-9]{1,300})',
+          caseSensitive: true,
+        );
+
+        final match = addressRegex.firstMatch(response.body);
+
+        if (match != null) {
+          return match.group(0);
+        }
+      }
+    } catch (e) {
+      printV('Error fetching zcash.me profile: $e');
+    }
+    return null;
   }
 }

@@ -29,7 +29,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -49,20 +48,19 @@ class WalletListPage extends BasePage {
   String get title => S.current.wallets;
 
   @override
-  Widget body(BuildContext context) => Observer(
-    builder: (_) {
-      if (walletListViewModel.singleWalletsList.isEmpty && walletListViewModel.multiWalletGroups.isEmpty) {
-        return Center(
-          child: CircularProgressIndicator(),
+  Widget body(BuildContext context) => Observer(builder: (_) {
+        if (walletListViewModel.singleWalletsList.isEmpty &&
+            walletListViewModel.multiWalletGroups.isEmpty) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        return WalletListBody(
+          walletListViewModel: walletListViewModel,
+          authService: authService,
+          onWalletLoaded: onWalletLoaded ?? (context) => Navigator.of(context).pop(),
         );
-      }
-      return WalletListBody(
-        walletListViewModel: walletListViewModel,
-        authService: authService,
-        onWalletLoaded: onWalletLoaded ?? (context) => Navigator.of(context).pop(),
-      );
-    }
-  );
+      });
 
   @override
   Widget trailing(BuildContext context) {
@@ -223,7 +221,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 return item.isCurrent
                                     ? SizedBox.shrink()
                                     : EditWalletButtonWidget(
-                                        width: 60,
+                                        width: 64,
                                         onTap: () => Navigator.of(context).pushNamed(
                                           Routes.walletEdit,
                                           arguments: WalletEditPageArguments(
@@ -289,7 +287,9 @@ class WalletListBodyState extends State<WalletListBody> {
                                           )
                                         : SizedBox(width: 6),
                                     Image.asset(
-                                      walletTypeToCryptoCurrency(wallet.type).iconPath!,
+                                      getCryptoCurrencyForWalletListItem(
+                                        wallet.type,
+                                      ).iconPath!,
                                       width: 32,
                                       height: 32,
                                     ),
@@ -484,10 +484,11 @@ class WalletListBodyState extends State<WalletListBody> {
                 walletType: WalletType.monero,
                 hardwareWalletType: HardwareWalletType.ledger,
                 onConnectDevice: (context, ledgerVM) async {
-                  if (ledgerVM is LedgerViewModel)
+                  if (ledgerVM is LedgerViewModel) {
                     monero!.setGlobalLedgerConnection(ledgerVM.connection);
-                  didConnect = true;
-                  Navigator.of(context).pop();
+                    didConnect = true;
+                    Navigator.of(context).pop();
+                  }
                 },
                 isReconnect: true,
               ),

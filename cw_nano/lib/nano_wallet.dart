@@ -436,6 +436,13 @@ abstract class NanoWalletBase
 
     final derivationInfo = await walletInfo.getDerivationInfo();
     derivationInfo.derivationType ??= derivationType;
+    if (derivationInfo.derivationType == DerivationType.unknown) {
+      if (data?['derivationType'] != null) {
+        derivationInfo.derivationType = derivationType;
+      } else {
+        derivationInfo.derivationType = DerivationType.bip39;
+      }
+    }
     derivationInfo.save();
 
     return NanoWallet(

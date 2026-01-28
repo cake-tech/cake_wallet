@@ -14,6 +14,7 @@ class ChatwootWidget extends StatefulWidget {
     required this.fiatApiMode,
     required this.walletType,
     required this.walletSyncState,
+    required this.builtInTorState,
   });
 
   final SecureStorage secureStorage;
@@ -22,6 +23,7 @@ class ChatwootWidget extends StatefulWidget {
   final String fiatApiMode;
   final String walletType;
   final String walletSyncState;
+  final String builtInTorState;
 
   @override
   ChatwootWidgetState createState() => ChatwootWidgetState();
@@ -54,6 +56,7 @@ class ChatwootWidgetState extends State<ChatwootWidget> {
                       "fiat_api_mode": widget.fiatApiMode,
                       "wallet_type": widget.walletType,
                       "wallet_sync_state": widget.walletSyncState,
+                      "built_in_tor": widget.builtInTorState,
                     });
                   }
                 }

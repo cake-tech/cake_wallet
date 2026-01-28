@@ -1,4 +1,5 @@
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -87,6 +88,7 @@ class TokenUtilities {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
         final tokens = await loadAllUniqueEvmTokens();
         for (final t in tokens) {
           if (t.contractAddress.toLowerCase() == lower) return t;
@@ -109,22 +111,24 @@ class TokenUtilities {
     }
   }
 
-  static Future<Box<Erc20Token>> _openEvmTokensBoxFor(
-    WalletInfo walletInfo,
-  ) async {
+  static Future<Box<Erc20Token>> _openEvmTokensBoxFor(WalletInfo walletInfo) async {
     final walletKey = walletInfo.name.replaceAll(' ', '_');
-    final boxName = switch (walletInfo.type) {
+    final boxName = _getErc20TokensBoxName(walletKey, walletInfo.type);
+
+    if (CakeHive.isBoxOpen(boxName)) {
+      return CakeHive.box<Erc20Token>(boxName);
+    }
+    return CakeHive.openBox<Erc20Token>(boxName);
+  }
+
+  static String _getErc20TokensBoxName(String walletKey, WalletType walletType) {
+    return switch (walletType) {
       WalletType.ethereum => '${walletKey}_${Erc20Token.ethereumBoxName}',
       WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
       WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
       WalletType.arbitrum => '${walletKey}_${Erc20Token.arbitrumBoxName}',
       _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
     };
-
-    if (CakeHive.isBoxOpen(boxName)) {
-      return CakeHive.box<Erc20Token>(boxName);
-    }
-    return CakeHive.openBox<Erc20Token>(boxName);
   }
 
   static Future<Box<SPLToken>> _openSolTokensBoxFor(WalletInfo wallet) async {
@@ -135,9 +139,7 @@ class TokenUtilities {
     return CakeHive.openBox<SPLToken>(boxName);
   }
 
-  static Future<Box<TronToken>> _openTronTokensBoxFor(
-    WalletInfo walletInfo,
-  ) async {
+  static Future<Box<TronToken>> _openTronTokensBoxFor(WalletInfo walletInfo) async {
     final boxName = '${walletInfo.name.replaceAll(' ', '_')}_${TronToken.boxName}';
     if (CakeHive.isBoxOpen(boxName)) {
       return CakeHive.box<TronToken>(boxName);
@@ -166,6 +168,8 @@ class TokenUtilities {
         title == 'ethereum' ||
         title == 'matic' ||
         title == 'polygon' ||
+        title == 'base' ||
+        title == 'arbitrum' ||
         title == 'bnb' ||
         title == 'bsc' ||
         title == 'avax' ||
@@ -176,41 +180,43 @@ class TokenUtilities {
   }
 
   static int getChainId(CryptoCurrency currency) {
+    final tag = currency.tag?.toUpperCase();
     final title = currency.title.toLowerCase();
-    final tag = currency.tag?.toLowerCase();
 
-    // Polygon
-    if (title == 'polygon' || title == 'matic' || tag == 'polygon') {
-      return 137;
+    // Only check EVM registry for currencies that might be EVM-related
+    final isPotentialEVM = isNativeToken(currency) ||
+        (tag != null && (tag == 'ETH' || tag == 'POL' || tag == 'BASE' || tag == 'ARB'));
+
+    if (isPotentialEVM) {
+      // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')
+      if (tag != null) {
+        final chainId = evm!.getChainIdByTag(tag);
+        if (chainId != null) return chainId;
+      }
+
+      // Try by title (case-insensitive)
+      final titleChainId = evm!.getChainIdByTitle(title);
+      if (titleChainId != null) return titleChainId;
     }
 
+    // Fallback to hardcoded values for chains not in registry yet
     // BSC (Binance Smart Chain)
-    if (title == 'bsc' || title == 'bnb' || tag == 'bsc') {
+    if (title == 'bsc' || title == 'bnb' || tag == 'BSC') {
       return 56;
     }
 
     // Avalanche C-Chain
-    if (title == 'avalanche' || title == 'avax' || tag == 'avalanche') {
+    if (title == 'avalanche' || title == 'avax' || tag == 'AVALANCHE') {
       return 43114;
     }
 
-    // Arbitrum One
-    if (title == 'arbitrum' || title == 'arb' || tag == 'arb') {
-      return 42161;
-    }
-
     // Optimism
-    if (title == 'optimism' || title == 'op' || tag == 'optimism') {
+    if (title == 'optimism' || title == 'op' || tag == 'OPTIMISM') {
       return 10;
     }
 
-    // Base
-    if (title == 'base' || tag == 'base') {
-      return 8453;
-    }
-
     // Fantom Opera
-    if (title == 'fantom' || title == 'ftm' || tag == 'fantom') {
+    if (title == 'fantom' || title == 'ftm' || tag == 'FANTOM') {
       return 250;
     }
 
@@ -222,54 +228,91 @@ class TokenUtilities {
     WalletType network,
   ) async {
     final baseCurrency = walletTypeToCryptoCurrency(network);
-    final allTokens = <CryptoCurrency>[];
+    final allTokens = <CryptoCurrency>[baseCurrency];
     final addedAddresses = <String>{};
 
-    allTokens.add(baseCurrency);
+    // Handle EVM networks
+    if (isEVMCompatibleChain(network)) {
+      // First, collect all user tokens
+      final userTokens = await _getUserTokensForNetwork(baseCurrency);
+      for (final token in userTokens) {
+        if (token is Erc20Token) {
+          final address = token.contractAddress.toLowerCase();
+          if (addedAddresses.add(address)) {
+            allTokens.add(token);
+          }
+        }
+      }
 
-    for (final currency in CryptoCurrency.all) {
-      // For EVM networks: ETH has no tag, POL/BASE have tags
-      // Match by tag for POL/BASE, match by title==tag for ETH
-      final matches = (baseCurrency.tag == null && baseCurrency.title == currency.tag) ||
-          (baseCurrency.tag != null &&
-              currency.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase());
+      // Then add tokens from CryptoCurrency.all that don't duplicate user tokens
+      for (final currency in CryptoCurrency.all) {
+        // Match by tag for POL/BASE, match by title==tag for ETH
+        final matches = (baseCurrency.tag == null && baseCurrency.title == currency.tag) ||
+            (baseCurrency.tag != null &&
+                currency.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase());
 
-      if (matches && _shouldAddToken(allTokens, currency, addedAddresses)) {
-        allTokens.add(currency);
+        if (matches) {
+          if (currency is Erc20Token) {
+            final address = currency.contractAddress.toLowerCase();
+            if (addedAddresses.add(address)) {
+              allTokens.add(currency);
+            }
+          } else if (!allTokens.any((t) => _matchesCurrency(t, currency))) {
+            allTokens.add(currency);
+          }
+        }
       }
     }
 
-    // Add user tokens that don't already exist
-    final userTokens = await _getUserTokensForNetwork(baseCurrency);
-    for (final token in userTokens) {
-      if (_shouldAddToken(allTokens, token, addedAddresses)) {
-        allTokens.add(token);
-        if (token is Erc20Token) {
-          addedAddresses.add(token.contractAddress.toLowerCase());
+    // Handle Solana network
+    else if (network == WalletType.solana) {
+      final userSolTokens = await loadAllUniqueSolTokens();
+      for (final token in userSolTokens) {
+        final mintAddress = token.mintAddress.toLowerCase();
+        if (addedAddresses.add(mintAddress)) {
+          allTokens.add(token);
+        }
+      }
+
+      for (final currency in CryptoCurrency.all) {
+        if (currency.tag?.toLowerCase() == 'sol') {
+          if (currency is SPLToken) {
+            final mintAddress = currency.mintAddress.toLowerCase();
+            if (addedAddresses.add(mintAddress)) {
+              allTokens.add(currency);
+            }
+          } else if (!allTokens.any((t) => _matchesCurrency(t, currency))) {
+            allTokens.add(currency);
+          }
+        }
+      }
+    }
+
+    // Handle Tron network
+    else if (network == WalletType.tron) {
+      final userTronTokens = await loadAllUniqueTronTokens();
+      for (final token in userTronTokens) {
+        final contractAddress = token.contractAddress.toLowerCase();
+        if (addedAddresses.add(contractAddress)) {
+          allTokens.add(token);
+        }
+      }
+
+      for (final currency in CryptoCurrency.all) {
+        if (currency.tag?.toLowerCase() == 'trx') {
+          if (currency is TronToken) {
+            final contractAddress = currency.contractAddress.toLowerCase();
+            if (addedAddresses.add(contractAddress)) {
+              allTokens.add(currency);
+            }
+          } else if (!allTokens.any((t) => _matchesCurrency(t, currency))) {
+            allTokens.add(currency);
+          }
         }
       }
     }
 
     return allTokens;
-  }
-
-  static bool _shouldAddToken(
-    List<CryptoCurrency> existingTokens,
-    CryptoCurrency token,
-    Set<String> addedAddresses,
-  ) {
-    if (token is Erc20Token) {
-      final address = token.contractAddress.toLowerCase();
-      if (addedAddresses.contains(address)) {
-        return false;
-      }
-      if (existingTokens.any((existing) => _matchesCurrency(existing, token))) {
-        return false;
-      }
-      return true;
-    }
-
-    return !existingTokens.any((existing) => _matchesCurrency(existing, token));
   }
 
   static bool _matchesCurrency(CryptoCurrency a, CryptoCurrency b) {
@@ -278,13 +321,27 @@ class TokenUtilities {
   }
 
   static Future<List<CryptoCurrency>> _getUserTokensForNetwork(CryptoCurrency baseCurrency) async {
-    final tokens = await TokenUtilities.loadAllUniqueEvmTokens();
+    final walletType = cryptoCurrencyToWalletType(baseCurrency);
+    if (walletType == null) return [];
 
-    return tokens.where((token) {
-      // Match by tag, except for ETH which has no tag - match by title instead
-      if (baseCurrency.tag == null) return token.tag == baseCurrency.title;
+    if (isEVMCompatibleChain(walletType)) {
+      final tokens = await TokenUtilities.loadAllUniqueEvmTokens();
 
-      return token.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase();
-    }).toList();
+      return tokens.where((token) {
+        if (baseCurrency.tag == null) return token.tag == baseCurrency.title;
+
+        return token.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase();
+      }).toList();
+    }
+
+    if (walletType == WalletType.solana) {
+      return await loadAllUniqueSolTokens();
+    }
+
+    if (walletType == WalletType.tron) {
+      return await loadAllUniqueTronTokens();
+    }
+
+    return [];
   }
 }

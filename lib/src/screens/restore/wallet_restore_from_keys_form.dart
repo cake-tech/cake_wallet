@@ -267,14 +267,15 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             maxLines: null,
           ),
         ),
-        Container(
-          padding: EdgeInsets.only(top: 20.0),
-          child: BaseTextFormField(
-            controller: scanSecretController,
-            hintText: "Scan secret",
-            maxLines: null,
+        if (widget.walletRestoreViewModel.type == WalletType.litecoin)
+          Container(
+            padding: EdgeInsets.only(top: 20.0),
+            child: BaseTextFormField(
+              controller: scanSecretController,
+              hintText: "Scan secret",
+              maxLines: null,
+            ),
           ),
-        ),
         Container(
           padding: EdgeInsets.only(top: 20.0),
           child: BaseTextFormField(

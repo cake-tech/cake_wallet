@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
@@ -164,9 +165,13 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
         bottomSection: Column(
           children: [
-            Offstage(
-              offstage: !widget.exchangeTradeViewModel.isSwapsXYZContractCall,
-              child: PrimaryButton(
+// <<<<<<< HEAD
+            // Offstage(
+            //   offstage: !widget.exchangeTradeViewModel.isSwapsXYZContractCall,
+            //   child: PrimaryButton(
+
+            if (!widget.exchangeTradeViewModel.shouldHideExternalSendButton)
+              PrimaryButton(
                 key: ValueKey('exchange_trade_page_send_from_external_button_key'),
                 text: S.current.send_from_external_wallet,
                 onPressed: () async {
@@ -178,8 +183,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 textColor: widget.exchangeTradeViewModel.isSendable
                     ? Theme.of(context).colorScheme.onSecondaryContainer
                     : Theme.of(context).colorScheme.onPrimary,
+                isDisabled: widget.exchangeTradeViewModel.isSwapsXyzSendingEVMTokenSwap,
               ),
-            ),
+
             SizedBox(height: 16),
             Observer(
               builder: (_) {
@@ -191,10 +197,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       !(sendingState is TransactionCommitted)),
                   child: LoadingPrimaryButton(
                     key: ValueKey('exchange_trade_page_send_from_cake_button_key'),
-                    isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty ||
+                    isDisabled: trade.inputAddress == null ||
+                        trade.inputAddress!.isEmpty ||
                         sendingState is ExecutedSuccessfullyState,
                     isLoading: sendingState is IsExecutingState,
-                    onPressed: () => widget.exchangeTradeViewModel.confirmSending(),
+                    onPressed: _onPressedSendFromCakeWallet,
                     text: S.current.send_from_cake_wallet,
                     color: Theme.of(context).colorScheme.primary,
                     textColor: Theme.of(context).colorScheme.onPrimary,
@@ -206,6 +213,28 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         ),
       ),
     );
+  }
+
+  Future<void> _onPressedSendFromCakeWallet() async {
+    final sendVM = widget.exchangeTradeViewModel.sendViewModel;
+
+    if (sendVM.wallet.isHardwareWallet) {
+      if (!sendVM.hardwareWalletViewModel!.isConnected) {
+        await Navigator.of(context).pushNamed(Routes.connectDevices,
+            arguments: ConnectDevicePageParams(
+              walletType: sendVM.walletType,
+              hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
+              onConnectDevice: (context, _) {
+                sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+                Navigator.of(context).pop();
+              },
+            ));
+      } else {
+        sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+      }
+    }
+
+    widget.exchangeTradeViewModel.confirmSending();
   }
 
   BuildContext? dialogContext;
@@ -288,7 +317,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   return ConfirmSendingBottomSheet(
                     key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
                     footerType: FooterType.slideActionButton,
-                    isSlideActionEnabled: widget.exchangeTradeViewModel.sendViewModel.isReadyForSend,
+                    isSlideActionEnabled:
+                        widget.exchangeTradeViewModel.sendViewModel.isReadyForSend,
                     walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
                     titleText: S.of(bottomSheetContext).confirm_transaction,
                     titleIconPath:
@@ -309,7 +339,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
                     hideAddresses: isSwapsXYZContractCall,
                     onSlideActionComplete: () async {
-                      if (bottomSheetContext.mounted) {
+                      if (bottomSheetContext.mounted && Navigator.canPop(bottomSheetContext)) {
                         Navigator.of(bottomSheetContext).pop(true);
                       }
                       widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
@@ -319,8 +349,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 },
               );
 
-              if  (result == null) widget.exchangeTradeViewModel.sendViewModel.dismissTransaction();
-
+              if (result == null) widget.exchangeTradeViewModel.sendViewModel.dismissTransaction();
             }
           });
         }

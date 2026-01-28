@@ -18,6 +18,10 @@ class BitcoinLedgerService extends HardwareWalletService with BitcoinHardwareWal
   final LedgerConnection ledgerConnection;
   final BitcoinLedgerApp bitcoinLedgerApp;
 
+  void setAccountDerivationPath(String derivationPath) {
+    bitcoinLedgerApp.derivationPath = derivationPath;
+  }
+
   @override
   Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
     final masterFp = await bitcoinLedgerApp.getMasterFingerprint();

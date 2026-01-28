@@ -14,26 +14,7 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ThorChainExchangeProvider extends ExchangeProvider {
-  ThorChainExchangeProvider({required this.tradesStore})
-      : super(pairList: supportedPairs(_notSupported));
-
-  static final List<CryptoCurrency> _notSupported = [
-    ...(CryptoCurrency.all
-        .where((element) => ![
-              CryptoCurrency.btc,
-              // CryptoCurrency.eth,
-              CryptoCurrency.ltc,
-              CryptoCurrency.bch,
-              CryptoCurrency.usdtbsc,
-              // CryptoCurrency.aave,
-              // CryptoCurrency.dai,
-              // CryptoCurrency.gusd,
-              // CryptoCurrency.usdc,
-              // CryptoCurrency.usdterc20,
-              // CryptoCurrency.wbtc, // TODO: temporarily commented until https://github.com/cake-tech/cake_wallet/pull/1436 is merged
-            ].contains(element))
-        .toList())
-  ];
+  ThorChainExchangeProvider({required this.tradesStore});
 
   static final isRefundAddressSupported = [CryptoCurrency.eth];
 

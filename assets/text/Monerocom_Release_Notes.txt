@@ -1,6 +1,1 @@
-Improve wallets performance
-Improvements for AnyPay
-Better automatic node switching
-New navbar/tab navigation
-Add Dark and tintable app icons
 Bug fixes
