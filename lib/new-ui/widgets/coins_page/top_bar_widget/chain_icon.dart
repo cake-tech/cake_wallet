@@ -49,7 +49,7 @@ class ChainIcon extends StatelessWidget {
                   colorFilter: ColorFilter.mode(
                       done
                           ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.primary.withAlpha(128),
+                          : Theme.of(context).colorScheme.surfaceContainerHigh,
                       BlendMode.srcIn),
                 ),
               ),
