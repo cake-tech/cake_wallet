@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/settings_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
@@ -114,12 +115,12 @@ class _NewHomePageState extends State<NewHomePage> {
                                     widget.dashboardViewModel.loadCardDesigns();
                                   }
                                 },
-                                child: CardCustomizer(
+                                child: accountListViewModel == null ? CardCustomizer(
                                   cryptoTitle:
                                   widget.dashboardViewModel.wallet.currency.fullName ??
                                       widget.dashboardViewModel.wallet.currency.name,
                                   cryptoName: widget.dashboardViewModel.wallet.currency.name,
-                                ),
+                                ) : AccountCustomizer(accountListViewModel: accountListViewModel!),
                               ),
                             ),
                           );

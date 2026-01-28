@@ -21,6 +21,9 @@ abstract class MoneroAccountListViewModelBase with Store {
   @observable
   double scrollOffsetFromTop;
 
+  @computed
+  int get walletInfoInternalId => _wallet.walletInfo.internalId;
+
   @action
   void setScrollOffsetFromTop(double scrollOffsetFromTop) {
     this.scrollOffsetFromTop = scrollOffsetFromTop;
