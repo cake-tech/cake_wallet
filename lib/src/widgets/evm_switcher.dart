@@ -40,7 +40,7 @@ class EvmSwitcherDataItem {
   );
 
   static const bsc = EvmSwitcherDataItem(
-    name: 'Binance Smart Chain',
+    name: 'BNB Smart Chain',
     svgPath: 'assets/images/evm_switcher_icons/bsc.svg',
     chainId: 56,
   );
@@ -64,8 +64,8 @@ String _getSvgPathForChain(String chainName) {
     return 'assets/images/evm_switcher_icons/arbitrum.svg';
   } else if (name.contains('base')) {
     return 'assets/images/evm_switcher_icons/base.svg';
-  } else if (name.contains('binance') || name.contains('bsc')) {
-    return 'assets/images/evm_switcher_icons/bsc.svg';
+  } else if (name.contains('bnb') || name.contains('bsc')) {
+    return 'assets/images/evm_switcher_icons/ethereum.svg';
   }
   // Default to ethereum if unknown
   return 'assets/images/evm_switcher_icons/ethereum.svg';

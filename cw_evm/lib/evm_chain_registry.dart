@@ -156,11 +156,11 @@ class EvmChainRegistry {
       'ARB',
     );
 
-    // Binance Smart Chain
+    // BNB Smart Chain
     _registerChain(
       const ChainConfig(
         chainId: 56,
-        name: 'Binance Smart Chain',
+        name: 'BNB Smart Chain',
         shortCode: 'bsc',
         caip2: 'eip155:56',
         nativeCurrency: CryptoCurrency.bnb,
