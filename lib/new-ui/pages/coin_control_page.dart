@@ -76,9 +76,9 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 16.0),
                             child: ModalHeader(
                               iconPath: "assets/new-ui/settings_row_icons/coin-control.svg",
-                              title: S.of(context).coin_control_desc,
+                              title: "Coin Control",
                               message:
-                                  "",
+                                  S.of(context).coin_control_desc,
                             ),
                           ),
                           if (widget.unspentCoinsListViewModel.items.isNotEmpty)
