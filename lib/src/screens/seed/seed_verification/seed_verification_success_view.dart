@@ -1,13 +1,16 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 class SeedVerificationSuccessView extends StatelessWidget {
-  const SeedVerificationSuccessView({required this.currentTheme, super.key});
+  const SeedVerificationSuccessView(
+      {required this.currentTheme, super.key, required this.walletType});
 
   final MaterialThemeBase currentTheme;
+  final String walletType;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +65,11 @@ class SeedVerificationSuccessView extends StatelessWidget {
           PrimaryButton(
             key: ValueKey('wallet_seed_page_open_wallet_button_key'),
             onPressed: () {
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              if (walletType == "Bitcoin") {
+                Navigator.of(context).pushNamed(Routes.lightningUsernamePage, arguments: true);
+              } else {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              }
             },
             text: S.current.open_wallet,
             color: Theme.of(context).colorScheme.primary,

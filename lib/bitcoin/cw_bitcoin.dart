@@ -837,4 +837,22 @@ class CWBitcoin extends Bitcoin {
   String getNetworkName(Object wallet) {
     return (wallet as ElectrumWallet).network.value;
   }
+
+  @override
+  Future<void> setLightningUsername(Object wallet, String username) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    await electrumWallet.walletAddresses.setLightningAddress(wallet.name, newAddress: username);
+  }
+
+  @override
+  Future<String?> getLightningUsername(Object wallet) async {
+    final electrumWallet = wallet as ElectrumWallet;
+
+    if (electrumWallet.walletAddresses.lightningWallet == null) {
+      printV("lightning wallet is null");
+      return null;
+    }
+    return (await electrumWallet.walletAddresses.lightningWallet!.getAddress())
+        ?.replaceFirst("@cake.cash", "");
+  }
 }

@@ -93,8 +93,9 @@ class _NewHomePageState extends State<NewHomePage> {
                       barrierColor: Colors.black.withAlpha(85),
                       builder: (context) => FractionallySizedBox(
                           child: Material(
-                              child: NewSettingsPage()
-                          )),
+                                  child: NewSettingsPage(
+                            dashboardViewModel: widget.dashboardViewModel,
+                          ))),
                     );
                   },
                 ),

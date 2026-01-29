@@ -52,12 +52,13 @@ import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
+import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
-import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
@@ -303,7 +304,6 @@ import 'package:trezor_connect/trezor_connect.dart';
 import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
-import 'new-ui/pages/send_page.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 
@@ -593,6 +593,9 @@ Future<void> setup({
 
   getIt.registerFactory<CardCustomizerBloc>(()=>CardCustomizerBloc(getIt.get<AppStore>().wallet!));
 
+  getIt.registerFactory<LightningUsernameBloc>(
+      () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
+
   getIt.registerFactory<AuthService>(
         () => AuthService(
         secureStorage: getIt.get<SecureStorage>(),
@@ -642,6 +645,9 @@ Future<void> setup({
       navigatorKey: navigatorKey,
     );
   });
+
+  getIt.registerFactoryParam<LightningUsernamePage, bool?, void>(
+      (isSetup, _) => LightningUsernamePage(isSetup: isSetup ?? false));
 
   getIt.registerFactory<AuthPage>(instanceName: 'login', () {
     return AuthPage(getIt.get<AuthViewModel>(), closable: false,
