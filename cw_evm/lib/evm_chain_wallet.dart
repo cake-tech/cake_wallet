@@ -450,20 +450,36 @@ abstract class EVMChainWalletBase
     bool isTokenWhitelisted = getDefaultTokenContractAddresses
         .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
 
-    // Check if the token name contains suspicious t.me links or telegram channels/names
-    final hasSuspiciousTGData = token.name.toLowerCase().contains('t.me') ||
-        token.name.toLowerCase().contains('telegram') ||
-        token.symbol.toLowerCase().contains('t.me') ||
-        token.symbol.toLowerCase().contains('telegram');
-
-    // Normalize the token symbol to check for homoglyph spoofing attack, characters that look like ASCII (Cyrillic, Greek, etc.)
+    // Normalize the token data to check for homoglyph spoofing attack, characters that look like ASCII (Cyrillic, Greek, etc.)
+    final normalizedName = normalizeHomoglyphs(token.name.trim().toUpperCase());
     final normalizedSymbol = normalizeHomoglyphs(token.symbol.trim().toUpperCase());
+    final normalizedTitle = normalizeHomoglyphs(token.title.trim().toUpperCase());
 
-    // Check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
-    // if it is, then it's probably a scam unless it's in the whitelist
+    final suspiciousStrings = [
+      't.me',
+      '.me',
+      'telegram',
+      'http',
+      'https',
+      '.com',
+      'airdrop',
+      'www',
+      '.xyz',
+      '🎁',
+    ];
+
+    final hasSuspiciousData = suspiciousStrings.any(
+      (element) =>
+          normalizedName.toLowerCase().contains(element) ||
+          normalizedSymbol.toLowerCase().contains(element) ||
+          normalizedTitle.toLowerCase().contains(element),
+    );
+
+    // Check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc).
+    // If it is, then it's probably a scam unless it's in the whitelist.
     final hasSuspiciousSymbol = baseCurrencySymbols.contains(normalizedSymbol);
 
-    return hasSuspiciousTGData || (hasSuspiciousSymbol && !isTokenWhitelisted);
+    return hasSuspiciousData || (hasSuspiciousSymbol && !isTokenWhitelisted);
   }
 
   Future<void> _checkForExistingScamTokens() async {
