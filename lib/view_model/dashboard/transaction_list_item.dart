@@ -63,6 +63,25 @@ class TransactionListItem extends ActionListItem with Keyable {
     return S.current.sent;
   }
 
+  int get neededConfirmations {
+    switch (balanceViewModel.wallet.type) {
+      case WalletType.monero:
+      case WalletType.haven:
+      case WalletType.zano:
+        return 10;
+      case WalletType.wownero:
+        return 3;
+      case WalletType.litecoin:
+      bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
+      bool fromPegOut = (transaction.additionalInfo["fromPegOut"] as bool?) ?? false;
+      if(isPegOut || fromPegOut)
+        return 6;
+      default:
+        return 0;
+    }
+    return 0;
+  }
+
   String get formattedPendingStatus {
     switch (balanceViewModel.wallet.type) {
       case WalletType.monero:

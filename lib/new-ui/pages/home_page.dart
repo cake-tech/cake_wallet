@@ -6,6 +6,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
@@ -127,11 +128,16 @@ class _NewHomePageState extends State<NewHomePage> {
                         );
                   },
                 ),
-                CardsView(
-                  key: ValueKey(widget.dashboardViewModel.wallet.name),
-                  dashboardViewModel: widget.dashboardViewModel,
-                  accountListViewModel: accountListViewModel,
-                  lightningMode: _lightningMode,
+                Column(
+                  children: [
+                    CardsView(
+                      key: ValueKey(widget.dashboardViewModel.wallet.name),
+                      dashboardViewModel: widget.dashboardViewModel,
+                      accountListViewModel: accountListViewModel,
+                      lightningMode: _lightningMode,
+                    ),
+                    UnconfirmedBalanceWidget(dashboardViewModel: widget.dashboardViewModel,),
+                  ],
                 ),
                 CoinActionRow(lightningMode: _lightningMode),
                 Observer(
