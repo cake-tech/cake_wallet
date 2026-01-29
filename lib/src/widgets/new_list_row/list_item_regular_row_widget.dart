@@ -11,6 +11,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
     this.trailingText,
     this.iconPath,
     this.onTap,
+    this.hasImage,
     this.isFirstInSection = false,
     this.isLastInSection = false,
     this.showArrow = true
@@ -22,6 +23,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final String? trailingText;
   final String? iconPath;
   final VoidCallback? onTap;
+  final bool? hasImage;
   final bool isFirstInSection;
   final bool isLastInSection;
   final bool showArrow;
@@ -31,6 +33,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
     final theme = Theme.of(context);
     return ListItemStyleWrapper(
       onTap: onTap,
+        hasImage: iconPath != null ? true : false,
         isFirstInSection: isFirstInSection,
         isLastInSection: isLastInSection,
         height: subtitle != null ? 64 : 50,
@@ -81,10 +84,11 @@ class ListItemRegularRowWidget extends StatelessWidget {
                       ),
                     ),
                   if(showArrow)
-                  Icon(
-                    Icons.chevron_right,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+                  SvgPicture.asset(
+                    "assets/new-ui/arrow_forward.svg",
+                    height: 14,
+                    color: theme.colorScheme.onSurfaceVariant
+                  )
                 ],
               ),
             ],

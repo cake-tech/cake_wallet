@@ -15,6 +15,7 @@ class BalanceCard extends StatelessWidget {
     super.key,
     required this.width,
     required this.design,
+    this.gradient,
     this.borderRadius = 20,
     this.selected = false,
     this.accountName = "",
@@ -28,6 +29,7 @@ class BalanceCard extends StatelessWidget {
 
   final double width;
   final double borderRadius;
+  final Gradient? gradient;
   final String accountBalance;
   final String accountName;
   final String balance;
@@ -56,9 +58,9 @@ class BalanceCard extends StatelessWidget {
       width: width,
       height: height,
       decoration: ShapeDecoration(
-        gradient: design.gradient,
+        gradient: gradient ?? design.gradient,
         shape: RoundedSuperellipseBorder(
-          side: const BorderSide(color: Color(0x77FFFFFF), width: 1),
+          side: const BorderSide(color: Color(0x44FFFFFF), width: 1),
           borderRadius: BorderRadiusGeometry.circular(borderRadius),
         ),
       ),
@@ -69,13 +71,16 @@ class BalanceCard extends StatelessWidget {
             switchInCurve: Curves.easeInOut,
             switchOutCurve: Curves.easeInOut,
             child: design.backgroundType == CardDesignBackgroundTypes.svgFull
-                ? SvgPicture.asset(
-                    design.imagePath,
-                    key: const ValueKey('svgFull'),
-                    width: width,
-                    height: height,
-                    fit: BoxFit.fill,
-                  )
+                ? ClipRSuperellipse(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  child: SvgPicture.asset(
+                      design.imagePath,
+                      key: const ValueKey('svgFull'),
+                      width: width,
+                      height: height,
+                      fit: BoxFit.fill,
+                    ),
+                )
                 : const SizedBox.shrink(
                     key: ValueKey('svgFullOff'),
                   ),
@@ -168,7 +173,7 @@ class BalanceCard extends StatelessWidget {
                               height: iconWidth,
                               width: iconWidth,
                               colorFilter: ColorFilter.mode(
-                                design.colors.backgroundImageColor.withAlpha(215),
+                                design.colors.backgroundImageColor.withAlpha(80),
                                 BlendMode.srcIn,
                               ),
                             )

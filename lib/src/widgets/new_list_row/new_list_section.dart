@@ -83,6 +83,9 @@ class NewListSections extends StatelessWidget {
         validator: item.validator,
         isFirstInSection: isFirst,
         isLastInSection: isLast,
+        onChanged: item.onChanged,
+        onFieldSubmitted: item.onFieldSubmitted,
+        focusNode: item.focusNode,
       );
     }
 
@@ -105,11 +108,8 @@ class NewListSections extends StatelessWidget {
         keyValue: item.keyValue,
         label: item.label,
         leadingEndWidget: item.leadingEndWidget,
-        value: getCheckboxValue!(item.keyValue),
-        onChanged: (newValue) {
-          updateCheckboxValue!(item.keyValue, newValue);
-          item.onChanged(newValue);
-        },
+        value: item.value,
+        onChanged: item.onChanged,
         isFirstInSection: isFirst,
         isLastInSection: isLast,
       );
@@ -122,11 +122,8 @@ class NewListSections extends StatelessWidget {
         subtitle: item.subtitle,
         iconPath: item.iconPath,
         onTap: item.onTap,
-        value: getCheckboxValue!(item.keyValue),
-        onChanged: (newValue) {
-          updateCheckboxValue!(item.keyValue, newValue);
-          item.onChanged(newValue);
-        },
+        value: item.value,
+        onChanged: item.onChanged,
         isFirstInSection: isFirst,
         isLastInSection: isLast,
       );

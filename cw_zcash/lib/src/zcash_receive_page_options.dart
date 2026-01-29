@@ -67,4 +67,16 @@ class ZcashReceivePageOption implements ReceivePageOption {
     printV("Not found for: $str");
     return ZcashAddressType.shieldedOrchard;
   }
+
+  @override
+  bool get addAddressWord => false;
+
+  @override
+  String? get description => null;
+
+  @override
+  String? get iconPath => null;
+
+  @override
+  bool get isCommon => true;
 }

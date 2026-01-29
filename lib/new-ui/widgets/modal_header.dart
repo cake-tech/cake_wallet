@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ModalHeader extends StatelessWidget {
-  const ModalHeader({super.key, required this.iconPath, required this.message, required this.title});
+  const ModalHeader(
+      {super.key, required this.iconPath, required this.message, required this.title});
 
   final String iconPath;
   final String title;
@@ -12,7 +13,7 @@ class ModalHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+          color: Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
