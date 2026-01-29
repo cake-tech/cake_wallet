@@ -71,8 +71,8 @@ class BalanceCard extends StatelessWidget {
             switchInCurve: Curves.easeInOut,
             switchOutCurve: Curves.easeInOut,
             child: design.backgroundType == CardDesignBackgroundTypes.svgFull
-                ? ClipRRect(
-                  borderRadius: BorderRadius.circular(borderRadius - 1),
+                ? ClipRSuperellipse(
+                  borderRadius: BorderRadius.circular(borderRadius),
                   child: SvgPicture.asset(
                       design.imagePath,
                       key: const ValueKey('svgFull'),
