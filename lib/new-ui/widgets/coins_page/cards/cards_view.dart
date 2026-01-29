@@ -155,16 +155,18 @@ class _CardsViewState extends State<CardsView> {
         final parentWidth = MediaQuery.of(context).size.width;
         final children = <Widget>[];
 
-        if (_selectedIndex! >= (widget.accountListViewModel?.accounts.length ?? 1)) {
+        final numCards = widget.accountListViewModel?.accounts.length ?? 1;
+
+        if (_selectedIndex! >= (numCards)) {
           _selectedIndex = 0;
         }
 
         for (int i = _selectedIndex!;
-            i < (widget.accountListViewModel?.accounts.length ?? 1) + _selectedIndex!;
-            i++) {
+        i < (numCards) + _selectedIndex!;
+        i++) {
           if (i != _selectedIndex) {
             children.add(
-                _buildCard(i % (widget.accountListViewModel?.accounts.length ?? 1), parentWidth));
+                _buildCard(i % (numCards), parentWidth));
           }
         }
 
