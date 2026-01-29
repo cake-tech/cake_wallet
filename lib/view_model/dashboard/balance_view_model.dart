@@ -5,6 +5,9 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -106,6 +109,9 @@ abstract class BalanceViewModelBase with Store {
       [WalletType.solana, WalletType.tron, WalletType.zano].contains(wallet.type);
 
   @computed
+  bool get isEVMCompatible => isEVMCompatibleChain(wallet.type);
+
+  @computed
   bool get hasAccounts => [WalletType.monero, WalletType.wownero].contains(wallet.type);
 
   @computed
@@ -116,7 +122,16 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get asset {
-    final typeFormatted = walletTypeToString(appStore.wallet!.type);
+    if (isEVMCompatibleChain(wallet.type)) {
+      final currentChain = evm!.getCurrentChain(wallet);
+      if (currentChain != null) {
+        return currentChain.name;
+      }
+
+      return walletTypeToString(wallet.type);
+    }
+
+    final typeFormatted = walletTypeToString(wallet.type);
 
     switch (wallet.type) {
       case WalletType.haven:
@@ -316,7 +331,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   bool _hasAdditionalBalanceForWalletType(WalletType type) =>
-      [WalletType.monero, WalletType.wownero, WalletType.zano, WalletType.decred].contains(type);
+      [WalletType.monero, WalletType.wownero, WalletType.zano, WalletType.decred, WalletType.zcash].contains(type);
 
   @computed
   List<BalanceRecord> get formattedBalances {

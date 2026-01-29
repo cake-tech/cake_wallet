@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
@@ -53,10 +54,13 @@ class AnonPayInvoicePage extends BasePage {
   bool get extendBodyBehindAppBar => true;
 
   @override
-  AppBarStyle get appBarStyle => AppBarStyle.transparent;
+  AppBarStyle get appBarStyle =>
+      FeatureFlag.hasNewUiExtraPages ? AppBarStyle.completelyTransparent : AppBarStyle.transparent;
 
   @override
-  void onClose(BuildContext context) => Navigator.popUntil(context, (route) => route.isFirst);
+  void onClose(BuildContext context) => FeatureFlag.hasNewUiExtraPages
+      ? Navigator.of(context, rootNavigator: true).pop()
+      : Navigator.popUntil(context, (route) => route.isFirst);
 
   @override
   Widget middle(BuildContext context) => PresentReceiveOptionPicker(

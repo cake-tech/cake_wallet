@@ -32,7 +32,7 @@ dependencies:
   on_chain:
     git:
       url: https://github.com/cake-tech/on_chain.git
-      ref: cake-update-v2
+      ref: 096865a8c6b89c260beadfec04f7e184c40a3273
   socks_socket:
     git:
       url: https://github.com/sneurlax/socks_socket

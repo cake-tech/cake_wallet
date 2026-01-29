@@ -7,8 +7,10 @@ class ListItemToggle extends ListItem {
     required super.label,
     required this.value,
     required this.onChanged,
+    this.leadingEndWidget,
   });
 
   final ValueChanged<bool> onChanged;
+  final Widget? leadingEndWidget;
   final bool value;
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class DropDownItemWidget extends StatelessWidget {
   const DropDownItemWidget({super.key, required this.title, required this.image});
   final double tileHeight = 60;
-  final Image image;
+  final Widget image;
   final String title;
 
   @override

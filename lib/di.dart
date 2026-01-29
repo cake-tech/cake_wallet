@@ -4,10 +4,9 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
@@ -43,7 +42,6 @@ import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -52,10 +50,17 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
+import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
+import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import 'package:cake_wallet/new-ui/pages/receive_page.dart';
+import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
+import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import 'package:cake_wallet/new-ui/pages/swap_page.dart';
+import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/order/order.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -231,7 +236,6 @@ import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_o
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
-import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
@@ -278,6 +282,7 @@ import 'package:cake_wallet/view_model/wallet_unlock_loadable_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_unlock_verifiable_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
@@ -300,6 +305,7 @@ import 'package:trezor_connect/trezor_connect.dart';
 import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
+import 'new-ui/pages/send_page.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 
@@ -452,7 +458,6 @@ Future<void> setup({
 
 
   final walletList = await WalletInfo.getAll();
-  getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(walletList.isNotEmpty));
 
   getIt.registerFactory<WalletManager>(
     () => WalletManager(
@@ -760,7 +765,7 @@ Future<void> setup({
     dashboardViewModel: getIt.get<DashboardViewModel>(),
   ));
 
-  getIt.registerFactory<NewHomePage>(()=>NewHomePage(dashboardViewModel: getIt.get<DashboardViewModel>()));
+  getIt.registerFactory<NewHomePage>(()=>NewHomePage(dashboardViewModel: getIt.get<DashboardViewModel>(),nftViewModel: getIt.get<NFTViewModel>(),));
 
   getIt.registerFactory<DesktopSidebarWrapper>(() {
     final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
@@ -831,6 +836,12 @@ Future<void> setup({
     ),
   );
 
+  getIt.registerFactoryParam<NewReceivePage, bool, void>((param1, param2) => NewReceivePage(
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(),
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
+      lightningMode: param1));
+
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
       (WalletAddressListItem? item, _) =>
           WalletAddressEditOrCreateViewModel(wallet: getIt.get<AppStore>().wallet!, item: item));
@@ -838,6 +849,16 @@ Future<void> setup({
   getIt.registerFactoryParam<AddressEditOrCreatePage, dynamic, void>((dynamic item, _) =>
       AddressEditOrCreatePage(
           addressEditOrCreateViewModel:
+              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
+
+  getIt.registerFactoryParam<AddressLabelInputPopup, dynamic, void>((dynamic item, _) =>
+      AddressLabelInputPopup(
+          walletAddressEditOrCreateViewModel:
+              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
+
+  getIt.registerFactoryParam<ReceiveLabelModal, dynamic, void>((dynamic item, _) =>
+      ReceiveLabelModal(
+          walletAddressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
   getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(
@@ -1058,13 +1079,25 @@ Future<void> setup({
       (CryptoCurrency? cur, _) =>
           ContactListViewModel(_contactSource, walletList, cur, getIt.get<SettingsStore>()));
 
-  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _) =>
-      ContactListPage(getIt.get<ContactListViewModel>(param1: cur), getIt.get<AuthService>()));
+  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, bool?>(
+      (CryptoCurrency? cur, bool? showAddContact) => ContactListPage(
+            getIt.get<ContactListViewModel>(param1: cur),
+            getIt.get<AuthService>(),
+            showAddButton: showAddContact ?? true,
+          ));
 
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
+
+  getIt.registerFactoryParam<NewAddressesPage, bool, void>(
+    (showHidden, _) => NewAddressesPage(
+      showHidden: showHidden,
+      addressListViewModel: getIt<WalletAddressListViewModel>(),
+      dashboardViewModel: getIt<DashboardViewModel>(),
+    ),
+  );
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
@@ -1151,7 +1184,7 @@ Future<void> setup({
   getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
         appStore: getIt.get<AppStore>(),
         wallet: getIt.get<AppStore>().wallet!,
-        isTestEnvironment: kDebugMode,
+        isTestEnvironment: kDebugMode || kProfileMode,
       ));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
@@ -1190,6 +1223,12 @@ Future<void> setup({
   getIt.registerFactoryParam<ExchangePage, PaymentRequest?, void>(
       (PaymentRequest? paymentRequest, __) {
     return ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest);
+  });
+
+  getIt.registerFactoryParam<NewSwapPage, PaymentRequest?, void>(
+      (PaymentRequest? paymentRequest, __) {
+    return NewSwapPage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest,
+        walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>());
   });
 
   getIt.registerFactory(() => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
@@ -1243,7 +1282,10 @@ Future<void> setup({
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.ethereum:
-        return ethereum!.createEthereumWalletService(SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
+        return evm!.createEVMWalletService(param1, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashWalletService(_unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.dogecoin:
@@ -1251,8 +1293,6 @@ Future<void> setup({
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoWalletService(SettingsStoreBase.walletPasswordDirectInput);
-      case WalletType.polygon:
-        return polygon!.createPolygonWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.solana:
         return solana!.createSolanaWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.tron:
@@ -1263,12 +1303,10 @@ Future<void> setup({
         return zano!.createZanoWalletService();
       case WalletType.decred:
         return decred!.createDecredWalletService(_unspentCoinsInfoSource);
-      case WalletType.base:
-        return base!.createBaseWalletService(SettingsStoreBase.walletPasswordDirectInput);
-      case WalletType.arbitrum:
-        return arbitrum!.createArbitrumWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.haven:
         return HavenWalletService();
+      case WalletType.zcash:
+        return zcash!.createZcashWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.none:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
@@ -1368,7 +1406,6 @@ Future<void> setup({
       (newWalletTypeArguments, _) {
     return NewWalletTypePage(
       newWalletTypeArguments: newWalletTypeArguments,
-      newWalletTypeViewModel: getIt.get<NewWalletTypeViewModel>(),
     );
   });
 

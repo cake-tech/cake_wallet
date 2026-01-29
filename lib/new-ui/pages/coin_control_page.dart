@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coin_control_page/coin_control_list_item.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -60,22 +61,25 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                             children: [
                               CupertinoActivityIndicator(
                               ),
-                              Text("Loading...")
+                              Text("${S.of(context).loading}...")
                             ],
                           )),
                         );
                       }
 
                       if (asyncSnapshot.hasError)
-                        return Center(child: Text('Failed to load unspent coins'));
+                        return Center(child: Text(S.of(context).coin_control_load_failed));
 
                       return Column(
                         children: [
-                          ModalHeader(
-                            iconPath: "assets/new-ui/settings_row_icons/coin-control.svg",
-                            title: "Coin Control",
-                            message:
-                                "Filter outputs for this transaction. The changes you make here will only reflect on the current transaction.",
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: ModalHeader(
+                              iconPath: "assets/new-ui/settings_row_icons/coin-control.svg",
+                              title: S.of(context).coin_control_desc,
+                              message:
+                                  "",
+                            ),
                           ),
                           if (widget.unspentCoinsListViewModel.items.isNotEmpty)
                             Padding(
@@ -87,7 +91,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                                     onTap: () {
                                       widget.unspentCoinsListViewModel.toggleSelectAll(true);
                                     },
-                                    child: Text("Select all",
+                                    child: Text(S.of(context).select_all,
                                         style: TextStyle(
                                             color: Theme.of(context).colorScheme.primary,
                                             fontSize: 14,
@@ -97,7 +101,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                                     onTap: () {
                                       widget.unspentCoinsListViewModel.toggleSelectAll(false);
                                     },
-                                    child: Text("Unselect all",
+                                    child: Text(S.of(context).unselect_all,
                                         style: TextStyle(
                                             color: Theme.of(context).colorScheme.primary,
                                             fontSize: 14,
@@ -110,7 +114,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                           if(widget.unspentCoinsListViewModel.nonFrozenItems.isEmpty && widget.unspentCoinsListViewModel.frozenItems.isEmpty)
                           Center(
                               child: Text(
-                                'No unspent coins available',
+                                S.of(context).no_unspent_coins,
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -134,7 +138,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     if (widget.unspentCoinsListViewModel.frozenItems.isNotEmpty)
-                                      Text("Frozen", style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurfaceVariant),),
+                                      Text(S.of(context).frozen, style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurfaceVariant),),
                                     if (widget.unspentCoinsListViewModel.frozenItems.isNotEmpty)
                                       CoinControlListSection(
                                           items: widget.unspentCoinsListViewModel.frozenItems,

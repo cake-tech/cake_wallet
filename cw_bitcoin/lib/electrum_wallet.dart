@@ -1741,6 +1741,7 @@ abstract class ElectrumWalletBase
         final tx = await fetchTransactionInfo(hash: coin.hash);
         coin.isChange = address.isHidden;
         coin.confirmations = tx?.confirmations;
+        coin.isPegOut = tx?.isHogEx;
 
         updatedUnspentCoins.add(coin);
       } catch (_) {}
@@ -3013,7 +3014,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
   final hasForcedRescanHeights = !shouldUpdateSyncStatus;
   CakeTor.instance = await CakeTorInstance.getInstance();
 
-  var node = Uri.parse("tcp://electrs.cakewallet.com:50001");
+  var node = scanData.node?.uri ?? Uri.parse("tcp://electrs.cakewallet.com:50001");
 
   void log(String message, LogLevel level) {
     printV("[Scanning] $message", file: scanData.debugLogPath, level: level);

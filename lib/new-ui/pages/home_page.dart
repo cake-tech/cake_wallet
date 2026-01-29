@@ -3,21 +3,24 @@ import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/settings_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_section.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/lightning_assets.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewHomePage extends StatefulWidget {
-  NewHomePage({super.key, required this.dashboardViewModel}) {}
+  NewHomePage({super.key, required this.dashboardViewModel, required this.nftViewModel});
 
   final DashboardViewModel dashboardViewModel;
+  final NFTViewModel nftViewModel;
 
   @override
   State<NewHomePage> createState() => _NewHomePageState();
@@ -64,95 +67,85 @@ class _NewHomePageState extends State<NewHomePage> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            spacing: 24.0,
-            children: [
-              TopBar(
-                dashboardViewModel: widget.dashboardViewModel,
-                lightningMode: _lightningMode,
-                onLightningSwitchPress: () {
-                  setState(() {
-                    _lightningMode = !_lightningMode;
-                  });
-                },
-                onSettingsButtonPress: () {
-                  showCupertinoModalBottomSheet(
+        child: CustomScrollView(
+          physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          slivers:[
+            CupertinoSliverRefreshControl(
+              onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+            ),
+            SliverToBoxAdapter(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              spacing: 24.0,
+              children: [
+                TopBar(
+                  dashboardViewModel: widget.dashboardViewModel,
+                  lightningMode: _lightningMode,
+                  onLightningSwitchPress: () {
+                    setState(() {
+                      _lightningMode = !_lightningMode;
+                    });
+                  },
+                  onSettingsButtonPress: () {
+                    CupertinoScaffold.showCupertinoModalBottomSheet(
                       context: context,
-                      builder: (context) {
-                        return Material(
-                          child: NewSettingsPage(),
-                        );
-                      });
-                },
-              ),
-              WalletInfo(
-                lightningMode: _lightningMode,
-                hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
-                name: widget.dashboardViewModel.wallet.name,
-                onCustomizeButtonTap: () {
-                  showCupertinoModalBottomSheet(
-                      context: context,
-                      builder: (context) {
-                        return BlocProvider(
-                          create: (context) => getIt.get<CardCustomizerBloc>(),
+                      barrierColor: Colors.black.withAlpha(85),
+                      builder: (context) => FractionallySizedBox(
                           child: Material(
-                            child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
-                              listener: (context, state) {
-                                if (state is CardCustomizerSaved) {
-                                  widget.dashboardViewModel.loadCardDesigns();
-                                }
-                              },
-                              child: CardCustomizer(
-                                cryptoTitle:
-                                widget.dashboardViewModel.wallet.currency.fullName ??
-                                    widget.dashboardViewModel.wallet.currency.name,
-                                cryptoName: widget.dashboardViewModel.wallet.currency.name,
+                              child: NewSettingsPage()
+                          )),
+                    );
+                  },
+                ),
+                WalletInfo(
+                  lightningMode: _lightningMode,
+                  hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
+                  name: widget.dashboardViewModel.wallet.name,
+                  onCustomizeButtonTap: () {
+                    CupertinoScaffold.showCupertinoModalBottomSheet(
+                        barrierColor: Colors.black.withAlpha(60),
+                        context: context,
+                        builder: (context) {
+                          return BlocProvider(
+                            create: (context) => getIt.get<CardCustomizerBloc>(),
+                            child: Material(
+                              child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
+                                listener: (context, state) {
+                                  if (state is CardCustomizerSaved) {
+                                    widget.dashboardViewModel.loadCardDesigns();
+                                  }
+                                },
+                                child: CardCustomizer(
+                                  cryptoTitle:
+                                  widget.dashboardViewModel.wallet.currency.fullName ??
+                                      widget.dashboardViewModel.wallet.currency.name,
+                                  cryptoName: widget.dashboardViewModel.wallet.currency.name,
+                                ),
                               ),
                             ),
-                          ),
+                          );
+                        },
                         );
-                      },
-                      );
-                },
-              ),
-              CardsView(
-                key: ValueKey(widget.dashboardViewModel.wallet.name),
-                dashboardViewModel: widget.dashboardViewModel,
-                accountListViewModel: accountListViewModel,
-                lightningMode: _lightningMode,
-              ),
-              CoinActionRow(lightningMode: _lightningMode),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                transitionBuilder: (child, animation) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-                layoutBuilder: (currentChild, previousChildren) {
-                  return Stack(
-                    alignment: Alignment.topCenter,
-                    children: [
-                      ...previousChildren,
-                      if (currentChild != null) currentChild,
-                    ],
-                  );
-                },
-                child: HistorySection(
+                  },
+                ),
+                CardsView(
+                  key: ValueKey(widget.dashboardViewModel.wallet.name),
                   dashboardViewModel: widget.dashboardViewModel,
+                  accountListViewModel: accountListViewModel,
+                  lightningMode: _lightningMode,
                 ),
-                // child:_lightningMode
-                  //    ? LightningAssets(
-                         // dashboardViewModel: widget.dashboardViewModel,
-                        // )
-                  //    : HistorySection(
-                          //dashboardViewModel: widget.dashboardViewModel,
-                        // ),
+                CoinActionRow(lightningMode: _lightningMode),
+                Observer(
+                  builder: (_)=>AssetsHistorySection(
+                    nftViewModel: widget.nftViewModel,
+                    dashboardViewModel: widget.dashboardViewModel,
+                  ),
                 ),
-              ],
-          ),
+                SizedBox(height: 24.0)
+                ],
+            ),
+          ),]
         ),
       ),
     );

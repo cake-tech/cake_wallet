@@ -16,9 +16,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class LetsExchangeExchangeProvider extends ExchangeProvider {
-  LetsExchangeExchangeProvider() : super(pairList: supportedPairs(_notSupported));
-
-  static const List<CryptoCurrency> _notSupported = [];
+  LetsExchangeExchangeProvider();
 
   static const apiKey = secrets.letsExchangeBearerToken;
   static const _baseUrl = 'api.letsexchange.io';
@@ -433,6 +431,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
           return 'ERC20';
         case 'BSC':
           return 'BEP20';
+        case 'ARB':
+          return 'ARBITRUM';
         default:
           return currency.tag!;
       }

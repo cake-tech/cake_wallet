@@ -40,7 +40,7 @@ class EvmChainServiceImpl {
     Web3Client? web3Client,
   }) : ethClient = web3Client ??
             Web3Client(
-              appStore.settingsStore.getCurrentNode(appStore.wallet!.type).uri.toString(),
+              _getNodeUriForChain(reference, appStore),
               ProxyWrapper().getHttpIOClient(),
             ) {
     for (final event in EventsConstants.allEvents) {
@@ -76,6 +76,19 @@ class EvmChainServiceImpl {
   final BottomSheetService bottomSheetService;
 
   String getChainId() => reference.chain();
+
+  static String _getNodeUriForChain(EVMChainId reference, AppStore appStore) {
+    final walletType = appStore.wallet!.type;
+
+    if (isEVMCompatibleChain(walletType)) {
+      final chainId = reference.chainId;
+
+      return appStore.settingsStore.getCurrentNode(walletType, chainId: chainId).uri.toString();
+    }
+
+    // For old wallet types, use the wallet type directly
+    return appStore.settingsStore.getCurrentNode(walletType).uri.toString();
+  }
 
   Future<void> personalSign(String topic, dynamic parameters) async {
     debugPrint('personalSign request: $parameters');
@@ -502,7 +515,7 @@ class EvmChainServiceImpl {
 
       // Get the primary type and types
       final primaryType = typedData['primaryType']?.toString() ?? '';
-      final types = typedData['types']  as Map<String, dynamic>? ?? {};
+      final types = typedData['types'] as Map<String, dynamic>? ?? {};
       final message = typedData['message'] as Map<String, dynamic>? ?? {};
 
       // Build a readable message based on the primary type and its structure
@@ -584,7 +597,6 @@ $messageDetails''';
       },
     );
 
-    
     final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
 
     final symbol = (decodedResponse['symbol'] ?? '') as String;

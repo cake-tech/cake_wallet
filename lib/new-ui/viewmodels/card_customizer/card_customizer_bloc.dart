@@ -30,8 +30,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
   List<Gradient> _updateAvailableColors(CardDesign currentDesign) {
     final list = List<Gradient>.from(CardDesign.allGradients, growable: true);
-    if (currentDesign.backgroundType == CardDesignBackgroundTypes.svgFull &&
-        CardDesign.specialDesignsForCurrencies[_wallet.currency] != null) {
+    if (CardDesign.specialDesignsForCurrencies[_wallet.currency] != null) {
       list.add(CardDesign.specialDesignsForCurrencies[_wallet.currency]!.gradient);
     }
     return list;
@@ -46,7 +45,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   List<CardDesign> _initAvailableDesigns() {
     final List<CardDesign> ret = List<CardDesign>.empty(growable: true);
 
-    ret.add(CardDesign.forCurrency(_wallet.currency));
+    ret.add(CardDesign.forCurrencyIcon(_wallet.currency));
 
     if (CardDesign.specialDesignsForCurrencies[_wallet.currency] != null)
       ret.add(CardDesign.forCurrencySpecial(_wallet.currency));
@@ -65,7 +64,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
   int _initSelectedColor(CardDesign currentDesign) {
     int ret = CardDesign.allGradients.indexOf(currentDesign.gradient);
-    if(ret == -1 && currentDesign.backgroundType == CardDesignBackgroundTypes.svgFull) {
+    if(ret == -1) {
       // special design with its own color. select last color in list.
       return CardDesign.allGradients.length;
     } else if (ret == -1) {

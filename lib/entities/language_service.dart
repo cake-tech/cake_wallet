@@ -7,6 +7,7 @@ class LanguageService {
     'en': 'English',
     'de': 'Deutsch (German)',
     'es': 'Español (Spanish)',
+    'fa': 'فارسی (Persian)',
     'fr': 'Français (French)',
     'gn': 'Guarani (Guarani)',
     'hi': 'हिंदी (Hindi)',
@@ -15,9 +16,11 @@ class LanguageService {
     'nl': 'Nederlands (Dutch)',
     'pl': 'Polski (Polish)',
     'pt': 'Português (Portuguese)',
+    'pt_BR': 'Português Brasileiro (Brazilian Portuguese)',
     'ru': 'Русский (Russian)',
     'uk': 'Українська (Ukrainian)',
-    'zh': '中文 (Chinese)',
+    'zh': '简体中文 (Chinese Simplified)',
+    'zh_TW': '繁體中文 (Chinese Traditional)',
     'hr': 'Hrvatski (Croatian)',
     'it': 'Italiano (Italian)',
     'th': 'ภาษาไทย (Thai)',
@@ -39,6 +42,7 @@ class LanguageService {
     'en': 'usa',
     'de': 'deu',
     'es': 'esp',
+    'fa': 'irn',
     'fr': 'fra',
     'gn': 'grn',
     'hi': 'ind',
@@ -47,9 +51,11 @@ class LanguageService {
     'nl': 'nld',
     'pl': 'pol',
     'pt': 'prt',
+    'pt_BR': 'bra',
     'ru': 'rus',
     'uk': 'ukr',
     'zh': 'chn',
+    'zh_TW': 'twn',
     'hr': 'hrv',
     'it': 'ita',
     'th': 'tha',
@@ -81,15 +87,15 @@ class LanguageService {
 
   static Future<String> localeDetection() async {
     try {
-        var locale = await Devicelocale.currentLocale ?? '';
-        locale = Intl.shortLocale(locale);
+      var locale = await Devicelocale.currentLocale ?? '';
+      locale = Intl.shortLocale(locale);
 
-        if (list.keys.contains(locale)) {
-            return locale;
-        }
-        return LanguageService.defaultLocale;
-    } catch(_) {
-        return LanguageService.defaultLocale;
+      if (list.keys.contains(locale)) {
+        return locale;
+      }
+      return LanguageService.defaultLocale;
+    } catch (_) {
+      return LanguageService.defaultLocale;
     }
   }
 }

@@ -1,17 +1,15 @@
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -55,6 +53,9 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedTitle {
+    if (transaction.additionalInfo['autoShield'] == true) {
+      return "Autoshield";
+    }
     if (transaction.direction == TransactionDirection.incoming) {
       return S.current.received;
     }
@@ -126,22 +127,8 @@ class TransactionListItem extends ActionListItem with Keyable {
 
   CryptoCurrency? get assetOfTransaction {
     try {
-      if (balanceViewModel.wallet.type == WalletType.ethereum) {
-        final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        return asset;
-      }
-
-      if (balanceViewModel.wallet.type == WalletType.polygon) {
-        final asset = polygon!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        return asset;
-      }
-
-      if (balanceViewModel.wallet.type == WalletType.base) {
-        final asset = base!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        return asset;
-      }
-      if (balanceViewModel.wallet.type == WalletType.arbitrum) {
-        final asset = arbitrum!.assetOfTransaction(balanceViewModel.wallet, transaction);
+      if (isEVMCompatibleChain(balanceViewModel.wallet.type)) {
+        final asset = evm!.assetOfTransaction(balanceViewModel.wallet, transaction);
         return asset;
       }
 
@@ -184,32 +171,15 @@ class TransactionListItem extends ActionListItem with Keyable {
             price: price);
         break;
       case WalletType.ethereum:
-        final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConversionStore.prices[asset];
-        amount = calculateFiatAmountRaw(
-            cryptoAmount: ethereum!.formatterEthereumAmountToDouble(transaction: transaction),
-            price: price);
-        break;
       case WalletType.polygon:
-        final asset = polygon!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConversionStore.prices[asset];
-        amount = calculateFiatAmountRaw(
-            cryptoAmount: polygon!.formatterPolygonAmountToDouble(transaction: transaction),
-            price: price);
-        break;
       case WalletType.base:
-        final asset = base!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConversionStore.prices[asset];
-        amount = calculateFiatAmountRaw(
-            cryptoAmount: base!.formatterBaseAmountToDouble(transaction: transaction),
-            price: price);
-        break;
       case WalletType.arbitrum:
-        final asset = arbitrum!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final asset = evm!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-            cryptoAmount: arbitrum!.formatterArbitrumAmountToDouble(transaction: transaction),
-            price: price);
+          cryptoAmount: evm!.formatterEVMAmountToDouble(transaction: transaction),
+          price: price,
+        );
         break;
       case WalletType.nano:
         amount = calculateFiatAmountRaw(
@@ -242,14 +212,20 @@ class TransactionListItem extends ActionListItem with Keyable {
         }
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: zano!.formatterIntAmountToDouble(amount: transaction.amount, currency: asset, forFee: false),
-          price: price);
-          break;
+            cryptoAmount: zano!.formatterIntAmountToDouble(
+                amount: transaction.amount, currency: asset, forFee: false),
+            price: price);
+        break;
       case WalletType.decred:
         amount = calculateFiatAmountRaw(
             cryptoAmount: decred!.formatterDecredAmountToDouble(amount: transaction.amount),
             price: price);
         break;
+      case WalletType.zcash:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: zcash!.formatterZcashAmountToDouble(amount: BigInt.from(transaction.amount)),
+            price: price);
+
       case WalletType.none:
       case WalletType.banano:
       case WalletType.haven:

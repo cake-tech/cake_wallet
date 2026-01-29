@@ -1,7 +1,4 @@
 import 'dart:math';
-
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
@@ -10,10 +7,9 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
@@ -22,6 +18,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/format_fixed.dart';
@@ -131,16 +128,10 @@ abstract class OutputBase with Store {
             _amount = decred!.formatterStringDoubleToDecredAmount(_cryptoAmount);
             break;
           case WalletType.ethereum:
-            _amount = ethereum!.formatterEthereumParseAmount(_cryptoAmount);
-            break;
           case WalletType.polygon:
-            _amount = polygon!.formatterPolygonParseAmount(_cryptoAmount);
-            break;
           case WalletType.base:
-            _amount = base!.formatterBaseParseAmount(_cryptoAmount);
-            break;
           case WalletType.arbitrum:
-            _amount = arbitrum!.formatterArbitrumParseAmount(_cryptoAmount);
+            _amount = evm!.formatterEVMParseAmount(_cryptoAmount);
             break;
           case WalletType.wownero:
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
@@ -148,6 +139,9 @@ abstract class OutputBase with Store {
           case WalletType.zano:
             _amount = zano!
                 .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
+            break;
+          case WalletType.zcash:
+            _amount = zcash!.formatterZcashParseAmount(_cryptoAmount);
             break;
           case WalletType.none:
           case WalletType.haven:
@@ -175,14 +169,15 @@ abstract class OutputBase with Store {
   @action
   Future<void> calculateEstimatedFee() async {
     try {
+      final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
       if (isEVMCompatibleChain(_wallet.type)) {
-        await _wallet.updateEstimatedFeesParams(_settingsStore.priority[_wallet.type]!);
+        await _wallet.updateEstimatedFeesParams(priority);
       }
 
       int fee = 0;
-      if (_settingsStore.priority[_wallet.type] != null) {
+      if (_settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId) != null) {
         fee = _wallet.calculateEstimatedFee(
-          _settingsStore.priority[_wallet.type]!,
+          _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId)!,
           formattedCryptoAmount,
         );
       }
@@ -192,7 +187,7 @@ abstract class OutputBase with Store {
           estimatedFee = monero!.formatterMoneroAmountToDouble(amount: fee).toString();
           break;
         case WalletType.bitcoin:
-          if (_settingsStore.priority[_wallet.type] ==
+          if (_settingsStore.getPriority(_wallet.type) ==
               bitcoin!.getBitcoinTransactionPriorityCustom()) {
             fee = bitcoin!.getEstimatedFeeWithFeeRate(
                 _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
@@ -227,36 +222,23 @@ abstract class OutputBase with Store {
             estimatedFee = tron!.getTronTRC20EstimatedFee(_wallet).toString();
           }
           break;
+          
+        case WalletType.zcash:
+          estimatedFee = zcash!.formatterZcashAmountToDouble(amount: BigInt.from(fee)).toString();
+          break;
 
         /// EVMs
         case WalletType.ethereum:
-          String? fee = cryptoCurrencyHandler() == CryptoCurrency.eth
-              ? ethereum!.getEthereumNativeEstimatedFee(_wallet)
-              : ethereum!.getEthereumERC20EstimatedFee(_wallet);
-
-          estimatedFee = formatFixed(BigInt.parse(fee ?? '0.0'), 18, fractionalDigits: 12);
-          break;
-
         case WalletType.polygon:
-          String? fee = cryptoCurrencyHandler() == CryptoCurrency.maticpoly
-              ? polygon!.getPolygonNativeEstimatedFee(_wallet)
-              : polygon!.getPolygonERC20EstimatedFee(_wallet);
-
-          estimatedFee = formatFixed(BigInt.parse(fee ?? '0.0'), 18, fractionalDigits: 12);
-          break;
-
         case WalletType.base:
-          String? fee = cryptoCurrencyHandler() == CryptoCurrency.baseEth
-              ? base!.getBaseNativeEstimatedFee(_wallet)
-              : base!.getBaseERC20EstimatedFee(_wallet);
-
-          estimatedFee = formatFixed(BigInt.parse(fee ?? '0.0'), 18, fractionalDigits: 12);
-          break;
-
         case WalletType.arbitrum:
-          String? fee = cryptoCurrencyHandler() == CryptoCurrency.arbEth
-              ? arbitrum!.getArbitrumNativeEstimatedFee(_wallet)
-              : arbitrum!.getArbitrumERC20EstimatedFee(_wallet);
+          final isNative = cryptoCurrencyHandler() == CryptoCurrency.eth ||
+              cryptoCurrencyHandler() == CryptoCurrency.maticpoly ||
+              cryptoCurrencyHandler() == CryptoCurrency.baseEth ||
+              cryptoCurrencyHandler() == CryptoCurrency.arbEth;
+          String? fee = isNative
+              ? evm!.getEVMNativeEstimatedFee(_wallet)
+              : evm!.getEVMERC20EstimatedFee(_wallet);
 
           estimatedFee = formatFixed(BigInt.parse(fee ?? '0.0'), 18, fractionalDigits: 12);
           break;

@@ -4,6 +4,8 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
+import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
+import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -164,12 +166,13 @@ late RouteSettings currentRouteSettings;
 
 Route<T> handleRouteWithPlatformAwareness<T>(
   Widget Function(BuildContext) builder, {
+      RouteSettings? settings,
   bool fullscreenDialog = false,
 }) {
   if (Platform.isIOS) {
-    return CupertinoPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return CupertinoPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog, settings: settings);
   } else {
-    return MaterialPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return MaterialPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog, settings: settings);
   }
 }
 
@@ -396,6 +399,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
+    case Routes.receiveAddresses:
+      return handleRouteWithPlatformAwareness(
+          (context) => getIt.get<NewAddressesPage>(param1: settings.arguments as bool));
+
     case Routes.seed:
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<WalletSeedPage>(param1: settings.arguments as bool),
@@ -431,6 +438,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: initialPaymentRequest,
           param2: coinTypeToSpendFrom,
         ),
+        settings: settings,
       );
 
     case Routes.sendTemplate:
@@ -438,10 +446,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
 
     case Routes.receive:
-      return CupertinoPageRoute<void>(builder: (context) => getIt.get<ReceivePage>());
+      return CupertinoPageRoute<void>(builder: (context) => getIt.get<ReceivePage>(), settings: settings);
 
     case Routes.addressPage:
-      return handleRouteWithPlatformAwareness((_) => getIt<AddressPage>());
+      return handleRouteWithPlatformAwareness(
+        (context) => getIt.get<AddressPage>(), settings: settings);
 
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
@@ -633,9 +642,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.pickerAddressBook:
-      final selectedCurrency = settings.arguments as CryptoCurrency?;
+      final args = settings.arguments as List<dynamic>;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: selectedCurrency));
+          builder: (_) => getIt.get<ContactListPage>(param1: args[0], param2: args[1]));
 
     case Routes.pickerWalletAddress:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());

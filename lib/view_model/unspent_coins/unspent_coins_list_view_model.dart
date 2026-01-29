@@ -84,7 +84,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       final formatted = formatAmountToString(item.value);
       final cryptoAmount = double.tryParse(formatted.replaceAll(',', '')) ?? 0.0;
       final fiatValue = price * cryptoAmount;
-      result[item.hash] = fiatCurrency.title + ' ' + fiatValue.toStringAsFixed(2);
+      result[item.amount] = fiatCurrency.title + ' ' + fiatValue.toStringAsFixed(2);
     }
 
     return result;
@@ -128,10 +128,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
       existingInfo.isSending = item.isSending;
       existingInfo.note = item.note;
 
-      await existingInfo.save().then((value){
-        item.isBeingSaved = false;
-        isSavingItems = false;
-      });
+      await existingInfo.save();
+      item.isBeingSaved = false;
+      isSavingItems = false;
       _updateUnspentCoinsInfo();
     } catch (e) {
       printV('Error saving coin info: $e');

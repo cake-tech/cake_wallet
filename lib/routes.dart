@@ -116,6 +116,7 @@ class Routes {
   static const importNFTPage = '/import_nft_page';
   static const backgroundSync = '/background_sync';
   static const startTor = '/start_tor';
+  static const receiveAddresses = "/receive_addresses";
 
   static const devMoneroBackgroundSync = '/dev/monero_background_sync';
   static const devMoneroCallProfiler = '/dev/monero_call_profiler';
