@@ -67,15 +67,11 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            if (widget.isSetup)
-                              Text(
-                                S.of(context).lightning_username_desc,
-                                textAlign: TextAlign.center,
-                              ),
                             AnimatedSwitcher(
                               duration: const Duration(milliseconds: 200),
                               child: _editMode
                                   ? LightningUsernameEditor(
+                                      isSetup: widget.isSetup,
                                       controller: _controller,
                                       onRandomizeButtonTap: () {
                                         randomizeUsername(context);
@@ -202,10 +198,11 @@ class LightningUsernameEditor extends StatelessWidget {
       {super.key,
       required this.controller,
       required this.onRandomizeButtonTap,
-      required this.state});
+      required this.state, required this.isSetup});
 
   final TextEditingController controller;
   final VoidCallback onRandomizeButtonTap;
+  final bool isSetup;
   final LightningUsernameState state;
 
   @override
@@ -214,6 +211,11 @@ class LightningUsernameEditor extends StatelessWidget {
       spacing: 12,
       children: [
         SvgPicture.asset("assets/new-ui/lightning_username_setup.svg"),
+        if (isSetup)
+          Text(
+            S.of(context).lightning_username_desc,
+            textAlign: TextAlign.center,
+          ),
         SizedBox(),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
