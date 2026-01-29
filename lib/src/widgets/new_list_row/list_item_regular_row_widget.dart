@@ -82,7 +82,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                       ),
                     ),
                   SvgPicture.asset(
-                    "assets/new-ui/forward_arrow.svg",
+                    "assets/new-ui/arrow_forward.svg",
                     height: 14,
                     color: theme.colorScheme.onSurfaceVariant
                   )
