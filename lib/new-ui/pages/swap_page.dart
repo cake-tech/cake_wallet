@@ -413,7 +413,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
       child: Column(
         children: [
           ModalTopBar(
-            title: "Exchange",
+            title: S.of(context).exchange,
             leadingIcon: Icon(Icons.close),
             onLeadingPressed: Navigator.of(context).maybePop,
             trailingIcon: SvgPicture.asset(
@@ -448,7 +448,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 ? () => widget.exchangeViewModel.enableSendAllAmount()
                                 : null,
                             key: depositKey,
-                            title: "Send",
+                            title: S.of(context).send,
                             initialCurrency: widget.exchangeViewModel.depositCurrency,
                             hasRefundAddress: true,
                             currencies: widget.exchangeViewModel.depositCurrencies,
@@ -505,7 +505,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                             exchangeViewModel: widget.exchangeViewModel,
                             onDispose: disposeBestRateSync,
                             key: receiveKey,
-                            title: "Receive",
+                            title: S.of(context).receive,
                             initialCurrency: widget.exchangeViewModel.receiveCurrency,
                             currencies: widget.exchangeViewModel.receiveCurrencies,
                             onCurrencySelected: (currency) {
@@ -668,7 +668,7 @@ class SwapProviderPreview extends StatelessWidget {
                           width: 28, height: 28),
                     if (provider == null) CupertinoActivityIndicator(),
                     Text(
-                      provider?.title ?? "Finding provider...",
+                      provider?.title ?? "${S.of(context).finding_provider}...",
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -889,12 +889,12 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             widget.exchangeViewModel.receiveAddress.isEmpty) ||
                         (!widget.isReceiverCard && widget.exchangeViewModel.depositAddress.isEmpty);
                     final addressPickerText =
-                        widget.isReceiverCard ? (addressEmpty ? "Select Receiver" : "To") : "From";
+                        widget.isReceiverCard ? (addressEmpty ? S.of(context).select_receiver : S.of(context).to) : S.of(context).from;
                     final addressDescription = widget.isReceiverCard
                         ? widget.exchangeViewModel.receiveAddressDisplayName ??
                             _middleTruncate(widget.exchangeViewModel.receiveAddress, 8, 8)
                         : widget.exchangeViewModel.isSendFromExternal
-                            ? "External"
+                            ? S.of(context).external
                             : widget.exchangeViewModel.wallet.name;
                     return Row(
                       spacing: 8,

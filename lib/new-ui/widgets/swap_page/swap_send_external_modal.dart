@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart';
@@ -79,7 +80,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                       spacing: 12,
                       children: [
                         Text(
-                          "Send exactly",
+                          S.of(context).send_exactly,
                           style: TextStyle(
                               fontSize: 16,
                               color: Theme.of(context).colorScheme.onSurface,
@@ -111,7 +112,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                                 ],
                               ),
                             )),
-                        Text("to:",
+                        Text("${S.of(context).to}:",
                             style: TextStyle(
                                 fontSize: 16,
                                 color: Theme.of(context).colorScheme.onSurface,
@@ -150,7 +151,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                         child: Padding(
                           padding: EdgeInsets.all(20),
                           child: Text(
-                            "Don't close this page until you send the funds, or else the deposit won't proceed.",
+                            S.of(context).send_external_desc,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: warningTextColor, fontSize: 14, fontWeight: FontWeight.w500),
@@ -158,7 +159,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                         )),
                     NewPrimaryButton(
                         onPressed: Navigator.of(context).pop,
-                        text: "I've sent the funds",
+                        text: S.of(context).sent_the_funds,
                         color: Theme.of(context).colorScheme.surfaceContainer,
                         textColor: Theme.of(context).colorScheme.primary),
                     SizedBox()

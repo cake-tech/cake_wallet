@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
@@ -31,32 +32,35 @@ class SwapConfirmSheet extends StatefulWidget {
 }
 
 class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
+
+  void beginSend() async {
+    final sendVM = widget.exchangeTradeViewModel.sendViewModel;
+
+    if (sendVM.wallet.isHardwareWallet) {
+      if (!sendVM.hardwareWalletViewModel!.isConnected) {
+        await Navigator.of(context).pushNamed(Routes.connectDevices,
+            arguments: ConnectDevicePageParams(
+              walletType: sendVM.walletType,
+              hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
+              onConnectDevice: (context, _) {
+                sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+                Navigator.of(context).pop();
+              },
+            ));
+      } else {
+        sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+      }
+    }
+
+    widget.exchangeTradeViewModel.confirmSending();
+  }
+
   @override
   void initState() {
     super.initState();
 
     if (!widget.exchangeViewModel.isSendFromExternal) {
-      () async {
-        final sendVM = widget.exchangeTradeViewModel.sendViewModel;
-
-        if (sendVM.wallet.isHardwareWallet) {
-          if (!sendVM.hardwareWalletViewModel!.isConnected) {
-            await Navigator.of(context).pushNamed(Routes.connectDevices,
-                arguments: ConnectDevicePageParams(
-                  walletType: sendVM.walletType,
-                  hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
-                  onConnectDevice: (context, _) {
-                    sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
-                    Navigator.of(context).pop();
-                  },
-                ));
-          } else {
-            sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
-          }
-        }
-
-        widget.exchangeTradeViewModel.confirmSending();
-      }.call();
+      beginSend();
     }
 
     reaction((context) => widget.exchangeTradeViewModel.sendViewModel.state, (state) {
@@ -98,7 +102,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                   children: [
                     Observer(
                       builder: (_) => NewListSections(showHeader: true, sections: {
-                        "Send": [
+                        S.of(context).send: [
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "send value",
@@ -110,11 +114,11 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "fee",
-                              label: "Fee",
+                              label: S.of(context).fee,
                               trailingText:
                                   "${widget.exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${widget.exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})")
                         ],
-                        "Receive": [
+                        S.of(context).receive: [
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "receive value",
@@ -124,7 +128,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                                   " " +
                                   (widget.exchangeTradeViewModel.trade.to?.title ?? "")),
                         ],
-                        "Swap ID": [
+                        S.of(context).swap_id: [
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "provider",
@@ -137,7 +141,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                     widget.exchangeViewModel.isSendFromExternal
                         ? NewPrimaryButton(
                             onPressed: _showExternalSendModal,
-                            text: "Continue",
+                            text: S.of(context).continue_text,
                             color: Theme.of(context).colorScheme.primary,
                             textColor: Theme.of(context).colorScheme.onPrimary)
                         : SendConfirmBottomWidget(

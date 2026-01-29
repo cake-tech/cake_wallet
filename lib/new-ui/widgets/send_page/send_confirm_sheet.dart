@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -111,7 +112,7 @@ class SendTransactionDetails extends StatelessWidget {
                 height: 28,
               ),
             Text(
-              "Send",
+              S.of(context).send,
               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
             )
           ],
@@ -162,7 +163,7 @@ class SendTransactionDetails extends StatelessWidget {
                 spacing: 12,
                 children: [
                   Text(
-                    "Send to",
+                    S.of(context).send_to,
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -194,7 +195,7 @@ class SendTransactionDetails extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Fee",
+                        Text(S.of(context).fee,
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
@@ -232,7 +233,7 @@ class SendTransactionDetails extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Network",
+                          Text(S.of(context).network,
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
@@ -275,7 +276,7 @@ class TransactionCommitedScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Transaction commited",
+            S.of(context).transaction_commited,
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
           ),
           Image.asset(width: 256, height: 256, "assets/images/birthday_cake.png")

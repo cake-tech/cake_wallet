@@ -23,7 +23,7 @@ class TrocadorProvidersSettings extends StatelessWidget {
         spacing: 24,
         children: [
           ModalTopBar(
-            title: "Trocador Providers",
+            title: "Trocador ${S.of(context).providers}",
             leadingIcon: Icon(Icons.arrow_back_ios_new),
             onLeadingPressed: Navigator.of(context).pop,
           ),
@@ -37,14 +37,14 @@ class TrocadorProvidersSettings extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ModalHeader(
-                          title: "About Trocador",
+                          title: "${S.of(context).about} Trocador",
                           iconPath: "assets/new-ui/trade_providers/trocador.svg",
                           message:
-                              "Trocador is an exchange aggregator that leverages multiple underlying exchanges to find competitive rates."),
+                              "Trocador ${S.of(context).trocador_desc}"),
                       SizedBox(),
-                      Text("Providers"),
+                      Text(S.of(context).providers),
                       Text(
-                        "Alongside the provider name, a KYC Rating is shown. This is set by Trocador and it's based on their own criteria.",
+                        S.of(context).trocador_desc_kyc,
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                       ),

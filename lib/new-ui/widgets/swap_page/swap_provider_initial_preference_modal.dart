@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class SwapProviderInitialPreferenceModal extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(),
-            ModalTopBar(title: "Exchange Providers"),
+            ModalTopBar(title: S.of(context).exchange_providers),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18.0),
               child: Column(
@@ -24,7 +25,7 @@ class SwapProviderInitialPreferenceModal extends StatelessWidget {
                 children: [
                   SvgPicture.asset("assets/new-ui/exchange_providers.svg"),
                   Text(
-                    "Select the type of swap provider you prefer to use when swapping in Cake Wallet.",
+                    "${S.of(context).swap_provider_initial_desc} Cake Wallet.",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
@@ -36,14 +37,14 @@ class SwapProviderInitialPreferenceModal extends StatelessWidget {
                           onPressed: () {
                             Navigator.of(context).pop(true);
                           },
-                          text: "Decentralized Only",
+                          text: S.of(context).decentralized_only,
                           color: Theme.of(context).colorScheme.surfaceContainer,
                           textColor: Theme.of(context).colorScheme.primary),
                       NewPrimaryButton(
                           onPressed: () {
                             Navigator.of(context).pop(false);
                           },
-                          text: "Best Rate (Mixed)",
+                          text: S.of(context).best_rate_mixed,
                           color: Theme.of(context).colorScheme.primary,
                           textColor: Theme.of(context).colorScheme.onPrimary)
                     ],

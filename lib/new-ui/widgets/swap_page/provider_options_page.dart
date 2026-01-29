@@ -33,117 +33,65 @@ class ProviderOptionsPage extends StatelessWidget {
         return Column(
           children: [
             ModalTopBar(
-              title: "Swap Providers",
+              title: S.of(context).swap_providers,
               onLeadingPressed: Navigator.of(context).pop,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-                  NewListSections(sections: {
-                    "": [
-                      ListItemSelector(
-                          options: [
-                            exchangeViewModel.forceDecentralizedExchanges
-                                ? "Decentralized Only"
-                                : "Best Rate"
-                          ],
-                          keyValue: "pref",
-                          label: "Preference",
-                          onTap: exchangeViewModel.toggleForceDecentralizedExchanges)
-                    ]
-                  }),
-                  SizedBox(height: 24),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Text(
-                      "Decentralized",
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    ),
-                    Row(
-                      spacing: 20,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            for (final provider in decentralizedProviders) {
-                              _switchProviderStatus(provider, true, context);
-                            }
-                          },
-                          child: Text(
-                            "Select all",
-                            style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            for (final provider in decentralizedProviders) {
-                              _switchProviderStatus(provider, false, context);
-                            }
-                          },
-                          child: Text("Deselect all",
-                              style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-                        )
-                      ],
-                    )
-                  ]),
-                  SizedBox(height: 12),
-                  NewListSections(
-                      getCheckboxValue: (key) =>
-                          exchangeViewModel.selectedProviders
-                              .firstWhereOrNull((e) => e.title == key) !=
-                          null,
-                      updateCheckboxValue: (key, val) {},
-                      sections: {
-                        "Decentralized": decentralizedProviders.map((item) {
-                          return ListItemCheckbox(
-                              iconPath: item.description.image,
-                              keyValue: item.title,
-                              label: item.title,
-                              value: exchangeViewModel.selectedProviders.contains(item),
-                              onChanged: (val) {
-                                _switchProviderStatus(item, val, context);
-                              });
-                        }).toList(),
-                      }),
-                  SizedBox(height: 24),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Text("Centralized",
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                    Row(
-                      spacing: 20,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            for (final provider in centralizedProviders) {
-                              _switchProviderStatus(provider, true, context);
-                            }
-                          },
-                          child: Text(
-                            "Select all",
-                            style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            for (final provider in centralizedProviders) {
-                              _switchProviderStatus(provider, false, context);
-                            }
-                          },
-                          child: Text("Deselect all",
-                              style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-                        )
-                      ],
-                    )
-                  ]),
-                  SizedBox(height: 12),
-                  Stack(
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
                     children: [
+                      NewListSections(sections: {
+                        "": [
+                          ListItemSelector(
+                              options: [
+                                exchangeViewModel.forceDecentralizedExchanges
+                                    ? S.of(context).decentralized_only
+                                    : S.of(context).best_rate
+                              ],
+                              keyValue: "pref",
+                              label: S.of(context).preference,
+                              onTap: exchangeViewModel.toggleForceDecentralizedExchanges)
+                        ]
+                      }),
+                      SizedBox(height: 24),
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        Text(
+                          S.of(context).decentralized,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
+                        Row(
+                          spacing: 20,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                for (final provider in decentralizedProviders) {
+                                  _switchProviderStatus(provider, true, context);
+                                }
+                              },
+                              child: Text(
+                                S.of(context).select_all,
+                                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                for (final provider in decentralizedProviders) {
+                                  _switchProviderStatus(provider, false, context);
+                                }
+                              },
+                              child: Text(S.of(context).unselect_all,
+                                  style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                            )
+                          ],
+                        )
+                      ]),
+                      SizedBox(height: 12),
                       NewListSections(
                           getCheckboxValue: (key) =>
                               exchangeViewModel.selectedProviders
@@ -151,31 +99,88 @@ class ProviderOptionsPage extends StatelessWidget {
                               null,
                           updateCheckboxValue: (key, val) {},
                           sections: {
-                            "Centralized": centralizedProviders.map((item) {
+                            S.of(context).decentralized: decentralizedProviders.map((item) {
                               return ListItemCheckbox(
                                   iconPath: item.description.image,
                                   keyValue: item.title,
                                   label: item.title,
                                   value: exchangeViewModel.selectedProviders.contains(item),
-                                  subtitle: item.title == "Trocador" ? "Manage providers" : null,
-                                  onTap: item.title == "Trocador" ? (){
-                                    _openTrocadorProvidersPage(context);
-                                  } : null,
                                   onChanged: (val) {
                                     _switchProviderStatus(item, val, context);
                                   });
                             }).toList(),
                           }),
-                      if (exchangeViewModel.forceDecentralizedExchanges)
-                        Positioned.fill(
-                            child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.black12.withAlpha(128),
-                              borderRadius: BorderRadius.circular(16)),
-                        ))
+                      SizedBox(height: 24),
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        Text(S.of(context).centralized,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        Row(
+                          spacing: 20,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                for (final provider in centralizedProviders) {
+                                  _switchProviderStatus(provider, true, context);
+                                }
+                              },
+                              child: Text(
+                                S.of(context).select_all,
+                                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                for (final provider in centralizedProviders) {
+                                  _switchProviderStatus(provider, false, context);
+                                }
+                              },
+                              child: Text(S.of(context).unselect_all,
+                                  style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                            )
+                          ],
+                        )
+                      ]),
+                      SizedBox(height: 12),
+                      Stack(
+                        children: [
+                          NewListSections(
+                              getCheckboxValue: (key) =>
+                                  exchangeViewModel.selectedProviders
+                                      .firstWhereOrNull((e) => e.title == key) !=
+                                  null,
+                              updateCheckboxValue: (key, val) {},
+                              sections: {
+                                S.of(context).centralized: centralizedProviders.map((item) {
+                                  return ListItemCheckbox(
+                                      iconPath: item.description.image,
+                                      keyValue: item.title,
+                                      label: item.title,
+                                      value: exchangeViewModel.selectedProviders.contains(item),
+                                      subtitle: item.title == "Trocador" ? S.of(context).manage_providers : null,
+                                      onTap: item.title == "Trocador" ? (){
+                                        _openTrocadorProvidersPage(context);
+                                      } : null,
+                                      onChanged: (val) {
+                                        _switchProviderStatus(item, val, context);
+                                      });
+                                }).toList(),
+                              }),
+                          if (exchangeViewModel.forceDecentralizedExchanges)
+                            Positioned.fill(
+                                child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.black12.withAlpha(128),
+                                  borderRadius: BorderRadius.circular(16)),
+                            ))
+                        ],
+                      ),
+                      SizedBox(height:36)
                     ],
                   ),
-                ],
+                ),
               ),
             )
           ],

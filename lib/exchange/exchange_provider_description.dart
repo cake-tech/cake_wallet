@@ -76,6 +76,10 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
         return xoSwap;
       case 14:
         return swapsXyz;
+      case 15:
+        return nearIntents;
+      case 16:
+        return jupiter;
       default:
         throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
     }

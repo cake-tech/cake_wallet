@@ -123,7 +123,7 @@ class _NewSendPageState extends State<NewSendPage> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   ModalTopBar(
-                      title: "Send",
+                      title: S.of(context).send,
                       leadingIcon: Icon(Icons.close),
                       onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
                     trailingWidget: Observer(
@@ -173,7 +173,7 @@ class _NewSendPageState extends State<NewSendPage> {
                               children: [
                                 Column(crossAxisAlignment:CrossAxisAlignment.start,
                                   spacing:12,children: [
-                                  Text("Address or alias"),
+                                  Text(S.of(context).address_or_alias),
                                   NewSendAddressInput(
                                     addressController: _addressControllers[_selectedOutput],
                                     onURIScanned: (uri) async {
@@ -204,7 +204,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                 ],
                                 ),
         Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:12,children: [
-          Text("Amount"),
+          Text(S.of(context).amount),
           NewSendAmountInput(
         amountController: _amountControllers[_selectedOutput],
         currency: _fiatInputMode
@@ -241,12 +241,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                 ],
                               ),
                               AnimatedDropdown(
-                                  dropdownText: "Advanced Settings",
+                                  dropdownText: S.of(context).advanced_settings,
                                   content: Column(children: [
                                     if (widget.sendViewModel.hasFees)
       ListItemRegularRowWidget(
         keyValue: "",
-        label: "Fees",
+        label: S.of(context).fees,
         subtitle: "~${output.estimatedFee} ${widget.sendViewModel.currency} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
 
         onTap: () {
@@ -364,7 +364,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                           },
                                         );
                                       },
-                                      text: "Continue",
+                                      text: S.of(context).continue_text,
                                       color: Theme.of(context).colorScheme.primary,
                                       textColor: Theme.of(context).colorScheme.onPrimary,
                                       isLoading: widget.sendViewModel.state is IsExecutingState ||
@@ -921,9 +921,9 @@ class _NewSendPageState extends State<NewSendPage> {
                         parentContext: modalContext,
                         heightMode: ModalHeightModes.autoLock,
                         rootPage: NewPicker(
-                            title: "Set Fees",
-                            description: "Depending on the fee amount, the deposit will go through faster",
-                            sliderPageTitle: "Custom Fee",
+                            title: S.of(context).set_fees,
+                            description: S.of(context).set_fees_desc,
+                            sliderPageTitle: S.of(context).custom_fee,
                             sliderInitialValue: customFeeRate,
                             sliderMaxValue: maxCustomFeeRate,
                             sliderValueDescription: "sat/byte",

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/material.dart';
 
 class SwapModalHeader extends StatelessWidget {
@@ -21,8 +22,8 @@ class SwapModalHeader extends StatelessWidget {
             ],
           ),
         ),
-        const Text(
-          "Swap",
+        Text(
+          S.of(context).swap,
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
         )
       ],

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
@@ -41,7 +42,7 @@ class NewSendAddressInput extends StatelessWidget {
                 child: TextField(
                     onEditingComplete: onEditingComplete,
                     controller: addressController,
-                    decoration: InputDecoration(hintText: "Search or enter"))),
+                    decoration: InputDecoration(hintText: S.of(context).search_or_enter))),
             Row(
               spacing: 12,
               children: [

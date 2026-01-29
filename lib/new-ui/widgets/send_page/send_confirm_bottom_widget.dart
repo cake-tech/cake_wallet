@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -46,16 +47,16 @@ class SendConfirmBottomWidget extends StatelessWidget {
             onConfirmed: () {
               sendViewModel.commitTransaction(context);
             },
-            swiperText: "Swipe to send");
+            swiperText: "${S.of(context).swipe_to_send}");
       case IsExecutingState:
         return LoadingBottomWidget(
-          text: "Generating transaction...",
+          text: "${S.of(context).generating_transaction}...",
         );
       case FailureState:
         return TransactionErrorActions(errorText: (sendViewModel.state as FailureState).error);
       case IsDeviceSigningResponseState:
         return LoadingBottomWidget(
-          text: "Signing Transaction...",
+          text: "${S.of(context).signing_transaction}...",
         );
       case IsAwaitingDeviceResponseState:
         return HardwareWalletConfirmationMessage(
@@ -123,7 +124,7 @@ class TransactionErrorActions extends StatelessWidget {
                           ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
                     ),
                     Text(
-                      "Transaction Error",
+                      S.of(context).transaction_error,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
@@ -149,14 +150,14 @@ class TransactionErrorActions extends StatelessWidget {
             Flexible(
               child: NewPrimaryButton(
                   onPressed: () {},
-                  text: "More details",
+                  text: S.of(context).more_details,
                   color: Theme.of(context).colorScheme.surfaceContainer,
                   textColor: Theme.of(context).colorScheme.primary),
             ),
             Flexible(
               child: NewPrimaryButton(
                   onPressed: Navigator.of(context).pop,
-                  text: "Close",
+                  text: S.of(context).close,
                   color: Theme.of(context).colorScheme.primary,
                   textColor: Theme.of(context).colorScheme.onPrimary),
             ),
@@ -193,7 +194,7 @@ class HardwareWalletConfirmationMessage extends StatelessWidget {
               colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
             ),
           Text(
-            "Proceed on your device",
+            S.of(context).proceed_on_device,
             style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w400,

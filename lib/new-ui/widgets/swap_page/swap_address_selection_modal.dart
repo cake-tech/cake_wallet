@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
@@ -72,7 +73,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
           child: Column(
             children: [
               ModalTopBar(
-                title: widget.isSelectingReceiver ? "Receive to..." : "Send from...",
+                title: widget.isSelectingReceiver ? "${S.of(context).receive_to}..." : "${S.of(context).send_from}...",
                 leadingIcon: Icon(Icons.close),
                 onLeadingPressed: Navigator.of(context).pop,
               ),
@@ -82,7 +83,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                   child: items.isEmpty
                       ? Center(
                           child: Text(
-                          "You have no ${widget.isSelectingReceiver ? currency.fullName : currency.fullName} wallets.",
+                          "${S.of(context).no_wallets_for} ${widget.isSelectingReceiver ? currency.fullName : currency.fullName}.",
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ))
                       : ListView.builder(
@@ -150,7 +151,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                               SvgPicture.asset("assets/new-ui/send_from_external.svg",
                                   colorFilter: ColorFilter.mode(
                                       Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
-                              Text("Send from External",
+                              Text(S.of(context).send_from_external,
                                   style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w500,

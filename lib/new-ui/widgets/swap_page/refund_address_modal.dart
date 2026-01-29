@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
@@ -40,7 +41,7 @@ class _RefundAddressModalState extends State<RefundAddressModal> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ModalTopBar(
-            title: "Set Refund Address",
+            title: S.of(context).set_refund_address,
             trailingIcon: Icon(Icons.close),
             onTrailingPressed: Navigator.of(context).pop,
           ),
@@ -56,9 +57,9 @@ class _RefundAddressModalState extends State<RefundAddressModal> {
                         ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                   ),
                   Text(
-                    "In the rare case of a failed swap, our partners can automatically refund your payment to the provided refund address." +
+                    S.of(context).return_address_desc +
                         (widget.isFromWalletSelection
-                            ? "\n\nSince you chose Send From External, please set a refund address manually below."
+                            ? "\n\n${S.of(context).return_address_desc_external}"
                             : ""),
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -79,7 +80,7 @@ class _RefundAddressModalState extends State<RefundAddressModal> {
                             onPressed: () {
                               Navigator.of(context).pop(addressController.text);
                             },
-                            text: !_textEntered ? "Skip or Set later" : "Continue",
+                            text: !_textEntered ? S.of(context).skip_set_later : S.of(context).continue_text,
                             color: addressController.text.isEmpty
                                 ? Theme.of(context).colorScheme.surfaceContainer
                                 : Theme.of(context).colorScheme.primary,

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -57,7 +58,7 @@ class FiatAmountBar extends StatelessWidget {
             spacing: 8,
             children: [
               Text(
-                "Max.",
+                "${S.of(context).max}.",
                 style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
               ),
               Material(

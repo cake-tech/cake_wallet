@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/provider_options_page.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart';
@@ -21,7 +22,7 @@ class SwapOptionsPage extends StatelessWidget {
     return Column(
       children: [
         ModalTopBar(
-          title: "Configure",
+          title: S.of(context).configure,
           leadingIcon: Icon(Icons.arrow_back_ios_new),
           onLeadingPressed: Navigator.of(context).pop,
         ),
@@ -36,7 +37,7 @@ class SwapOptionsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Current Swap",
+                    S.of(context).current_swap,
                     style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
@@ -60,7 +61,7 @@ class SwapOptionsPage extends StatelessWidget {
                       "": [
                         ListItemToggle(
                             keyValue: "fixed rate",
-                            label: "Fixed Rate",
+                            label: S.of(context).fixed_rate,
                             value: exchangeViewModel.isFixedRateMode,
                             onChanged: (val) {
                               if (val)
@@ -70,7 +71,7 @@ class SwapOptionsPage extends StatelessWidget {
                             }),
                         ListItemRegularRow(
                             keyValue: "refund",
-                            label: "Set Refund Address",
+                            label: S.of(context).set_refund_address,
                             onTap: () {
                               showModalBottomSheet(
                                 isScrollControlled: true,
@@ -85,10 +86,10 @@ class SwapOptionsPage extends StatelessWidget {
                               });
                             })
                       ],
-                      "General": [
+                      S.of(context).general: [
                         ListItemRegularRow(
                             keyValue: "providers",
-                            label: "Swap Providers",
+                            label: S.of(context).swap_providers,
                             onTap: () {
                               Navigator.of(context).push(CupertinoPageRoute(
                                   builder: (context) => Material(
@@ -103,7 +104,7 @@ class SwapOptionsPage extends StatelessWidget {
                             }),
                         ListItemSelector(
                             keyValue: "curr",
-                            label: "Change Fiat Currency",
+                            label: S.of(context).change_fiat_currency,
                             options: [exchangeViewModel.fiat.name],
                             onTap: () {
                               exchangeViewModel.showFiatCurrencyPicker(context);
