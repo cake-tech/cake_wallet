@@ -514,6 +514,29 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
+  double get confirmationProgress {
+    int received = 0;
+    int needed = 0;
+
+    for (final transaction in transactions) {
+      if (transaction.neededConfirmations == 0) {
+        continue;
+      }
+
+      if(transaction.transaction.confirmations >= transaction.neededConfirmations) {
+        continue;
+      }
+
+      received += transaction.transaction.confirmations;
+      needed += transaction.neededConfirmations;
+    }
+    if (needed == 0) {
+      return 1;
+    }
+    return received / needed;
+  }
+
+  @computed
   BalanceDisplayMode get balanceDisplayMode => appStore.settingsStore.balanceDisplayMode;
 
   @computed
