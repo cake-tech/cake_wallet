@@ -238,7 +238,9 @@ class LightningUsernameEditor extends StatelessWidget {
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: onRandomizeButtonTap,
-                          child: SvgPicture.asset("assets/new-ui/randomize.svg"),
+                          child: SvgPicture.asset("assets/new-ui/randomize.svg",
+                              colorFilter: ColorFilter.mode(
+                                  Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
                         ),
                       ),
                       SizedBox()
