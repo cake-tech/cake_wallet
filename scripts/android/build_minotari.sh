@@ -3,6 +3,28 @@
 set -e
 cd "$(dirname "$0")"
 
+# Usage: ./build_minotari.sh [esmeralda|mainnet]
+# Defaults to mainnet if no argument is provided.
+
+NETWORK_ARG=${1:-mainnet}
+echo "Configuring Minotari for network: ${NETWORK_ARG}"
+case "${NETWORK_ARG}" in
+  esmeralda|esme)
+    echo "Selected: Esmeralda (Testnet)"
+    export TARI_NETWORK=esme
+    export TARI_TARGET_NETWORK=testnet
+    ;;
+  mainnet)
+    echo "Selected: Mainnet (Default)"
+    export TARI_NETWORK=mainnet
+    export TARI_TARGET_NETWORK=mainnet
+    ;;
+  *)
+    echo "Error: Invalid network specified: '${NETWORK_ARG}'. Supported options are 'mainnet' or 'esmeralda'." >&2
+    exit 1
+    ;;
+esac
+
 CW_MINOTARI_DIR=$(realpath ../..)/cw_minotari
 RUST_DIR="${CW_MINOTARI_DIR}/rust"
 
@@ -114,4 +136,4 @@ do
     echo "Built ${ARCH_ABI} successfully"
 done
 
-echo "All Android architectures built successfully!"
+echo "All Android architectures built successfully for ${TARI_NETWORK}!"
