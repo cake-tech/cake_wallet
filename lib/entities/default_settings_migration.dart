@@ -5,8 +5,8 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/root_dir.dart';
@@ -23,7 +23,6 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_info_legacy.dart' as wiLegacy;
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:collection/collection.dart';
@@ -568,6 +567,11 @@ Future<void> defaultSettingsMigration(
             type: WalletType.zcash,
             currentNodePreferenceKey: PreferencesKey.currentZcashNodeIdKey,
           );
+          break;
+        case 56:
+          await sharedPreferences.setString(
+              PreferencesKey.syncStatusDisplayMode, SyncStatusDisplayMode.blocksRemaining.name);
+          break;
         default:
           break;
       }
