@@ -63,7 +63,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                     }
 
                     if (asyncSnapshot.hasError)
-                      return Center(child: Text('Failed to load unspent coins'));
+                      return Center(child: Text(S.of(context).coin_control_load_failed));
 
                     return Expanded(
                       child: SingleChildScrollView(

@@ -55,6 +55,9 @@ import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
+import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import 'package:cake_wallet/new-ui/pages/swap_page.dart';
+import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
@@ -1071,8 +1074,12 @@ Future<void> setup({
       (CryptoCurrency? cur, _) =>
           ContactListViewModel(_contactSource, walletList, cur, getIt.get<SettingsStore>()));
 
-  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _) =>
-      ContactListPage(getIt.get<ContactListViewModel>(param1: cur), getIt.get<AuthService>()));
+  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, bool?>(
+      (CryptoCurrency? cur, bool? showAddContact) => ContactListPage(
+            getIt.get<ContactListViewModel>(param1: cur),
+            getIt.get<AuthService>(),
+            showAddButton: showAddContact ?? true,
+          ));
 
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));
@@ -1211,6 +1218,12 @@ Future<void> setup({
   getIt.registerFactoryParam<ExchangePage, PaymentRequest?, void>(
       (PaymentRequest? paymentRequest, __) {
     return ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest);
+  });
+
+  getIt.registerFactoryParam<NewSwapPage, PaymentRequest?, void>(
+      (PaymentRequest? paymentRequest, __) {
+    return NewSwapPage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest,
+        walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>());
   });
 
   getIt.registerFactory(() => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));

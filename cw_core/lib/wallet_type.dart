@@ -299,3 +299,11 @@ WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
       return null;
   }
 }
+
+WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
+  if(type.tag != null) {
+    return cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
+  } else {
+    return cryptoCurrencyToWalletType(type);
+  }
+}

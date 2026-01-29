@@ -259,6 +259,7 @@ flutter:
     - assets/new-ui/settings_row_icons/
     - assets/new-ui/chain_badges/
     - assets/new-ui/address-type-picker-icons/
+    - assets/new-ui/trade_providers/
 
   fonts:
     - family: Lato

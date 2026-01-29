@@ -11,6 +11,7 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 import 'balance_card.dart';
 
@@ -36,9 +37,7 @@ class _CardsViewState extends State<CardsView> {
   static const double overlapAmount = 60.0;
   late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
 
-
-  Widget _buildCard(int index, double parentWidth) {
-    final numCards = widget.accountListViewModel?.accounts.length ?? 1;
+  Widget _buildCard(int index, int numCards, double parentWidth) {
     final baseTop = overlapAmount * (numCards - 1);
     final scaleFactor = 0.96;
 
@@ -142,12 +141,12 @@ class _CardsViewState extends State<CardsView> {
     );
   }
 
-  double _getBoxHeight() {
+  double _getBoxHeight(int numCards) {
     return
         /* height of initial card */
         (2 / 3.2) * (cardWidth) +
             /* height of bg card * amount of bg cards */
-            overlapAmount * ((widget.accountListViewModel?.accounts.length ?? 1) - 1);
+            overlapAmount * ((numCards) - 1);
   }
 
   @override
@@ -155,36 +154,39 @@ class _CardsViewState extends State<CardsView> {
         final parentWidth = MediaQuery.of(context).size.width;
         final children = <Widget>[];
 
-        if (_selectedIndex! >= (widget.accountListViewModel?.accounts.length ?? 1)) {
+        int numCards = widget.dashboardViewModel.cardDesigns.length;
+        if(numCards == 0) numCards = 1;
+
+        if (_selectedIndex! >= (numCards)) {
           _selectedIndex = 0;
         }
 
         for (int i = _selectedIndex!;
-            i < (widget.accountListViewModel?.accounts.length ?? 1) + _selectedIndex!;
-            i++) {
+        i < (numCards) + _selectedIndex!;
+        i++) {
           if (i != _selectedIndex) {
             children.add(
-                _buildCard(i % (widget.accountListViewModel?.accounts.length ?? 1), parentWidth));
+                _buildCard(i % (numCards), numCards, parentWidth));
           }
         }
 
         if (_selectedIndex != null) {
-          children.add(_buildCard(_selectedIndex!, parentWidth));
+          children.add(_buildCard(_selectedIndex!, numCards, parentWidth));
         }
 
         return AnimatedContainer(
           duration: Duration(milliseconds: 200),
           curve: Curves.easeOut,
           width: double.infinity,
-          height: _getBoxHeight(),
+          height: _getBoxHeight(numCards),
           child: AnimatedSwitcher(
             duration: Duration(milliseconds: 200),
             transitionBuilder: (child, animation) =>
                 FadeTransition(opacity: animation, child: child),
             child: SizedBox(
-              key: ValueKey(_getBoxHeight()),
+              key: ValueKey(_getBoxHeight(numCards)),
               width: double.infinity,
-              height: _getBoxHeight(),
+              height: _getBoxHeight(numCards),
               child: Stack(alignment: Alignment.center, children: children),
             ),
           ),

@@ -14,6 +14,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/picker.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/token_selection_bottom_sheet.dart';
@@ -122,7 +123,7 @@ class _NewSendPageState extends State<NewSendPage> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   ModalTopBar(
-                      title: "Send",
+                      title: S.of(context).send,
                       leadingIcon: Icon(Icons.close),
                       onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
                     trailingWidget: Observer(
@@ -172,7 +173,7 @@ class _NewSendPageState extends State<NewSendPage> {
                               children: [
                                 Column(crossAxisAlignment:CrossAxisAlignment.start,
                                   spacing:12,children: [
-                                  Text("Address or alias"),
+                                  Text(S.of(context).address_or_alias),
                                   NewSendAddressInput(
                                     addressController: _addressControllers[_selectedOutput],
                                     onURIScanned: (uri) async {
@@ -203,7 +204,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                 ],
                                 ),
         Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:12,children: [
-          Text("Amount"),
+          Text(S.of(context).amount),
           NewSendAmountInput(
         amountController: _amountControllers[_selectedOutput],
         currency: _fiatInputMode
@@ -217,64 +218,35 @@ class _NewSendPageState extends State<NewSendPage> {
           _presentCurrencyPicker(context);
         },
           ),
-          Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            spacing: 8,
-            children: [
-              ModernButton.svg(
-                  size: 28,
-                  svgPath: "assets/new-ui/switch.svg",
-                  iconSize: 18,
-                  onPressed: () {
-                    setState(() {
-                      _fiatInputMode = !_fiatInputMode;
-                      _amountControllers[_selectedOutput].text = _fiatInputMode
-                          ? output.fiatAmount
-                          : output.cryptoAmount;
-                    });
-                  }),
-              Observer(
-                  builder: (_) => Text( _fiatInputMode
-                      ? "${output.cryptoAmount.isEmpty ? "0" : _wrapAmount(output.roundedCryptoAmount(6), 20)} ${widget.sendViewModel.selectedCryptoCurrency.title}"
-                      : "${output.cryptoAmount.isEmpty ? "0" : _wrapAmount(output.roundedFiatAmount(6), 20)} ${widget.sendViewModel.fiatCurrency.title}",)),
-            ],
-          ),
-          Row(
-            spacing: 8,
-            children: [
-              Text("Max."),
-              Material(
-                  color: Theme.of(context).colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(99999),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(99999),
-                    onTap: () async {
-                      output.setSendAll(
-                          await widget.sendViewModel.sendingBalance);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 4),
-                      child: Text(
-                        widget.sendViewModel.balance,
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary),
-                      ),
-                    ),
-                  ))
-            ],
-          )
-        ],
-          ),
-        ],),
-
-AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
-    if (widget.sendViewModel.hasFees)
+                                  FiatAmountBar(
+                                    fiatInputMode: _fiatInputMode,
+                                    onSwitchButtonPressed: () {
+                                      setState(() {
+                                        _fiatInputMode = !_fiatInputMode;
+                                        _amountControllers[_selectedOutput].text = _fiatInputMode
+                                            ? output.fiatAmount
+                                            : output.cryptoAmount;
+                                      });
+                                    },
+                                    fiatAmount: _wrapAmount(output.roundedFiatAmount(6), 20),
+                                    cryptoAmount: _wrapAmount(output.roundedCryptoAmount(6), 20),
+                                    allAmount: widget.sendViewModel.balance,
+                                    cryptoCurrency:
+                                        widget.sendViewModel.selectedCryptoCurrency.title,
+                                    fiatCurrency: widget.sendViewModel.fiatCurrency.title,
+                                    onAllButtonPressed: () async {
+                                      output.setSendAll(await widget.sendViewModel.sendingBalance);
+                                    },
+                                  ),
+                                ],
+                              ),
+                              AnimatedDropdown(
+                                  dropdownText: S.of(context).advanced_settings,
+                                  content: Column(children: [
+                                    if (widget.sendViewModel.hasFees)
       ListItemRegularRowWidget(
         keyValue: "",
-        label: "Fees",
+        label: S.of(context).fees,
         subtitle: "~${output.estimatedFee} ${widget.sendViewModel.currency} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
 
         onTap: () {
@@ -392,7 +364,7 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
                                           },
                                         );
                                       },
-                                      text: "Continue",
+                                      text: S.of(context).continue_text,
                                       color: Theme.of(context).colorScheme.primary,
                                       textColor: Theme.of(context).colorScheme.onPrimary,
                                       isLoading: widget.sendViewModel.state is IsExecutingState ||
@@ -497,7 +469,7 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
             ? widget.sendViewModel.fiatCurrencies.indexOf(widget.sendViewModel.fiatCurrency)
             : widget.sendViewModel.currencies.indexOf(widget.sendViewModel.selectedCryptoCurrency),
         items:
-            _fiatInputMode ? widget.sendViewModel.fiatCurrencies : widget.sendViewModel.currencies,
+        _fiatInputMode ? widget.sendViewModel.fiatCurrencies : widget.sendViewModel.currencies,
         hintText: S.of(context).search_currency,
         onItemSelected: (Currency cur) async {
           late final selectedCurrency;
@@ -883,14 +855,14 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
 
 
   void showErrorValidationAlert(BuildContext context) => showPopUp<void>(
-        context: context,
-        builder: (context) => AlertWithOneAction(
-          alertTitle: S.of(context).error,
-          alertContent: 'Please, check receiver forms',
-          buttonText: S.of(context).ok,
-          buttonAction: () => Navigator.of(context).pop(),
-        ),
-      );
+    context: context,
+    builder: (context) => AlertWithOneAction(
+      alertTitle: S.of(context).error,
+      alertContent: 'Please, check receiver forms',
+      buttonText: S.of(context).ok,
+      buttonAction: () => Navigator.of(context).pop(),
+    ),
+  );
 
   bool isRegularElectrumAddress(String address) {
     final supportedTypes = [CryptoCurrency.btc, CryptoCurrency.ltc, CryptoCurrency.bch];
@@ -938,45 +910,45 @@ AnimatedDropdown(dropdownText:"Advanced Settings",content: Column(children: [
       builder: (BuildContext modalContext) {
         int selectedIdx = selectedItem;
         return Observer(
-          builder: (context) {
-            double? customFeeRate =
-            isBitcoinWallet ? widget.sendViewModel.feesViewModel.customBitcoinFeeRate.toDouble() : null;
-            return StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-                return IntrinsicHeight(
-                  // height: MediaQuery.of(context).size.height*0.4,
-                  child: ModalNavigator(
-                    parentContext: modalContext,
-                      heightMode: ModalHeightModes.autoLock,
-                      rootPage: NewPicker(
-                        title: "Set Fees",
-                          description: "Depending on the fee amount, the deposit will go through faster",
-                          sliderPageTitle: "Custom Fee",
-                          sliderInitialValue: customFeeRate,
-                          sliderMaxValue: maxCustomFeeRate,
-                          sliderValueDescription: "sat/byte",
-                          items: items
-                              .map((item) => PickerItem<TransactionPriority>(
-                                    title: item.title,
-                                    subtitle: item.description,
-                                    hint: item.hint,
-                                    value: item,
-                            isSliderItem: items.indexOf(item) == customItemIndex,
-                                  ))
-                              .toList(),
-                          onItemSelected: (TransactionPriority priority) async {
-                            widget.sendViewModel.feesViewModel.setTransactionPriority(priority);
-                            setState(() => selectedIdx = items.indexOf(priority));
-                            await output.calculateEstimatedFee();
-                          },
-                          onSliderChanged: (double value) {
-                          widget.sendViewModel.feesViewModel.customBitcoinFeeRate = value.round();
-                          },
-                          selectedIndex: selectedIdx)),
-                );
-              },
-            );
-          }
+            builder: (context) {
+              double? customFeeRate =
+              isBitcoinWallet ? widget.sendViewModel.feesViewModel.customBitcoinFeeRate.toDouble() : null;
+              return StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return IntrinsicHeight(
+                    // height: MediaQuery.of(context).size.height*0.4,
+                    child: ModalNavigator(
+                        parentContext: modalContext,
+                        heightMode: ModalHeightModes.autoLock,
+                        rootPage: NewPicker(
+                            title: S.of(context).set_fees,
+                            description: S.of(context).set_fees_desc,
+                            sliderPageTitle: S.of(context).custom_fee,
+                            sliderInitialValue: customFeeRate,
+                            sliderMaxValue: maxCustomFeeRate,
+                            sliderValueDescription: "sat/byte",
+                            items: items
+                                .map((item) => PickerItem<TransactionPriority>(
+                              title: item.title,
+                              subtitle: item.description,
+                              hint: item.hint,
+                              value: item,
+                              isSliderItem: items.indexOf(item) == customItemIndex,
+                            ))
+                                .toList(),
+                            onItemSelected: (TransactionPriority priority) async {
+                              widget.sendViewModel.feesViewModel.setTransactionPriority(priority);
+                              setState(() => selectedIdx = items.indexOf(priority));
+                              await output.calculateEstimatedFee();
+                            },
+                            onSliderChanged: (double value) {
+                              widget.sendViewModel.feesViewModel.customBitcoinFeeRate = value.round();
+                            },
+                            selectedIndex: selectedIdx)),
+                  );
+                },
+              );
+            }
         );
       },
     );
