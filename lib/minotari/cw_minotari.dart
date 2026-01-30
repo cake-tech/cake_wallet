@@ -38,10 +38,30 @@ class CWMinotari extends Minotari {
 
   @override
   double? getMinotariEstimatedFee(Object wallet) {
-    // TODO: Use FFI estimateFee() when implemented to get accurate fee estimate.
-    const double placeholderFee = 26666;
-    return placeholderFee;
+    final minotariWallet = wallet as MinotariWallet;
+    final feeEstimate = minotariWallet.cachedFeeEstimate;
+    if (feeEstimate != null) {
+      return minotariAmountToDouble(amount: feeEstimate.estimatedFee.toInt());
+    } else {
+      return null;
+    }
   }
+
+  @override
+  List<TransactionPriority> getTransactionPriorities() =>
+      MinotariTransactionPriority.all;
+
+  @override
+  TransactionPriority deserializeMinotariTransactionPriority({required int raw}) =>
+      MinotariTransactionPriority.deserialize(raw: raw);
+
+  @override
+  TransactionPriority getMinotariTransactionPriorityMedium() =>
+      MinotariTransactionPriority.medium;
+
+  @override
+  TransactionPriority getMinotariTransactionPrioritySlow() =>
+      MinotariTransactionPriority.slow;
 
   @override
   Object createMinotariTransactionCredentials(List<Output> outputs) =>

@@ -15,6 +15,7 @@ import 'package:cw_minotari/minotari_balance.dart';
 import 'package:cw_minotari/minotari_ffi.dart';
 import 'package:cw_minotari/minotari_transaction_history.dart';
 import 'package:cw_minotari/minotari_transaction_info.dart';
+import 'package:cw_minotari/minotari_transaction_priority.dart';
 import 'package:cw_minotari/minotari_wallet_addresses.dart';
 import 'package:cw_minotari/pending_minotari_transaction.dart';
 import 'package:cw_minotari/src/rust/api/network.dart';
@@ -57,6 +58,9 @@ abstract class MinotariWalletBase
   bool _isTransactionUpdating;
   StreamSubscription<ScanEventDto>? _scannerSubscription;
   Node? _currentNode;
+
+  /// Cached fee estimate from the last updateEstimatedFeesParams call
+  FeeEstimate? _cachedFeeEstimate;
 
   final String _password;
   final String? _mnemonic;
@@ -140,10 +144,6 @@ abstract class MinotariWalletBase
     }
   }
 
-  /// TODO Sometimes receives an error "AnyhowException(Intermittent error:
-  /// Scanning error: Blockchain connection failed: Failed to get header at
-  /// height 186479)"
-  /// Need to investigate further
   @override
   Future<void> startSync() async {
     try {
@@ -317,9 +317,9 @@ abstract class MinotariWalletBase
 
     final nodeUrl = currentNode.uri.toString();
 
-    // TODO Estimated fee (Minotari calculates actual fee during transaction construction)
-    // Use the placeholder estimate from calculateEstimatedFee
-    final fee = 27777; // Placeholder fixed fee for Minotari
+    // Use the cached fee estimate, or 0 if not available
+    // The actual fee will be calculated by the Rust layer during transaction construction
+    final fee = _cachedFeeEstimate?.estimatedFee.toInt() ?? 0;
 
     // Get note/payment ID if provided
     final note = output.note;
@@ -417,7 +417,61 @@ abstract class MinotariWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
+  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+    return _cachedFeeEstimate?.estimatedFee.toInt() ?? 0;
+  }
+
+  @override
+  Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async {
+    if (_currentNode == null || _ffi == null) {
+      printV('[Minotari Fee] Cannot estimate fee: no node connected or wallet not initialized');
+      return;
+    }
+
+    try {
+      final feePriority = _mapPriorityToFeePriority(priority);
+      final nodeUrl = _currentNode!.uri.toString();
+
+      printV('[Minotari Fee] Requesting fee estimate: amount=0, priority=${feePriority.name}, nodeUrl=$nodeUrl');
+
+      _cachedFeeEstimate = await _ffi!.estimateFee(
+        amount: BigInt.zero, // TODO it's always zero because we don't know the amount here
+        priority: feePriority,
+        baseNodeUrl: nodeUrl,
+      );
+
+      if (_cachedFeeEstimate != null) {
+        printV('[Minotari Fee] Fee estimate received: '
+            'estimatedFee=${_cachedFeeEstimate!.estimatedFee}, '
+            'feePerGram=${_cachedFeeEstimate!.feePerGram}, '
+            'inputCount=${_cachedFeeEstimate!.inputCount}, '
+            'totalAmountRequired=${_cachedFeeEstimate!.totalAmountRequired}');
+      } else {
+        printV('[Minotari Fee] Fee estimate returned null');
+      }
+    } catch (e) {
+      printV('[Minotari Fee] Error estimating fee: $e');
+    }
+  }
+
+  /// Map Dart TransactionPriority to Rust FeePriority enum
+  FeePriority _mapPriorityToFeePriority(TransactionPriority? priority) {
+    if (priority is MinotariTransactionPriority) {
+      switch (priority) {
+        case MinotariTransactionPriority.slow:
+          return FeePriority.slow;
+        case MinotariTransactionPriority.medium:
+          return FeePriority.medium;
+        case MinotariTransactionPriority.fast:
+          return FeePriority.fast;
+      }
+    }
+    // Default to medium priority
+    return FeePriority.medium;
+  }
+
+  /// Get the cached fee estimate (for display purposes)
+  FeeEstimate? get cachedFeeEstimate => _cachedFeeEstimate;
 
   @override
   Future<bool> checkNodeHealth() async {

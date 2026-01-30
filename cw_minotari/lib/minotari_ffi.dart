@@ -3,22 +3,28 @@ import 'package:cw_minotari/src/rust/api/wallet.dart'
 import 'package:cw_minotari/src/rust/api/balance.dart' as balance;
 import 'package:cw_minotari/src/rust/api/address.dart' as address;
 import 'package:cw_minotari/src/rust/api/db.dart';
+import 'package:cw_minotari/src/rust/api/fee.dart' as fee;
 import 'package:cw_minotari/src/rust/api/scanner.dart' as scanner;
 import 'package:cw_minotari/src/rust/api/transactions.dart' as transactions;
 import 'package:cw_minotari/src/rust/api/send_transaction.dart' as send_tx;
 import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/frb_generated.dart';
 
-// Re-export send transaction types for callers
 export 'package:cw_minotari/src/rust/api/send_transaction.dart'
     show SendTransactionEvent, TransactionStage;
+
+export 'package:cw_minotari/src/rust/api/fee.dart'
+    show FeeEstimate, FeePriority;
 
 /// FFI interface for Minotari wallet using Flutter Rust Bridge
 /// Note: The Rust library uses "password" parameter name but it actually means
 /// BIP39 passphrase for seed derivation. We use "passphrase" in our Dart code
 /// for clarity.
 class MinotariFfi {
-  final String _walletName = 'default'; // We support a single wallet for now
+  final String _walletName = 'default'; // TODO Use wallet name from CW
+
+  /// Expose wallet name for fee estimation
+  String get walletName => _walletName;
 
   final String dataPath;
   TariNetwork? _networkInternal;
@@ -206,6 +212,26 @@ class MinotariFfi {
     );
 
     return send_tx.sendTransaction(details: details);
+  }
+
+  /// Estimate transaction fee based on amount and priority
+  ///
+  /// [amount] - Amount in microTari to send
+  /// [priority] - Fee priority (slow, medium, fast)
+  /// [baseNodeUrl] - The base node URL for fee estimation
+  Future<fee.FeeEstimate> estimateFee({
+    required BigInt amount,
+    required fee.FeePriority priority,
+    required String baseNodeUrl,
+  }) async {
+    _ensureWalletInitialized();
+
+    return await fee.estimateTransactionFee(
+      amount: amount,
+      priority: priority,
+      baseUrl: baseNodeUrl,
+      walletName: _walletName,
+    );
   }
 
   /// Dispose of the wallet handle
