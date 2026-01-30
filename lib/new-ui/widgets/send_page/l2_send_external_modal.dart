@@ -1,11 +1,14 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import "package:cw_core/wallet_type.dart";
 
 class L2SendExternalModal extends StatefulWidget {
   const L2SendExternalModal({super.key, required this.sendViewModel});
@@ -26,6 +29,10 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
   void initState() {
     super.initState();
     () async {
+      if(widget.sendViewModel.wallet.type == WalletType.bitcoin) {
+        await bitcoin!.setAddressType(widget.sendViewModel.wallet, LightningAddressType.p2l);
+
+      }
       final newUri = await widget.sendViewModel.wallet.walletAddresses
           .getPaymentRequestUri(widget.sendViewModel.outputs.first.cryptoAmount);
       setState(() {
@@ -54,7 +61,7 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
               ModalTopBar(
                 title: "",
                 leadingWidget: Row(
-                  children: [Text("Deposit")],
+                  children: [Text(S.of(context).bitcoin_lightning_deposit)],
                 ),
                 trailingIcon: Icon(Icons.close),
                 onTrailingPressed: Navigator.of(context).pop,
@@ -67,7 +74,7 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
                     spacing: 12,
                     children: [
                       Text(
-                        "Send exactly",
+                        S.of(context).send_exactly,
                         style: TextStyle(
                             fontSize: 16,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -99,7 +106,7 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
                               ],
                             ),
                           )),
-                      Text("to:",
+                      Text("${S.of(context).to}:",
                           style: TextStyle(
                               fontSize: 16,
                               color: Theme.of(context).colorScheme.onSurface,
@@ -139,7 +146,7 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
                       child: Padding(
                         padding: EdgeInsets.all(20),
                         child: Text(
-                          "Don't close this page until you send the funds, or else the deposit won't proceed.",
+                          S.of(context).lightning_external_disclaimer,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               color: warningTextColor, fontSize: 14, fontWeight: FontWeight.w500),
@@ -147,7 +154,7 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
                       )),
                   NewPrimaryButton(
                       onPressed: Navigator.of(context).pop,
-                      text: "I've sent the funds",
+                      text: S.of(context).sent_the_funds,
                       color: Theme.of(context).colorScheme.surfaceContainer,
                       textColor: Theme.of(context).colorScheme.primary),
                   SizedBox()

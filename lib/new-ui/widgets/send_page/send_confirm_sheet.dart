@@ -1,23 +1,16 @@
-import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 
 class SendConfirmSheet extends StatefulWidget {
-  const SendConfirmSheet({super.key, required this.sendViewModel,this.isPage = false});
+  const SendConfirmSheet({super.key, required this.sendViewModel, this.isPage = false});
 
   final SendViewModel sendViewModel;
   final bool isPage;
@@ -60,16 +53,17 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
               children: [
                 Positioned.fill(
                     child: AnimatedSlide(
-                      offset: commited ? Offset.zero : const Offset(1, 0),
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                      child: const TransactionCommitedScreen(),
-                    )),
+                  offset: commited ? Offset.zero : const Offset(1, 0),
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  child: const TransactionCommitedScreen(),
+                )),
                 AnimatedSlide(
                   offset: commited ? const Offset(-1, 0) : Offset.zero,
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOutCubic,
-                  child: SendTransactionDetails(sendViewModel: widget.sendViewModel,isPage: widget.isPage),
+                  child: SendTransactionDetails(
+                      sendViewModel: widget.sendViewModel, isPage: widget.isPage),
                 ),
               ],
             );
@@ -88,39 +82,41 @@ class SendTransactionDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
     return SafeArea(
       child: LayoutBuilder(
-        builder: (context,constraints) {
-          return Column(key: ValueKey(0), mainAxisSize: isPage ? MainAxisSize.max : MainAxisSize.min, children: [
-          ModalTopBar(
-            title: "",
-            leadingWidget: Row(
-              spacing: 8,
+        builder: (context, constraints) {
+          return Column(
+              key: ValueKey(0),
+              mainAxisSize: isPage ? MainAxisSize.max : MainAxisSize.min,
               children: [
-                if (sendViewModel.currency.iconPath != null)
-                  Image.asset(
-                    sendViewModel.currency.iconPath!,
-                    width: 28,
-                    height: 28,
+                ModalTopBar(
+                  title: "",
+                  leadingWidget: Row(
+                    spacing: 8,
+                    children: [
+                      if (sendViewModel.currency.iconPath != null)
+                        Image.asset(
+                          sendViewModel.currency.iconPath!,
+                          width: 28,
+                          height: 28,
+                        ),
+                      Text(
+                        "Send",
+                        style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                      )
+                    ],
                   ),
-                Text(
-                  "Send",
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
-                )
-              ],
-            ),
-            trailingIcon: Icon(Icons.close),
-            onTrailingPressed: Navigator.of(context).pop,
-          ),isPage ? Expanded(child: _buildMainContent(context)) : _buildMainContent(context)
-        ]);
+                  trailingIcon: Icon(Icons.close),
+                  onTrailingPressed: Navigator.of(context).pop,
+                ),
+                isPage ? Expanded(child: _buildMainContent(context)) : _buildMainContent(context)
+              ]);
         },
       ),
     );
   }
 
-  Widget _buildMainContent(BuildContext context){
+  Widget _buildMainContent(BuildContext context) {
     final transaction = sendViewModel.pendingTransaction;
 
     final amount = (transaction == null)
@@ -144,7 +140,6 @@ class SendTransactionDetails extends StatelessWidget {
     final address = sendViewModel.outputs.first.extractedAddress;
 
     return Column(key: ValueKey(0), mainAxisSize: MainAxisSize.min, children: [
-
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(

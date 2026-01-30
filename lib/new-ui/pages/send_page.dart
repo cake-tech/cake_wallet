@@ -81,34 +81,33 @@ class SendPageModes {
   const SendPageModes({required this.title, this.description, required this.showAddressField,this.helpContent, this.showConfirmationAsModal=true}
       );
 
+  static final SendPageModes normal = SendPageModes(title: S.current.send, showAddressField: true);
 
-  static const SendPageModes normal = SendPageModes(
-      title:"Send",showAddressField:true
-  );
-  static const SendPageModes l2deposit = SendPageModes(
-      title: "Deposit",
-      description: "to Lightning",
+
+  static final SendPageModes l2deposit = SendPageModes(
+      title: S.current.bitcoin_lightning_deposit,
+      description: S.current.to_lightning,
       showAddressField: false,
       helpContent: SendPageHelpContent(
-          title: "Deposit",
+          title: S.current.bitcoin_lightning_deposit,
           imagePath: "assets/new-ui/lightning_deposit_help.svg",
-          description:
-          "When you deposit to Lightning, you are swapping your on-chain Bitcoin from this wallet to your Lightning account.",
-          disclaimer:
-          "The new Lightning balance will not be available until the Bitcoin transaction is fully confirmed."),showConfirmationAsModal: false);
-  static const SendPageModes l2withdrawal = SendPageModes(
-      title: "Withdraw",
-      description: "to on-chain",
+          description: S.current.lightning_deposit_desc,
+          disclaimer: S.current.lightning_deposit_disclaimer),
+      showConfirmationAsModal: false);
+
+
+  static final SendPageModes l2withdrawal = SendPageModes(
+      title: S.current.bitcoin_lightning_withdraw,
+      description: S.current.to_on_chain,
       showAddressField: false,
       helpContent: SendPageHelpContent(
-          title: "Withdraw",
+          title: S.current.bitcoin_lightning_withdraw,
           imagePath: "assets/new-ui/lightning_withdraw_help.svg",
-          description:
-          "When you withdraw from Lightning, you are moving some or all of your Lightning balance to on-chain Bitcoin.",
-          disclaimer:
-          "The new Bitcoin balance will not be available until the transaction is fully confirmed."),showConfirmationAsModal: false);
+          description: S.current.lightning_withdraw_desc,
+          disclaimer: S.current.lightning_withdraw_disclaimer),
+      showConfirmationAsModal: false);
 
-  static const all = [
+  static final all = [
     normal,
     l2deposit,
     l2withdrawal,
@@ -116,13 +115,16 @@ class SendPageModes {
 }
 
 class SendPageParams {
-  PaymentRequest? initialPaymentRequest;
-  SendPageModes mode = SendPageModes.normal;
-  UnspentCoinType unspentCoinType = UnspentCoinType.any;
+  final PaymentRequest? initialPaymentRequest;
+  final SendPageModes mode;
+  final UnspentCoinType unspentCoinType;
 
-  SendPageParams({this.initialPaymentRequest, this.mode=SendPageModes.normal, this.unspentCoinType=UnspentCoinType.any});
+  SendPageParams({
+    this.initialPaymentRequest,
+    SendPageModes? mode,
+    this.unspentCoinType = UnspentCoinType.any,
+  }) : mode = mode ?? SendPageModes.normal;
 }
-
 
 class NewSendPage extends StatefulWidget {
   NewSendPage(
@@ -389,6 +391,11 @@ class _NewSendPageState extends State<NewSendPage> {
                                     return LoadingPrimaryButton(
                                       key: ValueKey('send_page_send_button_key'),
                                       onPressed: () async {
+                                        //Request dummy node to get the focus out of the text fields
+                                        FocusScope.of(context).requestFocus(FocusNode());
+
+                                        if (widget.sendViewModel.state is IsExecutingState) return;
+
                                         if(widget.mode == SendPageModes.normal) {
                                           _handleSend();
                                         } else if(widget.mode == SendPageModes.l2deposit) {
@@ -498,10 +505,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
   void _handleSend() async {
     //TODO refactor this action. code was copied over from old ui. i don't like it.
-    //Request dummy node to get the focus out of the text fields
-    FocusScope.of(context).requestFocus(FocusNode());
 
-    if (widget.sendViewModel.state is IsExecutingState) return;
     // if (_formKey.currentState != null &&
     //     !_formKey.currentState!.validate()) {
     //   if (sendViewModel.outputs.length > 1) {
@@ -1130,14 +1134,31 @@ class SendHelpPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 SvgPicture.asset(content.imagePath),
-                Text(content.description,textAlign: TextAlign.center,style: TextStyle(fontSize:14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurface),),
-                if(content.disclaimer != null)
-                  Text(
-                      content.disclaimer!,textAlign: TextAlign.center,style: TextStyle(fontSize:14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                Text(
+                  content.description,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).colorScheme.onSurface),
+                ),
+                if (content.disclaimer != null)
+                  Text(content.disclaimer!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
-          Padding(padding:EdgeInsets.symmetric(horizontal: 18),child: NewPrimaryButton(onPressed: Navigator.of(context).pop, text: "I understand", color: Theme.of(context).colorScheme.primary, textColor: Theme.of(context).colorScheme.onPrimary))
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 18),
+              child: NewPrimaryButton(
+                  onPressed: Navigator.of(context).pop,
+                  text: S.of(context).i_understand,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary))
         ],
       ),
     );
