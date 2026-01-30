@@ -132,7 +132,8 @@ abstract class OutputBase with Store {
   Future<void> calculateEstimatedFee() async {
     try {
       final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
-      if (isEVMCompatibleChain(_wallet.type)) {
+      // TODO check why fee isn't triggered for Minotari without this
+      if (isEVMCompatibleChain(_wallet.type) || _wallet.type == WalletType.minotari) {
         await _wallet.updateEstimatedFeesParams(priority);
       }
 
@@ -209,7 +210,6 @@ abstract class OutputBase with Store {
         /// end EVMs
 
         case WalletType.minotari:
-          // Minotari has fixed fee (no priority selection), similar to Solana
           estimatedFee = minotari!.getMinotariEstimatedFee(_wallet)?.toString() ?? '0.0';
           break;
 
