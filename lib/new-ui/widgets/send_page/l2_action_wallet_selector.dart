@@ -95,8 +95,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                             walletName: widget.sendViewModel.wallet.name,
                             onTap: () {
                               printV(widget.sendViewModel.wallet.type);
-                              if (widget.sendViewModel.wallet.type.toString() ==
-                                  "WalletType.bitcoin") {
+                              if (widget.sendViewModel.wallet.type == WalletType.bitcoin) {
                                 if(widget.action == l2actions.withdraw){
                                   widget.sendViewModel.outputs.first.address =
                                       bitcoin!.getUnusedSegwitAddress(widget.sendViewModel.wallet)!;
