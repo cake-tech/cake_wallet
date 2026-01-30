@@ -37,7 +37,7 @@ class CoinControlListItem extends StatelessWidget {
     return Container(
       height:70,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.vertical(
           top: isFirst ? Radius.circular(12) : Radius.circular(0),
           bottom: isLast ? Radius.circular(12) : Radius.circular(0),
