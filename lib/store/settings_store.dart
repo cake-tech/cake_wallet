@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/di.dart';
@@ -152,6 +153,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialBitcoinCashTransactionPriority,
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
+      TransactionPriority? initialMinotariTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
@@ -255,6 +257,9 @@ abstract class SettingsStoreBase with Store {
     if (initialDecredTransactionPriority != null) {
       priority[WalletType.decred] = initialDecredTransactionPriority;
     }
+    if (initialMinotariTransactionPriority != null) {
+      priority[WalletType.minotari] = initialMinotariTransactionPriority;
+    }
 
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
@@ -320,6 +325,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.decred:
           key = PreferencesKey.decredTransactionPriority;
+          break;
+        case WalletType.minotari:
+          key = PreferencesKey.minotariTransactionPriority;
           break;
         default:
           key = null;
@@ -1074,6 +1082,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? wowneroTransactionPriority;
     TransactionPriority? zanoTransactionPriority;
     TransactionPriority? decredTransactionPriority;
+    TransactionPriority? minotariTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -1117,6 +1126,10 @@ abstract class SettingsStoreBase with Store {
       decredTransactionPriority = decred?.deserializeDecredTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.minotariTransactionPriority) != null) {
+      minotariTransactionPriority = minotari?.deserializeMinotariTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.minotariTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -1127,6 +1140,7 @@ abstract class SettingsStoreBase with Store {
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
+    minotariTransactionPriority ??= minotari?.getMinotariTransactionPriorityMedium();
     polygonTransactionPriority ??= evm?.getDefaultTransactionPriority();
     baseTransactionPriority ??= evm?.getDefaultTransactionPriority();
     bscTransactionPriority ??= evm?.getDefaultTransactionPriority();
@@ -1585,6 +1599,7 @@ abstract class SettingsStoreBase with Store {
       initialLitecoinTransactionPriority: litecoinTransactionPriority,
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
       initialDecredTransactionPriority: decredTransactionPriority,
+      initialMinotariTransactionPriority: minotariTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -1675,6 +1690,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.decredTransactionPriority) != null) {
       priority[WalletType.decred] = decred!.deserializeDecredTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
+    }
+    if (minotari != null &&
+        sharedPreferences.getInt(PreferencesKey.minotariTransactionPriority) != null) {
+      priority[WalletType.minotari] = minotari!.deserializeMinotariTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.minotariTransactionPriority)!);
     }
 
     final generateSubaddresses =
