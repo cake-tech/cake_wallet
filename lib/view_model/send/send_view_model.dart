@@ -942,6 +942,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
+  @action
+  Future<void> updateWalletBalance() async => await wallet.updateBalance();
+
   Future<void> _addTransactionDescription() async {
     String address = outputs.fold('', (acc, value) {
       return value.isParsedAddress

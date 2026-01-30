@@ -7,6 +7,7 @@ class ModalTopBar extends StatelessWidget {
   ModalTopBar(
       {super.key,
       required this.title,
+        this.subtitle,
       this.onLeadingPressed=nothing,
       this.onTrailingPressed=nothing,
       this.leadingIcon,
@@ -22,6 +23,7 @@ class ModalTopBar extends StatelessWidget {
   }
 
   final String title;
+  final String? subtitle;
   final VoidCallback onLeadingPressed;
   final VoidCallback onTrailingPressed;
   final Widget? leadingIcon;
@@ -40,9 +42,23 @@ class ModalTopBar extends StatelessWidget {
         children: [
           Align(
             alignment: Alignment.center,
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.headlineMedium,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 4,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                if (subtitle != null && subtitle!.isNotEmpty)
+                  Text(
+                      subtitle!,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))
+              ],
             ),
           ),
           Row(

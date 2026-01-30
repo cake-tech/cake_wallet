@@ -49,9 +49,11 @@ import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
+import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
@@ -898,14 +900,17 @@ Future<void> setup({
             walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
           ));
 
-  getIt.registerFactoryParam<NewSendPage, PaymentRequest?, UnspentCoinType?>(
-          (PaymentRequest? initialPaymentRequest, coinTypeToSpendFrom) => NewSendPage(
-        sendViewModel: getIt.get<SendViewModel>(param1: coinTypeToSpendFrom),
-        authService: getIt.get<AuthService>(),
-        initialPaymentRequest: initialPaymentRequest,
-        paymentViewModel: getIt.get<PaymentViewModel>(),
-        walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
-      ));
+  getIt.registerFactoryParam<NewSendPage, SendPageParams?, void>((params, _) {
+    params ??= SendPageParams();
+    return NewSendPage(
+      sendViewModel: getIt.get<SendViewModel>(param1: params.unspentCoinType),
+      authService: getIt.get<AuthService>(),
+      params: params,
+      contactListViewModel: getIt.get<ContactListViewModel>(),
+      paymentViewModel: getIt.get<PaymentViewModel>(),
+      walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
+    );
+  });
 
   getIt.registerFactory(
       () => SendTemplatePage(sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
