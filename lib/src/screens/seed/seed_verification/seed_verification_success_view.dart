@@ -71,7 +71,7 @@ class SeedVerificationSuccessView extends StatelessWidget {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               }
             },
-            text: S.current.open_wallet,
+            text: (walletType == "Bitcoin") ? S.current.continue_text : S.current.open_wallet,
             color: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.onPrimary,
           ),

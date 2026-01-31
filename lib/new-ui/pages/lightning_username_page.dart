@@ -5,15 +5,17 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class LightningUsernamePage extends StatefulWidget {
-  const LightningUsernamePage({super.key, required this.isSetup});
+  LightningUsernamePage({super.key, required this.isSetup});
 
   final bool isSetup;
+  final bool isLightMode = !(getIt.get<ThemeStore>().currentTheme.isDark);
 
   @override
   State<LightningUsernamePage> createState() => _LightningUsernamePageState();
@@ -73,6 +75,7 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
                                   ? LightningUsernameEditor(
                                       isSetup: widget.isSetup,
                                       controller: _controller,
+                                      isLightMode: widget.isLightMode,
                                       onRandomizeButtonTap: () {
                                         randomizeUsername(context);
                                       },
@@ -80,6 +83,7 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
                                     )
                                   : LightningUsernameInfo(
                                       username: state.username,
+                                      isLightMode: widget.isLightMode,
                                     ),
                             )
                           ],
@@ -152,16 +156,19 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
 }
 
 class LightningUsernameInfo extends StatelessWidget {
-  const LightningUsernameInfo({super.key, required this.username});
+  const LightningUsernameInfo({super.key, required this.username, required this.isLightMode});
 
   final String username;
+  final bool isLightMode;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       spacing: 24,
       children: [
-        SvgPicture.asset("assets/new-ui/lightning_username_setup.svg"),
+        SvgPicture.asset(isLightMode
+            ? "assets/new-ui/lightning_username_setup_light.svg"
+            : "assets/new-ui/lightning_username_setup.svg"),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 2,
@@ -198,23 +205,32 @@ class LightningUsernameEditor extends StatelessWidget {
       {super.key,
       required this.controller,
       required this.onRandomizeButtonTap,
-      required this.state, required this.isSetup});
+      required this.state,
+      required this.isSetup,
+      required this.isLightMode});
 
   final TextEditingController controller;
   final VoidCallback onRandomizeButtonTap;
+  final bool isLightMode;
   final bool isSetup;
   final LightningUsernameState state;
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       spacing: 12,
       children: [
-        SvgPicture.asset("assets/new-ui/lightning_username_setup.svg"),
+        SvgPicture.asset(isLightMode
+            ? "assets/new-ui/lightning_username_setup_light.svg"
+            : "assets/new-ui/lightning_username_setup.svg"),
         if (isSetup)
-          Text(
-            S.of(context).lightning_username_desc,
-            textAlign: TextAlign.center,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            child: Text(
+              S.of(context).lightning_username_desc,
+              textAlign: TextAlign.center,
+            ),
           ),
         SizedBox(),
         Padding(
@@ -293,7 +309,8 @@ class LightningUsernameEditor extends StatelessWidget {
             ],
           )
         else
-          Text("")
+          Text(""),
+        SizedBox(height: MediaQuery.of(context).viewInsets.bottom.clamp(0, 100))
       ],
     );
   }
