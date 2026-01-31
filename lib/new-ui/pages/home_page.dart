@@ -10,6 +10,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dar
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -120,7 +121,12 @@ class _NewHomePageState extends State<NewHomePage> {
                                   widget.dashboardViewModel.wallet.currency.fullName ??
                                       widget.dashboardViewModel.wallet.currency.name,
                                   cryptoName: widget.dashboardViewModel.wallet.currency.name,
-                                ) : AccountCustomizer(accountListViewModel: accountListViewModel!),
+                                ) : AccountCustomizer(
+                                  accountListViewModel: accountListViewModel!,
+                                  accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>(),
+                                  dashboardViewModel: widget.dashboardViewModel,
+
+                                ),
                               ),
                             ),
                           );

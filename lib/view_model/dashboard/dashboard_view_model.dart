@@ -202,6 +202,7 @@ abstract class DashboardViewModelBase with Store {
         type = appStore.wallet!.type,
         transactions = ObservableList<TransactionListItem>(),
         cardDesigns = ObservableList<CardDesign>(),
+        cardOrder = ObservableList<int>(),
         wallet = appStore.wallet! {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
@@ -481,6 +482,9 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   ObservableList<CardDesign> cardDesigns;
+
+  @observable
+  ObservableList<int> cardOrder;
 
   @computed
   bool get isDarkTheme => appStore.themeStore.currentTheme.isDark;
