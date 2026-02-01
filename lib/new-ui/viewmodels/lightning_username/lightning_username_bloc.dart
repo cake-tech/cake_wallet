@@ -69,9 +69,10 @@ class LightningUsernameBloc extends Bloc<LightningUsernameEvent, LightningUserna
       return UsernameError("${S.current.username_character_error} a-z, 0-9, -  _  .");
     }
 
-    if (username.length < 6 || username.length > 32) {
-      return UsernameError(S.current.username_length_error);
-    }
+    // TODO: check the actual limitations with Breez and apply them
+    // if (username.length < 6 || username.length > 32) {
+    //   return UsernameError(S.current.username_length_error);
+    // }
 
     if (username == (await bitcoin!.getLightningUsername(_wallet))) {
       return UsernameError(S.current.already_your_username, isInfo: true);
