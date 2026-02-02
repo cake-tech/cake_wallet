@@ -21,7 +21,7 @@ class UsernameError {
 // TODO find other errors that api returns
 final Map<String, String> errorPatterns = {"name already taken": S.current.username_not_available};
 
-const usernameRegex = r"^[a-z0-9_-]+$";
+const usernameRegex = r"^[a-z0-9_.-]+$";
 const usernameSuffix = "@cake.cash";
 
 class LightningUsernameBloc extends Bloc<LightningUsernameEvent, LightningUsernameState> {
@@ -69,10 +69,9 @@ class LightningUsernameBloc extends Bloc<LightningUsernameEvent, LightningUserna
       return UsernameError("${S.current.username_character_error} a-z, 0-9, -  _  .");
     }
 
-    // TODO: check the actual limitations with Breez and apply them
-    // if (username.length < 6 || username.length > 32) {
-    //   return UsernameError(S.current.username_length_error);
-    // }
+    if (username.length < 1 || username.length > 64) {
+      return UsernameError(S.current.username_length_error_1_64);
+    }
 
     if (username == (await bitcoin!.getLightningUsername(_wallet))) {
       return UsernameError(S.current.already_your_username, isInfo: true);
