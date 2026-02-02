@@ -100,6 +100,28 @@ else
   echo "⏭️  Skipping Android build (ANDROID_HOME or ANDROID_NDK_VERSION not set)"
 fi
 
+#######################################
+# Build iOS xcframework
+#######################################
+
+# Only build iOS libraries is xcodebuild is installed
+if command -v xcodebuild &> /dev/null; then
+  echo "🍎 Building iOS xcframework..."
+  (
+    cd "$SCRIPTS_DIR/ios" || exit 1
+    if [ -f "build_minotari.sh" ]; then
+      if ./build_minotari.sh; then
+        echo "✅ iOS xcframework prepared"
+      else
+        echo "⚠️  iOS build failed"
+      fi
+    else
+      echo "⚠️  build_minotari.sh not found, skipping iOS build"
+    fi
+  )
+else
+  echo "⏭️  Skipping iOS build (xcodebuild not installed)"
+fi
 
 #######################################
 # Done
