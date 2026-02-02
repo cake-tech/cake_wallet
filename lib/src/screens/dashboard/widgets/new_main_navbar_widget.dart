@@ -148,7 +148,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
             child: ClipRSuperellipse(
               borderRadius: BorderRadius.circular(barBorderRadius),
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                 child: Container(
                     height: barHeight,
                     decoration: ShapeDecoration(

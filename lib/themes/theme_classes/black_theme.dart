@@ -66,6 +66,7 @@ class BlackTheme extends MaterialThemeBase {
         errorContainer: const Color(0xFFC53636),
         onErrorContainer: const Color(0xFFFFDAD6),
         surface: surfaceColor,
+        surfaceDim: const Color(0xFF000000),
         background: surfaceColor,
         onSurface: const Color(0xFFE6E1E3),
         onSurfaceVariant: const Color(0xFFB4B4B4),
