@@ -102,7 +102,7 @@ class _CardsViewState extends State<CardsView> {
             final String accountName;
             final String accountBalance;
             if (account == null) {
-              accountName = walletCurrency.fullName ?? walletCurrency.title;
+              accountName = "";
               accountBalance = "";
             } else {
               accountName = account.label;
