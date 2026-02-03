@@ -145,6 +145,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
 
   @override
   Widget build(BuildContext context) {
+    final hasAddressTypeSelector = widget.receiveOptionViewModel.options.length > 1;
     final hasLabel = _addressItemWithLabel?.name != null && _addressItemWithLabel!.name!.isNotEmpty;
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
     final infobox = ReceiveInfoBox.forWalletType(widget.addressListViewModel.type,
@@ -216,6 +217,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                     },
                     largeQrMode: _largeQrMode,
                   ),
+                  if (hasAddressTypeSelector)
                   ReceiveAddressTypeDisplay(
                     lightningMode: widget.lightningMode,
                     receiveOptionViewModel: widget.receiveOptionViewModel,
