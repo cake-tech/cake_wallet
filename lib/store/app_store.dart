@@ -51,7 +51,10 @@ abstract class AppStoreBase with Store {
 
   ThemeStore themeStore;
 
+  @observable
   AmountParsingProxy _amountParsingProxy;
+
+  @computed
   AmountParsingProxy get amountParsingProxy => _amountParsingProxy;
 
   @action
