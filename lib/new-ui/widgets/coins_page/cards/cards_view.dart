@@ -96,6 +96,8 @@ class _CardsViewState extends State<CardsView> {
             final CardDesign cardDesign;
             if (widget.dashboardViewModel.cardDesigns.isEmpty)
               cardDesign = CardDesign.genericDefault;
+            else if(widget.lightningMode)
+              cardDesign = widget.dashboardViewModel.cardDesigns[index + 1];
             else
               cardDesign = widget.dashboardViewModel.cardDesigns[index];
 
@@ -160,7 +162,9 @@ class _CardsViewState extends State<CardsView> {
         final parentWidth = MediaQuery.of(context).size.width;
         final children = <Widget>[];
 
-        int numCards = widget.dashboardViewModel.cardDesigns.length;
+    int numCards = widget.dashboardViewModel.wallet.type == WalletType.bitcoin
+        ? 1
+        : widget.dashboardViewModel.cardDesigns.length;
         if(numCards == 0) numCards = 1;
 
         if (_selectedIndex! >= (numCards)) {
@@ -221,7 +225,7 @@ class _CardsViewState extends State<CardsView> {
         unspentCoinType: UnspentCoinType.nonMweb,
         mode: SendPageModes.l2deposit,
       ));
-      showCupertinoModalBottomSheet(context: context, builder: (context){
+      showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
         return FractionallySizedBox(
             heightFactor: 0.65,
             child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
@@ -263,7 +267,7 @@ class _CardsViewState extends State<CardsView> {
         unspentCoinType: unspentCoinType,
         mode: SendPageModes.l2withdrawal,
       ));
-      showCupertinoModalBottomSheet(context: context, builder: (context){
+      showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
         return FractionallySizedBox(
           heightFactor: 0.65,
           child:ModalNavigator(parentContext:context,rootPage: Material(child: page))

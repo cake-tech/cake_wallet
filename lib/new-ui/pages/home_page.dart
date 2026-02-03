@@ -107,8 +107,9 @@ class _NewHomePageState extends State<NewHomePage> {
                         barrierColor: Colors.black.withAlpha(60),
                         context: context,
                         builder: (context) {
+                          final bloc = getIt.get<CardCustomizerBloc>(param1: _lightningMode);
                           return BlocProvider(
-                            create: (context) => getIt.get<CardCustomizerBloc>(),
+                            create: (context) => bloc,
                             child: Material(
                               child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
                                 listener: (context, state) {

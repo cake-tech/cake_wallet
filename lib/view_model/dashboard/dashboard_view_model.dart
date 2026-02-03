@@ -46,6 +46,7 @@ import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/card_design.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -397,16 +398,37 @@ abstract class DashboardViewModelBase with Store {
         numAccounts = monero!.getAccountList(wallet).accounts.length;
       } else if (wallet.type == WalletType.wownero) {
         numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
+      } else  if (wallet.type == WalletType.bitcoin) {
+        // bitcoin and lightning
+        numAccounts = 2;
       } else {
         numAccounts = 1;
       }
 
       for (int i = 0; i < numAccounts; i++) {
+        late final int index;
+        if(balanceViewModel.hasAccounts) {
+          index = i;
+        } else if(wallet.type == WalletType.bitcoin && i == 1) {
+          index = 0;
+        } else {
+          index = -1;
+        }
+
+
         final setting = accountStyleSettings
-            .where((e) => e.accountIndex == (balanceViewModel.hasAccounts ? i : -1))
+            .where((e) => e.accountIndex == index)
             .firstOrNull;
 
-        cardDesigns.add(CardDesign.fromStyleSettings(setting, wallet.currency));
+        late final CryptoCurrency curr;
+        if(wallet.type == WalletType.bitcoin && i == 1) {
+          curr = CryptoCurrency.btcln;
+        } else {
+          curr = wallet.currency;
+        }
+
+
+        cardDesigns.add(CardDesign.fromStyleSettings(setting, curr));
       }
   }
 
