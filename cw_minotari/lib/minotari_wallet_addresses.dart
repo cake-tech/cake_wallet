@@ -1,3 +1,4 @@
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
@@ -29,4 +30,7 @@ abstract class MinotariWalletAddressesBase extends WalletAddresses with Store {
   void setAddress(String newAddress) {
     address = newAddress;
   }
+
+  @override
+  PaymentURI getPaymentUri(String amount) => MinotariURI(amount: amount, address: address);
 }
