@@ -9,10 +9,12 @@ class ListItemRegularRow extends ListItem {
     this.trailingText,
     this.iconPath,
     this.onTap,
+    this.showArrow = true
   });
 
   final String? subtitle;
   final String? trailingText;
   final String? iconPath;
   final VoidCallback? onTap;
+  final bool showArrow;
 }

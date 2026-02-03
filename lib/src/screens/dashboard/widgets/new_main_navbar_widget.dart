@@ -145,16 +145,17 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
             duration: barResizeDuration,
             curve: Curves.easeOutCubic,
             width: barWidth,
-            child: ClipRRect(
+            child: ClipRSuperellipse(
               borderRadius: BorderRadius.circular(barBorderRadius),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
                 child: Container(
                     height: barHeight,
-                    decoration: BoxDecoration(
+                    decoration: ShapeDecoration(
                       color: backgroundColor,
-                      border: Border.all(color: Color(0x14FFFFFF), width: 1),
-                      borderRadius: BorderRadius.circular(barBorderRadius),
+                      shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(barBorderRadius),
+                        side: const BorderSide(color: Color(0x14FFFFFF), width: 2),
+                      ),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: barHorizontalPadding),
@@ -183,6 +184,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                               curve: Curves.easeOutCubic,
                               child: InkWell(
                                 splashFactory: NoSplash.splashFactory,
+                                splashColor: Colors.transparent,
                                 borderRadius: BorderRadius.circular(pillBorderRadius),
                                 onTap: () => _onItemTap(i),
                                 child: AnimatedContainer(
@@ -282,9 +284,9 @@ class AnimatedPill extends StatelessWidget {
           duration: pillResizeDuration,
           curve: Curves.easeOutCubic,
           width: estimateWidthForAction,
-          decoration: BoxDecoration(
+          decoration: ShapeDecoration(
             color: pillColor,
-            borderRadius: BorderRadius.circular(pillBorderRadius),
+            shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(pillBorderRadius)),
           ),
           clipBehavior: Clip.hardEdge,
           alignment: Alignment.center,

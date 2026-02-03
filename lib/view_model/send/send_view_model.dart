@@ -396,6 +396,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
+  set fiatCurrency(FiatCurrency value) {
+      _settingsStore.fiatCurrency = value;
+  }
+
   List<FiatCurrency> fiatCurrencies;
 
   final SettingsStore _settingsStore;
@@ -937,6 +941,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       await _currentTrade!.save();
     }
   }
+
+  @action
+  Future<void> updateWalletBalance() async => await wallet.updateBalance();
 
   Future<void> _addTransactionDescription() async {
     String address = outputs.fold('', (acc, value) {

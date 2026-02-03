@@ -130,63 +130,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
             value: isEnabledForAutoSwitching,
             onChanged: (value) => isEnabledForAutoSwitching = value),
       ],
-      // TODO: Remove example sections below when done testing
-      'example section': [
-        ListItemRegularRow(
-            keyValue: 'node_regular_with_drill_in_row_key',
-            label: 'Regular with Drill-in'),
-        ListItemRegularRow(
-            keyValue: 'node_tall_row_key',
-            label: 'Tall',
-            subtitle: 'With secondary text'),
-        ListItemRegularRow(
-            keyValue: 'node_regular_with_trailing_row_key',
-            label: 'Regular with Trailing',
-            trailingText: 'Trailing'),
-        ListItemToggle(
-            keyValue: 'node_toggle_row_key',
-            label: 'Toggle',
-            value: toggleExampleValue,
-            onChanged: (value) => toggleExampleValue = value),
-        ListItemCheckbox(
-          keyValue: 'node_checkbox_row_key',
-          label: 'Checkbox',
-          value: checkboxExampleValue,
-          onChanged: (value) => checkboxExampleValue = value,
-        ),
-        ListItemSelector(
-          keyValue: 'node_item_selector_row_key',
-          label: 'Item Selector',
-          onTap: () {},
-        ),
-      ],
-      'example dropdown': [
-        ListItemDropdown(
-          keyValue: 'node_dropdown_key',
-          label: 'Leading',
-          trailingText: 'Trailing',
-          onTap: () {},
-        ),
-      ],
-      'example icons': [
-        ListItemRegularRow(
-            keyValue: 'node_regular_with_icon_row_key',
-            label: 'Regular with icon',
-            iconPath: 'assets/images/eos.png'
-        ),
-        ListItemRegularRow(
-            keyValue: 'node_regular_tall_with_icon_row_key',
-            label: 'Tall',
-            subtitle: 'with icon',
-            iconPath: 'assets/images/avdo_icon.png'
-        ),
-        ListItemRegularRow(
-            keyValue: 'node_regular_trailing_with_icon_row_key',
-            label: 'Regular with Trailing',
-            trailingText: 'Trailing',
-            iconPath: 'assets/images/avdo_icon.png'
-        ),
-      ],
     };
   }
 

@@ -20,6 +20,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -349,7 +350,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   ),
                 ),
                 Container(
-                  height: 120,
+                  height: 172,
                   width: MediaQuery.of(context).size.width,
                   margin: EdgeInsets.only(bottom: 24),
                   padding: EdgeInsets.only(left: 16, right: 16),
@@ -434,6 +435,8 @@ class WalletListBodyState extends State<WalletListBody> {
                         color: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
+                      if(FeatureFlag.hasNewUi)
+                        SizedBox(height:52.0)
                     ],
                   ),
                 ),

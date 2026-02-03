@@ -90,13 +90,14 @@ class _NewHomePageState extends State<NewHomePage> {
                     });
                   },
                   onSettingsButtonPress: () {
-                    showCupertinoModalBottomSheet(
-                        context: context,
-                        builder: (context) {
-                          return Material(
-                            child: NewSettingsPage(),
-                          );
-                        });
+                    CupertinoScaffold.showCupertinoModalBottomSheet(
+                      context: context,
+                      barrierColor: Colors.black.withAlpha(85),
+                      builder: (context) => FractionallySizedBox(
+                          child: Material(
+                              child: NewSettingsPage()
+                          )),
+                    );
                   },
                 ),
                 WalletInfo(
@@ -104,7 +105,8 @@ class _NewHomePageState extends State<NewHomePage> {
                   hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
                   name: widget.dashboardViewModel.wallet.name,
                   onCustomizeButtonTap: () {
-                    showCupertinoModalBottomSheet(
+                    CupertinoScaffold.showCupertinoModalBottomSheet(
+                        barrierColor: Colors.black.withAlpha(60),
                         context: context,
                         builder: (context) {
                           return BlocProvider(

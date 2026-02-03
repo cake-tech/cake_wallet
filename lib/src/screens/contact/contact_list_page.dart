@@ -21,16 +21,18 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ContactListPage extends BasePage {
-  ContactListPage(this.contactListViewModel, this.authService);
+  ContactListPage(this.contactListViewModel, this.authService, {this.showAddButton = false});
 
   final ContactListViewModel contactListViewModel;
   final AuthService authService;
+  final bool showAddButton;
 
   @override
   String get title => S.current.address_book;
 
   @override
   Widget? trailing(BuildContext context) {
+    if(!showAddButton) return SizedBox.shrink();
     return MergeSemantics(
       child: Container(
         width: 32.0,
