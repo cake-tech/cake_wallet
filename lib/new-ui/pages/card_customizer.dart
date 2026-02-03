@@ -82,7 +82,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                   selected: true,
                   designSwitchDuration: Duration(milliseconds: 300),
                   accountName:
-                      editEnabled ?  state.accountName:widget.cryptoTitle ,
+                      editEnabled ?  state.accountName:"" ,
                   balance: "0.00",
                   assetName: widget.cryptoName,
                   design: state.selectedDesign,
@@ -113,22 +113,31 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                           return SizedBox(width: 8.0);
                                         },
                                         itemBuilder: (context, index) {
-                                          return Material(
-                                            borderRadius: BorderRadius.circular(16),
-                                            child: InkWell(
-                                              borderRadius: BorderRadius.circular(16),
-                                              onTap: () {
-                                                context
-                                                    .read<CardCustomizerBloc>()
-                                                    .add(CardDesignSelected(index));
-                                              },
-                                              child: BalanceCard(
-                                                width: 100,
-                                                borderRadius: 10,
-                                                selected: false,
-                                                designSwitchDuration: Duration(milliseconds: 300),
-                                                design: state.availableDesigns[index],
-                                                gradient: state.selectedDesign.gradient,
+                                          return GestureDetector(
+                                            onTap: () {
+                                              context
+                                                  .read<CardCustomizerBloc>()
+                                                  .add(CardDesignSelected(index));
+                                            },
+                                            child: AnimatedContainer(
+                                              duration: Duration(milliseconds: 300),
+                                              decoration: ShapeDecoration(
+                                                shape: RoundedSuperellipseBorder(
+                                                  side: BorderSide(color: ((index == state.selectedDesignIndex )? Theme.of(context).colorScheme.onSurface : Colors.transparent), width: 1),
+                                                  borderRadius: BorderRadiusGeometry.circular(12),
+                                                ),
+                                              ),
+                                              child: AnimatedScale(
+                                                duration: Duration(milliseconds: 200),
+                                                scale: index == state.selectedDesignIndex ? 0.94 : 1,
+                                                child: BalanceCard(
+                                                  width: 96,
+                                                  borderRadius: 10,
+                                                  selected: false,
+                                                  designSwitchDuration: Duration(milliseconds: 300),
+                                                  design: state.availableDesigns[index],
+                                                  gradient: state.selectedDesign.gradient,
+                                                ),
                                               ),
                                             ),
                                           );
@@ -165,21 +174,29 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                     .read<CardCustomizerBloc>()
                                                     .add(ColorSelected(index));
                                               },
-                                              child: Container(
-                                                width: 32,
-                                                height: 32,
-                                                decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(99999999),
-                                                    border: Border.all(
-                                                        color: state.selectedColorIndex == index
-                                                            ? Theme.of(context)
-                                                                .colorScheme
-                                                                .onSurface
-                                                            : Theme.of(context)
-                                                                .colorScheme
-                                                                .surfaceContainerHigh,
-                                                        width: 2),
-                                                    gradient: state.availableColors[index]),
+                                              child: Stack(
+                                                children: [
+                                                  AnimatedOpacity(
+                                                    duration: Duration(milliseconds: 200),
+                                                    opacity: index == state.selectedColorIndex ? 1 : 0,
+                                                    child: Container(
+                                                      width:32,height:32,decoration: BoxDecoration(borderRadius: BorderRadius.circular(99999999),border: Border.all(color:Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface))
+                                                    ),
+                                                  ),
+                                                  AnimatedScale(
+                                                    duration: Duration(milliseconds: 200),
+                                                    scale: index == state.selectedColorIndex ? 0.8 : 1,
+                                                    child: Container(
+                                                      width: 32,
+                                                      height: 32,
+                                                      decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(99999999),
+                                                          gradient: state.availableColors[index]),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           );
