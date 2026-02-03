@@ -577,6 +577,8 @@ class _NewSendPageState extends State<NewSendPage> {
                 backgroundColor: Colors.transparent,
                 builder: (context) {
                   return SendConfirmSheet(
+                    title: widget.mode.title,
+                    iconPath: widget.mode.helpContent?.imagePath,
                     sendViewModel: widget.sendViewModel,
                   );
                 }).then((value) async {
@@ -586,6 +588,8 @@ class _NewSendPageState extends State<NewSendPage> {
             Navigator.of(context).push(CupertinoPageRoute(
                 builder: (context) => Material(
                     child: SendConfirmSheet(
+                      title: widget.mode.title,
+                      iconPath: widget.mode.helpContent?.imagePath,
                       isPage: true,
                       sendViewModel: widget.sendViewModel,
                     )))).then((value) async {
@@ -1070,31 +1074,33 @@ class _NewSendPageState extends State<NewSendPage> {
                     child: ModalNavigator(
                         parentContext: modalContext,
                         heightMode: ModalHeightModes.autoLock,
-                        rootPage: NewPicker(
-                            title: S.of(context).set_fees,
-                            description: S.of(context).set_fees_desc,
-                            sliderPageTitle: S.of(context).custom_fee,
-                            sliderInitialValue: customFeeRate,
-                            sliderMaxValue: maxCustomFeeRate,
-                            sliderValueDescription: "sat/byte",
-                            items: items
-                                .map((item) => PickerItem<TransactionPriority>(
-                              title: item.title,
-                              subtitle: item.description,
-                              hint: item.hint,
-                              value: item,
-                              isSliderItem: items.indexOf(item) == customItemIndex,
-                            ))
-                                .toList(),
-                            onItemSelected: (TransactionPriority priority) async {
-                              widget.sendViewModel.feesViewModel.setTransactionPriority(priority);
-                              setState(() => selectedIdx = items.indexOf(priority));
-                              await output.calculateEstimatedFee();
-                            },
-                            onSliderChanged: (double value) {
-                              widget.sendViewModel.feesViewModel.customBitcoinFeeRate = value.round();
-                            },
-                            selectedIndex: selectedIdx)),
+                        rootPage: Material(
+                          child: NewPicker(
+                              title: S.of(context).set_fees,
+                              description: S.of(context).set_fees_desc,
+                              sliderPageTitle: S.of(context).custom_fee,
+                              sliderInitialValue: customFeeRate,
+                              sliderMaxValue: maxCustomFeeRate,
+                              sliderValueDescription: "sat/byte",
+                              items: items
+                                  .map((item) => PickerItem<TransactionPriority>(
+                                title: item.title,
+                                subtitle: item.description,
+                                hint: item.hint,
+                                value: item,
+                                isSliderItem: items.indexOf(item) == customItemIndex,
+                              ))
+                                  .toList(),
+                              onItemSelected: (TransactionPriority priority) async {
+                                widget.sendViewModel.feesViewModel.setTransactionPriority(priority);
+                                setState(() => selectedIdx = items.indexOf(priority));
+                                await output.calculateEstimatedFee();
+                              },
+                              onSliderChanged: (double value) {
+                                widget.sendViewModel.feesViewModel.customBitcoinFeeRate = value.round();
+                              },
+                              selectedIndex: selectedIdx),
+                        )),
                   );
                 },
               );
@@ -1129,9 +1135,9 @@ class SendHelpPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18.0),
             child: Column(
-              spacing: 30,
+              spacing: 12,
               mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset(content.imagePath),
                 Text(
@@ -1143,12 +1149,12 @@ class SendHelpPage extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurface),
                 ),
                 if (content.disclaimer != null)
-                  Text(content.disclaimer!,
+                 ...[SizedBox(),SizedBox(), Text(content.disclaimer!,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant)),]
               ],
             ),
           ),
