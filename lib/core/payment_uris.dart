@@ -146,6 +146,19 @@ class BitcoinCashURI extends PaymentURI {
   }
 }
 
+class MinotariURI extends PaymentURI {                                                                                                                                                    
+  MinotariURI({required super.amount, required super.address});                                                                                                                           
+                                                                                                                                                                                            
+   @override                                                                                                                                                                               
+  String toString() {                                                                                                                                                                     
+    var base = 'minotari:$address';                                                                                                                                                           
+      if (amount.isNotEmpty) {                                                                                                                                                              
+        base += '?amount=${amount.replaceAll(',', '.')}';                                                                                                                                   
+      }                                                                                                                                                                                     
+    return base;                                                                                                                                                                          
+  }                                                                                                                                                                                       
+} 
+
 class NanoURI extends PaymentURI {
   NanoURI({required super.amount, required super.address});
 
