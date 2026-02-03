@@ -16,8 +16,8 @@ Pod::Spec.new do |s|
   s.platform         = :ios, '12.0'
 
   # Use xcframework for multi-architecture support (device + simulator)
-  s.vendored_frameworks = 'Frameworks/RustMinotari.xcframework'
-  s.preserve_paths      = 'Frameworks/RustMinotari.xcframework/**/*'
+  s.vendored_frameworks = 'Frameworks/rust_lib_flutter_rust_wallet.xcframework'
+  s.preserve_paths      = 'Frameworks/rust_lib_flutter_rust_wallet.xcframework/**/*'
 
   # Flutter.framework does not contain a i386 slice
   s.pod_target_xcconfig = {

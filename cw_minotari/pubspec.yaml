@@ -41,3 +41,5 @@ flutter:
       android:
         package: com.cakewallet.cw_minotari
         pluginClass: CwMinotariPlugin
+      ios:
+        pluginClass: CwMinotariPlugin
