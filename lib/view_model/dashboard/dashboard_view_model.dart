@@ -389,6 +389,9 @@ abstract class DashboardViewModelBase with Store {
     if (cardDesigns.isNotEmpty) {
       cardDesigns.clear();
     }
+    if(cardOrder.isNotEmpty) {
+      cardOrder.clear();
+    }
 
     final accountStyleSettings =
           await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
@@ -408,7 +411,9 @@ abstract class DashboardViewModelBase with Store {
             .firstOrNull;
 
         cardDesigns.add(CardDesign.fromStyleSettings(setting, wallet.currency));
+        cardOrder.add(setting?.cardOrder ?? -1);
       }
+      printV(cardOrder);
   }
 
 
