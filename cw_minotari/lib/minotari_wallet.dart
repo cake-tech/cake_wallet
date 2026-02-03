@@ -555,6 +555,7 @@ abstract class MinotariWalletBase
           fee: fee,
           height: txDto.blockchain.blockHeight.toInt(),
           confirmations: txDto.blockchain.confirmations.toInt(),
+          payrefs: txDto.payrefs,
         );
 
         // Store additional data in additionalInfo map for transaction details display
