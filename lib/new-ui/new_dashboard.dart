@@ -51,10 +51,10 @@ class _NewDashboardState extends State<NewDashboard> {
                     end: Alignment.bottomCenter,
                     colors: <Color>[
                       Theme.of(context).colorScheme.surfaceDim.withAlpha(5),
-                      Theme.of(context).colorScheme.surfaceDim.withAlpha(25),
                       Theme.of(context).colorScheme.surfaceDim.withAlpha(50),
                       Theme.of(context).colorScheme.surfaceDim.withAlpha(100),
                       Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
+                      Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
                       Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
                     ],
                   ),

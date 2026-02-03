@@ -76,7 +76,7 @@ class BlackTheme extends MaterialThemeBase {
         surfaceContainerHigh: Color(0xFF2B292B),
         surfaceContainerHighest: Color(0xFF363435),
         outline: const Color(0xFF958F95),
-        outlineVariant: const Color(0xFF49454B),
+        outlineVariant: const Color(0xFF2F2D2F),
       );
 
   static const String fontFamily = 'Wix Madefor Text';

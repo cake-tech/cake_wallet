@@ -53,7 +53,7 @@ class LightTheme extends MaterialThemeBase {
         surfaceContainerHigh: Color(0xFFFDFDFE),
         surfaceContainerHighest: Color(0xFFFFFFFF),
         outline: const Color(0xFF7B757C),
-        outlineVariant: const Color(0xFFCBC4CB),
+        outlineVariant: const Color(0xFFEDEDF6),
       );
 
   @override
