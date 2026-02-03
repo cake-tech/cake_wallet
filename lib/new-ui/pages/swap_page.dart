@@ -413,7 +413,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
       child: Column(
         children: [
           ModalTopBar(
-            title: S.of(context).exchange,
+            title: S.of(context).swap,
             leadingIcon: Icon(Icons.close),
             onLeadingPressed: Navigator.of(context).maybePop,
             trailingIcon: SvgPicture.asset(
