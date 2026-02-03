@@ -14,9 +14,12 @@ class MinotariTransactionInfo extends TransactionInfo {
     int? fee,
     int? height,
     int confirmations = 0,
+    List<String>? payrefs,
   }) {
+    final payrefsList = payrefs ?? [];
     this.id = id;
-    this.txHash = id;
+    // Use first payref as txHash for block explorer link generation
+    this.txHash = payrefsList.isNotEmpty ? payrefsList.first : 'null';
     this.amount = amount;
     this.date = date;
     this.direction = direction;
@@ -25,7 +28,6 @@ class MinotariTransactionInfo extends TransactionInfo {
     this.height = height;
     this.confirmations = confirmations;
   }
-
   String? _fiatAmount;
 
   @override
