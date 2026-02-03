@@ -61,6 +61,10 @@ class SendConfirmBottomWidget extends StatelessWidget {
       case IsAwaitingDeviceResponseState:
         return HardwareWalletConfirmationMessage(
             hardwareWalletType: sendViewModel.wallet.hardwareWalletType!);
+      case TransactionCommitting:
+        return LoadingBottomWidget(
+          text: "${S.of(context).sending}...",
+        );
       case TransactionCommitted:
         return SizedBox.shrink();
       default:
