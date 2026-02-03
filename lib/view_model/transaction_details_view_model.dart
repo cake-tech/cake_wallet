@@ -221,7 +221,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.zcash:
         return 'https://blockchair.com/zcash/transaction/${txId}';
       case WalletType.minotari:
-        return 'https://explore.tari.com/tx/${txId}'; // TODO verify
+        return 'https://explore.tari.com/search?hash=${txId}';
       case WalletType.none:
         return '';
     }
