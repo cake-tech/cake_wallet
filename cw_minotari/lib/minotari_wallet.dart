@@ -99,7 +99,7 @@ abstract class MinotariWalletBase
   Future<void> init() async {
     try {
       final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
-      _ffi = MinotariFfi(dataPath: path);
+      _ffi = MinotariFfi(dataPath: path, walletName: walletInfo.name);
 
       // Get the network from wallet info (defaults to mainnet if not set)
      final network = TariNetwork.values.firstWhere(
@@ -413,7 +413,7 @@ abstract class MinotariWalletBase
     await _scannerSubscription?.cancel();
     _scannerSubscription = null;
     await _ffi?.stopScan();
-    _ffi?.dispose();
+    await _ffi?.dispose();
   }
 
   @override
