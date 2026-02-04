@@ -16,7 +16,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   final WalletBase _wallet;
 
   CardCustomizerBloc(this._wallet)
-      : super(CardCustomizerNotLoaded(0, 0, [CardDesign.genericDefault], [], "", -1, -1)) {
+      : super(CardCustomizerNotLoaded(0, 0, [CardDesign.genericDefault], [], "", -1, 0)) {
 
     on<_Init>(_init);
     on<CardDesignSelected>(_onDesignSelected);
@@ -36,10 +36,9 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     return list;
   }
 
-  Future<CardDesign> _loadCurrentDesign(int accountIndex) async {
-    final setting =
-        await BalanceCardStyleSettings.get(_wallet.walletInfo.internalId, accountIndex);
-    return CardDesign.fromStyleSettings(setting, _wallet.currency);
+  Future<BalanceCardStyleSettings> _loadCurrentDesignSettings(int accountIndex) async {
+    return
+          (await BalanceCardStyleSettings.get(_wallet.walletInfo.internalId, accountIndex))!;
   }
 
   List<CardDesign> _initAvailableDesigns() {
@@ -87,14 +86,15 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     }
     final accountName = (account?.label ?? "") as String;
     final accountIndex = account == null ? -1 : account.id as int;
-    final currentDesign = await _loadCurrentDesign(accountIndex);
+    final currentDesignSettings = await _loadCurrentDesignSettings(accountIndex);
+    final currentDesign = CardDesign.fromStyleSettings(currentDesignSettings, _wallet.currency);
     final availableDesigns = _initAvailableDesigns();
     final availableColors = _updateAvailableColors(currentDesign);
     final selectedDesign = _initSelectedDesign(currentDesign);
     final selectedColor = _initSelectedColor(currentDesign);
 
     emit(CardCustomizerInitial(selectedDesign, selectedColor, availableDesigns, availableColors,
-        accountName, accountIndex, state.cardOrder));
+        accountName, accountIndex, currentDesignSettings.cardOrder));
   }
 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {

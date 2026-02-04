@@ -16,8 +16,8 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:mobx/mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import 'balance_card.dart';
 
@@ -37,17 +37,25 @@ class CardsView extends StatefulWidget {
 }
 
 class _CardsViewState extends State<CardsView> {
-  int? _selectedIndex = 0;
+  int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    reaction((_)=>widget.dashboardViewModel.cardOrder.keys.toList(), (_)=>setState(() {
+      _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
+    }));
+  }
 
   static const Duration animDuration = Duration(milliseconds: 200);
   static const double overlapAmount = 60.0;
   late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
 
-  Widget _buildCard(int index, int numCards, double parentWidth) {
+  Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth, Map<int, int> order) {
     final baseTop = overlapAmount * (numCards - 1);
     final scaleFactor = 0.96;
 
-    final howFarBehind = (_selectedIndex! - index + numCards) % numCards;
+    final howFarBehind = (_selectedIndex - visualIndex + numCards) % numCards;
     final scale = pow(scaleFactor, howFarBehind).toDouble();
 
     final top = baseTop - (howFarBehind * overlapAmount);
@@ -55,7 +63,7 @@ class _CardsViewState extends State<CardsView> {
     final left = (parentWidth - cardWidth) / 2.0;
 
     return AnimatedPositioned(
-      key: ValueKey('box_$index'),
+      key: ValueKey("$visualIndex $realIndex"),
       duration: animDuration,
       curve: Curves.easeOut,
       top: top,
@@ -68,17 +76,17 @@ class _CardsViewState extends State<CardsView> {
           onTap: () {
             setState(() {
               if (widget.accountListViewModel != null)
-                widget.accountListViewModel!.select(widget.accountListViewModel!.accounts[index]);
-              _selectedIndex = index;
+                widget.accountListViewModel!.select(widget.accountListViewModel!.accounts[realIndex]);
+              _selectedIndex = visualIndex;
             });
           },
           onLongPress: () {
-            if(_selectedIndex == index) {
+            if (_selectedIndex == visualIndex) {
               widget.dashboardViewModel.balanceViewModel.switchBalanceValue();
             }
           },
           child: Observer(builder: (_) {
-            final account = widget.accountListViewModel?.accounts[index];
+            final account = widget.accountListViewModel?.accounts[realIndex];
 
             final walletBalanceRecord =
                 widget.dashboardViewModel.balanceViewModel.formattedBalances.elementAt(0);
@@ -97,7 +105,7 @@ class _CardsViewState extends State<CardsView> {
             if (widget.dashboardViewModel.cardDesigns.isEmpty)
               cardDesign = CardDesign.genericDefault;
             else
-              cardDesign = widget.dashboardViewModel.cardDesigns[index];
+              cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
 
             final String accountName;
             final String accountBalance;
@@ -137,7 +145,7 @@ class _CardsViewState extends State<CardsView> {
               assetName: walletCurrency.title,
               balance: walletBalance,
               fiatBalance: walletFiatBalance,
-              selected: _selectedIndex == index,
+              selected: _selectedIndex == visualIndex,
               design: cardDesign,
               actions: actions,
             );
@@ -157,46 +165,55 @@ class _CardsViewState extends State<CardsView> {
 
   @override
   Widget build(BuildContext context) {
-        final parentWidth = MediaQuery.of(context).size.width;
-        final children = <Widget>[];
 
-        int numCards = widget.dashboardViewModel.cardDesigns.length;
-        if(numCards == 0) numCards = 1;
+    return Observer(builder: (_){
+      final parentWidth = MediaQuery.of(context).size.width;
+      final children = <Widget>[];
 
-        if (_selectedIndex! >= (numCards)) {
-          _selectedIndex = 0;
-        }
+      int numCards = widget.dashboardViewModel.cardDesigns.length;
+      if(numCards == 0) numCards = 1;
 
-        for (int i = _selectedIndex!;
-        i < (numCards) + _selectedIndex!;
-        i++) {
-          if (i != _selectedIndex) {
-            children.add(
-                _buildCard(i % (numCards), numCards, parentWidth));
-          }
-        }
+      if (_selectedIndex >= (numCards)) {
+        _selectedIndex = 0;
+      }
 
-        if (_selectedIndex != null) {
-          children.add(_buildCard(_selectedIndex!, numCards, parentWidth));
-        }
+      final order = widget.dashboardViewModel.cardOrder.isEmpty
+          ? Map<int, int>.fromEntries(
+              List.generate(numCards, (i) => MapEntry(i, i)),
+            )
+          : widget.dashboardViewModel.cardOrder;
+      printV(widget.dashboardViewModel.cardOrder);
 
-        return AnimatedContainer(
+      for (int i = numCards - 1; i >= 0; i--) {
+        int visualIndex = (_selectedIndex - i + numCards) % numCards;
+
+        int realIndex = order[visualIndex]!;
+
+        children.add(
+            _buildCard(visualIndex, realIndex, numCards, parentWidth, order)
+        );
+      }
+
+      return AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        width: double.infinity,
+        height: _getBoxHeight(numCards),
+        child: AnimatedSwitcher(
           duration: Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          width: double.infinity,
-          height: _getBoxHeight(numCards),
-          child: AnimatedSwitcher(
-            duration: Duration(milliseconds: 200),
-            transitionBuilder: (child, animation) =>
-                FadeTransition(opacity: animation, child: child),
-            child: SizedBox(
-              key: ValueKey(_getBoxHeight(numCards)),
-              width: double.infinity,
-              height: _getBoxHeight(numCards),
-              child: Stack(alignment: Alignment.center, children: children),
-            ),
+          transitionBuilder: (child, animation) =>
+              FadeTransition(opacity: animation, child: child),
+          child: SizedBox(
+            key: ValueKey(_getBoxHeight(numCards)),
+            width: double.infinity,
+            height: _getBoxHeight(numCards),
+            child: Stack(alignment: Alignment.center, children: children),
           ),
-    );
+        ),
+      );
+
+
+    });
   }
 
   Future<void> depositToL2() async {

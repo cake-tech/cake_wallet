@@ -202,7 +202,7 @@ abstract class DashboardViewModelBase with Store {
         type = appStore.wallet!.type,
         transactions = ObservableList<TransactionListItem>(),
         cardDesigns = ObservableList<CardDesign>(),
-        cardOrder = ObservableList<int>(),
+        cardOrder = ObservableMap<int, int>(),
         wallet = appStore.wallet! {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
@@ -385,13 +385,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
 
+  @action
   Future<void> loadCardDesigns() async {
-    if (cardDesigns.isNotEmpty) {
-      cardDesigns.clear();
-    }
-    if(cardOrder.isNotEmpty) {
-      cardOrder.clear();
-    }
 
     final accountStyleSettings =
           await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
@@ -404,6 +399,8 @@ abstract class DashboardViewModelBase with Store {
       } else {
         numAccounts = 1;
       }
+      cardDesigns.clear();
+      cardOrder.clear();
 
       for (int i = 0; i < numAccounts; i++) {
         final setting = accountStyleSettings
@@ -411,9 +408,8 @@ abstract class DashboardViewModelBase with Store {
             .firstOrNull;
 
         cardDesigns.add(CardDesign.fromStyleSettings(setting, wallet.currency));
-        cardOrder.add(setting?.cardOrder ?? -1);
+        cardOrder[setting?.cardOrder ?? i] = i;
       }
-      printV(cardOrder);
   }
 
 
@@ -489,7 +485,7 @@ abstract class DashboardViewModelBase with Store {
   ObservableList<CardDesign> cardDesigns;
 
   @observable
-  ObservableList<int> cardOrder;
+  ObservableMap<int, int> cardOrder;
 
   @computed
   bool get isDarkTheme => appStore.themeStore.currentTheme.isDark;

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/settings_page.dart';
@@ -109,25 +110,29 @@ class _NewHomePageState extends State<NewHomePage> {
                         barrierColor: Colors.black.withAlpha(60),
                         context: context,
                         builder: (context) {
-                          return BlocProvider(
-                            create: (context) => getIt.get<CardCustomizerBloc>(),
-                            child: Material(
-                              child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
-                                listener: (context, state) {
-                                  if (state is CardCustomizerSaved) {
-                                    widget.dashboardViewModel.loadCardDesigns();
-                                  }
-                                },
-                                child: accountListViewModel == null ? CardCustomizer(
-                                  cryptoTitle:
-                                  widget.dashboardViewModel.wallet.currency.fullName ??
-                                      widget.dashboardViewModel.wallet.currency.name,
-                                  cryptoName: widget.dashboardViewModel.wallet.currency.name,
-                                ) : AccountCustomizer(
-                                  accountListViewModel: accountListViewModel!,
-                                  accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>(),
-                                  dashboardViewModel: widget.dashboardViewModel,
+                          return ModalNavigator(
+                            parentContext: context,
+                            heightMode: ModalHeightModes.fullScreen,
+                            rootPage: BlocProvider(
+                              create: (context) => getIt.get<CardCustomizerBloc>(),
+                              child: Material(
+                                child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
+                                  listener: (context, state) {
+                                    if (state is CardCustomizerSaved) {
+                                      widget.dashboardViewModel.loadCardDesigns();
+                                    }
+                                  },
+                                  child: accountListViewModel == null ? CardCustomizer(
+                                    cryptoTitle:
+                                    widget.dashboardViewModel.wallet.currency.fullName ??
+                                        widget.dashboardViewModel.wallet.currency.name,
+                                    cryptoName: widget.dashboardViewModel.wallet.currency.name,
+                                  ) : AccountCustomizer(
+                                    accountListViewModel: accountListViewModel!,
+                                    accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>(),
+                                    dashboardViewModel: widget.dashboardViewModel,
 
+                                  ),
                                 ),
                               ),
                             ),

@@ -595,7 +595,7 @@ ALTER TABLE WalletInfo ADD COLUMN receiveInfoboxDismissed DEFAULT FALSE;
           break;
         case 59:
           await db.execute('''
-ALTER TABLE BalanceCardStyleSettings ADD COLUMN cardOrder INTEGER DEFAULT -1;          
+ALTER TABLE BalanceCardStyleSettings ADD COLUMN cardOrder INTEGER DEFAULT 0;          
           ''');
 
         default:
