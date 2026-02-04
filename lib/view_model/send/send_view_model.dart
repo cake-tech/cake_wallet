@@ -552,11 +552,27 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           String _selector(String s) =>
               (s.startsWith('0x') && s.length >= 10) ? s.substring(0, 10) : '';
           const _transferSig = '0xa9059cbb';
-          final _sel = _selector(routerData!);
+          final _sel = _selector(routerData!).toLowerCase();
           final _isPreparedTransfer = _sel == _transferSig &&
-              (trade.sourceTokenAddress ?? '').toLowerCase() == (routerTo ?? '').toLowerCase();
+              (trade.sourceTokenAddress ?? '').toLowerCase() ==
+                  (routerTo ?? '').toLowerCase();
 
-          _pendingApprovalTx = null;
+
+          const zero = '0x0000000000000000000000000000000000000000';
+          const evmNative = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+          final srcToken = (trade.sourceTokenAddress ?? '').toLowerCase();
+          final isNativeSrc = srcToken.isEmpty || srcToken == zero || srcToken == evmNative;
+          final isEmptyData = routerData == '0x' || routerData.isEmpty;
+
+          if (!_isPreparedTransfer) {
+            if (isNativeSrc && isEmptyData) {
+            } else {
+              throw Exception("Swaps.xyz: Unsupported router data for non-prepared transfer");
+            }
+          }
+
+          if (_isPreparedTransfer) {
+            _pendingApprovalTx = null;
 
           // Optionally prebuild approval (SKIP for prepared transfer)
           final tokenContract = trade.sourceTokenAddress ?? '';
@@ -598,7 +614,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           }
 
           // No approval needed (or prepared transfer): send exactly what backend prepared
-          if (isEVMWallet) {
+          if (isEVMWallet && _isPreparedTransfer) {
             final priority = _settingsStore.getPriority(walletType, chainId: selectedChainId);
             pendingTransaction = await evm!.createRawCallDataTransaction(
               wallet,
@@ -614,39 +630,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             state = ExecutedSuccessfullyState();
             return pendingTransaction;
           }
-        }
-      }
-
-      // Jupiter (Solana) swap path
-      if (walletType == WalletType.solana && trade != null && provider is JupiterExchangeProvider) {
-        final swapTransactionBase64 = trade.routerData;
-        final requestId = trade.routerValue;
-        if (swapTransactionBase64?.isNotEmpty == true &&
-            requestId?.isNotEmpty == true &&
-            solana != null) {
-          try {
-            final actualFee = trade.fee ?? 0.0005;
-            // Fallback to estimate if not available
-            final fee = actualFee > 0 ? actualFee : 0.0005;
-
-            final amount = double.tryParse(trade.amount) ?? 0.0;
-
-            pendingTransaction = await solana!.signAndPrepareJupiterSwapTransaction(
-              wallet,
-              swapTransactionBase64!,
-              requestId!,
-              trade.payoutAddress ?? '',
-              amount,
-              fee,
-            );
-
-            state = ExecutedSuccessfullyState();
-            return pendingTransaction;
-          } catch (e, s) {
-            printV('Jupiter swap error: $e\n$s');
-            throw Exception('Failed to process Jupiter swap: $e');
-          }
-        }
+        }}
       }
 
       // Jupiter (Solana) swap path

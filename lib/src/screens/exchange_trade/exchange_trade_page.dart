@@ -329,7 +329,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
                         .pendingTransactionFeeFiatAmountFormatted,
                     outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
-                    hideAddresses: widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal,
+                    hideAddresses: !widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal,
                     onSlideActionComplete: () async {
                       if (bottomSheetContext.mounted && Navigator.canPop(bottomSheetContext)) {
                         Navigator.of(bottomSheetContext).pop(true);
