@@ -105,46 +105,13 @@ class _NewHomePageState extends State<NewHomePage> {
                   lightningMode: _lightningMode,
                   hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
                   name: widget.dashboardViewModel.wallet.name,
-                  onCustomizeButtonTap: () {
-                    CupertinoScaffold.showCupertinoModalBottomSheet(
-                        barrierColor: Colors.black.withAlpha(60),
-                        context: context,
-                        builder: (context) {
-                          return ModalNavigator(
-                            parentContext: context,
-                            heightMode: ModalHeightModes.fullScreen,
-                            rootPage: BlocProvider(
-                              create: (context) => getIt.get<CardCustomizerBloc>(),
-                              child: Material(
-                                child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
-                                  listener: (context, state) {
-                                    if (state is CardCustomizerSaved) {
-                                      widget.dashboardViewModel.loadCardDesigns();
-                                    }
-                                  },
-                                  child: accountListViewModel == null ? CardCustomizer(
-                                    cryptoTitle:
-                                    widget.dashboardViewModel.wallet.currency.fullName ??
-                                        widget.dashboardViewModel.wallet.currency.name,
-                                    cryptoName: widget.dashboardViewModel.wallet.currency.name,
-                                  ) : AccountCustomizer(
-                                    accountListViewModel: accountListViewModel!,
-                                    accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>(),
-                                    dashboardViewModel: widget.dashboardViewModel,
-
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                        );
-                  },
+                  onCustomizeButtonTap: openCustomizer,
                 ),
                 CardsView(
                   key: ValueKey(widget.dashboardViewModel.wallet.name),
                   dashboardViewModel: widget.dashboardViewModel,
                   accountListViewModel: accountListViewModel,
+                  onCompactModeBackgroundCardsTapped: openCustomizer,
                   lightningMode: _lightningMode,
                 ),
                 CoinActionRow(lightningMode: _lightningMode),
@@ -160,6 +127,42 @@ class _NewHomePageState extends State<NewHomePage> {
           ),]
         ),
       ),
+    );
+  }
+
+  void openCustomizer() {
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+      barrierColor: Colors.black.withAlpha(60),
+      context: context,
+      builder: (context) {
+        return ModalNavigator(
+          parentContext: context,
+          heightMode: ModalHeightModes.fullScreen,
+          rootPage: BlocProvider(
+            create: (context) => getIt.get<CardCustomizerBloc>(),
+            child: Material(
+              child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
+                listener: (context, state) {
+                  if (state is CardCustomizerSaved) {
+                    widget.dashboardViewModel.loadCardDesigns();
+                  }
+                },
+                child: accountListViewModel == null ? CardCustomizer(
+                  cryptoTitle:
+                  widget.dashboardViewModel.wallet.currency.fullName ??
+                      widget.dashboardViewModel.wallet.currency.name,
+                  cryptoName: widget.dashboardViewModel.wallet.currency.name,
+                ) : AccountCustomizer(
+                  accountListViewModel: accountListViewModel!,
+                  accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>(),
+                  dashboardViewModel: widget.dashboardViewModel,
+
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

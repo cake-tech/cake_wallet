@@ -26,10 +26,12 @@ class CardsView extends StatefulWidget {
       {super.key,
       required this.dashboardViewModel,
       required this.accountListViewModel,
-      required this.lightningMode});
+      required this.lightningMode,
+      required this.onCompactModeBackgroundCardsTapped});
 
   final DashboardViewModel dashboardViewModel;
   final MoneroAccountListViewModel? accountListViewModel;
+  final VoidCallback onCompactModeBackgroundCardsTapped;
   final bool lightningMode;
 
   @override
@@ -48,12 +50,13 @@ class _CardsViewState extends State<CardsView> {
   }
 
   static const Duration animDuration = Duration(milliseconds: 200);
-  static const double overlapAmount = 60.0;
+  static const int compactModeTreshold = 4;
+  static const int maxCards = 5;
   late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
 
-  Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth, Map<int, int> order) {
+  Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth, Map<int, int> order, bool compactMode, double overlapAmount) {
     final baseTop = overlapAmount * (numCards - 1);
-    final scaleFactor = 0.96;
+    final scaleFactor = compactMode ? 1 : 0.96;
 
     final howFarBehind = (_selectedIndex - visualIndex + numCards) % numCards;
     final scale = pow(scaleFactor, howFarBehind).toDouble();
@@ -74,11 +77,16 @@ class _CardsViewState extends State<CardsView> {
         scale: scale,
         child: GestureDetector(
           onTap: () {
-            setState(() {
-              if (widget.accountListViewModel != null)
-                widget.accountListViewModel!.select(widget.accountListViewModel!.accounts[realIndex]);
-              _selectedIndex = visualIndex;
-            });
+            if(compactMode && visualIndex != 0) {
+              widget.onCompactModeBackgroundCardsTapped();
+            } else {
+              setState(() {
+                if (widget.accountListViewModel != null)
+                  widget.accountListViewModel!.select(widget.accountListViewModel!.accounts[realIndex]);
+                _selectedIndex = visualIndex;
+              });
+            }
+
           },
           onLongPress: () {
             if (_selectedIndex == visualIndex) {
@@ -155,7 +163,7 @@ class _CardsViewState extends State<CardsView> {
     );
   }
 
-  double _getBoxHeight(int numCards) {
+  double _getBoxHeight(int numCards, double overlapAmount) {
     return
         /* height of initial card */
         (2 / 3.2) * (cardWidth) +
@@ -182,15 +190,17 @@ class _CardsViewState extends State<CardsView> {
               List.generate(numCards, (i) => MapEntry(i, i)),
             )
           : widget.dashboardViewModel.cardOrder;
-      printV(widget.dashboardViewModel.cardOrder);
 
-      for (int i = numCards - 1; i >= 0; i--) {
+      final bool compactMode = numCards >= compactModeTreshold;
+      final double overlapAmount = compactMode ? 5.0 : 60.0;
+
+      for (int i = min(numCards-1, maxCards); i >= 0; i--) {
         int visualIndex = (_selectedIndex - i + numCards) % numCards;
 
         int realIndex = order[visualIndex]!;
 
         children.add(
-            _buildCard(visualIndex, realIndex, numCards, parentWidth, order)
+            _buildCard(visualIndex, realIndex, numCards, parentWidth, order, compactMode, overlapAmount)
         );
       }
 
@@ -198,15 +208,15 @@ class _CardsViewState extends State<CardsView> {
         duration: Duration(milliseconds: 200),
         curve: Curves.easeOut,
         width: double.infinity,
-        height: _getBoxHeight(numCards),
+        height: _getBoxHeight(numCards, overlapAmount),
         child: AnimatedSwitcher(
           duration: Duration(milliseconds: 200),
           transitionBuilder: (child, animation) =>
               FadeTransition(opacity: animation, child: child),
           child: SizedBox(
-            key: ValueKey(_getBoxHeight(numCards)),
+            key: ValueKey(_getBoxHeight(numCards, overlapAmount)),
             width: double.infinity,
-            height: _getBoxHeight(numCards),
+            height: _getBoxHeight(numCards, overlapAmount),
             child: Stack(alignment: Alignment.center, children: children),
           ),
         ),
