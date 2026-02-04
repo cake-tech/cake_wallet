@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ListItemCheckboxWidget extends StatefulWidget {
   const ListItemCheckboxWidget({
@@ -9,13 +10,17 @@ class ListItemCheckboxWidget extends StatefulWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.onTap,
     this.isFirstInSection = false,
-    this.isLastInSection = false,
+    this.isLastInSection = false, this.subtitle, this.iconPath,
   });
 
   final String keyValue;
   final String label;
+  final String? subtitle;
+  final String? iconPath;
   final bool value;
+  final VoidCallback? onTap;
   final ValueChanged<bool> onChanged;
   final bool isFirstInSection;
   final bool isLastInSection;
@@ -25,28 +30,51 @@ class ListItemCheckboxWidget extends StatefulWidget {
 }
 
 class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
-  late bool _value;
 
-  @override
-  void initState() {
-    super.initState();
-    _value = widget.value;
-  }
 
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
+      onTap: widget.onTap ?? () {
+        widget.onChanged(!widget.value);
+      },
       isFirstInSection: widget.isFirstInSection,
+      height: widget.subtitle != null ? 64 : 50,
       isLastInSection: widget.isLastInSection,
       builder: (context, textStyle, labelStyle) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(widget.label),
+            Row(
+              spacing: 12,
+              children: [
+                if (widget.iconPath != null)
+                  widget.iconPath!.toLowerCase().endsWith("svg")
+                      ? SvgPicture.asset(widget.iconPath!, height: 24, width: 24)
+                      : Image.asset(
+                          widget.iconPath!,
+                          width: 24,
+                          height: 24,
+                        ),
+                Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(widget.label),
+                    if (widget.subtitle != null)
+                      Text(
+                        widget.subtitle!,
+                        style: TextStyle(
+                            fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      )
+                  ],
+                ),
+              ],
+            ),
             NewSimpleCheckbox(
-              value: _value,
+              value: widget.value,
               onChanged: (newValue) {
-                setState(() => _value = newValue);
                 widget.onChanged(newValue);
               },
             ),

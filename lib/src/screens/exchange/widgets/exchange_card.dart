@@ -383,7 +383,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                                           onTap: () async {
                                             final contact = await Navigator.of(context).pushNamed(
                                               Routes.pickerAddressBook,
-                                              arguments: widget.initialCurrency,
+                                              arguments: [widget.initialCurrency, true],
                                             );
 
                                             if (contact is ContactBase) {
@@ -452,7 +452,6 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
         selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
         items: widget.currencies,
         hintText: S.of(context).search_currency,
-        isMoneroWallet: _isMoneroWallet,
         isConvertFrom: widget.hasRefundAddress,
         onItemSelected: (Currency item) => widget.onCurrencySelected(item as T),
       ),

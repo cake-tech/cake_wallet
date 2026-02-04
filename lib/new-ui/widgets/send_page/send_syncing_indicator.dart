@@ -14,7 +14,7 @@ class SendSyncingIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     late final String eta;
     if(status is SyncingSyncStatus) {
-      eta = (status as SyncingSyncStatus).getFormattedEta()!;
+      eta = (status as SyncingSyncStatus).getFormattedEta()??"";
     } else {
       eta = "";
     }

@@ -21,6 +21,7 @@ class NewListSections extends StatelessWidget {
     this.tapHandlers = const {},
     this.getCheckboxValue,
     this.updateCheckboxValue,
+    this.showHeader = false
   });
 
   final Map<String, List<ListItem>> sections;
@@ -28,6 +29,7 @@ class NewListSections extends StatelessWidget {
   final bool Function(String key)? getCheckboxValue;
   final void Function(String key, bool value)? updateCheckboxValue;
   final Map<String, VoidCallback> tapHandlers;
+  final bool showHeader;
 
   static const double sectionSpacing = 20.0;
 
@@ -39,16 +41,23 @@ class NewListSections extends StatelessWidget {
       children: [
         for (int i = 0; i < entries.length; i++) ...[
           if (i > 0) const SizedBox(height: sectionSpacing),
-          _buildSection(entries[i].value),
+          _buildSection(entries[i].key, entries[i].value, context),
         ],
       ],
     );
   }
 
-  Widget _buildSection(List<ListItem> items) {
+  Widget _buildSection(String headerText, List<ListItem> items, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (showHeader && headerText.isNotEmpty && items.length > 0) ...[
+          Text(
+            headerText,
+            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+          SizedBox(height: 12)
+        ],
         for (int index = 0; index < items.length; index++)
           _withSectionFlags(items[index], index, items.length),
       ],
@@ -90,6 +99,7 @@ class NewListSections extends StatelessWidget {
         onTap: tapHandlers[item.keyValue] ?? item.onTap,
         isFirstInSection: isFirst,
         isLastInSection: isLast,
+        showArrow: item.showArrow,
       );
     }
 
@@ -97,6 +107,7 @@ class NewListSections extends StatelessWidget {
       return ListItemToggleWidget(
         keyValue: item.keyValue,
         label: item.label,
+        leadingEndWidget: item.leadingEndWidget,
         value: item.value,
         onChanged: item.onChanged,
         isFirstInSection: isFirst,
@@ -108,6 +119,9 @@ class NewListSections extends StatelessWidget {
       return ListItemCheckboxWidget(
         keyValue: item.keyValue,
         label: item.label,
+        subtitle: item.subtitle,
+        iconPath: item.iconPath,
+        onTap: item.onTap,
         value: item.value,
         onChanged: item.onChanged,
         isFirstInSection: isFirst,
@@ -130,7 +144,8 @@ class NewListSections extends StatelessWidget {
       return ListItemSelectorWidget(
         keyValue: item.keyValue,
         label: item.label,
-        options: ['Item'],
+        options: item.options,
+        onTap: item.onTap,
         selectedIndex: 0,
         isFirstInSection: isFirst,
         isLastInSection: isLast,

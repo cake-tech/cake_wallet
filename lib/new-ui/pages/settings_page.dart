@@ -88,23 +88,26 @@ class SettingsMainPage extends StatelessWidget {
             }))
                 .toList())));
 
-    return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
-      controller: ModalScrollController.of(context),
-      child: Column(children: [
-        ModalTopBar(
-          title: "Settings",
-          leadingIcon: Icon(Icons.close),
-          onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
-          onTrailingPressed: () {},
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-          child: NewListSections(
-            sections: sections,
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        controller: ModalScrollController.of(context),
+        child: Column(children: [
+          ModalTopBar(
+            title: "Settings",
+            leadingIcon: Icon(Icons.close),
+            onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
+            onTrailingPressed: () {},
           ),
-        ),
-      ]),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+            child: NewListSections(
+              sections: sections,
+            ),
+          ),
+        ]),
+      ),
     );
   }
 }

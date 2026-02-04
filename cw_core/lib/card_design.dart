@@ -26,6 +26,12 @@ class CardColorCombination {
     textColorSecondary: Colors.black45,
     backgroundImageColor: Color.fromARGB(200, 255, 255, 255),
   );
+
+  static const black = CardColorCombination(
+    textColor: Color.fromARGB(200, 255, 255, 255),
+    textColorSecondary: Colors.white54,
+    backgroundImageColor: Color.fromARGB(200, 255, 255, 255),
+  );
 }
 
 class CardDesign {
@@ -262,10 +268,11 @@ class CardDesign {
 
   static const polSpecial = CardDesign(
       gradient: const LinearGradient(
-          colors: <Color>[Color(0xFF9E30FF), Color(0xFF7100BD)],
+          colors: <Color>[Color(0xFF863FE3), Color(0xFF59098E)],
           begin: Alignment.topCenter, end: Alignment.bottomCenter
       ),
       backgroundType: CardDesignBackgroundTypes.svgFull,
+      colors: CardColorCombination.light,
       imagePath: "assets/new-ui/balance_card_backgrounds/polygon.svg");
 
   static const dcrSpecial = CardDesign(
@@ -282,7 +289,7 @@ class CardDesign {
           colors: <Color>[Color(0xFF0004B4), Color(0xFF170069)],
           begin: Alignment.topCenter, end: Alignment.bottomCenter
       ),
-      colors: CardColorCombination.light,
+      colors: CardColorCombination.black,
       backgroundType: CardDesignBackgroundTypes.svgFull,
       imagePath: "assets/new-ui/balance_card_backgrounds/zano.svg");
 
@@ -379,7 +386,7 @@ class CardDesign {
     CardDesign.gradientRed: CardColorCombination.light,
     CardDesign.gradientSilver: CardColorCombination.dark,
     CardDesign.gradientGold: CardColorCombination.dark,
-    CardDesign.gradientBlack: CardColorCombination.light,
+    CardDesign.gradientBlack: CardColorCombination.black,
   };
 
   static CardDesign fromStyleSettings(
