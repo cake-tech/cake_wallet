@@ -855,4 +855,33 @@ class CWBitcoin extends Bitcoin {
     return (await electrumWallet.walletAddresses.lightningWallet!.getAddress())
         ?.replaceFirst("@cake.cash", "");
   }
+
+  @override
+  String? getBreezSdkError(Object exception) {
+    if (exception is SdkError_SparkError) {
+      return (exception as SdkError_SparkError).field0.toString();
+    }
+    if (exception is SdkError_InvalidUuid) {
+      return (exception as SdkError_InvalidUuid).field0.toString();
+    }
+    if (exception is SdkError_InvalidInput) {
+      return (exception as SdkError_InvalidInput).field0.toString();
+    }
+    if (exception is SdkError_NetworkError) {
+      return (exception as SdkError_NetworkError).field0.toString();
+    }
+    if (exception is SdkError_StorageError) {
+      return (exception as SdkError_StorageError).field0.toString();
+    }
+    if (exception is SdkError_ChainServiceError) {
+      return (exception as SdkError_ChainServiceError).field0.toString();
+    }
+    if (exception is SdkError_LnurlError) {
+      return (exception as SdkError_LnurlError).field0.toString();
+    }
+    if (exception is SdkError_Generic) {
+      return (exception as SdkError_Generic).field0.toString();
+    }
+    return null;
+  }
 }

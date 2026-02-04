@@ -12,10 +12,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class LightningUsernamePage extends StatefulWidget {
-  LightningUsernamePage({super.key, required this.isSetup});
+  LightningUsernamePage({super.key, required this.isSetup, required this.themeStore, required this.lightningUsernameBloc});
 
   final bool isSetup;
-  final bool isLightMode = !(getIt.get<ThemeStore>().currentTheme.isDark);
+
+  final ThemeStore themeStore;
+  late final bool isLightMode = !(themeStore.currentTheme.isDark);
+  final LightningUsernameBloc lightningUsernameBloc;
 
   @override
   State<LightningUsernamePage> createState() => _LightningUsernamePageState();
@@ -35,7 +38,7 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt.get<LightningUsernameBloc>(),
-      child: BlocListener<LightningUsernameBloc, LightningUsernameState>(
+      child: BlocConsumer<LightningUsernameBloc, LightningUsernameState>(
         listener: (context, state) {
           if (state is LightningUsernameSaved) {
             if (widget.isSetup) {
@@ -50,97 +53,92 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
             }
           }
         },
-        child: BlocBuilder<LightningUsernameBloc, LightningUsernameState>(
-          builder: (context, state) {
-            return Material(
-              child: Container(
-                decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
-                child: SafeArea(
-                  child: Column(
-                    children: [
-                      ModalTopBar(
-                        title: "Lightning ${S.of(context).username}",
-                        leadingIcon: Icon(Icons.arrow_back_ios_new),
-                        onLeadingPressed: Navigator.of(context).pop,
+        builder: (context, state) {
+          return Material(
+            child: Container(
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    ModalTopBar(
+                      title: "Lightning ${S.of(context).username}",
+                      leadingIcon: Icon(Icons.arrow_back_ios_new),
+                      onLeadingPressed: Navigator.of(context).pop,
+                    ),
+                    Expanded(
+                      child: Column(
+                        spacing: 24,
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            child: _editMode
+                                ? LightningUsernameEditor(
+                                    isSetup: widget.isSetup,
+                                    controller: _controller,
+                                    isLightMode: widget.isLightMode,
+                                    onRandomizeButtonTap: () {
+                                      randomizeUsername(context);
+                                    },
+                                    state: state,
+                                  )
+                                : LightningUsernameInfo(
+                                    username: state.username,
+                                    isLightMode: widget.isLightMode,
+                                  ),
+                          )
+                        ],
                       ),
-                      Expanded(
-                        child: Column(
-                          spacing: 24,
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
-                              child: _editMode
-                                  ? LightningUsernameEditor(
-                                      isSetup: widget.isSetup,
-                                      controller: _controller,
-                                      isLightMode: widget.isLightMode,
-                                      onRandomizeButtonTap: () {
-                                        randomizeUsername(context);
-                                      },
-                                      state: state,
-                                    )
-                                  : LightningUsernameInfo(
-                                      username: state.username,
-                                      isLightMode: widget.isLightMode,
-                                    ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Column(
-                          spacing: 12,
-                          children: [
-                            if (widget.isSetup) ...[
-                              Text(
-                                S.of(context).lightning_username_setup_later,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              ),
-                              SizedBox(),
-                              NewPrimaryButton(
-                                  onPressed: () {
-                                    Navigator.of(context).popUntil((route) => route.isFirst);
-                                  },
-                                  text: S.of(context).skip,
-                                  color: Theme.of(context).colorScheme.surfaceContainer,
-                                  textColor: Theme.of(context).colorScheme.primary),
-                            ],
-                            NewPrimaryButton(
-                              onPressed: () {
-                                if (_editMode) {
-                                  context
-                                      .read<LightningUsernameBloc>()
-                                      .add(UsernameSaveRequested());
-                                } else {
-                                  setState(() {
-                                    _editMode = true;
-                                  });
-                                }
-                              },
-                              text:
-                                  _editMode ? S.of(context).confirm : S.of(context).change_username,
-                              color: Theme.of(context).colorScheme.primary,
-                              textColor: Theme.of(context).colorScheme.onPrimary,
-                              disabled: _editMode && (!(state is LightningUsernameReady)),
-                              isLoading: (state is LightningUsernameSaving),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        spacing: 12,
+                        children: [
+                          if (widget.isSetup) ...[
+                            Text(
+                              S.of(context).lightning_username_setup_later,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
-                            SizedBox()
+                            SizedBox(),
+                            NewPrimaryButton(
+                                onPressed: () {
+                                  Navigator.of(context).popUntil((route) => route.isFirst);
+                                },
+                                text: S.of(context).skip,
+                                color: Theme.of(context).colorScheme.surfaceContainer,
+                                textColor: Theme.of(context).colorScheme.primary),
                           ],
-                        ),
-                      )
-                    ],
-                  ),
+                          NewPrimaryButton(
+                            onPressed: () {
+                              if (_editMode) {
+                                context.read<LightningUsernameBloc>().add(RequestUsernameSave());
+                              } else {
+                                setState(() {
+                                  _editMode = true;
+                                });
+                              }
+                            },
+                            text: _editMode ? S.of(context).confirm : S.of(context).change_username,
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
+                            disabled: _editMode && (!(state is LightningUsernameReady)),
+                            isLoading: (state is LightningUsernameSaving),
+                          ),
+                          SizedBox()
+                        ],
+                      ),
+                    )
+                  ],
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -150,7 +148,7 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
     final randomName = await generateName();
     final username = "${randomName.replaceAll(" ", "")}$randomNumber".toLowerCase();
 
-    context.read<LightningUsernameBloc>().add(UsernameChanged(username));
+    context.read<LightningUsernameBloc>().add(ChangeUsername(username));
     _controller.text = username;
   }
 }
@@ -248,7 +246,7 @@ class LightningUsernameEditor extends StatelessWidget {
                       Expanded(
                           child: TextField(
                         onChanged: (val) {
-                          context.read<LightningUsernameBloc>().add(UsernameChanged(val));
+                          context.read<LightningUsernameBloc>().add(ChangeUsername(val));
                         },
                         controller: controller,
                       )),

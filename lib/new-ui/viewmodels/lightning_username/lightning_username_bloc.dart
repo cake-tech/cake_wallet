@@ -28,33 +28,9 @@ class LightningUsernameBloc extends Bloc<LightningUsernameEvent, LightningUserna
   final WalletBase _wallet;
 
   LightningUsernameBloc(this._wallet) : super(LightningUsernameInitial("")) {
-    on<UsernameChanged>((event, emit) async {
-      emit(LightningUsernameChecking(event.newUsername));
+    on<ChangeUsername>(onUsernameChanged, transformer: restartable());
 
-      final error = await getUsernameError(event.newUsername);
-
-      if (error != null) {
-        emit(LightningUsernameError(event.newUsername, error));
-      } else {
-        emit(LightningUsernameReady(event.newUsername));
-      }
-    }, transformer: restartable());
-
-    on<UsernameSaveRequested>((event, emit) async {
-      emit(LightningUsernameSaving(state.username));
-      try {
-        bitcoin!.setLightningUsername(_wallet, state.username);
-        emit(LightningUsernameSaved(state.username));
-      } catch (e) {
-        for (final pattern in errorPatterns.keys) {
-          if (e.toString().contains(pattern)) {
-            emit(LightningUsernameError(state.username, UsernameError(errorPatterns[pattern]!)));
-            return;
-          }
-        }
-        emit(LightningUsernameError(state.username, UsernameError(S.current.unknown_error)));
-      }
-    });
+    on<RequestUsernameSave>(onUsernameSaveRequested);
 
     on<_Init>((event, emit) async {
       final username = await bitcoin!.getLightningUsername(_wallet);
@@ -62,6 +38,34 @@ class LightningUsernameBloc extends Bloc<LightningUsernameEvent, LightningUserna
     });
 
     add(_Init());
+  }
+
+  Future<void> onUsernameChanged(ChangeUsername event, Emitter<LightningUsernameState> emit) async {
+    emit(LightningUsernameChecking(event.newUsername));
+
+    final error = await getUsernameError(event.newUsername);
+
+    if (error != null) {
+      emit(LightningUsernameError(event.newUsername, error));
+    } else {
+      emit(LightningUsernameReady(event.newUsername));
+    }
+  }
+
+  Future<void> onUsernameSaveRequested(RequestUsernameSave event, Emitter<LightningUsernameState> emit) async {
+    emit(LightningUsernameSaving(state.username));
+    try {
+      await bitcoin!.setLightningUsername(_wallet, state.username);
+      emit(LightningUsernameSaved(state.username));
+    } catch (e) {
+      for (final pattern in errorPatterns.keys) {
+        if (!e.toString().contains(pattern)) {
+          emit(LightningUsernameError(state.username, UsernameError(errorPatterns[pattern]!)));
+          return;
+        }
+      }
+      emit(LightningUsernameError(state.username, UsernameError(bitcoin!.getBreezSdkError(e) ?? e.toString())));
+    }
   }
 
   Future<UsernameError?> getUsernameError(String username) async {
