@@ -82,6 +82,14 @@ class EthereumTokens {
         decimal: 18,
         enabled: false,
       ),
+      Erc20Token(
+        name: "Tether Gold",
+        symbol: "XAUT",
+        contractAddress: "0x68749665FF8D2d112Fa859AA293F07A622782F38",
+        decimal: 6,
+        enabled: false,
+        iconPath: "assets/images/xaut_icon.png",
+      ),
     ];
 
     return tokens.map((token) {
@@ -89,8 +97,7 @@ class EthereumTokens {
       if (token.iconPath?.isEmpty ?? true) {
         try {
           iconPath = CryptoCurrency.all
-              .firstWhere((element) =>
-                  element.title.toUpperCase() == token.symbol.toUpperCase())
+              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
               .iconPath;
         } catch (_) {}
       } else {
@@ -101,4 +108,3 @@ class EthereumTokens {
     }).toList();
   }
 }
-
