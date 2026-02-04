@@ -186,4 +186,5 @@ class _NewHomePageState extends State<NewHomePage> {
         );
       },
     );
+  }
 }
