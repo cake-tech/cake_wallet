@@ -45,6 +45,7 @@ class DarkTheme extends MaterialThemeBase {
         onErrorContainer: const Color(0xFFFFDAD6),
         surface: surfaceColor,
         onSurface: const Color(0xFFD7E2F7),
+        surfaceDim: const Color(0xFF0F1A36),
         onSurfaceVariant: const Color(0xFF8C9FBB),
         surfaceContainerLowest: Color(0xFF171C30),
         surfaceContainerLow: Color(0xFF2D385C),
@@ -52,7 +53,7 @@ class DarkTheme extends MaterialThemeBase {
         surfaceContainerHigh: Color(0xFF2A3E73),
         surfaceContainerHighest: Color(0xFF334C8C),
         outline: const Color(0xFF9EACC1),
-        outlineVariant: const Color(0xFF3E5579),
+        outlineVariant: const Color(0xFF2A3E73),
       );
   static const String fontFamily = 'Wix Madefor Text';
   @override

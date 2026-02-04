@@ -64,14 +64,14 @@ class ListItemStyleWrapper extends StatelessWidget {
               color: theme.colorScheme.surfaceContainer,
               child: Padding(
                 padding: const EdgeInsets.only(left: 48, right: 13),
-                child: Container(height: 1, color: theme.colorScheme.surfaceContainerHigh),
+                child: Container(height: 1, color: theme.colorScheme.outlineVariant),
               ),
             )
             else if(!isLastInSection) Container(
               color: theme.colorScheme.surfaceContainer,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 13),
-                child: Container(height: 1, color: theme.colorScheme.surfaceContainerHigh),
+                child: Container(height: 1, color: theme.colorScheme.outlineVariant),
               ),
             )
           ],

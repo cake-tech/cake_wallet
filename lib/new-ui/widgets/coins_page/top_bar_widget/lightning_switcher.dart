@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class LightningSwitcher extends StatelessWidget {
@@ -12,7 +13,10 @@ class LightningSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       child: InkWell(
-        onTap: onLightningSwitchPress,
+        onTap: () {
+          HapticFeedback.mediumImpact();
+          onLightningSwitchPress();
+        },
         child: Container(
           decoration: ShapeDecoration(
               shape: RoundedSuperellipseBorder(borderRadius: BorderRadiusGeometry.circular(900.0)),

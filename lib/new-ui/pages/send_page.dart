@@ -580,6 +580,9 @@ class _NewSendPageState extends State<NewSendPage> {
                     sendViewModel: widget.sendViewModel,
                   );
                 }).then((value) async {
+              if (widget.sendViewModel.state is TransactionCommitted) {
+                Navigator.of(context, rootNavigator: true).pop();
+              }
               widget.sendViewModel.dismissTransaction();
             });
           } else {

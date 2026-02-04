@@ -24,6 +24,7 @@ class HistorySection extends StatelessWidget {
       child: Observer(
         builder: (_) => ListView.builder(
           physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
           shrinkWrap: true,
           itemCount: dashboardViewModel.items.length,
           itemBuilder: (context, index) {
