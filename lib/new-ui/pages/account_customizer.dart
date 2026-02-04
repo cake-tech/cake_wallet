@@ -342,14 +342,19 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                             ),
                             Padding(
                               padding: const EdgeInsets.all(12.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                    borderRadius: BorderRadius.circular(5)),
-                                child: SvgPicture.asset(
-                                  "assets/new-ui/randomize.svg",
-                                  colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                              child: GestureDetector(
+                                onTap: () async {
+                                  _controller.text = await generateName();
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                      borderRadius: BorderRadius.circular(5)),
+                                  child: SvgPicture.asset(
+                                    "assets/new-ui/randomize.svg",
+                                    colorFilter: ColorFilter.mode(
+                                        Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                                  ),
                                 ),
                               ),
                             )
