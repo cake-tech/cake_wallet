@@ -529,7 +529,6 @@ class CWEVM extends EVM {
 
       return price > 0;
     } catch (e) {
-      printV('Error checking fiat price for token ${token.title}: ${e.toString()}');
       return false;
     }
   }
@@ -564,9 +563,6 @@ class CWEVM extends EVM {
       }
 
       await Future.wait(tokenChecks);
-      printV('Discovered and added ${discoveredTokens.length} tokens to wallet');
-    } catch (e) {
-      printV('Error discovering and adding wallet tokens: ${e.toString()}');
-    }
+    } catch (_) {}
   }
 }
