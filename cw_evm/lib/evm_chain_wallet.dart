@@ -211,8 +211,6 @@ abstract class EVMChainWalletBase
     // Reload ERC20 tokens box for the new chain
     await initErc20TokensBox();
 
-    await _discoverTokensFromMoralis();
-
     // Reload transaction history from the new chain's file
     await transactionHistory.init();
 
@@ -434,8 +432,6 @@ abstract class EVMChainWalletBase
         break;
     }
 
-    await _discoverTokensFromMoralis();
-
     // Ensure balance is initialized for current currency (in case currency changed)
     if (!balance.containsKey(currency)) {
       balance[currency] = EVMChainERC20Balance(BigInt.zero);
@@ -512,20 +508,23 @@ abstract class EVMChainWalletBase
     }
   }
 
-  Future<void> _discoverTokensFromMoralis() async {
+  Future<List<Erc20Token>> discoverTokensFromMoralis() async {
     try {
-      if (!evmChainErc20TokensBox.isOpen) return;
+      if (!evmChainErc20TokensBox.isOpen) return [];
 
       final address = walletAddresses.address;
+      if (address.isEmpty) return [];
 
       final chainName = EVMChainUtils.getDefaultTokenSymbol(selectedChainId).toLowerCase();
 
       final walletTokens = await _client.fetchWalletTokensFromMoralis(address, chainName);
 
-      if (walletTokens.isEmpty) return;
+      if (walletTokens.isEmpty) return [];
 
       final existingAddresses =
           evmChainErc20TokensBox.values.map((t) => t.contractAddress.toLowerCase()).toSet();
+
+      final List<Erc20Token> discoveredTokens = [];
 
       for (final token in walletTokens) {
         final addr = token.contractAddress.toLowerCase();
@@ -542,15 +541,13 @@ abstract class EVMChainWalletBase
           isPotentialScam: token.possibleSpam,
         );
 
-        final isSuspicious = isTokenPropertiesSuspicious(newToken);
-
-        newToken.isPotentialScam = isSuspicious;
-        newToken.enabled = !isSuspicious;
-
-        await evmChainErc20TokensBox.put(addr, newToken);
+        discoveredTokens.add(newToken);
       }
+
+      return discoveredTokens;
     } catch (e) {
-      printV('Error getting wallet tokens from Moralis: ${e.toString()}');
+      printV('Error discovering tokens from Moralis: ${e.toString()}');
+      return [];
     }
   }
 

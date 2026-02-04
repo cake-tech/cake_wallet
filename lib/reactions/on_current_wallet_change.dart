@@ -107,6 +107,10 @@ void startCurrentWalletChangeReaction(
 
         await wallet.walletInfo.save();
       }
+
+      if (isEVMCompatibleChain(wallet.type)) {
+        await evm!.discoverAndAddWalletTokens(wallet);
+      }
     } catch (e) {
       printV(e.toString());
     }
