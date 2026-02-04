@@ -44,9 +44,11 @@ class _CardsViewState extends State<CardsView> {
   @override
   void initState() {
     super.initState();
-    reaction((_)=>widget.dashboardViewModel.cardOrder.keys.toList(), (_)=>setState(() {
-      _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
-    }));
+    reaction(
+        (_) => widget.dashboardViewModel.cardOrder.keys.toList(),
+        (_) => setState(() {
+              _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
+            }));
   }
 
   static const Duration animDuration = Duration(milliseconds: 200);
@@ -54,7 +56,8 @@ class _CardsViewState extends State<CardsView> {
   static const int maxCards = 5;
   late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
 
-  Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth, Map<int, int> order, bool compactMode, double overlapAmount) {
+  Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
+      Map<int, int> order, bool compactMode, double overlapAmount) {
     final baseTop = overlapAmount * (numCards - 1);
     final scaleFactor = compactMode ? 1 : 0.96;
 
@@ -77,16 +80,16 @@ class _CardsViewState extends State<CardsView> {
         scale: scale,
         child: GestureDetector(
           onTap: () {
-            if(compactMode && visualIndex != 0) {
+            if (compactMode && visualIndex != 0) {
               widget.onCompactModeBackgroundCardsTapped();
             } else {
               setState(() {
                 if (widget.accountListViewModel != null)
-                  widget.accountListViewModel!.select(widget.accountListViewModel!.accounts[realIndex]);
+                  widget.accountListViewModel!
+                      .select(widget.accountListViewModel!.accounts[realIndex]);
                 _selectedIndex = visualIndex;
               });
             }
-
           },
           onLongPress: () {
             if (_selectedIndex == visualIndex) {
@@ -173,13 +176,12 @@ class _CardsViewState extends State<CardsView> {
 
   @override
   Widget build(BuildContext context) {
-
-    return Observer(builder: (_){
+    return Observer(builder: (_) {
       final parentWidth = MediaQuery.of(context).size.width;
       final children = <Widget>[];
 
       int numCards = widget.dashboardViewModel.cardDesigns.length;
-      if(numCards == 0) numCards = 1;
+      if (numCards == 0) numCards = 1;
 
       if (_selectedIndex >= (numCards)) {
         _selectedIndex = 0;
@@ -194,14 +196,13 @@ class _CardsViewState extends State<CardsView> {
       final bool compactMode = numCards >= compactModeTreshold;
       final double overlapAmount = compactMode ? 5.0 : 60.0;
 
-      for (int i = min(numCards-1, maxCards); i >= 0; i--) {
+      for (int i = min(numCards - 1, maxCards); i >= 0; i--) {
         int visualIndex = (_selectedIndex - i + numCards) % numCards;
 
         int realIndex = order[visualIndex]!;
 
-        children.add(
-            _buildCard(visualIndex, realIndex, numCards, parentWidth, order, compactMode, overlapAmount)
-        );
+        children.add(_buildCard(
+            visualIndex, realIndex, numCards, parentWidth, order, compactMode, overlapAmount));
       }
 
       return AnimatedContainer(
@@ -211,8 +212,7 @@ class _CardsViewState extends State<CardsView> {
         height: _getBoxHeight(numCards, overlapAmount),
         child: AnimatedSwitcher(
           duration: Duration(milliseconds: 200),
-          transitionBuilder: (child, animation) =>
-              FadeTransition(opacity: animation, child: child),
+          transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
           child: SizedBox(
             key: ValueKey(_getBoxHeight(numCards, overlapAmount)),
             width: double.infinity,
@@ -221,8 +221,6 @@ class _CardsViewState extends State<CardsView> {
           ),
         ),
       );
-
-
     });
   }
 
@@ -242,18 +240,20 @@ class _CardsViewState extends State<CardsView> {
       }
     }
 
-    if(FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
-      final page = getIt.get<NewSendPage>(param1: SendPageParams(
+    if (FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+      final page = getIt.get<NewSendPage>(
+          param1: SendPageParams(
         initialPaymentRequest: paymentRequest,
         unspentCoinType: UnspentCoinType.nonMweb,
         mode: SendPageModes.l2deposit,
       ));
-      showCupertinoModalBottomSheet(context: context, builder: (context){
-        return FractionallySizedBox(
-            heightFactor: 0.65,
-            child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
-        );
-      });
+      showCupertinoModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return FractionallySizedBox(
+                heightFactor: 0.65,
+                child: ModalNavigator(parentContext: context, rootPage: Material(child: page)));
+          });
     } else {
       Navigator.pushNamed(
         context,
@@ -283,19 +283,20 @@ class _CardsViewState extends State<CardsView> {
       unspentCoinType = UnspentCoinType.lightning;
     }
 
-
-    if(FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
-      final page = getIt.get<NewSendPage>(param1: SendPageParams(
+    if (FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+      final page = getIt.get<NewSendPage>(
+          param1: SendPageParams(
         initialPaymentRequest: paymentRequest,
         unspentCoinType: unspentCoinType,
         mode: SendPageModes.l2withdrawal,
       ));
-      showCupertinoModalBottomSheet(context: context, builder: (context){
-        return FractionallySizedBox(
-          heightFactor: 0.65,
-          child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
-        );
-      });
+      showCupertinoModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return FractionallySizedBox(
+                heightFactor: 0.65,
+                child: ModalNavigator(parentContext: context, rootPage: Material(child: page)));
+          });
     } else {
       Navigator.pushNamed(
         context,
@@ -306,6 +307,5 @@ class _CardsViewState extends State<CardsView> {
         },
       );
     }
-
   }
 }

@@ -384,34 +384,31 @@ abstract class DashboardViewModelBase with Store {
     return false;
   }
 
-
   @action
   Future<void> loadCardDesigns() async {
-
     final accountStyleSettings =
-          await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
+        await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
 
-      late final int numAccounts;
-      if (wallet.type == WalletType.monero) {
-        numAccounts = monero!.getAccountList(wallet).accounts.length;
-      } else if (wallet.type == WalletType.wownero) {
-        numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
-      } else {
-        numAccounts = 1;
-      }
-      cardDesigns.clear();
-      cardOrder.clear();
+    late final int numAccounts;
+    if (wallet.type == WalletType.monero) {
+      numAccounts = monero!.getAccountList(wallet).accounts.length;
+    } else if (wallet.type == WalletType.wownero) {
+      numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
+    } else {
+      numAccounts = 1;
+    }
+    cardDesigns.clear();
+    cardOrder.clear();
 
-      for (int i = 0; i < numAccounts; i++) {
-        final setting = accountStyleSettings
-            .where((e) => e.accountIndex == (balanceViewModel.hasAccounts ? i : -1))
-            .firstOrNull;
+    for (int i = 0; i < numAccounts; i++) {
+      final setting = accountStyleSettings
+          .where((e) => e.accountIndex == (balanceViewModel.hasAccounts ? i : -1))
+          .firstOrNull;
 
-        cardDesigns.add(CardDesign.fromStyleSettings(setting, wallet.currency));
-        cardOrder[setting?.cardOrder ?? i] = i;
-      }
+      cardDesigns.add(CardDesign.fromStyleSettings(setting, wallet.currency));
+      cardOrder[setting?.cardOrder ?? i] = i;
+    }
   }
-
 
   void _transactionDisposerCallback(int _) async {
     // Simple check to prevent the callback from being called multiple times in the same frame

@@ -50,7 +50,6 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
-import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';

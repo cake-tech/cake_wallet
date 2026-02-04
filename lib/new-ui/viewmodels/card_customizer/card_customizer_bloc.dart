@@ -37,8 +37,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   }
 
   Future<BalanceCardStyleSettings> _loadCurrentDesignSettings(int accountIndex) async {
-    return
-          (await BalanceCardStyleSettings.get(_wallet.walletInfo.internalId, accountIndex))!;
+    return (await BalanceCardStyleSettings.get(_wallet.walletInfo.internalId, accountIndex))!;
   }
 
   List<CardDesign> _initAvailableDesigns() {

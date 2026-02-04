@@ -59,7 +59,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
 
     final accounts = widget.accountListViewModel.accounts;
     for (int i = 0; i < widget.accountListViewModel.accounts.length; i++) {
-      final index = widget.dashboardViewModel.cardOrder[i]??i;
+      final index = widget.dashboardViewModel.cardOrder[i] ?? i;
 
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
@@ -170,28 +170,34 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                                     color: Theme.of(context).colorScheme.surfaceContainer,
                                     child: InkWell(
                                       borderRadius: BorderRadius.circular(999999),
-                                      onTap:(){
-                                        Navigator.of(context).push(CupertinoPageRoute(builder: (context) {
-                                          return BlocProvider(
-                                            create: (context) => getIt.get<CardCustomizerBloc>(),
-                                            child: Material(
-                                              child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
-                                                listener: (context, state) async {
-                                                  if (state is CardCustomizerSaved) {
-                                                    await widget.dashboardViewModel.loadCardDesigns();
-                                                    loadCards();
-                                                  }
-                                                },
-                                                child: CardCustomizer(
-                                                  cryptoTitle:
-                                                  widget.dashboardViewModel.wallet.currency.fullName ??
-                                                      widget.dashboardViewModel.wallet.currency.name,
-                                                  cryptoName: widget.dashboardViewModel.wallet.currency.name,
-                                                )
+                                      onTap: () {
+                                        Navigator.of(context).push(CupertinoPageRoute(
+                                          builder: (context) {
+                                            return BlocProvider(
+                                              create: (context) => getIt.get<CardCustomizerBloc>(),
+                                              child: Material(
+                                                child: BlocListener<CardCustomizerBloc,
+                                                        CardCustomizerState>(
+                                                    listener: (context, state) async {
+                                                      if (state is CardCustomizerSaved) {
+                                                        await widget.dashboardViewModel
+                                                            .loadCardDesigns();
+                                                        loadCards();
+                                                      }
+                                                    },
+                                                    child: CardCustomizer(
+                                                      cryptoTitle: widget.dashboardViewModel.wallet
+                                                              .currency.fullName ??
+                                                          widget.dashboardViewModel.wallet.currency
+                                                              .name,
+                                                      cryptoName: widget
+                                                          .dashboardViewModel.wallet.currency.name,
+                                                    )),
                                               ),
-                                            ),
-                                          );
-                                      },));},
+                                            );
+                                          },
+                                        ));
+                                      },
                                       child: Container(
                                         child: Padding(
                                           padding: EdgeInsets.all(12),

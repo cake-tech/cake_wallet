@@ -105,27 +105,27 @@ class _NewHomePageState extends State<NewHomePage> {
                   lightningMode: _lightningMode,
                   hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
                   name: widget.dashboardViewModel.wallet.name,
-                  onCustomizeButtonTap: openCustomizer,
+                      onCustomizeButtonTap: openCustomizer,
+                    ),
+                    CardsView(
+                      key: ValueKey(widget.dashboardViewModel.wallet.name),
+                      dashboardViewModel: widget.dashboardViewModel,
+                      accountListViewModel: accountListViewModel,
+                      onCompactModeBackgroundCardsTapped: openCustomizer,
+                      lightningMode: _lightningMode,
+                    ),
+                    CoinActionRow(lightningMode: _lightningMode),
+                    Observer(
+                      builder: (_) => AssetsHistorySection(
+                        nftViewModel: widget.nftViewModel,
+                        dashboardViewModel: widget.dashboardViewModel,
+                      ),
+                    ),
+                    SizedBox(height: 24.0)
+                  ],
                 ),
-                CardsView(
-                  key: ValueKey(widget.dashboardViewModel.wallet.name),
-                  dashboardViewModel: widget.dashboardViewModel,
-                  accountListViewModel: accountListViewModel,
-                  onCompactModeBackgroundCardsTapped: openCustomizer,
-                  lightningMode: _lightningMode,
-                ),
-                CoinActionRow(lightningMode: _lightningMode),
-                Observer(
-                  builder: (_)=>AssetsHistorySection(
-                    nftViewModel: widget.nftViewModel,
-                    dashboardViewModel: widget.dashboardViewModel,
-                  ),
-                ),
-                SizedBox(height: 24.0)
-                ],
-            ),
-          ),]
-        ),
+              ),
+            ]),
       ),
     );
   }
@@ -147,17 +147,18 @@ class _NewHomePageState extends State<NewHomePage> {
                     widget.dashboardViewModel.loadCardDesigns();
                   }
                 },
-                child: accountListViewModel == null ? CardCustomizer(
-                  cryptoTitle:
-                  widget.dashboardViewModel.wallet.currency.fullName ??
-                      widget.dashboardViewModel.wallet.currency.name,
-                  cryptoName: widget.dashboardViewModel.wallet.currency.name,
-                ) : AccountCustomizer(
-                  accountListViewModel: accountListViewModel!,
-                  accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>(),
-                  dashboardViewModel: widget.dashboardViewModel,
-
-                ),
+                child: accountListViewModel == null
+                    ? CardCustomizer(
+                        cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
+                            widget.dashboardViewModel.wallet.currency.name,
+                        cryptoName: widget.dashboardViewModel.wallet.currency.name,
+                      )
+                    : AccountCustomizer(
+                        accountListViewModel: accountListViewModel!,
+                        accountEditOrCreateViewModel:
+                            getIt.get<MoneroAccountEditOrCreateViewModel>(),
+                        dashboardViewModel: widget.dashboardViewModel,
+                      ),
               ),
             ),
           ),
