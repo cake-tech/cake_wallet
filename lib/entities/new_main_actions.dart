@@ -26,7 +26,7 @@ class NewMainActions {
     walletsAction,
     contactsAction,
     appsAction,
-    chartsAction,
+    //chartsAction,
   ];
 
   static NewMainActions homeAction = NewMainActions._(
@@ -58,10 +58,10 @@ class NewMainActions {
     onTap: () {},
   );
 
-  static NewMainActions chartsAction = NewMainActions._(
-    name: (context) => 'Charts', //TODO S.of(context).charts,
-    image: 'assets/new-ui/Charts.svg',
-    key: ValueKey('dashboard_page_charts_action_button_key'),
-    onTap: () {},
-  );
+  // static NewMainActions chartsAction = NewMainActions._(
+  //   name: (context) => 'Charts', //TODO S.of(context).charts,
+  //   image: 'assets/new-ui/Charts.svg',
+  //   key: ValueKey('dashboard_page_charts_action_button_key'),
+  //   onTap: () {},
+  // );
 }

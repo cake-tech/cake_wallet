@@ -56,25 +56,28 @@ class _NewHomePageState extends State<NewHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: Container(
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.surfaceBright,
-              Theme.of(context).colorScheme.surface,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: CustomScrollView(
+    return Container(
+    height: MediaQuery.of(context).size.height,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          Theme.of(context).colorScheme.surface,
+          Theme.of(context).colorScheme.surfaceDim,
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ),
+    ),
+    child: Stack(
+      children: [
+        CustomScrollView(
           physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           slivers:[
-            CupertinoSliverRefreshControl(
-              onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+            SliverPadding(
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+              sliver: CupertinoSliverRefreshControl(
+                onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+              ),
             ),
             SliverToBoxAdapter(
             child: Column(
@@ -105,29 +108,47 @@ class _NewHomePageState extends State<NewHomePage> {
                   lightningMode: _lightningMode,
                   hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
                   name: widget.dashboardViewModel.wallet.name,
-                      onCustomizeButtonTap: openCustomizer,
-                    ),
-                    CardsView(
-                      key: ValueKey(widget.dashboardViewModel.wallet.name),
-                      dashboardViewModel: widget.dashboardViewModel,
-                      accountListViewModel: accountListViewModel,
-                      onCompactModeBackgroundCardsTapped: openCustomizer,
-                      lightningMode: _lightningMode,
-                    ),
-                    CoinActionRow(lightningMode: _lightningMode),
-                    Observer(
-                      builder: (_) => AssetsHistorySection(
-                        nftViewModel: widget.nftViewModel,
-                        dashboardViewModel: widget.dashboardViewModel,
-                      ),
-                    ),
-                    SizedBox(height: 24.0)
-                  ],
+                  onCustomizeButtonTap: openCustomizer
                 ),
-              ),
-            ]),
-      ),
-    );
+                CardsView(
+                  key: ValueKey(widget.dashboardViewModel.wallet.name),
+                  dashboardViewModel: widget.dashboardViewModel,
+                  accountListViewModel: accountListViewModel,
+                  onCompactModeBackgroundCardsTapped: openCustomizer,
+                  lightningMode: _lightningMode,
+                ),
+                CoinActionRow(lightningMode: _lightningMode),
+                Observer(
+                  builder: (_)=>AssetsHistorySection(
+                    nftViewModel: widget.nftViewModel,
+                    dashboardViewModel: widget.dashboardViewModel,
+                  ),
+                ),
+                SizedBox(height: 80.0)
+                ],
+            ),
+          ),]
+        ),
+        Container(
+          height: (MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: <Color>[
+                Theme.of(context).colorScheme.surface.withAlpha(5),
+                Theme.of(context).colorScheme.surface.withAlpha(25),
+                Theme.of(context).colorScheme.surface.withAlpha(50),
+                Theme.of(context).colorScheme.surface.withAlpha(100),
+                Theme.of(context).colorScheme.surface.withAlpha(150),
+                Theme.of(context).colorScheme.surface.withAlpha(200),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+        );
   }
 
   void openCustomizer() {
@@ -149,21 +170,20 @@ class _NewHomePageState extends State<NewHomePage> {
                 },
                 child: accountListViewModel == null
                     ? CardCustomizer(
-                        cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
-                            widget.dashboardViewModel.wallet.currency.name,
-                        cryptoName: widget.dashboardViewModel.wallet.currency.name,
-                      )
+                  cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
+                      widget.dashboardViewModel.wallet.currency.name,
+                  cryptoName: widget.dashboardViewModel.wallet.currency.name,
+                )
                     : AccountCustomizer(
-                        accountListViewModel: accountListViewModel!,
-                        accountEditOrCreateViewModel:
-                            getIt.get<MoneroAccountEditOrCreateViewModel>(),
-                        dashboardViewModel: widget.dashboardViewModel,
-                      ),
+                  accountListViewModel: accountListViewModel!,
+                  accountEditOrCreateViewModel:
+                  getIt.get<MoneroAccountEditOrCreateViewModel>(),
+                  dashboardViewModel: widget.dashboardViewModel,
+                ),
               ),
             ),
           ),
         );
       },
     );
-  }
 }

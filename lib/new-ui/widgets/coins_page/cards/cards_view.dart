@@ -15,6 +15,7 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -97,7 +98,8 @@ class _CardsViewState extends State<CardsView> {
           onLongPress: () {
             if (_selectedIndex == visualIndex) {
               widget.dashboardViewModel.balanceViewModel.switchBalanceValue();
-            }
+            };
+            HapticFeedback.heavyImpact();
           },
           child: Observer(builder: (_) {
             final account = widget.accountListViewModel?.accounts[realIndex];
