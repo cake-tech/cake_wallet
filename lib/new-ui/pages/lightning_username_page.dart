@@ -37,7 +37,7 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt.get<LightningUsernameBloc>(),
+      create: (context) => widget.lightningUsernameBloc,
       child: BlocConsumer<LightningUsernameBloc, LightningUsernameState>(
         listener: (context, state) {
           if (state is LightningUsernameSaved) {
