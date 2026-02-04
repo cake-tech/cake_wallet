@@ -59,7 +59,7 @@ class LightningUsernameBloc extends Bloc<LightningUsernameEvent, LightningUserna
       emit(LightningUsernameSaved(state.username));
     } catch (e) {
       for (final pattern in errorPatterns.keys) {
-        if (!e.toString().contains(pattern)) {
+        if (e.toString().contains(pattern)) {
           emit(LightningUsernameError(state.username, UsernameError(errorPatterns[pattern]!)));
           return;
         }
