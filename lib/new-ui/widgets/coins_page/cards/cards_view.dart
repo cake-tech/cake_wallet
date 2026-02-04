@@ -39,11 +39,14 @@ class CardsView extends StatefulWidget {
 }
 
 class _CardsViewState extends State<CardsView> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
+    });
     reaction(
         (_) => widget.dashboardViewModel.cardOrder.keys.toList(),
         (_) => setState(() {

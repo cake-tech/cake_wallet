@@ -36,8 +36,8 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     return list;
   }
 
-  Future<BalanceCardStyleSettings> _loadCurrentDesignSettings(int accountIndex) async {
-    return (await BalanceCardStyleSettings.get(_wallet.walletInfo.internalId, accountIndex))!;
+  Future<BalanceCardStyleSettings?> _loadCurrentDesignSettings(int accountIndex) async {
+    return (await BalanceCardStyleSettings.get(_wallet.walletInfo.internalId, accountIndex));
   }
 
   List<CardDesign> _initAvailableDesigns() {
@@ -93,7 +93,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     final selectedColor = _initSelectedColor(currentDesign);
 
     emit(CardCustomizerInitial(selectedDesign, selectedColor, availableDesigns, availableColors,
-        accountName, accountIndex, currentDesignSettings.cardOrder));
+        accountName, accountIndex, currentDesignSettings?.cardOrder ?? 0));
   }
 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {
