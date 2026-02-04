@@ -38,7 +38,7 @@ class MinotariWalletService extends WalletService<
       type: getType(),
     );
 
-    final ffi = MinotariFfi(dataPath: path);
+    final ffi = MinotariFfi(dataPath: path, walletName: credentials.name);
     final passphrase = credentials.passphrase ?? '';
 
     // Create wallet - get WalletCreationDetails with seed words
@@ -57,6 +57,9 @@ class MinotariWalletService extends WalletService<
     // Get and set the wallet address
     final address = await ffi.getAddress(passphrase: passphrase);
 
+    // Dispose the temporary FFI - wallet.init() will create its own
+    await ffi.dispose();
+
     // Now create the wallet instance with the mnemonic
     final derivationInfo = await walletInfo.getDerivationInfo();
     final wallet = MinotariWallet(
@@ -69,7 +72,7 @@ class MinotariWalletService extends WalletService<
     );
     wallet.walletAddresses.setAddress(address);
 
-    // Initialize wallet (this will open the database created above)
+    // Initialize wallet (this will open the database fresh)
     await wallet.init();
 
     // Save wallet (this will save the keys file with mnemonic)
@@ -168,7 +171,7 @@ class MinotariWalletService extends WalletService<
       type: getType(),
     );
 
-    final ffi = MinotariFfi(dataPath: path);
+    final ffi = MinotariFfi(dataPath: path, walletName: credentials.name);
     final passphrase = credentials.passphrase ?? '';
     final walletInfo = credentials.walletInfo!;
 
@@ -187,6 +190,9 @@ class MinotariWalletService extends WalletService<
     // Get and set the wallet address
     final address = await ffi.getAddress(passphrase: passphrase);
 
+    // Dispose the temporary FFI - wallet.init() will create its own
+    await ffi.dispose();
+
     // Now create the wallet instance with the mnemonic
     final derivationInfo = await walletInfo.getDerivationInfo();
     final wallet = MinotariWallet(
@@ -199,7 +205,7 @@ class MinotariWalletService extends WalletService<
     );
     wallet.walletAddresses.setAddress(address);
 
-    // Initialize wallet (this will open the database with restored data)
+    // Initialize wallet (this will open the database fresh)
     await wallet.init();
 
     // Save wallet (this will save the keys file with mnemonic)

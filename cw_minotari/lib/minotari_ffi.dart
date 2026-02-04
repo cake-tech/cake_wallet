@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_minotari/src/rust/api/wallet.dart'
     show WalletCreationDetails, createWallet, restoreWallet;
 import 'package:cw_minotari/src/rust/api/balance.dart' as balance;
@@ -21,18 +22,14 @@ export 'package:cw_minotari/src/rust/api/fee.dart'
 /// BIP39 passphrase for seed derivation. We use "passphrase" in our Dart code
 /// for clarity.
 class MinotariFfi {
-  final String _walletName = 'default'; // TODO Use wallet name from CW
-
-  /// Expose wallet name for fee estimation
-  String get walletName => _walletName;
-
+  final String walletName;
   final String dataPath;
   TariNetwork? _networkInternal;
   bool _isInitialized = false;
 
   static bool _rustLibInitialized = false;
 
-  MinotariFfi({required this.dataPath});
+  MinotariFfi({required this.dataPath, required this.walletName});
 
   /// Get the network, throws if wallet not initialized
   TariNetwork get _network {
@@ -59,7 +56,14 @@ class MinotariFfi {
   Future<void> open(TariNetwork network) async {
     await _ensureRustLibInitialized();
 
-    await initializeDatabase(path: dataPath);
+    printV('[MinotariFfi] Opening wallet "$walletName" at path: $dataPath');
+    try {
+      await initializeDatabase(path: dataPath);
+      printV('[MinotariFfi] Database initialized successfully for wallet "$walletName"');
+    } catch (e) {
+      printV('[MinotariFfi] Failed to initialize database: $e');
+      rethrow;
+    }
 
     _networkInternal = network;
     _isInitialized = true;
@@ -74,7 +78,7 @@ class MinotariFfi {
 
     await initializeDatabase(path: dataPath);
 
-    final details = await createWallet(network: network, passphrase: passphrase);
+    final details = await createWallet(walletName: walletName, network: network, passphrase: passphrase);
 
     _networkInternal = network;
     _isInitialized = true;
@@ -102,6 +106,7 @@ class MinotariFfi {
     }
 
     final details = await restoreWallet(
+      walletName: walletName,
       seedWords: seedWords,
       passphrase: passphrase,
       network: network,
@@ -119,7 +124,7 @@ class MinotariFfi {
     _ensureWalletInitialized();
 
     return await address.getAddress(
-      walletName: _walletName,
+      walletName: walletName,
       passphrase: passphrase,
       network: _network,
     );
@@ -129,7 +134,9 @@ class MinotariFfi {
   Future<Map<String, int>> getBalance() async {
     _ensureWalletInitialized();
 
-    final balanceData = await balance.getBalance(walletName: _walletName);
+    printV('[MinotariFfi] Getting balance for wallet "$walletName"');
+    final balanceData = await balance.getBalance(walletName: walletName);
+    printV('[MinotariFfi] Balance retrieved successfully for wallet "$walletName"');
 
     // Convert BigInt to int (Minotari uses micro-tari, which fits in int64)
     return {
@@ -152,6 +159,7 @@ class MinotariFfi {
     _ensureWalletInitialized();
 
     final config = scanner.ScanConfiguration(
+      walletName: walletName,
       passphrase: passphrase,
       baseUrl: baseNodeAddress,
       batchSize: BigInt.from(batchSize),
@@ -175,7 +183,7 @@ class MinotariFfi {
     _ensureWalletInitialized();
 
     return await transactions.getTransactions(
-      walletName: _walletName,
+      walletName: walletName,
       limit: limit,
       offset: offset,
     );
@@ -205,7 +213,7 @@ class MinotariFfi {
       passphrase: passphrase,
       network: _network,
       baseUrl: baseNodeUrl,
-      walletName: _walletName,
+      walletName: walletName,
       recipientAddress: recipientAddress,
       amount: amount,
       paymentId: paymentId,
@@ -230,14 +238,16 @@ class MinotariFfi {
       amount: amount,
       priority: priority,
       baseUrl: baseNodeUrl,
-      walletName: _walletName,
+      walletName: walletName,
     );
   }
 
   /// Dispose of the wallet handle
+  /// Note: We don't call disconnectDatabase() here because it breaks re-initialization
+  /// The Rust library handles database connection switching internally via initializeDatabase()
   Future<void> dispose() async {
+    printV('[MinotariFfi] Disposing wallet "$walletName" (was initialized: $_isInitialized)');
     if (_isInitialized) {
-      await disconnectDatabase();
       _isInitialized = false;
       _networkInternal = null;
     }
