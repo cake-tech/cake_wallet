@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
@@ -11,6 +12,7 @@ import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dar
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -96,14 +98,14 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
         child: Column(
           children: [
             ModalTopBar(
-              title: "Wallet Accounts",
+              title: S.of(context).wallet_accounts,
               leadingIcon: Icon(Icons.close),
               onLeadingPressed: Navigator.of(context).maybePop,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24.0),
               child: Text(
-                "Drag and drop cards to organize accounts.",
+                S.of(context).account_customizer_desc,
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
@@ -208,7 +210,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                                                   color: Theme.of(context).colorScheme.primary,
                                                   size: 20),
                                               Text(
-                                                "Edit Current",
+                                                S.of(context).edit_current,
                                                 style: TextStyle(
                                                     color: Theme.of(context).colorScheme.primary,
                                                     fontWeight: FontWeight.w500),
@@ -282,7 +284,6 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     for (int i = 0; i < _items.length; i++) {
       final idx = _items.indexWhere((element) => element.accountListItem.id == i);
 
-      printV("$i: $idx");
       await BalanceCardStyleSettings.fromCardDesign(
               widget.dashboardViewModel.wallet.walletInfo.internalId,
               i,
@@ -320,7 +321,7 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ModalGrabHandle(),
-                ModalTopBar(title: "Create Account"),
+                ModalTopBar(title: S.of(context).create_account),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0),
                   child: Column(
@@ -336,7 +337,7 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                             Expanded(
                               child: TextField(
                                 controller: _controller,
-                                decoration: InputDecoration(hintText: "Account Name"),
+                                decoration: InputDecoration(hintText: S.of(context).account_name),
                               ),
                             ),
                             Padding(
