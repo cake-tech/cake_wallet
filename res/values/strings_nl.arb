@@ -146,6 +146,7 @@
   "cannot_verify": "Kan niet verifiëren",
   "cannot_verify_description": "Dit domein kan niet worden geverifieerd. Controleer het verzoek zorgvuldig voordat u het goedkeurt.",
   "card_address": "Adres:",
+  "card_order_reset_desc": "Kaartvolgorde herstellen naar standaardinstellingen?",
   "cardholder_agreement": "Kaarthouderovereenkomst",
   "cards": "Kaarten",
   "centralized": "Gecentraliseerd",

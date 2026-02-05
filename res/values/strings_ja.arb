@@ -146,6 +146,7 @@
   "cannot_verify": "確認できません",
   "cannot_verify_description": "このドメインを検証することはできません。承認する前に、リクエストを注意深く確認してください。",
   "card_address": "住所:",
+  "card_order_reset_desc": "カードの順序をデフォルト設定に戻しますか?",
   "cardholder_agreement": "カード所有者契約",
   "cards": "カード",
   "centralized": "集中化",

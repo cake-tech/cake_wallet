@@ -146,6 +146,7 @@
   "cannot_verify": "ไม่สามารถตรวจสอบได้",
   "cannot_verify_description": "โดเมนนี้ไม่สามารถตรวจสอบได้ ตรวจสอบคำขออย่างละเอียดก่อนอนุมัติ",
   "card_address": "ที่อยู่:",
+  "card_order_reset_desc": "คืนค่าลำดับบัตรเป็นการตั้งค่าเริ่มต้นหรือไม่",
   "cardholder_agreement": "ข้อตกลงผู้ใช้บัตร",
   "cards": "บัตร",
   "centralized": "รวมศูนย์",

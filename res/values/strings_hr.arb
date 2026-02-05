@@ -146,6 +146,7 @@
   "cannot_verify": "Ne može provjeriti",
   "cannot_verify_description": "Ova se domena ne može provjeriti. Pažljivo provjerite zahtjev prije odobrenja.",
   "card_address": "Adresa:",
+  "card_order_reset_desc": "Vratiti redoslijed kartica na zadane postavke?",
   "cardholder_agreement": "Ugovor s vlasnikom kartice",
   "cards": "Kartice",
   "centralized": "Centralizirano",

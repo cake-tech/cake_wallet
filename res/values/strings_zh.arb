@@ -146,6 +146,7 @@
   "cannot_verify": "无法验证",
   "cannot_verify_description": "该域无法验证。批准之前，请仔细检查请求。",
   "card_address": "地址:",
+  "card_order_reset_desc": "将卡顺序恢复为默认设置？",
   "cardholder_agreement": "持卡人协议",
   "cards": "卡片",
   "centralized": "集中",

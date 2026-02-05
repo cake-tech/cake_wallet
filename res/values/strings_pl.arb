@@ -146,6 +146,7 @@
   "cannot_verify": "Nie można zweryfikować",
   "cannot_verify_description": "Nie można zweryfikować tej domeny. Przed zatwierdzeniem dokładnie sprawdź żądanie.",
   "card_address": "Adres:",
+  "card_order_reset_desc": "Przywrócić kolejność kart do ustawień domyślnych?",
   "cardholder_agreement": "Umowa posiadacza karty",
   "cards": "Karty",
   "centralized": "Scentralizowane",

@@ -146,6 +146,7 @@
   "cannot_verify": "Tidak dapat memverifikasi",
   "cannot_verify_description": "Domain ini tidak dapat diverifikasi. Periksa permintaan dengan cermat sebelum menyetujui.",
   "card_address": "Alamat:",
+  "card_order_reset_desc": "Kembalikan urutan kartu ke pengaturan default?",
   "cardholder_agreement": "Persetujuan Pemegang Kartu",
   "cards": "Kartu",
   "centralized": "Terpusat",

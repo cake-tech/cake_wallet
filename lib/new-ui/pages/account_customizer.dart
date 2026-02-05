@@ -7,6 +7,8 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_grab_handle.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
@@ -61,7 +63,13 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
 
     final accounts = widget.accountListViewModel.accounts;
     for (int i = 0; i < widget.accountListViewModel.accounts.length; i++) {
-      final index = widget.dashboardViewModel.cardOrder[i] ?? i;
+      final index = widget.dashboardViewModel.cardOrder[i];
+
+      if(index == null) {
+        // db order broken.
+        reset();
+        break;
+      }
 
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
@@ -101,6 +109,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
               title: S.of(context).wallet_accounts,
               leadingIcon: Icon(Icons.close),
               onLeadingPressed: Navigator.of(context).maybePop,
+              trailingIcon: Icon(Icons.refresh),
+              onTrailingPressed: showResetDialog,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24.0),
@@ -283,6 +293,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
   Future<void> saveCardOrder() async {
     for (int i = 0; i < _items.length; i++) {
       final idx = _items.indexWhere((element) => element.accountListItem.id == i);
+      printV("$i: $idx");
 
       await BalanceCardStyleSettings.fromCardDesign(
               widget.dashboardViewModel.wallet.walletInfo.internalId,
@@ -291,6 +302,49 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
               _items[idx].card.design)
           .insert();
     }
+  }
+
+  Future<void> showResetDialog() async {
+    final res = await showPopUp(
+        context: context,
+        builder: (context) {
+          return AlertWithTwoActions(
+              alertTitle: S.of(context).reset,
+              alertContent: "Restore card order to default settings?",
+              leftButtonText: S.of(context).yes,
+              rightButtonText: S.of(context).no,
+              actionLeftButton: () {
+                Navigator.of(context).pop(true);
+              },
+              actionRightButton: Navigator.of(context).pop);
+        });
+    if(res != null && res is bool && res) {
+      reset();
+    }
+  }
+
+  Future<void> reset() async {
+    _items.clear();
+
+    final accounts = widget.accountListViewModel.accounts;
+    for (int i = 0; i < widget.accountListViewModel.accounts.length; i++) {
+
+      _items.add(AccountCustomizerListItem(
+          card: BalanceCard(
+            accountName: accounts[i].label,
+            balance: accounts[i].balance ?? "0.00",
+            accountBalance: accounts[i].balance ?? "0.00",
+            assetName: widget.accountListViewModel.currency.title,
+            selected: true,
+            width: cardWidth,
+            design: widget.dashboardViewModel.cardDesigns[i],
+          ),
+          order: i,
+          accountListItem: accounts[i]));
+    }
+
+    saveCardOrder();
+    setState(() {});
   }
 }
 

@@ -146,6 +146,7 @@
   "cannot_verify": "تصدیق نہیں کرسکتے ہیں",
   "cannot_verify_description": "اس ڈومین کی تصدیق نہیں کی جاسکتی ہے۔ منظوری سے پہلے درخواست کو احتیاط سے چیک کریں۔",
   "card_address": "پتہ:",
+  "card_order_reset_desc": "پہلے سے طے شدہ ترتیبات میں کارڈ آرڈر کو بحال کریں؟",
   "cardholder_agreement": "کارڈ ہولڈر کا معاہدہ",
   "cards": "کارڈز",
   "centralized": "مرکزی",

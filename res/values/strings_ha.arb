@@ -146,6 +146,7 @@
   "cannot_verify": "Ba zai iya tabbatarwa",
   "cannot_verify_description": "Ba za a iya tabbatar da wannan yanki ba. Duba buƙatun a hankali kafin amincewa.",
   "card_address": "Adireshin:",
+  "card_order_reset_desc": "Maida odar katin zuwa saitunan tsoho?",
   "cardholder_agreement": "Yarjejeniyar mai katin",
   "cards": "Katuna",
   "centralized": "Tsakiyya",

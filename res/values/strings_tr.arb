@@ -146,6 +146,7 @@
   "cannot_verify": "Doğrulamaz",
   "cannot_verify_description": "Bu alan doğrulanamaz. Onaylamadan önce isteği dikkatlice kontrol edin.",
   "card_address": "Adres:",
+  "card_order_reset_desc": "Kart sırası varsayılan ayarlara geri yüklensin mi?",
   "cardholder_agreement": "Kart Sahibi Sözleşmesi",
   "cards": "Kartlar",
   "centralized": "Merkezileştirilmiş",

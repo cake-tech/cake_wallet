@@ -192,7 +192,7 @@ class _CardsViewState extends State<CardsView> {
         _selectedIndex = 0;
       }
 
-      final order = widget.dashboardViewModel.cardOrder.isEmpty
+      final order = widget.dashboardViewModel.cardOrder.length != numCards
           ? Map<int, int>.fromEntries(
               List.generate(numCards, (i) => MapEntry(i, i)),
             )

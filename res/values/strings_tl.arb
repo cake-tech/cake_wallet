@@ -146,6 +146,7 @@
   "cannot_verify": "Hindi ma -verify",
   "cannot_verify_description": "Ang domain na ito ay hindi ma -verify. Suriin nang mabuti ang kahilingan bago aprubahan.",
   "card_address": "Address:",
+  "card_order_reset_desc": "Ibalik ang pagkakasunud-sunod ng card sa mga default na setting?",
   "cardholder_agreement": "Kasunduan sa Cardholder",
   "cards": "Mga Card",
   "centralized": "Sentralisado",

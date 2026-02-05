@@ -146,6 +146,7 @@
   "cannot_verify": "No se puede verificar",
   "cannot_verify_description": "Este dominio no se puede verificar. Revisa la solicitud cuidadosamente antes de aprobar.",
   "card_address": "Dirección:",
+  "card_order_reset_desc": "¿Restaurar el orden de las tarjetas a la configuración predeterminada?",
   "cardholder_agreement": "Acuerdo del titular de la tarjeta",
   "cards": "Tarjetas",
   "centralized": "Centralizado",

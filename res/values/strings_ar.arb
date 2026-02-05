@@ -146,6 +146,7 @@
   "cannot_verify": "لا يمكن التحقق",
   "cannot_verify_description": "لا يمكن التحقق من هذا المجال. تحقق من الطلب بعناية قبل الموافقة.",
   "card_address": "العنوان:",
+  "card_order_reset_desc": "هل تريد استعادة ترتيب البطاقة إلى الإعدادات الافتراضية؟",
   "cardholder_agreement": "اتفاقية حامل البطاقة",
   "cards": "البطاقات",
   "centralized": "مركزية",

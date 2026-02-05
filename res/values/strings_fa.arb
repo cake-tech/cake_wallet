@@ -144,6 +144,7 @@
   "cannot_verify": "عدم امکان تایید",
   "cannot_verify_description": "این دامنه قابل تایید نیست.\nقبل از تایید، درخواست را با دقت بررسی کنید.",
   "card_address": "آدرس:",
+  "card_order_reset_desc": "ترتیب کارت به تنظیمات پیش فرض بازیابی شود؟",
   "cardholder_agreement": "توافق‌نامه دارنده کارت",
   "cards": "کارت‌ها",
   "centralized": "متمرکز",

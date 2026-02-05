@@ -146,6 +146,7 @@
   "cannot_verify": "Kann nicht überprüfen",
   "cannot_verify_description": "Diese Domäne kann nicht verifiziert werden. Überprüfen Sie die Anfrage vor der Genehmigung sorgfältig.",
   "card_address": "Adresse:",
+  "card_order_reset_desc": "Kartenreihenfolge auf Standardeinstellungen zurücksetzen?",
   "cardholder_agreement": "Karteninhabervertrag",
   "cards": "Karten",
   "centralized": "Zentralisiert",

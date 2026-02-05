@@ -146,6 +146,7 @@
   "cannot_verify": "Cannot Verify",
   "cannot_verify_description": "This domain cannot be verified. Check the request carefully before approving.",
   "card_address": "Address:",
+  "card_order_reset_desc": "Restore card order to default settings?",
   "cardholder_agreement": "Cardholder Agreement",
   "cards": "Cards",
   "centralized": "Centralized",

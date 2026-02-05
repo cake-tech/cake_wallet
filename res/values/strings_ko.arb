@@ -146,6 +146,7 @@
   "cannot_verify": "확인할 수 없음",
   "cannot_verify_description": "이 도메인은 확인할 수 없습니다. 승인하기 전에 요청을 주의 깊게 확인하세요.",
   "card_address": "주소:",
+  "card_order_reset_desc": "카드 주문을 기본 설정으로 복원하시겠습니까?",
   "cardholder_agreement": "카드 소지자 계약",
   "cards": "카드",
   "centralized": "중앙 집중식",

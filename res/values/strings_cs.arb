@@ -146,6 +146,7 @@
   "cannot_verify": "Nelze ověřit",
   "cannot_verify_description": "Tuto doménu nelze ověřit. Před schválením pečlivě zkontrolujte požadavek.",
   "card_address": "Adresa:",
+  "card_order_reset_desc": "Obnovit pořadí karet na výchozí nastavení?",
   "cardholder_agreement": "Smlouva držitele karty",
   "cards": "Karty",
   "centralized": "Centralizované",

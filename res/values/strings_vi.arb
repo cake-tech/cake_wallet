@@ -146,6 +146,7 @@
   "cannot_verify": "Không thể xác minh",
   "cannot_verify_description": "Miền này không thể được xác minh. Kiểm tra yêu cầu cẩn thận trước khi phê duyệt.",
   "card_address": "Địa chỉ:",
+  "card_order_reset_desc": "Khôi phục thứ tự thẻ về cài đặt mặc định?",
   "cardholder_agreement": "Thỏa thuận Chủ Thẻ",
   "cards": "Thẻ",
   "centralized": "Tập trung",
