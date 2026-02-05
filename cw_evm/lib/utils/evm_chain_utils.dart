@@ -30,7 +30,7 @@ class EVMChainUtils {
       137 => "${sanitizedName}_${Erc20Token.polygonBoxName}",
       8453 => "${sanitizedName}_${Erc20Token.baseBoxName}",
       42161 => "${sanitizedName}_${Erc20Token.arbitrumBoxName}",
-      56 => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
+      56 => "${sanitizedName}_${Erc20Token.bscBoxName}",
       _ => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
     };
   }

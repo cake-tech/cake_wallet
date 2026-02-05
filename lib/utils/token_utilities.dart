@@ -128,7 +128,7 @@ class TokenUtilities {
       WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
       WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
       WalletType.arbitrum => '${walletKey}_${Erc20Token.arbitrumBoxName}',
-      WalletType.bsc => '${walletKey}_${Erc20Token.ethereumBoxName}',
+      WalletType.bsc => '${walletKey}_${Erc20Token.bscBoxName}',
       _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
     };
   }
