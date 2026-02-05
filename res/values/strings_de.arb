@@ -102,6 +102,7 @@
   "Blocks_remaining": "${status} verbleibende Blöcke",
   "bluetooth": "Bluetooth",
   "bright_theme": "Strahlend hell",
+  "bscscan_history": "BSCScan-Verlauf",
   "bump_fee": "Gebühr erhöhen",
   "buy": "Kaufen",
   "buy_alert_content": "Derzeit unterstützen wir nur den Kauf von Bitcoin, Ethereum, Litecoin und Monero. Bitte erstellen Sie Ihr Bitcoin-, Ethereum-, Litecoin- oder Monero-Wallet oder wechseln Sie zu diesem.",

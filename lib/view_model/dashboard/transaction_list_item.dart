@@ -174,6 +174,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         final asset = evm!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(

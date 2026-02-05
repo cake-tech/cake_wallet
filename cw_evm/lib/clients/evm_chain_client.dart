@@ -277,12 +277,14 @@ class EVMChainClient {
         currency == CryptoCurrency.maticpoly ||
         currency == CryptoCurrency.baseEth ||
         currency == CryptoCurrency.arbEth ||
+        currency == CryptoCurrency.bnb ||
         contractAddress != null);
 
     bool isNativeToken = currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||
         currency == CryptoCurrency.baseEth ||
-        currency == CryptoCurrency.arbEth;
+        currency == CryptoCurrency.arbEth ||
+        currency == CryptoCurrency.bnb;
 
     // Get nonce with "pending" block tag to include pending transactions
     // This prevents "Nonce too low" errors when sending multiple transactions quickly

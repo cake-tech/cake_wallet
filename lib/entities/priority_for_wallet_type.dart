@@ -23,6 +23,7 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.ethereum:
     case WalletType.polygon:
     case WalletType.base:
+    case WalletType.bsc:
       return evm!.getTransactionPriorities();
     case WalletType.bitcoinCash:
       return bitcoinCash!.getTransactionPriorities();

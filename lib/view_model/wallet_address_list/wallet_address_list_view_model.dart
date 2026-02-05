@@ -126,6 +126,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           return BaseURI(amount: amount, address: address.address);
         case 42161:
           return ArbitrumURI(amount: amount, address: address.address);
+        case 56:
+          return BSCURI(amount: amount, address: address.address);
         default:
           return EthereumURI(amount: amount, address: address.address);
       }
@@ -166,6 +168,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return BaseURI(amount: amount, address: address.address);
       case WalletType.arbitrum:
         return ArbitrumURI(amount: amount, address: address.address);
+      case WalletType.bsc:
+        return BSCURI(amount: amount, address: address.address);
       case WalletType.zcash:
         return ZcashURI(amount: amount, address: address.address);
       case WalletType.none:
@@ -436,7 +440,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       switch (chainId) {
         case 1:
           return [
-            'assets/images/eth_icon.svg',
+            'assets/images/crypto/ethereum.webp',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
             'assets/images/deuro_icon.svg',
@@ -444,7 +448,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           ];
         case 137:
           return [
-            'assets/images/pol_icon.svg',
+            'assets/images/crypto/polygon.webp',
             'assets/images/eth_pol_icon.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
@@ -452,7 +456,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           ];
         case 8453:
           return [
-            'assets/images/eth_icon.svg',
+            'assets/images/crypto/ethereum.webp',
             'assets/images/usdc_icon.svg',
             'assets/images/more_tokens.svg',
           ];
@@ -462,9 +466,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             'assets/images/usdc_icon.svg',
             'assets/images/more_tokens.svg',
           ];
+        case 56:
+          return [
+            'assets/images/crypto/BNB.webp',
+            'assets/images/usdc_icon.svg',
+            'assets/images/usdt_wallet_icon.svg',
+            'assets/images/more_tokens.svg',
+          ];
         default:
           return [
-            'assets/images/eth_icon.svg',
+            'assets/images/crypto/ethereum.webp',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
           ];
@@ -497,10 +508,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
-  String get qrImage => getQrImage(type, selectedChainId: selectedChainId);
+  String get qrImage => getQrImage(type);
 
   @computed
-  String get monoImage => getChainMonoImage(type, selectedChainId: selectedChainId);
+  String get monoImage => getChainMonoImage(type);
 
   @computed
   bool get isBalanceAvailable => isElectrumWallet;

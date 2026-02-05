@@ -102,6 +102,7 @@
   "Blocks_remaining": "${status} บล็อกที่เหลืออยู่",
   "bluetooth": "บลูทู ธ",
   "bright_theme": "สดใส",
+  "bscscan_history": "ประวัติ BCScan",
   "bump_fee": "ค่าธรรมเนียมชน",
   "buy": "ซื้อ",
   "buy_alert_content": "ขณะนี้เรารองรับการซื้อ Bitcoin, Ethereum, Litecoin และ Monero เท่านั้น โปรดสร้างหรือเปลี่ยนเป็นกระเป๋าเงิน Bitcoin, Ethereum, Litecoin หรือ Monero",

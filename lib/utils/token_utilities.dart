@@ -89,6 +89,7 @@ class TokenUtilities {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         final tokens = await loadAllUniqueEvmTokens();
         for (final t in tokens) {
           if (t.contractAddress.toLowerCase() == lower) return t;
@@ -127,6 +128,7 @@ class TokenUtilities {
       WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
       WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
       WalletType.arbitrum => '${walletKey}_${Erc20Token.arbitrumBoxName}',
+      WalletType.bsc => '${walletKey}_${Erc20Token.bscBoxName}',
       _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
     };
   }
@@ -185,7 +187,8 @@ class TokenUtilities {
 
     // Only check EVM registry for currencies that might be EVM-related
     final isPotentialEVM = isNativeToken(currency) ||
-        (tag != null && (tag == 'ETH' || tag == 'POL' || tag == 'BASE' || tag == 'ARB'));
+        (tag != null &&
+            (tag == 'ETH' || tag == 'POL' || tag == 'BASE' || tag == 'ARB' || tag == 'BSC'));
 
     if (isPotentialEVM) {
       // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')
@@ -200,11 +203,6 @@ class TokenUtilities {
     }
 
     // Fallback to hardcoded values for chains not in registry yet
-    // BSC (Binance Smart Chain)
-    if (title == 'bsc' || title == 'bnb' || tag == 'BSC') {
-      return 56;
-    }
-
     // Avalanche C-Chain
     if (title == 'avalanche' || title == 'avax' || tag == 'AVALANCHE') {
       return 43114;

@@ -143,6 +143,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
       case WalletType.solana:
       case WalletType.zcash:
       case WalletType.tron:
@@ -274,6 +275,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'base-wallet';
       case WalletType.arbitrum:
         return 'arbitrum-wallet';
+      case WalletType.bsc:
+        return 'bsc-wallet';
       case WalletType.solana:
         return 'solana-wallet';
       case WalletType.tron:

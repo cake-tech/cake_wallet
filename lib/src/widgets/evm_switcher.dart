@@ -14,52 +14,26 @@ class EvmSwitcherDataItem {
     required this.svgPath,
     required this.chainId,
   });
-
-  static const ethereum = EvmSwitcherDataItem(
-    name: 'Ethereum',
-    svgPath: 'assets/images/evm_switcher_icons/ethereum.svg',
-    chainId: 1,
-  );
-
-  static const polygon = EvmSwitcherDataItem(
-    name: 'Polygon',
-    svgPath: 'assets/images/evm_switcher_icons/polygon.svg',
-    chainId: 137,
-  );
-
-  static const arbitrum = EvmSwitcherDataItem(
-    name: 'Arbitrum',
-    svgPath: 'assets/images/evm_switcher_icons/arbitrum.svg',
-    chainId: 42161,
-  );
-
-  static const base = EvmSwitcherDataItem(
-    name: 'Base',
-    svgPath: 'assets/images/evm_switcher_icons/base.svg',
-    chainId: 8453,
-  );
-
-  static const items = [
-    ethereum,
-    polygon,
-    arbitrum,
-    base,
-  ];
 }
 
 String _getSvgPathForChain(String chainName) {
   final name = chainName.toLowerCase();
-  if (name.contains('ethereum')) {
-    return 'assets/images/evm_switcher_icons/ethereum.svg';
-  } else if (name.contains('polygon')) {
-    return 'assets/images/evm_switcher_icons/polygon.svg';
-  } else if (name.contains('arbitrum')) {
-    return 'assets/images/evm_switcher_icons/arbitrum.svg';
-  } else if (name.contains('base')) {
-    return 'assets/images/evm_switcher_icons/base.svg';
+
+  switch (name) {
+    case 'ethereum':
+      return 'assets/images/crypto/ethereum.webp';
+    case 'polygon':
+      return 'assets/images/crypto/polygon.webp';
+    case 'arbitrum':
+      return 'assets/images/crypto/arbitrum.webp';
+    case 'base':
+      return 'assets/images/crypto/base_icon.webp';
+    case 'bnb':
+    case 'bsc':
+      return 'assets/images/crypto/BNB.webp';
+    default:
+      return 'assets/images/crypto/ethereum.webp';
   }
-  // Default to ethereum if unknown
-  return 'assets/images/evm_switcher_icons/ethereum.svg';
 }
 
 class EvmSwitcher extends StatefulWidget {
