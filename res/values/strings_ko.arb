@@ -102,6 +102,7 @@
   "Blocks_remaining": "${status} 블록 남음",
   "bluetooth": "블루투스",
   "bright_theme": "밝은 테마",
+  "bscscan_history": "BSC스캔 기록",
   "bump_fee": "수수료 인상",
   "buy": "구매",
   "buy_alert_content": "현재 비트코인, 이더리움, 라이트코인, 모네로만 구매를 지원합니다. 비트코인, 이더리움, 라이트코인 또는 모네로 지갑을 생성하거나 전환하세요.",

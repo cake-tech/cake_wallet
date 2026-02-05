@@ -102,6 +102,7 @@
   "Blocks_remaining": "${status} оставащи блока",
   "bluetooth": "Bluetooth",
   "bright_theme": "Ярко",
+  "bscscan_history": "История на BSCScan",
   "bump_fee": "Такса за бум",
   "buy": "Купуване",
   "buy_alert_content": "В момента поддържаме само закупуването на Bitcoin, Ethereum, Litecoin и Monero. Моля, създайте или превключете към своя портфейл Bitcoin, Ethereum, Litecoin или Monero.",

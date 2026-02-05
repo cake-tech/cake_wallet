@@ -5,7 +5,6 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/utils/qr_util.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -177,7 +176,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
   String get currentWalletName => _wallet.name;
 
   @computed
-  String get qrImage => getQrImage(_wallet.type, selectedChainId: _wallet.chainId);
+  String get qrImage => getQrImage(_wallet.type);
 
   @action
   void reset() {

@@ -10,6 +10,7 @@ class PreferencesKey {
   static const currentPolygonNodeIdKey = 'current_node_id_matic';
   static const currentBaseNodeIdKey = 'current_node_id_base';
   static const currentArbitrumNodeIdKey = 'current_node_id_arbitrum';
+  static const currentBscNodeIdKey = 'current_node_id_bsc';
   static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
   static const currentDecredNodeIdKey = 'current_node_id_decred';
@@ -56,6 +57,7 @@ class PreferencesKey {
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const baseTransactionPriority = 'current_fee_priority_base';
+  static const bscTransactionPriority = 'current_fee_priority_bsc';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const zanoTransactionPriority = 'current_fee_priority_zano';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
@@ -83,6 +85,7 @@ class PreferencesKey {
   static const usePolygonScan = 'use_polygonscan';
   static const useBaseScan = 'use_base_scan';
   static const useArbiScan = 'use_arbitrum_scan';
+  static const useBscScan = 'use_bscscan';
   static const useTronGrid = 'use_trongrid';
   static const useMempoolFeeAPI = 'use_mempool_fee_api';
   static const evmHiddenChainIds = 'evm_hidden_chain_ids';
