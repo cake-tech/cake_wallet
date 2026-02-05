@@ -518,18 +518,30 @@ abstract class EVMChainWalletBase
       final chainName = EVMChainUtils.getDefaultTokenSymbol(selectedChainId).toLowerCase();
 
       final walletTokens = await _client.fetchWalletTokensFromMoralis(address, chainName);
-
       if (walletTokens.isEmpty) return [];
 
-      final existingAddresses =
-          evmChainErc20TokensBox.values.map((t) => t.contractAddress.toLowerCase()).toSet();
+      final existingTokenAddresses = {
+        for (final token in evmChainErc20TokensBox.values)
+          token.contractAddress.toLowerCase(): token,
+      };
 
-      final List<Erc20Token> discoveredTokens = [];
+      final whitelistedTokenAddresses =
+          getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
+
+      final List<Erc20Token> newTokens = [];
 
       for (final token in walletTokens) {
         final addr = token.contractAddress.toLowerCase();
 
-        if (existingAddresses.contains(addr)) continue;
+        final existingToken = existingTokenAddresses[addr];
+        if (existingToken != null) {
+          if (whitelistedTokenAddresses.contains(addr) && !existingToken.enabled) {
+            existingToken.enabled = true;
+            await existingToken.save();
+            await addErc20Token(existingToken);
+          }
+          continue;
+        }
 
         final newToken = Erc20Token(
           name: token.name,
@@ -541,10 +553,10 @@ abstract class EVMChainWalletBase
           isPotentialScam: token.possibleSpam,
         );
 
-        discoveredTokens.add(newToken);
+        newTokens.add(newToken);
       }
 
-      return discoveredTokens;
+      return newTokens;
     } catch (e) {
       printV('Error discovering tokens from Moralis: ${e.toString()}');
       return [];
