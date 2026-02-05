@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
+import 'dart:math';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -406,10 +407,18 @@ abstract class DashboardViewModelBase with Store {
           .firstOrNull;
 
       cardDesigns.add(CardDesign.fromStyleSettings(setting, wallet.currency));
-      cardOrder[setting?.cardOrder ?? i] = i;
+      if(setting?.cardOrder != null) {
+        cardOrder[setting!.cardOrder] = i;
+      }
+    }
+
+    // making sure ALL accounts have numbers, even the ones that existed before this feature was a thing
+    for(int i=0; i<numAccounts; i++) {
+      if (!cardOrder.containsKey(i)) {
+        cardOrder[i] = cardOrder.values.reduce(max)+1;
+      }
     }
   }
-
   void _transactionDisposerCallback(int _) async {
     // Simple check to prevent the callback from being called multiple times in the same frame
     if (_isTransactionDisposerCallbackRunning) return;

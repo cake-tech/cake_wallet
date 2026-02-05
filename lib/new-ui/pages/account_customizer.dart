@@ -240,10 +240,9 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                                             context: context,
                                             backgroundColor: Colors.transparent,
                                             builder: (context) {
+                                              final modal = getIt.get<AccountCreationModal>();
                                               return Material(
-                                                  child: AccountCreationModal(
-                                                      accountEditOrCreateViewModel:
-                                                          widget.accountEditOrCreateViewModel));
+                                                  child: modal);
                                             });
                                         if (res != null && res is bool && res == true) {
                                           await widget.dashboardViewModel.loadCardDesigns();
