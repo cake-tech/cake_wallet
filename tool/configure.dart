@@ -1523,7 +1523,6 @@ abstract class EVM {
   
   bool hasPriorityFee(int chainId);
 
-  Future<bool> checkTokenFiatPrice(WalletBase wallet, Erc20Token token);
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
 

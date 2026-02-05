@@ -509,17 +509,17 @@ abstract class EVMChainWalletBase
     }
   }
 
-  Future<List<Erc20Token>> discoverTokensFromMoralis() async {
+  Future<MoralisDiscoveryResult> discoverTokensFromMoralis() async {
     try {
-      if (!evmChainErc20TokensBox.isOpen) return [];
+      if (!evmChainErc20TokensBox.isOpen) return MoralisDiscoveryResult.empty;
 
       final address = walletAddresses.address;
-      if (address.isEmpty) return [];
+      if (address.isEmpty) return MoralisDiscoveryResult.empty;
 
       final chainName = EVMChainUtils.getDefaultTokenSymbol(selectedChainId).toLowerCase();
 
       final walletTokens = await _client.fetchWalletTokensFromMoralis(address, chainName);
-      if (walletTokens.isEmpty) return [];
+      if (walletTokens.isEmpty) return MoralisDiscoveryResult.empty;
 
       final existingTokenAddresses = {
         for (final token in evmChainErc20TokensBox.values)
@@ -529,7 +529,7 @@ abstract class EVMChainWalletBase
       final whitelistedTokenAddresses =
           getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
 
-      final List<Erc20Token> newTokens = [];
+      final newTokens = <DiscoveredToken>[];
 
       for (final token in walletTokens) {
         final addr = token.contractAddress.toLowerCase();
@@ -554,13 +554,18 @@ abstract class EVMChainWalletBase
           isPotentialScam: token.possibleSpam,
         );
 
-        newTokens.add(newToken);
+        newTokens.add(
+          DiscoveredToken(
+            token: newToken,
+            balanceWei: token.balanceWei,
+          ),
+        );
       }
 
-      return newTokens;
+      return MoralisDiscoveryResult(newTokens: newTokens);
     } catch (e) {
       printV('Error discovering tokens from Moralis: ${e.toString()}');
-      return [];
+      return MoralisDiscoveryResult.empty;
     }
   }
 
@@ -1534,4 +1539,22 @@ class GasParamsHandler {
       gasPrice: 0,
     );
   }
+}
+
+class DiscoveredToken {
+  final Erc20Token token;
+  final BigInt balanceWei;
+
+  const DiscoveredToken({
+    required this.token,
+    required this.balanceWei,
+  });
+}
+
+class MoralisDiscoveryResult {
+  final List<DiscoveredToken> newTokens;
+
+  const MoralisDiscoveryResult({required this.newTokens});
+
+  static const MoralisDiscoveryResult empty = MoralisDiscoveryResult(newTokens: []);
 }

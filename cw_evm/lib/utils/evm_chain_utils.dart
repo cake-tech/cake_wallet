@@ -86,7 +86,7 @@ class EVMChainUtils {
       137 => 'MATIC',
       8453 => 'BASE',
       42161 => 'ARBITRUM',
-      56 => 'BNB',
+      56 => 'BSC',
       _ => 'ETH',
     };
   }
