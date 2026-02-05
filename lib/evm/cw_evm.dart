@@ -513,4 +513,56 @@ class CWEVM extends EVM {
 
   @override
   bool hasPriorityFee(int chainId) => EVMChainUtils.hasPriorityFee(chainId);
+
+  @override
+  Future<bool> checkTokenFiatPrice(WalletBase wallet, Erc20Token token) async {
+    try {
+      final settingsStore = getIt.get<SettingsStore>();
+      final fiatCurrency = settingsStore.fiatCurrency;
+      final torOnly = settingsStore.fiatApiMode == FiatApiMode.torOnly;
+
+      final price = await FiatConversionService.fetchPrice(
+        crypto: token,
+        fiat: fiatCurrency,
+        torOnly: torOnly,
+      );
+
+      return price > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> discoverAndAddWalletTokens(WalletBase wallet) async {
+    if (wallet is! EVMChainWallet) return;
+
+    try {
+      final discoveredTokens = await wallet.discoverTokensFromMoralis();
+
+      if (discoveredTokens.isEmpty) return;
+
+      final List<Future<void>> tokenChecks = [];
+
+      for (final token in discoveredTokens) {
+        tokenChecks.add((() async {
+          final isPropertiesSuspicious = wallet.isTokenPropertiesSuspicious(token);
+
+          bool hasValidFiatPrice = true;
+          if (!isPropertiesSuspicious) {
+            hasValidFiatPrice = await checkTokenFiatPrice(wallet, token);
+          }
+
+          final isSpam = isPropertiesSuspicious || !hasValidFiatPrice;
+
+          token.isPotentialScam = isSpam;
+          token.enabled = !isSpam;
+
+          await wallet.addErc20Token(token);
+        })());
+      }
+
+      await Future.wait(tokenChecks);
+    } catch (_) {}
+  }
 }

@@ -90,6 +90,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.bsc:
         return transactionPriority == evm!.getEVMTransactionPrioritySlow();
       case WalletType.bitcoinCash:
         return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
@@ -199,6 +200,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.bsc:
         _settingsStore.setPriority(
           wallet.type,
           evm!.getDefaultTransactionPriority(),

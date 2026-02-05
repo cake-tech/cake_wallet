@@ -5,7 +5,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
@@ -72,6 +71,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         _addEVMListItems(tx, dateFormat);
         break;
       case WalletType.nano:
@@ -195,6 +195,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://basescan.org/tx/${txId}';
       case WalletType.arbitrum:
         return 'https://arbiscan.io/tx/${txId}';
+      case WalletType.bsc:
+        return 'https://bscscan.com/tx/${txId}';
       case WalletType.polygon:
         return 'https://polygonscan.com/tx/${txId}';
       case WalletType.nano:
@@ -246,6 +248,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'nanexplorer.com';
       case WalletType.polygon:
         return S.current.view_transaction_on + 'polygonscan.com';
+      case WalletType.bsc:
+        return S.current.view_transaction_on + 'bscscan.com';
       case WalletType.solana:
         return S.current.view_transaction_on + 'solscan.io';
       case WalletType.tron:

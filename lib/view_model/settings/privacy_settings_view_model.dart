@@ -82,6 +82,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get useArbiScan => _settingsStore.useArbiScan;
 
   @computed
+  bool get useBscScan => _settingsStore.useBscScan;
+
+  @computed
   bool get useTronGrid => _settingsStore.useTronGrid;
 
   @computed
@@ -126,6 +129,8 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get canUseBaseScan => _wallet.chainId == 8453;
 
   bool get canUseArbiScan => _wallet.chainId == 42161;
+
+  bool get canUseBscScan => _wallet.chainId == 56;
 
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
@@ -207,6 +212,12 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setUseArbiScan(bool value) {
     _settingsStore.useArbiScan = value;
+    evm!.updateScanProviderUsageState(_wallet, value);
+  }
+
+  @action
+  void setUseBscScan(bool value) {
+    _settingsStore.useBscScan = value;
     evm!.updateScanProviderUsageState(_wallet, value);
   }
 

@@ -7,6 +7,7 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -177,6 +178,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
       case WalletType.solana:
       case WalletType.tron:
         return S.current.xmr_full_balance;
@@ -375,6 +377,20 @@ abstract class BalanceViewModelBase with Store {
       if (pinNativeToken) {
         if (b.asset == wallet.currency) return 1;
         if (a.asset == wallet.currency) return -1;
+      }
+
+      if (isEVMCompatibleChain(wallet.type)) {
+        final aIsToken = a.asset is Erc20Token;
+        final bIsToken = b.asset is Erc20Token;
+
+        final aHasBalance = (double.tryParse(a.availableBalance) ?? 0) > 0;
+        final bHasBalance = (double.tryParse(b.availableBalance) ?? 0) > 0;
+
+        // Adding this so tokens with balance come before tokens without balance
+        if (aIsToken && bIsToken) {
+          if (aHasBalance && !bHasBalance) return -1;
+          if (!aHasBalance && bHasBalance) return 1;
+        }
       }
 
       switch (sortBalanceBy) {

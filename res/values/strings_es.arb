@@ -102,6 +102,7 @@
   "Blocks_remaining": "${status} Bloques Restantes",
   "bluetooth": "Bluetooth",
   "bright_theme": "Claro",
+  "bscscan_history": "Historia del escaneo BSC",
   "bump_fee": "Aumentar tarifa",
   "buy": "Comprar",
   "buy_alert_content": "Actualmente solo permitimos la compra de Bitcoin, Ethereum, Litecoin y Monero. Cree o cambie a su billetera de Bitcoin, Ethereum, Litecoin o Monero.",

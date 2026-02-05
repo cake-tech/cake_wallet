@@ -61,10 +61,7 @@ abstract class SendTemplateViewModelBase with Store {
       _wallet.type != WalletType.haven &&
       _wallet.type != WalletType.solana &&
       _wallet.type != WalletType.tron &&
-      _wallet.chainId != 1 &&
-      _wallet.chainId != 137 &&
-      _wallet.chainId != 8453 &&
-      _wallet.chainId != 42161;
+      !isEVMCompatibleChain(_wallet.type);
 
   @computed
   CryptoCurrency get cryptoCurrency => _wallet.currency;
