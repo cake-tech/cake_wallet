@@ -69,14 +69,16 @@ class HistoryTileBase extends StatelessWidget {
     return Column(
       children: [
         Container(
-          decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(roundedTop ? 12 : 0),
-                topRight: Radius.circular(roundedTop ? 12 : 0),
-                bottomLeft: Radius.circular(roundedBottom ? 12 : 0),
-                bottomRight: Radius.circular(roundedBottom ? 12 : 0),
-              )),
+          decoration: ShapeDecoration(
+            shape: RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(roundedTop ? 22 : 0),
+              topRight: Radius.circular(roundedTop ? 22 : 0),
+              bottomLeft: Radius.circular(roundedBottom ? 22 : 0),
+              bottomRight: Radius.circular(roundedBottom ? 22 : 0),
+            )),
+            color: Theme.of(context).colorScheme.onInverseSurface,
+          ),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               vertical: 12,
@@ -95,24 +97,27 @@ class HistoryTileBase extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(title),
-                          Text(date),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(title),
+                              Text(date, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(amount),
+                              Text(amountFiat, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                            ],
+                          ),
                         ],
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(amount),
-                          Text(amountFiat),
-                        ],
-                      ),
-                    ],
                   ),
                 ),
               ],

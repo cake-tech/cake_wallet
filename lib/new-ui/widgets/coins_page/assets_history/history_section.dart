@@ -20,7 +20,7 @@ class HistorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Observer(
         builder: (_) => ListView.builder(
           physics: const NeverScrollableScrollPhysics(),
@@ -86,8 +86,9 @@ class HistorySection extends StatelessWidget {
               );
             } else if (item is DateSectionItem) {
               return Padding(
-                  padding: EdgeInsets.only(left: 8.0, bottom: 8.0),
-                  child: Text(DateFormatter.convertDateTimeToReadableString(item.date)));
+                  padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: 16.0),
+                  child: Text(DateFormatter.convertDateTimeToReadableString(item.date),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)));
             }else if(item is OrderListItem){
               return HistoryOrderTile(
                 date: DateFormatter.convertDateTimeToReadableString(item.date),
