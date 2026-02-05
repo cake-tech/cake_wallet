@@ -857,15 +857,6 @@ abstract class EVMChainWalletBase
     EVMChainTransactionPriority? priority, {
     bool useBlinkProtection = true,
   }) async {
-
-    // Native value must be zero for call-data transactions
-    if (dataHex == '0x') {
-      throw StateError('dataHex cannot be empty for call-data (token/contract) transactions.');
-    }
-    if (valueWei > BigInt.zero) {
-      throw ArgumentError('valueWei must be zero for call-data (token/contract) transactions.');
-    }
-
     // Estimate gas with the SAME call (sender, to, value, data)
     final gas = await calculateActualEstimatedFeeForCreateTransaction(
       amount: valueWei, // native value (usually 0 for ERC20 transfer)
@@ -882,8 +873,8 @@ abstract class EVMChainWalletBase
       _ => CryptoCurrency.eth,
     };
     final nativeBal = balance[nativeCurrency]?.balance ?? BigInt.zero;
+    final requiredNative = valueWei + BigInt.from(gas.estimatedGasFee);
 
-    final requiredNative = BigInt.from(gas.estimatedGasFee);
     if (requiredNative > nativeBal) {
       throw EVMChainTransactionFeesException(nativeCurrency.title);
     }
