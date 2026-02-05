@@ -262,7 +262,7 @@ String walletTypeToDisplayName(WalletType type) {
     case WalletType.zcash:
       return 'Zcash (ZEC)';
     case WalletType.bsc:
-      return 'BNB Smart Chain (BSC)';
+      return 'BNB Smart Chain (BNB)';
     case WalletType.none:
       return '';
   }

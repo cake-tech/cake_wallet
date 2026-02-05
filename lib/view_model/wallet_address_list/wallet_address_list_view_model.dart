@@ -440,7 +440,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       switch (chainId) {
         case 1:
           return [
-            'assets/images/eth_icon.svg',
+            'assets/images/crypto/ethereum.webp',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
             'assets/images/deuro_icon.svg',
@@ -448,7 +448,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           ];
         case 137:
           return [
-            'assets/images/pol_icon.svg',
+            'assets/images/crypto/polygon.webp',
             'assets/images/eth_pol_icon.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
@@ -456,7 +456,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           ];
         case 8453:
           return [
-            'assets/images/eth_icon.svg',
+            'assets/images/crypto/ethereum.webp',
             'assets/images/usdc_icon.svg',
             'assets/images/more_tokens.svg',
           ];
@@ -468,14 +468,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           ];
         case 56:
           return [
-            'assets/images/evm_switcher_icons/bnb_icon.svg',
+            'assets/images/crypto/BNB.webp',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
             'assets/images/more_tokens.svg',
           ];
         default:
           return [
-            'assets/images/eth_icon.svg',
+            'assets/images/crypto/ethereum.webp',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
           ];
@@ -508,10 +508,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
-  String get qrImage => getQrImage(type, selectedChainId: selectedChainId);
+  String get qrImage => getQrImage(type);
 
   @computed
-  String get monoImage => getChainMonoImage(type, selectedChainId: selectedChainId);
+  String get monoImage => getChainMonoImage(type);
 
   @computed
   bool get isBalanceAvailable => isElectrumWallet;
