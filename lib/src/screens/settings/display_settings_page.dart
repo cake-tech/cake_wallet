@@ -50,6 +50,13 @@ class DisplaySettingsPage extends BasePage {
                   _displaySettingsViewModel.setShowAddressBookPopup(value);
                 },
               ),
+              SettingsSwitcherCell(
+                title: S.of(context).show_zcash_card,
+                value: _displaySettingsViewModel.showZcashCard,
+                onValueChange: (_, bool value) {
+                  _displaySettingsViewModel.setShowZcashCard(value);
+                },
+              ),
               SettingsPickerCell<SyncStatusDisplayMode>(
                 title: S.current.sync_status_display_mode,
                 items: SyncStatusDisplayMode.values.toList(),

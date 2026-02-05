@@ -887,6 +887,7 @@
   "show_keys": "Tampilkan seed/kunci",
   "show_market_place": "Tampilkan Pasar",
   "show_seed": "Tampilkan seed",
+  "show_zcash_card": "Tunjukkan kartu dana zcash yang hilang",
   "sign_all": "Menandatangani semua",
   "sign_message": "Pesan tanda",
   "sign_one": "Tanda satu",
@@ -1043,6 +1044,7 @@
   "transaction_sent_notice": "Jika layar tidak bergerak setelah 1 menit, periksa block explorer dan email Anda.",
   "transactions": "Transaksi",
   "transactions_by_date": "Transaksi berdasarkan tanggal",
+  "transparent_secret_key": "Kunci Rahasia Transparan",
   "transport_type": "Jenis transportasi",
   "trongrid_history": "Sejarah Trongrid",
   "trusted": "Dipercayai",
@@ -1066,6 +1068,7 @@
   "unavailable_balance_description": "Saldo Tidak Tersedia: Total ini termasuk dana yang terkunci dalam transaksi yang tertunda dan dana yang telah Anda bekukan secara aktif di pengaturan kontrol koin Anda. Saldo yang terkunci akan tersedia setelah transaksi masing-masing selesai, sedangkan saldo yang dibekukan tetap tidak dapat diakses untuk transaksi sampai Anda memutuskan untuk mencairkannya.",
   "unconfirmed": "Saldo Belum Dikonfirmasi",
   "understand": "Saya mengerti",
+  "unified_view_key": "Kunci Tampilan Terpadu",
   "unlock": "Membuka kunci",
   "unmatched_currencies": "Mata uang dompet Anda saat ini tidak cocok dengan yang ditandai QR",
   "unrestricted_background_service": "Layanan latar belakang tidak terbatas",
@@ -1175,5 +1178,11 @@
   "you_will_send": "Konversi dari",
   "youCanGoBackToYourDapp": "Anda dapat kembali ke dapp Anda sekarang",
   "your": "Milikmu",
-  "yy": "YY"
+  "yy": "YY",
+  "zcash_card_description": "Jika Anda tidak melihat saldo penuh, Cake Wallet dapat mencoba menyapu dana dari alamat perubahan internal yang digunakan oleh beberapa dompet.",
+  "zcash_card_dismiss": "Membubarkan",
+  "zcash_card_enable_later": "Anda selalu dapat mengaktifkan kartu ini nanti di pengaturan",
+  "zcash_card_missing_funds": "Dana hilang?",
+  "zcash_card_scan": "Pindai",
+  "zcash_card_warning": "Jangan tutup aplikasi hingga prosedur selesai, jika Anda melakukannya, proses ini perlu dimulai ulang dari awal."
 }

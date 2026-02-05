@@ -884,6 +884,7 @@
   "show_keys": "显示助记词/密钥",
   "show_market_place": "显示市场",
   "show_seed": "显示助记词",
+  "show_zcash_card": "显示 zcash 缺少资金卡",
   "sign_all": "签署全部",
   "sign_message": "签名消息",
   "sign_one": "签一个",
@@ -1040,6 +1041,7 @@
   "transaction_sent_notice": "如果屏幕在 1 分钟后没有继续，请检查区块浏览器和您的电子邮件。",
   "transactions": "交易",
   "transactions_by_date": "按日期交易",
+  "transparent_secret_key": "透明密钥",
   "transport_type": "运输类型",
   "trongrid_history": "Trongrid历史",
   "trusted": "值得信赖",
@@ -1063,6 +1065,7 @@
   "unavailable_balance_description": "不可用余额：此总额包括锁定在待处理交易中的资金以及您在选币控制设置中主动冻结的资金。一旦各自的交易完成，锁定的余额将变得可用，而冻结的余额在您决定解冻之前仍然无法进行交易。",
   "unconfirmed": "未确认余额",
   "understand": "我已知晓",
+  "unified_view_key": "统一视图键",
   "unlock": "开锁",
   "unmatched_currencies": "您当前钱包的货币与扫描的 QR 的货币不匹配",
   "unrestricted_background_service": "不受限制的背景服务",
@@ -1172,5 +1175,11 @@
   "you_will_send": "转换自",
   "youCanGoBackToYourDapp": "您现在可以回到DApp",
   "your": "您的",
-  "yy": "YY"
+  "yy": "YY",
+  "zcash_card_description": "如果您没有看到全部余额，Cake Wallet 可以尝试从某些钱包使用的内部找零地址中清除资金。",
+  "zcash_card_dismiss": "解雇",
+  "zcash_card_enable_later": "您可以稍后在设置中启用此卡",
+  "zcash_card_missing_funds": "缺少资金？",
+  "zcash_card_scan": "扫描",
+  "zcash_card_warning": "在该过程完成之前请勿关闭应用程序，如果这样做，此过程将需要从头开始重新启动。"
 }

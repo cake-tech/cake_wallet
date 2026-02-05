@@ -885,6 +885,7 @@
   "show_keys": "Mostra seme/chiavi",
   "show_market_place": "Mostra mercato",
   "show_seed": "Mostra seme",
+  "show_zcash_card": "Mostra la carta con fondi mancanti zcash",
   "sign_all": "Firma tutto",
   "sign_message": "Firma messaggio",
   "sign_one": "Segna uno",
@@ -1041,6 +1042,7 @@
   "transaction_sent_notice": "Se la schermata non procede dopo 1 minuto, controlla un block explorer e la tua email.",
   "transactions": "Transazioni",
   "transactions_by_date": "Transazioni per data",
+  "transparent_secret_key": "Chiave segreta trasparente",
   "transport_type": "Tipo di trasporto",
   "trongrid_history": "Cronologia TronGrid",
   "trusted": "Fidato",
@@ -1064,6 +1066,7 @@
   "unavailable_balance_description": "Saldo non disponibile: questo totale include i fondi bloccati nelle transazioni in sospeso e quelli che hai congelato attivamente nelle impostazioni di Controllo monete. I saldi bloccati diventeranno disponibili una volta completate le rispettive transazioni, mentre i saldi congelati rimarranno inaccessibili per le transazioni finché non deciderai di sbloccarli.",
   "unconfirmed": "Saldo non confermato",
   "understand": "Capisco",
+  "unified_view_key": "Chiave di visualizzazione unificata",
   "unlock": "Sblocca",
   "unmatched_currencies": "La valuta del tuo portafoglio attuale non corrisponde a quella del QR scansionato",
   "unrestricted_background_service": "Servizio di background senza restrizioni",
@@ -1175,5 +1178,11 @@
   "you_will_send": "Conveti da",
   "youCanGoBackToYourDapp": "Puoi tornare al tuo DApp ora",
   "your": "Tuo",
-  "yy": "YY"
+  "yy": "YY",
+  "zcash_card_description": "Se non vedi il saldo completo, Cake Wallet può tentare di prelevare fondi dagli indirizzi di modifica interni utilizzati da alcuni portafogli.",
+  "zcash_card_dismiss": "Congedare",
+  "zcash_card_enable_later": "Puoi sempre abilitare questa carta in un secondo momento nelle impostazioni",
+  "zcash_card_missing_funds": "Fondi mancanti?",
+  "zcash_card_scan": "Scansione",
+  "zcash_card_warning": "Non chiudere l'app fino al completamento della procedura, altrimenti sarà necessario riavviare il processo da zero."
 }

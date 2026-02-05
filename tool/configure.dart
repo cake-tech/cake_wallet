@@ -1607,7 +1607,7 @@ abstract class Zcash {
       String? passphrase,
       required int? height});
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
-      {required String name, required String privateKey, required String password});
+      {required String name, required String privateKey, required String password, required int height});
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
@@ -1642,8 +1642,9 @@ abstract class Zcash {
   dynamic getOptionToType(ReceivePageOption option);
   void unlockDatabase(String password);
   Future<int> getHeightByDate(DateTime date);
+  bool showMissingFundsCard(WalletBase wallet);
+  Future<void> rescanInternalChange(WalletBase wallet);
 }
-
   """;
 
   const zcashEmptyDefinition = 'Zcash? zcash;\n';

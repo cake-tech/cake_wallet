@@ -679,6 +679,7 @@
   "show_keys": "Hechauka ñe’ẽñemi",
   "show_market_place": "Hechauka ñemuha renda",
   "show_seed": "Hechauka ñe’ẽñemi",
+  "show_zcash_card": "Ohechauka zcash tarjeta de fondos ofaltáva .",
   "sign_message": "Marandu ñemboheraguapy rehegua",
   "sign_up": "Mboguapy kuatiápe",
   "sign_verify_message": "Ñemboheraguapy térã vichea jey marandu",
@@ -809,6 +810,7 @@
   "transaction_sent_notice": "Ko pantalla ndohasai ramo aravo’ive rire, eheka pe jehekaha bloque-pe ha nde korreo electrónico-pe.",
   "transactions": "jehuperehaí-kuera",
   "transactions_by_date": "Ára ñembohasa-kuera rehegua",
+  "transparent_secret_key": "Clave secreta transparente rehegua .",
   "trongrid_history": "trongrid rapykuere",
   "trusted": "jeroviaha",
   "tx_commit_exception_no_dust_on_change": "Oñemboyke pe transacción ko monto reheve. Ko’ã moneda rupive ikatu remondo ${min} ndorekóiva ñemoambue térã ${max} ombohasa  jey pe ñemoambue.",
@@ -829,6 +831,7 @@
   "unavailable_balance_description": "Ndoikói saldo ojeipuru haguã: ko enteroite oguereko viru oñembotýva transacción oha’arõhápe ha avei umi remohãtãva ne configuración-pe moneda ñangarekohápe. Umi saldo ojejokóva ikatúta ojepuru og̃uahembavove transacción-kuéra, ha umi saldo oĩva jejokópe opytáta ndaikatúi hag̃ua ojeipuru, reipe´apeve peve jejokógui.",
   "unconfirmed": "noñemoañetepái gueteri saldo",
   "understand": "Apilla",
+  "unified_view_key": "Clave de Visión Unificial rehegua .",
   "unlock": "jeipe’a jokohagui",
   "unmatched_currencies": "Pe moneda ndebilletera ko’agagua ndojoajúi pe QR oje-escaneva ndive",
   "unspent_change": "Moambue",
@@ -913,5 +916,11 @@
   "you_pay": "Nde rehepymeʼẽ",
   "you_will_get": "Oñemoambue haguã",
   "you_will_send": "Oñemoambue pe",
-  "yy": "Ha"
+  "yy": "Ha",
+  "zcash_card_description": "Nderehecháiramo nde billetera de torta de balance completo ikatu oñeha’ã ombojere fondo umi dirección de cambio interno-gui oiporúva algunas billeteras.",
+  "zcash_card_dismiss": "Mboyke",
+  "zcash_card_enable_later": "Ikatu akóinte emboguata ko tarjeta upe rire ñembohekorãme .",
+  "zcash_card_missing_funds": "¿Ofalta umi fondo?",
+  "zcash_card_scan": "Escaneo rehegua .",
+  "zcash_card_warning": "Ani remboty pe app ojejapopa peve pe procedimiento, rejapo ramo upéicha ko proceso tekotevẽta oñepyrũ jey cero guive."
 }

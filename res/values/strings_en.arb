@@ -885,6 +885,7 @@
   "show_keys": "Show seed/keys",
   "show_market_place": "Show Marketplace",
   "show_seed": "Show seed",
+  "show_zcash_card": "Show zcash missing funds card",
   "sign_all": "Sign All",
   "sign_message": "Sign Message",
   "sign_one": "Sign One",
@@ -1041,6 +1042,7 @@
   "transaction_sent_notice": "If the screen doesn’t proceed after 1 minute, check a block explorer and your email.",
   "transactions": "Transactions",
   "transactions_by_date": "Transactions by date",
+  "transparent_secret_key": "Transparent Secret Key",
   "transport_type": "Transport Type",
   "trongrid_history": "TronGrid history",
   "trusted": "Trusted",
@@ -1064,6 +1066,7 @@
   "unavailable_balance_description": "Unavailable Balance: This total includes funds that are locked in pending transactions and those you have actively frozen in your coin control settings. Locked balances will become available once their respective transactions are completed, while frozen balances remain inaccessible for transactions until you decide to unfreeze them.",
   "unconfirmed": "Unconfirmed Balance",
   "understand": "I understand",
+  "unified_view_key": "Unified View Key",
   "unlock": "Unlock",
   "unmatched_currencies": "Your current wallet's currency does not match that of the scanned QR",
   "unrestricted_background_service": "Unrestricted background service",
@@ -1173,5 +1176,11 @@
   "you_will_send": "Convert from",
   "youCanGoBackToYourDapp": "You can go back to your dApp now",
   "your": "Your",
-  "yy": "YY"
+  "yy": "YY",
+  "zcash_card_description": "If you don't see your full balance Cake Wallet can attempt to sweep funds from internal change addresses used by some wallets.",
+  "zcash_card_dismiss": "Dismiss",
+  "zcash_card_enable_later": "You can always enable this card later in settings",
+  "zcash_card_missing_funds": "Missing funds?",
+  "zcash_card_scan": "Scan",
+  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch."
 }

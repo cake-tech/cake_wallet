@@ -884,6 +884,7 @@
   "show_keys": "Tohumları/anahtarları göster",
   "show_market_place": "Pazar Yerini Göster",
   "show_seed": "Tohumları göster",
+  "show_zcash_card": "zcash eksik fon kartını göster",
   "sign_all": "Hepsini imzalamak",
   "sign_message": "İşaret mesajı",
   "sign_one": "Bir İmza",
@@ -1040,6 +1041,7 @@
   "transaction_sent_notice": "Ekran 1 dakika sonra ilerlemezse, blok gezgininden ve e-postanızdan kontrol edin.",
   "transactions": "İşlemler",
   "transactions_by_date": "Tarihe göre transferler",
+  "transparent_secret_key": "Şeffaf Gizli Anahtar",
   "transport_type": "Taşıma tipi",
   "trongrid_history": "Trongrid tarihi",
   "trusted": "Güvenilir",
@@ -1063,6 +1065,7 @@
   "unavailable_balance_description": "Kullanılamayan Bakiye: Bu toplam, bekleyen işlemlerde kilitlenen fonları ve jeton kontrol ayarlarınızda aktif olarak dondurduğunuz fonları içerir. Kilitli bakiyeler, ilgili işlemleri tamamlandıktan sonra kullanılabilir hale gelir; dondurulmuş bakiyeler ise siz onları dondurmaya karar verene kadar işlemler için erişilemez durumda kalır.",
   "unconfirmed": "Onaylanmamış Bakiye",
   "understand": "Anladım",
+  "unified_view_key": "Birleşik Görünüm Anahtarı",
   "unlock": "Kilidini aç",
   "unmatched_currencies": "Mevcut cüzdanınızın para birimi taranan QR ile eşleşmiyor",
   "unrestricted_background_service": "Sınırsız arka plan hizmeti",
@@ -1172,5 +1175,11 @@
   "you_will_send": "Biçiminden dönüştür:",
   "youCanGoBackToYourDapp": "Şimdi Dapp'ınıza geri dönebilirsin",
   "your": "Senin",
-  "yy": "YY"
+  "yy": "YY",
+  "zcash_card_description": "Bakiyenizin tamamını görmüyorsanız Cake Wallet, bazı cüzdanlar tarafından kullanılan dahili değişiklik adreslerinden para çekmeyi deneyebilir.",
+  "zcash_card_dismiss": "Azletmek",
+  "zcash_card_enable_later": "Bu kartı daha sonra istediğiniz zaman ayarlardan etkinleştirebilirsiniz",
+  "zcash_card_missing_funds": "Fonlar mı eksik?",
+  "zcash_card_scan": "Tara",
+  "zcash_card_warning": "Prosedür tamamlanana kadar uygulamayı kapatmayın, bunu yaparsanız bu işlemin sıfırdan yeniden başlatılması gerekecektir."
 }
