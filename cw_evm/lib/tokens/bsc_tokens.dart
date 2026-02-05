@@ -20,11 +20,32 @@ class BSCTokens {
         enabled: true,
       ),
       Erc20Token(
+        name: "Binance-Peg Tether USD",
+        symbol: "USDT",
+        contractAddress: "0x55d398326f99059fF775485246999027B3197955",
+        decimal: 18,
+        enabled: true,
+      ),
+      Erc20Token(
+        name: "PancakeSwap Token",
+        symbol: "CAKE",
+        contractAddress: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
+        decimal: 18,
+        enabled: true,
+      ),
+      Erc20Token(
         name: "USDe",
         symbol: "USDe",
         contractAddress: "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34",
         decimal: 18,
         enabled: true,
+      ),
+      Erc20Token(
+        name: "PEPE",
+        symbol: "PEPE",
+        contractAddress: "0x25d887ce7a35172c62febfd67a1856f20faebb00",
+        decimal: 18,
+        enabled: false,
       ),
       Erc20Token(
         name: "Wrapped BTC",

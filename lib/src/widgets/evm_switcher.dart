@@ -65,7 +65,7 @@ String _getSvgPathForChain(String chainName) {
   } else if (name.contains('base')) {
     return 'assets/images/evm_switcher_icons/base.svg';
   } else if (name.contains('bnb') || name.contains('bsc')) {
-    return 'assets/images/evm_switcher_icons/bsc.svg';
+    return 'assets/images/evm_switcher_icons/bnb_icon.svg';
   }
   // Default to ethereum if unknown
   return 'assets/images/evm_switcher_icons/ethereum.svg';

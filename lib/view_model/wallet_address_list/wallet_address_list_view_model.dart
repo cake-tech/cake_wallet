@@ -466,6 +466,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             'assets/images/usdc_icon.svg',
             'assets/images/more_tokens.svg',
           ];
+        case 56:
+          return [
+            'assets/images/evm_switcher_icons/bnb_icon.svg',
+            'assets/images/usdc_icon.svg',
+            'assets/images/usdt_wallet_icon.svg',
+            'assets/images/more_tokens.svg',
+          ];
         default:
           return [
             'assets/images/eth_icon.svg',
