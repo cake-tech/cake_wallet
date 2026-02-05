@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
+import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -398,6 +399,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           ),
         ),
       );
+
+    case Routes.lightningUsernamePage:
+      return handleRouteWithPlatformAwareness(
+          (context) => getIt.get<LightningUsernamePage>(param1: settings.arguments as bool?));
 
     case Routes.receiveAddresses:
       return handleRouteWithPlatformAwareness(

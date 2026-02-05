@@ -3,23 +3,23 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/router.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/src/widgets/section_divider.dart';
-import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
-import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:cw_core/wallet_type.dart";
+
+bool _trueFunc(DashboardViewModel _) => true;
 
 class SettingsListItem {
   final String iconPath;
   final String title;
   final String route;
   final Object? routeArgs;
+  final bool Function(DashboardViewModel) condition;
 
-  const SettingsListItem(this.iconPath, this.title, this.route, {this.routeArgs = null});
+  const SettingsListItem(this.iconPath, this.title, this.route, {this.routeArgs = null, this.condition = _trueFunc});
 }
 
 class SettingsSectionData {
@@ -35,6 +35,10 @@ class SettingsSectionData {
     SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy_features, Routes.privacyPage),
     SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.seed,
         routeArgs: true),
+    SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
+        "Lightning ${S.current.username}", Routes.lightningUsernamePage, condition: (vm) {
+      return vm.wallet.type == WalletType.bitcoin;
+    }),
     SettingsListItem("assets/new-ui/settings_row_icons/other.svg", S.current.other, Routes.otherSettingsPage),
   ]);
 
@@ -55,37 +59,40 @@ class SettingsSectionData {
   static List<SettingsSectionData> all = [walletSettings, appSettings, otherSettings];
 }
 
-class NewSettingsPage extends StatefulWidget {
-  const NewSettingsPage({super.key});
+class NewSettingsPage extends StatelessWidget {
+  const NewSettingsPage({super.key, required this.dashboardViewModel});
 
-  @override
-  State<NewSettingsPage> createState() => _NewSettingsPageState();
-}
-
-class _NewSettingsPageState extends State<NewSettingsPage> {
+  final DashboardViewModel dashboardViewModel;
 
   @override
   Widget build(BuildContext context) {
-    return ModalNavigator(parentContext:context,rootPage: SettingsMainPage());
+    return ModalNavigator(parentContext:context,rootPage: SettingsMainPage(dashboardViewModel: dashboardViewModel,));
   }
 }
 
 class SettingsMainPage extends StatelessWidget {
-  const SettingsMainPage({super.key});
+  const SettingsMainPage({super.key, required this.dashboardViewModel});
+
+  final DashboardViewModel dashboardViewModel;
 
   @override
   Widget build(BuildContext context) {
-    Map<String, List<ListItem>> sections = Map.fromEntries(SettingsSectionData.all.map((section) =>
-        MapEntry(
+    Map<String, List<ListItem>> sections =
+        Map.fromEntries(SettingsSectionData.all.map((section) => MapEntry(
             section.title,
             section.items
-                .map((item) => ListItemRegularRow(
-                    keyValue: item.title, label: item.title, iconPath: item.iconPath, onTap: (){
-              if (item.route.isNotEmpty) {
-                Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
-              }
-
-            }))
+                .map((item) => item.condition(dashboardViewModel)
+                    ? ListItemRegularRow(
+                        keyValue: item.title,
+                        label: item.title,
+                        iconPath: item.iconPath,
+                        onTap: () {
+                          if (item.route.isNotEmpty) {
+                            Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
+                          }
+                        })
+                    : null)
+                .whereType<ListItem>()
                 .toList())));
 
     return Container(

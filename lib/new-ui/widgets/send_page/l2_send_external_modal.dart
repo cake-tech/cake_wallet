@@ -5,7 +5,6 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/material.dart';
 import "package:cw_core/wallet_type.dart";
@@ -30,8 +29,8 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
     super.initState();
     () async {
       if(widget.sendViewModel.wallet.type == WalletType.bitcoin) {
-        await bitcoin!.setAddressType(widget.sendViewModel.wallet, LightningAddressType.p2l);
-
+        await bitcoin!.setAddressType(widget.sendViewModel.wallet,
+            bitcoin!.getOptionToType(bitcoin!.getBitcoinLightningReceivePageOption()));
       }
       final newUri = await widget.sendViewModel.wallet.walletAddresses
           .getPaymentRequestUri(widget.sendViewModel.outputs.first.cryptoAmount);

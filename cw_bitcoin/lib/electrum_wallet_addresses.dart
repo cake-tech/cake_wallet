@@ -760,7 +760,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<void> setLightningAddress(String walletName) async {
+  Future<void> setLightningAddress(String walletName, {String newAddress = ""}) async {
     if (lightningWallet == null) return;
 
     final path = await pathForWalletDir(name: walletName, type: WalletType.bitcoin);
@@ -773,17 +773,27 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     lightningAddress = await lightningWallet!.getAddress();
 
-    if (lightningAddress == null) {
-      final randomNumber = Random.secure().nextInt(9999);
-      final randomName = await generateName();
-      final username = "${randomName.replaceAll(" ", "")}$randomNumber".toLowerCase();
-      try {
-        lightningAddress = await lightningWallet!.registerAddress(username);
-      } catch (e) {
-        printV(e);
-        printV(username);
-        rethrow;
+    late final String username;
+
+    if (newAddress.isEmpty) {
+      if (lightningAddress == null) {
+        final randomNumber = Random.secure().nextInt(9999);
+        final randomName = await generateName();
+        username = "${randomName.replaceAll(" ", "")}$randomNumber".toLowerCase();
+      } else {
+        return;
       }
+    } else {
+      username = newAddress;
+    }
+
+    try {
+      printV(username);
+      lightningAddress = await lightningWallet!.registerAddress(username);
+    } catch (e) {
+      printV(e);
+      printV(username);
+      rethrow;
     }
   }
 }
