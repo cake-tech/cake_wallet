@@ -310,7 +310,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
         builder: (context) {
           return AlertWithTwoActions(
               alertTitle: S.of(context).reset,
-              alertContent: "Restore card order to default settings?",
+              alertContent: S.of(context).card_order_reset_desc,
               leftButtonText: S.of(context).yes,
               rightButtonText: S.of(context).no,
               actionLeftButton: () {
