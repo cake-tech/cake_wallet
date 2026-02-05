@@ -857,14 +857,14 @@ abstract class EVMChainWalletBase
     EVMChainTransactionPriority? priority, {
     bool useBlinkProtection = true,
   }) async {
-    // Estimate gas with the SAME call (sender, to, value, data)
-    final gas = await calculateActualEstimatedFeeForCreateTransaction(
-      amount: valueWei, // native value (usually 0 for ERC20 transfer)
-      receivingAddressHex: to,
-      priority: priority,
-      contractAddress: null,
-      data: _client.hexToBytes(dataHex),
-    );
+    // Detect selector and decide msg.value policy
+    bool _startsWith(String s, String p) =>
+        s.length >= p.length && s.substring(0, p.length).toLowerCase() == p.toLowerCase();
+    const _transferSig = '0xa9059cbb';
+    final isTransfer = _startsWith(dataHex, _transferSig);
+
+    // For ERC-20 transfer(...) force msg.value = 0; otherwise keep router's value
+    final callValue = isTransfer ? BigInt.zero : valueWei;
 
     final nativeCurrency = switch (selectedChainId) {
       137 => CryptoCurrency.maticpoly,
@@ -872,18 +872,30 @@ abstract class EVMChainWalletBase
       42161 => CryptoCurrency.arbEth,
       _ => CryptoCurrency.eth,
     };
-    final nativeBal = balance[nativeCurrency]?.balance ?? BigInt.zero;
-    final requiredNative = valueWei + BigInt.from(gas.estimatedGasFee);
 
-    if (requiredNative > nativeBal) {
-      throw EVMChainTransactionFeesException(nativeCurrency.title);
+    // Estimate gas with the SAME (to, value, data) that will be signed
+    GasParamsHandler gas;
+    try {
+      gas = await calculateActualEstimatedFeeForCreateTransaction(
+        amount: callValue,
+        receivingAddressHex: to,
+        priority: priority,
+        contractAddress: null,
+        data: _client.hexToBytes(dataHex),
+      );
+    } catch (_) {
+      throw Exception('Failed to estimate gas for the transaction.');
     }
 
+    final nativeBal = balance[nativeCurrency]?.balance ?? BigInt.zero;
+    final requiredNative = callValue + BigInt.from(gas.estimatedGasFee);
 
-    bool _startsWith(String s, String p) => s.length >= p.length && s.substring(0, p.length).toLowerCase() == p.toLowerCase();
+    if (requiredNative > nativeBal) {
+      throw Exception('Not enough ${nativeCurrency.title} to cover value and fees.');
+    }
 
-    if (_startsWith(dataHex, '0xa9059cbb') && to.isNotEmpty) {
-      // Try find the token by contract address == `to`
+    // Minimal ERC‑20 balance check when doing transfer(...)
+    if (isTransfer && to.isNotEmpty) {
       Erc20Token? tokenObj;
       for (final c in balance.keys) {
         if (c is Erc20Token && c.contractAddress.toLowerCase() == to.toLowerCase()) {
@@ -892,44 +904,43 @@ abstract class EVMChainWalletBase
         }
       }
 
-      // if token found, parse the amount from dataHex and check balance
-      // the amount is in the last 64 hex chars
-      // if balance is insufficient, throw exception to prevent transaction creation
       if (tokenObj != null) {
         final hex = dataHex.startsWith('0x') ? dataHex.substring(2) : dataHex;
-
-        // ensure the dataHex is long enough to contain the amount
         if (hex.length >= 8 + 64 + 64) {
           final amountHex = hex.substring(hex.length - 64);
           final requiredTokenBalance = BigInt.parse(amountHex, radix: 16);
           final tokenBalance = balance[tokenObj]?.balance ?? BigInt.zero;
 
           if (tokenBalance < requiredTokenBalance) {
-            throw EVMChainTransactionCreationException(tokenObj);
+            throw Exception(
+                'Not enough ${tokenObj.title} to cover the transfer amount.');
           }
         }
       }
     }
 
-
     final gasUnits = gas.estimatedGasUnits == 0 ? 65000 : gas.estimatedGasUnits;
 
-    return _client.signTransaction(
-      privateKey: _evmChainPrivateKey,
-      toAddress: to,
-      amount: valueWei,
-      gasFee: BigInt.from(gas.estimatedGasFee),
-      estimatedGasUnits: gasUnits,
-      maxFeePerGas: gas.maxFeePerGas,
-      priority: priority,
-      currency: nativeCurrency,
-      feeCurrency: nativeCurrency.title,
-      exponent: 18,
-      contractAddress: null,
-      data: dataHex,
-      gasPrice: gas.gasPrice,
-      useBlinkProtection: useBlinkProtection,
-    );
+    try {
+      return _client.signTransaction(
+        privateKey: _evmChainPrivateKey,
+        toAddress: to,
+        amount: callValue, // IMPORTANT: sign with the same value used for estimation
+        gasFee: BigInt.from(gas.estimatedGasFee),
+        estimatedGasUnits: gasUnits,
+        maxFeePerGas: gas.maxFeePerGas,
+        priority: priority,
+        currency: nativeCurrency,
+        feeCurrency: nativeCurrency.title,
+        exponent: 18,
+        contractAddress: null,
+        data: dataHex,
+        gasPrice: gas.gasPrice,
+        useBlinkProtection: useBlinkProtection,
+      );
+    } catch (_) {
+      throw Exception('Failed to create the transaction.');
+    }
   }
 
   Future<PendingTransaction> createApprovalTransaction(BigInt amount, String spender,

@@ -547,12 +547,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final routerValueWei =
             BigInt.tryParse((trade.routerValue ?? '0').toString()) ?? BigInt.zero;
 
-        if (routerTo?.isNotEmpty == true && routerData?.isNotEmpty == true) {
+        final bool _isEmptyData =
+            routerData == null || routerData == '0x' || routerData.trim().isEmpty;
+
+        if (routerTo?.isNotEmpty == true && !_isEmptyData) {
           // detect prepared ERC-20 transfer(...) (alt-vm deposit pattern)
           String _selector(String s) =>
               (s.startsWith('0x') && s.length >= 10) ? s.substring(0, 10) : '';
           const _transferSig = '0xa9059cbb';
-          final _sel = _selector(routerData!);
+          final _sel = _selector(routerData);
           final _isPreparedTransfer = _sel == _transferSig &&
               (trade.sourceTokenAddress ?? '').toLowerCase() == (routerTo ?? '').toLowerCase();
 
@@ -580,11 +583,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               );
 
               // Build the callData tx
+              final callValue = (_sel == _transferSig) ? BigInt.zero : routerValueWei;
               pendingTransaction = await evm!.createRawCallDataTransaction(
                 wallet,
                 routerTo,
                 routerData,
-                routerValueWei,
+                callValue,
                 priority,
                 useBlinkProtection: canSupportBlinkProtection(selectedChainId)
                     ? _settingsStore.useBlinkProtection
@@ -600,11 +604,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // No approval needed (or prepared transfer): send exactly what backend prepared
           if (isEVMWallet) {
             final priority = _settingsStore.getPriority(walletType, chainId: selectedChainId);
+            final callValue = (_sel == _transferSig) ? BigInt.zero : routerValueWei;
             pendingTransaction = await evm!.createRawCallDataTransaction(
               wallet,
               routerTo!,
               routerData,
-              routerValueWei,
+              callValue,
               priority,
               useBlinkProtection: canSupportBlinkProtection(selectedChainId)
                   ? _settingsStore.useBlinkProtection

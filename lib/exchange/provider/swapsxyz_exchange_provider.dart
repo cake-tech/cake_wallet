@@ -628,6 +628,27 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       return;
     }
 
+    // Always cache the source chain's native token (from body['srcToken'])
+    final srcTokenJson = body['srcToken'] as Map<String, dynamic>?;
+    if (srcTokenJson != null) {
+      final symbol = (srcTokenJson['symbol'] as String? ?? '').toUpperCase();
+      if (symbol.isNotEmpty) {
+        final isNative = srcTokenJson['isNative'] == true;
+        final decimals = (srcTokenJson['decimals'] as num?)?.toInt();
+        // Treat native token as address = null so _getTokenAddress() emits zero-address
+        final addr = isNative ? null : (srcTokenJson['address'] as String?);
+        _mergeCache(srcChainId, [
+          TokenPathInfo(
+            symbol: symbol,
+            address: addr,
+            decimals: decimals,
+            minAmount: srcTokenJson['minAmount']?.toString(),
+            maxAmount: srcTokenJson['maxAmount']?.toString(),
+          ),
+        ]);
+      }
+    }
+
     final paths = (body['paths'] as List?) ?? const [];
     if (paths.isEmpty) return;
 
