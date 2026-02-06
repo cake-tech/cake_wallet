@@ -1,21 +1,23 @@
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class NewPrimaryButton extends StatelessWidget {
-  const NewPrimaryButton(
-      {required this.onPressed,
-        this.image,
-        required this.text,
-        required this.color,
-        required this.textColor,
-        this.isLoading = false,
-        this.borderColor = Colors.transparent,
-        super.key});
+  const NewPrimaryButton({
+    required this.onPressed,
+    this.image,
+    required this.text,
+    required this.color,
+    required this.textColor,
+    this.isLoading = false,
+    this.borderColor = Colors.transparent,
+    this.disabled = false,
+    super.key,
+  });
 
   final VoidCallback onPressed;
   final bool isLoading;
+  final bool disabled;
   final SvgPicture? image;
   final Color color;
   final Color textColor;
@@ -24,17 +26,21 @@ class NewPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return SizedBox(
       height: 52.0,
       child: TextButton(
-        onPressed: onPressed,
+        onPressed: disabled ? null : onPressed,
         style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(color),
-            shape: WidgetStateProperty.all<RoundedSuperellipseBorder>(
-              RoundedSuperellipseBorder(
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-            )),
+          backgroundColor: WidgetStateProperty.all(
+            disabled ? color.withAlpha(128) : color,
+          ),
+          shape: WidgetStateProperty.all<RoundedSuperellipseBorder>(
+            RoundedSuperellipseBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+          ),
+        ),
         child: Center(
           child: isLoading ? CupertinoActivityIndicator() : Row(
             spacing: 10,

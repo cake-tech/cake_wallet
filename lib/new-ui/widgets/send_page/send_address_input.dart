@@ -40,6 +40,7 @@ class NewSendAddressInput extends StatelessWidget {
           children: [
             Expanded(
                 child: TextField(
+                    onSubmitted: (val)=> FocusScope.of(context).unfocus(),
                     onEditingComplete: onEditingComplete,
                     controller: addressController,
                     decoration: InputDecoration(hintText: S.of(context).search_or_enter))),

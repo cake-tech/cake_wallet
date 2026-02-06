@@ -53,25 +53,28 @@ class _NewHomePageState extends State<NewHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: Container(
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.surfaceBright,
-              Theme.of(context).colorScheme.surface,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: CustomScrollView(
+    return Container(
+    height: MediaQuery.of(context).size.height,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          Theme.of(context).colorScheme.surface,
+          Theme.of(context).colorScheme.surfaceDim,
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ),
+    ),
+    child: Stack(
+      children: [
+        CustomScrollView(
           physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           slivers:[
-            CupertinoSliverRefreshControl(
-              onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+            SliverPadding(
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+              sliver: CupertinoSliverRefreshControl(
+                onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+              ),
             ),
             SliverToBoxAdapter(
             child: Column(
@@ -93,8 +96,9 @@ class _NewHomePageState extends State<NewHomePage> {
                       barrierColor: Colors.black.withAlpha(85),
                       builder: (context) => FractionallySizedBox(
                           child: Material(
-                              child: NewSettingsPage()
-                          )),
+                                  child: NewSettingsPage(
+                            dashboardViewModel: widget.dashboardViewModel,
+                          ))),
                     );
                   },
                 ),
@@ -143,12 +147,30 @@ class _NewHomePageState extends State<NewHomePage> {
                     dashboardViewModel: widget.dashboardViewModel,
                   ),
                 ),
-                SizedBox(height: 24.0)
+                SizedBox(height: 80.0)
                 ],
             ),
           ),]
         ),
-      ),
-    );
+        Container(
+          height: (MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: <Color>[
+                Theme.of(context).colorScheme.surface.withAlpha(5),
+                Theme.of(context).colorScheme.surface.withAlpha(25),
+                Theme.of(context).colorScheme.surface.withAlpha(50),
+                Theme.of(context).colorScheme.surface.withAlpha(100),
+                Theme.of(context).colorScheme.surface.withAlpha(150),
+                Theme.of(context).colorScheme.surface.withAlpha(200),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+        );
   }
 }

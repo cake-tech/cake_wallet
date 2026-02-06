@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
@@ -82,20 +83,16 @@ abstract class BasePage extends StatelessWidget {
     }
 
     return MergeSemantics(
-      child: SizedBox(
-        height: 37,
-        width: 37,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 4.0),
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
             label: S.of(context).seed_alert_back,
-            child: TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.onSurface,
-                overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
-              ),
+            child: ModernButton(
+              size: 37,
+              icon: Icon(CupertinoIcons.back),
               onPressed: () => onClose(context),
-              child: backButton(context),
             ),
           ),
         ),
@@ -180,11 +177,11 @@ abstract class BasePage extends StatelessWidget {
       child: Observer(
         builder: (context) {
           final backgroundImage = getIt.get<SettingsStore>().backgroundImage;
-
           return Container(
             width: double.infinity,
             height: double.infinity,
             decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
               image: backgroundImage.isNotEmpty
                   ? DecorationImage(
                       image: FileImage(File(backgroundImage)),
@@ -193,21 +190,24 @@ abstract class BasePage extends StatelessWidget {
                   : null,
               // color: Colors.grey[200],
             ),
-            child: Scaffold(
-              key: _scaffoldKey,
-              backgroundColor: pageBackgroundColor(context),
-              resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-              extendBodyBehindAppBar: extendBodyBehindAppBar,
-              endDrawer: endDrawer,
-              appBar: appBar(context),
-              body: SafeArea(
-                left: false,
-                right: false,
-                top: false,
-                bottom: Platform.isAndroid,
-                child: body(context),
+            child: Padding(
+              padding: const EdgeInsets.only(top:8.0),
+              child: Scaffold(
+                key: _scaffoldKey,
+                backgroundColor: pageBackgroundColor(context),
+                resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+                extendBodyBehindAppBar: extendBodyBehindAppBar,
+                endDrawer: endDrawer,
+                appBar: appBar(context),
+                body: SafeArea(
+                  left: false,
+                  right: false,
+                  top: false,
+                  bottom: Platform.isAndroid,
+                  child: body(context),
+                ),
+                floatingActionButton: floatingActionButton(context),
               ),
-              floatingActionButton: floatingActionButton(context),
             ),
           );
         },

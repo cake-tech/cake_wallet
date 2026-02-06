@@ -123,6 +123,7 @@ import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
+import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 """;
@@ -280,6 +281,9 @@ abstract class Bitcoin {
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
   String getNetworkName(Object wallet);
+  Future<void> setLightningUsername(Object wallet, String username);
+  Future<String?> getLightningUsername(Object wallet);
+  String? getBreezSdkError(Object exception);
 }
   """;
 
