@@ -42,11 +42,23 @@ class HistoryTile extends StatelessWidget {
     }
   }
 
+  String _getDirectionIconToken() {
+    if (pending) {
+      return direction == TransactionDirection.incoming
+          ? 'assets/new-ui/history-receiving.svg'
+          : 'assets/new-ui/history-sending.svg';
+    } else {
+      return direction == TransactionDirection.incoming
+          ? 'assets/new-ui/token-received.svg'
+          : 'assets/new-ui/token-sent.svg';
+    }
+  }
+
   Widget _getLeadingIcon(BuildContext context) {
     if (asset == CryptoCurrency.btcln) {
       return Stack(
         children: [
-          Image.asset(
+          SvgPicture.asset(
             asset!.iconPath!,
             width: 34,
             height: 34,
@@ -54,12 +66,25 @@ class HistoryTile extends StatelessWidget {
           Positioned(
             top: 20,
             left: 20,
-            child: SvgPicture.asset(
-                'assets/new-ui/chain_badges/lightning.svg',
-                width: 16,
-                height: 16,
-              ),
-          )
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.onInverseSurface, shape: BoxShape.circle),
+              child: SvgPicture.asset(
+                  _getDirectionIconToken(),
+                colorFilter: ColorFilter.mode(
+                    direction == TransactionDirection.outgoing
+                        ? Theme
+                        .of(context)
+                        .colorScheme
+                        .inverseSurface.withAlpha(175)
+                        : Colors.green,
+                    BlendMode.srcIn),
+                  width: 14,
+                  height: 14,
+                ),
+            ),
+            )
         ],
       );
     }
