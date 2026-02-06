@@ -153,7 +153,7 @@ class ZcashWalletService
     final ZcashFromKeysWalletCredentials credentials, {
     final bool? isTestnet,
   }) async {
-    throw UnimplementedError();
+    return ZcashWalletBase.restoreKeys(credentials);
   }
 
   @override

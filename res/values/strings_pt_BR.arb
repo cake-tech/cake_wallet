@@ -884,6 +884,7 @@
   "show_keys": "Mostrar semente/chaves",
   "show_market_place": "Mostrar mercado",
   "show_seed": "Mostrar semente",
+  "show_zcash_card": "Show zcash missing funds card",
   "sign_all": "Assine tudo",
   "sign_message": "Mensagem de assinar",
   "sign_one": "Assine um",
@@ -1040,6 +1041,7 @@
   "transaction_sent_notice": "Se a tela não prosseguir após 1 minuto, verifique um explorador de blocos e seu e-mail.",
   "transactions": "Transações",
   "transactions_by_date": "Transações por data",
+  "transparent_secret_key": "Transparent Secret Key",
   "transport_type": "Tipo de transporte",
   "trongrid_history": "História de Trongrid",
   "trusted": "confiável",
@@ -1062,6 +1064,7 @@
   "unavailable_balance_description": "Saldo Indisponível: Este total inclui fundos bloqueados em transações pendentes e aqueles que você congelou ativamente nas configurações de controle de moedas. Os saldos bloqueados ficarão disponíveis assim que suas respectivas transações forem concluídas, enquanto os saldos congelados permanecerão inacessíveis para transações até que você decida descongelá-los.",
   "unconfirmed": "Saldo não confirmado",
   "understand": "Entendo",
+  "unified_view_key": "Unified View Key",
   "unlock": "Desbloquear",
   "unmatched_currencies": "A moeda da sua carteira atual não corresponde à do QR digitalizado",
   "unrestricted_background_service": "Serviço de fundo irrestrito",
@@ -1170,5 +1173,11 @@
   "you_will_send": "Converter de",
   "youCanGoBackToYourDapp": "Você pode voltar para o seu dapp agora",
   "your": "Seu",
-  "yy": "aa"
+  "yy": "aa",
+  "zcash_card_description": "If you don't see your full balance Cake Wallet can attempt to sweep funds from internal change addresses used by some wallets.",
+  "zcash_card_dismiss": "Dismiss",
+  "zcash_card_enable_later": "You can always enable this card later in settings",
+  "zcash_card_missing_funds": "Missing funds?",
+  "zcash_card_scan": "Scan",
+  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch."
 }

@@ -18,15 +18,18 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_zcash/cw_zcash.dart';
+import 'package:cw_zcash/src/legacy/zkool_sweep.dart';
 import 'package:cw_zcash/src/util/crc32.dart';
 import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:warp_api/warp_api.dart';
 import 'package:warp_api/data_fb_generated.dart';
 import 'package:flutter/services.dart';
 import 'package:mutex/mutex.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 part 'zcash_wallet.g.dart';
 
@@ -96,9 +99,11 @@ abstract class ZcashWalletBase
     await ZcashWalletService.runInDbMutex(() async => WarpApi.cancelSync());
   }
 
+  Node? lastNode;
   @override
   @action
   Future<void> connectToNode({required final Node node}) async {
+    lastNode = node;
     printV("connecting to node: ${node.uriRaw}");
     syncStatus = ConnectingSyncStatus();
     try {
@@ -319,7 +324,17 @@ abstract class ZcashWalletBase
   }
 
   @override
-  Object get keys => {};
+  Object get keys {
+    final backup = WarpApi.getBackup(coin, accountId);
+    return {
+      // "seed": backup.seed,
+      // "index": backup.index,
+      "privateSpendKey": backup.sk,
+      "privateViewKey": backup.fvk,
+      "uvk": backup.uvk,
+      "tsk": backup.tsk,
+    };
+  }
 
   @override
   String get password => _password!;
@@ -338,12 +353,36 @@ abstract class ZcashWalletBase
   @override
   bool get hasRescan => true;
 
+  static Future<void> storeZcashHeight(final int height) async {
+    final zcashDir = await pathForWalletTypeDir(type: WalletType.zcash);
+    final zcashInitialSync = File(p.join(zcashDir, ".initial-sync-marker"));
+    zcashInitialSync.writeAsBytesSync([0x00]);
+    zcashInitialSync.writeAsStringSync(height.toString(), mode: FileMode.writeOnlyAppend);
+  }
+
+  static Future<int?> loadZcashHeight() async {
+    final zcashDir = await pathForWalletTypeDir(type: WalletType.zcash);
+    final zcashInitialSync = File(p.join(zcashDir, ".initial-sync-marker"));
+    if (!await zcashInitialSync.exists()) {
+      return null;
+    }
+    final bytes = await zcashInitialSync.readAsBytes();
+    if (bytes.isEmpty) {
+      return null;
+    }
+    final heightString = String.fromCharCodes(bytes.skip(1));
+    return int.tryParse(heightString);
+  }
+
+  static int zashiAnnouncedBlockHeight = 2419420;
+
   @override
   @action
   Future<void> rescan({required final int height}) async {
     try {
       syncStatus = StartingScanSyncStatus(height);
       printV("rescanning from: $height");
+      await storeZcashHeight(height);
       await ZcashWalletService.runInDbMutex(() async => WarpApi.rescanFrom(coin, height));
       await startSync();
     } catch (e) {
@@ -403,7 +442,10 @@ abstract class ZcashWalletBase
   String? get seed {
     try {
       final backup = WarpApi.getBackup(coin, accountId);
-      final seed = backup.seed!.split(" ");
+      final seed = backup.seed?.split(" ");
+      if (seed == null) {
+        return null;
+      }
       if ([13, 25].contains(seed.length)) {
         seed.removeLast();
       }
@@ -417,7 +459,10 @@ abstract class ZcashWalletBase
   String? get passphrase {
     try {
       final backup = WarpApi.getBackup(coin, accountId);
-      final seed = backup.seed!.split(" ");
+      final seed = backup.seed?.split(" ");
+      if (seed == null) {
+        return null;
+      }
       if ([13, 25].contains(seed.length)) {
         final passphrase = seed.removeLast();
         return passphrase;
@@ -478,8 +523,7 @@ abstract class ZcashWalletBase
       await ZcashWalletService.runInDbMutex(
         () async => await WarpApi.rescanFrom(coin, chainHeight - 150000),
       );
-      zcashInitialSync.writeAsBytesSync([0x00]);
-      zcashInitialSync.writeAsStringSync(chainHeight.toString(), mode: FileMode.writeOnlyAppend);
+      await storeZcashHeight(chainHeight);
     }
   }
 
@@ -827,15 +871,48 @@ abstract class ZcashWalletBase
     await wallet.walletAddresses.saveAddressesInBox();
     printV("height: ${credentials.height}");
     if (credentials.height != null) {
-      final zcashDir = await pathForWalletTypeDir(type: WalletType.zcash);
-      final zcashInitialSync = File(p.join(zcashDir, ".initial-sync-marker"));
-      zcashInitialSync.writeAsBytesSync([0x00]);
-      zcashInitialSync.writeAsStringSync(
-        credentials.height.toString(),
-        mode: FileMode.writeOnlyAppend,
-      );
+      await storeZcashHeight(credentials.height!);
       unawaited(
-        Future.delayed(Duration(seconds: 8)).then(
+        Future.delayed(Duration(seconds: 2)).then(
+          (_) => ZcashWalletService.runInDbMutex(
+            () async => await WarpApi.rescanFrom(coin, credentials.height ?? 0),
+          ),
+        ),
+      );
+    }
+    return wallet;
+  }
+
+  static Future<ZcashWallet> restoreKeys(final WalletCredentials credentials) async {
+    await _init();
+    final fromKeysCredentials = credentials as ZcashFromKeysWalletCredentials;
+    final String? keys = fromKeysCredentials.privateKey;
+    if (keys == null || keys.isEmpty) {
+      throw Exception('Key is required for wallet restoration');
+    }
+
+    final zcashSecretExtendedKeyRegex = RegExp(r'^secret-extended-key-main1[a-z0-9]+$');
+    if (!zcashSecretExtendedKeyRegex.hasMatch(keys)) {
+      throw Exception('Key is not in secret-extended-key-main1 format');
+    }
+
+    final accountId = await _restoreZcashWalletFromSeed(
+      name: credentials.name,
+      seed: keys,
+      passphrase: fromKeysCredentials.passphrase,
+    );
+    await _saveAccountId(credentials.name, accountId);
+    final wallet = await open(
+      name: credentials.name,
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+    );
+    await wallet.walletAddresses.saveAddressesInBox();
+    printV("height: ${credentials.height}");
+    if (credentials.height != null) {
+      await storeZcashHeight(credentials.height!);
+      unawaited(
+        Future.delayed(Duration(seconds: 2)).then(
           (_) => ZcashWalletService.runInDbMutex(
             () async => await WarpApi.rescanFrom(coin, credentials.height ?? 0),
           ),
@@ -1021,5 +1098,56 @@ abstract class ZcashWalletBase
       printV("getHeightByDate: $e");
     }
     return height;
+  }
+
+  bool couldBeZashiWallet() {
+    final backup = WarpApi.getBackup(coin, accountId);
+    final seed = backup.seed?.split(" ");
+    if (seed == null) return false;
+    if (zkoolSweep != null) return false;
+    if (!(syncStatus is SyncedSyncStatus)) return false;
+    return seed.length == 24;
+  }
+
+  static ZkoolSweep? zkoolSweep;
+
+  static bool _didRunRescanInternalChange = false;
+  Future<void> rescanInternalChange() async {
+    if (_didRunRescanInternalChange) {
+      return;
+    }
+    _didRunRescanInternalChange = true;
+    final bal =
+        balance[CryptoCurrency.zec]!.confirmed +
+        balance[CryptoCurrency.zec]!.unconfirmed +
+        balance[CryptoCurrency.zec]!.frozen;
+    final osCacheDir = await getApplicationCacheDirectory();
+    final cacheDir = osCacheDir.createTempSync("zkool-import");
+    zkoolSweep = ZkoolSweep(
+      currentBalance: bal,
+      cacheDir: cacheDir.path,
+      seed: seed ?? '',
+      passphrase: password,
+      address: (walletAddresses as ZcashWalletAddresses).orchardAddress,
+      url: (lastNode!.isSSL ? 'https://' : 'http://') + lastNode!.uriRaw,
+      height: (await loadZcashHeight()) ?? zashiAnnouncedBlockHeight,
+    );
+    unawaited(zkoolSweep!.start());
+    int count = 0;
+    Timer.periodic(Duration(milliseconds: 1000 ~/ 120), (final Timer t) {
+      final msg = ZkoolSweep.msg;
+      if (kDebugMode && (++count % (120 ~/ 10)) == 0) {
+        printV(msg.message);
+      }
+      if (msg.blocksLeft == 0 && msg.networkHeight != 0) {
+        zkoolSweep = null;
+        t.cancel();
+      }
+      if (msg.blocksLeft == 0) {
+        syncStatus = ConnectedSyncStatus();
+        return;
+      }
+      syncStatus = SyncingSyncStatus(msg.blocksLeft, msg.progress);
+    });
   }
 }

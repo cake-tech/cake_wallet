@@ -886,6 +886,7 @@
   "show_keys": "Mostrar semente/chaves",
   "show_market_place": "Mostrar mercado",
   "show_seed": "Mostrar semente",
+  "show_zcash_card": "Mostrar cartão de fundos perdidos do zcash",
   "sign_all": "Assine tudo",
   "sign_message": "Mensagem de assinar",
   "sign_one": "Assine um",
@@ -1042,6 +1043,7 @@
   "transaction_sent_notice": "Se a tela não prosseguir após 1 minuto, verifique um explorador de blocos e seu e-mail.",
   "transactions": "Transações",
   "transactions_by_date": "Transações por data",
+  "transparent_secret_key": "Chave secreta transparente",
   "transport_type": "Tipo de transporte",
   "trongrid_history": "História de Trongrid",
   "trusted": "confiável",
@@ -1065,6 +1067,7 @@
   "unavailable_balance_description": "Saldo Indisponível: Este total inclui fundos bloqueados em transações pendentes e aqueles que você congelou ativamente nas configurações de controle de moedas. Os saldos bloqueados ficarão disponíveis assim que suas respectivas transações forem concluídas, enquanto os saldos congelados permanecerão inacessíveis para transações até que você decida descongelá-los.",
   "unconfirmed": "Saldo não confirmado",
   "understand": "Entendo",
+  "unified_view_key": "Chave de visualização unificada",
   "unlock": "Desbloquear",
   "unmatched_currencies": "A moeda da sua carteira atual não corresponde à do QR digitalizado",
   "unrestricted_background_service": "Serviço de fundo irrestrito",
@@ -1175,5 +1178,11 @@
   "you_will_send": "Converter de",
   "youCanGoBackToYourDapp": "Você pode voltar para o seu dapp agora",
   "your": "Seu",
-  "yy": "aa"
+  "yy": "aa",
+  "zcash_card_description": "Se você não vir seu saldo total, a Cake Wallet pode tentar varrer fundos de endereços de câmbio internos usados ​​por algumas carteiras.",
+  "zcash_card_dismiss": "Liberar",
+  "zcash_card_enable_later": "Você sempre pode ativar este cartão posteriormente nas configurações",
+  "zcash_card_missing_funds": "Faltam fundos?",
+  "zcash_card_scan": "Digitalizar",
+  "zcash_card_warning": "Não feche o aplicativo até que o procedimento seja concluído; se você fizer isso, o processo precisará ser reiniciado do zero."
 }

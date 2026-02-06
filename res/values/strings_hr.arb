@@ -884,6 +884,7 @@
   "show_keys": "Prikaži pristupni izraz/ključ",
   "show_market_place": "Prikaži tržište",
   "show_seed": "Prikaži pristupni izraz",
+  "show_zcash_card": "Prikaži zcash karticu s nedostajućim sredstvima",
   "sign_all": "Potpisati sve",
   "sign_message": "Poruka",
   "sign_one": "Potpisati jedan",
@@ -1040,6 +1041,7 @@
   "transaction_sent_notice": "Ako se zaslon ne nastavi nakon 1 minute, provjerite block explorer i svoju e-poštu.",
   "transactions": "Transakcije",
   "transactions_by_date": "Transakcije prema datumu",
+  "transparent_secret_key": "Prozirni tajni ključ",
   "transport_type": "Transportni tip",
   "trongrid_history": "Povijest Trongrida",
   "trusted": "vjerovao",
@@ -1063,6 +1065,7 @@
   "unavailable_balance_description": "Nedostupno stanje: Ovaj ukupni iznos uključuje sredstva koja su zaključana u transakcijama na čekanju i ona koja ste aktivno zamrznuli u postavkama kontrole novčića. Zaključani saldi postat će dostupni kada se dovrše njihove transakcije, dok zamrznuti saldi ostaju nedostupni za transakcije sve dok ih ne odlučite odmrznuti.",
   "unconfirmed": "Nepotvrđeno stanje",
   "understand": "Razumijem",
+  "unified_view_key": "Unified View Key",
   "unlock": "Otključati",
   "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u",
   "unrestricted_background_service": "Neograničena pozadinska usluga",
@@ -1172,5 +1175,11 @@
   "you_will_send": "Razmijeni iz",
   "youCanGoBackToYourDapp": "Sada se možete vratiti na svoj dapp",
   "your": "Vaš",
-  "yy": "GG"
+  "yy": "GG",
+  "zcash_card_description": "Ako ne vidite svoj puni saldo, Cake Wallet može pokušati počistiti sredstva s internih adresa za promjenu koje koriste neki novčanici.",
+  "zcash_card_dismiss": "Odbaciti",
+  "zcash_card_enable_later": "Tu karticu uvijek možete omogućiti kasnije u postavkama",
+  "zcash_card_missing_funds": "Nedostaju sredstva?",
+  "zcash_card_scan": "Skenirati",
+  "zcash_card_warning": "Ne zatvarajte aplikaciju dok se postupak ne dovrši, ako to učinite, ovaj će se postupak morati ponovno pokrenuti ispočetka."
 }

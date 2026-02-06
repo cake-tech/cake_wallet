@@ -884,6 +884,7 @@
   "show_keys": "Toon zaad/sleutels",
   "show_market_place": "Toon Marktplaats",
   "show_seed": "Toon zaad",
+  "show_zcash_card": "Toon zcash ontbrekende fondsenkaart",
   "sign_all": "Teken alles",
   "sign_message": "Aanmeldingsbericht",
   "sign_one": "Ondertekenen een",
@@ -1040,6 +1041,7 @@
   "transaction_sent_notice": "Als het scherm na 1 minuut niet verder gaat, controleer dan een blokverkenner en je e-mail.",
   "transactions": "Transacties",
   "transactions_by_date": "Transacties op datum",
+  "transparent_secret_key": "Transparante geheime sleutel",
   "transport_type": "Transporttype",
   "trongrid_history": "Trongrid geschiedenis",
   "trusted": "vertrouwd",
@@ -1063,6 +1065,7 @@
   "unavailable_balance_description": "Niet-beschikbaar saldo: Dit totaal omvat het geld dat is vergrendeld in lopende transacties en het geld dat u actief hebt bevroren in uw muntcontrole-instellingen. Vergrendelde saldi komen beschikbaar zodra de betreffende transacties zijn voltooid, terwijl bevroren saldi ontoegankelijk blijven voor transacties totdat u besluit ze weer vrij te geven.",
   "unconfirmed": "Onbevestigd saldo",
   "understand": "Ik begrijp het",
+  "unified_view_key": "Uniforme weergavesleutel",
   "unlock": "Ontgrendelen",
   "unmatched_currencies": "De valuta van uw huidige portemonnee komt niet overeen met die van de gescande QR",
   "unrestricted_background_service": "Onbeperkte achtergrondservice",
@@ -1173,5 +1176,11 @@
   "you_will_send": "Converteren van",
   "youCanGoBackToYourDapp": "U kunt nu terug naar uw DApp gaan",
   "your": "Jouw",
-  "yy": "JJ"
+  "yy": "JJ",
+  "zcash_card_description": "Als u uw volledige saldo niet ziet, kan Cake Wallet proberen geld op te halen van interne wijzigingsadressen die door sommige portemonnees worden gebruikt.",
+  "zcash_card_dismiss": "Afwijzen",
+  "zcash_card_enable_later": "Je kunt deze kaart altijd later inschakelen in de instellingen",
+  "zcash_card_missing_funds": "Ontbrekende fondsen?",
+  "zcash_card_scan": "Scannen",
+  "zcash_card_warning": "Sluit de app niet totdat de procedure is voltooid. Als u dit wel doet, moet dit proces helemaal opnieuw worden opgestart."
 }

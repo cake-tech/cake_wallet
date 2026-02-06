@@ -334,6 +334,36 @@ class CryptoBalanceWidget extends StatelessWidget {
                     ),
                   ),
                 ],
+                 if (dashboardViewModel.showZcashMissingFundsCard) ...[
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: InfoCard(
+                      title: S.of(context).zcash_card_missing_funds,
+                      description: S.of(context).zcash_card_description,
+                      leftButtonTitle: S.of(context).zcash_card_dismiss,
+                      rightButtonTitle: S.of(context).zcash_card_scan,
+                      image: 'assets/images/zec_icon.png',
+                      leftButtonAction: () => _dismissZcash(context),
+                      rightButtonAction: () => _rescanInternalChangeZcash(context),
+                      hintWidget: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => launchUrl(
+                          Uri.parse("https://docs.cakewallet.com/tutorials/zashi/#creating-a-new-zcash-wallet-on-cake"),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        child: Text(
+                          S.of(context).learn_more,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                height: 1,
+                              ),
+                          softWrap: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
                 if (dashboardViewModel.showDecredInfoCard) ...[
                   SizedBox(height: 10),
                   Padding(
@@ -462,6 +492,22 @@ class CryptoBalanceWidget extends StatelessWidget {
     }
     dashboardViewModel.setMwebEnabled();
   }
+  
+  Future<void> _rescanInternalChangeZcash(BuildContext context) async {
+    dashboardViewModel.rescanInternalChangeZcash();
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) => AlertWithOneAction(
+        alertTitle: S.of(context).alert_notice,
+        alertContent: S.of(context).zcash_card_warning,
+        buttonText: S.of(context).understand,
+        buttonAction: () {
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+  }
+  
 
   Future<void> _dismissMweb(BuildContext context) async {
     await showPopUp<void>(
@@ -475,5 +521,19 @@ class CryptoBalanceWidget extends StatelessWidget {
               },
             ));
     dashboardViewModel.dismissMweb();
+  }
+  
+  Future<void> _dismissZcash(BuildContext context) async {
+    await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => AlertWithOneAction(
+              alertTitle: S.of(context).alert_notice,
+              alertContent: S.of(context).zcash_card_enable_later,
+              buttonText: S.of(context).understand,
+              buttonAction: () {
+                Navigator.of(context).pop();
+              },
+            ));
+    dashboardViewModel.dismissZcash();
   }
 }

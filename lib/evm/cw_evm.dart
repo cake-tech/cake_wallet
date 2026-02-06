@@ -514,49 +514,59 @@ class CWEVM extends EVM {
   @override
   bool hasPriorityFee(int chainId) => EVMChainUtils.hasPriorityFee(chainId);
 
-  @override
-  Future<bool> checkTokenFiatPrice(WalletBase wallet, Erc20Token token) async {
+  Future<({double usdValue, bool hasValidFiatPrice})> _getTokenUsdValueAndFiatCheck(
+    Erc20Token token,
+    BigInt balanceWei,
+  ) async {
     try {
       final settingsStore = getIt.get<SettingsStore>();
-      final fiatCurrency = settingsStore.fiatCurrency;
       final torOnly = settingsStore.fiatApiMode == FiatApiMode.torOnly;
 
       final price = await FiatConversionService.fetchPrice(
         crypto: token,
-        fiat: fiatCurrency,
+        fiat: FiatCurrency.usd,
         torOnly: torOnly,
       );
 
-      return price > 0;
+      final hasValidFiatPrice = price > 0;
+
+      final decimals = token.decimal;
+      final balance = balanceWei.toDouble() / math.pow(10, decimals);
+      final usdValue = balance * price;
+
+      return (usdValue: usdValue, hasValidFiatPrice: hasValidFiatPrice);
     } catch (e) {
-      return false;
+      return (usdValue: 0.0, hasValidFiatPrice: false);
     }
   }
 
+  static const _minTokenUsdValue = 0.1;
   @override
   Future<void> discoverAndAddWalletTokens(WalletBase wallet) async {
     if (wallet is! EVMChainWallet) return;
 
     try {
-      final discoveredTokens = await wallet.discoverTokensFromMoralis();
+      final result = await wallet.discoverTokensFromMoralis();
 
-      if (discoveredTokens.isEmpty) return;
+      if (result.newTokens.isEmpty) return;
 
       final List<Future<void>> tokenChecks = [];
 
-      for (final token in discoveredTokens) {
+      for (final item in result.newTokens) {
         tokenChecks.add((() async {
+          final token = item.token;
+
           final isPropertiesSuspicious = wallet.isTokenPropertiesSuspicious(token);
 
-          bool hasValidFiatPrice = true;
-          if (!isPropertiesSuspicious) {
-            hasValidFiatPrice = await checkTokenFiatPrice(wallet, token);
-          }
-
-          final isSpam = isPropertiesSuspicious || !hasValidFiatPrice;
+          final fiatResult = await _getTokenUsdValueAndFiatCheck(
+            token,
+            item.balanceWei,
+          );
+          final isSpam = isPropertiesSuspicious || !fiatResult.hasValidFiatPrice;
 
           token.isPotentialScam = isSpam;
-          token.enabled = !isSpam;
+
+          token.enabled = (fiatResult.usdValue >= _minTokenUsdValue) && !isSpam;
 
           await wallet.addErc20Token(token);
         })());

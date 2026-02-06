@@ -1322,6 +1322,7 @@ abstract class DogeCoin {
 Future<void> generateEVM(bool hasImplementation) async {
   final outputFile = File(evmOutputPath);
   const evmCommonHeaders = """
+import 'dart:math' as math;
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -1348,6 +1349,7 @@ import 'package:web3dart/web3dart.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
@@ -1523,7 +1525,6 @@ abstract class EVM {
   
   bool hasPriorityFee(int chainId);
 
-  Future<bool> checkTokenFiatPrice(WalletBase wallet, Erc20Token token);
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
 
@@ -1607,7 +1608,7 @@ abstract class Zcash {
       String? passphrase,
       required int? height});
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
-      {required String name, required String privateKey, required String password});
+      {required String name, required String privateKey, required String password, required int height});
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
@@ -1642,8 +1643,9 @@ abstract class Zcash {
   dynamic getOptionToType(ReceivePageOption option);
   void unlockDatabase(String password);
   Future<int> getHeightByDate(DateTime date);
+  bool showMissingFundsCard(WalletBase wallet);
+  Future<void> rescanInternalChange(WalletBase wallet);
 }
-
   """;
 
   const zcashEmptyDefinition = 'Zcash? zcash;\n';
@@ -1792,7 +1794,7 @@ Future<void> generatePubspec({
     output += '\n$flutterSecureStorage\n';
   }
 
-  if (hasEthereum || hasPolygon || hasBase || hasArbitrum) {
+  if (hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc) {
     output += '\n$cwEVM';
   }
 

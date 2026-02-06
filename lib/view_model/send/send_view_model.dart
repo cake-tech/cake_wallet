@@ -1008,7 +1008,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // priority: priority,
         );
       default:
-        throw Exception('Unexpected wallet type: ${wallet.type}');
+        throw Exception('Unexpected wallet type: ${wallet.type} for send');
     }
   }
 

@@ -885,6 +885,7 @@
   "show_keys": "Seed/Schlüssel anzeigen",
   "show_market_place": "Marktplatz anzeigen",
   "show_seed": "Seed zeigen",
+  "show_zcash_card": "Zeigen Sie die Karte mit fehlendem Zcash-Guthaben an",
   "sign_all": "Alle unterschreiben",
   "sign_message": "Nachricht unterschreiben",
   "sign_one": "Unterschreiben",
@@ -1041,6 +1042,7 @@
   "transaction_sent_notice": "Wenn der Bildschirm nach 1 Minute nicht weitergeht, überprüfen Sie einen Block-Explorer und Ihre E-Mail.",
   "transactions": "Transaktionen",
   "transactions_by_date": "Transaktionen nach Datum",
+  "transparent_secret_key": "Transparenter Geheimschlüssel",
   "transport_type": "Transporttyp",
   "trongrid_history": "Trongrid-Historie",
   "trusted": "Vertrauenswürdige",
@@ -1065,6 +1067,7 @@
   "unconfirmed": "Unbestätigter Saldo",
   "und": "und",
   "understand": "Ich verstehe",
+  "unified_view_key": "Einheitlicher Ansichtsschlüssel",
   "unlock": "Freischalten",
   "unmatched_currencies": "Die Währung Ihres aktuellen Wallets stimmt nicht mit der des gescannten QR überein",
   "unrestricted_background_service": "Uneingeschränkter Hintergrunddienst",
@@ -1175,5 +1178,11 @@
   "you_will_send": "Konvertieren von",
   "youCanGoBackToYourDapp": "Sie können jetzt zu Ihrem Dapp zurückkehren",
   "your": "Dein",
-  "yy": "YY"
+  "yy": "YY",
+  "zcash_card_description": "Wenn Sie nicht Ihr vollständiges Guthaben sehen, kann Cake Wallet versuchen, Geld von internen Wechseladressen abzuheben, die von einigen Wallets verwendet werden.",
+  "zcash_card_dismiss": "Zurückweisen",
+  "zcash_card_enable_later": "Sie können diese Karte später jederzeit in den Einstellungen aktivieren",
+  "zcash_card_missing_funds": "Fehlende Mittel?",
+  "zcash_card_scan": "Scan",
+  "zcash_card_warning": "Schließen Sie die App nicht, bis der Vorgang abgeschlossen ist. Andernfalls muss der Vorgang von Grund auf neu gestartet werden."
 }

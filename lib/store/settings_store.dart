@@ -133,6 +133,7 @@ abstract class SettingsStoreBase with Store {
       required this.silentPaymentsCardDisplay,
       required this.mwebAlwaysScan,
       required this.mwebCardDisplay,
+      required this.showZcashMissingFundsCard,
       required this.mwebEnabled,
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
@@ -660,6 +661,11 @@ abstract class SettingsStoreBase with Store {
         (bool mwebCardDisplay) =>
             _sharedPreferences.setBool(PreferencesKey.mwebCardDisplay, mwebCardDisplay));
 
+    reaction(
+        (_) => showZcashMissingFundsCard,
+        (bool showZcashMissingFundsCard) =>
+            _sharedPreferences.setBool(PreferencesKey.showZcashMissingFundsCard, showZcashMissingFundsCard));
+
     reaction((_) => mwebEnabled,
         (bool mwebEnabled) => _sharedPreferences.setBool(PreferencesKey.mwebEnabled, mwebEnabled));
 
@@ -937,6 +943,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool mwebCardDisplay;
+  
+  @observable
+  bool showZcashMissingFundsCard;
 
   @observable
   bool mwebEnabled;
@@ -1197,6 +1206,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
+    final showZcashMissingFundsCard = sharedPreferences.getBool(PreferencesKey.showZcashMissingFundsCard) ?? true;
     final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
     final hasEnabledMwebBefore =
         sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
@@ -1554,6 +1564,7 @@ abstract class SettingsStoreBase with Store {
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
       mwebAlwaysScan: mwebAlwaysScan,
       mwebCardDisplay: mwebCardDisplay,
+      showZcashMissingFundsCard: showZcashMissingFundsCard,
       mwebEnabled: mwebEnabled,
       mwebNodeUri: mwebNodeUri,
       hasEnabledMwebBefore: hasEnabledMwebBefore,
@@ -1768,6 +1779,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
+    showZcashMissingFundsCard = sharedPreferences.getBool(PreferencesKey.showZcashMissingFundsCard) ?? true;
     mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
     hasEnabledMwebBefore = sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);

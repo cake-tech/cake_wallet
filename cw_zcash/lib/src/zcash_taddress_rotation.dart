@@ -46,7 +46,8 @@ class ZcashTaddressRotation {
     return seedWords.join(" ");
   }
 
-  static bool isSeedForWallet(final String mainWallet, final String subWallet) {
+  static bool isSeedForWallet(final String? mainWallet, final String? subWallet) {
+    if (mainWallet == null || subWallet == null) return false;
     return seedForOffset(mainWallet.trim()) == subWallet;
   }
 
@@ -195,6 +196,7 @@ class ZcashTaddressRotation {
       final acc = accounts[i];
       final backup = WarpApi.getBackup(coin, acc.id);
       await WarpApi.transparentSync(coin, acc.id, syncHeight);
+      if (backup.seed == null) continue;
       seeds[acc.id] = backup.seed!;
     }
     for (int i = 0; i < accounts.length; i++) {
@@ -210,7 +212,7 @@ class ZcashTaddressRotation {
     for (int i = 0; i < raKeys.length; i++) {
       final accs = accounts.where((final a) {
         final seed = WarpApi.getBackup(coin, a.id).seed;
-        return isSeedForWallet(seeds[raKeys[i]]!, seed!);
+        return isSeedForWallet(seeds[raKeys[i]], seed);
       }).toList();
       rotationAccounts[raKeys[i]]!.addAll(accs);
       final acc = accountForSeed(seeds[raKeys[i]]!)!;
@@ -264,7 +266,7 @@ class ZcashTaddressRotation {
         printV(raKeys[i]);
         rotationAccounts[raKeys[i]]!.forEach((final a) {
           final b = WarpApi.getBackup(coin, a.id);
-          printV("${a.id} / ${b.seed}");
+          printV("${a.id}");
         });
         didAddNewAccount = true;
       }
@@ -418,7 +420,8 @@ class ZcashTaddressRotation {
   }
 
   static List<String>? allUsedAddressesForAccount(final int accountId) {
-    final seed = WarpApi.getBackup(coin, accountId).seed!;
+    final seed = WarpApi.getBackup(coin, accountId).seed;
+    if (seed == null) return [];
     final acc = rotationAccounts[seed]?.toList();
     if (acc == null) {
       printV("Nothing found");

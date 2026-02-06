@@ -57,11 +57,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.decred:
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.zcash:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       case WalletType.bitcoinCash:
       case WalletType.zano:
-      case WalletType.zcash:
       case WalletType.dogecoin:
         availableModes = [WalletRestoreMode.seed];
         break;
@@ -95,7 +95,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     WalletType.nano,
     WalletType.banano,
     WalletType.solana,
-    WalletType.tron
+    WalletType.tron,
+    WalletType.zcash,
   ].contains(type);
 
   late final bool onlyViewKeyRestore =
@@ -306,6 +307,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             password: password,
             pubkey: viewKey!,
+          );
+        case WalletType.zcash:
+          return zcash!.createZcashRestoreWalletFromPrivateKey(
+            name: name,
+            privateKey: options['private_key'] as String,
+            password: password,
+            height: height
           );
         default:
           break;
