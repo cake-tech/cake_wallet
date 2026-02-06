@@ -89,7 +89,7 @@ class HistoryTileBase extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.only(right: 10),
                   child: SizedBox(
                     height: 36,
                     width: 36,
@@ -98,7 +98,7 @@ class HistoryTileBase extends StatelessWidget {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(right: 8.0),
+                    padding: EdgeInsets.only(right: 4),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -124,17 +124,13 @@ class HistoryTileBase extends StatelessWidget {
             ),
           ),
         ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: SizedBox(
-            height: 1,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHigh,
-              ),
-            ),
+        if(bottomSeparator) Container(
+          color: Theme.of(context).colorScheme.onInverseSurface,
+          child: Padding(
+            padding: EdgeInsets.only(left: 56, right: 16),
+            child: Container(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
           ),
-        ),
+        )
       ],
     );
   }

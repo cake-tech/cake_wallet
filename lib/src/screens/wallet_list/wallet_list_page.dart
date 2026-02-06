@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -436,7 +437,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
                       if(FeatureFlag.hasNewUi)
-                        SizedBox(height:52.0)
+                        SizedBox(height: Platform.isIOS ? 120 : 52),
                     ],
                   ),
                 ),
