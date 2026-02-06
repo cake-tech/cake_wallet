@@ -427,6 +427,7 @@
   "export_outputs": "Exportausgaben",
   "extend_session": "Sitzung verlängern",
   "external": "Extern",
+  "external_wallet": "Externe Geldbörse",
   "extra_id": "Extra ID:",
   "extracted_address_content": "Sie senden Geld an\n${recipient_name}",
   "failed_authentication": "Authentifizierung fehlgeschlagen. ${state_error}",

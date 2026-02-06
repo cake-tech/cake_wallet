@@ -326,6 +326,7 @@
   "expiry_and_validity": "Opaha ára ha hekorã.",
   "export_backup": "Mboguata ñangareko joja rehegua",
   "external": "Okapegua",
+  "external_wallet": "Billetera externa rehegua .",
   "extra_id": "ID joapy:",
   "extracted_address_content": "Ombohasa viru ${recipient_name}-pe.",
   "failed_authentication": "Ñembojoaju jejavy. ${state_error}",

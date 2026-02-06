@@ -427,6 +427,7 @@
   "export_outputs": "مخرجات التصدير",
   "extend_session": "تمديد الجلسة",
   "external": "خارجي",
+  "external_wallet": "المحفظة الخارجية",
   "extra_id": "معرف إضافي:",
   "extracted_address_content": "سوف ترسل الأموال إلى\n${recipient_name}",
   "failed_authentication": "${state_error} فشل المصادقة.",

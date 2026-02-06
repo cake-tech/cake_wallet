@@ -427,6 +427,7 @@
   "export_outputs": "Exportuitgangen exporteren",
   "extend_session": "Sessie verlengen",
   "external": "Extern",
+  "external_wallet": "Externe portemonnee",
   "extra_id": "Extra ID:",
   "extracted_address_content": "U stuurt geld naar\n${recipient_name}",
   "failed_authentication": "Mislukte authenticatie. ${state_error}",

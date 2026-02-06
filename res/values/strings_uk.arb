@@ -427,6 +427,7 @@
   "export_outputs": "Експортні результати",
   "extend_session": "Продовжити сеанс",
   "external": "зовнішній",
+  "external_wallet": "Зовнішній гаманець",
   "extra_id": "Додатковий ID:",
   "extracted_address_content": "Ви будете відправляти кошти\n${recipient_name}",
   "failed_authentication": "Помилка аутентифікації. ${state_error}",

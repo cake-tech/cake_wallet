@@ -426,6 +426,7 @@
   "export_outputs": "Đầu ra xuất khẩu",
   "extend_session": "Mở rộng phiên",
   "external": "Bên ngoài",
+  "external_wallet": "Ví bên ngoài",
   "extra_id": "ID bổ sung:",
   "extracted_address_content": "Bạn sẽ gửi tiền cho\n${recipient_name}",
   "failed_authentication": "Xác thực không thành công. ${state_error}",

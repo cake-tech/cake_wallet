@@ -427,6 +427,7 @@
   "export_outputs": "برآمد کے نتائج",
   "extend_session": "سیشن میں توسیع",
   "external": "بیرونی",
+  "external_wallet": "بیرونی پرس",
   "extra_id": "اضافی ID:",
   "extracted_address_content": "آپ فنڈز بھیج رہے ہوں گے\n${recipient_name}",
   "failed_authentication": "ناکام تصدیق۔ ${state_error}",

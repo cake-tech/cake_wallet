@@ -427,6 +427,7 @@
   "export_outputs": "निर्यात आउटपुट",
   "extend_session": "सत्र का विस्तार करें",
   "external": "बाहरी",
+  "external_wallet": "बाहरी बटुआ",
   "extra_id": "अतिरिक्त आईडी:",
   "extracted_address_content": "आपको धनराशि भेजी जाएगी\n${recipient_name}",
   "failed_authentication": "प्रमाणीकरण विफल. ${state_error}",

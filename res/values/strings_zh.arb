@@ -427,6 +427,7 @@
   "export_outputs": "导出输出",
   "extend_session": "扩展会话",
   "external": "外部的",
+  "external_wallet": "外部钱包",
   "extra_id": "额外ID:",
   "extracted_address_content": "您将汇款至\n${recipient_name}",
   "failed_authentication": "身份验证失败. ${state_error}",

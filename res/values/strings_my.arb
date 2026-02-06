@@ -427,6 +427,7 @@
   "export_outputs": "ပို့ကုန်ထုတ်ကုန်များ",
   "extend_session": "session တစ်ခုတိုးချဲ့",
   "external": "မာနတွေ",
+  "external_wallet": "ပြင်ပပိုက်ဆံအိတ်",
   "extra_id": "အပို ID-",
   "extracted_address_content": "သင်သည် \n${recipient_name} သို့ ရန်ပုံငွေများ ပေးပို့ပါမည်",
   "failed_authentication": "အထောက်အထားစိစစ်ခြင်း မအောင်မြင်ပါ။. ${state_error}",

@@ -427,6 +427,7 @@
   "export_outputs": "Exportation des sorties",
   "extend_session": "Prolonger la séance",
   "external": "Externe",
+  "external_wallet": "Portefeuille externe",
   "extra_id": "ID supplémentaire :",
   "extracted_address_content": "Vous allez envoyer des fonds à\n${recipient_name}",
   "failed_authentication": "Échec d'authentification. ${state_error}",

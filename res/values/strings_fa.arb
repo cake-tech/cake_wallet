@@ -425,6 +425,7 @@
   "export_outputs": "خروجی گرفتن از خروجی‌ها",
   "extend_session": "تمدید نشست",
   "external": "خارجی",
+  "external_wallet": "کیف پول خارجی",
   "extra_id": "شناسه اضافی (Extra ID):",
   "extracted_address_content": "شما وجوه را به ${recipient_name} ارسال خواهید کرد",
   "failed_authentication": "احراز هویت ناموفق بود.\n${state_error}",

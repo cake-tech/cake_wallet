@@ -427,6 +427,7 @@
   "export_outputs": "Vývozní výstupy",
   "extend_session": "Prodloužit relaci",
   "external": "Externí",
+  "external_wallet": "Externí peněženka",
   "extra_id": "Extra ID:",
   "extracted_address_content": "Prostředky budete posílat na\n${recipient_name}",
   "failed_authentication": "Ověřování selhalo. ${state_error}",

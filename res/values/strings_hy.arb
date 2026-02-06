@@ -427,6 +427,7 @@
   "export_outputs": "Արտահանման արդյունքներ",
   "extend_session": "Ընդլայնված նիստ",
   "external": "Արտաքին",
+  "external_wallet": "Արտաքին դրամապանակ",
   "extra_id": "Լրացուցիչ ID",
   "extracted_address_content": "Դուք կուղարկեք գումար ${recipient_name}",
   "failed_authentication": "Վավերացումը ձախողվեց. ${state_error}",

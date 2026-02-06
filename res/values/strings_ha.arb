@@ -427,6 +427,7 @@
   "export_outputs": "Fitarwar fitarwa",
   "extend_session": "Mika zaman",
   "external": "Na waje",
+  "external_wallet": "Wallet na waje",
   "extra_id": "Karin ID:",
   "extracted_address_content": "Za ku aika da kudade zuwa\n${recipient_name}",
   "failed_authentication": "Binne wajen shiga. ${state_error}",

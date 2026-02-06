@@ -427,6 +427,7 @@
   "export_outputs": "エクスポート出力",
   "extend_session": "セッションを拡張します",
   "external": "外部の",
+  "external_wallet": "外部ウォレット",
   "extra_id": "追加ID:",
   "extracted_address_content": "に送金します\n${recipient_name}",
   "failed_authentication": "認証失敗. ${state_error}",

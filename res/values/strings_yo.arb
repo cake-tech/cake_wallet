@@ -428,6 +428,7 @@
   "export_outputs": "Agbohunlu okeere",
   "extend_session": "Ifaagun igba",
   "external": "Ita",
+  "external_wallet": "Ita apamọwọ",
   "extra_id": "Àmì ìdánimọ̀ tó fikún:",
   "extracted_address_content": "Ẹ máa máa fi owó ránṣẹ́ sí\n${recipient_name}",
   "failed_authentication": "Ìfẹ̀rílàdí pipòfo. ${state_error}",

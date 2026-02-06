@@ -427,6 +427,7 @@
   "export_outputs": "Export outputs",
   "extend_session": "Extend Session",
   "external": "External",
+  "external_wallet": "External wallet",
   "extra_id": "Extra ID:",
   "extracted_address_content": "You will be sending funds to\n${recipient_name}",
   "failed_authentication": "Failed authentication. ${state_error}",

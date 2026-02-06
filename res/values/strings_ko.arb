@@ -427,6 +427,7 @@
   "export_outputs": "출력 내보내기",
   "extend_session": "세션 연장",
   "external": "외부",
+  "external_wallet": "외부 지갑",
   "extra_id": "추가 ID:",
   "extracted_address_content": "다음 주소로 자금을 보냅니다\n${recipient_name}",
   "failed_authentication": "인증 실패. ${state_error}",

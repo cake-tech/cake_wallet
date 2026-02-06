@@ -427,6 +427,7 @@
   "export_outputs": "Експортни резултати",
   "extend_session": "Удължаване на сесията",
   "external": "Външен",
+  "external_wallet": "Външен портфейл",
   "extra_id": "Допълнително ID:",
   "extracted_address_content": "Ще изпратите средства на \n${recipient_name}",
   "failed_authentication": "Неуспешно удостоверяване. ${state_error}",

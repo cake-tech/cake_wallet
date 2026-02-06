@@ -427,6 +427,7 @@
   "export_outputs": "Ekspor output",
   "extend_session": "Perpanjang sesi",
   "external": "Luar",
+  "external_wallet": "Dompet eksternal",
   "extra_id": "ID tambahan:",
   "extracted_address_content": "Anda akan mengirim dana ke\n${recipient_name}",
   "failed_authentication": "Otentikasi gagal. ${state_error}",

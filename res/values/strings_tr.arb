@@ -427,6 +427,7 @@
   "export_outputs": "İhracat çıktıları",
   "extend_session": "Oturumu Genişlet",
   "external": "Harici",
+  "external_wallet": "Harici cüzdan",
   "extra_id": "Ekstra ID:",
   "extracted_address_content": "Parayı buraya gönderceksin:\n${recipient_name}",
   "failed_authentication": "Doğrulama başarısız oldu. ${state_error}",
