@@ -208,7 +208,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 52),
                             ),
-                            onPressed: Navigator.of(context).pop,
+                            onPressed: Navigator.of(context).maybePop,
                             child: Text(
                               'Cancel',
                                 style: Theme.of(context)
@@ -229,7 +229,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                             ),
                             onPressed: () {
                               context.read<CardCustomizerBloc>().add(DesignSaved());
-                              Navigator.of(context).pop();
+                              Navigator.of(context).maybePop();
                             },
                             child: Text(
                               'Save',
