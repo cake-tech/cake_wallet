@@ -15,6 +15,7 @@ class AssetsSection extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 64.0),
       child: ListView.builder(
         shrinkWrap: true,
+        padding: EdgeInsets.zero,
         physics: NeverScrollableScrollPhysics(),
         itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length-1,
         itemBuilder: (context, index) {
