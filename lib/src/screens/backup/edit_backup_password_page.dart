@@ -1,3 +1,4 @@
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -9,7 +10,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
 import 'package:mobx/mobx.dart';
 
-class EditBackupPasswordPage extends BasePage {
+class EditBackupPasswordPage extends StatelessWidget {
   EditBackupPasswordPage(this.editBackupPasswordViewModel)
       : textEditingController = TextEditingController() {
     textEditingController.text = editBackupPasswordViewModel.backupPassword;
@@ -30,46 +31,58 @@ class EditBackupPasswordPage extends BasePage {
   String get title => S.current.edit_backup_password;
 
   @override
-  Widget body(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 24, right: 24),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Center(
-            child: Observer(
-              builder: (_) => BaseTextFormField(
-                autofocus: true,
-                enableSuggestions: false,
-                autocorrect: false,
-                keyboardType: TextInputType.visiblePassword,
-                controller: textEditingController,
-                textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
+  Widget build(BuildContext context) {
+    return Column(children: [
+      ModalTopBar(
+        title: S.of(context).edit_backup_password,
+        leadingIcon: Icon(Icons.arrow_back_ios_new),
+        onLeadingPressed: Navigator.of(context).pop,
+      ),
+      Expanded(
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+                left: 24, right: 24, bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Center(
+                  child: Observer(
+                    builder: (_) => BaseTextFormField(
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      keyboardType: TextInputType.visiblePassword,
+                      controller: textEditingController,
+                      textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                     ),
-              ),
+                  ),
+                ),
+                Positioned(
+                  child: Observer(
+                    builder: (_) => PrimaryButton(
+                      onPressed: () => onSave(context),
+                      text: S.of(context).save,
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
+                      isDisabled: !editBackupPasswordViewModel.canSave,
+                    ),
+                  ),
+                  bottom: 24,
+                  left: 0,
+                  right: 0,
+                )
+              ],
             ),
           ),
-          Positioned(
-            child: Observer(
-              builder: (_) => PrimaryButton(
-                onPressed: () => onSave(context),
-                text: S.of(context).save,
-                color: Theme.of(context).colorScheme.primary,
-                textColor: Theme.of(context).colorScheme.onPrimary,
-                isDisabled: !editBackupPasswordViewModel.canSave,
-              ),
-            ),
-            bottom: 24,
-            left: 0,
-            right: 0,
-          )
-        ],
+        ),
       ),
-    );
+    ]);
   }
 
   void onSave(BuildContext context) {
+    FocusScope.of(context).unfocus();
     showPopUp<void>(
         context: context,
         builder: (dialogContext) {
