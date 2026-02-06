@@ -501,6 +501,7 @@
   "incorrect_seed": "입력한 텍스트가 유효하지 않습니다.",
   "incorrect_seed_option": "잘못되었습니다. 다시 시도하세요.",
   "incorrect_seed_option_back": "잘못되었습니다. 시드가 올바르게 저장되었는지 확인하고 다시 시도하세요.",
+  "infobox_auto_address": "귀하의 수신 주소는 거래를 받을 때마다 교체됩니다.",
   "infobox_multichain": "이 주소를 사용하여 토큰이나 수집품을 받으세요.",
   "infobox_rotation": "이 화면을 닫았다가 다시 열 때마다 수신 주소가 순환됩니다.",
   "inputs": "입력",

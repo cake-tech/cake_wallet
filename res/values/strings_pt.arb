@@ -501,6 +501,7 @@
   "incorrect_seed": "O texto digitado não é válido.",
   "incorrect_seed_option": "Incorreto. Por favor, tente novamente",
   "incorrect_seed_option_back": "Incorreto. Certifique -se de que sua semente seja salva corretamente e tente novamente.",
+  "infobox_auto_address": "Seu endereço de recebimento será alternado sempre que você receber uma transação",
   "infobox_multichain": "Use este endereço para receber qualquer token ou colecionável em",
   "infobox_rotation": "Seu endereço de recebimento será alternado sempre que você fechar e reabrir esta tela",
   "inputs": "Entradas",

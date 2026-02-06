@@ -500,6 +500,7 @@
   "incorrect_seed": "Wprowadzony tekst jest nieprawidłowy.",
   "incorrect_seed_option": "Niepoprawny. Spróbuj ponownie",
   "incorrect_seed_option_back": "Niepoprawny. Upewnij się, że seed jest prawidłowo zapisany i spróbuj ponownie.",
+  "infobox_auto_address": "Twój adres odbiorczy będzie się zmieniać za każdym razem, gdy otrzymasz transakcję",
   "infobox_multichain": "Użyj tego adresu, aby otrzymać dowolny token lub przedmiot kolekcjonerski",
   "infobox_rotation": "Twój adres odbiorczy będzie się zmieniać za każdym razem, gdy zamkniesz i ponownie otworzysz ten ekran",
   "inputs": "Wejścia",

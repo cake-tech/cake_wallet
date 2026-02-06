@@ -502,6 +502,7 @@
   "incorrect_seed": "入力されたテキストは無効です。",
   "incorrect_seed_option": "正しくない。もう一度やり直してください",
   "incorrect_seed_option_back": "正しくない。種子が正しく保存されていることを確認し、再試行してください。",
+  "infobox_auto_address": "受信アドレスはトランザクションを受信するたびに変わります",
   "infobox_multichain": "このアドレスを使用して、トークンや収集品を受け取ります。",
   "infobox_rotation": "この画面を閉じて再度開くたびに、受信アドレスが変わります。",
   "inputs": "入力",

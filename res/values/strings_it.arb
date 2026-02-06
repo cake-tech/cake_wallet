@@ -501,6 +501,7 @@
   "incorrect_seed": "Il testo inserito non è valido.",
   "incorrect_seed_option": "Errato. Si prega di riprovare",
   "incorrect_seed_option_back": "Errato. Assicurati che il tuo seme venga salvato correttamente e riprova.",
+  "infobox_auto_address": "Il tuo indirizzo di ricezione ruoterà ogni volta che ricevi una transazione",
   "infobox_multichain": "Usa questo indirizzo per ricevere qualsiasi token o oggetto da collezione",
   "infobox_rotation": "Il tuo indirizzo di ricezione ruoterà ogni volta che chiudi e riapri questa schermata",
   "inputs": "Input",

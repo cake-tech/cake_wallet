@@ -501,6 +501,7 @@
   "incorrect_seed": "输入的助记词无效。",
   "incorrect_seed_option": "不正确。请重试",
   "incorrect_seed_option_back": "不正确。请确保您的助记词可以正确保存，然后重试。",
+  "infobox_auto_address": "每次收到交易时，您的接收地址都会轮换",
   "infobox_multichain": "使用此地址接收任何令牌或收藏品",
   "infobox_rotation": "每次您关闭并重新打开此屏幕时，您的接收地址都会轮换",
   "inputs": "输入",

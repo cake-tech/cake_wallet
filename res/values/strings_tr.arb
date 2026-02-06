@@ -501,6 +501,7 @@
   "incorrect_seed": "Girilen metin geçerli değil.",
   "incorrect_seed_option": "Yanlış. Lütfen tekrar deneyin",
   "incorrect_seed_option_back": "Yanlış. Lütfen tohumunuzun doğru bir şekilde kaydedildiğinden emin olun ve tekrar deneyin.",
+  "infobox_auto_address": "Her işlem aldığınızda alma adresiniz dönüşümlü olarak değişecektir",
   "infobox_multichain": "Herhangi bir jetonu veya koleksiyon parçasını almak için bu adresi kullanın.",
   "infobox_rotation": "Bu ekranı her kapattığınızda ve yeniden açtığınızda alma adresiniz değişecektir",
   "inputs": "Girişler",

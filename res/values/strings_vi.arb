@@ -500,6 +500,7 @@
   "incorrect_seed": "Văn bản nhập không hợp lệ.",
   "incorrect_seed_option": "Không đúng. Hãy thử lại",
   "incorrect_seed_option_back": "Không đúng. Vui lòng đảm bảo hạt giống của bạn được lưu chính xác và thử lại.",
+  "infobox_auto_address": "Địa chỉ nhận của bạn sẽ xoay vòng mỗi khi bạn nhận được giao dịch",
   "infobox_multichain": "Sử dụng địa chỉ này để nhận bất kỳ mã thông báo hoặc bộ sưu tập nào trên",
   "infobox_rotation": "Địa chỉ nhận của bạn sẽ xoay vòng mỗi khi bạn đóng và mở lại màn hình này",
   "inputs": "Đầu vào",

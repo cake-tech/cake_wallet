@@ -501,6 +501,7 @@
   "incorrect_seed": "De ingevoerde tekst is niet geldig.",
   "incorrect_seed_option": "Onjuist. Probeer het opnieuw",
   "incorrect_seed_option_back": "Onjuist. Zorg ervoor dat uw zaad correct is opgeslagen en probeer het opnieuw.",
+  "infobox_auto_address": "Uw ontvangstadres verandert elke keer dat u een transactie ontvangt",
   "infobox_multichain": "Gebruik deze addess om een ​​token of verzamelvoorwerp te ontvangen",
   "infobox_rotation": "Uw ontvangstadres verandert telkens wanneer u dit scherm sluit en opnieuw opent",
   "inputs": "Invoer",

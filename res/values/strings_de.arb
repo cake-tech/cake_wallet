@@ -501,6 +501,7 @@
   "incorrect_seed": "Der eingegebene Text ist ungültig.",
   "incorrect_seed_option": "Falsch. Bitte versuchen Sie es erneut",
   "incorrect_seed_option_back": "Falsch. Bitte stellen Sie sicher, dass Ihr Seed korrekt gespeichert wird, und versuchen Sie es erneut.",
+  "infobox_auto_address": "Ihre Empfangsadresse ändert sich jedes Mal, wenn Sie eine Transaktion erhalten",
   "infobox_multichain": "Verwenden Sie diese Adresse, um Token oder Sammlerstücke zu erhalten",
   "infobox_rotation": "Ihre Empfangsadresse ändert sich jedes Mal, wenn Sie diesen Bildschirm schließen und erneut öffnen",
   "inputs": "Eingänge",

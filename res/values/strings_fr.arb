@@ -501,6 +501,7 @@
   "incorrect_seed": "Le texte entré est invalide.",
   "incorrect_seed_option": "Incorrect. Veuillez réessayer",
   "incorrect_seed_option_back": "Incorrect. Veuillez vous assurer que votre graine est enregistrée correctement et réessayer.",
+  "infobox_auto_address": "Votre adresse de réception changera à chaque fois que vous recevrez une transaction",
   "infobox_multichain": "Utilisez cette adresse pour recevoir n'importe quel jeton ou objet de collection sur",
   "infobox_rotation": "Votre adresse de réception changera à chaque fois que vous fermerez et rouvrirez cet écran",
   "inputs": "Contributions",

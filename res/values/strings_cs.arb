@@ -501,6 +501,7 @@
   "incorrect_seed": "Zadaný text není správný.",
   "incorrect_seed_option": "Nesprávný. Zkuste to prosím znovu",
   "incorrect_seed_option_back": "Nesprávný. Ujistěte se, že vaše semeno je správně uloženo a zkuste to znovu.",
+  "infobox_auto_address": "Vaše přijímací adresa se otočí pokaždé, když obdržíte transakci",
   "infobox_multichain": "Použijte tuto adresu k získání jakéhokoli tokenu nebo sběratelského předmětu",
   "infobox_rotation": "Vaše přijímací adresa se otočí pokaždé, když zavřete a znovu otevřete tuto obrazovku",
   "inputs": "Vstupy",

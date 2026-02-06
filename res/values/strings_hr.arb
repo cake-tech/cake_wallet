@@ -501,6 +501,7 @@
   "incorrect_seed": "Uneseni tekst nije valjan.",
   "incorrect_seed_option": "Netočno. Pokušajte ponovo",
   "incorrect_seed_option_back": "Netočno. Provjerite je li vaše sjeme ispravno spasilo i pokušajte ponovo.",
+  "infobox_auto_address": "Vaša prijemna adresa će se mijenjati svaki put kada primite transakciju",
   "infobox_multichain": "Koristite ovu adresu za primanje bilo kojeg žetona ili kolekcionarskog predmeta",
   "infobox_rotation": "Vaša prijemna adresa će se mijenjati svaki put kada zatvorite i ponovno otvorite ovaj zaslon",
   "inputs": "Unosi",

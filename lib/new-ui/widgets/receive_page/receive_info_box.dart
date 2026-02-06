@@ -27,7 +27,7 @@ class ReceiveInfoBox extends StatelessWidget {
       default:
         return ReceiveInfoBox(
           iconPath: "assets/new-ui/info.svg",
-          message: S.current.infobox_rotation,
+          message: S.current.infobox_auto_address,
           onDismissed: onDismissed,
         );
     }

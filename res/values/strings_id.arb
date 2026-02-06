@@ -501,6 +501,7 @@
   "incorrect_seed": "Teks yang dimasukkan tidak valid.",
   "incorrect_seed_option": "Salah. Tolong coba lagi",
   "incorrect_seed_option_back": "Salah. Pastikan benih Anda disimpan dengan benar dan coba lagi.",
+  "infobox_auto_address": "Alamat terima Anda akan dirotasi setiap kali Anda menerima transaksi",
   "infobox_multichain": "Gunakan alamat ini untuk menerima token atau barang koleksi apa pun",
   "infobox_rotation": "Alamat penerimaan Anda akan dirotasi setiap kali Anda menutup dan membuka kembali layar ini",
   "inputs": "Input",
