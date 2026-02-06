@@ -64,8 +64,12 @@ class HistoryTile extends StatelessWidget {
       );
     }
 
-    return SvgPicture.asset(_getDirectionIcon(), colorFilter: ColorFilter.mode(direction == TransactionDirection.outgoing ? Theme.of(context).colorScheme.primary : Colors.green,
-      BlendMode.srcIn));
+    return SvgPicture.asset(_getDirectionIcon(),
+        colorFilter: ColorFilter.mode(
+            direction == TransactionDirection.outgoing
+                ? Theme.of(context).colorScheme.inverseSurface.withAlpha(175)
+                : Colors.green,
+            BlendMode.srcIn));
   }
 
   @override
