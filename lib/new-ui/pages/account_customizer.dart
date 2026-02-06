@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
@@ -55,7 +56,30 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => loadCards());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadCards();
+      final activeId = monero!.getCurrentAccount(widget.dashboardViewModel.wallet).id;
+      for (int i = 0; i < _items.length-1; i++) {
+        if(_items[i].accountListItem.id == activeId) {
+          final lastIndex = _items.length - 1;
+          final temp = _items[i];
+          _items[i] = _items[lastIndex];
+          _items[lastIndex] = temp;
+          saveCardOrder();
+          widget.dashboardViewModel.loadCardDesigns();
+          break;
+        }
+      }
+
+    });
+
+
+  }
+
+  @override
+  void dispose() {
+    saveCardOrder().then((value) => widget.dashboardViewModel.loadCardDesigns());
+    super.dispose();
   }
 
   Future<void> loadCards() async {
@@ -91,186 +115,177 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
   Widget build(BuildContext context) {
     if (_items.isEmpty) return SizedBox.shrink();
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        saveCardOrder().then((value) {
-          widget.dashboardViewModel.loadCardDesigns();
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        });
-      },
-      child: Container(
-        decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-        child: Column(
-          children: [
-            ModalTopBar(
-              title: S.of(context).wallet_accounts,
-              leadingIcon: Icon(Icons.close),
-              onLeadingPressed: Navigator.of(context).maybePop,
-              trailingIcon: Icon(Icons.refresh),
-              onTrailingPressed: showResetDialog,
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      child: Column(
+        children: [
+          ModalTopBar(
+            title: S.of(context).wallet_accounts,
+            leadingIcon: Icon(Icons.close),
+            onLeadingPressed: Navigator.of(context).maybePop,
+            trailingIcon: Icon(Icons.refresh),
+            onTrailingPressed: showResetDialog,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            child: Text(
+              S.of(context).account_customizer_desc,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0),
-              child: Text(
-                S.of(context).account_customizer_desc,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-              ),
-            ),
-            Expanded(
-              child: Stack(
-                children: [
-                  ReorderableListView.builder(
-                    scrollController: ModalScrollController.of(context),
-                    onReorder: reorder,
-                    proxyDecorator: (child, index, animation) {
-                      return AnimatedBuilder(
-                        animation: animation,
-                        builder: (context, _) {
-                          final animValue = Curves.easeOutCubic.transform(animation.value);
-                          final scale = lerpDouble(1, 1.05, animValue)!;
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                ReorderableListView.builder(
+                  scrollController: ModalScrollController.of(context),
+                  onReorder: reorder,
+                  proxyDecorator: (child, index, animation) {
+                    return AnimatedBuilder(
+                      animation: animation,
+                      builder: (context, _) {
+                        final animValue = Curves.easeOutCubic.transform(animation.value);
+                        final scale = lerpDouble(1, 1.05, animValue)!;
 
-                          return Opacity(
-                            opacity: 1 - animValue.clamp(0.0, 0.1),
-                            child: Center(
-                              child: SizedBox(
-                                width: cardWidth,
-                                child: Transform.scale(
-                                  scale: scale,
-                                  child: child,
-                                ),
+                        return Opacity(
+                          opacity: 1 - animValue.clamp(0.0, 0.1),
+                          child: Center(
+                            child: SizedBox(
+                              width: cardWidth,
+                              child: Transform.scale(
+                                scale: scale,
+                                child: child,
                               ),
                             ),
-                          );
-                        },
-                        child: _items[index].card,
-                      );
-                    },
-                    itemCount: _items.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final card = _items[index].card;
-
-                      return Container(
-                        key: ValueKey(index),
-                        child: GestureDetector(
-                          onTap: () {
-                            reorder(index, _items.length);
-                            Navigator.of(context).maybePop();
-                          },
-                          child: Align(
-                            alignment: Alignment.topCenter,
-                            heightFactor: _kStackVisibleFactor,
-                            child: card,
                           ),
+                        );
+                      },
+                      child: _items[index].card,
+                    );
+                  },
+                  itemCount: _items.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final card = _items[index].card;
+
+                    return Container(
+                      key: ValueKey(index),
+                      child: GestureDetector(
+                        onTap: () {
+                          reorder(index, _items.length);
+                          Navigator.of(context).maybePop();
+                        },
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          heightFactor: _kStackVisibleFactor,
+                          child: card,
                         ),
-                      );
-                    },
-                  ),
-                  SafeArea(
-                      child: Padding(
-                          padding: EdgeInsets.only(bottom: 50),
-                          child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                spacing: 16,
-                                children: [
-                                  Material(
+                      ),
+                    );
+                  },
+                ),
+                SafeArea(
+                    child: Padding(
+                        padding: EdgeInsets.only(bottom: 50),
+                        child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              spacing: 16,
+                              children: [
+                                Material(
+                                  borderRadius: BorderRadius.circular(999999),
+                                  color: Theme.of(context).colorScheme.surfaceContainer,
+                                  child: InkWell(
                                     borderRadius: BorderRadius.circular(999999),
-                                    color: Theme.of(context).colorScheme.surfaceContainer,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(999999),
-                                      onTap: () {
-                                        Navigator.of(context).push(CupertinoPageRoute(
-                                          builder: (context) {
-                                            return BlocProvider(
-                                              create: (context) => getIt.get<CardCustomizerBloc>(),
-                                              child: Material(
-                                                child: BlocListener<CardCustomizerBloc,
-                                                        CardCustomizerState>(
-                                                    listener: (context, state) async {
-                                                      if (state is CardCustomizerSaved) {
-                                                        await widget.dashboardViewModel
-                                                            .loadCardDesigns();
-                                                        loadCards();
-                                                      }
-                                                    },
-                                                    child: CardCustomizer(
-                                                      cryptoTitle: widget.dashboardViewModel.wallet
-                                                              .currency.fullName ??
-                                                          widget.dashboardViewModel.wallet.currency
-                                                              .name,
-                                                      cryptoName: widget
-                                                          .dashboardViewModel.wallet.currency.name,
-                                                    )),
-                                              ),
-                                            );
-                                          },
-                                        ));
-                                      },
-                                      child: Container(
-                                        child: Padding(
-                                          padding: EdgeInsets.all(12),
-                                          child: Row(
-                                            spacing: 10,
-                                            children: [
-                                              Icon(Icons.edit,
+                                    onTap: () {
+                                      Navigator.of(context).push(CupertinoPageRoute(
+                                        builder: (context) {
+                                          return BlocProvider(
+                                            create: (context) => getIt.get<CardCustomizerBloc>(),
+                                            child: Material(
+                                              child: BlocListener<CardCustomizerBloc,
+                                                      CardCustomizerState>(
+                                                  listener: (context, state) async {
+                                                    if (state is CardCustomizerSaved) {
+                                                      await widget.dashboardViewModel
+                                                          .loadCardDesigns();
+                                                      loadCards();
+                                                    }
+                                                  },
+                                                  child: CardCustomizer(
+                                                    cryptoTitle: widget.dashboardViewModel.wallet
+                                                            .currency.fullName ??
+                                                        widget.dashboardViewModel.wallet.currency
+                                                            .name,
+                                                    cryptoName: widget
+                                                        .dashboardViewModel.wallet.currency.name,
+                                                  )),
+                                            ),
+                                          );
+                                        },
+                                      ));
+                                    },
+                                    child: Container(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(12),
+                                        child: Row(
+                                          spacing: 10,
+                                          children: [
+                                            Icon(Icons.edit,
+                                                color: Theme.of(context).colorScheme.primary,
+                                                size: 20),
+                                            Text(
+                                              S.of(context).edit_current,
+                                              style: TextStyle(
                                                   color: Theme.of(context).colorScheme.primary,
-                                                  size: 20),
-                                              Text(
-                                                S.of(context).edit_current,
-                                                style: TextStyle(
-                                                    color: Theme.of(context).colorScheme.primary,
-                                                    fontWeight: FontWeight.w500),
-                                              )
-                                            ],
-                                          ),
+                                                  fontWeight: FontWeight.w500),
+                                            )
+                                          ],
                                         ),
                                       ),
                                     ),
                                   ),
-                                  Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(999999),
-                                      onTap: () async {
-                                        final res = await showCupertinoModalBottomSheet(
-                                            context: context,
-                                            backgroundColor: Colors.transparent,
-                                            builder: (context) {
-                                              final modal = getIt.get<AccountCreationModal>();
-                                              return Material(
-                                                  child: modal);
-                                            });
-                                        if (res != null && res is bool && res == true) {
-                                          await widget.dashboardViewModel.loadCardDesigns();
-                                          await loadCards();
-                                          await saveCardOrder();
-                                        }
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.surfaceContainer,
-                                            borderRadius: BorderRadius.circular(999999)),
-                                        child: Padding(
-                                            padding: EdgeInsets.all(8),
-                                            child: Icon(
-                                              Icons.add,
-                                              size: 28,
-                                              color: Theme.of(context).colorScheme.primary,
-                                            )),
-                                      ),
+                                ),
+                                Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(999999),
+                                    onTap: () async {
+                                      final res = await showCupertinoModalBottomSheet(
+                                          context: context,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (context) {
+                                            final modal = getIt.get<AccountCreationModal>();
+                                            return Material(
+                                                child: modal);
+                                          });
+                                      if (res != null && res is bool && res == true) {
+                                        await widget.dashboardViewModel.loadCardDesigns();
+                                        await loadCards();
+                                        await saveCardOrder();
+                                      }
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.surfaceContainer,
+                                          borderRadius: BorderRadius.circular(999999)),
+                                      child: Padding(
+                                          padding: EdgeInsets.all(8),
+                                          child: Icon(
+                                            Icons.add,
+                                            size: 28,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          )),
                                     ),
-                                  )
-                                ],
-                              )))),
-                ],
-              ),
+                                  ),
+                                )
+                              ],
+                            )))),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
