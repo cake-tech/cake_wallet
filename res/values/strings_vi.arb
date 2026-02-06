@@ -94,6 +94,7 @@
   "bill_amount": "Số tiền hóa đơn",
   "billing_address_info": "Nếu được yêu cầu địa chỉ thanh toán, hãy cung cấp địa chỉ giao hàng của bạn",
   "biometric_auth_reason": "Quét vân tay để xác thực",
+  "bitcoin_amount_display": "Hiển thị số lượng Bitcoin",
   "bitcoin_dark_theme": "Chủ đề Bitcoin tối",
   "bitcoin_light_theme": "Chủ đề Bitcoin sáng",
   "bitcoin_lightning_deposit": "Tiền gửi",

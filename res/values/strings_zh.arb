@@ -94,6 +94,7 @@
   "bill_amount": "账单金额",
   "billing_address_info": "如果要求提供帐单地址，请提供您的送货地址",
   "biometric_auth_reason": "扫描指纹进行身份认证",
+  "bitcoin_amount_display": "比特币金额显示",
   "bitcoin_dark_theme": "比特币深色主题",
   "bitcoin_light_theme": "比特币浅色主题",
   "bitcoin_lightning_deposit": "订金",

@@ -62,7 +62,7 @@ class DisplaySettingsPage extends BasePage {
               ),
               if (_displaySettingsViewModel.showDisplayAmountsInSatoshiSetting)
                 SettingsPickerCell<BitcoinAmountDisplayMode>(
-                  title: "Bitcoin Amount Display", // ToDo (Konsti) localize
+                  title: S.of(context).bitcoin_amount_display,
                   items: BitcoinAmountDisplayMode.all,
                   selectedItem: _displaySettingsViewModel.displayAmountsInSatoshi,
                   onItemSelected: _displaySettingsViewModel.setDisplayAmountsInSatoshi,

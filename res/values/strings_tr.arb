@@ -94,6 +94,7 @@
   "bill_amount": "Fatura Tutarı",
   "billing_address_info": "Eğer fatura adresi istenirse, kargo adresinizi girin",
   "biometric_auth_reason": "Kimlik doğrulaması için parmak izini okutun",
+  "bitcoin_amount_display": "Bitcoin Tutarı Gösterimi",
   "bitcoin_dark_theme": "Bitcoin Karanlık Teması",
   "bitcoin_light_theme": "Bitcoin Hafif Tema",
   "bitcoin_lightning_deposit": "Mevduat",

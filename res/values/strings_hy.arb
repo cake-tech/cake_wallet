@@ -94,6 +94,7 @@
   "bill_amount": "Հաշիվը",
   "billing_address_info": "Եթե խնդրեն հաշվեվճարի հասցե, ապա տրամադրեք ձեր առաքման հասցեն",
   "biometric_auth_reason": "Սկանավեք ձեր մատնահետքը նույնականացման համար",
+  "bitcoin_amount_display": "Bitcoin գումարի ցուցադրում",
   "bitcoin_dark_theme": "Bitcoin մութ տեսք",
   "bitcoin_light_theme": "Bitcoin պայծառ տեսք",
   "bitcoin_lightning_deposit": "Ավանդ",

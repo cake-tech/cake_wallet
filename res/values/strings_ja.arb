@@ -94,6 +94,7 @@
   "bill_amount": "請求額",
   "billing_address_info": "請求先住所を尋ねられた場合は、配送先住所を入力してください",
   "biometric_auth_reason": "प指紋をスキャンして認証する",
+  "bitcoin_amount_display": "ビットコイン量表示",
   "bitcoin_dark_theme": "ビットコインダークテーマ",
   "bitcoin_light_theme": "ビットコインライトテーマ",
   "bitcoin_lightning_deposit": "デポジット",

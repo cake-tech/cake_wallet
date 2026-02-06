@@ -94,6 +94,7 @@
   "bill_amount": "बिल राशि",
   "billing_address_info": "यदि बिलिंग पता मांगा जाए, तो अपना शिपिंग पता प्रदान करें",
   "biometric_auth_reason": "प्रमाणित करने के लिए अपने फ़िंगरप्रिंट को स्कैन करें",
+  "bitcoin_amount_display": "बिटकॉइन राशि प्रदर्शन",
   "bitcoin_dark_theme": "बिटकॉइन डार्क थीम",
   "bitcoin_light_theme": "बिटकॉइन लाइट थीम",
   "bitcoin_lightning_deposit": "जमा",

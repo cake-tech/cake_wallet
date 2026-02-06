@@ -94,6 +94,7 @@
   "bill_amount": "Halaga ng Bill",
   "billing_address_info": "Kung humihingi ng billing address, ibigay ang iyong shipping address",
   "biometric_auth_reason": "I-scan ang iyong fingerprint para ma-authenticate",
+  "bitcoin_amount_display": "Pagpapakita ng Halaga ng Bitcoin",
   "bitcoin_dark_theme": "Bitcoin Dark Theme",
   "bitcoin_light_theme": "Bitcoin Light Theme",
   "bitcoin_lightning_deposit": "Deposito",

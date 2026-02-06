@@ -94,6 +94,7 @@
   "bill_amount": "Bill bedrag",
   "billing_address_info": "Als u om een ​​factuuradres wordt gevraagd, geef dan uw verzendadres op",
   "biometric_auth_reason": "Scan uw vingerafdruk om te verifiëren",
+  "bitcoin_amount_display": "Bitcoin-bedragweergave",
   "bitcoin_dark_theme": "Bitcoin donker thema",
   "bitcoin_light_theme": "Bitcoin Light-thema",
   "bitcoin_lightning_deposit": "Borg",

@@ -94,6 +94,7 @@
   "bill_amount": "Importe de la factura",
   "billing_address_info": "Si se le solicita una dirección de facturación, proporcione su dirección de envío",
   "biometric_auth_reason": "Escanee su huella dactilar para autenticarse",
+  "bitcoin_amount_display": "Visualización de cantidad de Bitcoin",
   "bitcoin_dark_theme": "Tema oscuro de Bitcoin",
   "bitcoin_light_theme": "Tema claro de Bitcoin",
   "bitcoin_lightning_deposit": "Depósito",

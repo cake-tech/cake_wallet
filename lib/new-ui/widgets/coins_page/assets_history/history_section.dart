@@ -26,7 +26,7 @@ class HistorySection extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemCount: dashboardViewModel.items.length,
-          itemBuilder: (context, index) {
+          itemBuilder: (context, index) => Observer(builder: (_) {
             final prevItem = index == 0 ? null : dashboardViewModel.items[index - 1];
             final item = dashboardViewModel.items[index];
             final nextItem = index == dashboardViewModel.items.length - 1
@@ -35,7 +35,6 @@ class HistorySection extends StatelessWidget {
 
             final roundedBottom = (nextItem == null || nextItem is DateSectionItem);
             final roundedTop = (prevItem == null || prevItem is DateSectionItem);
-
 
             if (item is TransactionListItem) {
               final transaction = item.transaction;
@@ -46,23 +45,22 @@ class HistorySection extends StatelessWidget {
               }
 
               CryptoCurrency? asset;
-              if (transaction.additionalInfo["isLightning"] == true)
-                asset = CryptoCurrency.btcln;
+              if (transaction.additionalInfo["isLightning"] == true) asset = CryptoCurrency.btcln;
 
               return GestureDetector(
                 onTap: () => Navigator.of(context)
                     .pushNamed(Routes.transactionDetails, arguments: transaction),
                 child: HistoryTile(
-                    title: item.formattedTitle + item.formattedStatus + transactionType,
-                    date: DateFormatter.convertDateTimeToReadableString(item.date),
-                    amount: item.formattedCryptoAmount,
-                    amountFiat: item.formattedFiatAmount,
-                    roundedBottom: roundedBottom,
-                    roundedTop: roundedTop,
-                    bottomSeparator: !roundedBottom,
-                    direction: item.transaction.direction,
-                    pending: item.transaction.isPending,
-                    asset: asset,
+                  title: item.formattedTitle + item.formattedStatus + transactionType,
+                  date: DateFormatter.convertDateTimeToReadableString(item.date),
+                  amount: item.formattedCryptoAmount,
+                  amountFiat: item.formattedFiatAmount,
+                  roundedBottom: roundedBottom,
+                  roundedTop: roundedTop,
+                  bottomSeparator: !roundedBottom,
+                  direction: item.transaction.direction,
+                  pending: item.transaction.isPending,
+                  asset: asset,
                 ),
               );
             } else if (item is TradeListItem) {
@@ -87,7 +85,7 @@ class HistorySection extends StatelessWidget {
               return Padding(
                   padding: EdgeInsets.only(left: 8.0, bottom: 8.0),
                   child: Text(DateFormatter.convertDateTimeToReadableString(item.date)));
-            }else if(item is OrderListItem){
+            } else if (item is OrderListItem) {
               return HistoryOrderTile(
                 date: DateFormatter.convertDateTimeToReadableString(item.date),
                 amount: item.orderFormattedAmount,
@@ -98,7 +96,7 @@ class HistorySection extends StatelessWidget {
               );
             } else
               return Text(item.runtimeType.toString());
-          },
+          }),
         ),
       ),
     );

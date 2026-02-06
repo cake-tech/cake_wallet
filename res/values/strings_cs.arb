@@ -94,6 +94,7 @@
   "bill_amount": "Účtovaná částka",
   "billing_address_info": "Při dotazu na fakturační adresu, zadejte svou doručovací adresu",
   "biometric_auth_reason": "Naskenujte otisk prstu pro ověření",
+  "bitcoin_amount_display": "Zobrazení částky bitcoinů",
   "bitcoin_dark_theme": "Tmavé téma bitcoinů",
   "bitcoin_light_theme": "Světlé téma bitcoinů",
   "bitcoin_lightning_deposit": "Vklad",

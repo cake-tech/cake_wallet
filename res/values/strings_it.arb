@@ -94,6 +94,7 @@
   "bill_amount": "Importo della ricevuta",
   "billing_address_info": "Se ti viene richiesto un indirizzo di fatturazione, fornisci il tuo indirizzo di spedizione",
   "biometric_auth_reason": "Scansiona la tua impronta per autenticarti",
+  "bitcoin_amount_display": "Visualizzazione dell'importo in Bitcoin",
   "bitcoin_dark_theme": "Tema scuro Bitcoin",
   "bitcoin_light_theme": "Tema chiaro Bitcoin",
   "bitcoin_lightning_deposit": "Depositare",

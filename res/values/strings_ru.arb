@@ -94,6 +94,7 @@
   "bill_amount": "Сумма счета",
   "billing_address_info": "Если вас попросят указать платежный адрес, укажите адрес доставки",
   "biometric_auth_reason": "Отсканируйте свой отпечаток пальца для аутентификации",
+  "bitcoin_amount_display": "Отображение суммы биткойнов",
   "bitcoin_dark_theme": "Биткойн Темная тема",
   "bitcoin_light_theme": "Светлая биткойн-тема",
   "bitcoin_lightning_deposit": "Депозит",

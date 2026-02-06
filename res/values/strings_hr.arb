@@ -94,6 +94,7 @@
   "bill_amount": "Iznos računa",
   "billing_address_info": "Ako se od vas zatraži adresa za naplatu, navedite svoju adresu za dostavu",
   "biometric_auth_reason": "Skenirajte svoj otisak prsta za autentifikaciju",
+  "bitcoin_amount_display": "Prikaz iznosa bitcoina",
   "bitcoin_dark_theme": "Bitcoin Tamna tema",
   "bitcoin_light_theme": "Bitcoin Light Theme",
   "bitcoin_lightning_deposit": "Polog",

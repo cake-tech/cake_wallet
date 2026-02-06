@@ -94,6 +94,7 @@
   "bill_amount": "Bill Amount",
   "billing_address_info": "If asked for a billing address, provide your shipping address",
   "biometric_auth_reason": "Scan your fingerprint to authenticate",
+  "bitcoin_amount_display": "Bitcoin Amount Display",
   "bitcoin_dark_theme": "Bitcoin Dark Theme",
   "bitcoin_light_theme": "Bitcoin Light Theme",
   "bitcoin_lightning_deposit": "Deposit",

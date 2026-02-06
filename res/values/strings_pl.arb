@@ -94,6 +94,7 @@
   "bill_amount": "Kwota rachunku",
   "billing_address_info": "Jeśli zostaniesz poproszony o podanie adresu rozliczeniowego, podaj adres wysyłki",
   "biometric_auth_reason": "Zeskanuj odcisk palca, aby się uwierzytelnić",
+  "bitcoin_amount_display": "Wyświetlanie kwoty Bitcoin",
   "bitcoin_dark_theme": "Ciemny motyw Bitcoin",
   "bitcoin_light_theme": "Jasny motyw Bitcoin",
   "bitcoin_lightning_deposit": "Depozyt",
