@@ -1009,15 +1009,35 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
 
-  void showErrorValidationAlert(BuildContext context) => showPopUp<void>(
-    context: context,
-    builder: (context) => AlertWithOneAction(
-      alertTitle: S.of(context).error,
-      alertContent: 'Please, check receiver forms',
-      buttonText: S.of(context).ok,
-      buttonAction: () => Navigator.of(context).pop(),
-    ),
-  );
+  void showErrorValidationAlert(BuildContext context) {
+    int emptyAddressIndex = -1;
+    for (int i = 0; i < widget.sendViewModel.outputs.length; i++) {
+      if (widget.sendViewModel.outputs[i].address.isEmpty) {
+        emptyAddressIndex = i;
+        break;
+      }
+    }
+
+    showPopUp<void>(
+      context: context,
+      builder: (context) =>
+          AlertWithOneAction(
+            alertTitle: S
+                .of(context)
+                .error,
+            alertContent: emptyAddressIndex == -1
+                ? S.of(context).check_receiver_forms
+                : S.of(context).enter_recipient_address,
+            buttonText: S
+                .of(context)
+                .ok,
+            buttonAction: () => Navigator.of(context).pop(),
+          ),
+    );
+    if (emptyAddressIndex != -1) {
+      _setOutput(emptyAddressIndex);
+    }
+  }
 
   bool isRegularElectrumAddress(String address) {
     final supportedTypes = [CryptoCurrency.btc, CryptoCurrency.ltc, CryptoCurrency.bch];
