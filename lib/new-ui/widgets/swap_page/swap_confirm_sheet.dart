@@ -111,6 +111,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                               trailingText: widget.exchangeTradeViewModel.trade.amountFormatted() +
                                   " " +
                                   (widget.exchangeTradeViewModel.trade.from?.title ?? "")),
+                          if(widget.exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "fee",
