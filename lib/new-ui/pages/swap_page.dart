@@ -118,14 +118,27 @@ class _NewSwapPageState extends State<NewSwapPage> {
       if (limitsState is LimitsLoadedSuccessfully) {}
 
       depositFiatAmountController.addListener(() {
-        widget.exchangeViewModel
-            .setDepositAmountFromFiat(fiatAmount: depositFiatAmountController.text);
-        receiveKey.currentState!.updateFiatAmount();
+        Future.delayed(Duration(milliseconds: 200)).then((_) {
+          if (double.tryParse(depositFiatAmountController.text) != null) {
+            widget.exchangeViewModel
+                .setDepositAmountFromFiat(fiatAmount: depositFiatAmountController.text);
+            receiveKey.currentState!.updateFiatAmount();
+          }
+        });
       });
       receiveFiatAmountController.addListener(() {
-        widget.exchangeViewModel
-            .setReceiveAmountFromFiat(fiatAmount: receiveFiatAmountController.text);
-        depositKey.currentState!.updateFiatAmount();
+        Future.delayed(Duration(milliseconds: 200)).then((_) {
+          if (double.tryParse(receiveFiatAmountController.text) != null) {
+            String text = receiveFiatAmountController.text;
+            if(text.contains(".")) {
+              text = text.replaceAll(RegExp(r'0+$'), '');
+              text = text.replaceAll(RegExp(r'\.$'), '');
+            }
+            widget.exchangeViewModel
+                .setReceiveAmountFromFiat(fiatAmount: receiveFiatAmountController.text);
+            depositKey.currentState!.updateFiatAmount();
+          }
+        });
       });
 
       reaction((_) => widget.exchangeViewModel.depositAmount, (String amount) {
@@ -1116,11 +1129,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         ? widget.exchangeViewModel.receiveAmountFiat
         : widget.exchangeViewModel.depositAmountFiat;
 
-    if (fiatAmountController.text != newText) {
+    if (double.parse(fiatAmountController.text) != double.parse(newText)) {
       if (newText == "0.00") {
         fiatAmountController.text = "";
       } else {
-        fiatAmountController.text = newText.replaceFirst(".00", "");
+        fiatAmountController.text = newText.replaceAll(RegExp(r'0+$'), '');
       }
     }
   }
