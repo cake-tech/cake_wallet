@@ -136,6 +136,7 @@ class _CardsViewState extends State<CardsView> {
               width: cardWidth,
               accountName: accountName,
               accountBalance: accountBalance,
+              designSwitchDuration: Duration(milliseconds: 150),
               assetName: walletCurrency.title,
               balance: walletBalance,
               fiatBalance: walletFiatBalance,
