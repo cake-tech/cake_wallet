@@ -401,19 +401,18 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     int? decimals,
     bool? enabled,
     bool? isPotentialScam,
-  }) {
-    return CryptoCurrency(
-      title: title ?? this.title,
-      raw: raw ?? this.raw,
-      name: name ?? this.name,
-      fullName: fullName ?? this.fullName,
-      iconPath: iconPath ?? this.iconPath,
-      tag: tag ?? this.tag,
-      decimals: decimals ?? this.decimals,
-      enabled: enabled ?? this.enabled,
-      isPotentialScam: isPotentialScam ?? this.isPotentialScam,
-    );
-  }
+  }) =>
+      CryptoCurrency(
+        title: title ?? this.title,
+        raw: raw ?? this.raw,
+        name: name ?? this.name,
+        fullName: fullName ?? this.fullName,
+        iconPath: iconPath ?? this.iconPath,
+        tag: tag ?? this.tag,
+        decimals: decimals ?? this.decimals,
+        enabled: enabled ?? this.enabled,
+        isPotentialScam: isPotentialScam ?? this.isPotentialScam,
+      );
 
   @override
   String toString() => title;

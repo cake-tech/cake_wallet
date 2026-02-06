@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
@@ -25,7 +26,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
   FeesViewModelBase(
     AppStore appStore,
     this.balanceViewModel,
-  )   : _settingsStore = appStore.settingsStore,
+  )   : _appStore = appStore,
         super(appStore: appStore) {
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
@@ -38,6 +39,10 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       _settingsStore.setPriority(wallet.type, priorities.first, chainId: wallet.chainId);
     }
   }
+
+  final AppStore _appStore;
+  SettingsStore get _settingsStore => _appStore.settingsStore;
+  AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   @computed
   WalletType get walletType => wallet.type;
@@ -136,8 +141,6 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
-
-  final SettingsStore _settingsStore;
 
   @action
   void setTransactionPriority(TransactionPriority priority) =>

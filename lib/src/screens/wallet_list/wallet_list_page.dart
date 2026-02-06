@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -173,12 +174,12 @@ class WalletListBodyState extends State<WalletListBody> {
                               final group = widget.walletListViewModel.multiWalletGroups[index];
                               final groupName =
                                   group.groupName ?? '${S.current.wallet_group} ${index + 1}';
-            
+
                               widget.walletListViewModel.updateTileState(
                                 index,
                                 widget.walletListViewModel.expansionTileStateTrack[index] ?? false,
                               );
-            
+
                               return GroupedWalletExpansionTile(
                                 onExpansionChanged: (value) {
                                   widget.walletListViewModel.updateTileState(index, value);

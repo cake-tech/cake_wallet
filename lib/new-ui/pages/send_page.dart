@@ -235,7 +235,13 @@ class _NewSendPageState extends State<NewSendPage> {
                         if (widget.sendViewModel.outputs.length > 1)
                           ModernButton(
                               size: 36,
-                              icon: SvgPicture.asset("assets/new-ui/remove_recipient.svg",colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn),),
+                              icon: SvgPicture.asset(
+                                "assets/new-ui/remove_recipient.svg",
+                                colorFilter: ColorFilter.mode(
+                                  Theme.of(context).colorScheme.primary,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
                               onPressed: () {
                                 final outputIndex = _selectedOutput;
                                 if (_selectedOutput != 0) {

@@ -11,6 +11,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
@@ -90,6 +91,7 @@ abstract class SettingsStoreBase with Store {
       required this.deviceName,
       required Map<WalletType, Node> nodes,
       required Map<WalletType, Node> powNodes,
+      required this.displayAmountsInSatoshi,
       required this.shouldShowYatPopup,
       required this.shouldShowDEuroDisclaimer,
       required this.shouldShowRepWarning,
@@ -435,6 +437,11 @@ abstract class SettingsStoreBase with Store {
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
+    reaction(
+        (_) => displayAmountsInSatoshi,
+        (BitcoinAmountDisplayMode displayAmountsInSatoshi) => sharedPreferences.setInt(
+            PreferencesKey.displayAmountsInSatoshi, displayAmountsInSatoshi.raw));
+
     reaction((_) => currentSyncMode, (SyncMode syncMode) {
       sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
       FlutterDaemon().startBackgroundSync(syncMode.frequency.inMinutes);
@@ -736,6 +743,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   BalanceDisplayMode balanceDisplayMode;
+
+  @observable
+  BitcoinAmountDisplayMode displayAmountsInSatoshi;
 
   @observable
   FiatApiMode fiatApiMode;
@@ -1121,6 +1131,8 @@ abstract class SettingsStoreBase with Store {
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
+    final displayAmountsInSatoshi = BitcoinAmountDisplayMode.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.displayAmountsInSatoshi) ?? 0);
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
@@ -1489,6 +1501,7 @@ abstract class SettingsStoreBase with Store {
       powNodes: powNodes,
       appVersion: packageInfo.version,
       deviceName: deviceName,
+      displayAmountsInSatoshi: displayAmountsInSatoshi,
       isBitcoinBuyEnabled: isBitcoinBuyEnabled,
       initialFiatCurrency: currentFiatCurrency,
       initialCakePayCountry: currentCakePayCountry,

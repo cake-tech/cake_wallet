@@ -42,7 +42,7 @@ class HistoryTradeTile extends StatelessWidget {
               child: Container(
                   decoration: BoxDecoration(
                       border: Border.all(
-                          width: 1,
+                          width: 2,
                           color: Theme.of(context).colorScheme.surfaceContainer),
                       shape: BoxShape.circle),
                   child: Image.asset(_getIconPath(to),

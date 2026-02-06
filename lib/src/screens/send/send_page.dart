@@ -264,7 +264,7 @@ class SendPage extends BasePage {
                                                 dotColor: Theme.of(context)
                                                     .colorScheme
                                                     .primary
-                                                    .withOpacity(0.4),
+                                                    .withAlpha(100),
                                                 activeDotColor: Theme.of(context).colorScheme.primary,
                                               ),
                                             ),
@@ -415,12 +415,11 @@ class SendPage extends BasePage {
                                     return;
                                   }
 
-                                  final notValidItems = sendViewModel.outputs
-                                      .where(
-                                          (item) => item.address.isEmpty || item.cryptoAmount.isEmpty)
-                                      .toList();
+                                  final hasInvalidItems = sendViewModel.outputs.any((item) =>
+                                  item.address.isEmpty ||
+                                  (item.cryptoAmount.isEmpty && !item.sendAll));
 
-                                  if (notValidItems.isNotEmpty) {
+                                  if (hasInvalidItems) {
                                     showErrorValidationAlert(context);
                                     return;
                                   }
@@ -570,34 +569,37 @@ class SendPage extends BasePage {
               isScrollControlled: true,
               builder: (BuildContext bottomSheetContext) {
                 return Observer(
-                  builder: (_) => ConfirmSendingBottomSheet(
-                    key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
-                    titleText: S.of(bottomSheetContext).confirm_transaction,
-                    accessibleNavigationModeSlideActionButtonText:
-                        S.of(bottomSheetContext).send,
-                    footerType: FooterType.slideActionButton,
-                    isSlideActionEnabled: sendViewModel.isReadyForSend,
-                    walletType: sendViewModel.walletType,
-                    titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
-                    currency: sendViewModel.selectedCryptoCurrency,
-                    amount: S.of(bottomSheetContext).send_amount,
-                    amountValue: sendViewModel.pendingTransaction!.amountFormatted,
-                    fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
-                    fee: isEVMCompatibleChain(sendViewModel.walletType)
-                        ? S.of(bottomSheetContext).send_estimated_fee
-                        : S.of(bottomSheetContext).send_fee,
-                    feeValue: sendViewModel.pendingTransaction!.feeFormatted,
-                    feeFiatAmount:
-                        sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-                    outputs: sendViewModel.outputs,
-                    onSlideActionComplete: () async {
-                      Navigator.of(bottomSheetContext).pop(true);
-                      sendViewModel.commitTransaction(context);
-                    },
-                    change: sendViewModel.pendingTransaction!.change,
-                    isOpenCryptoPay: sendViewModel.ocpRequest != null,
-                  ),
-                );
+                    builder: (_) => ConfirmSendingBottomSheet(
+                  key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
+                  titleText: S.of(bottomSheetContext).confirm_transaction,
+                  accessibleNavigationModeSlideActionButtonText: S.of(bottomSheetContext).send,
+                  footerType: FooterType.slideActionButton,
+                  isSlideActionEnabled: sendViewModel.isReadyForSend,
+                  walletType: sendViewModel.walletType,
+                  titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
+                  currency: sendViewModel.selectedCryptoCurrency,
+                  amount: S.of(bottomSheetContext).send_amount,
+                  amountValue: sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
+                      sendViewModel.pendingTransaction!.amountFormatted,
+                      sendViewModel.selectedCryptoCurrency),
+                  fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
+                  fee: isEVMCompatibleChain(sendViewModel.walletType)
+                      ? S.of(bottomSheetContext).send_estimated_fee
+                      : S.of(bottomSheetContext).send_fee,
+                  feeValue: "${sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
+                      sendViewModel.pendingTransaction!.feeFormattedValue,
+                      sendViewModel.selectedCryptoCurrency)} ${sendViewModel.amountParsingProxy
+                      .getCryptoSymbol(sendViewModel.wallet.currency)}",
+                  feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  outputs: sendViewModel.outputs,
+                  onSlideActionComplete: () async {
+                    Navigator.of(bottomSheetContext).pop(true);
+                    sendViewModel.commitTransaction(context);
+                  },
+                  change: sendViewModel.pendingTransaction!.change,
+                  isOpenCryptoPay: sendViewModel.ocpRequest != null,
+                  amountParsingProxy: sendViewModel.amountParsingProxy,
+                ),);
               },
             );
 

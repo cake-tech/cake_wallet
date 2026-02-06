@@ -16,7 +16,6 @@ import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/list_item.dart';
@@ -29,14 +28,12 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_util.d
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cake_wallet/zano/zano.dart';
-import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 
 part 'wallet_address_list_view_model.g.dart';
@@ -50,9 +47,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     required this.fiatConversionStore,
   })  : _baseItems = <ListItem>[],
         selectedCurrency = appStore.wallet!.currency,
-        _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
         hasAccounts = [WalletType.monero, WalletType.wownero].contains(appStore.wallet!.type),
-        _settingsStore = appStore.settingsStore,
+        _appStore = appStore,
         super(appStore: appStore) {
     _init();
   }
@@ -68,12 +64,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven].contains(wallet.type);
   }
 
-  static const String _cryptoNumberPattern = '0.00000000';
-
-  final NumberFormat _cryptoNumberFormat;
-
   final FiatConversionStore fiatConversionStore;
-  final SettingsStore _settingsStore;
+  final AppStore _appStore;
 
   double? _fiatRate;
   String _rawAmount = '';
@@ -103,6 +95,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @observable
   Currency selectedCurrency;
+
+  @computed
+  int get selectedCurrencyDecimals => useSatoshi ? 0 : selectedCurrency.decimals;
+
+  @computed
+  bool get useSatoshi =>
+      selectedCurrency is CryptoCurrency &&
+      _appStore.amountParsingProxy.useSatoshi(selectedCurrency as CryptoCurrency);
 
   @observable
   String searchText = '';
@@ -138,7 +138,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
-  FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
+  FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
 
   @computed
   WalletType get type => wallet.type;
@@ -153,7 +153,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get isPayjoinUnavailable =>
-      wallet.type == WalletType.bitcoin && _settingsStore.usePayjoin && payjoinEndpoint.isEmpty;
+      wallet.type == WalletType.bitcoin &&
+      _appStore.settingsStore.usePayjoin &&
+      payjoinEndpoint.isEmpty;
 
   @computed
   bool get isPayjoinAvailable => !isPayjoinUnavailable && !isSilentPayments && !isLightning;
@@ -224,10 +226,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             name: address.name,
             address: address.address,
             txCount: address.txCount,
-            balance: AmountConverter.amountIntToString(
-              walletTypeToCryptoCurrency(type),
-              address.balance,
-            ),
+            balance: _appStore.amountParsingProxy
+                .getDisplayCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
             isChange: address.isChange,
           );
         });
@@ -242,10 +242,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             name: address.name,
             address: address.address,
             txCount: address.txCount,
-            balance: AmountConverter.amountIntToString(
-              walletTypeToCryptoCurrency(type),
-              address.balance,
-            ),
+            balance: _appStore.amountParsingProxy
+                .getDisplayCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
             isChange: address.isChange,
             isOneTimeReceiveAddress: true,
           );
@@ -261,10 +259,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
               name: subaddress.name,
               address: subaddress.address,
               txCount: subaddress.txCount,
-              balance: AmountConverter.amountIntToString(
-                walletTypeToCryptoCurrency(type),
-                subaddress.balance,
-              ),
+              balance: _appStore.amountParsingProxy
+                  .getDisplayCryptoString(subaddress.balance, walletTypeToCryptoCurrency(type)),
               isChange: subaddress.isChange);
         });
 
@@ -538,7 +534,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get isAutoGenerateSubaddressEnabled =>
-      _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled &&
+      _appStore.settingsStore.autoGenerateSubaddressStatus !=
+          AutoGenerateSubaddressStatus.disabled &&
       !isSilentPayments;
 
   @computed
@@ -603,14 +600,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void selectCurrency(Currency currency) {
     selectedCurrency = currency;
 
-    if (currency is FiatCurrency && _settingsStore.fiatCurrency != currency) {
+    if (currency is FiatCurrency && _appStore.settingsStore.fiatCurrency != currency) {
       final cryptoCurrency = wallet.currency;
 
       dev.log("Requesting Fiat rate for $cryptoCurrency-$currency");
       FiatConversionService.fetchPrice(
         crypto: cryptoCurrency,
         fiat: currency,
-        torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly,
+        torOnly: _appStore.settingsStore.fiatApiMode == FiatApiMode.torOnly,
       ).then((value) {
         dev.log("Received Fiat rate 1 $cryptoCurrency = $value $currency");
         _fiatRate = value;
@@ -646,7 +643,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     try {
       final crypto = double.parse(_rawAmount.replaceAll(',', '.')) / fiatRate;
-      final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
+      final cryptoAmountTmp = _appStore.amountParsingProxy
+          .getDisplayCryptoAmount(crypto.toStringAsFixed(8), cryptoCurrency);
       if (amount != cryptoAmountTmp) {
         amount = cryptoAmountTmp;
       }

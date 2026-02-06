@@ -94,6 +94,7 @@
   "bill_amount": "Valor da conta",
   "billing_address_info": "Se for solicitado um endereço de cobrança, forneça seu endereço de entrega",
   "biometric_auth_reason": "Digitalize sua impressão digital para autenticar",
+  "bitcoin_amount_display": "Exibição do valor do Bitcoin",
   "bitcoin_dark_theme": "Tema escuro Bitcoin",
   "bitcoin_light_theme": "Tema claro de bitcoin",
   "bitcoin_payments_require_1_confirmation": "Os pagamentos em Bitcoin exigem 1 confirmação, o que pode levar 20 minutos ou mais. Obrigado pela sua paciência! Você receberá um e-mail quando o pagamento for confirmado.",

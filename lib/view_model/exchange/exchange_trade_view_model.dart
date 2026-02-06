@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -111,6 +112,8 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   late Output output;
 
+  AmountParsingProxy get _amountParsingProxy => sendViewModel.amountParsingProxy;
+
   @observable
   Trade trade;
 
@@ -136,18 +139,18 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
-      ? '\n\n' + S.current.exchange_extra_info
-      : '';
+      ? "\n\n${S.current.exchange_extra_info}"
+      : "";
 
   @computed
   String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
-      ? ''
-      : sendViewModel.pendingTransactionFiatAmount + ' ' + sendViewModel.fiat.title;
+      ? ""
+      : "${sendViewModel.pendingTransactionFiatAmount} ${sendViewModel.fiat.title}";
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted => sendViewModel.isFiatDisabled
-      ? ''
-      : sendViewModel.pendingTransactionFeeFiatAmount + ' ' + sendViewModel.fiat.title;
+      ? ""
+      : "${sendViewModel.pendingTransactionFeeFiatAmount} ${sendViewModel.fiat.title}";
 
   @observable
   ObservableList<ExchangeTradeItem> items;
@@ -264,12 +267,12 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   void _updateItems() {
     final trade = tradesStore.trade!;
-    final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
 
+    final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
     final tradeTo = trade.toRaw >= 0 ? trade.to : trade.userCurrencyTo;
 
-    final tagFrom = tradeFrom?.tag != null ? '${tradeFrom!.tag}' + ' ' : '';
-    final tagTo = tradeTo?.tag != null ? '${tradeTo!.tag}' + ' ' : '';
+    final tagFrom = tradeFrom?.tag != null ? "${tradeFrom!.tag} " : "";
+    final tagTo = tradeTo?.tag != null ? "${tradeTo!.tag} " : "";
 
     items.clear();
 
@@ -277,7 +280,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       items.add(
         ExchangeTradeItem(
           title: "${trade.provider.title} ${S.current.id}",
-          data: '${trade.id}',
+          data: "${trade.id}",
           isCopied: true,
           isReceiveDetail: true,
           isExternalSendDetail: false,
@@ -288,21 +291,23 @@ abstract class ExchangeTradeViewModelBase with Store {
       items.addAll([
         ExchangeTradeItem(
           title: S.current.amount,
-          data: '${trade.amount} ${tradeFrom}',
+          data:
+              "${_amountParsingProxy.getDisplayCryptoAmount(trade.amount, tradeFrom!)} ${_amountParsingProxy.getCryptoSymbol(tradeFrom)}",
           isCopied: false,
           isReceiveDetail: false,
           isExternalSendDetail: true,
         ),
         ExchangeTradeItem(
-          title: S.current.you_will_receive_estimated_amount + ':',
-          data: '${tradesStore.trade?.receiveAmount} ${tradeTo}',
+          title: "${S.current.you_will_receive_estimated_amount}:",
+          data:
+              "${_amountParsingProxy.getDisplayCryptoAmount(tradesStore.trade?.receiveAmount ?? "0", tradeTo!)} ${_amountParsingProxy.getCryptoSymbol(tradeTo)}",
           isCopied: true,
           isReceiveDetail: true,
           isExternalSendDetail: false,
         ),
         ExchangeTradeItem(
-          title: S.current.send_to_this_address('${tradeFrom}', tagFrom) + ':',
-          data: trade.inputAddress ?? '',
+          title: "${S.current.send_to_this_address("${tradeFrom}", tagFrom)}:",
+          data: trade.inputAddress ?? "",
           isCopied: false,
           isReceiveDetail: false,
           isExternalSendDetail: true,
@@ -315,24 +320,25 @@ abstract class ExchangeTradeViewModelBase with Store {
     if (isExtraIdExist) {
       final title = tradeFrom == CryptoCurrency.xrp
           ? S.current.destination_tag
-          : tradeFrom == CryptoCurrency.xlm || tradeFrom == CryptoCurrency.ton
+          : [CryptoCurrency.xlm, CryptoCurrency.ton].contains(tradeFrom)
               ? S.current.memo
               : S.current.extra_id;
 
       items.add(
         ExchangeTradeItem(
-            title: title,
-            data: trade.extraId ?? '',
-            isCopied: true,
-            isReceiveDetail: !isExtraIdExist,
-            isExternalSendDetail: isExtraIdExist),
+          title: title,
+          data: trade.extraId ?? "",
+          isCopied: true,
+          isReceiveDetail: !isExtraIdExist,
+          isExternalSendDetail: isExtraIdExist,
+        ),
       );
     }
 
     items.add(
       ExchangeTradeItem(
-        title: S.current.arrive_in_this_address('${tradeTo}', tagTo) + ':',
-        data: trade.payoutAddress ?? '',
+        title: "${S.current.arrive_in_this_address("${tradeTo}", tagTo)}:",
+        data: trade.payoutAddress ?? "",
         isCopied: true,
         isReceiveDetail: true,
         isExternalSendDetail: false,

@@ -64,7 +64,7 @@ class CardDesign {
   );
 
   static const LinearGradient gradientBlue = LinearGradient(
-    colors: <Color>[Colors.lightBlue, Colors.blue],
+    colors: <Color>[Color(0xFF4EBEFF), Color(0xFF1D78FF)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );

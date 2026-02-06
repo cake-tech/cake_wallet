@@ -191,7 +191,7 @@ abstract class BasePage extends StatelessWidget {
               // color: Colors.grey[200],
             ),
             child: Padding(
-              padding: const EdgeInsets.only(top:8.0),
+              padding: const EdgeInsets.only(top:6.0),
               child: Scaffold(
                 key: _scaffoldKey,
                 backgroundColor: pageBackgroundColor(context),
