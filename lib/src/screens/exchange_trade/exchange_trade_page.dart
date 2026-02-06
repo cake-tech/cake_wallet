@@ -296,9 +296,16 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             final trade = widget.exchangeTradeViewModel.trade;
 
-            final amountValue = widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal
-                ? widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted
-                : trade.amount;
+            final isSwapsXyz = trade.provider == ExchangeProviderDescription.swapsXyz;
+            final isEVMWallet = widget.exchangeTradeViewModel.sendViewModel.isEVMWallet;
+
+            final amountValue = isSwapsXyz && isEVMWallet && !widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal
+                ? trade.amount
+                : widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted;
+
+            final fiatAmountValue = isSwapsXyz && isEVMWallet && !widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal
+                ? widget.exchangeTradeViewModel.sendViewModel.calculateTransactionFiatAmount(amountValue)
+                : widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted;
 
             if (context.mounted) {
               final result = await showModalBottomSheet<bool>(
@@ -318,8 +325,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
                     amount: S.of(bottomSheetContext).send_amount,
                     amountValue: amountValue,
-                    fiatAmountValue: widget
-                        .exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                    fiatAmountValue: fiatAmountValue,
                     fee:
                         isEVMCompatibleChain(widget.exchangeTradeViewModel.sendViewModel.walletType)
                             ? S.of(bottomSheetContext).send_estimated_fee

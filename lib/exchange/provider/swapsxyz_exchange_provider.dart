@@ -20,7 +20,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   static final List<CryptoCurrency> _notSupportedAsSourceToken = [
     CryptoCurrency.sol,
     ...CryptoCurrency.all.where(
-          (c) => (c.tag ?? '').toUpperCase() == 'SOL',
+          (c) => (c.tag ?? '').toUpperCase() == 'SOL' || (c == CryptoCurrency.paxg),
     ),
   ];
 
