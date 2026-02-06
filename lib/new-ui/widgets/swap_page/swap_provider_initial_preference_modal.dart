@@ -17,7 +17,7 @@ class SwapProviderInitialPreferenceModal extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(),
-            ModalTopBar(title: S.of(context).exchange_providers),
+            ModalTopBar(title: S.of(context).swap_providers),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18.0),
               child: Column(
