@@ -27,7 +27,8 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
   void reloadTabs() {
     final oldTabLength = tabs.length;
     tabs = [
-      if(widget.dashboardViewModel.balanceViewModel.formattedBalances.length>1)
+      if(widget.dashboardViewModel
+          .balanceViewModel.isHomeScreenSettingsEnabled)
         AssetsSection(
           dashboardViewModel: widget.dashboardViewModel,
         ),
@@ -40,7 +41,8 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
     ];
 
     tabNames = [
-      if(widget.dashboardViewModel.balanceViewModel.formattedBalances.length>1)
+      if(widget.dashboardViewModel
+          .balanceViewModel.isHomeScreenSettingsEnabled)
         S.current.assets,
       S.current.history,
       if(isNFTACtivatedChain(widget.dashboardViewModel.wallet.type))
