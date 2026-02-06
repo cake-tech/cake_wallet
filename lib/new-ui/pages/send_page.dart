@@ -362,6 +362,7 @@ class _NewSendPageState extends State<NewSendPage> {
             pickTransactionPriority(context, output);
         },
       ),
+      if(widget.sendViewModel.hasCoinControl)
       ListItemRegularRowWidget(
         keyValue: "",
         label: "Coin Control",
