@@ -58,7 +58,7 @@ class HistoryTile extends StatelessWidget {
     if (asset == CryptoCurrency.btcln) {
       return Stack(
         children: [
-          SvgPicture.asset(
+          Image.asset(
             asset!.iconPath!,
             width: 34,
             height: 34,
