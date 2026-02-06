@@ -322,7 +322,7 @@ class WalletListBodyState extends State<WalletListBody> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 150),
+                  SizedBox(height: 190),
                 },
               ],
             ),
