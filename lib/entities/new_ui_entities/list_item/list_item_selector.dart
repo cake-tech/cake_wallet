@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class ListItemSelector extends ListItem {
   const ListItemSelector({
+    required this.options,
     required super.keyValue,
     required super.label,
     this.trailingText,
@@ -11,4 +12,5 @@ class ListItemSelector extends ListItem {
 
   final String? trailingText;
   final VoidCallback onTap;
+  final List<String> options;
 }

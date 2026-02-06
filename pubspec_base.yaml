@@ -91,6 +91,7 @@ dependencies:
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
   bloc: ^9.0.0
   flutter_bloc: ^9.1.0
+  bloc_concurrency: ^0.3.0
   equatable: ^2.0.0
   sensitive_clipboard:
     git:
@@ -258,6 +259,8 @@ flutter:
     - assets/new-ui/balance_card_backgrounds/
     - assets/new-ui/settings_row_icons/
     - assets/new-ui/chain_badges/
+    - assets/new-ui/address-type-picker-icons/
+    - assets/new-ui/trade_providers/
 
   fonts:
     - family: Lato
@@ -276,6 +279,44 @@ flutter:
           weight: 600
         - asset: assets/fonts/WixMadeforText-Bold.ttf
           weight: 700
+
+    - family: IBM Plex Mono
+      fonts:
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-ThinItalic.ttf
+          weight: 100
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Light.ttf
+          weight: 300
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-BoldItalic.ttf
+          weight: 700
+          style: italic
 
 msix_config:
   display_name: Cake Wallet

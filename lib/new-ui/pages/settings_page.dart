@@ -1,24 +1,25 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/router.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/src/widgets/section_divider.dart';
-import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
-import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:cw_core/wallet_type.dart";
+
+bool _trueFunc(DashboardViewModel _) => true;
 
 class SettingsListItem {
   final String iconPath;
   final String title;
   final String route;
   final Object? routeArgs;
+  final bool Function(DashboardViewModel) condition;
 
-  const SettingsListItem(this.iconPath, this.title, this.route, {this.routeArgs = null});
+  const SettingsListItem(this.iconPath, this.title, this.route, {this.routeArgs = null, this.condition = _trueFunc});
 }
 
 class SettingsSectionData {
@@ -29,21 +30,25 @@ class SettingsSectionData {
   const SettingsSectionData(this.title, this.titleIconPath, this.items);
 
   static SettingsSectionData walletSettings =
-      SettingsSectionData("Wallet Settings", "assets/new-ui/wallet_settings.svg", [
-    SettingsListItem("assets/new-ui/settings_row_icons/nodes.svg", "Nodes", Routes.manageNodes),
-    // SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", "Privacy features", ""),
-    SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", "Seed & keys", Routes.seed,
+      SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet_settings.svg", [
+    SettingsListItem("assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
+    SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy_features, Routes.privacyPage),
+    SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.seed,
         routeArgs: true),
-    SettingsListItem("assets/new-ui/settings_row_icons/other.svg", "Other", Routes.otherSettingsPage),
+    SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
+        "Lightning ${S.current.username}", Routes.lightningUsernamePage, condition: (vm) {
+      return vm.wallet.type == WalletType.bitcoin;
+    }),
+    SettingsListItem("assets/new-ui/settings_row_icons/other.svg", S.current.other, Routes.otherSettingsPage),
   ]);
 
   static SettingsSectionData appSettings =
-      SettingsSectionData("App Settings", "assets/new-ui/app_settings.svg", [
-    SettingsListItem("assets/new-ui/settings_row_icons/connections.svg", "Connections", Routes.connectionSync),
+      SettingsSectionData(S.current.app_settings, "assets/new-ui/app_settings.svg", [
+    SettingsListItem("assets/new-ui/settings_row_icons/connections.svg", S.current.connections, Routes.connectionSync),
     // SettingsListItem("assets/new-ui/settings_row_icons/defaults.svg", "Defaults", ""),
-    SettingsListItem("assets/new-ui/settings_row_icons/display.svg", "Display", Routes.displaySettingsPage),
-    SettingsListItem("assets/new-ui/settings_row_icons/security.svg", "Privacy & Security", Routes.privacyPage),
-    SettingsListItem("assets/new-ui/settings_row_icons/backup.svg", "Backup", Routes.backup),
+    SettingsListItem("assets/new-ui/settings_row_icons/display.svg", S.current.display, Routes.displaySettingsPage),
+    SettingsListItem("assets/new-ui/settings_row_icons/security.svg", S.current.privacy_and_security, Routes.securityBackupPage),
+    SettingsListItem("assets/new-ui/settings_row_icons/backup.svg", S.current.backup, Routes.backup),
   ]);
 
   static SettingsSectionData otherSettings = SettingsSectionData("", "", [
@@ -54,103 +59,62 @@ class SettingsSectionData {
   static List<SettingsSectionData> all = [walletSettings, appSettings, otherSettings];
 }
 
-class NewSettingsPage extends StatefulWidget {
-  const NewSettingsPage({super.key});
+class NewSettingsPage extends StatelessWidget {
+  const NewSettingsPage({super.key, required this.dashboardViewModel});
 
-  @override
-  State<NewSettingsPage> createState() => _NewSettingsPageState();
-}
-
-class _NewSettingsPageState extends State<NewSettingsPage> {
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final DashboardViewModel dashboardViewModel;
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      left: false,
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            pageTransitionsTheme: PageTransitionsTheme(
-              builders: {
-                // requested by ui - iphone-style back anim on every platform
-                TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-                TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-              },
-            ),
-          ),
-          child: PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, result) async {
-              if (didPop) return;
-
-              final navigator = _navigatorKey.currentState;
-              if (navigator != null && navigator.canPop()) {
-                navigator.pop();
-              } else {
-                if (context.mounted) {
-                  Navigator.of(context).pop();
-                }
-              }
-            },
-            child: Navigator(
-                key: _navigatorKey,
-                observers: [HeroController()],
-                onGenerateRoute: (settings) {
-                  printV(settings.name);
-
-                  if (settings.name == "/")
-                    return handleRouteWithPlatformAwareness((context) => SettingsMainPage(),
-                        fullscreenDialog: false);
-                  else
-                    return createRoute(settings);
-                }),
-          ),
-        ),
-      ),
-    );
+    return ModalNavigator(parentContext:context,rootPage: SettingsMainPage(dashboardViewModel: dashboardViewModel,));
   }
 }
 
 class SettingsMainPage extends StatelessWidget {
-  const SettingsMainPage({super.key});
+  const SettingsMainPage({super.key, required this.dashboardViewModel});
+
+  final DashboardViewModel dashboardViewModel;
 
   @override
   Widget build(BuildContext context) {
-    Map<String, List<ListItem>> sections = Map.fromEntries(SettingsSectionData.all.map((section) =>
-        MapEntry(
+    Map<String, List<ListItem>> sections =
+        Map.fromEntries(SettingsSectionData.all.map((section) => MapEntry(
             section.title,
             section.items
-                .map((item) => ListItemRegularRow(
-                    keyValue: item.title, label: item.title, iconPath: item.iconPath, onTap: (){
-              if (item.route.isNotEmpty) {
-                Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
-              }
-
-            }))
+                .map((item) => item.condition(dashboardViewModel)
+                    ? ListItemRegularRow(
+                        keyValue: item.title,
+                        label: item.title,
+                        iconPath: item.iconPath,
+                        onTap: () {
+                          if (item.route.isNotEmpty) {
+                            Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
+                          }
+                        })
+                    : null)
+                .whereType<ListItem>()
                 .toList())));
 
-    return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
-      controller: ModalScrollController.of(context),
-      child: Column(children: [
-        ModalTopBar(
-          title: "Settings",
-          leadingIcon: Icon(Icons.close),
-          onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
-          onTrailingPressed: () {},
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-          child: NewListSections(
-            sections: sections,
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        controller: ModalScrollController.of(context),
+        child: Column(children: [
+          ModalTopBar(
+            title: "Settings",
+            leadingIcon: Icon(Icons.close),
+            onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
+            onTrailingPressed: () {},
           ),
-        ),
-      ]),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+            child: NewListSections(
+              sections: sections,
+            ),
+          ),
+        ]),
+      ),
     );
   }
 }

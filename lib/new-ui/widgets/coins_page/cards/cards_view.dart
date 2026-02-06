@@ -1,16 +1,24 @@
 import 'dart:math';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:mobx/mobx.dart';
 
 import 'balance_card.dart';
 
@@ -36,9 +44,7 @@ class _CardsViewState extends State<CardsView> {
   static const double overlapAmount = 60.0;
   late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
 
-
-  Widget _buildCard(int index, double parentWidth) {
-    final numCards = widget.accountListViewModel?.accounts.length ?? 1;
+  Widget _buildCard(int index, int numCards, double parentWidth) {
     final baseTop = overlapAmount * (numCards - 1);
     final scaleFactor = 0.96;
 
@@ -70,7 +76,8 @@ class _CardsViewState extends State<CardsView> {
           onLongPress: () {
             if(_selectedIndex == index) {
               widget.dashboardViewModel.balanceViewModel.switchBalanceValue();
-            }
+            };
+            HapticFeedback.heavyImpact();
           },
           child: Observer(builder: (_) {
             final account = widget.accountListViewModel?.accounts[index];
@@ -142,12 +149,12 @@ class _CardsViewState extends State<CardsView> {
     );
   }
 
-  double _getBoxHeight() {
+  double _getBoxHeight(int numCards) {
     return
         /* height of initial card */
         (2 / 3.2) * (cardWidth) +
             /* height of bg card * amount of bg cards */
-            overlapAmount * ((widget.accountListViewModel?.accounts.length ?? 1) - 1);
+            overlapAmount * ((numCards) - 1);
   }
 
   @override
@@ -155,36 +162,39 @@ class _CardsViewState extends State<CardsView> {
         final parentWidth = MediaQuery.of(context).size.width;
         final children = <Widget>[];
 
-        if (_selectedIndex! >= (widget.accountListViewModel?.accounts.length ?? 1)) {
+        int numCards = widget.dashboardViewModel.cardDesigns.length;
+        if(numCards == 0) numCards = 1;
+
+        if (_selectedIndex! >= (numCards)) {
           _selectedIndex = 0;
         }
 
         for (int i = _selectedIndex!;
-            i < (widget.accountListViewModel?.accounts.length ?? 1) + _selectedIndex!;
-            i++) {
+        i < (numCards) + _selectedIndex!;
+        i++) {
           if (i != _selectedIndex) {
             children.add(
-                _buildCard(i % (widget.accountListViewModel?.accounts.length ?? 1), parentWidth));
+                _buildCard(i % (numCards), numCards, parentWidth));
           }
         }
 
         if (_selectedIndex != null) {
-          children.add(_buildCard(_selectedIndex!, parentWidth));
+          children.add(_buildCard(_selectedIndex!, numCards, parentWidth));
         }
 
         return AnimatedContainer(
           duration: Duration(milliseconds: 200),
           curve: Curves.easeOut,
           width: double.infinity,
-          height: _getBoxHeight(),
+          height: _getBoxHeight(numCards),
           child: AnimatedSwitcher(
             duration: Duration(milliseconds: 200),
             transitionBuilder: (child, animation) =>
                 FadeTransition(opacity: animation, child: child),
             child: SizedBox(
-              key: ValueKey(_getBoxHeight()),
+              key: ValueKey(_getBoxHeight(numCards)),
               width: double.infinity,
-              height: _getBoxHeight(),
+              height: _getBoxHeight(numCards),
               child: Stack(alignment: Alignment.center, children: children),
             ),
           ),
@@ -207,14 +217,28 @@ class _CardsViewState extends State<CardsView> {
       }
     }
 
-    Navigator.pushNamed(
-      context,
-      Routes.send,
-      arguments: {
-        'paymentRequest': paymentRequest,
-        'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
-      },
-    );
+    if(FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+      final page = getIt.get<NewSendPage>(param1: SendPageParams(
+        initialPaymentRequest: paymentRequest,
+        unspentCoinType: UnspentCoinType.nonMweb,
+        mode: SendPageModes.l2deposit,
+      ));
+      showCupertinoModalBottomSheet(context: context, builder: (context){
+        return FractionallySizedBox(
+            heightFactor: 0.65,
+            child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
+        );
+      });
+    } else {
+      Navigator.pushNamed(
+        context,
+        Routes.send,
+        arguments: {
+          'paymentRequest': paymentRequest,
+          'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
+        },
+      );
+    }
   }
 
   Future<void> withdrawFromL2() async {
@@ -234,13 +258,29 @@ class _CardsViewState extends State<CardsView> {
       unspentCoinType = UnspentCoinType.lightning;
     }
 
-    Navigator.pushNamed(
-      context,
-      Routes.send,
-      arguments: {
-        'paymentRequest': paymentRequest,
-        'coinTypeToSpendFrom': unspentCoinType,
-      },
-    );
+
+    if(FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+      final page = getIt.get<NewSendPage>(param1: SendPageParams(
+        initialPaymentRequest: paymentRequest,
+        unspentCoinType: unspentCoinType,
+        mode: SendPageModes.l2withdrawal,
+      ));
+      showCupertinoModalBottomSheet(context: context, builder: (context){
+        return FractionallySizedBox(
+          heightFactor: 0.65,
+          child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
+        );
+      });
+    } else {
+      Navigator.pushNamed(
+        context,
+        Routes.send,
+        arguments: {
+          'paymentRequest': paymentRequest,
+          'coinTypeToSpendFrom': unspentCoinType,
+        },
+      );
+    }
+
   }
 }

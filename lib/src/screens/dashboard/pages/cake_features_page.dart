@@ -27,10 +27,10 @@ class CakeFeaturesPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: EdgeInsets.only(left: 24, top: 16),
+              padding: EdgeInsets.only(left: 24, top: 16, bottom: 16),
               child: Text(
                 S.of(context).apps,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),

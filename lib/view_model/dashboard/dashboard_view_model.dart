@@ -366,6 +366,23 @@ abstract class DashboardViewModelBase with Store {
     );
   }
 
+  @computed
+  bool get isSyncHeavy {
+    if ([WalletType.monero, WalletType.wownero, WalletType.decred, WalletType.zcash].contains(wallet.type)) {
+      return true;
+    }
+
+    if (silentPaymentsScanningActive) {
+      return true;
+    }
+
+    if (mwebEnabled) {
+      return true;
+    }
+
+    return false;
+  }
+
 
   Future<void> loadCardDesigns() async {
     if (cardDesigns.isNotEmpty) {
