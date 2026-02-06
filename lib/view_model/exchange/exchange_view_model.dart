@@ -206,8 +206,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     fetchFiatPrice(receiveCurrency);
 
     () async {
-      depositAvailableAmount = wallet.formatCryptoAmount(
-          (await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any)).toString());
+      depositAvailableAmount = _appStore.amountParsingProxy.getDisplayCryptoAmount(
+          (await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any)).toString(), depositCurrency);
     }.call();
   }
 
@@ -555,12 +555,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String get depositAmountFiatFormatted {
     var amount = '0.00';
     try {
-      if (depositAmount.isNotEmpty) {
+      if (_depositAmount.isNotEmpty) {
         if (fiatConversionStore.prices[depositCurrency] == null) return '';
 
         amount = calculateFiatAmount(
           price: fiatConversionStore.prices[depositCurrency]!,
-          cryptoAmount: depositAmount,
+          cryptoAmount: _depositAmount,
         );
       }
     } catch (_) {
@@ -573,12 +573,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String get receiveAmountFiat {
     var amount = '';
     try {
-      if (receiveAmount.isNotEmpty) {
+      if (_receiveAmount.isNotEmpty) {
         if (fiatConversionStore.prices[receiveCurrency] == null) return '';
 
         amount = calculateFiatAmount(
             price: fiatConversionStore.prices[receiveCurrency]!,
-            cryptoAmount: receiveAmount,
+            cryptoAmount: _receiveAmount,
             raw: true);
       }
     } catch (_) {
@@ -591,12 +591,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String get depositAmountFiat {
     var amount = '';
     try {
-      if (depositAmount.isNotEmpty) {
+      if (_depositAmount.isNotEmpty) {
         if (fiatConversionStore.prices[depositCurrency] == null) return '';
 
         amount = calculateFiatAmount(
             price: fiatConversionStore.prices[depositCurrency]!,
-            cryptoAmount: depositAmount,
+            cryptoAmount: _depositAmount,
             raw: true);
       }
     } catch (_) {
@@ -709,9 +709,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (price == null || price == 0.0) return;
 
     final crypto = _enteredAmount / price;
-    final depositAmountTmp = _cryptoNumberFormat.format(crypto);
-    if (depositAmount != depositAmountTmp) {
-      changeDepositAmount(amount: depositAmountTmp.withMaxDecimals(depositCurrency.decimals));
+    final depositAmountTmp = crypto.toString().withMaxDecimals(receiveCurrency.decimals);
+    if (_depositAmount != depositAmountTmp) {
+      changeDepositAmount(amount: depositAmountTmp, isCanonical: true);
     }
   }
 
@@ -739,7 +739,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       await calculateBestRate();
     }
 
-    final amount_ = _enteredAmount * forcedProvider == null ? bestRate : forcedProviderRate);
+    final amount_ = _enteredAmount * (forcedProvider == null ? bestRate : forcedProviderRate);
     _receiveAmount = amount_.toString().withMaxDecimals(receiveCurrency.decimals);
   }
 
@@ -761,7 +761,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       return;
     }
 
-    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ??
+    final amount = double.tryParse(isFixedRateMode ? _receiveAmount : _depositAmount) ??
         initialAmountByAssets(isFixedRateMode ? receiveCurrency : depositCurrency);
 
     forcedProviderRate = await forcedProvider!.fetchRate(
@@ -1083,11 +1083,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void reverseSwapDirection() {
-    final tmpAmount = receiveAmount;
+    final tmpAmount = _receiveAmount;
     final tmpCurrency = depositCurrency;
     changeDepositCurrency(currency: receiveCurrency);
     changeReceiveCurrency(currency: tmpCurrency);
-    depositAmount = tmpAmount;
+    _depositAmount = tmpAmount;
   }
 
   void updateTemplate() => _exchangeTemplateStore.update();
