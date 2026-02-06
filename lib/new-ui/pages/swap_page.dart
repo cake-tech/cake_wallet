@@ -216,7 +216,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
         }
         if (state is TradeIsCreatedSuccessfully) {
           final receiveAmount = widget.exchangeViewModel.receiveAmount;
-          widget.exchangeViewModel.reset();
+          // FIXME we don't know why a reset is/was needed here, it messes up ui so i removed it
+          // widget.exchangeViewModel.reset();
           // (widget.exchangeViewModel.tradesStore.trade?.provider ==
           //             ExchangeProviderDescription.thorChain ||
           //         widget.exchangeViewModel.tradesStore.trade?.provider ==
@@ -698,7 +699,7 @@ class SwapProviderPreview extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        "1 ${exchangeViewModel.depositCurrency} ≈ ${rate.toStringAsFixed(2)} ${exchangeViewModel.receiveCurrency}",
+                        "1 ${exchangeViewModel.depositCurrency} ≈ ${rate.toStringAsFixed(6)} ${exchangeViewModel.receiveCurrency}",
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
