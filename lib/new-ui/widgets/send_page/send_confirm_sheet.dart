@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
@@ -292,7 +294,8 @@ class SendTransactionDetails extends StatelessWidget {
               ),
             ),
             SendConfirmBottomWidget(sendViewModel: sendViewModel),
-            SizedBox(height: 24),
+            if(Platform.isAndroid) // spacing between bottom widget and system navbar
+            SizedBox(),
           ],
         ),
       )
