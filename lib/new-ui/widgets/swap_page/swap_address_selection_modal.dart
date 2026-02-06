@@ -80,7 +80,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
                   child: items.isEmpty
                       ? Center(
                           child: Text(
