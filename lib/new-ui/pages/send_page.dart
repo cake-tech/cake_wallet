@@ -490,8 +490,14 @@ class _NewSendPageState extends State<NewSendPage> {
           output.sendAll = false;
         }
 
-        if (amount != output.cryptoAmount) {
-          output.setCryptoAmount(amount);
+        if (S.current.all.contains(amount)) return;
+
+        final cAmount = widget.sendViewModel.amountParsingProxy
+            .getDisplayCryptoAmount(output.cryptoAmount, widget.sendViewModel.selectedCryptoCurrency);
+        if (amount != cAmount) {
+          final newAmount = widget.sendViewModel.amountParsingProxy
+              .getCanonicalCryptoAmount(amount, widget.sendViewModel.selectedCryptoCurrency);
+          output.setCryptoAmount(newAmount);
         }
       }
     });
