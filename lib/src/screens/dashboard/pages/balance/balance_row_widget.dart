@@ -103,111 +103,116 @@ class BalanceRowWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: hasAdditionalBalance
-                                ? () => _showBalanceDescription(
-                                    context, S.of(context).available_balance_description)
-                                : null,
-                            child: Row(
-                              children: [
-                                Semantics(
-                                  hint: 'Double tap to see more information',
-                                  container: true,
-                                  child: Text(
-                                    '${availableBalanceLabel}',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          height: 1,
-                                        ),
-                                  ),
-                                ),
-                                if (hasAdditionalBalance)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                                    child: Icon(
-                                      Icons.help_outline,
-                                      size: 16,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 6),
-                          AutoSizeText(
-                            availableBalance,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 24,
-                                  height: 1,
-                                ),
-                            maxLines: 1,
-                            textAlign: TextAlign.start,
-                          ),
-                          const SizedBox(height: 6),
-                          if (isTestnet)
-                            Text(
-                              S.of(context).testnet_coins_no_value,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1),
-                            ),
-                          if (!isTestnet)
-                            Text(
-                              '${availableFiatBalance}',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    height: 1,
-                                  ),
-                            ),
-                        ],
-                      ),
-                      SizedBox(
-                        //width: min(MediaQuery.of(context).size.width * 0.2, 100),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              CakeImageWidget(
-                                imageUrl: currency.iconPath,
-                                height: 40,
-                                width: 40,
-                                errorWidget: Container(
-                                  height: 30.0,
-                                  width: 30.0,
-                                  child: Center(
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: hasAdditionalBalance
+                                  ? () => _showBalanceDescription(
+                                      context, S.of(context).available_balance_description)
+                                  : null,
+                              child: Row(
+                                children: [
+                                  Semantics(
+                                    hint: 'Double tap to see more information',
+                                    container: true,
                                     child: Text(
-                                      currency.title.substring(0, min(currency.title.length, 2)),
+                                      '${availableBalanceLabel}',
                                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            fontSize: 11,
                                             color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            height: 1,
                                           ),
                                     ),
                                   ),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Theme.of(context).colorScheme.surfaceContainer,
-                                  ),
-                                ),
+                                  if (hasAdditionalBalance)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: Icon(
+                                        Icons.help_outline,
+                                        size: 16,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                ],
                               ),
-                              const SizedBox(height: 10),
+                            ),
+                            SizedBox(height: 6),
+                            AutoSizeText(
+                              availableBalance,
+                              minFontSize: 16,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 24,
+                                    height: 1,
+                                  ),
+                              maxLines: 1,
+                              textAlign: TextAlign.start,
+                            ),
+                            SizedBox(height: 6),
+                            if (isTestnet)
                               Text(
-                                currency.title,
+                                S.of(context).testnet_coins_no_value,
+                                textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: Theme.of(context).colorScheme.onSurface,
                                       height: 1,
                                     ),
                               ),
-                            ],
-                          ),
+                            if (!isTestnet)
+                              Text(
+                                '${availableFiatBalance}',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      height: 1,
+                                    ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            CakeImageWidget(
+                              imageUrl: currency.iconPath,
+                              height: 40,
+                              width: 40,
+                              errorWidget: Container(
+                                height: 30.0,
+                                width: 30.0,
+                                child: Center(
+                                  child: Text(
+                                    currency.title.substring(0, min(currency.title.length, 2)),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontSize: 11,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Theme.of(context).colorScheme.surfaceContainer,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              currency.title,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    height: 1,
+                                  ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

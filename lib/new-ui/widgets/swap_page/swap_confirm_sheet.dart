@@ -163,6 +163,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
         builder: (context) {
           return SwapSendExternalModal(
               amount: widget.exchangeTradeViewModel.trade.amount,
+              exchangeTradeViewModel: widget.exchangeTradeViewModel,
               from: widget.exchangeTradeViewModel.trade.from!,
               to: widget.exchangeTradeViewModel.trade.to!,
               address: widget.exchangeTradeViewModel.trade.inputAddress ?? "");

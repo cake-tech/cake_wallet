@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
@@ -36,6 +37,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     required this.feeFiatAmount,
     required this.outputs,
     required this.walletType,
+    this.amountParsingProxy,
     this.change,
     this.explanation,
     this.isOpenCryptoPay = false,
@@ -72,6 +74,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final CakePayBuyCardViewModel? cakePayBuyCardViewModel;
   final String? quantity;
   final String? explanation;
+  final AmountParsingProxy? amountParsingProxy;
 
   final bool showScrollbar;
   final ScrollController scrollController = ScrollController();
@@ -131,7 +134,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
             ),
           StandardTile(
             itemTitle: amount,
-            itemValue: '$amountValue ${currency.title}',
+            itemValue: '$amountValue ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}',
             itemTitleTextStyle: itemTitleTextStyle,
             itemSubTitle: fiatAmountValue,
             itemSubTitleTextStyle: itemSubTitleTextStyle,
@@ -164,7 +167,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                     final batchContactTitle =
                         '${index + 1}/${outputs.length} - ${contactName.isEmpty ? 'Address' : contactName}';
                     final _address = item.isParsedAddress ? item.extractedAddress : item.address;
-                    final _amount = '${item.cryptoAmount.replaceAll(',', '.')} ${currency.title}';
+                    final _amount = '${item.cryptoAmount.replaceAll(',', '.')} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}';
                     return isBatchSending || (contactName.isNotEmpty && !isCakePayName)
                         ? ExpansionAddressTile(
                             contactType: isOpenCryptoPay ? 'Open CryptoPay' : S.of(context).contact,
@@ -199,7 +202,8 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                     contactType: 'Change',
                     name: S.of(context).send_change_to_you,
                     address: change!.address,
-                    amount: '${change!.amount} ${currency.title}',
+                    amount:
+                        '${amountParsingProxy?.getDisplayCryptoString(change!.amount.toInt(), currency)} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}',
                     isBatchSending: true,
                     walletType: walletType,
                     itemTitleTextStyle: itemTitleTextStyle,

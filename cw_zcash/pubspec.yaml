@@ -19,6 +19,14 @@ dependencies:
 
   path: any
   flat_buffers: any
+  zkool:
+    git:
+      url: https://github.com/cake-tech/zkool2
+      ref: b1642f260da4fa00dd2f8d4dd689073d0b56960a
+
+dependency_overrides:
+  decimal: ^2.3.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

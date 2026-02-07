@@ -1,5 +1,6 @@
 import 'package:translator/translator.dart';
 
+import '../../print_verbose_dummy.dart';
 import 'arb_file_utils.dart';
 import 'translation_constants.dart';
 
@@ -33,8 +34,12 @@ Future<String> getTranslation(String text, String lang) async {
   final placeholder =
       regExp.allMatches(text).map((e) => text.substring(e.start, e.end)).toList().asMap();
 
-  var translation = (await translator.translate(text, from: defaultLang, to: lang)).text;
-
+  String translation = text;
+  try {
+    translation = (await translator.translate(text, from: defaultLang, to: lang)).text;
+  } catch (e) {
+    printV("$lang, $text, $e");
+  }
   placeholder.forEach((index, value) {
     final translatedPlaceholder = regExp.allMatches(translation).toList()[index];
     translation =

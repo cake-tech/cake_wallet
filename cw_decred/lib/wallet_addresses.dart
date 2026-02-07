@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
@@ -139,6 +140,9 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
           ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
         ]
       : ReceivePageOptions;
+
+  @override
+  PaymentURI getPaymentUri(String amount) => DecredURI(address: address, amount: amount);
 }
 
 class _LibAddresses {

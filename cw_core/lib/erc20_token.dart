@@ -72,6 +72,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
   static const polygonBoxName = 'PolygonErc20Tokens';
   static const baseBoxName = 'BaseErc20Tokens';
   static const arbitrumBoxName = 'ArbitrumErc20Tokens';
+  static const bscBoxName = 'BscErc20Tokens';
 
   @override
   bool operator ==(Object other) => other is Erc20Token && other.contractAddress == contractAddress;

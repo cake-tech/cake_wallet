@@ -338,7 +338,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
         try {
           widget.exchangeViewModel.receiveCurrency =
               CryptoCurrency.fromString(widget.initialPaymentRequest!.scheme);
-          widget.exchangeViewModel.receiveAmount = widget.initialPaymentRequest!.amount;
+          widget.exchangeViewModel.setCanonicalReceiveAmount(widget.initialPaymentRequest!.amount);
           widget.exchangeViewModel.receiveAddress = widget.initialPaymentRequest!.address;
         } catch (e) {
           printV('error: ${e.toString()}');
@@ -467,6 +467,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         currency: widget.exchangeViewModel.depositCurrency,
                                         minValue: widget.exchangeViewModel.limits.min.toString(),
                                         maxValue: widget.exchangeViewModel.limits.max.toString(),
+                                        amountParsingProxy:
+                                            widget.exchangeViewModel.amountParsingProxy,
                                       ).call(value)
                                     : null;
                               },
@@ -522,6 +524,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         currency: widget.exchangeViewModel.receiveCurrency,
                                         minValue: widget.exchangeViewModel.limits.min.toString(),
                                         maxValue: widget.exchangeViewModel.limits.max.toString(),
+                                        amountParsingProxy:
+                                            widget.exchangeViewModel.amountParsingProxy,
                                       ).call(value)
                                     : null;
                               },

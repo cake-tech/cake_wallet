@@ -210,6 +210,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
       case WalletType.solana:
       case WalletType.banano:
       case WalletType.nano:

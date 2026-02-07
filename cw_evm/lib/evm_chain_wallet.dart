@@ -15,6 +15,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/homoglyph_normalizer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -89,7 +90,7 @@ abstract class EVMChainWalletBase
         _isTransactionUpdating = false,
         _client = client,
         selectedChainId = initialChainId ?? _getInitialChainId(walletInfo.type),
-        walletAddresses = EVMChainWalletAddresses(walletInfo),
+        walletAddresses = EVMChainWalletAddresses(walletInfo, initialChainId ?? _getInitialChainId(walletInfo.type)),
         balance = ObservableMap<CryptoCurrency, EVMChainERC20Balance>.of(
           {
             nativeCurrency: initialBalance ?? EVMChainERC20Balance(BigInt.zero),
@@ -368,6 +369,7 @@ abstract class EVMChainWalletBase
       137 => "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
       8453 => "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
       42161 => "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+      56 => "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
       _ => throw Exception("Unsupported chain ID: $selectedChainId"),
     };
   }
@@ -439,24 +441,55 @@ abstract class EVMChainWalletBase
     await save();
   }
 
-  Future<void> _checkForExistingScamTokens() async {
-    final baseCurrencySymbols = CryptoCurrency.all.map((e) => e.title.toUpperCase()).toList();
+  bool isTokenPropertiesSuspicious(Erc20Token token) {
+    bool isTokenWhitelisted = getDefaultTokenContractAddresses
+        .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
 
+    // Normalize the token data to check for homoglyph spoofing attack, characters that look like ASCII (Cyrillic, Greek, etc.)
+    final normalizedName = normalizeHomoglyphs(token.name.trim().toUpperCase());
+    final normalizedSymbol = normalizeHomoglyphs(token.symbol.trim().toUpperCase());
+    final normalizedTitle = normalizeHomoglyphs(token.title.trim().toUpperCase());
+
+    final suspiciousStrings = [
+      't.me',
+      '.me',
+      'telegram',
+      'http',
+      'https',
+      '.com',
+      '.org',
+      '.top',
+      '.live',
+      'airdrop',
+      'reward',
+      'distribution',
+      'www',
+      '.xyz',
+      '🎁',
+      'bot',
+      'claim',
+      'reward',
+    ];
+
+    final hasSuspiciousData = suspiciousStrings.any(
+      (element) =>
+          normalizedName.toLowerCase().contains(element) ||
+          normalizedSymbol.toLowerCase().contains(element) ||
+          normalizedTitle.toLowerCase().contains(element),
+    );
+
+    final nativeSymbol = currency.title.toUpperCase();
+    final hasSuspiciousSymbol = normalizedSymbol == nativeSymbol && !isTokenWhitelisted;
+
+    return hasSuspiciousData || hasSuspiciousSymbol;
+  }
+
+  Future<void> _checkForExistingScamTokens() async {
     for (var token in erc20Currencies) {
       bool isPotentialScam = false;
 
-      bool isWhitelisted = getDefaultTokenContractAddresses
-          .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
-
-      final tokenSymbol = token.title.toUpperCase();
-
-      // check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
-      // if it is, then it's probably a scam unless it's in the whitelist
-      if (baseCurrencySymbols.contains(tokenSymbol.trim().toUpperCase()) && !isWhitelisted) {
+      if (isTokenPropertiesSuspicious(token)) {
         isPotentialScam = true;
-      }
-
-      if (isPotentialScam) {
         token.isPotentialScam = true;
         token.iconPath = null;
         await token.save();
@@ -478,6 +511,66 @@ abstract class EVMChainWalletBase
 
         await token.save();
       }
+    }
+  }
+
+  Future<MoralisDiscoveryResult> discoverTokensFromMoralis() async {
+    try {
+      if (!evmChainErc20TokensBox.isOpen) return MoralisDiscoveryResult.empty;
+
+      final address = walletAddresses.address;
+      if (address.isEmpty) return MoralisDiscoveryResult.empty;
+
+      final chainName = EVMChainUtils.getDefaultTokenSymbol(selectedChainId).toLowerCase();
+
+      final walletTokens = await _client.fetchWalletTokensFromMoralis(address, chainName);
+      if (walletTokens.isEmpty) return MoralisDiscoveryResult.empty;
+
+      final existingTokenAddresses = {
+        for (final token in evmChainErc20TokensBox.values)
+          token.contractAddress.toLowerCase(): token,
+      };
+
+      final whitelistedTokenAddresses =
+          getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
+
+      final newTokens = <DiscoveredToken>[];
+
+      for (final token in walletTokens) {
+        final addr = token.contractAddress.toLowerCase();
+
+        final existingToken = existingTokenAddresses[addr];
+        if (existingToken != null) {
+          if (whitelistedTokenAddresses.contains(addr) && !existingToken.enabled) {
+            existingToken.enabled = true;
+            await existingToken.save();
+            await addErc20Token(existingToken);
+          }
+          continue;
+        }
+
+        final newToken = Erc20Token(
+          name: token.name,
+          symbol: token.symbol,
+          contractAddress: addr,
+          decimal: token.decimals,
+          iconPath: token.iconUrl,
+          tag: EVMChainUtils.getDefaultTokenTag(selectedChainId),
+          isPotentialScam: token.possibleSpam,
+        );
+
+        newTokens.add(
+          DiscoveredToken(
+            token: newToken,
+            balanceWei: token.balanceWei,
+          ),
+        );
+      }
+
+      return MoralisDiscoveryResult(newTokens: newTokens);
+    } catch (e) {
+      printV('Error discovering tokens from Moralis: ${e.toString()}');
+      return MoralisDiscoveryResult.empty;
     }
   }
 
@@ -1199,6 +1292,9 @@ abstract class EVMChainWalletBase
   }
 
   Future<void> addErc20Token(Erc20Token token) async {
+    final isSuspicious = isTokenPropertiesSuspicious(token);
+    token.isPotentialScam = token.isPotentialScam || isSuspicious;
+
     String? iconPath;
 
     if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
@@ -1451,4 +1547,22 @@ class GasParamsHandler {
       gasPrice: 0,
     );
   }
+}
+
+class DiscoveredToken {
+  final Erc20Token token;
+  final BigInt balanceWei;
+
+  const DiscoveredToken({
+    required this.token,
+    required this.balanceWei,
+  });
+}
+
+class MoralisDiscoveryResult {
+  final List<DiscoveredToken> newTokens;
+
+  const MoralisDiscoveryResult({required this.newTokens});
+
+  static const MoralisDiscoveryResult empty = MoralisDiscoveryResult(newTokens: []);
 }

@@ -112,6 +112,9 @@
                 <data android:scheme="arbitrum" />
                 <data android:scheme="arbitrum-wallet" />
                 <data android:scheme="arbitrum_wallet" />
+                <data android:scheme="bsc" />
+                <data android:scheme="bsc-wallet" />
+                <data android:scheme="bsc_wallet" />
                 <data android:scheme="zcash" />
                 <data android:scheme="zcash-wallet" />
             </intent-filter>

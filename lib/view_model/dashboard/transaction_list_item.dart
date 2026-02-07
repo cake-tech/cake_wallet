@@ -6,6 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
@@ -13,7 +14,6 @@ import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -26,17 +26,17 @@ class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem({
     required this.transaction,
     required this.balanceViewModel,
-    required this.settingsStore,
+    required AppStore appStore,
     required super.key,
-  });
+  }) : _appStore = appStore;
 
   final TransactionInfo transaction;
   final BalanceViewModel balanceViewModel;
-  final SettingsStore settingsStore;
+  final AppStore _appStore;
 
   double get price => balanceViewModel.price;
 
-  FiatCurrency get fiatCurrency => settingsStore.fiatCurrency;
+  FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
 
   BalanceDisplayMode get displayMode => balanceViewModel.displayMode;
 
@@ -49,7 +49,13 @@ class TransactionListItem extends ActionListItem with Keyable {
       balanceViewModel.wallet.type == WalletType.tron;
 
   String get formattedCryptoAmount {
-    return displayMode == BalanceDisplayMode.hiddenBalance ? '---' : transaction.amountFormatted();
+    if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
+    if (balanceViewModel.wallet.type == WalletType.bitcoin) {
+      final isLightning = (transaction.additionalInfo["isLightning"] as bool?) ?? false;
+      final crypto = isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc;
+      return '${_appStore.amountParsingProxy.getDisplayCryptoString(transaction.amount, crypto)} ${_appStore.amountParsingProxy.getCryptoSymbol(crypto)}';
+    }
+    return transaction.amountFormatted();
   }
 
   String get formattedTitle {
@@ -61,6 +67,25 @@ class TransactionListItem extends ActionListItem with Keyable {
     }
 
     return S.current.sent;
+  }
+
+  int get neededConfirmations {
+    switch (balanceViewModel.wallet.type) {
+      case WalletType.monero:
+      case WalletType.haven:
+      case WalletType.zano:
+        return 10;
+      case WalletType.wownero:
+        return 3;
+      case WalletType.litecoin:
+      bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
+      bool fromPegOut = (transaction.additionalInfo["fromPegOut"] as bool?) ?? false;
+      if(isPegOut || fromPegOut)
+        return 6;
+      default:
+        return 0;
+    }
+    return 0;
   }
 
   String get formattedPendingStatus {
@@ -174,6 +199,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         final asset = evm!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(

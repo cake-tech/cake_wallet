@@ -20,6 +20,14 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
+import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cake_wallet/utils/tor.dart';
+import 'package:cake_wallet/wownero/wownero.dart' as wow;
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
@@ -242,7 +250,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -272,7 +280,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -286,7 +294,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('${_wallet.type.name}_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -361,7 +369,7 @@ abstract class DashboardViewModelBase with Store {
         (transaction) => TransactionListItem(
           transaction: transaction,
           balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore,
+          appStore: appStore,
           key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
         ),
       ),
@@ -451,7 +459,7 @@ abstract class DashboardViewModelBase with Store {
       transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
             transaction: tx,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
           )));
     } finally {
@@ -522,6 +530,29 @@ abstract class DashboardViewModelBase with Store {
     }
 
     return statusText;
+  }
+
+  @computed
+  double get confirmationProgress {
+    int received = 0;
+    int needed = 0;
+
+    for (final transaction in transactions) {
+      if (transaction.neededConfirmations == 0) {
+        continue;
+      }
+
+      if(transaction.transaction.confirmations >= transaction.neededConfirmations) {
+        continue;
+      }
+
+      received += transaction.transaction.confirmations;
+      needed += transaction.neededConfirmations;
+    }
+    if (needed == 0) {
+      return 1;
+    }
+    return received / needed;
   }
 
   @computed
@@ -648,6 +679,13 @@ abstract class DashboardViewModelBase with Store {
         "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
+  }
+
+  @computed
+  bool get showZcashMissingFundsCard {
+    if (wallet.type != WalletType.zcash) return false;
+    if (!settingsStore.showZcashMissingFundsCard) return false;
+    return zcash!.showMissingFundsCard(wallet);
   }
 
   @computed
@@ -926,6 +964,16 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @action
+  Future<void> rescanInternalChangeZcash() async {
+    await zcash!.rescanInternalChange(wallet);
+  }
+
+  @action
+  void dismissZcash() {
+    settingsStore.showZcashMissingFundsCard = false;
+  }
+
+  @action
   void dismissDecredInfoCard() {
     showDecredInfoCard = false;
     sharedPreferences.setBool(PreferencesKey.showDecredInfoCard, false);
@@ -1021,6 +1069,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
       case WalletType.solana:
       case WalletType.nano:
       case WalletType.banano:
@@ -1177,7 +1226,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -1197,7 +1246,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
           ),
         ),

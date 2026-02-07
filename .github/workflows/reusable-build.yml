@@ -202,6 +202,11 @@ jobs:
 
       - name: Build
         run: |
+          export ANDROID_NDK_HOME="$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION"
+          export ANDROID_NDK="$ANDROID_NDK_HOME"
+          pushd $ANDROID_SDK_ROOT/ndk
+            ln -s 28.2.13676358 25.1.8937393
+          popd
           flutter build apk --dart-define=hasDevOptions=true --release --split-per-abi
 
       - name: Rename apk file

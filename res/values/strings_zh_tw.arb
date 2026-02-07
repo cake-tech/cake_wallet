@@ -94,6 +94,7 @@
   "bill_amount": "帳單金額",
   "billing_address_info": "如果要求提供帳單地址，請提供您的送貨地址",
   "biometric_auth_reason": "掃描指紋進行身份認證",
+  "bitcoin_amount_display": "顯示比特幣金額",
   "bitcoin_dark_theme": "比特幣深色主題",
   "bitcoin_light_theme": "比特幣淺色主題",
   "bitcoin_payments_require_1_confirmation": "比特幣支付需要 1 次確認，這可能需要 20 分鐘或更長時間。謝謝你的耐心！確認付款後，您將收到電子郵件。",

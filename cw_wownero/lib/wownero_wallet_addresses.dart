@@ -153,5 +153,5 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   PaymentURI getPaymentUri(String amount) =>
-      MoneroURI(scheme: "wownero", address: address, amount: amount);
+      WowneroURI(address: address, amount: amount);
 }

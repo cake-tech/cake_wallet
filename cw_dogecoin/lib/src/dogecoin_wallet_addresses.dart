@@ -33,5 +33,5 @@ abstract class DogeCoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @override
   PaymentURI getPaymentUri(String amount) =>
-      PaymentURI(scheme: "doge", address: address, amount: amount);
+      DogeURI(address: address, amount: amount);
 }

@@ -54,7 +54,7 @@ abstract class MoneroAccountListViewModelBase with Store {
         .toList();
     }
 
-    throw Exception('Unexpected wallet type: ${_wallet.type}');
+    throw Exception('Unexpected wallet type: ${_wallet.type} for monero');
   }
 
   @computed
