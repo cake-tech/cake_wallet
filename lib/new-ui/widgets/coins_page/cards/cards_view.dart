@@ -12,7 +12,6 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,9 +44,7 @@ class _CardsViewState extends State<CardsView> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
-    });
+    _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
     reaction(
         (_) => widget.dashboardViewModel.cardOrder.keys.toList(),
         (_) => setState(() {

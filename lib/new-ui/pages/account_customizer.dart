@@ -82,7 +82,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     super.dispose();
   }
 
-  Future<void> loadCards() async {
+  void loadCards() {
     _items.clear();
 
     final accounts = widget.accountListViewModel.accounts;
@@ -262,7 +262,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                                           });
                                       if (res != null && res is bool && res == true) {
                                         await widget.dashboardViewModel.loadCardDesigns();
-                                        await loadCards();
+                                        loadCards();
                                         await saveCardOrder();
                                       }
                                     },
