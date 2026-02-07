@@ -680,7 +680,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
     case Routes.buySellPage:
-      final args = settings.arguments as bool;
+      final args = settings.arguments as bool?;
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<BuySellPage>(param1: args),
       );

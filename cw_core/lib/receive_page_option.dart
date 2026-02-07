@@ -22,6 +22,7 @@ class ReceivePageOption implements Enumerate {
 
 const ReceivePageOptions = [
   ReceivePageOption.mainnet,
-  ReceivePageOption.anonPayInvoice,
-  ReceivePageOption.anonPayDonationLink
+  // FIXME anonpay disabed for new ui beta. restore after screens are ready
+  // ReceivePageOption.anonPayInvoice,
+  // ReceivePageOption.anonPayDonationLink
 ];

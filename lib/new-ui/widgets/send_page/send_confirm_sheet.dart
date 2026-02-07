@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
@@ -7,13 +9,16 @@ import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
 
 class SendConfirmSheet extends StatefulWidget {
-  const SendConfirmSheet({super.key, required this.sendViewModel, this.isPage = false});
+  const SendConfirmSheet({super.key, required this.sendViewModel, this.isPage = false, this.title, this.iconPath});
 
   final SendViewModel sendViewModel;
   final bool isPage;
+  final String? title;
+  final String? iconPath;
 
   @override
   State<SendConfirmSheet> createState() => _SendConfirmSheetState();
@@ -25,7 +30,7 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
     reaction((context) => widget.sendViewModel.state, (state) {
       if (state is TransactionCommitted) {
         Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) Navigator.of(context).pop();
+          if (mounted) Navigator.of(context).maybePop();
         });
       }
     });
@@ -63,7 +68,10 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOutCubic,
                   child: SendTransactionDetails(
-                      sendViewModel: widget.sendViewModel, isPage: widget.isPage),
+                      sendViewModel: widget.sendViewModel,
+                      isPage: widget.isPage,
+                      title: widget.title,
+                      iconPath: widget.iconPath),
                 ),
               ],
             );
@@ -75,13 +83,18 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
 }
 
 class SendTransactionDetails extends StatelessWidget {
-  const SendTransactionDetails({super.key, required this.sendViewModel, required this.isPage});
+  const SendTransactionDetails({super.key, required this.sendViewModel, required this.isPage, this.title, this.iconPath});
 
   final SendViewModel sendViewModel;
   final bool isPage;
+  final String? title;
+  final String? iconPath;
+
 
   @override
   Widget build(BuildContext context) {
+    final resolvedIconPath = iconPath ?? sendViewModel.currency.iconPath ?? "";
+
     return SafeArea(
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -94,20 +107,26 @@ class SendTransactionDetails extends StatelessWidget {
                   leadingWidget: Row(
                     spacing: 8,
                     children: [
-                      if (sendViewModel.currency.iconPath != null)
+                      if (resolvedIconPath.toLowerCase().endsWith(".svg"))
+                        SvgPicture.asset(
+                          resolvedIconPath,
+                          width: 28,
+                          height: 28,
+                        )
+                      else
                         Image.asset(
-                          sendViewModel.currency.iconPath!,
+                          resolvedIconPath,
                           width: 28,
                           height: 28,
                         ),
                       Text(
-                        "Send",
+                        title ?? S.of(context).send,
                         style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
                       )
                     ],
                   ),
                   trailingIcon: Icon(Icons.close),
-                  onTrailingPressed: Navigator.of(context).pop,
+                  onTrailingPressed: Navigator.of(context).maybePop,
                 ),
                 isPage ? Expanded(child: _buildMainContent(context)) : _buildMainContent(context)
               ]);
@@ -275,7 +294,8 @@ class SendTransactionDetails extends StatelessWidget {
               ),
             ),
             SendConfirmBottomWidget(sendViewModel: sendViewModel),
-            SizedBox(height: 24),
+            if(Platform.isAndroid) // spacing between bottom widget and system navbar
+            SizedBox(),
           ],
         ),
       )

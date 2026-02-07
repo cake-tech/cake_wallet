@@ -117,13 +117,15 @@ class _CardsViewState extends State<CardsView> {
             final CardDesign cardDesign;
             if (widget.dashboardViewModel.cardDesigns.isEmpty)
               cardDesign = CardDesign.genericDefault;
+            else if(widget.lightningMode)
+              cardDesign = widget.dashboardViewModel.cardDesigns[realIndex + 1];
             else
               cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
 
             final String accountName;
             final String accountBalance;
             if (account == null) {
-              accountName = walletCurrency.fullName ?? walletCurrency.title;
+              accountName = "";
               accountBalance = "";
             } else {
               accountName = account.label;
@@ -155,6 +157,7 @@ class _CardsViewState extends State<CardsView> {
               width: cardWidth,
               accountName: accountName,
               accountBalance: accountBalance,
+              designSwitchDuration: Duration(milliseconds: 150),
               assetName: walletCurrency.title,
               balance: walletBalance,
               fiatBalance: walletFiatBalance,
@@ -182,8 +185,10 @@ class _CardsViewState extends State<CardsView> {
       final parentWidth = MediaQuery.of(context).size.width;
       final children = <Widget>[];
 
-      int numCards = widget.dashboardViewModel.cardDesigns.length;
-      if (numCards == 0) numCards = 1;
+    int numCards = widget.dashboardViewModel.wallet.type == WalletType.bitcoin
+        ? 1
+        : widget.dashboardViewModel.cardDesigns.length;
+        if(numCards == 0) numCards = 1;
 
       if (_selectedIndex >= (numCards)) {
         _selectedIndex = 0;
@@ -249,13 +254,12 @@ class _CardsViewState extends State<CardsView> {
         unspentCoinType: UnspentCoinType.nonMweb,
         mode: SendPageModes.l2deposit,
       ));
-      showCupertinoModalBottomSheet(
-          context: context,
-          builder: (context) {
-            return FractionallySizedBox(
-                heightFactor: 0.65,
-                child: ModalNavigator(parentContext: context, rootPage: Material(child: page)));
-          });
+      showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
+        return FractionallySizedBox(
+            heightFactor: 0.65,
+            child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
+        );
+      });
     } else {
       Navigator.pushNamed(
         context,
@@ -292,13 +296,12 @@ class _CardsViewState extends State<CardsView> {
         unspentCoinType: unspentCoinType,
         mode: SendPageModes.l2withdrawal,
       ));
-      showCupertinoModalBottomSheet(
-          context: context,
-          builder: (context) {
-            return FractionallySizedBox(
-                heightFactor: 0.65,
-                child: ModalNavigator(parentContext: context, rootPage: Material(child: page)));
-          });
+      showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
+        return FractionallySizedBox(
+          heightFactor: 0.65,
+          child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
+        );
+      });
     } else {
       Navigator.pushNamed(
         context,

@@ -69,9 +69,25 @@ class CoinControlListItem extends StatelessWidget {
                 )
               ],
             ),
-            SvgPicture.asset("assets/new-ui/arrow_right.svg", colorFilter:ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),)
-          ],
-        ),
+              Row(
+                spacing: 8,
+                children: [
+                  Text(
+                    fiatAmount,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                  SvgPicture.asset(
+                    "assets/new-ui/arrow_right.svg",
+                    colorFilter: ColorFilter.mode(
+                        Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                  ),
+                ],
+              )
+            ],
+          ),
       )
     );
   }

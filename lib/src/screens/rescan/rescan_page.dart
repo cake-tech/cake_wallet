@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -11,18 +12,15 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/wallet_type.dart';
 
-class RescanPage extends BasePage {
+class RescanPage extends StatelessWidget {
   RescanPage(this._rescanViewModel)
       : _blockchainHeightWidgetKey = GlobalKey<BlockchainHeightState>();
 
-  @override
-  String get title =>
-      _rescanViewModel.isSilentPaymentsScan ? S.current.silent_payments_scanning : S.current.rescan;
   final GlobalKey<BlockchainHeightState> _blockchainHeightWidgetKey;
   final RescanViewModel _rescanViewModel;
 
   @override
-  Widget body(BuildContext context) {
+  Widget build(BuildContext context) {
     Widget child;
     if (_rescanViewModel.wallet.type != WalletType.decred) {
       child = Padding(
@@ -93,8 +91,18 @@ class RescanPage extends BasePage {
     }
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: child,
+      // onTap: () => FocusScope.of(context).unfocus(),
+      child: Column(
+        children: [
+          ModalTopBar(
+              title: _rescanViewModel.isSilentPaymentsScan
+                  ? S.current.silent_payments_scanning
+                  : S.current.rescan,
+              leadingIcon: Icon(Icons.arrow_back_ios_new),
+              onLeadingPressed: Navigator.of(context).pop),
+          child,
+        ],
+      ),
     );
   }
 

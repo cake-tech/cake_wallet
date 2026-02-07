@@ -4,6 +4,7 @@ import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -194,7 +195,8 @@ class CoinControlListSection extends StatelessWidget {
       itemBuilder: (_, int index) {
         return Observer(builder: (_) {
           final item = items[index];
-          final fiatAmount = unspentCoinsListViewModel.fiatAmounts[item.hash] ?? '';
+          final fiatAmount = unspentCoinsListViewModel.fiatAmounts[item.amount] ?? '';
+          printV(unspentCoinsListViewModel.fiatAmounts);
           return GestureDetector(
             onTap: () => Navigator.of(context).pushNamed(
               Routes.unspentCoinsDetails,

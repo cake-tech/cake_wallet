@@ -61,6 +61,10 @@ class SendConfirmBottomWidget extends StatelessWidget {
       case IsAwaitingDeviceResponseState:
         return HardwareWalletConfirmationMessage(
             hardwareWalletType: sendViewModel.wallet.hardwareWalletType!);
+      case TransactionCommitting:
+        return LoadingBottomWidget(
+          text: "${S.of(context).sending}...",
+        );
       case TransactionCommitted:
         return SizedBox.shrink();
       default:
@@ -156,7 +160,7 @@ class TransactionErrorActions extends StatelessWidget {
             ),
             Flexible(
               child: NewPrimaryButton(
-                  onPressed: Navigator.of(context).pop,
+                  onPressed: Navigator.of(context).maybePop,
                   text: S.of(context).close,
                   color: Theme.of(context).colorScheme.primary,
                   textColor: Theme.of(context).colorScheme.onPrimary),

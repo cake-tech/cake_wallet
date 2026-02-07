@@ -111,12 +111,20 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                               trailingText: widget.exchangeTradeViewModel.trade.amountFormatted() +
                                   " " +
                                   (widget.exchangeTradeViewModel.trade.from?.title ?? "")),
+                          if(widget.exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "fee",
                               label: S.of(context).fee,
                               trailingText:
-                                  "${widget.exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${widget.exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})")
+                                  "${widget.exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${widget.exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})"),
+                          ListItemRegularRow(
+                              keyValue: "sender",
+                              label: S.of(context).from,
+                              trailingText: widget.exchangeViewModel.isSendFromExternal
+                                  ? S.of(context).external_wallet
+                                  : widget.exchangeViewModel.wallet.name,
+                              showArrow: false)
                         ],
                         S.of(context).receive: [
                           ListItemRegularRow(
@@ -127,6 +135,11 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                               trailingText: (widget.receiveAmount) +
                                   " " +
                                   (widget.exchangeTradeViewModel.trade.to?.title ?? "")),
+                          ListItemRegularRow(
+                              keyValue: "receiver",
+                              label: S.of(context).to,
+                              showArrow: false,
+                              trailingText: widget.exchangeViewModel.receiveAddressDisplayName ?? "")
                         ],
                         S.of(context).swap_id: [
                           ListItemRegularRow(

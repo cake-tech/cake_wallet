@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_top_bar.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
@@ -26,23 +27,26 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
   void reloadTabs() {
     final oldTabLength = tabs.length;
     tabs = [
-      HistorySection(
-        dashboardViewModel: widget.dashboardViewModel,
-      ),
-      if(widget.dashboardViewModel.balanceViewModel.formattedBalances.length>1)
+      if(widget.dashboardViewModel
+          .balanceViewModel.isHomeScreenSettingsEnabled)
         AssetsSection(
           dashboardViewModel: widget.dashboardViewModel,
         ),
+      HistorySection(
+        dashboardViewModel: widget.dashboardViewModel,
+      ),
+
       if(isNFTACtivatedChain(widget.dashboardViewModel.wallet.type))
         NFTListingPage(nftViewModel: widget.nftViewModel)
     ];
 
     tabNames = [
-      "History",
-      if(widget.dashboardViewModel.balanceViewModel.formattedBalances.length>1)
-        "Tokens",
+      if(widget.dashboardViewModel
+          .balanceViewModel.isHomeScreenSettingsEnabled)
+        S.current.assets,
+      S.current.history,
       if(isNFTACtivatedChain(widget.dashboardViewModel.wallet.type))
-        "NFTs"
+        S.current.nfts
     ];
     if(oldTabLength!=tabs.length) {
       setState(() {

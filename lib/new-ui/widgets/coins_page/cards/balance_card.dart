@@ -73,9 +73,9 @@ class BalanceCard extends StatelessWidget {
             child: design.backgroundType == CardDesignBackgroundTypes.svgFull
                 ? ClipRSuperellipse(
                   borderRadius: BorderRadius.circular(borderRadius),
+                  key: ValueKey(design.imagePath),
                   child: SvgPicture.asset(
                       design.imagePath,
-                      key: const ValueKey('svgFull'),
                       width: width,
                       height: height,
                       fit: BoxFit.fill,
@@ -90,11 +90,14 @@ class BalanceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
               children: [
                 if (showText)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.max,
                     children: [
+                      if(accountName.isNotEmpty || accountBalance.isNotEmpty)
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -158,9 +161,25 @@ class BalanceCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: actions.map(getBalanceCardActionButton).toList(),
+                    AnimatedSwitcher(
+                      duration: designSwitchDuration,
+                      switchInCurve: Curves.easeInOut,
+                      switchOutCurve: Curves.easeInOut,
+                      layoutBuilder: (currentChild, previousChildren) {
+                        return Stack(
+                          alignment: Alignment.centerLeft,
+                          children: <Widget>[
+                            ...previousChildren,
+                            if (currentChild != null) currentChild,
+                          ],
+                        );
+                      },
+                      child: Row(
+                        key: ValueKey(actions.toString()),
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: actions.map(getBalanceCardActionButton).toList(),
+                      ),
                     ),
                     AnimatedSwitcher(
                       duration: designSwitchDuration,

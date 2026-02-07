@@ -162,7 +162,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     depositAddress =
         useSameWalletAddress(depositCurrency) ? wallet.walletAddresses.addressForExchange : '';
 
-    reaction((_) => receiveAddress, (_) => receiveAddressDisplayName = null);
+    reaction((_) => receiveAddress, (_) {
+      if(!(tradeState is TradeIsCreatedSuccessfully)) {
+        receiveAddressDisplayName = null;
+      }
+    });
 
     provider = providerList.firstOrNull;
     final initialProvider = provider;

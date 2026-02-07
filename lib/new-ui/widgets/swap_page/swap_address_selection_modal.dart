@@ -3,6 +3,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -79,7 +80,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
                   child: items.isEmpty
                       ? Center(
                           child: Text(
@@ -100,7 +101,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                             !widget.exchangeViewModel.isSendFromExternal;
                       }
 
-                      final String currencyIconPath = currency.iconPath ?? "";
+                      final String currencyIconPath = walletTypeToCryptoCurrency(item.type).iconPath ?? "";
 
                       final bool hasAccounts =
                           item.type.toString() == "WalletType.monero" && widget.isSelectingReceiver;

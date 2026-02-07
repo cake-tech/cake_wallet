@@ -3,7 +3,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cw_core/card_design.dart';
-import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import "package:cw_core/wallet_type.dart";
 import 'package:flutter/src/painting/gradient.dart';
@@ -14,8 +14,9 @@ part 'card_customizer_state.dart';
 
 class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> {
   final WalletBase _wallet;
+  final bool lightningMode;
 
-  CardCustomizerBloc(this._wallet)
+  CardCustomizerBloc(this._wallet, {this.lightningMode = false})
       : super(CardCustomizerNotLoaded(0, 0, [CardDesign.genericDefault], [], "", -1, 0)) {
 
     on<_Init>(_init);
@@ -40,13 +41,14 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     return (await BalanceCardStyleSettings.get(_wallet.walletInfo.internalId, accountIndex));
   }
 
-  List<CardDesign> _initAvailableDesigns() {
+  List<CardDesign> _initAvailableDesigns({bool lightningMode = false}) {
     final List<CardDesign> ret = List<CardDesign>.empty(growable: true);
+    final curr = lightningMode ? CryptoCurrency.btcln : _wallet.currency;
 
-    ret.add(CardDesign.forCurrencyIcon(_wallet.currency));
+    ret.add(CardDesign.forCurrencyIcon(curr));
 
-    if (CardDesign.specialDesignsForCurrencies[_wallet.currency] != null)
-      ret.add(CardDesign.forCurrencySpecial(_wallet.currency));
+    if (CardDesign.specialDesignsForCurrencies[curr] != null)
+      ret.add(CardDesign.forCurrencySpecial(curr));
 
     return ret;
   }
@@ -84,9 +86,16 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
       account = null;
     }
     final accountName = (account?.label ?? "") as String;
-    final accountIndex = account == null ? -1 : account.id as int;
+    late final int accountIndex;
+    if(account != null) {
+      accountIndex = account.id as int;
+    } else if(lightningMode) {
+      accountIndex = 0;
+    } else {
+      accountIndex = -1;
+    }
     final currentDesignSettings = await _loadCurrentDesignSettings(accountIndex);
-    final currentDesign = CardDesign.fromStyleSettings(currentDesignSettings, _wallet.currency);
+    final currentDesign = CardDesign.fromStyleSettings(currentDesignSettings, lightningMode ? CryptoCurrency.btcln : _wallet.currency);
     final availableDesigns = _initAvailableDesigns();
     final availableColors = _updateAvailableColors(currentDesign);
     final selectedDesign = _initSelectedDesign(currentDesign);

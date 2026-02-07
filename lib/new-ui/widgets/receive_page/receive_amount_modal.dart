@@ -128,6 +128,8 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                               textAlign: TextAlign.left,
                               textAlignVertical: TextAlignVertical.center,
                               controller: _amountController,
+                              keyboardType:
+                                  TextInputType.numberWithOptions(signed: false, decimal: true),
                               decoration: InputDecoration(
                                   hint: Text(
                                     "0.00000000",
@@ -197,7 +199,9 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                     NewPrimaryButton(
                       text: S.of(context).continue_text,
                       onPressed: () {
-                        widget.walletAddressListViewModel.changeAmount(_amountController.text);
+                        if(double.tryParse(_amountController.text) != null) {
+                          widget.walletAddressListViewModel.changeAmount(_amountController.text);
+                        }
                         Navigator.of(context).pop();
                       },
                       color: Theme.of(context).colorScheme.primary,

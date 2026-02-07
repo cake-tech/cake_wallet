@@ -590,8 +590,8 @@ Future<void> setup({
     sharedPreferences: getIt.get<SharedPreferences>(),
     keyService: getIt.get<KeyService>()));
 
-
-  getIt.registerFactory<CardCustomizerBloc>(()=>CardCustomizerBloc(getIt.get<AppStore>().wallet!));
+  getIt.registerFactoryParam<CardCustomizerBloc, bool, void>((lightningMode, __) =>
+      CardCustomizerBloc(getIt.get<AppStore>().wallet!, lightningMode: lightningMode));
 
   getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(
       accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>()));

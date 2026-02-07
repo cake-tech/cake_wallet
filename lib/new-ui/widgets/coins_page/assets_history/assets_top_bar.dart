@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/line_tab_switcher.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -30,31 +31,34 @@ class AssetsTopBar extends StatelessWidget {
             onTabChange: onTabChange,
             selectedTab: selectedTab,
           ),
-      ElevatedButton(
-                onPressed: () {Navigator.of(context).pushNamed(Routes.homeSettings, arguments: dashboardViewModel.balanceViewModel,);},
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(999999),
+      Opacity(
+        opacity: tabs[selectedTab] == S.of(context).assets ? 1 : 0,
+        child: ElevatedButton(
+                  onPressed: () {Navigator.of(context).pushNamed(Routes.homeSettings, arguments: dashboardViewModel.balanceViewModel,);},
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999999),
+                    ),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainer,
                   ),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainer,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    spacing: 4.0,
-                    children: [
-                      SvgPicture.asset("assets/new-ui/options_slider.svg", colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn)),
-                      Text(
-                        "Tokens",
-                        style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                      )
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Row(
+                      spacing: 4.0,
+                      children: [
+                        SvgPicture.asset("assets/new-ui/options_slider.svg", colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn)),
+                        Text(
+                          S.of(context).tokens,
+                          style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
+      ),
 
         ],
       ),

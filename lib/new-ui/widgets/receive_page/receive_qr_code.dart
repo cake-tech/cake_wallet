@@ -1,11 +1,14 @@
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../src/screens/receive/widgets/qr_image.dart';
 
 class ReceiveQrCode extends StatelessWidget {
-  const ReceiveQrCode({
+  ReceiveQrCode({
     super.key,
     required this.onTap,
     required this.largeQrMode,
@@ -17,6 +20,7 @@ class ReceiveQrCode extends StatelessWidget {
   final WalletAddressListViewModel addressListViewModel;
 
   static const double largeQrModeBottomPadding = 70;
+  final bool isLightMode = !(getIt.get<ThemeStore>().currentTheme.isDark);
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +33,11 @@ class ReceiveQrCode extends StatelessWidget {
         AnimatedOpacity(
             duration: Duration(milliseconds: 300),
             opacity: largeQrMode ? 1 : 0,
-            child: Image.asset(
-              "assets/images/cake_wordmark.png",
-              scale: 1.7,
+            child: SvgPicture.asset(
+              isLightMode
+              ? "assets/new-ui/cakewallet-wordmark-light.svg"
+              : "assets/new-ui/cakewallet-wordmark.svg",
+              height:45,
             )),
         GestureDetector(
           onTap: onTap,

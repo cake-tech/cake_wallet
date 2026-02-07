@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart'
 import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:flutter/material.dart';
+import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../view_model/dashboard/dashboard_view_model.dart';
@@ -29,6 +30,14 @@ class NewDashboard extends StatefulWidget {
 
 class _NewDashboardState extends State<NewDashboard> {
   int _selectedPage = 0;
+  
+  @override
+  void initState() {
+    super.initState();
+    reaction((_)=>widget.dashboardViewModel.appStore.wallet, (_){setState(() {
+      _selectedPage = 0;
+    });});
+  }
 
   @override
   Widget build(BuildContext context) {

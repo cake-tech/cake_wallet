@@ -365,19 +365,20 @@ class _NewSendPageState extends State<NewSendPage> {
                     label: S.of(context).fees,
                     subtitle: "~${output.estimatedFee} ${widget.sendViewModel.currency} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
 
-                    onTap: () {
-            if (widget.sendViewModel.feesViewModel.hasFeesPriority)
-              pickTransactionPriority(context, output);
-                    },
-                  ),
-                  ListItemRegularRowWidget(
-                    keyValue: "",
-                    label: S.of(context).coin_control,
-                    onTap: () {
-            Navigator.of(context).pushNamed(Routes.unspentCoinsList);
-                    },
-                  )
-              ]))
+        onTap: () {
+          if (widget.sendViewModel.feesViewModel.hasFeesPriority)
+            pickTransactionPriority(context, output);
+        },
+      ),
+      if(widget.sendViewModel.hasCoinControl)
+      ListItemRegularRowWidget(
+        keyValue: "",
+        label: "Coin Control",
+        onTap: () {
+          Navigator.of(context).pushNamed(Routes.unspentCoinsList);
+        },
+      )
+  ]))
 
                                 ],
                               ),
@@ -489,8 +490,14 @@ class _NewSendPageState extends State<NewSendPage> {
           output.sendAll = false;
         }
 
-        if (amount != output.cryptoAmount) {
-          output.setCryptoAmount(amount);
+        if (S.current.all.contains(amount)) return;
+
+        final cAmount = widget.sendViewModel.amountParsingProxy
+            .getDisplayCryptoAmount(output.cryptoAmount, widget.sendViewModel.selectedCryptoCurrency);
+        if (amount != cAmount) {
+          final newAmount = widget.sendViewModel.amountParsingProxy
+              .getCanonicalCryptoAmount(amount, widget.sendViewModel.selectedCryptoCurrency);
+          output.setCryptoAmount(newAmount);
         }
       }
     });
@@ -586,6 +593,8 @@ class _NewSendPageState extends State<NewSendPage> {
                 backgroundColor: Colors.transparent,
                 builder: (context) {
                   return SendConfirmSheet(
+                    title: widget.mode.title,
+                    iconPath: widget.mode.helpContent?.imagePath,
                     sendViewModel: widget.sendViewModel,
                   );
                 }).then((value) async {
@@ -598,6 +607,8 @@ class _NewSendPageState extends State<NewSendPage> {
             Navigator.of(context).push(CupertinoPageRoute(
                 builder: (context) => Material(
                     child: SendConfirmSheet(
+                      title: widget.mode.title,
+                      iconPath: widget.mode.helpContent?.imagePath,
                       isPage: true,
                       sendViewModel: widget.sendViewModel,
                     )))).then((value) async {
@@ -1016,15 +1027,35 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
 
-  void showErrorValidationAlert(BuildContext context) => showPopUp<void>(
-    context: context,
-    builder: (context) => AlertWithOneAction(
-      alertTitle: S.of(context).error,
-      alertContent: 'Please, check receiver forms',
-      buttonText: S.of(context).ok,
-      buttonAction: () => Navigator.of(context).pop(),
-    ),
-  );
+  void showErrorValidationAlert(BuildContext context) {
+    int emptyAddressIndex = -1;
+    for (int i = 0; i < widget.sendViewModel.outputs.length; i++) {
+      if (widget.sendViewModel.outputs[i].address.isEmpty) {
+        emptyAddressIndex = i;
+        break;
+      }
+    }
+
+    showPopUp<void>(
+      context: context,
+      builder: (context) =>
+          AlertWithOneAction(
+            alertTitle: S
+                .of(context)
+                .error,
+            alertContent: emptyAddressIndex == -1
+                ? S.of(context).check_receiver_forms
+                : S.of(context).enter_recipient_address,
+            buttonText: S
+                .of(context)
+                .ok,
+            buttonAction: () => Navigator.of(context).pop(),
+          ),
+    );
+    if (emptyAddressIndex != -1) {
+      _setOutput(emptyAddressIndex);
+    }
+  }
 
   bool isRegularElectrumAddress(String address) {
     final supportedTypes = [CryptoCurrency.btc, CryptoCurrency.ltc, CryptoCurrency.bch];
@@ -1082,31 +1113,33 @@ class _NewSendPageState extends State<NewSendPage> {
                     child: ModalNavigator(
                         parentContext: modalContext,
                         heightMode: ModalHeightModes.autoLock,
-                        rootPage: NewPicker(
-                            title: S.of(context).set_fees,
-                            description: S.of(context).set_fees_desc,
-                            sliderPageTitle: S.of(context).custom_fee,
-                            sliderInitialValue: customFeeRate,
-                            sliderMaxValue: maxCustomFeeRate,
-                            sliderValueDescription: "sat/byte",
-                            items: items
-                                .map((item) => PickerItem<TransactionPriority>(
-                              title: item.title,
-                              subtitle: item.description,
-                              hint: item.hint,
-                              value: item,
-                              isSliderItem: items.indexOf(item) == customItemIndex,
-                            ))
-                                .toList(),
-                            onItemSelected: (TransactionPriority priority) async {
-                              widget.sendViewModel.feesViewModel.setTransactionPriority(priority);
-                              setState(() => selectedIdx = items.indexOf(priority));
-                              await output.calculateEstimatedFee();
-                            },
-                            onSliderChanged: (double value) {
-                              widget.sendViewModel.feesViewModel.customBitcoinFeeRate = value.round();
-                            },
-                            selectedIndex: selectedIdx)),
+                        rootPage: Material(
+                          child: NewPicker(
+                              title: S.of(context).set_fees,
+                              description: S.of(context).set_fees_desc,
+                              sliderPageTitle: S.of(context).custom_fee,
+                              sliderInitialValue: customFeeRate,
+                              sliderMaxValue: maxCustomFeeRate,
+                              sliderValueDescription: "sat/byte",
+                              items: items
+                                  .map((item) => PickerItem<TransactionPriority>(
+                                title: item.title,
+                                subtitle: item.description,
+                                hint: item.hint,
+                                value: item,
+                                isSliderItem: items.indexOf(item) == customItemIndex,
+                              ))
+                                  .toList(),
+                              onItemSelected: (TransactionPriority priority) async {
+                                widget.sendViewModel.feesViewModel.setTransactionPriority(priority);
+                                setState(() => selectedIdx = items.indexOf(priority));
+                                await output.calculateEstimatedFee();
+                              },
+                              onSliderChanged: (double value) {
+                                widget.sendViewModel.feesViewModel.customBitcoinFeeRate = value.round();
+                              },
+                              selectedIndex: selectedIdx),
+                        )),
                   );
                 },
               );
@@ -1141,9 +1174,9 @@ class SendHelpPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18.0),
             child: Column(
-              spacing: 30,
+              spacing: 12,
               mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset(content.imagePath),
                 Text(
@@ -1155,12 +1188,12 @@ class SendHelpPage extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurface),
                 ),
                 if (content.disclaimer != null)
-                  Text(content.disclaimer!,
+                 ...[SizedBox(),SizedBox(), Text(content.disclaimer!,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant)),]
               ],
             ),
           ),

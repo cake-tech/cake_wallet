@@ -12,6 +12,10 @@ import "package:cw_core/wallet_type.dart";
 
 bool _trueFunc(DashboardViewModel _) => true;
 
+bool _isBtc(DashboardViewModel vm) => vm.wallet.type == WalletType.bitcoin;
+
+bool _hasMweb(DashboardViewModel vm) => vm.hasMweb;
+
 class SettingsListItem {
   final String iconPath;
   final String title;
@@ -33,12 +37,12 @@ class SettingsSectionData {
       SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet_settings.svg", [
     SettingsListItem("assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
     SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy_features, Routes.privacyPage),
-    SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.seed,
+    SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.showKeys,
         routeArgs: true),
     SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
-        "Lightning ${S.current.username}", Routes.lightningUsernamePage, condition: (vm) {
-      return vm.wallet.type == WalletType.bitcoin;
-    }),
+        "Lightning ${S.current.username}", Routes.lightningUsernamePage, condition: _isBtc),
+    SettingsListItem("assets/new-ui/settings_row_icons/silent-payments.svg", S.current.silent_payments_settings, Routes.silentPaymentsSettings, condition: _isBtc),
+    SettingsListItem("assets/new-ui/settings_row_icons/other.svg", S.current.litecoin_mweb_settings, Routes.mwebSettings, condition: _hasMweb),
     SettingsListItem("assets/new-ui/settings_row_icons/other.svg", S.current.other, Routes.otherSettingsPage),
   ]);
 
@@ -97,24 +101,25 @@ class SettingsMainPage extends StatelessWidget {
 
     return Container(
       color: Theme.of(context).colorScheme.surface,
-      child: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        controller: ModalScrollController.of(context),
-        child: Column(children: [
-          ModalTopBar(
-            title: "Settings",
-            leadingIcon: Icon(Icons.close),
-            onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
-            onTrailingPressed: () {},
+      child: Column(children: [
+        ModalTopBar(
+          title: "Settings",
+          leadingIcon: Icon(Icons.close),
+          onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
+          onTrailingPressed: () {},
+        ),
+        Expanded(
+          child: ListView(
+            controller: ModalScrollController.of(context),
+            children: [Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+              child: NewListSections(
+                sections: sections,
+              ),
+            ),]
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-            child: NewListSections(
-              sections: sections,
-            ),
-          ),
-        ]),
-      ),
+        ),
+      ]),
     );
   }
 }
