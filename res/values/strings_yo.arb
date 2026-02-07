@@ -885,6 +885,7 @@
   "show_keys": "Wo hóró / àwọn kọ́kọ́rọ́",
   "show_market_place": "Wa Sopọ Pataki",
   "show_seed": "Wo hóró",
+  "show_zcash_card": "Ṣe afihan kaadi owo ti o padanu zcash",
   "sign_all": "Wọlé gbogbo",
   "sign_message": "Ifiranṣẹ Ami",
   "sign_one": "Mikọ",
@@ -1041,6 +1042,7 @@
   "transaction_sent_notice": "Tí aṣàfihàn kò bá tẹ̀síwájú l'áàárín ìṣẹ́jú kan, ẹ tọ́ olùṣèwádìí àkójọpọ̀ àti ímeèlì yín wò.",
   "transactions": "Àwọn àránṣẹ́",
   "transactions_by_date": "Àwọn àránṣẹ́ t'á ti fi aago ṣa",
+  "transparent_secret_key": "Sihin Secret Key",
   "transport_type": "Iru irinna",
   "trongrid_history": "Itan Trongrid",
   "trusted": "A ti fọkàn ẹ̀ tán",
@@ -1064,6 +1066,7 @@
   "unavailable_balance_description": "Iwontunws.funfun ti ko si: Lapapọ yii pẹlu awọn owo ti o wa ni titiipa ni awọn iṣowo isunmọ ati awọn ti o ti didi ni itara ninu awọn eto iṣakoso owo rẹ. Awọn iwọntunwọnsi titiipa yoo wa ni kete ti awọn iṣowo oniwun wọn ba ti pari, lakoko ti awọn iwọntunwọnsi tio tutunini ko ni iraye si fun awọn iṣowo titi iwọ o fi pinnu lati mu wọn kuro.",
   "unconfirmed": "A kò tí ì jẹ́rìí ẹ̀",
   "understand": "Ó ye mi",
+  "unified_view_key": "Bọtini Wo Iṣọkan",
   "unlock": "Sisalẹ",
   "unmatched_currencies": "Irú owó ti àpamọ́wọ́ yín kì í ṣe irú ti yíya àmì ìlujá",
   "unrestricted_background_service": "Iṣẹ ipilẹṣẹ ti ko nilẹ",
@@ -1173,5 +1176,11 @@
   "you_will_send": "Ṣe pàṣípààrọ̀ láti",
   "youCanGoBackToYourDapp": "O le pada si tapla rẹ bayi",
   "your": "Rẹ",
-  "yy": "Ọd"
+  "yy": "Ọd",
+  "zcash_card_description": "Ti o ko ba ri iwọntunwọnsi rẹ ni kikun Apamọwọ Akara oyinbo le gbiyanju lati gba owo lati awọn adirẹsi iyipada inu ti awọn apamọwọ kan lo.",
+  "zcash_card_dismiss": "Yọọ kuro",
+  "zcash_card_enable_later": "O le nigbagbogbo mu kaadi yi ṣiṣẹ nigbamii ni awọn eto",
+  "zcash_card_missing_funds": "Awọn owo ti o padanu?",
+  "zcash_card_scan": "Ṣayẹwo",
+  "zcash_card_warning": "Maṣe pa ohun elo naa titi ti ilana naa yoo fi pari, ti o ba ṣe bẹ ilana yii yoo nilo lati tun bẹrẹ lati ibere."
 }

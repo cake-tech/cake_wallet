@@ -885,6 +885,7 @@
   "show_keys": "시드/키 표시",
   "show_market_place": "마켓플레이스 표시",
   "show_seed": "시드 표시",
+  "show_zcash_card": "zcash 누락 자금 카드 표시",
   "sign_all": "모두 서명",
   "sign_message": "메시지 서명",
   "sign_one": "하나 서명",
@@ -1041,6 +1042,7 @@
   "transaction_sent_notice": "1분 후에도 화면이 진행되지 않으면 블록 탐색기와 이메일을 확인하세요.",
   "transactions": "트랜잭션",
   "transactions_by_date": "날짜별 트랜잭션",
+  "transparent_secret_key": "투명한 비밀키",
   "transport_type": "전송 유형",
   "trongrid_history": "TronGrid 내역",
   "trusted": "신뢰됨",
@@ -1064,6 +1066,7 @@
   "unavailable_balance_description": "사용 불가 잔액: 이 총액에는 보류 중인 트랜잭션에 잠긴 자금과 코인 제어 설정에서 적극적으로 동결한 자금이 포함됩니다. 잠긴 잔액은 해당 트랜잭션이 완료되면 사용할 수 있게 되며, 동결된 잔액은 동결 해제를 결정할 때까지 트랜잭션에 액세스할 수 없습니다.",
   "unconfirmed": "미확정 잔액",
   "understand": "이해합니다",
+  "unified_view_key": "통합 보기 키",
   "unlock": "잠금 해제",
   "unmatched_currencies": "현재 지갑 통화가 스캔된 QR의 통화와 일치하지 않습니다.",
   "unrestricted_background_service": "제한 없는 백그라운드 서비스",
@@ -1173,5 +1176,11 @@
   "you_will_send": "전환 출처",
   "youCanGoBackToYourDapp": "이제 dApp으로 돌아갈 수 있습니다",
   "your": "당신의",
-  "yy": "YY"
+  "yy": "YY",
+  "zcash_card_description": "전체 잔액이 표시되지 않으면 Cake Wallet은 일부 지갑에서 사용하는 내부 변경 주소에서 자금을 회수하려고 시도할 수 있습니다.",
+  "zcash_card_dismiss": "해고하다",
+  "zcash_card_enable_later": "나중에 설정에서 언제든지 이 카드를 활성화할 수 있습니다.",
+  "zcash_card_missing_funds": "자금이 부족합니까?",
+  "zcash_card_scan": "주사",
+  "zcash_card_warning": "절차가 완료될 때까지 앱을 닫지 마십시오. 그렇게 하면 이 프로세스를 처음부터 다시 시작해야 합니다."
 }

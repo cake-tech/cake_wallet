@@ -884,6 +884,7 @@
   "show_keys": "Visualiser la phrase secrète (seed) et les clefs",
   "show_market_place": "Afficher la place de marché",
   "show_seed": "Visualiser la phrase secrète (seed)",
+  "show_zcash_card": "Afficher la carte de fonds manquants zcash",
   "sign_all": "Signer tout",
   "sign_message": "Signer le message",
   "sign_one": "Signer un",
@@ -1040,6 +1041,7 @@
   "transaction_sent_notice": "Si l'écran ne continue pas après 1 minute, vérifiez un explorateur de blocs et votre e-mail.",
   "transactions": "Transactions",
   "transactions_by_date": "Transactions par date",
+  "transparent_secret_key": "Clé secrète transparente",
   "transport_type": "Type de transport",
   "trongrid_history": "Histoire de la trongride",
   "trusted": "de confiance",
@@ -1063,6 +1065,7 @@
   "unavailable_balance_description": "Solde indisponible : ce total comprend les fonds bloqués dans les transactions en attente et ceux que vous avez activement gelés dans vos paramètres de contrôle des pièces. Les soldes bloqués deviendront disponibles une fois leurs transactions respectives terminées, tandis que les soldes gelés resteront inaccessibles aux transactions jusqu'à ce que vous décidiez de les débloquer.",
   "unconfirmed": "Solde non confirmé",
   "understand": "J'ai compris",
+  "unified_view_key": "Clé de vue unifiée",
   "unlock": "Ouvrir",
   "unmatched_currencies": "La devise de votre portefeuille (wallet) actuel ne correspond pas à celle du QR code scanné",
   "unrestricted_background_service": "Service de fond sans restriction",
@@ -1172,5 +1175,11 @@
   "you_will_send": "Convertir depuis",
   "youCanGoBackToYourDapp": "Vous pouvez retourner à votre Dapp maintenant",
   "your": "Ton",
-  "yy": "AA"
+  "yy": "AA",
+  "zcash_card_description": "Si vous ne voyez pas votre solde complet, Cake Wallet peut tenter de récupérer des fonds à partir d'adresses de modification internes utilisées par certains portefeuilles.",
+  "zcash_card_dismiss": "Rejeter",
+  "zcash_card_enable_later": "Vous pourrez toujours activer cette carte plus tard dans les paramètres",
+  "zcash_card_missing_funds": "Des fonds manquants ?",
+  "zcash_card_scan": "Balayage",
+  "zcash_card_warning": "Ne fermez pas l'application tant que la procédure n'est pas terminée, si vous le faites, ce processus devra redémarrer à partir de zéro."
 }

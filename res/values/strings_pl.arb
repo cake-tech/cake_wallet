@@ -883,6 +883,7 @@
   "show_keys": "Pokaż seed/klucze",
   "show_market_place": "Pokaż Marketplace",
   "show_seed": "Pokaż seed",
+  "show_zcash_card": "Pokaż brakującą kartę środków Zcash",
   "sign_all": "Podpisz Wszystkie",
   "sign_message": "Podpisz wiadomość",
   "sign_one": "Podpisz 1",
@@ -1039,6 +1040,7 @@
   "transaction_sent_notice": "Jeśli po upływie 1 minuty ekran nie przejdzie dalej, sprawdź eksplorator bloków i swoją skrzynkę e‑mail.",
   "transactions": "Transakcje",
   "transactions_by_date": "Transakcje według daty",
+  "transparent_secret_key": "Przezroczysty tajny klucz",
   "transport_type": "Typ transportu",
   "trongrid_history": "Historia TronGrid",
   "trusted": "Zaufany",
@@ -1062,6 +1064,7 @@
   "unavailable_balance_description": "Niedostępne saldo: Ta suma obejmuje środki zablokowane w transakcjach oczekujących oraz te, które aktywnie zamroziłeś w ustawieniach kontroli monet. Zablokowane środki staną się dostępne po zakończeniu odpowiednich transakcji, natomiast zamrożone środki pozostaną niedostępne dla transakcji, dopóki nie zdecydujesz się ich odmrozić.",
   "unconfirmed": "Niepotwierdzone Saldo",
   "understand": "Rozumiem",
+  "unified_view_key": "Ujednolicony klucz widoku",
   "unlock": "Odblokuj",
   "unmatched_currencies": "Waluta Twojego aktualnego portfela nie jest zgodna z walutą zeskanowanego kodu QR",
   "unrestricted_background_service": "Usługa w tle bez ograniczeń",
@@ -1171,5 +1174,11 @@
   "you_will_send": "Konwertuj z",
   "youCanGoBackToYourDapp": "Możesz teraz wrócić do swojego dApp",
   "your": "Twoje",
-  "yy": "RR"
+  "yy": "RR",
+  "zcash_card_description": "Jeśli nie widzisz swojego pełnego salda, Cake Wallet może podjąć próbę pobrania środków z wewnętrznych adresów zmian używanych przez niektóre portfele.",
+  "zcash_card_dismiss": "Odrzucać",
+  "zcash_card_enable_later": "Zawsze możesz włączyć tę kartę później w ustawieniach",
+  "zcash_card_missing_funds": "Brakuje środków?",
+  "zcash_card_scan": "Skandować",
+  "zcash_card_warning": "Nie zamykaj aplikacji do czasu zakończenia procedury. Jeśli to zrobisz, proces będzie musiał zostać uruchomiony od nowa."
 }

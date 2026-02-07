@@ -232,14 +232,26 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
 
       bool nanoBased = widget.walletRestoreViewModel.type == WalletType.nano ||
           widget.walletRestoreViewModel.type == WalletType.banano;
-      return AddressTextField(
-        addressKey: ValueKey('wallet_restore_from_key_private_key_textfield_key'),
-        controller: privateKeyController,
-        placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
-        options: [AddressTextFieldOption.paste],
-        onPushPasteButton: (_) {
-          _pasteText();
-        },
+      return Column(
+        children: [
+          AddressTextField(
+            addressKey: ValueKey('wallet_restore_from_key_private_key_textfield_key'),
+            controller: privateKeyController,
+            placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
+            options: [AddressTextFieldOption.paste],
+            onPushPasteButton: (_) {
+              _pasteText();
+            },
+          ),
+          if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
+            BlockchainHeightWidget(
+              key: blockchainHeightKey,
+              hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
+              onHeightChange: (_) => null,
+              onHeightOrDateEntered: widget.onHeightOrDateEntered,
+              walletType: widget.walletRestoreViewModel.type,
+            ),
+        ]
       );
     }
 

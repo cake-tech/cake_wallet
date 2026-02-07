@@ -65,6 +65,7 @@ class PreferencesKey {
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const mwebCardDisplay = 'mwebCardDisplay';
+  static const showZcashMissingFundsCard = 'showZcashMissingFundsCard';
   static const mwebEnabled = 'mwebEnabled';
   static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';
   static const mwebAlwaysScan = 'mwebAlwaysScan';

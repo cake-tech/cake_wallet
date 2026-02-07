@@ -885,6 +885,7 @@
   "show_keys": "シード/キーを表示する",
   "show_market_place": "マーケットプレイスを表示",
   "show_seed": "シードを表示",
+  "show_zcash_card": "zcash 不足資金カードを提示する",
   "sign_all": "すべてに署名します",
   "sign_message": "署名メッセージ",
   "sign_one": "1つに署名します",
@@ -1041,6 +1042,7 @@
   "transaction_sent_notice": "1分経っても画面が進まない場合は、ブロックエクスプローラーとメールアドレスを確認してください。",
   "transactions": "取引",
   "transactions_by_date": "日付ごとの取引",
+  "transparent_secret_key": "透明な秘密鍵",
   "transport_type": "輸送タイプ",
   "trongrid_history": "トロンリッドの歴史",
   "trusted": "信頼できる",
@@ -1064,6 +1066,7 @@
   "unavailable_balance_description": "利用不可能な残高: この合計には、保留中のトランザクションにロックされている資金と、コイン管理設定でアクティブに凍結した資金が含まれます。ロックされた残高は、それぞれの取引が完了すると利用可能になりますが、凍結された残高は、凍結を解除するまで取引にアクセスできません。",
   "unconfirmed": "残高未確認",
   "understand": "わかります",
+  "unified_view_key": "統合ビューキー",
   "unlock": "ロックを解除します",
   "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません",
   "unrestricted_background_service": "無制限のバックグラウンドサービス",
@@ -1173,5 +1176,11 @@
   "you_will_send": "から変換",
   "youCanGoBackToYourDapp": "あなたは今あなたのダップに戻ることができます",
   "your": "あなたの",
-  "yy": "YY"
+  "yy": "YY",
+  "zcash_card_description": "残高が全額表示されない場合、Cake Wallet は一部のウォレットで使用されている内部変更アドレスから資金を掃引しようとする可能性があります。",
+  "zcash_card_dismiss": "却下する",
+  "zcash_card_enable_later": "このカードは後から設定でいつでも有効にできます",
+  "zcash_card_missing_funds": "資金が不足していますか?",
+  "zcash_card_scan": "スキャン",
+  "zcash_card_warning": "手順が完了するまでアプリを閉じないでください。閉じた場合、このプロセスを最初からやり直す必要があります。"
 }
