@@ -442,8 +442,6 @@ abstract class EVMChainWalletBase
   }
 
   bool isTokenPropertiesSuspicious(Erc20Token token) {
-    final baseCurrencySymbols = CryptoCurrency.all.map((e) => e.title.toUpperCase()).toList();
-
     bool isTokenWhitelisted = getDefaultTokenContractAddresses
         .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
 
@@ -459,10 +457,18 @@ abstract class EVMChainWalletBase
       'http',
       'https',
       '.com',
+      '.org',
+      '.top',
+      '.live',
       'airdrop',
+      'reward',
+      'distribution',
       'www',
       '.xyz',
       '🎁',
+      'bot',
+      'claim',
+      'reward',
     ];
 
     final hasSuspiciousData = suspiciousStrings.any(
@@ -472,11 +478,10 @@ abstract class EVMChainWalletBase
           normalizedTitle.toLowerCase().contains(element),
     );
 
-    // Check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc).
-    // If it is, then it's probably a scam unless it's in the whitelist.
-    final hasSuspiciousSymbol = baseCurrencySymbols.contains(normalizedSymbol);
+    final nativeSymbol = currency.title.toUpperCase();
+    final hasSuspiciousSymbol = normalizedSymbol == nativeSymbol && !isTokenWhitelisted;
 
-    return hasSuspiciousData || (hasSuspiciousSymbol && !isTokenWhitelisted);
+    return hasSuspiciousData || hasSuspiciousSymbol;
   }
 
   Future<void> _checkForExistingScamTokens() async {
@@ -1287,6 +1292,9 @@ abstract class EVMChainWalletBase
   }
 
   Future<void> addErc20Token(Erc20Token token) async {
+    final isSuspicious = isTokenPropertiesSuspicious(token);
+    token.isPotentialScam = token.isPotentialScam || isSuspicious;
+
     String? iconPath;
 
     if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
