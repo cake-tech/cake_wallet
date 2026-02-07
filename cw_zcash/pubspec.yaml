@@ -21,8 +21,8 @@ dependencies:
   flat_buffers: any
   zkool:
     git:
-      url: https://github.com/hhanh00/zkool2
-      ref: 5d53a3f5a2d8f5b0619248384d7431f0a185e171
+      url: https://github.com/cake-tech/zkool2
+      ref: b1642f260da4fa00dd2f8d4dd689073d0b56960a
 
 dependency_overrides:
   decimal: ^2.3.3
