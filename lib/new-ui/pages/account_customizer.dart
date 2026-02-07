@@ -202,7 +202,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                                       Navigator.of(context).push(CupertinoPageRoute(
                                         builder: (context) {
                                           return BlocProvider(
-                                            create: (context) => getIt.get<CardCustomizerBloc>(),
+                                            create: (context) => getIt.get<CardCustomizerBloc>(param1: false),
                                             child: Material(
                                               child: BlocListener<CardCustomizerBloc,
                                                       CardCustomizerState>(
