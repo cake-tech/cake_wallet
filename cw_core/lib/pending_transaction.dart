@@ -1,6 +1,6 @@
 class PendingChange {
   final String address;
-  final String amount;
+  final BigInt amount;
 
   PendingChange(this.address, this.amount);
 }

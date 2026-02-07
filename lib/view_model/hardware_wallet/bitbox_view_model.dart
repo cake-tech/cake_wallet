@@ -105,7 +105,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       default:
-        throw Exception('Unexpected wallet type: ${wallet.type}');
+        throw Exception('Unexpected wallet type: ${wallet.type} for bitbox');
     }
   }
 }

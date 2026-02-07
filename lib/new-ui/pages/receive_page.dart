@@ -145,6 +145,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
 
   @override
   Widget build(BuildContext context) {
+    final hasAddressTypeSelector = widget.receiveOptionViewModel.options.length > 1;
     final hasLabel = _addressItemWithLabel?.name != null && _addressItemWithLabel!.name!.isNotEmpty;
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
     final infobox = ReceiveInfoBox.forWalletType(widget.addressListViewModel.type,
@@ -153,21 +154,21 @@ class _NewReceivePageState extends State<NewReceivePage> {
           setState(() {});
         });
 
-    return SafeArea(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.surfaceBright,
-              Theme.of(context).colorScheme.surface,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(24),
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.surfaceBright,
+            Theme.of(context).colorScheme.surface,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+      child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -216,6 +217,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                     },
                     largeQrMode: _largeQrMode,
                   ),
+                  if (hasAddressTypeSelector)
                   ReceiveAddressTypeDisplay(
                     lightningMode: widget.lightningMode,
                     receiveOptionViewModel: widget.receiveOptionViewModel,

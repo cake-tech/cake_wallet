@@ -25,6 +25,9 @@ abstract class WalletListViewModelBase with Store {
         expansionTileStateTrack = ObservableMap<int, bool>() {
     setOrderType(_appStore.settingsStore.walletListOrder);
     updateList();
+    reaction((_) => _appStore.wallet, (_) {
+      updateList();
+    });
   }
 
   @observable

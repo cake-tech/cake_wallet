@@ -12,13 +12,12 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:mobx/mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import 'balance_card.dart';
 
@@ -27,10 +26,12 @@ class CardsView extends StatefulWidget {
       {super.key,
       required this.dashboardViewModel,
       required this.accountListViewModel,
-      required this.lightningMode});
+      required this.lightningMode,
+      required this.onCompactModeBackgroundCardsTapped});
 
   final DashboardViewModel dashboardViewModel;
   final MoneroAccountListViewModel? accountListViewModel;
+  final VoidCallback onCompactModeBackgroundCardsTapped;
   final bool lightningMode;
 
   @override
@@ -38,17 +39,30 @@ class CardsView extends StatefulWidget {
 }
 
 class _CardsViewState extends State<CardsView> {
-  int? _selectedIndex = 0;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
+    reaction(
+        (_) => widget.dashboardViewModel.cardOrder.keys.toList(),
+        (_) => setState(() {
+              _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
+            }));
+  }
 
   static const Duration animDuration = Duration(milliseconds: 200);
-  static const double overlapAmount = 60.0;
+  static const int compactModeTreshold = 4;
+  static const int maxCards = 5;
   late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
 
-  Widget _buildCard(int index, int numCards, double parentWidth) {
+  Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
+      Map<int, int> order, bool compactMode, double overlapAmount) {
     final baseTop = overlapAmount * (numCards - 1);
-    final scaleFactor = 0.96;
+    final scaleFactor = compactMode ? 1 : 0.96;
 
-    final howFarBehind = (_selectedIndex! - index + numCards) % numCards;
+    final howFarBehind = (_selectedIndex - visualIndex + numCards) % numCards;
     final scale = pow(scaleFactor, howFarBehind).toDouble();
 
     final top = baseTop - (howFarBehind * overlapAmount);
@@ -56,7 +70,7 @@ class _CardsViewState extends State<CardsView> {
     final left = (parentWidth - cardWidth) / 2.0;
 
     return AnimatedPositioned(
-      key: ValueKey('box_$index'),
+      key: ValueKey("$visualIndex $realIndex"),
       duration: animDuration,
       curve: Curves.easeOut,
       top: top,
@@ -67,20 +81,25 @@ class _CardsViewState extends State<CardsView> {
         scale: scale,
         child: GestureDetector(
           onTap: () {
-            setState(() {
-              if (widget.accountListViewModel != null)
-                widget.accountListViewModel!.select(widget.accountListViewModel!.accounts[index]);
-              _selectedIndex = index;
-            });
+            if (compactMode && visualIndex != 0) {
+              widget.onCompactModeBackgroundCardsTapped();
+            } else {
+              setState(() {
+                if (widget.accountListViewModel != null)
+                  widget.accountListViewModel!
+                      .select(widget.accountListViewModel!.accounts[realIndex]);
+                _selectedIndex = visualIndex;
+              });
+            }
           },
           onLongPress: () {
-            if(_selectedIndex == index) {
+            if (_selectedIndex == visualIndex) {
               widget.dashboardViewModel.balanceViewModel.switchBalanceValue();
             };
             HapticFeedback.heavyImpact();
           },
           child: Observer(builder: (_) {
-            final account = widget.accountListViewModel?.accounts[index];
+            final account = widget.accountListViewModel?.accounts[realIndex];
 
             final walletBalanceRecord =
                 widget.dashboardViewModel.balanceViewModel.formattedBalances.elementAt(0);
@@ -98,13 +117,15 @@ class _CardsViewState extends State<CardsView> {
             final CardDesign cardDesign;
             if (widget.dashboardViewModel.cardDesigns.isEmpty)
               cardDesign = CardDesign.genericDefault;
+            else if(widget.lightningMode)
+              cardDesign = widget.dashboardViewModel.cardDesigns[realIndex + 1];
             else
-              cardDesign = widget.dashboardViewModel.cardDesigns[index];
+              cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
 
             final String accountName;
             final String accountBalance;
             if (account == null) {
-              accountName = walletCurrency.fullName ?? walletCurrency.title;
+              accountName = "";
               accountBalance = "";
             } else {
               accountName = account.label;
@@ -136,10 +157,11 @@ class _CardsViewState extends State<CardsView> {
               width: cardWidth,
               accountName: accountName,
               accountBalance: accountBalance,
+              designSwitchDuration: Duration(milliseconds: 150),
               assetName: walletCurrency.title,
               balance: walletBalance,
               fiatBalance: walletFiatBalance,
-              selected: _selectedIndex == index,
+              selected: _selectedIndex == visualIndex,
               design: cardDesign,
               actions: actions,
             );
@@ -149,7 +171,7 @@ class _CardsViewState extends State<CardsView> {
     );
   }
 
-  double _getBoxHeight(int numCards) {
+  double _getBoxHeight(int numCards, double overlapAmount) {
     return
         /* height of initial card */
         (2 / 3.2) * (cardWidth) +
@@ -159,46 +181,54 @@ class _CardsViewState extends State<CardsView> {
 
   @override
   Widget build(BuildContext context) {
-        final parentWidth = MediaQuery.of(context).size.width;
-        final children = <Widget>[];
+    return Observer(builder: (_) {
+      final parentWidth = MediaQuery.of(context).size.width;
+      final children = <Widget>[];
 
-        int numCards = widget.dashboardViewModel.cardDesigns.length;
+    int numCards = widget.dashboardViewModel.wallet.type == WalletType.bitcoin
+        ? 1
+        : widget.dashboardViewModel.cardDesigns.length;
         if(numCards == 0) numCards = 1;
 
-        if (_selectedIndex! >= (numCards)) {
-          _selectedIndex = 0;
-        }
+      if (_selectedIndex >= (numCards)) {
+        _selectedIndex = 0;
+      }
 
-        for (int i = _selectedIndex!;
-        i < (numCards) + _selectedIndex!;
-        i++) {
-          if (i != _selectedIndex) {
-            children.add(
-                _buildCard(i % (numCards), numCards, parentWidth));
-          }
-        }
+      final order = widget.dashboardViewModel.cardOrder.length != numCards
+          ? Map<int, int>.fromEntries(
+              List.generate(numCards, (i) => MapEntry(i, i)),
+            )
+          : widget.dashboardViewModel.cardOrder;
 
-        if (_selectedIndex != null) {
-          children.add(_buildCard(_selectedIndex!, numCards, parentWidth));
-        }
+      final bool compactMode = numCards >= compactModeTreshold;
+      final double overlapAmount = compactMode ? 5.0 : 60.0;
 
-        return AnimatedContainer(
+      for (int i = min(numCards - 1, maxCards); i >= 0; i--) {
+        int visualIndex = (_selectedIndex - i + numCards) % numCards;
+
+        int realIndex = order[visualIndex]!;
+
+        children.add(_buildCard(
+            visualIndex, realIndex, numCards, parentWidth, order, compactMode, overlapAmount));
+      }
+
+      return AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        width: double.infinity,
+        height: _getBoxHeight(numCards, overlapAmount),
+        child: AnimatedSwitcher(
           duration: Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          width: double.infinity,
-          height: _getBoxHeight(numCards),
-          child: AnimatedSwitcher(
-            duration: Duration(milliseconds: 200),
-            transitionBuilder: (child, animation) =>
-                FadeTransition(opacity: animation, child: child),
-            child: SizedBox(
-              key: ValueKey(_getBoxHeight(numCards)),
-              width: double.infinity,
-              height: _getBoxHeight(numCards),
-              child: Stack(alignment: Alignment.center, children: children),
-            ),
+          transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+          child: SizedBox(
+            key: ValueKey(_getBoxHeight(numCards, overlapAmount)),
+            width: double.infinity,
+            height: _getBoxHeight(numCards, overlapAmount),
+            child: Stack(alignment: Alignment.center, children: children),
           ),
-    );
+        ),
+      );
+    });
   }
 
   Future<void> depositToL2() async {
@@ -217,13 +247,14 @@ class _CardsViewState extends State<CardsView> {
       }
     }
 
-    if(FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
-      final page = getIt.get<NewSendPage>(param1: SendPageParams(
+    if (FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+      final page = getIt.get<NewSendPage>(
+          param1: SendPageParams(
         initialPaymentRequest: paymentRequest,
         unspentCoinType: UnspentCoinType.nonMweb,
         mode: SendPageModes.l2deposit,
       ));
-      showCupertinoModalBottomSheet(context: context, builder: (context){
+      showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
         return FractionallySizedBox(
             heightFactor: 0.65,
             child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
@@ -258,14 +289,14 @@ class _CardsViewState extends State<CardsView> {
       unspentCoinType = UnspentCoinType.lightning;
     }
 
-
-    if(FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
-      final page = getIt.get<NewSendPage>(param1: SendPageParams(
+    if (FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+      final page = getIt.get<NewSendPage>(
+          param1: SendPageParams(
         initialPaymentRequest: paymentRequest,
         unspentCoinType: unspentCoinType,
         mode: SendPageModes.l2withdrawal,
       ));
-      showCupertinoModalBottomSheet(context: context, builder: (context){
+      showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
         return FractionallySizedBox(
           heightFactor: 0.65,
           child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
@@ -281,6 +312,5 @@ class _CardsViewState extends State<CardsView> {
         },
       );
     }
-
   }
 }

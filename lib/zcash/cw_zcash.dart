@@ -20,8 +20,14 @@ class CWZcash extends Zcash {
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
       {required String name,
       required String privateKey,
-      required String password}) {
-    throw UnimplementedError();
+      required String password,
+      required int height}) {
+    return ZcashFromKeysWalletCredentials(
+      name: name,
+      height: height,
+      privateKey: privateKey,
+      password: password,
+    );
   }
 
   @override
@@ -122,11 +128,10 @@ class CWZcash extends Zcash {
   Map<String, String> getKeys(Object wallet) {
     final zcashWallet = wallet as ZcashWallet;
     final seed = zcashWallet.seed;
-    final address = zcashWallet.walletAddresses.address;
 
     return <String, String>{
       if (seed != null) 'seed': seed,
-      'primaryAddress': address,
+      ...(zcashWallet.keys as Map<String, String?>).map((final k, final v) => MapEntry(k, v??'')),
     };
   }
 
@@ -202,6 +207,18 @@ class CWZcash extends Zcash {
   @override
   Future<int> getHeightByDate(DateTime date) {
     return ZcashWalletBase.getHeightByDate(date);
+  }
+
+  @override
+  bool showMissingFundsCard(WalletBase wallet) {
+    final zcashWallet = wallet as ZcashWallet;
+    return zcashWallet.couldBeZashiWallet();
+  }
+  
+  @override
+  Future<void> rescanInternalChange(WalletBase wallet) {
+    final zcashWallet = wallet as ZcashWallet;
+    return zcashWallet.rescanInternalChange();
   }
 }
 

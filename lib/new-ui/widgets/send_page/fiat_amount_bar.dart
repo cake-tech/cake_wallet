@@ -45,12 +45,15 @@ class FiatAmountBar extends StatelessWidget {
               onPressed: onSwitchButtonPressed,
             ),
             Observer(
-                builder: (_) => Text(
-                      fiatInputMode
-                          ? "${cryptoAmount.isEmpty ? "0" : cryptoAmount} ${cryptoCurrency}"
-                          : "${fiatAmount.isEmpty ? "0" : fiatAmount} ${fiatCurrency}",
-                      style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
-                    )),
+                builder: (_) => GestureDetector(
+                  onTap: onSwitchButtonPressed,
+                  child: Text(
+                        fiatInputMode
+                            ? "${cryptoAmount.isEmpty ? "0" : cryptoAmount} ${cryptoCurrency}"
+                            : "${fiatAmount.isEmpty ? "0" : fiatAmount} ${fiatCurrency}",
+                        style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+                      ),
+                )),
           ],
         ),
         if (allAmount != null && allAmount!.isNotEmpty)

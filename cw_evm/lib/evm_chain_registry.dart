@@ -155,6 +155,41 @@ class EvmChainRegistry {
       WalletType.arbitrum,
       'ARB',
     );
+
+    // BNB Smart Chain
+    _registerChain(
+      const ChainConfig(
+        chainId: 56,
+        name: 'BNB Smart Chain',
+        shortCode: 'bsc',
+        caip2: 'eip155:56',
+        nativeCurrency: CryptoCurrency.bnb,
+        capabilities: ChainCapabilities(
+          supportsERC20: true,
+          supportsEIP1559: true,
+          supportsInternalTx: true,
+          supportsSubscriptions: false,
+          supportsENS: false,
+        ),
+        defaultRpcEndpoints: [
+          'bsc-dataseed1.binance.org',
+          'bsc-dataseed2.binance.org',
+          'bsc-dataseed1.defibit.io',
+          'bsc-dataseed1.nodereal.io',
+          'bsc.llamarpc.com',
+          'bsc-rpc.publicnode.com',
+        ],
+        explorerUrls: [
+          'https://bscscan.com',
+        ],
+        feeModel: FeeModel(
+          type: FeeType.eip1559,
+          defaultGasLimit: 21000,
+        ),
+      ),
+      WalletType.bsc,
+      'BSC',
+    );
   }
 
   void _registerChain(

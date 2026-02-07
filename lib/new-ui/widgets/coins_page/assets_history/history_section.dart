@@ -11,6 +11,7 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:intl/intl.dart';
 
 class HistorySection extends StatelessWidget {
   const HistorySection({super.key, required this.dashboardViewModel});
@@ -27,7 +28,7 @@ class HistorySection extends StatelessWidget {
           padding: EdgeInsets.zero,
           shrinkWrap: true,
           itemCount: dashboardViewModel.items.length,
-          itemBuilder: (context, index) {
+          itemBuilder: (context, index) => Observer(builder: (_) {
             final prevItem = index == 0 ? null : dashboardViewModel.items[index - 1];
             final item = dashboardViewModel.items[index];
             final nextItem = index == dashboardViewModel.items.length - 1
@@ -36,7 +37,6 @@ class HistorySection extends StatelessWidget {
 
             final roundedBottom = (nextItem == null || nextItem is DateSectionItem);
             final roundedTop = (prevItem == null || prevItem is DateSectionItem);
-
 
             if (item is TransactionListItem) {
               final transaction = item.transaction;
@@ -47,15 +47,14 @@ class HistorySection extends StatelessWidget {
               }
 
               CryptoCurrency? asset;
-              if (transaction.additionalInfo["isLightning"] == true)
-                asset = CryptoCurrency.btcln;
+              if (transaction.additionalInfo["isLightning"] == true) asset = CryptoCurrency.btcln;
 
               return GestureDetector(
                 onTap: () => Navigator.of(context)
                     .pushNamed(Routes.transactionDetails, arguments: transaction),
                 child: HistoryTile(
                     title: item.formattedTitle + item.formattedStatus + transactionType,
-                    date: DateFormatter.convertDateTimeToReadableString(item.date),
+                    date: DateFormat('HH:mm').format(transaction.date),
                     amount: item.formattedCryptoAmount,
                     amountFiat: item.formattedFiatAmount,
                     roundedBottom: roundedBottom,
@@ -73,16 +72,20 @@ class HistorySection extends StatelessWidget {
 
               final tradeTo = trade.toRaw >= 0 ? trade.to : trade.userCurrencyTo;
 
-              return HistoryTradeTile(
-                from: tradeFrom!,
-                to: tradeTo!,
-                date: DateFormatter.convertDateTimeToReadableString(item.date),
-                amount: trade.amountFormatted(),
-                receiveAmount: trade.receiveAmountFormatted(),
-                roundedBottom: roundedBottom,
-                roundedTop: roundedTop,
-                bottomSeparator: !roundedBottom,
-                swapState: trade.state,
+              return GestureDetector(
+                onTap: () => Navigator.of(context)
+                    .pushNamed(Routes.tradeDetails, arguments: trade),
+                child: HistoryTradeTile(
+                  from: tradeFrom!,
+                  to: tradeTo!,
+                  date: DateFormat('HH:mm').format(item.trade.createdAt!),
+                  amount: trade.amountFormatted(),
+                  receiveAmount: trade.receiveAmountFormatted(),
+                  roundedBottom: roundedBottom,
+                  roundedTop: roundedTop,
+                  bottomSeparator: !roundedBottom,
+                  swapState: trade.state,
+                ),
               );
             } else if (item is DateSectionItem) {
               return Padding(
@@ -90,17 +93,21 @@ class HistorySection extends StatelessWidget {
                   child: Text(DateFormatter.convertDateTimeToReadableString(item.date),
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)));
             }else if(item is OrderListItem){
-              return HistoryOrderTile(
-                date: DateFormatter.convertDateTimeToReadableString(item.date),
-                amount: item.orderFormattedAmount,
-                amountFiat: "USD 0.00",
-                roundedBottom: roundedBottom,
-                roundedTop: roundedTop,
-                bottomSeparator: !roundedBottom,
+              return GestureDetector(
+                onTap: () => Navigator.of(context)
+                    .pushNamed(Routes.orderDetails, arguments: item.order),
+                child: HistoryOrderTile(
+                  date: DateFormat('HH:mm').format(item.order.createdAt),
+                  amount: item.orderFormattedAmount,
+                  amountFiat: "USD 0.00",
+                  roundedBottom: roundedBottom,
+                  roundedTop: roundedTop,
+                  bottomSeparator: !roundedBottom,
+                ),
               );
             } else
               return Text(item.runtimeType.toString());
-          },
+          }),
         ),
       ),
     );

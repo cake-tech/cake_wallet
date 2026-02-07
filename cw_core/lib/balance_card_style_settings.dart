@@ -8,13 +8,15 @@ class BalanceCardStyleSettings {
   final int gradientIndex;
   final bool useSpecialDesign;
   final String backgroundImagePath;
+  final int cardOrder;
 
   BalanceCardStyleSettings(
       {required this.walletInfoId,
         required this.accountIndex,
         required this.gradientIndex,
         required this.useSpecialDesign,
-        required this.backgroundImagePath});
+        required this.backgroundImagePath,
+        required this.cardOrder});
 
   static const tableName = "BalanceCardStyleSettings";
 
@@ -25,6 +27,7 @@ class BalanceCardStyleSettings {
       "gradientIndex": gradientIndex,
       "useSpecialDesign": useSpecialDesign,
       "backgroundImagePath": backgroundImagePath,
+      "cardOrder": cardOrder,
     };
   }
 
@@ -35,11 +38,12 @@ class BalanceCardStyleSettings {
       gradientIndex: json["gradientIndex"] as int,
       useSpecialDesign: json["useSpecialDesign"] == 1,
       backgroundImagePath: json["backgroundImagePath"] as String? ?? "",
+      cardOrder: json["cardOrder"] as int? ?? -1,
     );
   }
 
   static BalanceCardStyleSettings fromCardDesign(
-      int walletInfoId, int accountIndex, CardDesign design) {
+      int walletInfoId, int accountIndex, int cardOrder, CardDesign design) {
     return BalanceCardStyleSettings(
       walletInfoId: walletInfoId,
       accountIndex: accountIndex,
@@ -47,6 +51,7 @@ class BalanceCardStyleSettings {
       useSpecialDesign: design.backgroundType == CardDesignBackgroundTypes.svgFull,
       backgroundImagePath:
       design.backgroundType == CardDesignBackgroundTypes.image ? design.imagePath : "",
+      cardOrder: cardOrder,
     );
   }
 

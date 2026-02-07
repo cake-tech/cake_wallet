@@ -78,16 +78,16 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
               leadingIcon: Icon(Icons.arrow_back_ios_new),
               onLeadingPressed: Navigator.of(context).maybePop,
             ),
-            SafeArea(
-              bottom: Platform.isAndroid,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: SafeArea(
+                bottom: Platform.isAndroid,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.description != null && widget.description!.isNotEmpty)
                       Text(widget.description!,textAlign: TextAlign.center,style: TextStyle(fontSize:14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurfaceVariant),),
-                    SizedBox(height:24),
+                    SizedBox(height:16),
                     ...widget.items.map((item) {
                       final isSelected = widget.items.indexOf(item) == widget.selectedIndex;
                       return Column( children: [
@@ -98,18 +98,20 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
                             isSelected: isSelected,
                             onSelected: (item) {
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => PickerSliderPage(
-                                      title: widget.sliderPageTitle,
-                                      sliderInitialValue: sliderCurrentValue!,
-                                      valueDescription: widget.sliderValueDescription ?? "",
-                                      sliderMaxValue: widget.sliderMaxValue!,
-                                      onSubmitted: (value) {
-                                        setState(() {
-                                          sliderCurrentValue = value;
-                                        });
-                                        widget.onSliderChanged?.call(value);
-                                        widget.onItemSelected(item);
-                                      })));
+                                  builder: (context) => Material(
+                                    child: PickerSliderPage(
+                                        title: widget.sliderPageTitle,
+                                        sliderInitialValue: sliderCurrentValue!,
+                                        valueDescription: widget.sliderValueDescription ?? "",
+                                        sliderMaxValue: widget.sliderMaxValue!,
+                                        onSubmitted: (value) {
+                                          setState(() {
+                                            sliderCurrentValue = value;
+                                          });
+                                          widget.onSliderChanged?.call(value);
+                                          widget.onItemSelected(item);
+                                        }),
+                                  )));
                             },
                             isFirst: widget.items.indexOf(item) == 0,
                             customSubtitle: "${sliderCurrentValue?.toInt()} ${widget.sliderValueDescription}",
@@ -141,7 +143,7 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
                         onPressed: Navigator.of(context).maybePop,
                         text: "Continue",
                         color: Theme.of(context).colorScheme.primary,
-                        textColor: Theme.of(context).colorScheme.onPrimary)
+                        textColor: Theme.of(context).colorScheme.onPrimary),
                   ],
                 ),
               ),
@@ -371,18 +373,21 @@ class _PickerSliderPageState<Item> extends State<PickerSliderPage<Item>> {
                     Text(sliderValue.toStringAsFixed(0), style: TextStyle(fontSize:18,fontWeight: FontWeight.w600,color: Theme.of(context).colorScheme.primary),),
                     Text(widget.valueDescription, style: TextStyle(fontSize:18,fontWeight: FontWeight.w600,color: Theme.of(context).colorScheme.onSurface)),
                   ],),
-                  Slider(
-                    activeColor: Theme.of(context).colorScheme.primary,
-                    inactiveColor: Theme.of(context).colorScheme.surfaceContainer,
-                    thumbColor: Theme.of(context).colorScheme.onSurface,
-                    value: sliderValue,
-                    onChanged: (value) {
-                      setState(() {
-                        sliderValue = value.roundToDouble();
-                      });
-                    },
-                    min: 1,
-                    max: widget.sliderMaxValue,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Slider(
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      inactiveColor: Theme.of(context).colorScheme.surfaceContainer,
+                      thumbColor: Theme.of(context).colorScheme.onSurface,
+                      value: sliderValue,
+                      onChanged: (value) {
+                        setState(() {
+                          sliderValue = value.roundToDouble();
+                        });
+                      },
+                      min: 1,
+                      max: widget.sliderMaxValue,
+                    ),
                   ),
                 ],
               ),

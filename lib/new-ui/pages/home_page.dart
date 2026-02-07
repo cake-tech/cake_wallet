@@ -1,4 +1,6 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/settings_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
@@ -6,9 +8,11 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -106,38 +110,19 @@ class _NewHomePageState extends State<NewHomePage> {
                   lightningMode: _lightningMode,
                   hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
                   name: widget.dashboardViewModel.wallet.name,
-                  onCustomizeButtonTap: () {
-                    CupertinoScaffold.showCupertinoModalBottomSheet(
-                        barrierColor: Colors.black.withAlpha(60),
-                        context: context,
-                        builder: (context) {
-                          return BlocProvider(
-                            create: (context) => getIt.get<CardCustomizerBloc>(),
-                            child: Material(
-                              child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
-                                listener: (context, state) {
-                                  if (state is CardCustomizerSaved) {
-                                    widget.dashboardViewModel.loadCardDesigns();
-                                  }
-                                },
-                                child: CardCustomizer(
-                                  cryptoTitle:
-                                  widget.dashboardViewModel.wallet.currency.fullName ??
-                                      widget.dashboardViewModel.wallet.currency.name,
-                                  cryptoName: widget.dashboardViewModel.wallet.currency.name,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                        );
-                  },
+                  onCustomizeButtonTap: openCustomizer
                 ),
-                CardsView(
-                  key: ValueKey(widget.dashboardViewModel.wallet.name),
-                  dashboardViewModel: widget.dashboardViewModel,
-                  accountListViewModel: accountListViewModel,
-                  lightningMode: _lightningMode,
+                Column(
+                  children: [
+                    CardsView(
+                      key: ValueKey(widget.dashboardViewModel.wallet.name),
+                      dashboardViewModel: widget.dashboardViewModel,
+                      accountListViewModel: accountListViewModel,
+                      onCompactModeBackgroundCardsTapped: openCustomizer,
+                      lightningMode: _lightningMode,
+                    ),
+                    UnconfirmedBalanceWidget(dashboardViewModel: widget.dashboardViewModel,),
+                  ],
                 ),
                 CoinActionRow(lightningMode: _lightningMode),
                 Observer(
@@ -171,5 +156,44 @@ class _NewHomePageState extends State<NewHomePage> {
       ],
     ),
         );
+  }
+
+  void openCustomizer() {
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+      barrierColor: Colors.black.withAlpha(60),
+      context: context,
+      builder: (context) {
+        final bloc = getIt.get<CardCustomizerBloc>(param1: _lightningMode);
+
+        return ModalNavigator(
+          parentContext: context,
+          heightMode: ModalHeightModes.fullScreen,
+          rootPage: BlocProvider(
+            create: (context) => bloc,
+            child: Material(
+              child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
+                listener: (context, state) {
+                  if (state is CardCustomizerSaved) {
+                    widget.dashboardViewModel.loadCardDesigns();
+                  }
+                },
+                child: accountListViewModel == null
+                    ? CardCustomizer(
+                  cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
+                      widget.dashboardViewModel.wallet.currency.name,
+                  cryptoName: widget.dashboardViewModel.wallet.currency.name,
+                )
+                    : AccountCustomizer(
+                  accountListViewModel: accountListViewModel!,
+                  accountEditOrCreateViewModel:
+                  getIt.get<MoneroAccountEditOrCreateViewModel>(),
+                  dashboardViewModel: widget.dashboardViewModel,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

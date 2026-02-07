@@ -10,6 +10,7 @@ class PreferencesKey {
   static const currentPolygonNodeIdKey = 'current_node_id_matic';
   static const currentBaseNodeIdKey = 'current_node_id_base';
   static const currentArbitrumNodeIdKey = 'current_node_id_arbitrum';
+  static const currentBscNodeIdKey = 'current_node_id_bsc';
   static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
   static const currentDecredNodeIdKey = 'current_node_id_decred';
@@ -25,6 +26,7 @@ class PreferencesKey {
   static const currentZcashNodeIdKey = 'current_node_id_zec';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
+  static const displayAmountsInSatoshi = 'display_amounts_in_satoshi';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const isAppSecureKey = 'is_app_secure';
   static const disableTradeOption = 'disable_buy';
@@ -56,6 +58,7 @@ class PreferencesKey {
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const baseTransactionPriority = 'current_fee_priority_base';
+  static const bscTransactionPriority = 'current_fee_priority_bsc';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const zanoTransactionPriority = 'current_fee_priority_zano';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
@@ -63,6 +66,7 @@ class PreferencesKey {
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const mwebCardDisplay = 'mwebCardDisplay';
+  static const showZcashMissingFundsCard = 'showZcashMissingFundsCard';
   static const mwebEnabled = 'mwebEnabled';
   static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';
   static const mwebAlwaysScan = 'mwebAlwaysScan';
@@ -83,6 +87,7 @@ class PreferencesKey {
   static const usePolygonScan = 'use_polygonscan';
   static const useBaseScan = 'use_base_scan';
   static const useArbiScan = 'use_arbitrum_scan';
+  static const useBscScan = 'use_bscscan';
   static const useTronGrid = 'use_trongrid';
   static const useMempoolFeeAPI = 'use_mempool_fee_api';
   static const evmHiddenChainIds = 'evm_hidden_chain_ids';

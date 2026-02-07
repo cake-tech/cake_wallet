@@ -1,3 +1,4 @@
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
@@ -236,4 +237,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
       ...ReceivePageOptions.where((final element) => element != ReceivePageOption.mainnet),
     ];
   }
+
+  @override
+  PaymentURI getPaymentUri(String amount) => ZcashURI(amount: amount, address: address);
 }

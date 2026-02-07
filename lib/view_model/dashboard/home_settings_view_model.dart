@@ -211,6 +211,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         defaultTokenAddresses = evm!.getDefaultTokenContractAddresses(_balanceViewModel.wallet);
         break;
       case WalletType.solana:

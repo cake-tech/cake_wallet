@@ -9,6 +9,7 @@ class EVMChainUtils {
       1 => _ethereumPriorityFee(priority),
       137 => _polygonPriorityFee(priority),
       8453 => _basePriorityFee(priority),
+      56 => _ethereumPriorityFee(priority),
       42161 => 0, // Arbitrum doesn't use priority fees
       _ => _ethereumPriorityFee(priority),
     };
@@ -29,6 +30,7 @@ class EVMChainUtils {
       137 => "${sanitizedName}_${Erc20Token.polygonBoxName}",
       8453 => "${sanitizedName}_${Erc20Token.baseBoxName}",
       42161 => "${sanitizedName}_${Erc20Token.arbitrumBoxName}",
+      56 => "${sanitizedName}_${Erc20Token.bscBoxName}",
       _ => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
     };
   }
@@ -39,6 +41,7 @@ class EVMChainUtils {
       137 => 'polygon_transactions.json',
       8453 => 'base_transactions.json',
       42161 => 'arbitrum_transactions.json',
+      56 => 'bsc_transactions.json',
       _ => 'transactions_$chainId.json', // Generic format for other chains
     };
   }
@@ -50,6 +53,7 @@ class EVMChainUtils {
       137 => 'use_polygonscan',
       8453 => 'use_basescan',
       42161 => 'use_arbiscan',
+      56 => 'use_bscscan',
       _ => 'use_etherscan',
     };
   }
@@ -60,6 +64,7 @@ class EVMChainUtils {
       137 => 'POL',
       8453 => 'BASE',
       42161 => 'ARB',
+      56 => 'BSC',
       _ => 'ETH',
     };
   }
@@ -70,6 +75,7 @@ class EVMChainUtils {
       137 => 'MATIC',
       8453 => 'ETH',
       42161 => 'ETH',
+      56 => 'BNB',
       _ => 'ETH',
     };
   }
@@ -80,6 +86,7 @@ class EVMChainUtils {
       137 => 'MATIC',
       8453 => 'BASE',
       42161 => 'ARBITRUM',
+      56 => 'BSC',
       _ => 'ETH',
     };
   }
