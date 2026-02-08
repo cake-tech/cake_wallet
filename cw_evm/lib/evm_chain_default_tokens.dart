@@ -5,7 +5,7 @@ import 'package:cw_evm/tokens/bsc_tokens.dart';
 import 'package:cw_evm/tokens/ethereum_tokens.dart';
 import 'package:cw_evm/tokens/polygon_tokens.dart';
 
-/// Default ERC20 tokens for each EVM chain
+/// Default ERC20 tokens for each EVM chain and utility methods for interacting with them
 class EVMChainDefaultTokens {
   static List<Erc20Token> getDefaultTokensByChainId(int chainId) {
     return switch (chainId) {
