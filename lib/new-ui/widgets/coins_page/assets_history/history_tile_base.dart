@@ -128,7 +128,7 @@ class HistoryTileBase extends StatelessWidget {
           color: Theme.of(context).colorScheme.onInverseSurface,
           child: Padding(
             padding: EdgeInsets.only(left: 56, right: 16),
-            child: Container(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
+            child: Container(height: 1, color: Theme.of(context).colorScheme.outlineVariant.withAlpha(175)),
           ),
         )
       ],

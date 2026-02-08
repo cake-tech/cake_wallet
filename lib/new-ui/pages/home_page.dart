@@ -148,6 +148,7 @@ class _NewHomePageState extends State<NewHomePage> {
                 Theme.of(context).colorScheme.surface.withAlpha(50),
                 Theme.of(context).colorScheme.surface.withAlpha(100),
                 Theme.of(context).colorScheme.surface.withAlpha(150),
+                Theme.of(context).colorScheme.surface.withAlpha(175),
                 Theme.of(context).colorScheme.surface.withAlpha(200),
               ],
             ),
