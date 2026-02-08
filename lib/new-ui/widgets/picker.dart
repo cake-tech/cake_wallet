@@ -81,7 +81,6 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: SafeArea(
-                bottom: Platform.isAndroid,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
