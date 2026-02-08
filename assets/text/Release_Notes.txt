@@ -1,5 +1,4 @@
-Add Arbitrum
+Add BNB Smart Chain
 Zcash improvements
 EVM chains enhancements
-Integrate Jupiter swaps for Solana
 Bug fixes
