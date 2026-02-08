@@ -445,6 +445,8 @@ abstract class EVMChainWalletBase
     bool isTokenWhitelisted = getDefaultTokenContractAddresses
         .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
 
+    final defaultTokenSymbols = EVMChainDefaultTokens.getDefaultTokenSymbols(selectedChainId);
+
     // Normalize the token data to check for homoglyph spoofing attack, characters that look like ASCII (Cyrillic, Greek, etc.)
     final normalizedName = normalizeHomoglyphs(token.name.trim().toUpperCase());
     final normalizedSymbol = normalizeHomoglyphs(token.symbol.trim().toUpperCase());
@@ -479,9 +481,12 @@ abstract class EVMChainWalletBase
     );
 
     final nativeSymbol = currency.title.toUpperCase();
-    final hasSuspiciousSymbol = normalizedSymbol == nativeSymbol && !isTokenWhitelisted;
+    final hasSuspiciousNativeSymbol = normalizedSymbol == nativeSymbol && !isTokenWhitelisted;
 
-    return hasSuspiciousData || hasSuspiciousSymbol;
+    final hasSuspiciousDefaultTokenSymbol =
+        defaultTokenSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+
+    return hasSuspiciousData || hasSuspiciousNativeSymbol || hasSuspiciousDefaultTokenSymbol;
   }
 
   Future<void> _checkForExistingScamTokens() async {

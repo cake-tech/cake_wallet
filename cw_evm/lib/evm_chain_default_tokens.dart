@@ -21,4 +21,8 @@ class EVMChainDefaultTokens {
   static List<String> getDefaultTokenAddresses(int chainId) {
     return getDefaultTokensByChainId(chainId).map((token) => token.contractAddress).toList();
   }
+
+  static List<String> getDefaultTokenSymbols(int chainId) {
+    return getDefaultTokensByChainId(chainId).map((token) => token.symbol.toUpperCase()).toList();
+  }
 }

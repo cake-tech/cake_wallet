@@ -110,7 +110,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     const excludeReceiveCurrencies = [
       CryptoCurrency.xlm,
       CryptoCurrency.xrp,
-      CryptoCurrency.bnb,
       CryptoCurrency.btt
     ];
     _initialPairBasedOnWallet();

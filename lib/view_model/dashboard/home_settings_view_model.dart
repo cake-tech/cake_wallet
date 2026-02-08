@@ -14,6 +14,7 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/utils/homoglyph_normalizer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -240,6 +241,44 @@ abstract class HomeSettingsViewModelBase with Store {
     bool isInWhitelist = defaultTokenAddresses
         .any((element) => element.toLowerCase() == contractAddress.toLowerCase());
     return isInWhitelist;
+  }
+
+  bool checkIfTokenSymbolMatchesDefaultToken(String symbol) {
+    final normalizedSymbol = normalizeHomoglyphs(symbol.trim().toUpperCase());
+    if (normalizedSymbol.isEmpty) return false;
+
+    List<String> defaultTokenSymbols = [];
+    switch (_balanceViewModel.wallet.type) {
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
+      case WalletType.bsc:
+        defaultTokenSymbols = evm!.getDefaultTokenSymbols(_balanceViewModel.wallet);
+        break;
+      case WalletType.solana:
+        defaultTokenSymbols = solana!.getDefaultTokenSymbols();
+        break;
+      case WalletType.tron:
+        defaultTokenSymbols = tron!.getDefaultTokenSymbols();
+        break;
+      case WalletType.zano:
+      case WalletType.banano:
+      case WalletType.monero:
+      case WalletType.none:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.haven:
+      case WalletType.nano:
+      case WalletType.wownero:
+      case WalletType.bitcoinCash:
+      case WalletType.decred:
+      case WalletType.dogecoin:
+      case WalletType.zcash:
+        return false;
+    }
+
+    return defaultTokenSymbols.any((s) => s.toUpperCase() == normalizedSymbol);
   }
 
   Future<bool> _isPotentialScamTokenViaMoralis(
