@@ -15,6 +15,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 
 class CakeFeaturesPage extends StatelessWidget {
   CakeFeaturesPage({required this.dashboardViewModel, required this.cakeFeaturesViewModel});
@@ -24,29 +25,29 @@ class CakeFeaturesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Wrap everything in one SafeArea to avoid duplication
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(context),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  // physics: const BouncingScrollPhysics(), // Optional: for iOS style feel
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                    child: IntrinsicHeight(
-                      child: !FeatureFlag.hasNewUi ? _buildOldUi(context) : _buildNewUi(context),
-                    ),
-                  ),
-                );
-              },
-            ),
+    return GradientBackground(
+      scaffold: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(context),
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                        child: IntrinsicHeight(
+                          child: !FeatureFlag.hasNewUi ? _buildOldUi(context) : _buildNewUi(context),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
     );
   }
 
@@ -113,7 +114,7 @@ class CakeFeaturesPage extends StatelessWidget {
           subTitle: S.of(context).nanogpt_subtitle,
           image: Image.asset('assets/images/nanogpt.png', height: 80, width: 80, fit: BoxFit.cover),
         ),
-        const Spacer(), // Pushes content up, but stays within IntrinsicHeight
+        const Spacer(),
         const SizedBox(height: 125),
       ],
     );
@@ -127,7 +128,7 @@ class CakeFeaturesPage extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Padding(
             padding: const EdgeInsets.only(left: 24, bottom: 8),
-            child: CakeImageWidget(imageUrl: "assets/new-ui/by-cakelabs.svg", height: 20),
+            child: CakeImageWidget(imageUrl: "assets/new-ui/by-cakelabs.svg", height: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ),
         AppsWidget(

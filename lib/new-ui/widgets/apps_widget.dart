@@ -94,7 +94,7 @@ class AppsWidget extends StatelessWidget {
                                       ),
                                   softWrap: true,
                                 ),
-                                isCake == true ? CakeImageWidget(imageUrl: "assets/new-ui/cakelabs-icon.svg") : SizedBox(),
+                                isCake == true ? CakeImageWidget(imageUrl: "assets/new-ui/cakelabs-icon.svg", color: Theme.of(context).colorScheme.onSurfaceVariant) : SizedBox(),
                               ],
                             ),
                             SizedBox(height: 5),
