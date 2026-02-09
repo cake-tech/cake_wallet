@@ -173,46 +173,44 @@ class BalanceRowWidget extends StatelessWidget {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        //width: min(MediaQuery.of(context).size.width * 0.2, 100),
-                        child: Center(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              CakeImageWidget(
-                                imageUrl: currency.iconPath,
-                                height: 40,
-                                width: 40,
-                                errorWidget: Container(
-                                  height: 30.0,
-                                  width: 30.0,
-                                  child: Center(
-                                    child: Text(
-                                      currency.title.substring(0, min(currency.title.length, 2)),
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            fontSize: 11,
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          ),
-                                    ),
-                                  ),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Theme.of(context).colorScheme.surfaceContainer,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            CakeImageWidget(
+                              imageUrl: currency.iconPath,
+                              height: 40,
+                              width: 40,
+                              errorWidget: Container(
+                                height: 30.0,
+                                width: 30.0,
+                                child: Center(
+                                  child: Text(
+                                    currency.title.substring(0, min(currency.title.length, 2)),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontSize: 11,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
                                   ),
                                 ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Theme.of(context).colorScheme.surfaceContainer,
+                                ),
                               ),
-                              const SizedBox(height: 10),
-                              Text(
-                                currency.title,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                      height: 1,
-                                    ),
-                              ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              currency.title,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    height: 1,
+                                  ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

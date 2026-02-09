@@ -178,6 +178,11 @@ class CWSolana extends Solana {
   }
 
   @override
+  List<String> getDefaultTokenSymbols() {
+    return DefaultSPLTokens().initialSPLTokens.map((e) => e.symbol.toUpperCase()).toList();
+  }
+
+  @override
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
     final solanaWallet = wallet as SolanaWallet;
     return solanaWallet.splTokenCurrencies.any((element) => element.mintAddress == contractAddress);

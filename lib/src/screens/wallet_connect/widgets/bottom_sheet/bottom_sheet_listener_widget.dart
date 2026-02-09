@@ -42,16 +42,15 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
           backgroundColor: Color.fromARGB(0, 0, 0, 0),
           isScrollControlled: true,
           constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
-          builder: (context) {
+          builder: (BuildContext bottomSheetContext) {
             if (item.closeAfter > 0) {
               Future.delayed(Duration(seconds: item.closeAfter), () {
                 try {
-                  if (!mounted) return;
-                  if (Navigator.canPop(context)) {
-                    Navigator.pop(context);
-                  }
-                } catch (e, s) {
-                  debugPrint('[$runtimeType] close $e $s');
+                  final navigator = Navigator.maybeOf(bottomSheetContext, rootNavigator: false);
+                  navigator?.maybePop();
+                } catch (e) {
+                  // the context is invalid as the bottom sheet was already closed,
+                  // this is expected and can be safely ignored
                 }
               });
             }
