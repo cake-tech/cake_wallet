@@ -37,8 +37,8 @@ class ListItemStyleWrapper extends StatelessWidget {
     );
 
     final radius = BorderRadius.vertical(
-      top: Radius.circular(isFirstInSection ? 20 : 0),
-      bottom: Radius.circular(isLastInSection ? 20 : 0),
+      top: Radius.circular(isFirstInSection ? 18 : 0),
+      bottom: Radius.circular(isLastInSection ? 18 : 0),
     );
 
       return ClipRSuperellipse(

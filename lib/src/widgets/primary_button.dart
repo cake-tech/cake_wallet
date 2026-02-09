@@ -43,7 +43,7 @@ class PrimaryButton extends StatelessWidget {
             ),
             shape: WidgetStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
-                borderRadius: borderRadius ?? BorderRadius.circular(20.0),
+                borderRadius: borderRadius ?? BorderRadius.circular(18.0),
               ),
             ),
           ),

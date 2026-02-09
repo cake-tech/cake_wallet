@@ -64,7 +64,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                           alignment: Alignment.center,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(topRight: Radius.circular(20),bottomRight: Radius.circular(20)),
+                            borderRadius: BorderRadius.only(topRight: Radius.circular(18),bottomRight: Radius.circular(18)),
                             color: widget.hasPicker ?Theme.of(context).colorScheme.surfaceContainerHigh:Theme.of(context).colorScheme.surfaceContainer,
                           ),
                           child:Padding(

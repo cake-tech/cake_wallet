@@ -191,7 +191,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                   setState(() {});
                                 },
                                 shouldShowCurrentWalletPointer: true,
-                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                borderRadius: BorderRadius.all(Radius.circular(18)),
                                 title: groupName,
                                 tileKey: ValueKey('group_wallets_expansion_tile_widget_$index'),
                                 leadingWidget: Icon(
@@ -287,8 +287,8 @@ class WalletListBodyState extends State<WalletListBody> {
                                               margin: EdgeInsets.only(right: 16),
                                               decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.only(
-                                                  topRight: Radius.circular(20),
-                                                  bottomRight: Radius.circular(20),
+                                                  topRight: Radius.circular(18),
+                                                  bottomRight: Radius.circular(18),
                                                 ),
                                                 color: currentColor,
                                               ),
@@ -306,7 +306,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 ),
                                 title: wallet.name,
                                 isSelected: false,
-                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                borderRadius: BorderRadius.all(Radius.circular(18)),
                                 margin: EdgeInsets.only(left: 20, right: 20, bottom: 12),
                                 onTitleTapped: () => wallet.isCurrent ? null : _loadWallet(wallet),
                                 trailingWidget: wallet.isCurrent

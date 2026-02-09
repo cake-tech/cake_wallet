@@ -35,7 +35,7 @@ class NewSendAddressInput extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(20)),
+            borderRadius: BorderRadius.circular(18)),
         child: Row(
           children: [
             Expanded(
@@ -45,7 +45,7 @@ class NewSendAddressInput extends StatelessWidget {
                     controller: addressController,
                     decoration: InputDecoration(hintText: S.of(context).search_or_enter,
                       border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide.none,
                     ),
                     ))),

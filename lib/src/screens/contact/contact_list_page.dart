@@ -217,8 +217,8 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
                 expandedAlignment: Alignment.topLeft,
                 backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                 collapsedBackgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-                collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                 children: groupContacts.map((contact) => generateRaw(context, contact)).toList(),
               ),
             );
@@ -253,7 +253,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: BorderRadius.all(Radius.circular(18)),
           color: Theme.of(context).colorScheme.surfaceContainer,
         ),
         margin: const EdgeInsets.only(top: 4, bottom: 4, left: 16, right: 16),
@@ -380,7 +380,7 @@ class _ContactListBodyState extends State<ContactListBody> {
         Container(
           key: Key('${contact.name}'),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
+            borderRadius: BorderRadius.all(Radius.circular(18)),
             color: Theme.of(context).colorScheme.surfaceContainer,
           ),
           margin: const EdgeInsets.only(top: 4, bottom: 4, left: 16, right: 16),

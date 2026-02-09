@@ -50,7 +50,7 @@ class AppsWidget extends StatelessWidget {
             margin: EdgeInsets.symmetric(horizontal: marginH ?? 20, vertical: marginV ?? 5),
             width: double.infinity,
             decoration: ShapeDecoration(
-              shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
               gradient: LinearGradient(
                 colors: [
                   context.customColors.cardGradientColorPrimary,
@@ -64,7 +64,7 @@ class AppsWidget extends StatelessWidget {
               onPressed: onTap,
               style: TextButton.styleFrom(
                 shape: RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(18),
                   side: BorderSide(
                       width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
                 ),
