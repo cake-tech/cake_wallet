@@ -11,6 +11,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -220,6 +221,7 @@ abstract class ZcashWalletBase
 
     // pools parameter: bitmask for which pools to use for sending
     // 1=Transparent, 2=Sapling, 4=Orchard, 7=All pools
+    await ZcashWalletBase.loadProver();
     // Using 7 (all pools) allows spending from any pool type
     final txPlan = await ZcashWalletService.runInDbMutex(
       () => WarpApi.prepareTx(
@@ -333,6 +335,8 @@ abstract class ZcashWalletBase
       "privateViewKey": backup.fvk,
       "uvk": backup.uvk,
       "tsk": backup.tsk,
+      if (lastKnownRestoreHeight != null)
+        "restoreHeight": lastKnownRestoreHeight.toString(),
     };
   }
 
@@ -354,12 +358,14 @@ abstract class ZcashWalletBase
   bool get hasRescan => true;
 
   static Future<void> storeZcashHeight(final int height) async {
+    lastKnownRestoreHeight = height;
     final zcashDir = await pathForWalletTypeDir(type: WalletType.zcash);
     final zcashInitialSync = File(p.join(zcashDir, ".initial-sync-marker"));
     zcashInitialSync.writeAsBytesSync([0x00]);
     zcashInitialSync.writeAsStringSync(height.toString(), mode: FileMode.writeOnlyAppend);
   }
 
+  static int? lastKnownRestoreHeight = null;
   static Future<int?> loadZcashHeight() async {
     final zcashDir = await pathForWalletTypeDir(type: WalletType.zcash);
     final zcashInitialSync = File(p.join(zcashDir, ".initial-sync-marker"));
@@ -371,7 +377,8 @@ abstract class ZcashWalletBase
       return null;
     }
     final heightString = String.fromCharCodes(bytes.skip(1));
-    return int.tryParse(heightString);
+    lastKnownRestoreHeight = int.tryParse(heightString);
+    return lastKnownRestoreHeight;
   }
 
   static int zashiAnnouncedBlockHeight = 2419420;
@@ -749,6 +756,7 @@ abstract class ZcashWalletBase
 
     final recipient = Recipient(recipientBuilder.toBytes());
     final fee = FeeT(fee: 10000, minFee: 0, maxFee: 0, scheme: 0);
+    await ZcashWalletBase.loadProver();
     final txPlan = await ZcashWalletService.runInDbMutex(
       () => WarpApi.prepareTx(
         coin,
@@ -1039,12 +1047,44 @@ abstract class ZcashWalletBase
     } catch (e) {
       printV("zec init failed: $e");
     } // do not fail on network exception
-    final spend = await rootBundle.load('scripts/zcash_lib/assets/sapling-spend.params');
-    final output = await rootBundle.load('scripts/zcash_lib/assets/sapling-output.params');
-    WarpApi.initProver(spend.buffer.asUint8List(), output.buffer.asUint8List());
+    await loadZcashHeight();
+
+    unawaited(loadProver());
+
     await ZcashTaddressRotation.init();
     await ZcashTransactionInfo.init();
     _initialized = true;
+  }
+  
+  static bool isProverLoaded = false;
+  static Future<void> loadProver() async {
+    Uint8List? spend;
+    Uint8List? output;
+    final cacheDir = await getApplicationCacheDirectory();
+    try {
+      final spendBundle = await rootBundle.load('scripts/zcash_lib/assets/sapling-spend.params');
+      final outputBundle = await rootBundle.load('scripts/zcash_lib/assets/sapling-output.params');
+      spend = spendBundle.buffer.asUint8List();
+      output = outputBundle.buffer.asUint8List();
+      if (spend.length == 0 || output.length == 0) throw Exception("NUH UH");
+      spend = await File(cacheDir.path+"/sapling-spend.params").readAsBytesSync();
+      output = await File(cacheDir.path+"/sapling-output.params").readAsBytesSync();
+      if (spend.length == 0 || output.length == 0) throw Exception("NUH UH");
+    } catch (e) {
+      printV("$e. Fine, I'll download them.");
+      final spendResponse = await ProxyWrapper().get(
+        clearnetUri: Uri.parse("https://download.z.cash/downloads/sapling-spend.params"),
+      );
+      final outputResponse = await ProxyWrapper().get(
+        clearnetUri: Uri.parse("https://download.z.cash/downloads/sapling-output.params"),
+      );
+      spend = spendResponse.bodyBytes;
+      output = outputResponse.bodyBytes;
+      await File(cacheDir.path+"/sapling-spend.params").writeAsBytes(spend);
+      await File(cacheDir.path+"/sapling-output.params").writeAsBytes(output);
+    }
+    WarpApi.initProver(spend, output);
+    isProverLoaded = true;
   }
 
   static Future<int> getBlockHeightByTime(final DateTime time) async {
