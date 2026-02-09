@@ -16,7 +16,8 @@ import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cw_evm/.secrets.g.dart' as evm_secrets;
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 class EvmChainServiceImpl {
   Map<String, dynamic Function(String, dynamic)> get sessionRequestHandlers => {
@@ -38,11 +39,7 @@ class EvmChainServiceImpl {
     required this.bottomSheetService,
     required this.walletKit,
     Web3Client? web3Client,
-  }) : ethClient = web3Client ??
-            Web3Client(
-              _getNodeUriForChain(reference, appStore),
-              ProxyWrapper().getHttpIOClient(),
-            ) {
+  }) : ethClient = web3Client ?? _createWeb3Client(reference, appStore) {
     for (final event in EventsConstants.allEvents) {
       walletKit.registerEventEmitter(
         chainId: getChainId(),
@@ -77,20 +74,16 @@ class EvmChainServiceImpl {
 
   String getChainId() => reference.chain();
 
-  static String _getNodeUriForChain(EVMChainId reference, AppStore appStore) {
-    final walletType = appStore.wallet!.type;
+  static Web3Client _createWeb3Client(EVMChainId reference, AppStore appStore) {
+    if (appStore.wallet != null && isEVMCompatibleChain(appStore.wallet!.type)) {
+      final walletClient = evm?.getWeb3Client(appStore.wallet!);
 
-    final node = appStore.settingsStore.getCurrentNode(walletType);
-
-    if (node.uriRaw.contains('nownodes.io')) {
-      final nowNodeApiKey = evm_secrets.nowNodesApiKey;
-      if (nowNodeApiKey.isNotEmpty) {
-        final rpcUri = Uri.https(node.uriRaw, '/$nowNodeApiKey');
-        return rpcUri.toString();
-      }
+      if (walletClient != null) return walletClient;
     }
 
-    return node.uri.toString();
+    final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
+
+    return Web3Client(node.uri.toString(), ProxyWrapper().getHttpIOClient());
   }
 
   Future<void> personalSign(String topic, dynamic parameters) async {
