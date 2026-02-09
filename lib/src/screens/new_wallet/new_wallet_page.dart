@@ -203,7 +203,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               icon: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(6.0),
+                                  borderRadius: BorderRadius.circular(12.0),
                                   color: Theme.of(context).colorScheme.surface,
                                 ),
                                 width: 34,
@@ -267,7 +267,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         child: SelectButton(
                           key: ValueKey('new_wallet_page_monero_seed_type_button_key'),
                           text: widget._seedSettingsViewModel.moneroSeedType.title,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(18),
                           onTap: () async {
                             await showPopUp<void>(
                               context: context,
@@ -291,7 +291,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     builder: (BuildContext build) => Padding(
                       padding: EdgeInsets.only(top: 10),
                       child: SeedLanguageSelector(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(18),
                         key: _languageSelectorKey,
                         buttonKey: ValueKey('new_wallet_page_seed_language_selector_button_key'),
                         initialSelected: defaultSeedLanguage,

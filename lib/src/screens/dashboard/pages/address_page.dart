@@ -177,7 +177,7 @@ class AddressPage extends BasePage {
                 decoration: BoxDecoration(
                   border: Border.all(color: Theme.of(context).colorScheme.surfaceContainer),
                   color: Theme.of(context).colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 child: Column(
                   children: [
