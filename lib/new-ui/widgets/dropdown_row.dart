@@ -14,8 +14,8 @@ class DropdownRow extends StatelessWidget {
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(16),
-            bottom: expanded ? Radius.zero : Radius.circular(16),
+            top: Radius.circular(20),
+            bottom: expanded ? Radius.zero : Radius.circular(20),
           ),
       ),
       height: 48,

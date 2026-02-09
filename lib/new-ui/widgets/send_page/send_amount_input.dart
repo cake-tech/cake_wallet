@@ -26,7 +26,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
       child: Container(
           decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(16)
+              borderRadius: BorderRadius.circular(20)
           ),
           child:Row(
             children: [
@@ -36,7 +36,11 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                   spacing: 8,
                   children: [
                     Expanded(child: TextField(keyboardType:TextInputType.numberWithOptions(signed: false,decimal: true),controller: widget.amountController,
-                    decoration: InputDecoration(hintText: "0"),)),
+                    decoration: InputDecoration(hintText: "0",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),),)),
                     FloatingIconButton(
                         iconPath: "assets/new-ui/paste.svg",
                         onPressed: () async {
@@ -60,7 +64,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                           alignment: Alignment.center,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(topRight: Radius.circular(16),bottomRight: Radius.circular(16)),
+                            borderRadius: BorderRadius.only(topRight: Radius.circular(20),bottomRight: Radius.circular(20)),
                             color: widget.hasPicker ?Theme.of(context).colorScheme.surfaceContainerHigh:Theme.of(context).colorScheme.surfaceContainer,
                           ),
                           child:Padding(

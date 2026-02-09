@@ -16,10 +16,13 @@ class _AnimatedDropdownState extends State<AnimatedDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+    return ClipRSuperellipse(
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        decoration: BoxDecoration(
+        decoration: ShapeDecoration(
+          shape: RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
             color: Theme.of(context).colorScheme.surfaceContainer,),
         child: Column(
           children: [

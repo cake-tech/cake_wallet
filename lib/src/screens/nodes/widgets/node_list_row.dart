@@ -29,7 +29,7 @@ class NodeListRow extends StandardListRow {
         style: FilledButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
         ),
         child: Row(
