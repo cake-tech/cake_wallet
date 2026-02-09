@@ -40,7 +40,7 @@ dependencies:
   payjoin_flutter:
     git:
       url: https://github.com/konstantinullrich/payjoin-flutter
-      ref: cake-v3
+      ref: b28c825b1d63381e8c2b25ef2ccabacbf833ce53
   ledger_flutter_plus: ^1.4.1
   ledger_bitcoin:
     git:
@@ -71,8 +71,8 @@ dependencies:
       ref: e867e3d0156d0b29858100f30adc2625b9dae586
   breez_sdk_spark_flutter:
     git:
-      url: https://github.com/breez/breez-sdk-spark-flutter
-      ref: 4fb31dd9a952290bcaf9ad0ec565003a7133e124
+      url: https://github.com/cake-tech/breez-sdk-spark-flutter
+      ref: e5322a61d2c47357556917718301f442d6c1dc71
 
 dev_dependencies:
   flutter_test:

@@ -608,11 +608,11 @@ Future<void> defaultSettingsMigration(
 ALTER TABLE WalletInfo ADD COLUMN receiveInfoboxDismissed DEFAULT FALSE;
           ''');
           break;
-        case 59:
+        case 60:
           await db.execute('''
 ALTER TABLE BalanceCardStyleSettings ADD COLUMN cardOrder INTEGER DEFAULT 0;          
           ''');
-
+          break;
         default:
           break;
       }
