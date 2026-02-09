@@ -171,6 +171,9 @@ class CardDesign {
   static const zec = CardDesign(
       imagePath: "assets/new-ui/balance_card_icons/zcash.svg");
 
+  static const bnb = CardDesign(
+      imagePath: "assets/new-ui/balance_card_icons/bnb.svg");
+
 
 
   static const ethSpecial = CardDesign(
@@ -318,13 +321,22 @@ class CardDesign {
       backgroundType: CardDesignBackgroundTypes.svgFull,
       imagePath: "assets/new-ui/balance_card_backgrounds/zcash.svg");
 
+  static const bnbSpecial = CardDesign(
+      gradient: const LinearGradient(
+          colors: <Color>[Color(0xFF603000), Color(0xFFF0B90B)],
+          begin: Alignment.topCenter, end: Alignment.bottomCenter
+      ),
+      colors: CardColorCombination.light,
+      backgroundType: CardDesignBackgroundTypes.svgFull,
+      imagePath: "assets/new-ui/balance_card_backgrounds/bnb.svg");
+
   CardDesign withGradient(Gradient gradient) => CardDesign(
       gradient: gradient, colors: preferredColorCombinations[gradient] ?? colors, imagePath: imagePath, backgroundType: backgroundType);
 
   CardDesign withGradientAndColorCombination(Gradient gradient, CardColorCombination cardColorCombination) => CardDesign(
       gradient: gradient, colors: cardColorCombination, imagePath: imagePath, backgroundType: backgroundType);
 
-  static const List<CardDesign> all = [genericDefault, btc, eth, xmr, ltc, eth, pol, doge, base, sol, btcln, tron, zano, dcr, arbitrum, zec, ethSpecial, btcSpecial, xmrSpecial, ltcSpecial, lnSpecial, tronSpecial, bchSpecial, wowSpecial, dogeSpecial, polSpecial, dcrSpecial, zanoSpecial, arbitrumSpecial, zecSpecial];
+  static const List<CardDesign> all = [genericDefault, btc, eth, xmr, ltc, eth, pol, doge, base, sol, btcln, tron, zano, dcr, arbitrum, zec, bnb, ethSpecial, btcSpecial, xmrSpecial, ltcSpecial, lnSpecial, tronSpecial, bchSpecial, wowSpecial, dogeSpecial, polSpecial, dcrSpecial, zanoSpecial, arbitrumSpecial, zecSpecial, bnbSpecial];
 
   static CardDesign forCurrencySpecial(CryptoCurrency currency) {
     return specialDesignsForCurrencies[currency] ?? genericDefault;
@@ -352,6 +364,7 @@ class CardDesign {
     CryptoCurrency.arbEth: arbitrum,
     CryptoCurrency.zec: zec,
     CryptoCurrency.dcr: dcr,
+    CryptoCurrency.bnb: bnb,
 
   };
 
@@ -373,6 +386,7 @@ class CardDesign {
     CryptoCurrency.baseEth: baseSpecial,
     CryptoCurrency.arbEth: arbitrumSpecial,
     CryptoCurrency.zec: zecSpecial,
+    CryptoCurrency.bnb: bnbSpecial,
   };
 
   static Map<Gradient, CardColorCombination> preferredColorCombinations = {
