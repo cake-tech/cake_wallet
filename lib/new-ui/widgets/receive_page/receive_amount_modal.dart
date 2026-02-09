@@ -37,7 +37,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
       child: SafeArea(
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
             color: Theme.of(context).colorScheme.surface,
           ),
           child: Column(
@@ -160,8 +160,8 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                 borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(0),
                                   bottomLeft: Radius.circular(0),
-                                  topRight: Radius.circular(16),
-                                  bottomRight: Radius.circular(16),
+                                  topRight: Radius.circular(18),
+                                  bottomRight: Radius.circular(18),
                                 ),
                                 color: Theme.of(context).colorScheme.surfaceContainerHigh,
                               ),

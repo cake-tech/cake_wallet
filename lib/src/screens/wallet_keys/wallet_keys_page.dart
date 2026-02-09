@@ -237,7 +237,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(18),
         color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: Row(
@@ -294,7 +294,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(18),
         color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: Row(

@@ -78,7 +78,7 @@ class NodeCreateOrEditPage extends BasePage {
     );
 
     return Container(
-      padding: const EdgeInsets.only(left: 24, right: 24),
+      padding: const EdgeInsets.only(left: 18, right: 18),
       child: ScrollableWithBottomSection(
         contentPadding: const EdgeInsets.only(bottom: 24.0, top: 8),
         content: NodeForm(
