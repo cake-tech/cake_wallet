@@ -20,9 +20,12 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   static final List<CryptoCurrency> _notSupportedAsSourceToken = [
     CryptoCurrency.sol,
     ...CryptoCurrency.all.where(
-          (c) => (c.tag ?? '').toUpperCase() == 'SOL' || (c == CryptoCurrency.paxg),
+          (c) => (c.tag ?? '').toUpperCase() == 'SOL',
     ),
   ];
+
+  static const _transferSig = '0xa9059cbb';
+  static const _swapAndExecuteSig = '0x9be111d1';
 
   static final _apiKey = secrets.swapsXyzApiKey;
   static const _baseUrl = 'api-v2.swaps.xyz';
@@ -347,6 +350,19 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final txTo = txObj['to']?.toString();
       final chainId = txObj['chainId']?.toString();
       final routerData = txObj['data']?.toString();
+
+      // Allow only:
+      // - null (native / deposit-address flow)
+      // - '0x' (no call data)
+      // - ERC20 transfer(0xa9059cbb) selector
+      final isAllowed = routerData == null ||
+          routerData == '0x' ||
+          _decodeMethodSelector(routerData) == _transferSig;
+
+      if (!isAllowed) {
+        throw Exception('Does not support that method selector');
+      }
+
       final txValue = txObj['value']?.toString() ?? '0';
 
       final bridgeIds = (data['bridgeIds'] as List?) ?? const [];
@@ -796,6 +812,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     final s = str ?? '0';
     return s.endsWith('n') ? s.substring(0, s.length - 1) : s;
   }
+
+  String _decodeMethodSelector(String s) =>
+      (s.startsWith('0x') && s.length >= 10) ? s.substring(0, 10) : '';
 }
 
 class TokenPathInfo {
