@@ -44,6 +44,7 @@ class TopBar extends StatelessWidget {
               isSyncHeavy: dashboardViewModel.isSyncHeavy,
             ),
             ModernButton.svg(
+              iconColor: Theme.of(context).colorScheme.primary,
               size: 44,
               onPressed: () {
                 HapticFeedback.mediumImpact();

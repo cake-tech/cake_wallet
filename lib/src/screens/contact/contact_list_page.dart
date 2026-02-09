@@ -54,7 +54,7 @@ class ContactListPage extends BasePage {
             children: <Widget>[
               Icon(
                 Icons.add,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: Theme.of(context).colorScheme.primary,
                 size: 22.0,
               ),
               ButtonTheme(

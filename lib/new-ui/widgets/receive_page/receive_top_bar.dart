@@ -47,9 +47,13 @@ class ModalTopBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 4,
               children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.headlineMedium,
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    title,
+                    key: ValueKey(title),
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                 ),
                 if (subtitle != null && subtitle!.isNotEmpty)
                   Text(
@@ -65,15 +69,28 @@ class ModalTopBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (leadingIcon != null)
-                ModernButton(size: buttonSize, onPressed: onLeadingPressed, icon: leadingIcon!)
-              else if (leadingWidget != null) leadingWidget!
+              if (leadingIcon != null || leadingWidget != null)
+                leadingIcon != null
+                    ? ModernButton(
+                        key: ValueKey(leadingIcon.hashCode),
+                        size: buttonSize,
+                        onPressed: onLeadingPressed,
+                        icon: leadingIcon!)
+                    : leadingWidget!
               else
                 Container(width: buttonSize),
-
-              if (trailingIcon != null)
-                ModernButton(size: buttonSize, onPressed: onTrailingPressed, icon: trailingIcon!)
-              else if (trailingWidget != null) trailingWidget!
+              if (trailingIcon != null || trailingWidget != null)
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: trailingIcon != null
+                      ? ModernButton(
+                          key: ValueKey(trailingIcon.hashCode),
+                          size: buttonSize,
+                          onPressed: onTrailingPressed,
+                          icon: trailingIcon!,
+                          iconColor: Theme.of(context).colorScheme.primary)
+                      : trailingWidget!,
+                )
               else
                 Container(width: buttonSize),
             ],

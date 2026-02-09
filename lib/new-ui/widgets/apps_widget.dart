@@ -111,7 +111,7 @@ class AppsWidget extends StatelessWidget {
                       ),
                       Icon(
                         isLink == true ? Icons.arrow_outward : Icons.arrow_forward_ios,
-                        color: isLink == true ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         size: 20,
                       )
 

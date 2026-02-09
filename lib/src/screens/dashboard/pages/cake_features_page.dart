@@ -170,6 +170,7 @@ class CakeFeaturesPage extends StatelessWidget {
         Observer(builder: (_) {
           if (dashboardViewModel.type == WalletType.ethereum) {
             return AppsWidget(
+              isWide: true,
               onTap: () => Navigator.of(context).pushNamed(Routes.dEuroSavings),
               title: S.of(context).deuro_savings,
               subTitle: S.of(context).deuro_savings_subtitle,

@@ -11,7 +11,7 @@ class AssetTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 6.0),
+      padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 6.0),
       child: Container(
         width: double.infinity,
         height: 80,
