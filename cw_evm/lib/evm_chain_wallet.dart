@@ -276,6 +276,8 @@ abstract class EVMChainWalletBase
       evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
     }
 
+    await _normalizeEvmChainErc20TokensBoxKeys();
+
     addInitialTokens();
   }
 
@@ -305,6 +307,88 @@ abstract class EVMChainWalletBase
 
   String getTransactionHistoryFileName() =>
       EVMChainUtils.getTransactionHistoryFileName(selectedChainId);
+
+  /// Ensures all ERC20 token entries use lowercase contract addresses as
+  /// their Hive keys to avoid duplicates caused by case differences.
+  Future<void> _normalizeEvmChainErc20TokensBoxKeys() async {
+    if (!evmChainErc20TokensBox.isOpen) return;
+
+    final prefs = await sharedPrefs.future;
+    final migrationKey = 'erc20_box_normalized_${walletInfo.name}_$selectedChainId';
+
+    if (prefs.getBool(migrationKey) ?? false) return;
+
+    final box = evmChainErc20TokensBox;
+    final keys = box.keys.cast<String>().toList(growable: false);
+
+    if (keys.isEmpty) {
+      await prefs.setBool(migrationKey, true);
+      return;
+    }
+
+    final Map<String, Erc20Token> normalizedTokens = {};
+    var needsRewrite = false;
+
+    for (final key in keys) {
+      final token = box.get(key);
+
+      if (token == null) {
+        needsRewrite = true;
+        continue;
+      }
+
+      final lowerKey = key.toLowerCase();
+
+      final Erc20Token normalizedToken =
+          token.contractAddress == token.contractAddress.toLowerCase()
+              ? token
+              : Erc20Token(
+                  name: token.name,
+                  symbol: token.symbol,
+                  contractAddress: token.contractAddress.toLowerCase(),
+                  decimal: token.decimal,
+                  enabled: token.enabled,
+                  iconPath: token.iconPath,
+                  tag: token.tag,
+                  isPotentialScam: token.isPotentialScam,
+                );
+
+      if (!needsRewrite && (lowerKey != key || identical(normalizedToken, token) == false)) {
+        needsRewrite = true;
+      }
+
+      final existing = normalizedTokens[lowerKey];
+
+      if (existing == null) {
+        normalizedTokens[lowerKey] = normalizedToken;
+        continue;
+      }
+
+      final merged = Erc20Token(
+        name: normalizedToken.name,
+        symbol: normalizedToken.symbol,
+        contractAddress: lowerKey,
+        decimal: normalizedToken.decimal,
+        enabled: normalizedToken.enabled || existing.enabled,
+        iconPath: (normalizedToken.iconPath?.isNotEmpty ?? false)
+            ? normalizedToken.iconPath
+            : existing.iconPath,
+        tag: normalizedToken.tag ?? existing.tag,
+        isPotentialScam: normalizedToken.isPotentialScam || existing.isPotentialScam,
+      );
+
+      normalizedTokens[lowerKey] = merged;
+    }
+
+    if (needsRewrite) {
+      await box.clear();
+      for (final entry in normalizedTokens.entries) {
+        await box.put(entry.key, entry.value);
+      }
+    }
+
+    await prefs.setBool(migrationKey, true);
+  }
 
   Future<bool> checkIfScanProviderIsEnabled() async {
     final key = EVMChainUtils.getScanProviderPreferenceKey(selectedChainId);
