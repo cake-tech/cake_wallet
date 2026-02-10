@@ -18,6 +18,7 @@ import 'package:cw_minotari/minotari_transaction_info.dart';
 import 'package:cw_minotari/minotari_transaction_priority.dart';
 import 'package:cw_minotari/minotari_wallet_addresses.dart';
 import 'package:cw_minotari/pending_minotari_transaction.dart';
+import 'package:cw_minotari/src/rust/api/base_node.dart';
 import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/api/scanner.dart';
 import 'package:cw_minotari/src/rust/api/transactions.dart';
@@ -58,6 +59,8 @@ abstract class MinotariWalletBase
   bool _isTransactionUpdating;
   StreamSubscription<ScanEventDto>? _scannerSubscription;
   Node? _currentNode;
+  int _chainTipHeight = 0;
+  int _initialSyncHeight = 0;
 
   /// Cached fee estimate from the last updateEstimatedFeesParams call
   FeeEstimate? _cachedFeeEstimate;
@@ -159,6 +162,16 @@ abstract class MinotariWalletBase
 
       final nodeUrl = _currentNode!.uri.toString();
 
+      // Fetch chain tip height for progress calculation
+      try {
+        final tipInfo = await getTipInfo(baseUrl: nodeUrl);
+        if (tipInfo != null) {
+          _chainTipHeight = tipInfo.bestBlockHeight.toInt();
+        }
+      } catch (e) {
+        printV('Error fetching chain tip: $e');
+      }
+
       // Start the scanner stream
       final scanStream = _ffi?.startScan(
         baseNodeAddress: nodeUrl,
@@ -213,14 +226,33 @@ abstract class MinotariWalletBase
         status.when(
           started: (accountId, fromHeight) {
             printV('Scan started from height: $fromHeight');
+            _initialSyncHeight = fromHeight.toInt();
             syncStatus = SyncronizingSyncStatus();
           },
           progress: (accountId, currentHeight, blocksScanned) {
             printV('Scan progress: height $currentHeight, scanned $blocksScanned blocks');
-            // TODO We don't know the chain tip height, so we can't calculate
-            // meaningful progress
-            // Just show "Synchronizing" status without percentage
-            syncStatus = SyncronizingSyncStatus();
+            final currentHeightInt = currentHeight.toInt();
+
+            // Refresh chain tip height
+            if (_currentNode != null) {
+              getTipInfo(baseUrl: _currentNode!.uri.toString()).then((tipInfo) {
+                if (tipInfo != null) {
+                  _chainTipHeight = tipInfo.bestBlockHeight.toInt();
+                }
+              }).catchError((e) {
+                printV('Error refreshing chain tip: $e');
+              });
+            }
+
+            if (_chainTipHeight > 0 && _chainTipHeight >= currentHeightInt) {
+              syncStatus = SyncingSyncStatus.fromHeightValues(
+                _chainTipHeight,
+                _initialSyncHeight,
+                currentHeightInt,
+              );
+            } else {
+              syncStatus = SyncronizingSyncStatus();
+            }
           },
           completed: (accountId, finalHeight, totalBlocksScanned) {
             printV('Scan completed at height $finalHeight, total blocks: $totalBlocksScanned');
@@ -573,12 +605,7 @@ abstract class MinotariWalletBase
 
         if (txDto.counterparty != null) {
           txInfo.additionalInfo['counterpartyAddress'] = txDto.counterparty!.address;
-          if (txDto.counterparty!.addressEmoji != null) {
-            txInfo.additionalInfo['counterpartyEmoji'] = txDto.counterparty!.addressEmoji!;
-          }
-          if (txDto.counterparty!.label != null && txDto.counterparty!.label!.isNotEmpty) {
-            txInfo.additionalInfo['counterpartyLabel'] = txDto.counterparty!.label!;
-          }
+          txInfo.additionalInfo['counterpartyEmoji'] = txDto.counterparty!.addressEmoji;
         }
 
         transactionHistory.transactions[txDto.id] = txInfo;
