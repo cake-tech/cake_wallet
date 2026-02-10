@@ -645,7 +645,9 @@ abstract class SolanaWalletBase
   }
 
   Future<void> deleteSPLToken(SPLToken token) async {
-    await token.delete();
+    if (splTokensBox.isOpen) {
+      await splTokensBox.delete(token.mintAddress);
+    }
 
     balance.remove(token);
     await _removeTokenTransactionsInHistory(token);
