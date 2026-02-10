@@ -257,7 +257,6 @@ class _NewSendPageState extends State<NewSendPage> {
                           ModernButton(
                               size: 36,
                               icon: Icon(Icons.add),
-                              iconColor: Theme.of(context).colorScheme.primary,
                               onPressed: () {
                                 _addInputControllers();
                                 widget.sendViewModel.addOutput();
