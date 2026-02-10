@@ -92,6 +92,7 @@ abstract class BasePage extends StatelessWidget {
             child: ModernButton(
               size: 37,
               icon: Icon(CupertinoIcons.back),
+              iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
               onPressed: () => onClose(context),
             ),
           ),

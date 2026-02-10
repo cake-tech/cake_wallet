@@ -36,7 +36,7 @@ class ModernButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedIconColor = iconColor ?? Theme.of(context).colorScheme.onSurfaceVariant;
+    final resolvedIconColor = iconColor ?? Theme.of(context).colorScheme.primary;
     final resolvedIconSize = iconSize ?? size * (svgPath != null ? 1 : iconSvgSizeRatio);
     final resolvedBackgroundColor =
         backgroundColor ?? Theme.of(context).colorScheme.surfaceContainer;
