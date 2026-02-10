@@ -336,8 +336,7 @@ abstract class ZcashWalletBase
       "privateViewKey": backup.fvk,
       "uvk": backup.uvk,
       "tsk": backup.tsk,
-      if (lastKnownRestoreHeight != null)
-        "restoreHeight": lastKnownRestoreHeight.toString(),
+      if (lastKnownRestoreHeight != null) "restoreHeight": lastKnownRestoreHeight.toString(),
     };
   }
 
@@ -1056,7 +1055,7 @@ abstract class ZcashWalletBase
     await ZcashTransactionInfo.init();
     _initialized = true;
   }
-  
+
   static bool isProverLoaded = false;
   static Future<void> loadProver() async {
     Uint8List? spend;
@@ -1067,9 +1066,10 @@ abstract class ZcashWalletBase
       final outputBundle = await rootBundle.load('scripts/zcash_lib/assets/sapling-output.params');
       spend = spendBundle.buffer.asUint8List();
       output = outputBundle.buffer.asUint8List();
-      if (spend.length == 0 || output.length == 0) throw Exception("NUH UH");
-      spend = await File(cacheDir.path+"/sapling-spend.params").readAsBytesSync();
-      output = await File(cacheDir.path+"/sapling-output.params").readAsBytesSync();
+      if (spend.length == 0 || output.length == 0) {
+        spend = await File(cacheDir.path + "/sapling-spend.params").readAsBytesSync();
+        output = await File(cacheDir.path + "/sapling-output.params").readAsBytesSync();
+      }
       if (spend.length == 0 || output.length == 0) throw Exception("NUH UH");
     } catch (e) {
       printV("$e. Fine, I'll download them.");
@@ -1081,8 +1081,8 @@ abstract class ZcashWalletBase
       );
       spend = spendResponse.bodyBytes;
       output = outputResponse.bodyBytes;
-      await File(cacheDir.path+"/sapling-spend.params").writeAsBytes(spend);
-      await File(cacheDir.path+"/sapling-output.params").writeAsBytes(output);
+      await File(cacheDir.path + "/sapling-spend.params").writeAsBytes(spend);
+      await File(cacheDir.path + "/sapling-output.params").writeAsBytes(output);
     }
     WarpApi.initProver(spend, output);
     isProverLoaded = true;
