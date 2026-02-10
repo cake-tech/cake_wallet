@@ -41,7 +41,7 @@ abstract class WalletSeedViewModelBase with Store {
   @observable
   String walletType;
 
-  /// The Regex split the words based on any whitespace character.
+  /// The RegExp splits the words based on any whitespace character.
   ///
   /// Either standard ASCII space (U+0020) or the full-width space character (U+3000) used by the Japanese.
   List<String> get seedSplit => seed.split(RegExp(r'\s+'));
@@ -69,7 +69,7 @@ abstract class WalletSeedViewModelBase with Store {
     return shouldVerify ? FeatureFlag.verificationWordsCount : 0;
   }
 
-  /// Then number of wrong entries the user has selected;
+  /// The number of wrong entries the user has selected;
   ///
   /// Routes the view to the seed screen if it's up to two.
   @observable

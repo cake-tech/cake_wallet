@@ -120,7 +120,7 @@ abstract class WalletKeysViewModelBase with Store {
     return _wallet.passphrase ?? '';
   }
 
-  /// The Regex split the words based on any whitespace character.
+  /// The RegExp splits the words based on any whitespace character.
   ///
   /// Either standard ASCII space (U+0020) or the full-width space character (U+3000) used by the Japanese.
   List<String> get seedSplit => seed.isNotEmpty ? seed.split(RegExp(r'\s+')) : [];
