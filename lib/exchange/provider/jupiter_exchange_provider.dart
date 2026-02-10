@@ -81,16 +81,17 @@ class JupiterExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    try {
-      // The Ultra Swap API doesn't have a dedicated limits endpoint
-      // The /order endpoint validates amounts and returns error codes:
-      // - errorCode 1: Insufficient funds
-      // - errorCode 2: Top up SOL for gas
-      // - errorCode 3: Minimum amount for gasless
+    // The Ultra Swap API doesn't have a dedicated limits endpoint
+    // The /order endpoint validates amounts and returns error codes:
+    // - errorCode 1: Insufficient funds
+    // - errorCode 2: Top up SOL for gas
+    // - errorCode 3: Minimum amount for gasless
+
+    // only return null for supported currencies
+    if (_supportedCurrencies.contains(from) && _supportedCurrencies.contains(to)) {
       return Limits(min: null, max: null);
-    } catch (e) {
-      printV('fetchLimits error: $e');
-      throw Exception('Error fetching limits: $e');
+    } else {
+      throw Exception('not supported');
     }
   }
 
