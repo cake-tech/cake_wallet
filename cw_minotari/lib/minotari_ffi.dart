@@ -155,6 +155,7 @@ class MinotariFfi {
     bool continuous = false,
     int batchSize = 1000,
     int pollIntervalSeconds = 60,
+    int requiredConfirmations = 3, // Default to 3 confirmations for transaction discovery
   }) {
     _ensureWalletInitialized();
 
@@ -165,6 +166,7 @@ class MinotariFfi {
       batchSize: BigInt.from(batchSize),
       continuous: continuous,
       pollIntervalSeconds: BigInt.from(pollIntervalSeconds),
+      requiredConfirmations: BigInt.from(requiredConfirmations),
     );
 
     return scanner.startScan(config: config);
