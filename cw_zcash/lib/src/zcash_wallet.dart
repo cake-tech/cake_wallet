@@ -175,7 +175,8 @@ abstract class ZcashWalletBase
       }
 
       final paymentUri = WarpApi.decodePaymentURI(coin, address);
-      String memo = output.note ?? '';
+      // String memo = output.note ?? '';
+      String memo = '';
       if (paymentUri != null && paymentUri.address != null) {
         address = paymentUri.address!;
         if (memo.isEmpty && paymentUri.memo != null) {
