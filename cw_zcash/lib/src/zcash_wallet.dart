@@ -1067,13 +1067,9 @@ abstract class ZcashWalletBase
       final outputBundle = await rootBundle.load('scripts/zcash_lib/assets/sapling-output.params');
       spend = spendBundle.buffer.asUint8List();
       output = outputBundle.buffer.asUint8List();
-      print("@@@@@@@@@@@@");
-      print(spend.length);
       if (spend.length == 0 || output.length == 0) throw Exception("NUH UH");
       spend = await File(cacheDir.path+"/sapling-spend.params").readAsBytesSync();
       output = await File(cacheDir.path+"/sapling-output.params").readAsBytesSync();
-      print("@@@@@@@@@@@@");
-      print(spend.length);
       if (spend.length == 0 || output.length == 0) throw Exception("NUH UH");
     } catch (e) {
       printV("$e. Fine, I'll download them.");
