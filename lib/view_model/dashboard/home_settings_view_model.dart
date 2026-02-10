@@ -284,6 +284,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.decred:
       case WalletType.dogecoin:
       case WalletType.zcash:
+      case WalletType.minotari:
         return false;
     }
 
