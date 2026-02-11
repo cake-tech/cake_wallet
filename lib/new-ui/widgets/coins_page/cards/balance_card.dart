@@ -1,7 +1,6 @@
 import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 
 class BalanceCardAction {
   final String label;
@@ -26,7 +25,6 @@ class BalanceCard extends StatelessWidget {
     this.assetName = "",
     this.designSwitchDuration = const Duration(),
     this.actions = const [],
-    this.displaySat = false,
   });
 
   final double width;
@@ -35,7 +33,6 @@ class BalanceCard extends StatelessWidget {
   final String accountBalance;
   final String accountName;
   final String balance;
-  final bool displaySat;
   final String fiatBalance;
   final String assetName;
   final bool selected;
@@ -137,7 +134,7 @@ class BalanceCard extends StatelessWidget {
                             );
                           },
                           child: Row(
-                            key: ValueKey("$balance $displaySat"),
+                            key: ValueKey("$balance ${assetName.toUpperCase()}"),
                             spacing: 8.0,
                             children: [
                               AnimatedDefaultTextStyle(
@@ -145,18 +142,14 @@ class BalanceCard extends StatelessWidget {
                                 style: DefaultTextStyle.of(context)
                                     .style
                                     .copyWith(color: design.colors.textColor, fontSize: 28, fontWeight: FontWeight.w500, letterSpacing: -0.4),
-                                child: Text(
-                                  formatAmount(balance),
-                                ),
+                                child: Text(balance),
                               ),
                               AnimatedDefaultTextStyle(
                                 duration: designSwitchDuration,
                                 style: DefaultTextStyle.of(context)
                                     .style
                                     .copyWith(color: design.colors.textColorSecondary, fontSize: 28, fontWeight: FontWeight.w400, letterSpacing: -0.4),
-                                child: Text(
-                                  displaySat ? "sat" : assetName.toUpperCase(),
-                                ),
+                                child: Text(assetName.toUpperCase()),
                               ),
                             ],
                           ),
@@ -241,17 +234,6 @@ class BalanceCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String formatAmount(String amount) {
-    try {
-      if (displaySat) {
-        return NumberFormat("#,###").format(int.parse(amount));
-      }
-      return double.parse(amount).toStringAsPrecision(8).replaceFirst(RegExp(r"\.?0+$"), "");
-    } catch(e) {
-      return amount;
-    }
   }
 
   Widget getBalanceCardActionButton(BalanceCardAction action) => GestureDetector(
