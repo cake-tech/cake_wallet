@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -12,6 +13,8 @@ import "package:cw_core/wallet_type.dart";
 
 bool _trueFunc(DashboardViewModel _) => true;
 
+bool _falseFunc(DashboardViewModel _) => false;
+
 bool _isBtc(DashboardViewModel vm) => vm.wallet.type == WalletType.bitcoin;
 
 bool _hasMweb(DashboardViewModel vm) => vm.hasMweb;
@@ -21,9 +24,11 @@ class SettingsListItem {
   final String title;
   final String route;
   final Object? routeArgs;
+  final bool requireAuth;
+  final bool Function(DashboardViewModel) use2fa;
   final bool Function(DashboardViewModel) condition;
 
-  const SettingsListItem(this.iconPath, this.title, this.route, {this.routeArgs = null, this.condition = _trueFunc});
+  const SettingsListItem(this.iconPath, this.title, this.route, {this.routeArgs = null, this.requireAuth = false, this.use2fa = _falseFunc, this.condition = _trueFunc});
 }
 
 class SettingsSectionData {
@@ -38,7 +43,7 @@ class SettingsSectionData {
     SettingsListItem("assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
     SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy_features, Routes.privacyPage),
     SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.showKeys,
-        routeArgs: true),
+        routeArgs: true, requireAuth: true, use2fa: (vm)=>vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
     SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
         "Lightning ${S.current.username}", Routes.lightningUsernamePage, condition: _isBtc),
     SettingsListItem("assets/new-ui/settings_row_icons/silent-payments.svg", S.current.silent_payments_settings, Routes.silentPaymentsSettings, condition: _isBtc),
@@ -64,20 +69,27 @@ class SettingsSectionData {
 }
 
 class NewSettingsPage extends StatelessWidget {
-  const NewSettingsPage({super.key, required this.dashboardViewModel});
+  const NewSettingsPage({super.key, required this.dashboardViewModel, required this.authService});
 
   final DashboardViewModel dashboardViewModel;
+  final AuthService authService;
 
   @override
   Widget build(BuildContext context) {
-    return ModalNavigator(parentContext:context,rootPage: SettingsMainPage(dashboardViewModel: dashboardViewModel,));
+    return ModalNavigator(
+        parentContext: context,
+        rootPage: SettingsMainPage(
+          dashboardViewModel: dashboardViewModel,
+          authService: authService,
+        ));
   }
 }
 
 class SettingsMainPage extends StatelessWidget {
-  const SettingsMainPage({super.key, required this.dashboardViewModel});
+  const SettingsMainPage({super.key, required this.dashboardViewModel, required this.authService});
 
   final DashboardViewModel dashboardViewModel;
+  final AuthService authService;
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +104,13 @@ class SettingsMainPage extends StatelessWidget {
                         iconPath: item.iconPath,
                         onTap: () {
                           if (item.route.isNotEmpty) {
-                            Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
+                            if(item.requireAuth) {
+                              authService.authenticateAction(context,
+                                  conditionToDetermineIfToUse2FA: item.use2fa(dashboardViewModel),
+                                  route: item.route);
+                            } else {
+                              Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
+                            }
                           }
                         })
                     : null)

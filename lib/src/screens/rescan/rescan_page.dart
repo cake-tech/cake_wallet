@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -30,7 +31,7 @@ class RescanPage extends StatelessWidget {
           children: [
             Observer(
               builder: (_) => BlockchainHeightWidget(
-                key: _blockchainHeightWidgetKey,
+                // key: _blockchainHeightWidgetKey,
                 onHeightOrDateEntered: (value) => _rescanViewModel.isButtonEnabled = value,
                 isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
                 isMwebScan: _rescanViewModel.isMwebScan,
@@ -92,16 +93,18 @@ class RescanPage extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       // onTap: () => FocusScope.of(context).unfocus(),
-      child: Column(
-        children: [
-          ModalTopBar(
-              title: _rescanViewModel.isSilentPaymentsScan
-                  ? S.current.silent_payments_scanning
-                  : S.current.rescan,
-              leadingIcon: Icon(Icons.arrow_back_ios_new),
-              onLeadingPressed: Navigator.of(context).pop),
-          child,
-        ],
+      child: KeyboardHideOverlay(
+        child: Column(
+          children: [
+            ModalTopBar(
+                title: _rescanViewModel.isSilentPaymentsScan
+                    ? S.current.silent_payments_scanning
+                    : S.current.rescan,
+                leadingIcon: Icon(Icons.arrow_back_ios_new),
+                onLeadingPressed: Navigator.of(context).pop),
+            child,
+          ],
+        ),
       ),
     );
   }

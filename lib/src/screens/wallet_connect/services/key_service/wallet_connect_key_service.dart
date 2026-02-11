@@ -53,6 +53,7 @@ class KeyServiceImpl implements WalletConnectKeyService {
         chains: [
           'eip155:1',
           'eip155:5',
+          'eip155:56',
           'eip155:137',
           'eip155:8453',
           'eip155:42161',

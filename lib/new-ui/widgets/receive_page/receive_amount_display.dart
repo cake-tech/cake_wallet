@@ -78,10 +78,6 @@ class ReceiveAmountDisplay extends StatelessWidget {
   }
 
   String _getFiatAmount() {
-    if(walletAddressListViewModel.selectedCurrency is FiatCurrency) {
-      return "${walletAddressListViewModel.selectedCurrencyFiatAmount} ${walletAddressListViewModel.selectedCurrency.name}";
-    } else {
-      return "${walletAddressListViewModel.fiatAmount} ${walletAddressListViewModel.fiatCurrency.name}";
-    }
+    return "${walletAddressListViewModel.fiatAmount} ${walletAddressListViewModel.fiatCurrency.name}";
   }
 }

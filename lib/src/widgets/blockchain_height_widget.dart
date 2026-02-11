@@ -71,100 +71,96 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Flexible(
+              child: Container(
+                padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
+                child: BaseTextFormField(
+                  key: widget.blockHeightTextFieldKey,
+                  focusNode: widget.focusNode,
+                  controller: restoreHeightController,
+                  keyboardType: TextInputType.numberWithOptions(
+                    signed: false,
+                    decimal: false,
+                  ),
+                  hintText: widget.isSilentPaymentsScan
+                      ? S.of(context).silent_payments_scan_from_height
+                      : S.of(context).widgets_restore_from_blockheight,
+                ),
+              ),
+            )
+          ],
+        ),
+        if (widget.hasDatePicker) ...[
+          Padding(
+            padding: EdgeInsets.only(top: 15, bottom: 15),
+            child: Text(
+              S.of(context).widgets_or,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ),
           Row(
             children: <Widget>[
               Flexible(
-                child: Container(
-                  padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
-                  child: BaseTextFormField(
-                    key: widget.blockHeightTextFieldKey,
-                    focusNode: widget.focusNode,
-                    controller: restoreHeightController,
-                    keyboardType: TextInputType.numberWithOptions(
-                      signed: false,
-                      decimal: false,
+                  child: Container(
+                child: InkWell(
+                  onTap: () => _selectDate(context),
+                  child: IgnorePointer(
+                    child: BaseTextFormField(
+                      controller: dateController,
+                      hintText: widget.isSilentPaymentsScan
+                          ? S.of(context).silent_payments_scan_from_date
+                          : S.of(context).widgets_restore_from_date,
                     ),
-                    hintText: widget.isSilentPaymentsScan
-                        ? S.of(context).silent_payments_scan_from_height
-                        : S.of(context).widgets_restore_from_blockheight,
                   ),
                 ),
-              )
+              ))
             ],
           ),
-          if (widget.hasDatePicker) ...[
+          if (widget.isSilentPaymentsScan)
             Padding(
-              padding: EdgeInsets.only(top: 15, bottom: 15),
-              child: Text(
-                S.of(context).widgets_or,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-              ),
-            ),
-            Row(
-              children: <Widget>[
-                Flexible(
-                    child: Container(
-                  child: InkWell(
-                    onTap: () => _selectDate(context),
-                    child: IgnorePointer(
-                      child: BaseTextFormField(
-                        controller: dateController,
-                        hintText: widget.isSilentPaymentsScan
-                            ? S.of(context).silent_payments_scan_from_date
-                            : S.of(context).widgets_restore_from_date,
-                      ),
-                    ),
+              padding: EdgeInsets.only(top: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    S.of(context).scan_one_block,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                   ),
-                ))
-              ],
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: StandardSwitch(
+                      value: widget.doSingleScan,
+                      onTapped: () => widget.toggleSingleScan?.call(),
+                    ),
+                  )
+                ],
+              ),
             ),
-            if (widget.isSilentPaymentsScan)
-              Padding(
-                padding: EdgeInsets.only(top: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      S.of(context).scan_one_block,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: StandardSwitch(
-                        value: widget.doSingleScan,
-                        onTapped: () => widget.toggleSingleScan?.call(),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            Padding(
-              padding: EdgeInsets.only(left: 40, right: 40, top: 24),
-              child: Text(
-                widget.isSilentPaymentsScan
-                    ? S.of(context).silent_payments_scan_from_date_or_blockheight
-                    : S.of(context).restore_from_date_or_blockheight,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-              ),
-            )
-          ]
-        ],
-      ),
+          Padding(
+            padding: EdgeInsets.only(left: 40, right: 40, top: 24),
+            child: Text(
+              widget.isSilentPaymentsScan
+                  ? S.of(context).silent_payments_scan_from_date_or_blockheight
+                  : S.of(context).restore_from_date_or_blockheight,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          )
+        ]
+      ],
     );
   }
 

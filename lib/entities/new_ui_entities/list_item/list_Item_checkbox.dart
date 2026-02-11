@@ -8,6 +8,7 @@ class ListItemCheckbox extends ListItem {
     this.subtitle,
     this.iconPath,
     this.onTap,
+    this.showArrow = false,
     required this.value,
     required this.onChanged,
   });
@@ -17,4 +18,5 @@ class ListItemCheckbox extends ListItem {
   final bool value;
   final String? subtitle;
   final String? iconPath;
+  final bool showArrow;
 }

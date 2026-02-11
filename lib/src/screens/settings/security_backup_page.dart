@@ -139,18 +139,18 @@ class SecurityBackupPage extends BasePage {
                           ),
                         );
                       }),
-                  if (!_isHardwareWallet)
-                    ListItemRegularRow(
-                        keyValue: "security_backup_page_show_keys_button_key",
-                        label: S.current.show_keys,
-                        onTap: () {
-                          _authService.authenticateAction(
-                            context,
-                            route: Routes.showKeys,
-                            conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                                .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-                          );
-                        }),
+                  // if (!_isHardwareWallet)
+                  //   ListItemRegularRow(
+                  //       keyValue: "security_backup_page_show_keys_button_key",
+                  //       label: S.current.show_keys,
+                  //       onTap: () {
+                  //         _authService.authenticateAction(
+                  //           context,
+                  //           route: Routes.showKeys,
+                  //           conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                  //               .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+                  //         );
+                  //       }),
                   if (!SettingsStoreBase.walletPasswordDirectInput)
                     ListItemRegularRow(
                         keyValue: "security_backup_page_change_password_button_key",

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
@@ -102,6 +103,7 @@ class _NewHomePageState extends State<NewHomePage> {
                           child: Material(
                                   child: NewSettingsPage(
                             dashboardViewModel: widget.dashboardViewModel,
+                                    authService: getIt.get<AuthService>(),
                           ))),
                     );
                   },

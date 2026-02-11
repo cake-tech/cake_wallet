@@ -68,14 +68,13 @@ class DisplaySettingsPage extends BasePage {
                 isGridView: false,
               ),
               if (_displaySettingsViewModel.showDisplayAmountsInSatoshiSetting)
-                SettingsPickerCell<BitcoinAmountDisplayMode>(
+                SettingsChoicesCell(ChoicesListItem<BitcoinAmountDisplayMode>(
                   title: S.of(context).bitcoin_amount_display,
                   items: BitcoinAmountDisplayMode.all,
                   selectedItem: _displaySettingsViewModel.displayAmountsInSatoshi,
                   onItemSelected: _displaySettingsViewModel.setDisplayAmountsInSatoshi,
                   displayItem: (mode) => mode.title,
-                  isGridView: false,
-                ),
+                ),),
               //if (!isHaven) it does not work correctly
               if (!_displaySettingsViewModel.disabledFiatApiMode)
                 SettingsPickerCell<FiatCurrency>(

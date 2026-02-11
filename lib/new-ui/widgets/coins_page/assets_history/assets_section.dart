@@ -22,7 +22,7 @@ class AssetsSection extends StatelessWidget {
           final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index+1);
           return AssetTile(
             balance: balance,
-            chainIconPath: dashboardViewModel.wallet.currency.flatIconPath ?? "",
+            chainIconPath: dashboardViewModel.wallet.currency.chainIconPath ?? "",
           );
         },
       ),

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
@@ -17,6 +16,8 @@ import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 class EvmChainServiceImpl {
   Map<String, dynamic Function(String, dynamic)> get sessionRequestHandlers => {
@@ -38,11 +39,7 @@ class EvmChainServiceImpl {
     required this.bottomSheetService,
     required this.walletKit,
     Web3Client? web3Client,
-  }) : ethClient = web3Client ??
-            Web3Client(
-              _getNodeUriForChain(reference, appStore),
-              ProxyWrapper().getHttpIOClient(),
-            ) {
+  }) : ethClient = web3Client ?? _createWeb3Client(reference, appStore) {
     for (final event in EventsConstants.allEvents) {
       walletKit.registerEventEmitter(
         chainId: getChainId(),
@@ -77,17 +74,16 @@ class EvmChainServiceImpl {
 
   String getChainId() => reference.chain();
 
-  static String _getNodeUriForChain(EVMChainId reference, AppStore appStore) {
-    final walletType = appStore.wallet!.type;
+  static Web3Client _createWeb3Client(EVMChainId reference, AppStore appStore) {
+    if (appStore.wallet != null && isEVMCompatibleChain(appStore.wallet!.type)) {
+      final walletClient = evm?.getWeb3Client(appStore.wallet!);
 
-    if (isEVMCompatibleChain(walletType)) {
-      final chainId = reference.chainId;
-
-      return appStore.settingsStore.getCurrentNode(walletType, chainId: chainId).uri.toString();
+      if (walletClient != null) return walletClient;
     }
 
-    // For old wallet types, use the wallet type directly
-    return appStore.settingsStore.getCurrentNode(walletType).uri.toString();
+    final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
+
+    return Web3Client(node.uri.toString(), ProxyWrapper().getHttpIOClient());
   }
 
   Future<void> personalSign(String topic, dynamic parameters) async {
@@ -423,25 +419,59 @@ class EvmChainServiceImpl {
   }) async {
     Transaction transaction = transactionJson.toTransaction();
 
-    final gasPrice = await ethClient.getGasPrice();
-    try {
-      final gasLimit = await ethClient.estimateGas(
-        sender: transaction.from,
-        to: transaction.to,
-        value: transaction.value,
-        data: transaction.data,
-        gasPrice: gasPrice,
-      );
-
-      transaction = transaction.copyWith(
-        gasPrice: gasPrice,
-        maxGas: gasLimit.toInt(),
-      );
-    } on RPCError catch (e) {
-      return JsonRpcError(code: e.errorCode, message: e.message);
+    if (transactionJson.containsKey('gas') && transaction.maxGas == null) {
+      final gasHex = transactionJson['gas'].toString();
+      try {
+        final gasValue = int.parse(
+          gasHex.replaceFirst('0x', '').replaceFirst('0X', ''),
+          radix: 16,
+        );
+        transaction = transaction.copyWith(maxGas: gasValue);
+      } catch (e) {
+        debugPrint('Failed to parse gas value: $gasHex, error: $e');
+      }
     }
 
-    final gweiGasPrice = (transaction.gasPrice?.getInWei ?? BigInt.zero) / BigInt.from(1000000000);
+    // we need to check if dApp provides the gas values and if not, we need to estimate them
+    final hasGasLimit = transaction.maxGas != null && transaction.maxGas! > 0;
+    final hasGasPrice = transaction.gasPrice != null;
+    final hasMaxFeePerGas = transaction.maxFeePerGas != null;
+    final hasMaxPriorityFeePerGas = transaction.maxPriorityFeePerGas != null;
+
+    final needsGasEstimation = !hasGasLimit || (!hasGasPrice && !hasMaxFeePerGas);
+
+    if (needsGasEstimation) {
+      try {
+        final gasPrice = hasGasPrice ? transaction.gasPrice! : await ethClient.getGasPrice();
+
+        if (!hasGasLimit) {
+          final gasLimit = await ethClient.estimateGas(
+            sender: transaction.from,
+            to: transaction.to,
+            value: transaction.value,
+            data: transaction.data,
+            gasPrice: gasPrice,
+          );
+
+          if (hasMaxFeePerGas || hasMaxPriorityFeePerGas) {
+            transaction = transaction.copyWith(maxGas: gasLimit.toInt());
+          } else {
+            transaction = transaction.copyWith(
+              gasPrice: hasGasPrice ? transaction.gasPrice : gasPrice,
+              maxGas: gasLimit.toInt(),
+            );
+          }
+        } else if (!hasGasPrice && !hasMaxFeePerGas) {
+          transaction = transaction.copyWith(gasPrice: gasPrice);
+        }
+      } on RPCError catch (e) {
+        return JsonRpcError(code: e.errorCode, message: e.message);
+      }
+    }
+
+    final gweiGasPrice =
+        (transaction.gasPrice?.getInWei ?? transaction.maxFeePerGas?.getInWei ?? BigInt.zero) /
+            BigInt.from(1000000000);
 
     final amount = (transaction.value?.getInWei ?? BigInt.zero) / BigInt.from(1e18);
 

@@ -1,6 +1,7 @@
 import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 class BalanceCardAction {
   final String label;
@@ -25,6 +26,7 @@ class BalanceCard extends StatelessWidget {
     this.assetName = "",
     this.designSwitchDuration = const Duration(),
     this.actions = const [],
+    this.displaySat = false,
   });
 
   final double width;
@@ -33,6 +35,7 @@ class BalanceCard extends StatelessWidget {
   final String accountBalance;
   final String accountName;
   final String balance;
+  final bool displaySat;
   final String fiatBalance;
   final String assetName;
   final bool selected;
@@ -122,35 +125,65 @@ class BalanceCard extends StatelessWidget {
                       AnimatedOpacity(
                         opacity: selected ? 1 : 0,
                         duration: textFadeDuration,
-                        child: Row(
-                          spacing: 8.0,
-                          children: [
-                            AnimatedDefaultTextStyle(
-                              duration: designSwitchDuration,
-                              style: DefaultTextStyle.of(context)
-                                  .style
-                                  .copyWith(color: design.colors.textColor, fontSize: 28, fontWeight: FontWeight.w500, letterSpacing: -0.4),
-                              child: Text(
-                                balance,
+                        child: AnimatedSwitcher(
+                          duration: designSwitchDuration,
+                          layoutBuilder: (currentChild, previousChildren) {
+                            return Stack(
+                              alignment: Alignment.centerLeft,
+                              children: <Widget>[
+                                ...previousChildren,
+                                if (currentChild != null) currentChild,
+                              ],
+                            );
+                          },
+                          child: Row(
+                            key: ValueKey("$balance $displaySat"),
+                            spacing: 8.0,
+                            children: [
+                              AnimatedDefaultTextStyle(
+                                duration: designSwitchDuration,
+                                style: DefaultTextStyle.of(context)
+                                    .style
+                                    .copyWith(color: design.colors.textColor, fontSize: 28, fontWeight: FontWeight.w500, letterSpacing: -0.4),
+                                child: Text(
+                                  formatAmount(balance),
+                                ),
                               ),
-                            ),
-                            AnimatedDefaultTextStyle(
-                              duration: designSwitchDuration,
-                              style: DefaultTextStyle.of(context)
-                                  .style
-                                  .copyWith(color: design.colors.textColorSecondary, fontSize: 28, fontWeight: FontWeight.w400, letterSpacing: -0.4),
-                              child: Text(
-                                assetName.toUpperCase(),
+                              AnimatedDefaultTextStyle(
+                                duration: designSwitchDuration,
+                                style: DefaultTextStyle.of(context)
+                                    .style
+                                    .copyWith(color: design.colors.textColorSecondary, fontSize: 28, fontWeight: FontWeight.w400, letterSpacing: -0.4),
+                                child: Text(
+                                  displaySat ? "sat" : assetName.toUpperCase(),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                      Text(
-                        fiatBalance,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      AnimatedDefaultTextStyle(
+                        duration: designSwitchDuration,
+                        style: DefaultTextStyle.of(context).style.copyWith(
+                            fontSize: 15,
                             fontWeight: FontWeight.w400,
                             color: design.colors.textColorSecondary),
+                        child: AnimatedSwitcher(
+                          duration: designSwitchDuration,
+                          layoutBuilder: (currentChild, previousChildren) {
+                            return Stack(
+                              alignment: Alignment.centerLeft,
+                              children: <Widget>[
+                                ...previousChildren,
+                                if (currentChild != null) currentChild,
+                              ],
+                            );
+                          },
+                          child: Text(
+                            key: ValueKey(fiatBalance),
+                            fiatBalance,
+                          ),
+                        ),
                       ),
                     ],
                   )
@@ -208,6 +241,17 @@ class BalanceCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String formatAmount(String amount) {
+    try {
+      if (displaySat) {
+        return NumberFormat("#,###").format(int.parse(amount));
+      }
+      return double.parse(amount).toStringAsPrecision(8).replaceFirst(RegExp(r"\.?0+$"), "");
+    } catch(e) {
+      return amount;
+    }
   }
 
   Widget getBalanceCardActionButton(BalanceCardAction action) => GestureDetector(

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -27,7 +28,12 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
   @override
   void initState() {
     super.initState();
-    _amountController.text = widget.walletAddressListViewModel.amount;
+    if(widget.walletAddressListViewModel.selectedCurrency is FiatCurrency) {
+      _amountController.text = widget.walletAddressListViewModel.fiatAmount;
+    } else {
+      _amountController.text = widget.walletAddressListViewModel.amount;
+    }
+
   }
 
   @override

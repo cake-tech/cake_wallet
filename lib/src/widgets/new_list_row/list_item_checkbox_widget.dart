@@ -12,13 +12,14 @@ class ListItemCheckboxWidget extends StatefulWidget {
     required this.onChanged,
     this.onTap,
     this.isFirstInSection = false,
-    this.isLastInSection = false, this.subtitle, this.iconPath,
+    this.isLastInSection = false, this.subtitle, this.iconPath, this.showArrow = false,
   });
 
   final String keyValue;
   final String label;
   final String? subtitle;
   final String? iconPath;
+  final bool showArrow;
   final bool value;
   final VoidCallback? onTap;
   final ValueChanged<bool> onChanged;
@@ -61,7 +62,17 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(widget.label),
+                    Row(
+                      children: [
+                        Text(widget.label),
+                        if (widget.showArrow)
+                          Icon(
+                            Icons.chevron_right,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          )
+                      ],
+                    ),
                     if (widget.subtitle != null)
                       Text(
                         widget.subtitle!,

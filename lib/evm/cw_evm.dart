@@ -315,6 +315,13 @@ class CWEVM extends EVM {
   }
 
   @override
+  List<String> getDefaultTokenSymbols(WalletBase wallet) {
+    final chainId = getSelectedChainId(wallet);
+    if (chainId == null) return [];
+    return EVMChainDefaultTokens.getDefaultTokenSymbols(chainId);
+  }
+
+  @override
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
     final evmWallet = wallet as EVMChainWallet;
     return evmWallet.erc20Currencies

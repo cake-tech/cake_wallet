@@ -313,6 +313,7 @@ class ZcashTaddressRotation {
 
         final recipient = Recipient(recipientBuilder.toBytes());
         final fee = FeeT(fee: 10000, minFee: 0, maxFee: 0, scheme: 0);
+        await ZcashWalletBase.loadProver();
         final txPlan = await ZcashWalletService.runInDbMutex(
           () => WarpApi.prepareTx(
             coin,

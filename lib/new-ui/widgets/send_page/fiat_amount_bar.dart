@@ -73,7 +73,7 @@ class FiatAmountBar extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
                       child: Text(
-                        allAmount!,
+                        formatAmount(allAmount!),
                         style: TextStyle(color: Theme.of(context).colorScheme.primary),
                       ),
                     ),
@@ -82,5 +82,13 @@ class FiatAmountBar extends StatelessWidget {
           )
       ],
     );
+  }
+
+  String formatAmount(String amount) {
+    try {
+      return double.parse(amount).toStringAsPrecision(8).replaceFirst(RegExp(r"\.?0+$"), "");
+    } catch(e) {
+      return amount;
+    }
   }
 }

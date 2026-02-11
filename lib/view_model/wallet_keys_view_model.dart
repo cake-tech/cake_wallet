@@ -62,7 +62,9 @@ abstract class WalletKeysViewModelBase with Store {
   }
 
   bool get isBitcoin => _wallet.type == WalletType.bitcoin;
-
+  
+  // this is incomplete, needs legacy seed toggle for XMR
+  bool get shouldShowHeightBox => [WalletType.bitcoin, WalletType.zcash].contains(_wallet.type);
   final ObservableList<StandartListItem> items;
 
   @observable
@@ -306,7 +308,7 @@ abstract class WalletKeysViewModelBase with Store {
         return 'dogecoin-wallet';
       case WalletType.zcash:
         return 'zcash-wallet';
-      default:
+      case WalletType.none:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
     }
   }
@@ -317,6 +319,9 @@ abstract class WalletKeysViewModelBase with Store {
     }
     if (_wallet.type == WalletType.wownero) {
       return wownero!.getRestoreHeight(_wallet)?.toString();
+    }
+    if (_wallet.type == WalletType.zcash) {
+      return zcash!.getKeys(_wallet)["restoreHeight"]?.toString();
     }
     if (_restoreHeightByTransactions != 0)
       return getRoundedRestoreHeight(_restoreHeightByTransactions);

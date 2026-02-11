@@ -14,6 +14,7 @@ import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/homoglyph_normalizer.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -231,17 +232,26 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
                             bool isPotentialScam = hasPotentialError && !isWhitelisted;
 
+                            // Normalize to catch homoglyph spoofing attacks
+                            final tokenSymbol = normalizeHomoglyphs(
+                              _tokenSymbolController.text.trim().toUpperCase(),
+                            );
+
                             // check if the token symbol is the same as the native token symbol
                             // to prevent token impersonation
                             // (e.g. fake ETH on Ethereum, fake SOL on Solana)
-                            final tokenSymbol = _tokenSymbolController.text
-                                .trim()
-                                .toUpperCase();
-                            final nativeSymbol = widget.homeSettingsViewModel
-                                .nativeToken
-                                .title
-                                .toUpperCase();
+                            final nativeSymbol =
+                                widget.homeSettingsViewModel.nativeToken.title.toUpperCase();
                             if (tokenSymbol == nativeSymbol && !isWhitelisted) {
+                              isPotentialScam = true;
+                            }
+
+                            // check if the token symbol is the same as any of the default token symbols
+                            // (e.g. fake USDC, USDT with wrong contract address)
+                            if (widget.homeSettingsViewModel.checkIfTokenSymbolMatchesDefaultToken(
+                                  tokenSymbol,
+                                ) &&
+                                !isWhitelisted) {
                               isPotentialScam = true;
                             }
 

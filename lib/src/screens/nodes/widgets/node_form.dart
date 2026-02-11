@@ -56,15 +56,13 @@ class _NodeFormState extends State<NodeForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-        key: widget.formKey,
-        child: NewListSections(
-          sections: vm.nodeFormItems,
-          controllers: _controllers,
-          getCheckboxValue: vm.getCheckboxValue,
-          updateCheckboxValue: vm.updateCheckboxValue,
-          tapHandlers: tapHandlers
-        ));
+    return NewListSections(
+      sections: vm.nodeFormItems,
+      controllers: _controllers,
+      getCheckboxValue: vm.getCheckboxValue,
+      updateCheckboxValue: vm.updateCheckboxValue,
+      tapHandlers: tapHandlers
+    );
   }
 
   Map<String, VoidCallback> get tapHandlers => {

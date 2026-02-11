@@ -158,6 +158,7 @@ class ProviderOptionsPage extends StatelessWidget {
                                       iconPath: item.description.image,
                                       keyValue: item.title,
                                       label: item.title,
+                                      showArrow: item.title == "Trocador",
                                       value: exchangeViewModel.selectedProviders.contains(item),
                                       subtitle: item.title == "Trocador" ? S.of(context).manage_providers : null,
                                       onTap: item.title == "Trocador" ? (){

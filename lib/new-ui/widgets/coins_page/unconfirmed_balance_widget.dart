@@ -18,8 +18,8 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final currency = dashboardViewModel.wallet.currency;
     return Observer(builder: (_) {
-      final balance = dashboardViewModel.balanceViewModel.additionalBalance(currency);
-      final show = double.parse(balance) != 0.0;
+      final show = dashboardViewModel.balanceViewModel
+          .hasAdditionalBalance(dashboardViewModel.wallet.currency);
 
       return AnimatedSize(
           duration: const Duration(milliseconds: 300),
@@ -29,67 +29,73 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
               ? Column(
                   children: [
                     const SizedBox(height: 12, width: double.infinity),
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.87,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            showMaterialModalBottomSheet(
-                                backgroundColor: Colors.transparent,
-                                context: context,
-                                builder: (context) {
-                                  return UnconfirmedBalanceModal(
-                                    balance: "${balance} ${currency.title}",
-                                    currencyIconPath: currency.iconPath ?? "",
-                                  );
-                                });
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  spacing: 12,
+                    Observer(
+                      builder: (context) {
+                        final balance = dashboardViewModel.balanceViewModel.additionalBalance(currency);
+
+                        return Container(
+                          width: MediaQuery.of(context).size.width * 0.87,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                showMaterialModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    context: context,
+                                    builder: (context) {
+                                      return UnconfirmedBalanceModal(
+                                        balance: "${balance} ${currency.title}",
+                                        currencyIconPath: currency.iconPath ?? "",
+                                      );
+                                    });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Theme.of(context).colorScheme.primary,
-                                        value: dashboardViewModel.confirmationProgress,
-                                      ),
-                                    ),
                                     Row(
-                                      spacing: 4,
+                                      spacing: 12,
                                       children: [
-                                        Text(
-                                          "$balance ${currency.title}",
-                                          style: TextStyle(
+                                        SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
                                             color: Theme.of(context).colorScheme.primary,
+                                            value: dashboardViewModel.confirmationProgress,
                                           ),
                                         ),
-                                        Text(S.of(context).confirming),
+                                        Row(
+                                          spacing: 4,
+                                          children: [
+                                            Text(
+                                              "$balance ${currency.title}",
+                                              style: TextStyle(
+                                                color: Theme.of(context).colorScheme.primary,
+                                              ),
+                                            ),
+                                            Text(S.of(context).confirming),
+                                          ],
+                                        )
                                       ],
+                                    ),
+                                    Icon(
+                                      Icons.chevron_right,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     )
                                   ],
                                 ),
-                                Icon(
-                                  Icons.chevron_right,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                )
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ),
+                        );
+                      }
                     ),
                   ],
                 )

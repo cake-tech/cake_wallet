@@ -176,7 +176,9 @@ class _NewSendPageState extends State<NewSendPage> {
     }));
 
     reaction((_)=>widget.sendViewModel.outputs[_selectedOutput].address, ((address) {
-      _addressControllers[_selectedOutput].text = address;
+      if(_addressControllers[_selectedOutput].text != address) {
+        _addressControllers[_selectedOutput].text = address;
+      }
     }));
 
     if (widget.initialPaymentRequest != null &&

@@ -140,7 +140,7 @@ class SendTransactionDetails extends StatelessWidget {
 
     final amount = (transaction == null)
         ? sendViewModel.outputs.first.roundedCryptoAmount(8)
-        : transaction.amountFormatted;
+        : formatAmount(transaction.amountFormatted);
 
     final fee = (transaction == null)
         ? sendViewModel.outputs.first.estimatedFee + " " + sendViewModel.currency.title
@@ -300,6 +300,14 @@ class SendTransactionDetails extends StatelessWidget {
         ),
       )
     ]);
+  }
+
+  String formatAmount(String amount) {
+    try {
+      return double.parse(amount).toStringAsPrecision(8).replaceFirst(RegExp(r"\.?0+$"), "");
+    } catch(e) {
+      return amount;
+    }
   }
 }
 

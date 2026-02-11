@@ -216,6 +216,7 @@ class CardDesign {
           begin: Alignment.topCenter, end: Alignment.bottomCenter
       ),
       backgroundType: CardDesignBackgroundTypes.svgFull,
+      colors: CardColorCombination.dark,
       imagePath: "assets/new-ui/balance_card_backgrounds/lightning.svg");
 
   static const tronSpecial = CardDesign(

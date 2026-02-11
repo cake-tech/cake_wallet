@@ -542,7 +542,7 @@ class WalletListBodyState extends State<WalletListBody> {
           // in desktop platforms the navigation tree is different
           if (responsiveLayoutUtil.shouldRenderMobileUI) {
             // await Future.delayed(Duration(seconds: 1));
-            // if (!this.mounted) return;
+            if (!this.mounted) return;
             if (!context.mounted) return;
             if (requireHardwareWalletConnection) {
               Navigator.of(context).pop();
@@ -567,13 +567,18 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   void changeProcessText(String text) {
-    _progressBar = createBar<void>(text, context, duration: null)..show(context);
+    try {
+      _progressBar = createBar<void>(text, context, duration: null)
+        ..show(context);
+    }catch(e){}
   }
 
   Future<void> hideProgressText() async {
     await Future.delayed(Duration(milliseconds: 50), () {
-      _progressBar?.dismiss();
-      _progressBar = null;
+      try {
+        _progressBar?.dismiss();
+        _progressBar = null;
+      } catch (e) {}
     });
   }
 }
