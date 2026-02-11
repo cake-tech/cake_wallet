@@ -68,6 +68,10 @@ abstract class OutputBase with Store {
   @observable
   String cryptoAmount;
 
+  @computed
+  String get displayCryptoAmount =>
+      _appStore.amountParsingProxy.getDisplayCryptoAmount(cryptoAmount, cryptoCurrencyHandler());
+
   @observable
   String cryptoFullBalance;
 
@@ -93,10 +97,10 @@ abstract class OutputBase with Store {
       parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
 
   String roundedCryptoAmount(int digits) {
-    if (cryptoAmount.split(".").last.length <= digits) {
-      return cryptoAmount;
+    if (displayCryptoAmount.split(".").last.length <= digits) {
+      return displayCryptoAmount;
     }
-    return double.parse(cryptoAmount).toStringAsPrecision(digits);
+    return double.parse(displayCryptoAmount).toStringAsPrecision(digits);
   }
 
   String roundedFiatAmount(int digits) {
@@ -357,13 +361,18 @@ abstract class OutputBase with Store {
   @action
   void _updateCryptoAmount() {
     try {
+      var cryptoCurrency = cryptoCurrencyHandler() == CryptoCurrency.btcln
+          ? CryptoCurrency.btc
+          : cryptoCurrencyHandler();
+
       final decimals = min(20, cryptoCurrencyHandler().decimals);
       final crypto = (double.parse(fiatAmount.replaceAll(',', '.')) /
-              _fiatConversationStore.prices[cryptoCurrencyHandler()]!)
+              _fiatConversationStore.prices[cryptoCurrency]!)
           .toStringAsFixed(decimals);
 
       if (cryptoAmount != crypto) cryptoAmount = crypto;
     } catch (e) {
+      printV(e);
       cryptoAmount = '';
     }
   }

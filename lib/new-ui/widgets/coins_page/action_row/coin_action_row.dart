@@ -47,17 +47,22 @@ class CoinActionRow extends StatelessWidget {
             action: () {
               if (FeatureFlag.hasNewUiExtraPages) {
                 final sendPage = getIt.get<NewSendPage>(
-                    param2: lightningMode ? UnspentCoinType.lightning : null);
+                  param1: SendPageParams(
+                    unspentCoinType:
+                        lightningMode ? UnspentCoinType.lightning : UnspentCoinType.any,
+                  ),
+                );
 
                 CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
                   barrierColor: Colors.black.withAlpha(60),
                   builder: (context) {
                     return Material(
-                        child: ModalNavigator(
-                      rootPage: sendPage,
-                      parentContext: context,
-                    ));
+                      child: ModalNavigator(
+                        rootPage: sendPage,
+                        parentContext: context,
+                      ),
+                    );
                   },
                 );
               } else {

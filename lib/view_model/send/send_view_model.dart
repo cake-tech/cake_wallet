@@ -286,13 +286,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return balanceViewModel.balances.values.first.availableBalance;
     }
 
-    if (walletType == WalletType.bitcoin &&
-        selectedCryptoCurrency == CryptoCurrency.btcln &&
-        wallet.balance[selectedCryptoCurrency]?.available != null) {
-      return _appStore.amountParsingProxy.getDisplayCryptoString(
-          wallet.balance[selectedCryptoCurrency]!.available, selectedCryptoCurrency);
-    }
-
     // Handle case where balance might not be available yet (e.g., during chain switch)
     final balanceForCurrency = wallet.balance[selectedCryptoCurrency];
     if (balanceForCurrency == null) {
@@ -401,6 +394,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @observable
   CryptoCurrency selectedCryptoCurrency;
+
+  @computed
+  String get selectedCryptoCurrencySymbol =>
+      amountParsingProxy.getCryptoSymbol(selectedCryptoCurrency);
 
   List<CryptoCurrency> currencies;
 

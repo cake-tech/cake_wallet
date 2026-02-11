@@ -321,7 +321,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       confirmed: balance.confirmed,
       unconfirmed: balance.unconfirmed,
       frozen: balance.frozen,
-      secondConfirmed: lBalance.toInt(),
     );
   }
 

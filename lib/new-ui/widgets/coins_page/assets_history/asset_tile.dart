@@ -76,7 +76,7 @@ class AssetTile extends StatelessWidget {
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        balance.availableBalance + " " + balance.asset.title,
+                        "${balance.availableBalance} ${balance.formattedAssetTitle}",
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),

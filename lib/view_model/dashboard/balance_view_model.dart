@@ -213,12 +213,7 @@ abstract class BalanceViewModelBase with Store {
   @computed
   Map<CryptoCurrency, BalanceRecord> get balances {
     return wallet.balance.map((key, value) {
-      var secondAsset = key;
-      if (key == CryptoCurrency.btc) {
-        secondAsset = CryptoCurrency.btcln;
-      } else if (key == CryptoCurrency.ltc) {
-        secondAsset = CryptoCurrency.ltcmweb;
-      }
+      var secondAsset = key == CryptoCurrency.ltc ? CryptoCurrency.ltcmweb : key;
 
       if (displayMode == BalanceDisplayMode.hiddenBalance) {
         final fiatCurrency = settingsStore.fiatCurrency;
@@ -242,7 +237,9 @@ abstract class BalanceViewModelBase with Store {
                 formattedAssetTitle: _formatterAsset(key)));
       }
       final fiatCurrency = settingsStore.fiatCurrency;
-      final price = key.isPotentialScam ? 0.0 : fiatConversionStore.prices[key] ?? 0;
+      final price = key.isPotentialScam
+          ? 0.0
+          : fiatConversionStore.prices[key == CryptoCurrency.btcln ? CryptoCurrency.btc : key] ?? 0;
 
       // if (price == null) {
       //   throw Exception('Price is null for: $key');

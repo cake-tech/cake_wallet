@@ -157,6 +157,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       _appStore.settingsStore.usePayjoin &&
       payjoinEndpoint.isEmpty;
 
+  @observable
+  PaymentURI? _lnPaymentRequest;
+
   @computed
   PaymentURI get uri {
     if (tokenCurrency != null && isEVMCompatibleChain(wallet.type)) {
@@ -166,6 +169,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           amount: amount,
           contractAddress: (tokenCurrency as Erc20Token).contractAddress);
     }
+    if (_lnPaymentRequest != null) return _lnPaymentRequest!;
     return wallet.walletAddresses.getPaymentUri(amount);
   }
 
@@ -625,6 +629,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     this._rawAmount = amount;
     if (selectedCurrency is FiatCurrency) {
       _convertAmountToCrypto();
+    }
+    if (isLightning) {
+      wallet.walletAddresses
+          .getPaymentRequestUri(this.amount)
+          .then((uri) => _lnPaymentRequest = uri);
     }
   }
 

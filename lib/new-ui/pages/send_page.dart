@@ -325,7 +325,7 @@ class _NewSendPageState extends State<NewSendPage> {
                     amountController: _amountControllers[_selectedOutput],
                     currency: _fiatInputMode
               ? widget.sendViewModel.fiatCurrency.title
-              : widget.sendViewModel.selectedCryptoCurrency.title,
+              : widget.sendViewModel.selectedCryptoCurrencySymbol,
                     currencyIconPath: _fiatInputMode
               ? ""
               : widget.sendViewModel.selectedCryptoCurrency.iconPath ?? "",
@@ -341,14 +341,14 @@ class _NewSendPageState extends State<NewSendPage> {
                                           _fiatInputMode = !_fiatInputMode;
                                           _amountControllers[_selectedOutput].text = _fiatInputMode
                                               ? output.fiatAmount
-                                              : output.cryptoAmount;
+                                              : output.displayCryptoAmount;
                                         });
                                       },
                                       fiatAmount: _wrapAmount(output.roundedFiatAmount(6), 20),
                                       cryptoAmount: _wrapAmount(output.roundedCryptoAmount(6), 20),
                                       allAmount: widget.sendViewModel.balance,
                                       cryptoCurrency:
-                                          widget.sendViewModel.selectedCryptoCurrency.title,
+                                          widget.sendViewModel.selectedCryptoCurrencySymbol,
                                       fiatCurrency: widget.sendViewModel.fiatCurrency.title,
                                       onAllButtonPressed: () async {
                                         output.setSendAll(await widget.sendViewModel.sendingBalance);
@@ -1150,7 +1150,7 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   String _wrapAmount(String amount, int maxChars) {
-    return amount.length <= maxChars ? amount : amount.substring(0, maxChars-3)+"...";
+    return amount.length <= maxChars ? amount : "${amount.substring(0, maxChars-3)}...";
   }
 }
 
