@@ -20,15 +20,13 @@ class VerifyForm extends StatefulWidget {
 
 class VerifyFormState extends State<VerifyForm> with AutomaticKeepAliveClientMixin {
   VerifyFormState()
-      : formKey = GlobalKey<FormState>(),
-        messageController = TextEditingController(),
+      : messageController = TextEditingController(),
         addressController = TextEditingController(),
         signatureController = TextEditingController();
 
   final TextEditingController messageController;
   final TextEditingController addressController;
   final TextEditingController signatureController;
-  final GlobalKey<FormState> formKey;
 
   @override
   void initState() {

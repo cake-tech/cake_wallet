@@ -25,15 +25,13 @@ class SignForm extends StatefulWidget {
 
 class SignFormState extends State<SignForm> with AutomaticKeepAliveClientMixin {
   SignFormState()
-      : formKey = GlobalKey<FormState>(),
-        messageController = TextEditingController(),
+      : messageController = TextEditingController(),
         addressController = TextEditingController(),
         signatureController = TextEditingController();
 
   final TextEditingController messageController;
   final TextEditingController addressController;
   final TextEditingController signatureController;
-  final GlobalKey<FormState> formKey;
 
   @override
   void initState() {

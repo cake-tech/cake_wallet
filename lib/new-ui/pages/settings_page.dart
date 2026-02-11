@@ -13,6 +13,8 @@ import "package:cw_core/wallet_type.dart";
 
 bool _trueFunc(DashboardViewModel _) => true;
 
+bool _falseFunc(DashboardViewModel _) => false;
+
 bool _isBtc(DashboardViewModel vm) => vm.wallet.type == WalletType.bitcoin;
 
 bool _hasMweb(DashboardViewModel vm) => vm.hasMweb;
@@ -26,7 +28,7 @@ class SettingsListItem {
   final bool Function(DashboardViewModel) use2fa;
   final bool Function(DashboardViewModel) condition;
 
-  const SettingsListItem(this.iconPath, this.title, this.route, {this.routeArgs = null, this.requireAuth = false, this.use2fa = _trueFunc, this.condition = _trueFunc});
+  const SettingsListItem(this.iconPath, this.title, this.route, {this.routeArgs = null, this.requireAuth = false, this.use2fa = _falseFunc, this.condition = _trueFunc});
 }
 
 class SettingsSectionData {
@@ -41,7 +43,7 @@ class SettingsSectionData {
     SettingsListItem("assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
     SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy_features, Routes.privacyPage),
     SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.showKeys,
-        routeArgs: true, requireAuth: true),
+        routeArgs: true, requireAuth: true, use2fa: (vm)=>vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
     SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
         "Lightning ${S.current.username}", Routes.lightningUsernamePage, condition: _isBtc),
     SettingsListItem("assets/new-ui/settings_row_icons/silent-payments.svg", S.current.silent_payments_settings, Routes.silentPaymentsSettings, condition: _isBtc),
