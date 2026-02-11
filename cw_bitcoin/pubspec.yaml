@@ -72,7 +72,7 @@ dependencies:
   breez_sdk_spark_flutter:
     git:
       url: https://github.com/cake-tech/breez-sdk-spark-flutter
-      ref: e5322a61d2c47357556917718301f442d6c1dc71
+      ref: bf1871c40d7e84c5ad60bbef4c330760946f6aa4
 
 dev_dependencies:
   flutter_test:
