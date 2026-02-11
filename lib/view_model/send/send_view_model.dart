@@ -135,9 +135,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     });
   }
 
-  PendingTransaction? _pendingApprovalTx;
-  bool _isSwapsXYZCallDataTx = false;
-
   // Store trade and provider references for post-commit updates (e.g., Jupiter trade ID update)
   Trade? _currentTrade;
   ExchangeProvider? _currentProvider;
@@ -553,103 +550,113 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       // Swaps.xyz (EVM) path
-
       if (isEVMWallet && trade != null && provider is SwapsXyzExchangeProvider) {
-
         final routerTo = trade.inputAddress;
-        final routerData = trade.routerData;
-        final tokenContract = trade.sourceTokenAddress ?? '';
+        final routerData = trade.routerData ?? '0x';
+        final tokenContract = (trade.sourceTokenAddress ?? '').toLowerCase();
+        final priority = _settingsStore.getPriority(walletType, chainId: selectedChainId);
+        final routerValueWei = BigInt.tryParse(trade.routerValue ?? '0') ?? BigInt.zero;
 
-        final routerValueWei =
-            BigInt.tryParse((trade.routerValue ?? '0').toString()) ??
-                BigInt.zero;
+        if (routerTo == null || routerTo.isEmpty) {
+          state = FailureState('Invalid router address');
+          return null;
+        }
 
-        final bool _isEmptyData = routerData == null || routerData == '0x' || routerData.trim().isEmpty;
+        try {
+          final selector = _decodeMethodSelector(routerData);
+          const transferSig = '0xa9059cbb';
+          const swapAndExecuteSig = '0x9be111d1';
 
-        // If routerData == '0x' it means that the swap is a simple transaction without any call data
-        if (routerTo?.isNotEmpty == true && !_isEmptyData) {
-          try {
-            final _selector = _decodeMethodSelector(routerData);
 
-            const _transferSig = '0xa9059cbb';
-            const _swapAndExecuteSig = '0x9be111d1';
+          // Direct ERC20 transfer routed tx (no approval expected)
+          if (selector == transferSig) {
+            pendingTransaction = await evm!.createRawCallDataTransaction(
+              wallet,
+              routerTo,
+              routerData,
+              BigInt.zero,
+              priority,
+              useBlinkProtection: canSupportBlinkProtection(selectedChainId)
+                  ? _settingsStore.useBlinkProtection
+                  : false,
+            );
+            state = ExecutedSuccessfullyState();
+            return pendingTransaction;
+          }
 
-            final _isTransfer = _selector == _transferSig &&
-                (tokenContract.isNotEmpty ||
-                    tokenContract.toLowerCase() == routerTo!.toLowerCase());
-
-            // No approval needed
-            if (_isTransfer) {
-              final priority = _settingsStore.getPriority(walletType,
-                  chainId: selectedChainId);
-              pendingTransaction = await evm!.createRawCallDataTransaction(
-                wallet,
-                routerTo!,
-                routerData,
-                BigInt.zero,
-                priority,
-                useBlinkProtection: canSupportBlinkProtection(selectedChainId)
-                    ? _settingsStore.useBlinkProtection
-                    : false,
-              );
-              _isSwapsXYZCallDataTx = true;
-              state = ExecutedSuccessfullyState();
-              return pendingTransaction;
-            }
-
-            _pendingApprovalTx = null;
-
-            // Optionally prebuild approval
+          // swapAndExecute path
+          if (selector == swapAndExecuteSig) {
             final requiredAmount = BigInt.tryParse(
-              (trade.sourceTokenAmountRaw ?? '0').replaceAll('n', ''),
-            ) ??
+                  (trade.sourceTokenAmountRaw ?? '0').replaceAll('n', ''),
+                ) ??
                 BigInt.zero;
 
-            final _isSwapAndExecuteSig = _selector == _swapAndExecuteSig;
-            final requiresTokenApproval =
-            (trade.requiresTokenApproval ?? false);
+            final needsApproval = tokenContract.isNotEmpty && requiredAmount > BigInt.zero
+                ? await evm!.isApprovalRequired(wallet, tokenContract, routerTo, requiredAmount)
+                : false;
 
-            if (_isSwapAndExecuteSig &&
-                requiresTokenApproval &&
-                tokenContract.isNotEmpty &&
-                requiredAmount > BigInt.zero) {
-
-
-              final priority = _settingsStore.getPriority(walletType,
-                  chainId: selectedChainId);
-
-              _pendingApprovalTx = await buildApprovalIfNeeded(
-                spender: routerTo!,
+            if (needsApproval) {
+              final approvalTx = await buildApprovalNeeded(
+                spender: routerTo,
                 tokenContract: tokenContract,
                 requiredAmount: requiredAmount,
                 sourceTokenDecimals: trade.sourceTokenDecimals,
               );
 
-              // Build the callData tx
-              final callValue =
-              (_selector == _transferSig) ? BigInt.zero : routerValueWei;
-              pendingTransaction = await evm!.createRawCallDataTransaction(
-                wallet,
-                routerTo,
-                routerData,
-                callValue,
-                priority,
-                useBlinkProtection: canSupportBlinkProtection(selectedChainId)
-                    ? _settingsStore.useBlinkProtection
-                    : false,
+              if (approvalTx == null) {
+                state = FailureState('Failed to build approval transaction');
+                return null;
+              }
+
+              // Important: do NOT build/sign the router tx until AFTER approval is broadcasted
+              // (otherwise we can end up with a stale nonce and get "nonce too low").
+              pendingTransaction = null;
+
+              try {
+                printV('[Swaps.xyz][approval] committing... id(before)=${approvalTx.id} chain=$selectedChainId');
+                await approvalTx.commit();
+                printV('[Swaps.xyz][approval] committed id(after)=${approvalTx.id}');
+              } catch (e, s) {
+                printV('[Swaps.xyz][approval] commit ERROR: $e\n$s');
+                state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
+                return null;
+              }
+
+              final confirmed = await _waitForApprovalAllowanceConfirmation(
+                tokenContract: tokenContract,
+                spender: routerTo,
+                requiredAmount: requiredAmount,
               );
 
-              _isSwapsXYZCallDataTx = true;
-              state = ExecutedSuccessfullyState();
-              return pendingTransaction;
+              if (!confirmed) {
+                state = FailureState('Token approval not confirmed');
+                return null;
+              }
             }
-            // do NOT fall back to regular flow
-            state = FailureState(
-                'Unsupported Swaps.xyz transaction type or missing approval');
-          } catch (e, s) {
-            printV('Swaps.xyz transaction creation error: $e\n$s');
-            throw Exception('Failed to create Swaps.xyz transaction: $e');
+
+            printV('[Swaps.xyz][router] building router tx after approval confirmed...');
+            pendingTransaction = await evm!.createRawCallDataTransaction(
+              wallet,
+              routerTo,
+              routerData,
+              routerValueWei,
+              priority,
+              useBlinkProtection: canSupportBlinkProtection(selectedChainId)
+                  ? _settingsStore.useBlinkProtection
+                  : false,
+            );
+            printV('[Swaps.xyz][router] built router tx id=${pendingTransaction?.id} chain=$selectedChainId');
+
+            state = ExecutedSuccessfullyState();
+            return pendingTransaction;
           }
+
+          state = FailureState('Unsupported Swaps.xyz transaction type');
+          return null;
+        } catch (e, s) {
+          printV('Swaps.xyz transaction creation error: $e\n$s');
+          state = FailureState('Failed to create Swaps.xyz transaction');
+          return null;
         }
       }
 
@@ -773,16 +780,44 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     );
   }
 
-  Future<void> _commitApprovalTransaction() async {
-    if (_pendingApprovalTx != null) {
-      await _pendingApprovalTx!.commit();
-      _pendingApprovalTx = null;
-      // Small pause to ensure allowance is indexed
-      await Future.delayed(const Duration(milliseconds: 300));
+  Future<bool> _waitForApprovalAllowanceConfirmation({
+    required String tokenContract,
+    required String spender,
+    required BigInt requiredAmount,
+  }) async {
+    // We consider approval confirmed when allowance is NOT required anymore.
+
+    const int maxAttempts = 30; // ~15s total with backoff
+    Duration delay = const Duration(milliseconds: 600);
+
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        final needsApproval = await evm!.isApprovalRequired(
+          wallet,
+          tokenContract,
+          spender,
+          requiredAmount,
+        );
+
+        printV('[approval] allowance check attempt=$attempt needsApproval=$needsApproval');
+
+        if (!needsApproval) {
+          printV('[approval] allowance confirmed');
+          return true;
+        }
+      } catch (e) {
+        printV('[approval] allowance check error attempt=$attempt: $e');
+        return false;
+      }
+
+      await Future.delayed(delay);
+
+      // backoff up to ~2.5s
+      final nextMs = (delay.inMilliseconds * 1.4).toInt();
+      delay = Duration(milliseconds: nextMs > 2500 ? 2500 : nextMs);
     }
 
-    await pendingTransaction!.commit();
-    _isSwapsXYZCallDataTx = false;
+    throw Exception('Approval not confirmed yet (allowance still not updated). Please wait a bit and try again.');
   }
 
   Future<void> _commitUR(BuildContext context) async {
@@ -804,9 +839,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (ocpRequest != null) {
         await _handleOcpRequest();
-      } else if (_isSwapsXYZCallDataTx) {
-        // Swaps.xyz approval (if any), then commit the prebuilt router tx
-        await _commitApprovalTransaction();
       } else if (pendingTransaction!.shouldCommitUR()) {
         await _commitUR(context);
       } else {
@@ -1275,7 +1307,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return false;
   }
 
-  Future<PendingTransaction?> buildApprovalIfNeeded({
+  Future<PendingTransaction?> buildApprovalNeeded({
     required String spender,
     required String tokenContract,
     required BigInt requiredAmount,
@@ -1284,27 +1316,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // Only EVM chains support ERC20 approvals
     if (!isEVMWallet) return null;
 
-    const zero = '0x0000000000000000000000000000000000000000';
-    const evmNative = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-
-    final tokenLc = tokenContract.toLowerCase();
-    if (tokenLc == zero || tokenLc == evmNative.toLowerCase()) return null;
-    if (requiredAmount <= BigInt.zero) return null;
-
-    bool needsApproval = false;
-    if (isEVMWallet) {
-      needsApproval = await evm!.isApprovalRequired(
-        wallet,
-        tokenContract,
-        spender,
-        requiredAmount,
-      );
-    }
-
-    if (!needsApproval) return null;
-
     final erc20Token = wallet.balance.keys.whereType<Erc20Token>().firstWhere(
-          (t) => t.contractAddress.toLowerCase() == tokenLc,
+          (t) => t.contractAddress.toLowerCase() == tokenContract,
           orElse: () => Erc20Token(
             name: '',
             symbol: '',
@@ -1314,7 +1327,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           ),
         );
 
-    if (isEVMWallet) {
+
       final priority = _settingsStore.getPriority(walletType, chainId: selectedChainId);
       return await evm!.createTokenApproval(
         wallet,
@@ -1325,9 +1338,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         useBlinkProtection:
             canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,
       );
-    }
 
-    return null;
   }
 
   @computed

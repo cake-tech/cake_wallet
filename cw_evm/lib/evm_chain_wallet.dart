@@ -53,9 +53,18 @@ import 'evm_erc20_balance.dart';
 part 'evm_chain_wallet.g.dart';
 
 const Map<String, String> methodSignatureToType = {
+  // ERC20
   '0x095ea7b3': 'approval',
   '0xa9059cbb': 'transfer',
   '0x23b872dd': 'transferFrom',
+
+  // Aggregator / Router (Swaps.xyz paths)
+  '0x9be111d1': 'smartSwap',
+  '0x5327a3d2': 'crossChainSwap',
+  '0x205030b2': 'routerExecution',
+  '0x5ad29efa': 'relayedExecution',
+
+  // Misc contracts
   '0x574da717': 'transferOut',
   '0x2e1a7d4d': 'withdraw',
   '0x7ff36ab5': 'swapExactETHForTokens',
@@ -1054,13 +1063,19 @@ abstract class EVMChainWalletBase
       toAddress: EthereumAddress.fromHex(spender),
     );
 
+    final tokenContract = (transactionCurrency as Erc20Token).contractAddress;
+
     final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
-      amount: amount,
-      receivingAddressHex: spender,
+      amount: BigInt.zero,
+      receivingAddressHex: tokenContract,
       priority: priority,
-      contractAddress: transactionCurrency.contractAddress,
+      contractAddress: tokenContract,
       data: data,
     );
+
+    final int safeGasUnits = gasFeesModel.estimatedGasUnits == 0
+        ? 65000
+        : (gasFeesModel.estimatedGasUnits < 65000 ? 65000 : gasFeesModel.estimatedGasUnits);
 
     return _client.signApprovalTransaction(
       privateKey: _evmChainPrivateKey,
@@ -1070,9 +1085,9 @@ abstract class EVMChainWalletBase
       gasFee: BigInt.from(gasFeesModel.estimatedGasFee),
       maxFeePerGas: gasFeesModel.maxFeePerGas,
       feeCurrency: feeCurrency,
-      estimatedGasUnits: gasFeesModel.estimatedGasUnits,
+      estimatedGasUnits: safeGasUnits,
       exponent: transactionCurrency.decimal,
-      contractAddress: transactionCurrency.contractAddress,
+      contractAddress: tokenContract,
       gasPrice: gasFeesModel.gasPrice,
       useBlinkProtection: useBlinkProtection,
     );
@@ -1146,7 +1161,7 @@ abstract class EVMChainWalletBase
 
   String? analyzeTransaction(String? transactionInput) {
     if (transactionInput == '0x' || transactionInput == null || transactionInput.isEmpty) {
-      return 'simpleTransfer';
+      return '';
     }
 
     final methodSignature =

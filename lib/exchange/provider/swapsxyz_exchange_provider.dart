@@ -357,7 +357,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       // - ERC20 transfer(0xa9059cbb) selector
       final isAllowed = routerData == null ||
           routerData == '0x' ||
-          _decodeMethodSelector(routerData) == _transferSig;
+          _decodeMethodSelector(routerData) == _transferSig ||
+          _decodeMethodSelector(routerData) == _swapAndExecuteSig;
 
       if (!isAllowed) {
         throw Exception('Does not support that method selector');

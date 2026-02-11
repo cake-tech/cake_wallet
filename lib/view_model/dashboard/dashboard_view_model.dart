@@ -1302,9 +1302,12 @@ abstract class DashboardViewModelBase with Store {
       if (tx.isReplaced == true) return ' (replaced)';
     }
 
-    if (wallet.chainId == 1 && tx.evmSignatureName == 'approval')
-      return ' (${tx.evmSignatureName})';
-    
+    if (isEVMWallet) {
+      if (tx.evmSignatureName != null && tx.evmSignatureName!.isNotEmpty) {
+        return ' (${tx.evmSignatureName})';
+      }
+    }
+
     return '';
   }
 
