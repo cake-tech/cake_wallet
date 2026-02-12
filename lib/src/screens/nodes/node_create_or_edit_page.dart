@@ -2,7 +2,6 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -23,9 +22,8 @@ class NodeCreateOrEditPage extends StatefulWidget {
     this.editingNode,
     this.isSelected,
     this.type,
-  }) : _formKey = GlobalKey<FormState>();
+  });
 
-  final GlobalKey<FormState> _formKey;
   final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
   final Node? editingNode;
   final bool? isSelected;
@@ -36,6 +34,8 @@ class NodeCreateOrEditPage extends StatefulWidget {
 }
 
 class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
+  final _nodeFormKey = GlobalKey<NodeFormState>();
+
 
   @override
   void initState() {
@@ -99,7 +99,7 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
               child: ScrollableWithBottomSection(
                 contentPadding: const EdgeInsets.only(bottom: 24.0, top: 8),
                 content: NodeForm(
-                  formKey: widget._formKey,
+                  key: _nodeFormKey,
                   nodeViewModel: widget.nodeCreateOrEditViewModel,
                 ),
                 bottomSectionPadding: const EdgeInsets.only(bottom: 24),
@@ -144,7 +144,7 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
                           padding: const EdgeInsets.only(left: 8.0),
                           child: PrimaryButton(
                             onPressed: () async {
-                              if (widget._formKey.currentState != null && !widget._formKey.currentState!.validate()) {
+                              if (_nodeFormKey.currentState != null && !_nodeFormKey.currentState!.validate()) {
                                 return;
                               }
 

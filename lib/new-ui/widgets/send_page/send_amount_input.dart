@@ -5,13 +5,14 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class NewSendAmountInput extends StatefulWidget {
-  const NewSendAmountInput({super.key, required this.currency, required this.hasPicker, required this.onPickerClicked, required this.currencyIconPath, required this.amountController});
+  const NewSendAmountInput({super.key, required this.currency, required this.hasPicker, required this.onPickerClicked, required this.currencyIconPath, required this.amountController, this.validator});
 
   final String currency;
   final String currencyIconPath;
   final bool hasPicker;
   final VoidCallback onPickerClicked;
   final TextEditingController amountController;
+  final FormFieldValidator<String>? validator;
 
   @override
   State<NewSendAmountInput> createState() => _NewSendAmountInputState();
@@ -35,7 +36,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                   mainAxisSize: MainAxisSize.max,
                   spacing: 8,
                   children: [
-                    Expanded(child: TextField(keyboardType:TextInputType.numberWithOptions(signed: false,decimal: true),controller: widget.amountController,
+                    Expanded(child: TextFormField(keyboardType:TextInputType.numberWithOptions(signed: false,decimal: true),controller: widget.amountController,
                     decoration: InputDecoration(hintText: "0",),)),
                     FloatingIconButton(
                         iconPath: "assets/new-ui/paste.svg",

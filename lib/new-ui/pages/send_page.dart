@@ -184,6 +184,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
   List<TextEditingController> _amountControllers = [];
   List<TextEditingController> _addressControllers = [];
+  final _formKey = GlobalKey<FormState>();
   BuildContext? loadingBottomSheetContext;
   BuildContext? dialogContext;
   ContactRecord? newContactAddress;
@@ -307,108 +308,115 @@ class _NewSendPageState extends State<NewSendPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            DirectionalAnimatedSwitcher(
-                              duration: Duration(milliseconds: 300),
-                              child: Column(
-                                key: ValueKey(_selectedOutput),
-                                spacing: 24,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if(widget.mode.showAddressField)
-                                  Column(crossAxisAlignment:CrossAxisAlignment.start,
-                                    spacing:12,children: [
-                                    Text(S.of(context).address_or_alias),
-                                    NewSendAddressInput(
-                                      addressController: _addressControllers[_selectedOutput],
-                                      onURIScanned: (uri) async {
-                                        output.resetParsedAddress();
-                                        await output.fetchParsedAddress(context);
-
-                                        // Process the payment through the new flow
-                                        await _handlePaymentFlow(
-                                          uri.toString(),
-                                          PaymentRequest.fromUri(uri),
-                                        );
-                                      },
-                                      onEditingComplete: (){
-                                        output.fetchParsedAddress(context).then((val){
-                                          if(_addressControllers[_selectedOutput].text != output.extractedAddress) {
-                                            _addressControllers[_selectedOutput].text = output.extractedAddress;
-                                          }
-                                        });
-                                      },
-                                      onPushAddressBookButton: (context) async {
-                                        output.resetParsedAddress();
-                                      },
-                                      onSelectedContact: (contact) {
-                                        output.loadContact(contact);
-                                      },
-                                      selectedCurrency: widget.sendViewModel.selectedCryptoCurrency,
+                            Form(
+                              key: _formKey,
+                              child: DirectionalAnimatedSwitcher(
+                                duration: Duration(milliseconds: 300),
+                                child: Column(
+                                  key: ValueKey(_selectedOutput),
+                                  spacing: 24,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if(widget.mode.showAddressField)
+                                    Column(crossAxisAlignment:CrossAxisAlignment.start,
+                                      spacing:12,children: [
+                                      Text(S.of(context).address_or_alias),
+                                      NewSendAddressInput(
+                                          validator: output.isParsedAddress
+                                              ? widget.sendViewModel.textValidator
+                                              : widget.sendViewModel.addressValidator,
+                                          addressController: _addressControllers[_selectedOutput],
+                                        onURIScanned: (uri) async {
+                                          output.resetParsedAddress();
+                                          await output.fetchParsedAddress(context);
+                              
+                                          // Process the payment through the new flow
+                                          await _handlePaymentFlow(
+                                            uri.toString(),
+                                            PaymentRequest.fromUri(uri),
+                                          );
+                                        },
+                                        onEditingComplete: (){
+                                          output.fetchParsedAddress(context).then((val){
+                                            if(_addressControllers[_selectedOutput].text != output.extractedAddress) {
+                                              _addressControllers[_selectedOutput].text = output.extractedAddress;
+                                            }
+                                          });
+                                        },
+                                        onPushAddressBookButton: (context) async {
+                                          output.resetParsedAddress();
+                                        },
+                                        onSelectedContact: (contact) {
+                                          output.loadContact(contact);
+                                        },
+                                        selectedCurrency: widget.sendViewModel.selectedCryptoCurrency,
+                                      ),
+                                    ],
                                     ),
-                                  ],
+                                                  Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:12,children: [
+                                          Text(S.of(context).amount),
+                                          NewSendAmountInput(
+                                                  validator: widget.sendViewModel.amountValidator(output),
+                                                  amountController: _amountControllers[_selectedOutput],
+                                                  currency: _fiatInputMode
+                                            ? widget.sendViewModel.fiatCurrency.title
+                                            : widget.sendViewModel.selectedCryptoCurrencySymbol,
+                                                  currencyIconPath: _fiatInputMode
+                                            ? ""
+                                            : widget.sendViewModel.selectedCryptoCurrency.iconPath ?? "",
+                                                  hasPicker: (_fiatInputMode || widget.sendViewModel.hasMultipleTokens),
+                                                  onPickerClicked: () {
+                                          _presentCurrencyPicker(context);
+                                                  },
+                                          ),
+                                      FiatAmountBar(
+                                        fiatInputMode: _fiatInputMode,
+                                        onSwitchButtonPressed: () {
+                                          setState(() {
+                                            _fiatInputMode = !_fiatInputMode;
+                                            _amountControllers[_selectedOutput].text = _fiatInputMode
+                                                ? output.fiatAmount
+                                                : output.displayCryptoAmount;
+                                          });
+                                        },
+                                        fiatAmount: _wrapAmount(output.roundedFiatAmount(6), 20),
+                                        cryptoAmount: _wrapAmount(output.roundedCryptoAmount(6), 20),
+                                        allAmount: widget.sendViewModel.balance,
+                                        cryptoCurrency:
+                                            widget.sendViewModel.selectedCryptoCurrencySymbol,
+                                        fiatCurrency: widget.sendViewModel.fiatCurrency.title,
+                                        onAllButtonPressed: () async {
+                                          output.setSendAll(await widget.sendViewModel.sendingBalance);
+                                        },
+                                      ),
+                                    ],
                                   ),
-                    Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:12,children: [
-            Text(S.of(context).amount),
-            NewSendAmountInput(
-                    amountController: _amountControllers[_selectedOutput],
-                    currency: _fiatInputMode
-              ? widget.sendViewModel.fiatCurrency.title
-              : widget.sendViewModel.selectedCryptoCurrencySymbol,
-                    currencyIconPath: _fiatInputMode
-              ? ""
-              : widget.sendViewModel.selectedCryptoCurrency.iconPath ?? "",
-                    hasPicker: (_fiatInputMode || widget.sendViewModel.hasMultipleTokens),
-                    onPickerClicked: () {
-            _presentCurrencyPicker(context);
-                    },
-            ),
-                                    FiatAmountBar(
-                                      fiatInputMode: _fiatInputMode,
-                                      onSwitchButtonPressed: () {
-                                        setState(() {
-                                          _fiatInputMode = !_fiatInputMode;
-                                          _amountControllers[_selectedOutput].text = _fiatInputMode
-                                              ? output.fiatAmount
-                                              : output.displayCryptoAmount;
-                                        });
-                                      },
-                                      fiatAmount: _wrapAmount(output.roundedFiatAmount(6), 20),
-                                      cryptoAmount: _wrapAmount(output.roundedCryptoAmount(6), 20),
-                                      allAmount: widget.sendViewModel.balance,
-                                      cryptoCurrency:
-                                          widget.sendViewModel.selectedCryptoCurrencySymbol,
-                                      fiatCurrency: widget.sendViewModel.fiatCurrency.title,
-                                      onAllButtonPressed: () async {
-                                        output.setSendAll(await widget.sendViewModel.sendingBalance);
+                                  AnimatedDropdown(
+                                      dropdownText: S.of(context).advanced_settings,
+                                      content: Column(children: [
+                                        if (widget.sendViewModel.hasFees)
+                                                ListItemRegularRowWidget(
+                                                  keyValue: "",
+                                                  label: S.of(context).fees,
+                                                  subtitle: "~${output.estimatedFee} ${widget.sendViewModel.currency} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
+                              
+                                      onTap: () {
+                                        if (widget.sendViewModel.feesViewModel.hasFeesPriority)
+                                          pickTransactionPriority(context, output);
                                       },
                                     ),
+                                    if(widget.sendViewModel.hasCoinControl)
+                                    ListItemRegularRowWidget(
+                                      keyValue: "",
+                                      label: "Coin Control",
+                                      onTap: () {
+                                        Navigator.of(context).pushNamed(Routes.unspentCoinsList);
+                                      },
+                                    )
+                                ]))
+                              
                                   ],
                                 ),
-                                AnimatedDropdown(
-                                    dropdownText: S.of(context).advanced_settings,
-                                    content: Column(children: [
-                                      if (widget.sendViewModel.hasFees)
-                  ListItemRegularRowWidget(
-                    keyValue: "",
-                    label: S.of(context).fees,
-                    subtitle: "~${output.estimatedFee} ${widget.sendViewModel.currency} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
-
-        onTap: () {
-          if (widget.sendViewModel.feesViewModel.hasFeesPriority)
-            pickTransactionPriority(context, output);
-        },
-      ),
-      if(widget.sendViewModel.hasCoinControl)
-      ListItemRegularRowWidget(
-        keyValue: "",
-        label: "Coin Control",
-        onTap: () {
-          Navigator.of(context).pushNamed(Routes.unspentCoinsList);
-        },
-      )
-  ]))
-
-                                ],
                               ),
                             ),
                             Observer(
@@ -550,14 +558,14 @@ class _NewSendPageState extends State<NewSendPage> {
   void _handleSend() async {
     //TODO refactor this action. code was copied over from old ui. i don't like it.
 
-    // if (_formKey.currentState != null &&
-    //     !_formKey.currentState!.validate()) {
-    //   if (sendViewModel.outputs.length > 1) {
-    //     showErrorValidationAlert(context);
-    //   }
-    //
-    //   return;
-    // }
+    if (_formKey.currentState != null &&
+        !_formKey.currentState!.validate()) {
+      if (widget.sendViewModel.outputs.length > 1) {
+        showErrorValidationAlert(context);
+      }
+
+      return;
+    }
 
     final notValidItems = widget.sendViewModel.outputs
         .where((item) =>

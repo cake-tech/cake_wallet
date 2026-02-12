@@ -1,16 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/core/node_address_validator.dart';
-import 'package:cake_wallet/core/node_port_validator.dart';
-import 'package:cake_wallet/core/socks_proxy_node_address_validator.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_dropdown.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:collection/collection.dart';
@@ -29,7 +19,7 @@ class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
 
 abstract class NodeCreateOrEditViewModelBase with Store {
   NodeCreateOrEditViewModelBase(
-      this._nodeSource, this._walletType, this.editingNode, this._settingsStore)
+      this._nodeSource, this.walletType, this.editingNode, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         label = editingNode?.label ?? '',
@@ -47,90 +37,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         useSocksProxy = editingNode?.socksProxyAddress != null &&
             editingNode!.socksProxyAddress!.isNotEmpty,
         useSSL = editingNode?.useSSL ?? false {
-    nodeFormItems = {
-      'main': [
-        ListItemTextField(
-          keyValue: nodeLabelUIKey,
-          label: 'Node label',
-          initialValue: label,
-        ),
-        ListItemTextField(
-          keyValue: nodeAddressUIKey,
-          label: S.current.node_address,
-          initialValue: address,
-          validator: _walletType == WalletType.decred
-              ? NodeAddressValidatorDecredBlankException()
-              : NodeAddressValidator(),
-        ),
-        if (hasPathSupport)
-          ListItemTextField(
-            keyValue: nodePathUIKey,
-            label: '/path',
-            initialValue: path,
-            validator: NodePathValidator(),
-          ),
-        ListItemTextField(
-          keyValue: nodePortUIKey,
-          label: S.current.node_port,
-          initialValue: '',
-          //keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
-          validator: NodePortValidator(),
-        ),
-        if (hasAuthCredentials) ...[
-          ListItemTextField(
-            keyValue: nodeUsernameUIKey,
-            label: S.current.login,
-            initialValue: login,
-          ),
-          ListItemTextField(
-            keyValue: nodePasswordUIKey,
-            label: S.current.password,
-            initialValue: password,
-          ),
-        ]
-      ],
-      'advanced': [
-        ListItemCheckbox(
-            keyValue: useSSLUIKey,
-            label: S.current.use_ssl,
-            value: useSSL,
-            onChanged: (value) => useSSL = value),
-        ListItemCheckbox(
-          keyValue: nodeTrustedUIKey,
-          label: S.current.trusted,
-          value: trusted,
-          onChanged: (value) => trusted = value,
-        ),
-        if (usesEmbeddedProxy)
-          ListItemCheckbox(
-            keyValue: nodeEmbeddedTorProxyUIKey,
-            label: 'Embedded Tor SOCKS Proxy',
-            value: usesEmbeddedProxy,
-            onChanged: (_) {},
-          ),
-        ListItemCheckbox(
-          keyValue: useSocksProxyUIKey,
-          label: 'Use SOCKS Proxy',
-          value: useSocksProxy,
-          onChanged: (value) {
-            socksProxyAddress = '';
-            useSocksProxy = value;
-          },
-        ),
-        if (useSocksProxy)
-          ListItemTextField(
-            keyValue: socksProxyAddressUIKey,
-            label: '[<ip>:]<port>',
-            initialValue: socksProxyAddress,
-            validator: SocksProxyNodeAddressValidator(),
-          ),
-        ListItemCheckbox(
-            keyValue: autoSwitchingUIKey,
-            label: S.current.enable_for_auto_switching,
-            value: isEnabledForAutoSwitching,
-            onChanged: (value) => isEnabledForAutoSwitching = value),
-      ],
-    };
   }
 
   final nodeLabelUIKey = 'node_label_row_key';
@@ -145,6 +51,16 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   final autoSwitchingUIKey = 'node_auto_switching_row_key';
   final useSocksProxyUIKey = 'node_use_socks_proxy_row_key';
   final socksProxyAddressUIKey = 'node_socks_proxy_address_row_key';
+
+  late final textFieldKeys = [
+    nodeLabelUIKey,
+    nodeAddressUIKey,
+    nodePathUIKey,
+    nodePortUIKey,
+    nodeUsernameUIKey,
+    nodePasswordUIKey,
+    socksProxyAddressUIKey,
+  ];
 
   Map<String, List<ListItem>> nodeFormItems = {};
 
@@ -197,15 +113,15 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @computed
   bool get isReady =>
       (address.isNotEmpty) ||
-      _walletType == WalletType.decred; // Allow an empty address.
+      walletType == WalletType.decred; // Allow an empty address.
 
   bool get hasAuthCredentials =>
-      _walletType == WalletType.monero ||
-      _walletType == WalletType.wownero ||
-      _walletType == WalletType.haven;
+      walletType == WalletType.monero ||
+      walletType == WalletType.wownero ||
+      walletType == WalletType.haven;
 
   bool get hasPathSupport {
-    switch (_walletType) {
+    switch (walletType) {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
@@ -241,7 +157,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     return uri;
   }
 
-  final WalletType _walletType;
+  final WalletType walletType;
   final Node? editingNode;
   final Box<Node> _nodeSource;
   final SettingsStore _settingsStore;
@@ -326,7 +242,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         label: label,
         uri: uri,
         path: path,
-        type: _walletType,
+        type: walletType,
         login: login,
         password: password,
         useSSL: useSSL,
@@ -358,7 +274,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     final node = Node(
         uri: uri,
         path: path,
-        type: _walletType,
+        type: walletType,
         login: login,
         password: password,
         useSSL: useSSL,
@@ -385,7 +301,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   }
 
   @action
-  void setAsCurrent(Node node) => _settingsStore.nodes[_walletType] = node;
+  void setAsCurrent(Node node) => _settingsStore.nodes[walletType] = node;
 
   @action
   Future<void> scanQRCodeForNewNode(BuildContext context) async {
