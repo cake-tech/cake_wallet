@@ -36,8 +36,14 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                   mainAxisSize: MainAxisSize.max,
                   spacing: 8,
                   children: [
-                    Expanded(child: TextFormField(keyboardType:TextInputType.numberWithOptions(signed: false,decimal: true),controller: widget.amountController,
-                    decoration: InputDecoration(hintText: "0",),)),
+                    Expanded(
+                      child: TextFormField(
+                        keyboardType:TextInputType.numberWithOptions(signed: false,decimal: true),
+                        controller: widget.amountController,
+                        validator: widget.validator,
+                        decoration: InputDecoration(hintText: "0"),
+                      ),
+                    ),
                     FloatingIconButton(
                         iconPath: "assets/new-ui/paste.svg",
                         onPressed: () async {
