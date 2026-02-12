@@ -1387,7 +1387,20 @@ abstract class EVMChainWalletBase
     final token = tokenContract.toLowerCase();
     if (token == zero || token == evmNative.toLowerCase()) return false;
     if (requiredAmount <= BigInt.zero) return false;
+    try {
+      final allowance = await getAllowance(tokenContract, spender);
+      if (allowance == null) {
+        printV('Could not fetch allowance for $tokenContract, assuming approval is required');
+        return true;
+      }
+      return allowance < requiredAmount;
+    } catch (e) {
+      printV('approval-check error: $e');
+      return true;
+    }
+  }
 
+  Future<BigInt?> getAllowance(String tokenContract, String spender) async {
     try {
       final owner = _evmChainPrivateKey.address;
       final erc20 = ERC20(
@@ -1397,13 +1410,23 @@ abstract class EVMChainWalletBase
       );
 
       final allowance = await erc20.allowance(owner, EthereumAddress.fromHex(spender));
-
-      return allowance < requiredAmount;
+      return allowance;
     } catch (e) {
-      printV('approval-check error: $e');
-      return true;
+      printV('getAllowance error: $e');
+      return null;
     }
   }
+
+  Future<bool> getTransactionReceiptStatus(String txHash) async {
+    try {
+      final receipt = await _client.getWeb3Client()!.getTransactionReceipt(txHash);
+      return receipt?.status ?? false;
+    } catch (e) {
+      printV('getTransactionReceipt error: $e');
+      return false;
+    }
+  }
+
 
   Future<EthPrivateKey> getPrivateKey({
     String? mnemonic,

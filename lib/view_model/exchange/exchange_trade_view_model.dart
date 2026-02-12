@@ -397,14 +397,10 @@ abstract class ExchangeTradeViewModelBase with Store {
     if (provider == ExchangeProviderDescription.swapsXyz &&
         isEVMCompatibleChain(wallet.type)) {
 
-      final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+      if(trade.routerData != null &&  trade.routerData != '0x') {
+        return false;
+      }
 
-      if (tradeFrom == null) return false;
-
-      final isNativeSupportedToken =
-      walletTypes.contains(cryptoCurrencyToWalletType(tradeFrom));
-
-      return isNativeSupportedToken;
     }
     return true;
   }
