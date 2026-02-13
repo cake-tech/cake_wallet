@@ -75,7 +75,8 @@ class ModalTopBar extends StatelessWidget {
                         key: ValueKey(leadingIcon.hashCode),
                         size: buttonSize,
                         onPressed: onLeadingPressed,
-                        icon: leadingIcon!)
+                        icon: leadingIcon!,
+                        iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
                     : leadingWidget!
               else
                 Container(width: buttonSize),
@@ -87,8 +88,7 @@ class ModalTopBar extends StatelessWidget {
                           key: ValueKey(trailingIcon.hashCode),
                           size: buttonSize,
                           onPressed: onTrailingPressed,
-                          icon: trailingIcon!,
-                          iconColor: Theme.of(context).colorScheme.primary)
+                          icon: trailingIcon!,)
                       : trailingWidget!,
                 )
               else
