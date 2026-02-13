@@ -162,7 +162,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   PaymentURI get uri {
-    print("Triggerd");
     if (tokenCurrency != null && isEVMCompatibleChain(wallet.type)) {
       return ERC681URI(
           chainId: wallet.chainId ?? 1,
