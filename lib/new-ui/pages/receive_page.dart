@@ -17,6 +17,7 @@ import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:share_plus/share_plus.dart';
@@ -232,37 +233,39 @@ class _NewReceivePageState extends State<NewReceivePage> {
                         name: _addressItemWithLabel?.name ?? "",
                         largeQrMode: _largeQrMode,
                       )),
-                  ReceiveBottomButtons(
-                    key: const ValueKey(0),
-                    largeQrMode: _largeQrMode,
-                    showAccountsButton: widget.addressListViewModel.hasAddressList,
-                    showLabelButton: widget.addressListViewModel.hasAddressList && !hasLabel,
-                    onCopyButtonPressed: () {
-                      printV(widget.addressListViewModel.items);
-                      Clipboard.setData(
-                        ClipboardData(text: widget.addressListViewModel.uri.address),
-                      );
-                    },
-                    onAmountButtonPressed: () {
-                      showMaterialModalBottomSheet(
-                        context: context,
-                        backgroundColor: Colors.transparent,
-                        barrierColor: Colors.black.withAlpha(80),
-                        builder: (context) {
-                          return ReceiveAmountModal(
-                            walletAddressListViewModel: widget.addressListViewModel,
-                            onSubmitted: (amount) {},
-                          );
-                        },
-                      );
-                    },
-                    onLabelButtonPressed: _showLabelModal,
-                    onAccountsButtonPressed: () {
-                      Navigator.of(context).pushNamed(
-                        Routes.receiveAddresses,
-                        arguments: false,
-                      );
-                    },
+                  Observer(
+                    builder: (_) => ReceiveBottomButtons(
+                      key: const ValueKey(0),
+                      largeQrMode: _largeQrMode,
+                      showAccountsButton: widget.addressListViewModel.hasAddressList,
+                      showLabelButton: widget.addressListViewModel.hasAddressList && !hasLabel,
+                      onCopyButtonPressed: () {
+                        printV(widget.addressListViewModel.items);
+                        Clipboard.setData(
+                          ClipboardData(text: widget.addressListViewModel.uri.address),
+                        );
+                      },
+                      onAmountButtonPressed: () {
+                        showMaterialModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          barrierColor: Colors.black.withAlpha(80),
+                          builder: (context) {
+                            return ReceiveAmountModal(
+                              walletAddressListViewModel: widget.addressListViewModel,
+                              onSubmitted: (amount) {},
+                            );
+                          },
+                        );
+                      },
+                      onLabelButtonPressed: _showLabelModal,
+                      onAccountsButtonPressed: () {
+                        Navigator.of(context).pushNamed(
+                          Routes.receiveAddresses,
+                          arguments: false,
+                        );
+                      },
+                    ),
                   ),
                   ReceiveLargeAmountPreview(
                       amount: widget.addressListViewModel.amount,
