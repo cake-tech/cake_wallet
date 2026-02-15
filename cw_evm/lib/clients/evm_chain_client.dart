@@ -74,12 +74,35 @@ class EVMChainClient {
           });
         }
 
+        // Merge split transfers (same hash + same token)
+        final Map<String, Map<String, dynamic>> mergedMap = {};
+        for (var tx in res) {
+          final hash = tx['hash'];
+          final key = '${hash}_${tx['contractAddress'] ?? ''}';
+
+          if (mergedMap.containsKey(key)) {
+            try {
+              final currentVal = BigInt.parse(mergedMap[key]!['value']);
+              final newVal = BigInt.parse(tx['value']);
+              final total = currentVal + newVal;
+
+              mergedMap[key]!['value'] = total.toString();
+
+              // Keep the gasUsed from the last one (usually identical)
+            } catch (e) {
+              printV('Error merging transaction values: $e');
+            }
+          } else {
+            mergedMap[key] = tx as Map<String, dynamic>;
+          }
+        }
+
+        final mergedList = mergedMap.values.toList();
+
         final symbol = EVMChainUtils.getFeeCurrency(chainId);
 
-        return res
-            .map(
-              (e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, symbol, chainId),
-            )
+        return mergedList
+            .map((e) => EVMChainTransactionModel.fromJson(e, symbol, chainId))
             .toList();
       }
 
