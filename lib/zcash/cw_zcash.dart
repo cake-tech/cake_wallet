@@ -175,6 +175,14 @@ class CWZcash extends Zcash {
   }
 
   @override
+  bool hasSelectedTransparentAddress(Object wallet) {
+    print(getSelectedAddressType(wallet));
+    print(getSelectedAddressType(wallet) == ZcashReceivePageOption.transparentRotated);
+    return getSelectedAddressType(wallet) == ZcashReceivePageOption.transparentRotated;
+  }
+
+
+  @override
   dynamic getZcashAddressType(ReceivePageOption option) {
     switch (option) {
       case ZcashReceivePageOption.unified:
@@ -189,6 +197,8 @@ class CWZcash extends Zcash {
         throw Exception("Unknown ReceivePageOption!");
     }
   }
+
+  @override
   Future<void> setAddressType(Object wallet, dynamic option) async {
     final zcashWallet = wallet as ZcashWallet;
     await (zcashWallet.walletAddresses as ZcashWalletAddresses).setAddressType(option as ZcashAddressType);

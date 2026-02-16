@@ -188,8 +188,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   bool get isPayjoinAvailable => !isPayjoinUnavailable && !isSilentPayments && !isLightning;
 
-
-
   @computed
   ObservableList<ListItem> get items => ObservableList<ListItem>()
     ..addAll(_baseItems)
@@ -432,7 +430,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.decred,
         WalletType.dogecoin,
         WalletType.zcash
-      ].contains(wallet.type) && !isLightning;
+      ].contains(wallet.type) && !isLightning && isZCashTransparent;
 
   @computed
   bool get hasAddressRotation => [
@@ -547,6 +545,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get isLightning => wallet.type == WalletType.bitcoin && (uri is LightningPaymentRequest);
+
+  @computed
+  bool get isZCashTransparent =>
+      wallet.type == WalletType.zcash && zcash!.hasSelectedTransparentAddress(wallet);
 
   @computed
   bool get isBitcoinViewOnly =>
@@ -670,11 +672,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     try {
-      final crypto = double.parse(_rawAmount.replaceAll(',', '.')) / fiatRate;
-      final cryptoAmountTmp = _appStore.amountParsingProxy
-          .getDisplayCryptoAmount(crypto.toStringAsFixed(8), cryptoCurrency);
-      if (_amount != cryptoAmountTmp) {
-        _amount = cryptoAmountTmp;
+      final crypto = (double.parse(_amount.replaceAll(',', '.')) / fiatRate).toStringAsFixed(8);
+      if (_amount != crypto) {
+        _amount = crypto;
       }
     } catch (e) {
       _amount = '';
