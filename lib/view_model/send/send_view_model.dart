@@ -682,6 +682,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               routerData,
               routerValueWei,
               priority,
+              sourceTokenAddress: tokenContract,
+              sourceTokenAmount: requiredAmount,
               useBlinkProtection: canSupportBlinkProtection(selectedChainId)
                   ? _settingsStore.useBlinkProtection
                   : false,

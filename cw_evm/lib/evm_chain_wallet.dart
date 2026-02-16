@@ -1042,81 +1042,86 @@ abstract class EVMChainWalletBase
   }
 
   Future<PendingTransaction> createCallDataTransaction(
-    String to,
-    String dataHex,
-    BigInt valueWei,
-    EVMChainTransactionPriority? priority, {
-    bool useBlinkProtection = true,
-  }) async {
-    // Detect selector and decide msg.value policy
-    bool _startsWith(String s, String p) =>
-        s.length >= p.length && s.substring(0, p.length).toLowerCase() == p.toLowerCase();
-    const _transferSig = '0xa9059cbb';
-    final isTransfer = _startsWith(dataHex, _transferSig);
+      String to,
+      String dataHex,
+      BigInt valueWei,
+      EVMChainTransactionPriority? priority,
+      String? sourceTokenAddress,
+      BigInt? sourceTokenAmount, {
+        bool useBlinkProtection = true,
+      }) async {
 
-    // For ERC-20 transfer(...) force msg.value = 0; otherwise keep router's value
-    final callValue = isTransfer ? BigInt.zero : valueWei;
-
+    // Define Native Currency
     final nativeCurrency = switch (selectedChainId) {
       137 => CryptoCurrency.maticpoly,
       8453 => CryptoCurrency.baseEth,
       42161 => CryptoCurrency.arbEth,
+      56 => CryptoCurrency.bnb,
       _ => CryptoCurrency.eth,
     };
 
-    // Estimate gas with the SAME (to, value, data) that will be signed
+    // Gas Estimation
     GasParamsHandler gas;
     try {
       gas = await calculateActualEstimatedFeeForCreateTransaction(
-        amount: callValue,
+        amount: valueWei,
         receivingAddressHex: to,
         priority: priority,
         contractAddress: null,
         data: _client.hexToBytes(dataHex),
       );
     } catch (_) {
-      throw Exception('Failed to estimate gas for the transaction.');
+      // If estimation fails, we proceed but will use a safe gas limit below.
+      // This is common for complex swaps that depend on block state.
+      gas = GasParamsHandler.zero();
     }
 
+    // Validate NATIVE Balance (for Gas + Value)
     final nativeBal = balance[nativeCurrency]?.balance ?? BigInt.zero;
-    final requiredNative = callValue + BigInt.from(gas.estimatedGasFee);
+    final requiredNative = valueWei + BigInt.from(gas.estimatedGasFee);
 
     if (requiredNative > nativeBal) {
       throw Exception('Not enough ${nativeCurrency.title} to cover value and fees.');
     }
 
-    // Minimal ERC‑20 balance check when doing transfer(...)
-    if (isTransfer && to.isNotEmpty) {
-      Erc20Token? tokenObj;
-      for (final c in balance.keys) {
-        if (c is Erc20Token && c.contractAddress.toLowerCase() == to.toLowerCase()) {
-          tokenObj = c;
-          break;
-        }
+    // Validate ERC20 Balance (Only if source is NOT native)
+    final cleanAddress = sourceTokenAddress?.toLowerCase() ?? '';
+
+    // Check for both 0xeeee... AND 0x0000... (Zero Address)
+    bool isNativeSource = sourceTokenAddress == null ||
+        cleanAddress == '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' ||
+        cleanAddress == '0x0000000000000000000000000000000000000000';
+
+    if (!isNativeSource && sourceTokenAmount != null && sourceTokenAmount > BigInt.zero) {
+
+      // Filter list to find match.
+      final matchingTokens = balance.keys.where((k) =>
+      k is Erc20Token &&
+          k.contractAddress.toLowerCase() == cleanAddress
+      );
+
+      if (matchingTokens.isEmpty) {
+        // Token is not in the wallet balance map -> Balance is 0
+        throw Exception('Insufficient token balance (Token not found in wallet).');
       }
 
-      if (tokenObj != null) {
-        final hex = dataHex.startsWith('0x') ? dataHex.substring(2) : dataHex;
-        if (hex.length >= 8 + 64 + 64) {
-          final amountHex = hex.substring(hex.length - 64);
-          final requiredTokenBalance = BigInt.parse(amountHex, radix: 16);
-          final tokenBalance = balance[tokenObj]?.balance ?? BigInt.zero;
+      final tokenKey = matchingTokens.first;
+      final tokenBalance = balance[tokenKey]?.balance ?? BigInt.zero;
 
-          if (tokenBalance < requiredTokenBalance) {
-            throw Exception(
-                'Not enough ${tokenObj.title} to cover the transfer amount.');
-          }
-        }
+      if (tokenBalance < sourceTokenAmount) {
+        throw Exception('Insufficient ${tokenKey.title} balance to cover the transaction amount.');
       }
     }
 
-    final gasUnits = gas.estimatedGasUnits == 0 ? 65000 : gas.estimatedGasUnits;
+    // Final Safe Gas Limit
+    // If estimation failed (0), use 300,000 as a safe default for swaps.
+    final gasUnits = gas.estimatedGasUnits == 0 ? 300000 : gas.estimatedGasUnits;
 
     try {
       return _client.signTransaction(
         privateKey: _evmChainPrivateKey,
         toAddress: to,
-        amount: callValue, // IMPORTANT: sign with the same value used for estimation
+        amount: valueWei,
         gasFee: BigInt.from(gas.estimatedGasFee),
         estimatedGasUnits: gasUnits,
         maxFeePerGas: gas.maxFeePerGas,

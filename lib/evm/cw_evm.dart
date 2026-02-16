@@ -272,14 +272,18 @@ class CWEVM extends EVM {
     String to,
     String dataHex,
     BigInt valueWei,
-    TransactionPriority? priority, {
+    TransactionPriority? priority,{
     bool useBlinkProtection = true,
+    String? sourceTokenAddress,
+    BigInt? sourceTokenAmount,
   }) =>
       (wallet as EVMChainWallet).createCallDataTransaction(
         to,
         dataHex,
         valueWei,
         priority as EVMChainTransactionPriority?,
+        sourceTokenAddress,
+        sourceTokenAmount,
         useBlinkProtection: useBlinkProtection,
       );
 
