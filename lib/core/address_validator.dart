@@ -170,7 +170,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.pivx:
         pattern = 'D([1-9a-km-zA-HJ-NP-Z]){33}';
       case CryptoCurrency.btcln:
-        pattern = '(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)';
+        pattern = r'(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl|LNBC|LNTB|LNBS|LNBCRT|LNURL)[a-zA-Z0-9]+';
       case CryptoCurrency.zano:
         pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       case CryptoCurrency.doge:
