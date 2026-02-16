@@ -68,7 +68,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   final AppStore _appStore;
 
   double? _fiatRate;
-  String _rawAmount = '';
 
   List<Currency> get currencies =>
       [tokenCurrency ?? wallet.currency, ...FiatCurrency.all];
@@ -126,10 +125,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   String _amount = '';
 
   @computed
-  String get displayAmount => selectedCurrency is CryptoCurrency
-      ? _appStore.amountParsingProxy
-          .getDisplayCryptoAmount(_amount, selectedCurrency as CryptoCurrency)
-      : _amount;
+  String get displayAmount => _appStore.amountParsingProxy
+      .getDisplayCryptoAmount(_amount, tokenCurrency ?? wallet.currency);
 
   // NOT PRECISE! just for display purposes.
   @computed
@@ -641,7 +638,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   void changeAmount(String amount) {
-    this._rawAmount = amount;
     if (selectedCurrency is FiatCurrency) {
       this._amount = amount;
       _convertAmountToCrypto();
