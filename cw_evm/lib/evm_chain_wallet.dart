@@ -252,6 +252,7 @@ abstract class EVMChainWalletBase
       } catch (_) {
         // erc20TokensBox doesn't exist yet, run migration from global box
         await _initEthereumErc20TokensBox();
+        await _normalizeEvmChainErc20TokensBoxKeys();
         return;
       }
     }
