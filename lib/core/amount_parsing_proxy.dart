@@ -54,7 +54,7 @@ class AmountParsingProxy {
 
   /// [getCryptoSymbol] returns the correct Symbol related to the presentation
   String getCryptoSymbol(CryptoCurrency cryptoCurrency) =>
-      useSatoshi(cryptoCurrency) ? "SATS" : cryptoCurrency.title;
+      useSatoshi(cryptoCurrency) ? "sats" : cryptoCurrency.title;
 
   bool useSatoshi(CryptoCurrency cryptoCurrency) =>
       ([CryptoCurrency.btc, CryptoCurrency.btcln].contains(cryptoCurrency) &&

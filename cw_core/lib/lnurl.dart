@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:bech32/bech32.dart';
 
+const _LNURL_PREFIXES = ["lnbcrt", "lntbs", "lnbc", "lntb"];
+
 String encodeLNURL(String url) {
   final raw = _convert(utf8.encode(url), 8, 5, true);
   return const Bech32Codec().encode(Bech32('lnurl', raw), 255);
@@ -10,10 +12,58 @@ String encodeLNURL(String url) {
 bool isBolt11ZeroInvoice(String invoice) {
   final request = Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
 
-  final prefix = ["lnbcrt", "lntbs", "lnbc", "lntb"]
+  final prefix = _LNURL_PREFIXES
       .firstWhere((prefix) => request.hrp.startsWith(prefix), orElse: () => "");
 
   return request.hrp.length == prefix.length;
+}
+
+/// Get the amount of a Bolt 11 Invoice in
+int? _getAmountBolt11Msat(String invoice) {
+  final request = Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+
+  final prefix = _LNURL_PREFIXES.firstWhere(
+        (prefix) => request.hrp.startsWith(prefix),
+    orElse: () => throw FormatException('Invalid BOLT11 invoice: unknown HRP prefix.'),
+  );
+
+  final amountPart = request.hrp.substring(prefix.length);
+  if (amountPart.isEmpty) return null; // zero-amount invoice
+
+  final hasMultiplier = RegExp(r'[munp]$').hasMatch(amountPart);
+  final multiplier = hasMultiplier ? amountPart[amountPart.length - 1] : '';
+  final numberStr = hasMultiplier ? amountPart.substring(0, amountPart.length - 1) : amountPart;
+
+  if (numberStr.isEmpty || !RegExp(r'^\d+$').hasMatch(numberStr)) {
+    throw FormatException('Invalid BOLT11 invoice: invalid amount number in HRP.');
+  }
+
+  final amount = int.parse(numberStr);
+
+  switch (multiplier) {
+    case '': // bitcoin
+      return amount * 100000000000;
+    case 'm': // milli-bitcoin
+      return amount * 100000000;
+    case 'u': // micro-bitcoin
+      return amount * 100000;
+    case 'n': // nano-bitcoin
+      return amount * 100;
+    case 'p':
+      if (amount % 10 != 0) {
+        throw FormatException('Invalid BOLT11 invoice: amount not representable in whole msat.');
+      }
+      return amount ~/ 10;
+    default:
+      throw FormatException('Invalid BOLT11 invoice: unknown amount multiplier.');
+  }
+}
+
+int? getBolt11Amount(String invoice) {
+  final msat = _getAmountBolt11Msat(invoice);
+  if (msat == null) return null;
+  if (msat % 1000 != 0) return null;
+  return msat ~/ 1000;
 }
 
 Uri decodeLNURL(String encodedUrl) {

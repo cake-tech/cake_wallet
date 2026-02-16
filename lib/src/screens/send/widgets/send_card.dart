@@ -799,7 +799,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      '${output.estimatedFee} ${sendViewModel.feeCurrencySymbol}',
+                                      '${output.estimatedFee} ${sendViewModel.currencySymbol}',
                                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                             fontWeight: FontWeight.w600,
                                           ),

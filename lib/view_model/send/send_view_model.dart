@@ -250,9 +250,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
-  CryptoCurrency get currency => wallet.currency;
+  CryptoCurrency get currency =>
+      selectedCryptoCurrency == CryptoCurrency.btcln ? CryptoCurrency.btcln : wallet.currency;
 
-  String get feeCurrencySymbol => _appStore.amountParsingProxy.getCryptoSymbol(currency);
+  String get currencySymbol => _appStore.amountParsingProxy.getCryptoSymbol(currency);
 
   Validator<String> amountValidator(Output output) => AmountValidator(
         currency: wallet.currency,
