@@ -19,6 +19,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewHomePage extends StatefulWidget {
@@ -39,15 +40,7 @@ class _NewHomePageState extends State<NewHomePage> {
   void initState() {
     super.initState();
     _setAccountViewModel();
-  }
-
-  @override
-  void didUpdateWidget(covariant NewHomePage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.dashboardViewModel.wallet != widget.dashboardViewModel.wallet) {
-      _setAccountViewModel();
-    }
+    reaction((_)=>widget.dashboardViewModel.wallet, (_)=>_setAccountViewModel());
   }
 
   void _setAccountViewModel() {
@@ -126,9 +119,14 @@ class _NewHomePageState extends State<NewHomePage> {
                     UnconfirmedBalanceWidget(dashboardViewModel: widget.dashboardViewModel,),
                   ],
                 ),
-                CoinActionRow(lightningMode: _lightningMode),
                 Observer(
-                  builder: (_)=>AssetsHistorySection(
+                  builder: (_) => CoinActionRow(
+                    lightningMode: _lightningMode,
+                    showSwap: widget.dashboardViewModel.isEnabledSwapAction,
+                  ),
+                ),
+                Observer(
+                  builder: (_) => AssetsHistorySection(
                     nftViewModel: widget.nftViewModel,
                     dashboardViewModel: widget.dashboardViewModel,
                   ),

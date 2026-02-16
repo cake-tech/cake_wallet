@@ -7,7 +7,6 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -93,17 +92,22 @@ class RescanPage extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       // onTap: () => FocusScope.of(context).unfocus(),
-      child: KeyboardHideOverlay(
-        child: Column(
-          children: [
-            ModalTopBar(
-                title: _rescanViewModel.isSilentPaymentsScan
-                    ? S.current.silent_payments_scanning
-                    : S.current.rescan,
-                leadingIcon: Icon(Icons.arrow_back_ios_new),
-                onLeadingPressed: Navigator.of(context).pop),
-            child,
-          ],
+      child: Material(
+        color: Theme.of(context).colorScheme.surface,
+        child: KeyboardHideOverlay(
+          child: SafeArea(
+            child: Column(
+              children: [
+                ModalTopBar(
+                    title: _rescanViewModel.isSilentPaymentsScan
+                        ? S.current.silent_payments_scanning
+                        : S.current.rescan,
+                    leadingIcon: Icon(Icons.arrow_back_ios_new),
+                    onLeadingPressed: Navigator.of(context).pop),
+                child,
+              ],
+            ),
+          ),
         ),
       ),
     );

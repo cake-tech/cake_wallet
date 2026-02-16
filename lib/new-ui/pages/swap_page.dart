@@ -1155,14 +1155,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     }
   }
 
-  String _prettifyAccountContactName(String contact) {
-    if (!contact.contains("#")) return contact.split("(").first.trim();
-
-    final walletName = contact.split("[").first.trim();
-    final accName = contact.split("(").last.split(")").first.trim();
-    return "$walletName → $accName";
-  }
-
   String _middleTruncate(String s, int head, int tail) {
     if (s.length <= head + tail + 3) return s;
     return s.substring(0, head) + '...' + s.substring(s.length - tail);

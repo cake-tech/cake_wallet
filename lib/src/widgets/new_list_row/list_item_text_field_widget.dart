@@ -33,16 +33,6 @@ class ListItemTextFieldWidget extends StatefulWidget {
 class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final underline = widget.isLastInSection
-        ? InputBorder.none
-        : UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: theme.colorScheme.surfaceContainerHigh,
-              width: 1,
-            ),
-          );
-
     return ListItemStyleWrapper(
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
@@ -60,10 +50,10 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
                   decoration: InputDecoration(
                     labelText: widget.label,
                     labelStyle: labelStyle,
-                    border: underline,
-                    focusedBorder: underline,
-                    enabledBorder: underline,
-                    disabledBorder: underline,
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 7),
                   ),

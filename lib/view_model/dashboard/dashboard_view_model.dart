@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
-import 'dart:math';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -439,9 +438,18 @@ abstract class DashboardViewModelBase with Store {
     }
 
     // making sure ALL accounts have numbers, even the ones that existed before this feature was a thing
-    for(int i=0; i<numAccounts; i++) {
+    for (int i = 0; i < numAccounts; i++) {
       if (!cardOrder.containsKey(i) && !(wallet.type != WalletType.bitcoin && i == 1)) {
-        cardOrder[i] = cardOrder.isEmpty ? i : cardOrder.values.reduce(max)+1;
+        int free = 0;
+        while (cardOrder.containsValue(free)) {
+          free++;
+        }
+        if(wallet.type == WalletType.bitcoin) {
+          cardOrder[free] = 0;
+        } else {
+          cardOrder[free] = i;
+        }
+
       }
     }
   }
@@ -578,8 +586,12 @@ abstract class DashboardViewModelBase with Store {
   BalanceDisplayMode get balanceDisplayMode => appStore.settingsStore.balanceDisplayMode;
 
   @computed
+  @Deprecated("Replaced by showApps")
   bool get shouldShowMarketPlaceInDashboard =>
       appStore.settingsStore.shouldShowMarketPlaceInDashboard;
+
+  @computed
+  bool get showApps => appStore.settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
   List<TradeListItem> get trades =>

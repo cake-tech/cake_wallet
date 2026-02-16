@@ -45,8 +45,8 @@ class NewSendAddressInput extends StatelessWidget {
                     validator: validator,
                     onEditingComplete: onEditingComplete,
                     controller: addressController,
-                    decoration: InputDecoration(hintText: S.of(context).search_or_enter,
-                    ))),
+                    decoration: InputDecoration(
+                        hintText: S.of(context).search_or_enter, errorMaxLines: 3))),
             Row(
               spacing: 12,
               children: [

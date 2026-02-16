@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +21,7 @@ class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
 
   @override
-  String get title => '${walletSeedViewModel.walletType} ${S.current.seed_title}';
+  String get title => '${walletTypeToString(walletSeedViewModel.walletType)} ${S.current.seed_title}';
 
   final bool isNewWalletCreated;
   final WalletSeedViewModel walletSeedViewModel;

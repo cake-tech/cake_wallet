@@ -282,8 +282,9 @@ class _NewSendPageState extends State<NewSendPage> {
                                 widget.sendViewModel.removeOutput(output);
                                 if (outputIndex == 0) _setOutput(0);
                               }),
-                        if(widget.mode == SendPageModes.normal)
-                          ModernButton(
+                          if (widget.mode == SendPageModes.normal &&
+                              widget.sendViewModel.sendTemplateViewModel.hasMultiRecipient)
+                            ModernButton(
                               size: 36,
                               icon: Icon(Icons.add),
                               onPressed: () {
@@ -356,8 +357,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                                   Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:12,children: [
                                           Text(S.of(context).amount),
                                           NewSendAmountInput(
-                                                  validator: widget.sendViewModel.amountValidator(output),
-                                                  amountController: _amountControllers[_selectedOutput],
+                                        validator: output.sendAll
+                                            ? widget.sendViewModel.allAmountValidator
+                                            : widget.sendViewModel.amountValidator(output),
+                                        amountController: _amountControllers[_selectedOutput],
                                                   currency: _fiatInputMode
                                             ? widget.sendViewModel.fiatCurrency.title
                                             : widget.sendViewModel.selectedCryptoCurrencySymbol,
@@ -569,7 +572,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
     final notValidItems = widget.sendViewModel.outputs
         .where((item) =>
-    item.address.isEmpty || item.cryptoAmount.isEmpty)
+    item.address.isEmpty || (!item.sendAll && item.cryptoAmount.isEmpty))
         .toList();
 
     if (notValidItems.isNotEmpty) {

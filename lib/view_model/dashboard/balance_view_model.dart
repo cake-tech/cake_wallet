@@ -51,6 +51,17 @@ class BalanceRecord {
   final CryptoCurrency asset;
   final CryptoCurrency secondAsset;
   final String formattedAssetTitle;
+
+  String get combinedAvailableBalance =>
+      ((double.tryParse(availableBalance) ?? 0) + (double.tryParse(secondAvailableBalance) ?? 0))
+          .toString();
+
+  String get combinedFiatAvailableBalance =>
+      fiatAvailableBalance.split(" ").first +
+      " " +
+      ((double.tryParse(fiatAvailableBalance.split(" ").last) ?? 0) +
+      (double.tryParse(fiatSecondAvailableBalance.split(" ").last) ?? 0))
+          .toString();
 }
 
 class BalanceViewModel = BalanceViewModelBase with _$BalanceViewModel;

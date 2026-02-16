@@ -1,4 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,6 @@ class AuthPage extends StatefulWidget {
 class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
   final _key = GlobalKey<ScaffoldState>();
   final _pinCodeKey = GlobalKey<PinCodeState>();
-  final _backArrowImageDarkTheme = Image.asset('assets/images/close_button.png');
   ReactionDisposer? _reaction;
   Flushbar<void>? _authBar;
   Flushbar<void>? _progressBar;
@@ -127,26 +127,20 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        key: _key,
-        appBar: CupertinoNavigationBar(
-            leading: widget.closable
-                ? Container(
-                    padding: EdgeInsets.only(top: 10),
-                    child: SizedBox(
-                      height: 37,
-                      width: 37,
-                      child: InkWell(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: _backArrowImageDarkTheme,
-                      ),
-                    ))
-                : Container(),
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            border: null),
-        resizeToAvoidBottomInset: false,
-        body: PinCode((pin, _) => widget.authViewModel.auth(password: pin), (_) => null,
-            widget.authViewModel.pinLength, false, _pinCodeKey));
+    return Padding(
+      padding: const EdgeInsets.only(top: 12.0),
+      child: Scaffold(
+          key: _key,
+          appBar: CupertinoNavigationBar(
+              leading: widget.closable
+                  ? ModernButton(size: 36, icon: Icon(Icons.close), onPressed: Navigator.of(context).pop)
+                  : Container(),
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              border: null),
+          resizeToAvoidBottomInset: false,
+          body: PinCode((pin, _) => widget.authViewModel.auth(password: pin), (_) => null,
+              widget.authViewModel.pinLength, false, _pinCodeKey)),
+    );
   }
 
   void dismissFlushBar(Flushbar<dynamic>? bar) {

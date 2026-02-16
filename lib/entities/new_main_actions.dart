@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +17,6 @@ class NewMainActions {
     required this.onTap,
     this.isEnabled,
     this.canShow,
-
   });
 
   static List<NewMainActions> all = [
@@ -43,7 +41,6 @@ class NewMainActions {
     onTap: () {},
   );
 
-
   static NewMainActions contactsAction = NewMainActions._(
     name: (context) => 'Contacts', //TODO S.of(context).contacts,
     image: 'assets/new-ui/Contacts.svg',
@@ -52,9 +49,10 @@ class NewMainActions {
   );
 
   static NewMainActions appsAction = NewMainActions._(
-    name: (context) => 'Apps', //TODO S.of(context).apps,
+    name: (context) => S.of(context).apps,
     image: 'assets/new-ui/Apps.svg',
     key: ValueKey('dashboard_page_apps_action_button_key'),
+    canShow: (dashboardVM) => dashboardVM.showApps,
     onTap: () {},
   );
 

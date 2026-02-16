@@ -22,9 +22,10 @@ import '../../../pages/scan_page.dart';
 import 'coin_action_button.dart';
 
 class CoinActionRow extends StatelessWidget {
-  const CoinActionRow({super.key, this.lightningMode = false});
+  const CoinActionRow({super.key, this.lightningMode = false, this.showSwap = true});
 
   final bool lightningMode;
+  final bool showSwap;
 
   @override
   Widget build(BuildContext context) {
@@ -104,34 +105,35 @@ class CoinActionRow extends StatelessWidget {
               }
             },
           ),
-          CoinActionButton(
-            icon: SvgPicture.asset(
-              "assets/new-ui/exchange.svg",
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.primary,
-                BlendMode.srcIn,
+          if (showSwap)
+            CoinActionButton(
+              icon: SvgPicture.asset(
+                "assets/new-ui/exchange.svg",
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
               ),
+              label: S.of(context).swap,
+              action: () {
+                final page = getIt.get<NewSwapPage>();
+                if (FeatureFlag.hasNewUiExtraPages) {
+                  CupertinoScaffold.showCupertinoModalBottomSheet(
+                    context: context,
+                    barrierColor: Colors.black.withAlpha(85),
+                    builder: (context) => FractionallySizedBox(
+                        heightFactor: 0.97,
+                        child: Material(
+                            child: ModalNavigator(
+                          rootPage: page,
+                          parentContext: context,
+                        ))),
+                  );
+                } else {
+                  Navigator.of(context).pushNamed(Routes.exchange);
+                }
+              },
             ),
-            label: S.of(context).swap,
-            action: () {
-              final page = getIt.get<NewSwapPage>();
-              if (FeatureFlag.hasNewUiExtraPages) {
-                CupertinoScaffold.showCupertinoModalBottomSheet(
-                  context: context,
-                  barrierColor: Colors.black.withAlpha(85),
-                  builder: (context) => FractionallySizedBox(
-                      heightFactor: 0.97,
-                      child: Material(
-                          child: ModalNavigator(
-                        rootPage: page,
-                        parentContext: context,
-                      ))),
-                );
-              } else {
-                Navigator.of(context).pushNamed(Routes.exchange);
-              }
-            },
-          ),
           CoinActionButton(
             icon: SvgPicture.asset(
               "assets/new-ui/scan.svg",
@@ -149,7 +151,7 @@ class CoinActionRow extends StatelessWidget {
   }
 
   Future<void> _onPressedScan(BuildContext context) async {
-    if (FeatureFlag.hasNewUiExtraPages) {
+    if (false && FeatureFlag.hasNewUiExtraPages) {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,

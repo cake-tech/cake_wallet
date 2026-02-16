@@ -419,7 +419,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.decred,
         WalletType.dogecoin,
         WalletType.zcash
-      ].contains(wallet.type);
+      ].contains(wallet.type) && !isLightning;
 
   @computed
   bool get hasAddressRotation => [

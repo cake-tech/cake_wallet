@@ -41,7 +41,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                         keyboardType:TextInputType.numberWithOptions(signed: false,decimal: true),
                         controller: widget.amountController,
                         validator: widget.validator,
-                        decoration: InputDecoration(hintText: "0"),
+                        decoration: InputDecoration(hintText: "0", errorMaxLines: 3),
                       ),
                     ),
                     FloatingIconButton(

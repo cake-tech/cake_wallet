@@ -6,7 +6,6 @@ import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
-import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -149,7 +148,6 @@ import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -332,7 +330,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreWalletFromHardwareWallet:
       final arguments = settings.arguments as Map<String, dynamic>?;
-      final showUnavailable = (arguments?['showUnavailable'] as bool?) ?? true;
+      final showUnavailable = (arguments?['showUnavailable'] as bool?) ?? false;
       final onSelect = arguments?['onSelect'] as void Function(BuildContext, HardwareWalletType)?;
       final availableHardwareWalletTypes =
           arguments?['availableHardwareWalletTypes'] as List<HardwareWalletType>?;

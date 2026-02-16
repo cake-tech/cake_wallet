@@ -89,7 +89,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     for (int i = 0; i < accounts.length; i++) {
       final index = widget.dashboardViewModel.cardOrder[i];
 
-      if(index == null) {
+      if(index == null || index >= accounts.length) {
         // db order broken.
         reset();
         break;
@@ -311,7 +311,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             width: _items[i].card.width,
             design: _items[i].card.design,
           ),
-          order: _items[i].order,
+          order: i,
           accountListItem: _items[i].accountListItem);
     }
 

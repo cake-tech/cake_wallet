@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
@@ -139,7 +140,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                               keyValue: "receiver",
                               label: S.of(context).to,
                               showArrow: false,
-                              trailingText: widget.exchangeViewModel.receiveAddressDisplayName ?? "")
+                              trailingText: widget.exchangeViewModel.receiveAddressDisplayName ?? middleTruncate(widget.exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8))
                         ],
                         S.of(context).swap_id: [
                           ListItemRegularRow(
@@ -182,4 +183,5 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
               address: widget.exchangeTradeViewModel.trade.inputAddress ?? "");
         });
   }
+
 }

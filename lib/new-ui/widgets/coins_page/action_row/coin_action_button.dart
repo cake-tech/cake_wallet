@@ -19,7 +19,7 @@ class CoinActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double size = MediaQuery.of(context).size.width*sizeFactor;
+    final size = MediaQuery.of(context).size.width * sizeFactor;
     return Column(
       children: [
         Container(
@@ -28,7 +28,10 @@ class CoinActionButton extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [context.customColors.cardGradientColorPrimary, context.customColors.cardGradientColorSecondary],
+              colors: [
+                context.customColors.cardGradientColorPrimary,
+                context.customColors.cardGradientColorSecondary
+              ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -39,7 +42,7 @@ class CoinActionButton extends StatelessWidget {
           ),
           child: IconButton(
             padding: EdgeInsets.zero,
-            constraints: BoxConstraints(),
+            constraints: const BoxConstraints(),
             onPressed: () {
               HapticFeedback.mediumImpact();
               action();
@@ -49,10 +52,11 @@ class CoinActionButton extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top:8.0),
+          padding: const EdgeInsets.only(top: 8.0),
           child: Text(
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface),
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
             label,
           ),
         ),

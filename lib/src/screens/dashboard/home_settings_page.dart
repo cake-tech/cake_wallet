@@ -36,16 +36,16 @@ class HomeSettingsPage extends BasePage {
               onItemSelected: _homeSettingsViewModel.setSortBalanceBy,
             ),
           ),
-          Divider(color: Theme.of(context).colorScheme.outlineVariant),
-          Observer(
-            builder: (_) => SettingsSwitcherCell(
-              title: S.of(context).pin_at_top(_homeSettingsViewModel.nativeToken.title),
-              value: _homeSettingsViewModel.pinNativeToken,
-              onValueChange: (_, bool value) {
-                _homeSettingsViewModel.setPinNativeToken(value);
-              },
-            ),
-          ),
+          // Divider(color: Theme.of(context).colorScheme.outlineVariant),
+          // Observer(
+          //   builder: (_) => SettingsSwitcherCell(
+          //     title: S.of(context).pin_at_top(_homeSettingsViewModel.nativeToken.title),
+          //     value: _homeSettingsViewModel.pinNativeToken,
+          //     onValueChange: (_, bool value) {
+          //       _homeSettingsViewModel.setPinNativeToken(value);
+          //     },
+          //   ),
+          // ),
           Divider(color: Theme.of(context).colorScheme.outlineVariant),
           const SizedBox(height: 20),
           Row(

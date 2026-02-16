@@ -8,7 +8,7 @@ class EVMChainTransactionPriority extends TransactionPriority {
 
   static const List<EVMChainTransactionPriority> all = [fast, medium, slow];
   static const EVMChainTransactionPriority slow =
-      EVMChainTransactionPriority(title: 'slow', raw: 0, tip: 1);
+      EVMChainTransactionPriority(title: 'Slow', raw: 0, tip: 1);
   static const EVMChainTransactionPriority medium =
       EVMChainTransactionPriority(title: 'Medium', raw: 1, tip: 2);
   static const EVMChainTransactionPriority fast =

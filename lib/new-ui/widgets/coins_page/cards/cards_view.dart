@@ -100,7 +100,7 @@ class _CardsViewState extends State<CardsView> {
             HapticFeedback.heavyImpact();
           },
           child: Observer(builder: (_) {
-            if(realIndex >= (widget.accountListViewModel?.accounts.length ?? 1)) {
+            if(realIndex > (widget.accountListViewModel?.accounts.length ?? 1)) {
               return Container();
             }
             final account = widget.accountListViewModel?.accounts[realIndex];
@@ -109,13 +109,21 @@ class _CardsViewState extends State<CardsView> {
             final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel.formattedBalances
                 .elementAtOrNull(widget.lightningMode ? 1 : 0);
 
-            final walletBalance = walletBalanceRecord?.availableBalance ?? "0";
-            final walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
+            late final String walletBalance;
+            late final String walletFiatBalance;
+            if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
+              walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
+              walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
+            } else {
+              walletBalance = walletBalanceRecord?.availableBalance ?? "0";
+              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
+            }
 
             // the card designs is empty if widget gets built before it loads.
             // should get populated before user sees anything
             final CardDesign cardDesign;
-            if (widget.dashboardViewModel.cardDesigns.isEmpty)
+            if (widget.dashboardViewModel.cardDesigns.isEmpty ||
+                realIndex >= widget.dashboardViewModel.cardDesigns.length)
               cardDesign = CardDesign.genericDefault;
             else if(widget.lightningMode)
               cardDesign = widget.dashboardViewModel.cardDesigns[realIndex + 1];
@@ -145,13 +153,15 @@ class _CardsViewState extends State<CardsView> {
                       onTap: withdrawFromL2,
                     )
                   ]
-                : [
-                    BalanceCardAction(
-                      label: S.current.buy,
-                      icon: Icons.arrow_forward,
-                      onTap: () => Navigator.of(context).pushNamed(Routes.buySellPage),
-                    )
-                  ];
+                : widget.dashboardViewModel.isEnabledTradeAction
+                    ? [
+                        BalanceCardAction(
+                          label: S.current.buy,
+                          icon: Icons.arrow_forward,
+                          onTap: () => Navigator.of(context).pushNamed(Routes.buySellPage),
+                        )
+                      ]
+                    : [];
 
             return BalanceCard(
               width: cardWidth,
@@ -159,6 +169,7 @@ class _CardsViewState extends State<CardsView> {
               accountBalance: accountBalance,
               designSwitchDuration: Duration(milliseconds: 150),
               assetName: walletBalanceRecord?.formattedAssetTitle ?? "",
+              capitalizeAssetName: !widget.lightningMode,
               balance: walletBalance,
               fiatBalance: walletFiatBalance,
               selected: _selectedIndex == visualIndex,
@@ -194,15 +205,24 @@ class _CardsViewState extends State<CardsView> {
         _selectedIndex = 0;
       }
 
-      final order = widget.dashboardViewModel.cardOrder.length != numCards
+      Map<int, int> order = widget.dashboardViewModel.cardOrder.length != numCards
           ? Map<int, int>.fromEntries(
               List.generate(numCards, (i) => MapEntry(i, i)),
             )
           : widget.dashboardViewModel.cardOrder;
 
+      for (int i = min(numCards - 1, maxCards); i >= 0; i--) {
+        int visualIndex = (_selectedIndex - i + numCards) % numCards;
+        if (order[visualIndex] == null) {
+          order = Map<int, int>.fromEntries(
+            List.generate(numCards, (i) => MapEntry(i, i)),
+          );
+        }
+      }
+
+
       final bool compactMode = numCards >= compactModeTreshold;
       final double overlapAmount = compactMode ? 5.0 : 60.0;
-
       for (int i = min(numCards - 1, maxCards); i >= 0; i--) {
         int visualIndex = (_selectedIndex - i + numCards) % numCards;
 

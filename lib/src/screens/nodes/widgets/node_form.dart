@@ -135,7 +135,7 @@ class NodeFormState extends State<NodeForm> {
               if (vm.useSocksProxy)
                 ListItemTextField(
                   keyValue: vm.socksProxyAddressUIKey,
-                  label: '[<ip>:]<port>',
+                  label: 'host:port',
                   initialValue: vm.socksProxyAddress,
                   validator: SocksProxyNodeAddressValidator(),
                 ),

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,7 @@ class ReceiveInfoBox extends StatelessWidget {
   ReceiveInfoBox(
       {super.key, required this.iconPath, required this.message, required this.onDismissed});
 
-  static ReceiveInfoBox? forWalletType(WalletType type, {required VoidCallback onDismissed}) {
+  static ReceiveInfoBox? forWalletType(WalletType type, {required VoidCallback onDismissed, required AutoGenerateSubaddressStatus autoGenerateSubaddressStatus}) {
     switch (type) {
       case WalletType.nano:
         return null;
@@ -18,6 +19,8 @@ class ReceiveInfoBox extends StatelessWidget {
       case WalletType.tron:
       case WalletType.polygon:
       case WalletType.zano:
+        if(autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled)
+          return null;
         return ReceiveInfoBox(
           iconPath: "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg",
           message:

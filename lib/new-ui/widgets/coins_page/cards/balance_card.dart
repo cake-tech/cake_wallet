@@ -25,6 +25,7 @@ class BalanceCard extends StatelessWidget {
     this.assetName = "",
     this.designSwitchDuration = const Duration(),
     this.actions = const [],
+    this.capitalizeAssetName = true,
   });
 
   final double width;
@@ -34,6 +35,7 @@ class BalanceCard extends StatelessWidget {
   final String accountName;
   final String balance;
   final String fiatBalance;
+  final bool capitalizeAssetName;
   final String assetName;
   final bool selected;
   final CardDesign design;
@@ -149,7 +151,7 @@ class BalanceCard extends StatelessWidget {
                                 style: DefaultTextStyle.of(context)
                                     .style
                                     .copyWith(color: design.colors.textColorSecondary, fontSize: 28, fontWeight: FontWeight.w400, letterSpacing: -0.4),
-                                child: Text(assetName.toUpperCase()),
+                                child: Text(capitalizeAssetName ? assetName.toUpperCase() : assetName.toLowerCase()),
                               ),
                             ],
                           ),

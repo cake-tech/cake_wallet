@@ -3,7 +3,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
@@ -19,45 +19,49 @@ import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class DisplaySettingsPage extends BasePage {
+class DisplaySettingsPage extends StatelessWidget {
   DisplaySettingsPage(this._displaySettingsViewModel);
 
-  @override
-  String get title => S.current.display_settings;
 
   final DisplaySettingsViewModel _displaySettingsViewModel;
 
   @override
-  Widget body(BuildContext context) {
-    return SingleChildScrollView(
-      child: Observer(builder: (_) {
-        return Container(
-          padding: EdgeInsets.only(top: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SettingsSwitcherCell(
-                title: S.of(context).apps,
-                value: _displaySettingsViewModel.shouldShowMarketPlaceInDashboard,
-                onValueChange: (_, bool value) {
-                  _displaySettingsViewModel.setShouldShowMarketPlaceInDashbaord(value);
-                },
-              ),
-              SettingsSwitcherCell(
-                title: S.of(context).show_address_book_popup,
-                value: _displaySettingsViewModel.showAddressBookPopup,
-                onValueChange: (_, bool value) {
-                  _displaySettingsViewModel.setShowAddressBookPopup(value);
-                },
-              ),
-              SettingsSwitcherCell(
-                title: S.of(context).show_zcash_card,
-                value: _displaySettingsViewModel.showZcashCard,
-                onValueChange: (_, bool value) {
-                  _displaySettingsViewModel.setShowZcashCard(value);
-                },
-              ),
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ModalTopBar(title: S.of(context).display_settings,leadingIcon: Icon(Icons.arrow_back_ios_new),onLeadingPressed: () => Navigator.of(context).pop()),
+        Expanded(
+          child: SingleChildScrollView(
+            controller: ModalScrollController.of(context),
+            physics: ClampingScrollPhysics(),
+            child: Observer(builder: (_) {
+              return Container(
+                padding: EdgeInsets.only(top: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SettingsSwitcherCell(
+                      title: S.of(context).apps,
+                      value: _displaySettingsViewModel.shouldShowMarketPlaceInDashboard,
+                      onValueChange: (_, bool value) {
+                        _displaySettingsViewModel.setShouldShowMarketPlaceInDashbaord(value);
+                      },
+                    ),
+                    SettingsSwitcherCell(
+                      title: S.of(context).show_address_book_popup,
+                      value: _displaySettingsViewModel.showAddressBookPopup,
+                      onValueChange: (_, bool value) {
+                        _displaySettingsViewModel.setShowAddressBookPopup(value);
+                      },
+                    ),
+                    if (_displaySettingsViewModel.showZcashCardSetting)
+                SettingsSwitcherCell(
+                  title: S.of(context).show_zcash_card,
+                  value: _displaySettingsViewModel.showZcashCard,
+                  onValueChange: (_, value) => _displaySettingsViewModel.setShowZcashCard(value),
+                ),
               SettingsPickerCell<SyncStatusDisplayMode>(
                 title: S.current.sync_status_display_mode,
                 items: SyncStatusDisplayMode.values.toList(),
@@ -111,73 +115,76 @@ class DisplaySettingsPage extends BasePage {
                 },
               ),
 
-              if (FeatureFlag.customBackgroundEnabled)
-                StandardListRow(
-                  title: "Custom background",
-                  isSelected: false,
-                  onTap: (_) => _pickImage(context),
-                ),
-
-              if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile) ...[
-                SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.only(left: 24),
-                  child: Text(
-                    S.current.appearance,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 14,
-                          height: 22 / 14,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                  ),
-                ),
-                SizedBox(height: 12),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      SettingsChoicesCell(
-                        ChoicesListItem<ThemeMode>(
-                          title: "",
-                          items: ThemeMode.values,
-                          selectedItem: _displaySettingsViewModel.themeMode,
-                          onItemSelected: (ThemeMode themeMode) =>
-                              _displaySettingsViewModel.setThemeMode(themeMode),
-                          displayItem: (ThemeMode themeMode) {
-                            return themeMode.name[0].toUpperCase() +
-                                themeMode.name.substring(1).toLowerCase();
-                          },
-                        ),
-                        useGenericColor: false,
-                        padding: EdgeInsets.all(12),
+                    if (FeatureFlag.customBackgroundEnabled)
+                      StandardListRow(
+                        title: "Custom background",
+                        isSelected: false,
+                        onTap: (_) => _pickImage(context),
                       ),
+
+                    if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile) ...[
+                      SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 24),
+                        child: Text(
+                          S.current.appearance,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14,
+                                height: 22 / 14,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                        ),
+                      ),
+                      SizedBox(height: 12),
                       Container(
+                        margin: EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                          color: Theme.of(context).colorScheme.surfaceContainer,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
                           children: [
-                            Semantics(
-                              label: S.of(context).color_theme,
-                              child: SettingsThemeChoicesCell(_displaySettingsViewModel),
+                            SettingsChoicesCell(
+                              ChoicesListItem<ThemeMode>(
+                                title: "",
+                                items: ThemeMode.values,
+                                selectedItem: _displaySettingsViewModel.themeMode,
+                                onItemSelected: (ThemeMode themeMode) =>
+                                    _displaySettingsViewModel.setThemeMode(themeMode),
+                                displayItem: (ThemeMode themeMode) {
+                                  return themeMode.name[0].toUpperCase() +
+                                      themeMode.name.substring(1).toLowerCase();
+                                },
+                              ),
+                              useGenericColor: false,
+                              padding: EdgeInsets.all(12),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                children: [
+                                  Semantics(
+                                    label: S.of(context).color_theme,
+                                    child: SettingsThemeChoicesCell(_displaySettingsViewModel),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-              ],
-            ],
+              );
+            }),
           ),
-        );
-      }),
+        ),
+      ],
     );
   }
 
