@@ -593,9 +593,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 ? await evm!.isApprovalRequired(wallet, tokenContract, routerTo, requiredAmount)
                 : false;
 
+            printV('[Swaps.xyz sending flow] Approval required: $needsApproval for token ${trade.from?.title} ${trade.from?.tag ?? ''} with amount $requiredAmount');
+
             if (needsApproval) {
-              // USDT Approval Flow (Special Case)
-              // We must reset allowance to 0 first.
+
+              // USDT Approval Flow (Special Case). We must reset allowance to 0 first.
               final isUSDTMainnet = selectedChainId == 1 &&
                   tokenContract.toLowerCase() == '0xdac17f958d2ee523a2206206994597c13d831ec7';
 
@@ -616,9 +618,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                   if (resetTx != null) {
                     await resetTx.commit();
 
-                    // Wait for reset to be mined before proceeding
-                    final resetMined = await _waitForTransactionReceipt(resetTx.id);
-                    if (!resetMined) {
+                    final resetConfirmed = await _waitForApprovalUpdate(
+                      tokenContract: tokenContract,
+                      spender: routerTo,
+                      requiredAmount: BigInt.zero, // Wait until it equals 0
+                      waitForExactMatch: true,
+                    );
+
+                    if (!resetConfirmed) {
                       state = FailureState('Failed to reset USDT allowance. Please try again.');
                       return null;
                     }
@@ -647,11 +654,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 printV('[Swaps.xyz sending flow] Submitting approval transaction for token ${trade.from?.title} ${trade.from?.tag ?? ''} ');
                 await approvalTx.commit();
 
-                // Keep loading state active
-                state = IsExecutingState();
-
                 // Wait for the approval to be mined on-chain
-                final isApproved = await _waitForTransactionReceipt(approvalTx.id);
+                final isApproved = await _waitForApprovalUpdate(
+                  tokenContract: tokenContract,
+                  spender: routerTo,
+                  requiredAmount: requiredAmount,
+                );
 
                 if (!isApproved) {
                   state = FailureState('Approval transaction failed or timed out on-chain. Try again.');
@@ -1115,34 +1123,50 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   // Helper functions for EVM transaction monitoring and approval flow
 
-  // Polls the approval transaction receipt until it's mined or failed, with a timeout.
-  Future<bool> _waitForTransactionReceipt(String txHash) async {
+  // Polls the token contract directly to see if allowance is updated.
+  Future<bool> _waitForApprovalUpdate({
+    required String tokenContract,
+    required String spender,
+    required BigInt requiredAmount,
+    bool waitForExactMatch = false,
+  }) async {
     if (!isEVMWallet || evm == null) return false;
 
     int attempts = 0;
-    const int maxAttempts = 30;
+    const int maxAttempts = 30; // ~60 seconds
+
+    printV('[Swaps.xyz sending flow] Starting allowance check. Target: $requiredAmount (Exact match: $waitForExactMatch)');
 
     while (attempts < maxAttempts) {
       try {
-        final status = await evm!.getTransactionReceiptStatus(wallet, txHash);
+        final currentAllowance = await evm!.getAllowance(wallet, tokenContract, spender);
 
-        if (status == true) {
-          printV('[Swaps.xyz sending path] approval transaction SUCCESS: $txHash');
-          return true;
-        } else if (status == false) {
-          printV('[Swaps.xyz sending path] approval transaction FAILED: $txHash');
-          return false;
+        if (currentAllowance != null) {
+          printV('[Swaps.xyz sending flow] Current Allowance: $currentAllowance / Target: $requiredAmount');
+
+          if (waitForExactMatch) {
+            // For Reset (Target 0): We need it to be exactly 0 (or less, though it can't be negative)
+            if (currentAllowance <= requiredAmount) {
+              printV('[Swaps.xyz sending flow] Allowance reset verified!');
+              return true;
+            }
+          } else {
+            // For Approval: We need it to be at least the required amount
+            if (currentAllowance >= requiredAmount) {
+              printV('[Swaps.xyz sending flow] Allowance verified!');
+              return true;
+            }
+          }
         }
-        // If status is null, it's pending.
       } catch (e) {
-        printV('[Swaps.xyz sending path] Error checking approval transaction receipt: $e');
+        printV('[Swaps.xyz sending flow] Allowance check error: $e');
       }
 
-      await Future.delayed(Duration(milliseconds: 700));
+      await Future.delayed(const Duration(seconds: 1));
       attempts++;
     }
 
-    printV('[Swaps.xyz sending path] approval transaction receipt check timed out: $txHash');
+    printV('[Swaps.xyz sending flow] Allowance check timed out.');
     return false;
   }
 

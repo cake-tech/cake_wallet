@@ -355,6 +355,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       // - null (native / deposit-address flow)
       // - '0x' (no call data)
       // - ERC20 transfer(0xa9059cbb) selector
+      // - swapAndExecute(0x9be111d1) selector
       final isAllowed = routerData == null ||
           routerData == '0x' ||
           _decodeMethodSelector(routerData) == _transferSig ||

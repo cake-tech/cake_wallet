@@ -1417,17 +1417,6 @@ abstract class EVMChainWalletBase
     }
   }
 
-  Future<bool> getTransactionReceiptStatus(String txHash) async {
-    try {
-      final receipt = await _client.getWeb3Client()!.getTransactionReceipt(txHash);
-      return receipt?.status ?? false;
-    } catch (e) {
-      printV('getTransactionReceipt error: $e');
-      return false;
-    }
-  }
-
-
   Future<EthPrivateKey> getPrivateKey({
     String? mnemonic,
     String? privateKey,

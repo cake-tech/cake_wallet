@@ -246,13 +246,6 @@ class CWEVM extends EVM {
       (wallet as EVMChainWallet).getAllowance(tokenContract, spender);
 
   @override
-  Future<bool> getTransactionReceiptStatus(
-      WalletBase wallet,
-      String txHash) =>
-      (wallet as EVMChainWallet).getTransactionReceiptStatus(txHash);
-
-
-  @override
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
     BigInt amount,
