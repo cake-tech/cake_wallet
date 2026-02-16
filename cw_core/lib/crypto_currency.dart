@@ -258,7 +258,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const baseEth = CryptoCurrency(title: 'ETH', tag: 'BASE', fullName: 'Ethereum', raw: 104, name: 'baseth', iconPath: 'assets/images/crypto/base_icon.webp', decimals: 18, flatIconPath: "assets/new-ui/balance_card_icons/base.svg", chainIconPath: "assets/new-ui/chain_badges/base.svg");
   static const usde = CryptoCurrency(title: 'USDE', tag: 'BASE', fullName: 'Ethena USDE', raw: 105, name: 'usde', iconPath: 'assets/images/crypto/ethena-usde-logo.png', decimals: 18);
   static const arbEth = CryptoCurrency(title: 'ETH', tag: 'ARB', fullName: 'Ethereum (Arbitrum One)', raw: 106, name: 'arbeth', iconPath: 'assets/images/crypto/ethereum.webp', decimals: 18, flatIconPath: "assets/new-ui/balance_card_icons/arbitrum.svg");
-  static const zec = CryptoCurrency(title: 'ZEC', fullName: 'Zcash', raw: 107, name: 'zec', iconPath: 'assets/images/zec_icon.png', decimals: 8);
+  static const zec = CryptoCurrency(title: 'ZEC', fullName: 'Zcash', raw: 107, name: 'zec', iconPath: 'assets/images/zec_icon.png', decimals: 8,flatIconPath: "assets/new-ui/balance_card_icons/zcash.svg");
   static const usdcArb = CryptoCurrency(title: 'USDC', tag: 'ARB', fullName: 'USDC Coin', raw: 108, name: 'usdcarb', iconPath: 'assets/images/crypto/usdc.webp', decimals: 6);
   static const ltcmweb = CryptoCurrency(title: 'LTC', fullName: 'Litecoin MWeb', raw: 107, name: 'ltcmweb', iconPath: 'assets/images/crypto/litecoin.webp', decimals: 8);
 

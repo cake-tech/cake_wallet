@@ -6,6 +6,7 @@ sealed class CardCustomizerState {
   final String accountName;
   final int accountIndex;
   final int cardOrder;
+  final bool displaySats;
   final List<CardDesign> availableDesigns;
   final List<Gradient> availableColors;
 
@@ -16,6 +17,7 @@ sealed class CardCustomizerState {
     this.availableColors,
     this.accountName,
     this.accountIndex,
+      this.displaySats,
       this.cardOrder
   );
 
@@ -37,7 +39,7 @@ sealed class CardCustomizerState {
 }
 
 final class CardCustomizerNotLoaded extends CardCustomizerState {
-  CardCustomizerNotLoaded(super.selectedDesignIndex, super.selectedColorIndex, super.availableDesigns, super.availableColors, super.accountName, super.accountIndex, super.cardOrder);
+  CardCustomizerNotLoaded(super.selectedDesignIndex, super.selectedColorIndex, super.availableDesigns, super.availableColors, super.accountName, super.accountIndex, super.displaySats, super.cardOrder);
 
   @override
   CardCustomizerState copyWith({int? selectedDesignIndex, int? selectedColorIndex, List<CardDesign>? availableDesigns, List<Gradient>? availableColors, String? accountName, int? accountIndex, int? cardOrder}) {
@@ -54,9 +56,10 @@ final class CardCustomizerInitial extends CardCustomizerState {
     List<Gradient> availableColors,
     String accountName,
     int accountIndex,
+      bool displaySats,
       int cardOrder,
   ) : super(selectedDesignIndex, selectedColorIndex, availableDesigns, availableColors, accountName,
-            accountIndex, cardOrder);
+            accountIndex, displaySats, cardOrder);
 
   CardCustomizerInitial copyWith({
     int? selectedDesignIndex,
@@ -65,6 +68,7 @@ final class CardCustomizerInitial extends CardCustomizerState {
     List<Gradient>? availableColors,
     String? accountName,
     int? accountIndex,
+    bool? displaySats,
     int? cardOrder,
   }) {
     return CardCustomizerInitial(
@@ -74,6 +78,7 @@ final class CardCustomizerInitial extends CardCustomizerState {
       availableColors ?? this.availableColors,
       accountName ?? this.accountName,
       accountIndex ?? this.accountIndex,
+      displaySats ?? this.displaySats,
       cardOrder ?? this.cardOrder,
     );
   }
@@ -81,7 +86,7 @@ final class CardCustomizerInitial extends CardCustomizerState {
 
 final class CardCustomizerSaved extends CardCustomizerState {
   CardCustomizerSaved(super.selectedDesignIndex, super.selectedColorIndex, super.availableDesigns,
-      super.availableColors, super.accountName, super.accountIndex, super.cardOrder);
+      super.availableColors, super.accountName, super.accountIndex, super.displaySats, super.cardOrder);
 
   @override
   CardCustomizerState copyWith(
@@ -91,6 +96,7 @@ final class CardCustomizerSaved extends CardCustomizerState {
       List<Gradient>? availableColors,
       String? accountName,
       int? accountIndex,
+        bool? displaySats,
       int? cardOrder}) {
     return CardCustomizerSaved(
       selectedDesignIndex ?? this.selectedDesignIndex,
@@ -99,6 +105,7 @@ final class CardCustomizerSaved extends CardCustomizerState {
       availableColors ?? this.availableColors,
       accountName ?? this.accountName,
       accountIndex ?? this.accountIndex,
+      displaySats ?? this.displaySats,
       cardOrder ?? this.cardOrder,
     );
   }

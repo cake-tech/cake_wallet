@@ -11,18 +11,25 @@ import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class RescanPage extends StatelessWidget {
-  RescanPage(this._rescanViewModel)
-      : _blockchainHeightWidgetKey = GlobalKey<BlockchainHeightState>();
+class RescanPage extends StatefulWidget {
+  RescanPage(this._rescanViewModel);
 
-  final GlobalKey<BlockchainHeightState> _blockchainHeightWidgetKey;
   final RescanViewModel _rescanViewModel;
+
+  @override
+  State<RescanPage> createState() => _RescanPageState();
+}
+
+class _RescanPageState extends State<RescanPage> {
+  final TextEditingController _heightController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
     Widget child;
-    if (_rescanViewModel.wallet.type != WalletType.decred) {
+    if (widget._rescanViewModel.wallet.type != WalletType.decred) {
       child = Padding(
         padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
         child: Column(
@@ -31,34 +38,36 @@ class RescanPage extends StatelessWidget {
             Observer(
               builder: (_) => BlockchainHeightWidget(
                 // key: _blockchainHeightWidgetKey,
-                onHeightOrDateEntered: (value) => _rescanViewModel.isButtonEnabled = value,
-                isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
-                isMwebScan: _rescanViewModel.isMwebScan,
-                doSingleScan: _rescanViewModel.doSingleScan,
-                hasDatePicker: !_rescanViewModel.isMwebScan, // disable date picker for mweb for now
+                onHeightOrDateEntered: (value) => widget._rescanViewModel.isButtonEnabled = value,
+                isSilentPaymentsScan: widget._rescanViewModel.isSilentPaymentsScan,
+                isMwebScan: widget._rescanViewModel.isMwebScan,
+                doSingleScan: widget._rescanViewModel.doSingleScan,
+                hasDatePicker: !widget._rescanViewModel.isMwebScan,
+                // disable date picker for mweb for now
                 toggleSingleScan: () =>
-                    _rescanViewModel.doSingleScan = !_rescanViewModel.doSingleScan,
-                walletType: _rescanViewModel.wallet.type,
-                bitcoinMempoolAPIEnabled: _rescanViewModel.isBitcoinMempoolAPIEnabled,
+                    widget._rescanViewModel.doSingleScan = !widget._rescanViewModel.doSingleScan,
+                walletType: widget._rescanViewModel.wallet.type,
+                heightController: _heightController,
+                bitcoinMempoolAPIEnabled: widget._rescanViewModel.isBitcoinMempoolAPIEnabled,
               ),
             ),
             Observer(
               builder: (_) => LoadingPrimaryButton(
-                isLoading: _rescanViewModel.state == RescanWalletState.rescaning,
+                isLoading: widget._rescanViewModel.state == RescanWalletState.rescaning,
                 text: S.of(context).rescan,
                 onPressed: () async {
-                  if (_rescanViewModel.isSilentPaymentsScan) {
+                  if (widget._rescanViewModel.isSilentPaymentsScan) {
                     return _toggleSilentPaymentsScanning(context);
                   }
 
-                  _rescanViewModel.rescanCurrentWallet(
-                      restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
+                  widget._rescanViewModel
+                      .rescanCurrentWallet(restoreHeight: int.parse(_heightController.text));
 
                   Navigator.of(context).pop();
                 },
                 color: Theme.of(context).colorScheme.primary,
                 textColor: Theme.of(context).colorScheme.onPrimary,
-                isDisabled: !_rescanViewModel.isButtonEnabled,
+                isDisabled: !widget._rescanViewModel.isButtonEnabled,
               ),
             )
           ],
@@ -74,10 +83,10 @@ class RescanPage extends StatelessWidget {
               Spacer(),
               Observer(
                 builder: (_) => LoadingPrimaryButton(
-                  isLoading: _rescanViewModel.state == RescanWalletState.rescaning,
+                  isLoading: widget._rescanViewModel.state == RescanWalletState.rescaning,
                   text: S.of(context).rescan,
                   onPressed: () async {
-                    await _rescanViewModel.rescanCurrentWallet(restoreHeight: 0);
+                    await widget._rescanViewModel.rescanCurrentWallet(restoreHeight: 0);
                     Navigator.of(context).pop();
                   },
                   color: Theme.of(context).colorScheme.primary,
@@ -99,12 +108,17 @@ class RescanPage extends StatelessWidget {
             child: Column(
               children: [
                 ModalTopBar(
-                    title: _rescanViewModel.isSilentPaymentsScan
+                    title: widget._rescanViewModel.isSilentPaymentsScan
                         ? S.current.silent_payments_scanning
                         : S.current.rescan,
                     leadingIcon: Icon(Icons.arrow_back_ios_new),
                     onLeadingPressed: Navigator.of(context).pop),
-                child,
+                Expanded(
+                    child: Padding(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: SingleChildScrollView(
+                      controller: ModalScrollController.of(context), child: child),
+                )),
               ],
             ),
           ),
@@ -114,12 +128,12 @@ class RescanPage extends StatelessWidget {
   }
 
   Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
-    final height = _blockchainHeightWidgetKey.currentState!.height;
+    final height = int.parse(_heightController.text);
 
     Navigator.of(context).pop();
 
     final needsToSwitch =
-        await bitcoin!.getNodeIsElectrsSPEnabled(_rescanViewModel.wallet) == false;
+        await bitcoin!.getNodeIsElectrsSPEnabled(widget._rescanViewModel.wallet) == false;
 
     if (needsToSwitch) {
       return showPopUp<void>(
@@ -132,13 +146,13 @@ class RescanPage extends StatelessWidget {
           actionRightButton: () async {
             Navigator.of(_dialogContext).pop();
 
-            _rescanViewModel.rescanCurrentWallet(restoreHeight: height);
+            widget._rescanViewModel.rescanCurrentWallet(restoreHeight: height);
           },
           actionLeftButton: () => Navigator.of(_dialogContext).pop(),
         ),
       );
     }
 
-    _rescanViewModel.rescanCurrentWallet(restoreHeight: height);
+    widget._rescanViewModel.rescanCurrentWallet(restoreHeight: height);
   }
 }

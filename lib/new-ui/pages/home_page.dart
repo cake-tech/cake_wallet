@@ -164,7 +164,9 @@ class _NewHomePageState extends State<NewHomePage> {
       barrierColor: Colors.black.withAlpha(60),
       context: context,
       builder: (context) {
-        final bloc = getIt.get<CardCustomizerBloc>(param1: _lightningMode);
+        final bloc = getIt.get<CardCustomizerBloc>(
+            param1: _lightningMode,
+            param2: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi);
 
         return ModalNavigator(
           parentContext: context,

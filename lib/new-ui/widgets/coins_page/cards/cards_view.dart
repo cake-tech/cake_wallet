@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
@@ -47,7 +48,7 @@ class _CardsViewState extends State<CardsView> {
     super.initState();
     _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
     reaction(
-        (_) => widget.dashboardViewModel.cardOrder.keys.toList(),
+        (_) => widget.dashboardViewModel.cardOrder.values.toList(),
         (_) => setState(() {
               _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
             }));
@@ -84,7 +85,7 @@ class _CardsViewState extends State<CardsView> {
           onTap: () {
             if (compactMode && visualIndex != 0) {
               widget.onCompactModeBackgroundCardsTapped();
-            } else {
+            } else if(!compactMode) {
               setState(() {
                 if (widget.accountListViewModel != null)
                   widget.accountListViewModel!
@@ -169,7 +170,7 @@ class _CardsViewState extends State<CardsView> {
               accountBalance: accountBalance,
               designSwitchDuration: Duration(milliseconds: 150),
               assetName: walletBalanceRecord?.formattedAssetTitle ?? "",
-              capitalizeAssetName: !widget.lightningMode,
+              capitalizeAssetName: _shouldCapitalizeAssetName(),
               balance: walletBalance,
               fiatBalance: walletFiatBalance,
               selected: _selectedIndex == visualIndex,
@@ -180,6 +181,23 @@ class _CardsViewState extends State<CardsView> {
         ),
       ),
     );
+  }
+
+  bool _shouldCapitalizeAssetName() {
+    if(widget.dashboardViewModel.wallet.type != WalletType.bitcoin) {
+      return true;
+    }
+
+    switch (widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi) {
+      case BitcoinAmountDisplayMode.satoshi:
+        return false;
+      case BitcoinAmountDisplayMode.satoshiForLightning:
+        return !widget.lightningMode;
+      case BitcoinAmountDisplayMode.bitcoin:
+        return true;
+      default:
+        return true;
+    }
   }
 
   double _getBoxHeight(int numCards, double overlapAmount) {

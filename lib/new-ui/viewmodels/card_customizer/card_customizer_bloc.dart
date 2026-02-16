@@ -15,9 +15,10 @@ part 'card_customizer_state.dart';
 class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> {
   final WalletBase _wallet;
   final bool lightningMode;
+  final bool displaySats;
 
-  CardCustomizerBloc(this._wallet, {this.lightningMode = false})
-      : super(CardCustomizerNotLoaded(0, 0, [CardDesign.genericDefault], [], "", -1, 0)) {
+  CardCustomizerBloc(this._wallet, {this.lightningMode = false, this.displaySats = false})
+      : super(CardCustomizerNotLoaded(0, 0, [CardDesign.genericDefault], [], "", -1, displaySats, 0)) {
 
     on<_Init>(_init);
     on<CardDesignSelected>(_onDesignSelected);
@@ -96,13 +97,13 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     }
     final currentDesignSettings = await _loadCurrentDesignSettings(accountIndex);
     final currentDesign = CardDesign.fromStyleSettings(currentDesignSettings, lightningMode ? CryptoCurrency.btcln : _wallet.currency);
-    final availableDesigns = _initAvailableDesigns();
+    final availableDesigns = _initAvailableDesigns(lightningMode: lightningMode);
     final availableColors = _updateAvailableColors(currentDesign);
     final selectedDesign = _initSelectedDesign(currentDesign);
     final selectedColor = _initSelectedColor(currentDesign);
 
     emit(CardCustomizerInitial(selectedDesign, selectedColor, availableDesigns, availableColors,
-        accountName, accountIndex, currentDesignSettings?.cardOrder ?? 0));
+        accountName, accountIndex, displaySats, currentDesignSettings?.cardOrder ?? 0));
   }
 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {
@@ -134,7 +135,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
         .insert()
         .then((value) {
       emit(CardCustomizerSaved(state.selectedDesignIndex, state.selectedColorIndex,
-          state.availableDesigns, state.availableColors, state.accountName, state.accountIndex, state.cardOrder));
+          state.availableDesigns, state.availableColors, state.accountName, state.accountIndex, state.displaySats, state.cardOrder));
     });
     saveAccountName();
   }

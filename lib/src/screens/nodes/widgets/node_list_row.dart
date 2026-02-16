@@ -21,7 +21,6 @@ class NodeListRow extends StandardListRow {
     final leading = buildLeading(context);
     final trailing = buildTrailing(context);
     return Container(
-      height: 56,
       padding: EdgeInsets.only(left: 18, right: 18, top: 2, bottom: 2),
       margin: EdgeInsets.only(top: 2, bottom: 2),
       child: FilledButton(
@@ -32,13 +31,16 @@ class NodeListRow extends StandardListRow {
             borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            leading,
-            buildCenter(context, hasLeftOffset: true),
-            trailing,
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              leading,
+              buildCenter(context, hasLeftOffset: true),
+              trailing,
+            ],
+          ),
         ),
       ),
     );

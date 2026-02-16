@@ -6,6 +6,7 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
@@ -590,8 +591,11 @@ Future<void> setup({
     sharedPreferences: getIt.get<SharedPreferences>(),
     keyService: getIt.get<KeyService>()));
 
-  getIt.registerFactoryParam<CardCustomizerBloc, bool, void>((lightningMode, __) =>
-      CardCustomizerBloc(getIt.get<AppStore>().wallet!, lightningMode: lightningMode));
+  getIt.registerFactoryParam<CardCustomizerBloc, bool, BitcoinAmountDisplayMode?>(
+      (lightningMode, displayMode) => CardCustomizerBloc(getIt.get<AppStore>().wallet!,
+          lightningMode: lightningMode,
+          displaySats: (displayMode == BitcoinAmountDisplayMode.satoshi ||
+              (displayMode == BitcoinAmountDisplayMode.satoshiForLightning && lightningMode))));
 
   getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(
       accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>()));

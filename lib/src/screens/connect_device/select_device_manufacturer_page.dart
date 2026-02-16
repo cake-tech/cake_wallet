@@ -50,7 +50,7 @@ class SelectDeviceManufacturerPage extends BasePage {
             colorFilter: _colorFilter,
           ),
           hardwareWalletType: HardwareWalletType.trezor,
-          tag: S.current.new_tag,
+          // tag: S.current.new_tag,
         ),
         if (Platform.isAndroid) ...[
           _DeviceManufacturer(
@@ -60,7 +60,7 @@ class SelectDeviceManufacturerPage extends BasePage {
               colorFilter: _colorFilter,
             ),
             hardwareWalletType: HardwareWalletType.bitbox,
-            tag: S.current.new_tag,
+            // tag: S.current.new_tag,
           ),
         ],
         _DeviceManufacturer(
@@ -70,7 +70,7 @@ class SelectDeviceManufacturerPage extends BasePage {
             colorFilter: _colorFilter,
           ),
           hardwareWalletType: HardwareWalletType.cupcake,
-          tag: S.current.new_tag,
+          // tag: S.current.new_tag,
         ),
         _DeviceManufacturer(
           image: SvgPicture.asset(
@@ -79,7 +79,7 @@ class SelectDeviceManufacturerPage extends BasePage {
             colorFilter: _colorFilter,
           ),
           hardwareWalletType: HardwareWalletType.coldcard,
-          tag: S.current.new_tag,
+          // tag: S.current.new_tag,
         ),
         // _DeviceManufacturer(
         //   image: SvgPicture.asset(

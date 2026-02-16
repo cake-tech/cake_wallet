@@ -65,8 +65,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
         widget.receiveOptionViewModel.selectReceiveOption(widget.receiveOptionViewModel.options
             .firstWhere((item) => item.value.contains("Lightning")));
       } else if (widget.addressListViewModel.wallet.type == WalletType.bitcoin) {
-        widget.receiveOptionViewModel.selectReceiveOption(
-            bitcoin!.getSelectedAddressType(widget.addressListViewModel.wallet));
+        widget.receiveOptionViewModel.selectReceiveOption(widget.receiveOptionViewModel.options
+            .firstWhere((item) => item.value.contains("Standard")));
       }
     });
 

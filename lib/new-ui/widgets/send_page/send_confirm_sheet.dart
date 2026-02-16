@@ -9,6 +9,7 @@ import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -225,7 +226,7 @@ class SendTransactionDetails extends StatelessWidget {
                 ),
               ],
             ),
-            if (outputs.length >= 1 && outputs.first.extractedAddress.isNotEmpty)
+            if (outputs.length >= 1 && (outputs.first.extractedAddress.isNotEmpty || outputs.first.address.isNotEmpty))
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 12,
@@ -246,7 +247,7 @@ class SendTransactionDetails extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: AddressFormatter.buildSegmentedAddress(
-                            address: outputs.first.extractedAddress,
+                            address: outputs.first.isParsedAddress ? outputs.first.extractedAddress : outputs.first.address,
                             evenTextStyle:
                                 TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                       ),
@@ -258,7 +259,7 @@ class SendTransactionDetails extends StatelessWidget {
                               .map(
                                 (item) => Column(children: [
                                   MultiSendAddressPreview(index: outputs.indexOf(item) + 1,
-                                      address: item.extractedAddress,
+                                      address:  item.isParsedAddress ? item.extractedAddress : item.address,
                                       amount: item.roundedCryptoAmount(8) + " " +
                                           sendViewModel.currency.title,
                                       fiatAmount: item.fiatAmount + " " +
@@ -329,7 +330,10 @@ class SendTransactionDetails extends StatelessWidget {
                                   color: Theme.of(context).colorScheme.onSurface)),
                           Column(
                             children: [
-                              Text(bitcoin!.getNetworkName(sendViewModel.wallet),
+                              Text(
+                                  sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln
+                                      ? "Lightning"
+                                      : bitcoin!.getNetworkName(sendViewModel.wallet),
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
@@ -409,41 +413,43 @@ class _MultiSendAddressPreviewState extends State<MultiSendAddressPreview> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12.0),
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 4,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "${widget.index}:",
-                style: TextStyle(fontFamily: "IBM Plex Mono"),
-              ),
-              Text(widget.amount)
-            ],
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "${widget.index}:",
+                  style: TextStyle(fontFamily: "IBM Plex Mono"),
+                ),
+                if (!_expanded)
+                  GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _expanded = true;
+                        });
+                      },
+                      child: Text(middleTruncate(widget.address, 8, 8),
+                          style: TextStyle(
+                              fontFamily: "IBM Plex Mono",
+                              color: Theme.of(context).colorScheme.primary)))
+                else
+                  AddressFormatter.buildSegmentedAddress(
+                      address: widget.address,
+                      evenTextStyle: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontFamily: "IBM Plex Mono")),
+              ],
+            ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              if (!_expanded)
-                GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _expanded = true;
-                      });
-                    },
-                    child: Text(middleTruncate(widget.address, 8, 8),
-                        style: TextStyle(
-                            fontFamily: "IBM Plex Mono",
-                            color: Theme.of(context).colorScheme.primary)))
-              else
-                Flexible(
-                    child: AddressFormatter.buildSegmentedAddress(
-                        address: widget.address,
-                        evenTextStyle: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontFamily: "IBM Plex Mono"))),
+              Text(widget.amount),
               Text(
                 widget.fiatAmount,
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),

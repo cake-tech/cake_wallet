@@ -25,6 +25,7 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.bitcoinMempoolAPIEnabled,
     required this.walletType,
     this.blockHeightTextFieldKey,
+    this.heightController,
   }) : super(key: key);
 
   final Function(int)? onHeightChange;
@@ -33,6 +34,7 @@ class BlockchainHeightWidget extends StatefulWidget {
   final bool hasDatePicker;
   final bool isSilentPaymentsScan;
   final bool isMwebScan;
+  final TextEditingController? heightController;
   final bool doSingleScan;
   final Future<bool>? bitcoinMempoolAPIEnabled;
   final Function()? toggleSingleScan;
@@ -44,13 +46,15 @@ class BlockchainHeightWidget extends StatefulWidget {
 
 class BlockchainHeightState extends State<BlockchainHeightWidget> {
   final dateController = TextEditingController();
-  final restoreHeightController = TextEditingController();
+  late final TextEditingController restoreHeightController;
 
   int get height => _height;
   int _height = 0;
 
   @override
   void initState() {
+    restoreHeightController = widget.heightController ?? TextEditingController();
+
     restoreHeightController.addListener(() {
       if (restoreHeightController.text.isNotEmpty) {
         widget.onHeightOrDateEntered?.call(true);
