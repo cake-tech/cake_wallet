@@ -6,7 +6,6 @@ import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
@@ -31,9 +30,8 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
     if(widget.walletAddressListViewModel.selectedCurrency is FiatCurrency) {
       _amountController.text = widget.walletAddressListViewModel.fiatAmount;
     } else {
-      _amountController.text = widget.walletAddressListViewModel.amount;
+      _amountController.text = widget.walletAddressListViewModel.displayAmount;
     }
-
   }
 
   @override
@@ -63,7 +61,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 12,
                   children: [
-                    if (widget.walletAddressListViewModel.tokenCurrencies.length > 1) ...[
+                    if (widget.walletAddressListViewModel.hasTokensList) ...[
                       Text("Token"),
                       GestureDetector(
                           onTap: () {
@@ -135,21 +133,22 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                               textAlignVertical: TextAlignVertical.center,
                               controller: _amountController,
                               keyboardType:
-                                  TextInputType.numberWithOptions(signed: false, decimal: true),
+                                  TextInputType.numberWithOptions(signed: false, decimal: !widget.walletAddressListViewModel.useSatoshi),
                               decoration: InputDecoration(
-                                  hint: Text(
-                                    "0.00000000",
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurface.withValues(alpha: 0.5),
-                                    ),
+                                hint: Text(
+                                  widget.walletAddressListViewModel.useSatoshi ? "0" : "0.00000000",
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withValues(alpha: 0.5),
                                   ),
-                                  border: InputBorder.none,
-                                  filled: true,
-                                  fillColor: Colors.transparent),
+                                ),
+                                border: InputBorder.none,
+                                filled: true,
+                                fillColor: Colors.transparent,
+                              ),
                               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                             ),
                           ),
@@ -177,14 +176,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                 children: [
                                   Observer(
                                     builder: (_) => Text(
-                                      widget.walletAddressListViewModel.selectedCurrency
-                                              is CryptoCurrency
-                                          ? (widget.walletAddressListViewModel.selectedCurrency
-                                                  as CryptoCurrency)
-                                              .title
-                                              .toUpperCase()
-                                          : widget.walletAddressListViewModel.selectedCurrency.name
-                                              .toUpperCase(),
+                                      widget.walletAddressListViewModel.selectedCurrencySymbol,
                                       style: TextStyle(
                                         color: Theme.of(context).colorScheme.onSurface,
                                       ),

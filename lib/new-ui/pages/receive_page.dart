@@ -14,6 +14,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -64,6 +65,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
       if (widget.lightningMode) {
         widget.receiveOptionViewModel.selectReceiveOption(widget.receiveOptionViewModel.options
             .firstWhere((item) => item.value.contains("Lightning")));
+        widget.addressListViewModel.setTokenCurrency(CryptoCurrency.btcln);
       } else if (widget.addressListViewModel.wallet.type == WalletType.bitcoin) {
         widget.receiveOptionViewModel.selectReceiveOption(
             bitcoin!.getSelectedAddressType(widget.addressListViewModel.wallet));
@@ -268,9 +270,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
                     ),
                   ),
                   ReceiveLargeAmountPreview(
-                      amount: widget.addressListViewModel.amount,
-                      currency: widget.addressListViewModel.tokenCurrency?.title.toUpperCase() ??
-                          widget.addressListViewModel.wallet.currency.name.toUpperCase(),
+                      amount: widget.addressListViewModel.displayAmount,
+                      currency: widget.addressListViewModel.cryptoCurrencySymbol,
                       largeQrMode: _largeQrMode),
                   if (infobox != null)
                     ClipRect(
