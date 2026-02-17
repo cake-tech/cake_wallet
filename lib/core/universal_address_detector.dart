@@ -260,7 +260,6 @@ class UniversalAddressDetector {
     try {
       return getBolt11Amount(input).toString();
     } catch (e) {
-      print(e);
       return null;
     }
   }
