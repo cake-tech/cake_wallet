@@ -334,7 +334,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                           // Process the payment through the new flow
                                           await _handlePaymentFlow(
                                             uri.toString(),
-                                            PaymentRequest.fromUri(uri),
+                                            PaymentRequest.fromString(uri.toString()),
                                           );
                                         },
                                         onEditingComplete: (){
@@ -1041,7 +1041,9 @@ class _NewSendPageState extends State<NewSendPage> {
     }
     _addressControllers[_selectedOutput].text = paymentRequest.address;
     if (paymentRequest.amount.isNotEmpty) {
-      _amountControllers[_selectedOutput].text = paymentRequest.amount;
+      _amountControllers[_selectedOutput].text = widget.sendViewModel.amountParsingProxy
+          .getDisplayCryptoAmount(
+              paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
     }
     // TODO: add notes
     // noteController.text = paymentRequest.note;

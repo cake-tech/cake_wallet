@@ -1,9 +1,25 @@
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cake_wallet/nano/nano.dart';
 
 class PaymentRequest {
   PaymentRequest(this.address, this.amount, this.note, this.scheme, this.pjUri,
       {this.callbackUrl, this.callbackMessage, this.contractAddress});
+
+  factory PaymentRequest.fromString(String input) {
+    try {
+      return PaymentRequest.fromBolt11(input);
+    } catch (_) {
+      return PaymentRequest.fromUri(Uri.parse(input));
+    }
+  }
+
+  factory PaymentRequest.fromBolt11(String invoice) {
+    final amountRaw = getBolt11Amount(invoice) ?? 0;
+    final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(amountRaw));
+    return PaymentRequest(invoice, amount, '', 'lightning', null);
+  }
 
   factory PaymentRequest.fromUri(Uri? uri) {
     var address = "";
