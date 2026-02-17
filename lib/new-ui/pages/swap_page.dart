@@ -30,6 +30,7 @@ import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
@@ -394,6 +395,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
+    printV("$domain");
     final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
     return extractAddressFromParsed(context, parsedAddress);
   }
@@ -492,6 +494,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 addressTextFieldValidator:
                                     AddressValidator(type: widget.exchangeViewModel.depositCurrency),
                                 onPushPasteButton: (context) async {
+                                  final clipboard = await Clipboard.getData('text/plain');
+                                  widget.exchangeViewModel.depositAddress = clipboard?.text ?? '';
+
                                   final domain = widget.exchangeViewModel.depositAddress;
                                   widget.exchangeViewModel.depositAddress = await fetchParsedAddress(
                                       context, domain, widget.exchangeViewModel.depositCurrency);
@@ -549,6 +554,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 addressTextFieldValidator:
                                     AddressValidator(type: widget.exchangeViewModel.receiveCurrency),
                                 onPushPasteButton: (context) async {
+                                  final clipboard = await Clipboard.getData('text/plain');
+                                  widget.exchangeViewModel.receiveAddress = clipboard?.text ?? '';
+
                                   final domain = widget.exchangeViewModel.receiveAddress;
                                   widget.exchangeViewModel.receiveAddress = await fetchParsedAddress(
                                       context, domain, widget.exchangeViewModel.receiveCurrency);
