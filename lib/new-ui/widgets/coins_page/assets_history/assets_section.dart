@@ -28,6 +28,7 @@ class AssetsSection extends StatelessWidget {
               return Observer(builder: (context){
                 if (hasMweb) {
                   return AssetTile(
+                    showSwap: dashboardViewModel.isEnabledSwapAction,
                     balance: dashboardViewModel.balanceViewModel.formattedBalances.first,
                     showSecondary: index > 0 ? true : false,
                     wallet: dashboardViewModel.wallet,
@@ -42,6 +43,7 @@ class AssetsSection extends StatelessWidget {
 
                 final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index+1);
                 return AssetTile(
+                  showSwap: dashboardViewModel.isEnabledSwapAction,
                   balance: balance,
                   wallet: dashboardViewModel.wallet,
                   chainIconPath: dashboardViewModel.wallet.currency.chainIconPath ?? "",

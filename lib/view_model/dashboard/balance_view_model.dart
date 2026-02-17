@@ -54,14 +54,14 @@ class BalanceRecord {
 
   String get combinedAvailableBalance =>
       ((double.tryParse(availableBalance) ?? 0) + (double.tryParse(secondAvailableBalance) ?? 0))
-          .toString();
+          .toString().withMaxDecimals(8);
 
   String get combinedFiatAvailableBalance =>
       fiatAvailableBalance.split(" ").first +
       " " +
       ((double.tryParse(fiatAvailableBalance.split(" ").last) ?? 0) +
       (double.tryParse(fiatSecondAvailableBalance.split(" ").last) ?? 0))
-          .toString();
+          .toString().withMaxDecimals(8);
 }
 
 class BalanceViewModel = BalanceViewModelBase with _$BalanceViewModel;

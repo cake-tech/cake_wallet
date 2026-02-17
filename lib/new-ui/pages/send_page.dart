@@ -144,12 +144,14 @@ class SendPageModes {
 class SendPageParams {
   final PaymentRequest? initialPaymentRequest;
   final SendPageModes mode;
+  final CryptoCurrency? initialCurrency;
   final UnspentCoinType unspentCoinType;
 
   SendPageParams({
     this.initialPaymentRequest,
     SendPageModes? mode,
     this.unspentCoinType = UnspentCoinType.any,
+    this.initialCurrency,
   }) : mode = mode ?? SendPageModes.normal;
 }
 
@@ -163,7 +165,11 @@ class NewSendPage extends StatefulWidget {
         required this.authService,
         required SendPageParams params})
       : initialPaymentRequest = params.initialPaymentRequest,
-        mode = params.mode;
+        mode = params.mode {
+    if (params.initialCurrency != null) {
+      sendViewModel.selectedCryptoCurrency = params.initialCurrency!;
+    }
+  }
 
   final SendViewModel sendViewModel;
   final PaymentViewModel paymentViewModel;
@@ -243,6 +249,7 @@ class _NewSendPageState extends State<NewSendPage> {
         return SafeArea(
           bottom: false,
           child: KeyboardHideOverlay(
+            unfocusOnTap: true,
             child: Container(
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,

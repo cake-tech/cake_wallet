@@ -1,4 +1,5 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,11 @@ class AssetTile extends StatelessWidget {
       this.title,
       this.trailingText,
       this.modalMode = AssetDetailsModalModes.normal,
-      required this.wallet});
+      required this.wallet, required this.showSwap});
 
   final BalanceRecord balance;
   final bool showSecondary;
+  final bool showSwap;
   final String chainIconPath;
   final String? title;
   final String? trailingText;
@@ -32,6 +34,8 @@ class AssetTile extends StatelessWidget {
             isScrollControlled: true,
             builder: (context) {
               return AssetDetailsModal(
+                showSwap: showSwap,
+                asset: balance.asset,
                 title: title ?? balance.asset.fullName ?? balance.asset.name,
                 chainTitle: wallet.currency.title,
                 subtitle: trailingText ?? "",
@@ -138,7 +142,7 @@ class AssetTile extends StatelessWidget {
                           ],
                         ),
                         Text(
-                           "${showSecondary ?balance.secondAvailableBalance: balance.availableBalance} ${balance.formattedAssetTitle}",
+                           "${showSecondary ?balance.secondAvailableBalance: balance.availableBalance} ${balance.formattedAssetTitle.safeSubString(0, 6)}",
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),

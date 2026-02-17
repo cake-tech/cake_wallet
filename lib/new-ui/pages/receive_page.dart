@@ -37,12 +37,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 
 class NewReceivePage extends StatefulWidget {
-  const NewReceivePage(
+  NewReceivePage(
       {super.key,
       required this.addressListViewModel,
       required this.receiveOptionViewModel,
       required this.dashboardViewModel,
-      required this.lightningMode});
+      required this.lightningMode,
+      CryptoCurrency? initialCurrency}) {
+    if (initialCurrency != null) {
+      addressListViewModel.setTokenCurrency(initialCurrency);
+    }
+  }
 
   final WalletAddressListViewModel addressListViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;

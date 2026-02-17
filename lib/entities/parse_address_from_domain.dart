@@ -388,7 +388,7 @@ class AddressResolver {
           }
         }
 
-        if (walletType == WalletType.bitcoin && currency == CryptoCurrency.btc) {
+        if (walletType == WalletType.bitcoin) {
           final record =
               await LNUrlPayRecord.fetchAddressAndName(formattedName: text, currency: currency);
           if (record != null) {
