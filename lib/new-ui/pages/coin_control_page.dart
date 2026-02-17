@@ -42,7 +42,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
           child: Column(
             children: [
               ModalTopBar(
-                  title: "Coin Control",
+                  title: "",
                   onLeadingPressed: Navigator.of(context).pop,
                   leadingIcon: Icon(Icons.arrow_back_ios_new),
                   onTrailingPressed: () {}),
@@ -124,7 +124,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                                         .unspentCoinsListViewModel.nonFrozenItems.isEmpty
                                     ? SizedBox.shrink()
                                     : Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                         child: CoinControlListSection(
                                             items: widget.unspentCoinsListViewModel.nonFrozenItems,
                                             unspentCoinsListViewModel:
@@ -136,7 +136,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                                     widget.unspentCoinsListViewModel.frozenItems.isEmpty
                                         ? SizedBox.shrink()
                                         : Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                            padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                             child: Column(
                                                 spacing: 10,
                                                 crossAxisAlignment: CrossAxisAlignment.start,

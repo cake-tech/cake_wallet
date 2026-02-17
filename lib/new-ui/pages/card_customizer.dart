@@ -85,7 +85,8 @@ class _CardCustomizerState extends State<CardCustomizer> {
                     accountName:
                     editEnabled ?  state.accountName:"" ,
                     balance: "0.00",
-                    assetName: widget.cryptoName,
+                    assetName: state.displaySats ? "sats" : widget.cryptoName,
+                    capitalizeAssetName: !state.displaySats,
                     design: state.selectedDesign,
                   ),
                   Padding(

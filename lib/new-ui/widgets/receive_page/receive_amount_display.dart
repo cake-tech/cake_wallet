@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -19,11 +18,11 @@ class ReceiveAmountDisplay extends StatelessWidget {
           AnimatedOpacity(
             duration: Duration(milliseconds: 300),
             curve: Curves.easeOutCubic,
-            opacity: largeQrMode || walletAddressListViewModel.amount.isEmpty ? 0 : 1,
+            opacity: largeQrMode || walletAddressListViewModel.displayAmount.isEmpty ? 0 : 1,
             child: AnimatedAlign(
               duration: Duration(milliseconds: 300),
               curve: Curves.easeOutCubic,
-              heightFactor: largeQrMode || walletAddressListViewModel.amount.isEmpty ? 0 : 1,
+              heightFactor: largeQrMode || walletAddressListViewModel.displayAmount.isEmpty ? 0 : 1,
               alignment: Alignment.topCenter,
               child: Container(
                 width: double.infinity,
@@ -46,12 +45,11 @@ class ReceiveAmountDisplay extends StatelessWidget {
                         child: Row(
                           spacing: 8.0,
                           children: [
-                            Text(walletAddressListViewModel.amount, style: TextStyle(color: Theme
+                            Text(walletAddressListViewModel.displayAmount, style: TextStyle(color: Theme
                                 .of(context)
                                 .colorScheme
                                 .primary, fontSize: 16, fontWeight: FontWeight.w500),),
-                            Text(walletAddressListViewModel.tokenCurrency?.title.toUpperCase() ??
-                                walletAddressListViewModel.wallet.currency.name.toUpperCase(),
+                            Text(walletAddressListViewModel.cryptoCurrencySymbol,
                                 style: TextStyle(color: Theme
                                     .of(context)
                                     .colorScheme

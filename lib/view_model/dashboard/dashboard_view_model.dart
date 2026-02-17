@@ -403,7 +403,7 @@ abstract class DashboardViewModelBase with Store {
         numAccounts = 1;
       }
     cardDesigns.clear();
-    cardOrder.clear();
+      Map<int, int> newOrder = {};
 
     for (int i = 0; i < numAccounts; i++) {
       late final int index;
@@ -431,27 +431,31 @@ abstract class DashboardViewModelBase with Store {
 
       cardDesigns.add(CardDesign.fromStyleSettings(setting, curr));
       if(setting?.cardOrder != null) {
-        if(!(wallet.type != WalletType.bitcoin && i == 1)) {
-          cardOrder[setting!.cardOrder] = i;
-        }
+          newOrder[setting!.cardOrder] = i;
       }
     }
+    printV(numAccounts);
+    printV(newOrder);
 
     // making sure ALL accounts have numbers, even the ones that existed before this feature was a thing
     for (int i = 0; i < numAccounts; i++) {
-      if (!cardOrder.containsKey(i) && !(wallet.type != WalletType.bitcoin && i == 1)) {
+      if (!newOrder.containsKey(i) && !(wallet.type != WalletType.bitcoin && i == 1)) {
         int free = 0;
-        while (cardOrder.containsValue(free)) {
+        while (newOrder.containsValue(free)) {
           free++;
         }
+        printV("$i $free");
         if(wallet.type == WalletType.bitcoin) {
-          cardOrder[free] = 0;
+          newOrder[free] = 0;
         } else {
-          cardOrder[free] = i;
+          newOrder[free] = i;
         }
 
       }
     }
+    cardOrder = newOrder.asObservable();
+    printV(newOrder);
+    printV(cardOrder);
   }
 
   void _transactionDisposerCallback(int _) async {
