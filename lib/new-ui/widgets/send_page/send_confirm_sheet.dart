@@ -161,7 +161,7 @@ class SendTransactionDetails extends StatelessWidget {
         (transaction == null)
             ? sumStr(
                 sendViewModel.outputs.where((e) => !e.sendAll).toList(),
-                (o) => double.tryParse(o.roundedCryptoAmount(8)) ?? 0,
+                (o) => double.tryParse(o.cryptoAmount) ?? 0,
               )
             : formatAmount(transaction.amountFormatted),
         sendViewModel.selectedCryptoCurrency);
