@@ -851,11 +851,13 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactoryParam<NewReceivePage, bool?, void>((param1, param2) => NewReceivePage(
-      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(),
-      dashboardViewModel: getIt.get<DashboardViewModel>(),
-      lightningMode: param1 ?? false));
+  getIt.registerFactoryParam<NewReceivePage, bool?, CryptoCurrency?>((param1, param2) =>
+      NewReceivePage(
+          addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+          receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(),
+          dashboardViewModel: getIt.get<DashboardViewModel>(),
+          lightningMode: param1 ?? false,
+          initialCurrency: param2));
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
       (WalletAddressListItem? item, _) =>
@@ -1240,10 +1242,15 @@ Future<void> setup({
     return ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest);
   });
 
-  getIt.registerFactoryParam<NewSwapPage, PaymentRequest?, void>(
-      (PaymentRequest? paymentRequest, __) {
-    return NewSwapPage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest,
-        walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>());
+  getIt.registerFactoryParam<NewSwapPage, PaymentRequest?, CryptoCurrency?>(
+      (PaymentRequest? paymentRequest, CryptoCurrency? initialCurrency) {
+    return NewSwapPage(
+      getIt.get<ExchangeViewModel>(),
+      getIt.get<AuthService>(),
+      paymentRequest,
+      walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
+      initialCurrency: initialCurrency,
+    );
   });
 
   getIt.registerFactory(() => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));

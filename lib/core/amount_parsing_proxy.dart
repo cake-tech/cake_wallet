@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 
@@ -54,7 +55,7 @@ class AmountParsingProxy {
 
   /// [getCryptoSymbol] returns the correct Symbol related to the presentation
   String getCryptoSymbol(CryptoCurrency cryptoCurrency) =>
-      useSatoshi(cryptoCurrency) ? "sats" : cryptoCurrency.title;
+      useSatoshi(cryptoCurrency) ? "sats" : cryptoCurrency.title.safeSubString(0, 8);
 
   bool useSatoshi(CryptoCurrency cryptoCurrency) =>
       ([CryptoCurrency.btc, CryptoCurrency.btcln].contains(cryptoCurrency) &&

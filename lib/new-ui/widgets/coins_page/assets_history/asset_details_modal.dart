@@ -8,6 +8,7 @@ import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -28,9 +29,10 @@ class AssetDetailsModal extends StatelessWidget {
       required this.iconPath,
       required this.chainIconPath,
       required this.mode,
-      required this.wallet});
+      required this.wallet, required this.showSwap, this.asset});
 
   final String title;
+  final CryptoCurrency? asset;
   final String chainTitle;
   final String subtitle;
   final String amount;
@@ -39,6 +41,7 @@ class AssetDetailsModal extends StatelessWidget {
   final String iconPath;
   final String chainIconPath;
   final WalletBase wallet;
+  final bool showSwap;
   final AssetDetailsModalModes mode;
 
   @override
@@ -197,7 +200,8 @@ class AssetDetailsModal extends StatelessWidget {
                     AssetDetailsModalBottomButton(
                         iconPath: "assets/new-ui/send.svg",
                         title: S.of(context).send,
-                        onPressed: () => openPage<NewSendPage>(context)),
+                        onPressed: () => openPage<NewSendPage>(context,
+                            param1: SendPageParams(initialCurrency: asset))),
                     AssetDetailsModalBottomButton(
                         iconPath: "assets/new-ui/receive.svg",
                         title: S.of(context).receive,
@@ -208,12 +212,13 @@ class AssetDetailsModal extends StatelessWidget {
                                 bitcoin!
                                     .getOptionToType(bitcoin!.getLitecoinMwebReceivePageOption()));
                           }
-                          openPage<NewReceivePage>(context);
+                          openPage<NewReceivePage>(context, param2: asset);
                         }),
+                    if(showSwap)
                     AssetDetailsModalBottomButton(
                         iconPath: "assets/new-ui/exchange.svg",
                         title: S.of(context).swap,
-                        onPressed: () => openPage<NewSwapPage>(context)),
+                          onPressed: () => openPage<NewSwapPage>(context, param2: asset)),
                   ],
                 ),
                 SizedBox()
@@ -225,8 +230,8 @@ class AssetDetailsModal extends StatelessWidget {
     );
   }
 
-  void openPage<T extends Object>(BuildContext context) {
-    final page = getIt.get<T>();
+  void openPage<T extends Object>(BuildContext context, {dynamic param1, dynamic param2}) {
+    final page = getIt.get<T>(param1: param1, param2: param2);
     showCupertinoModalBottomSheet(
       context: context,
       barrierColor: Colors.black.withAlpha(60),

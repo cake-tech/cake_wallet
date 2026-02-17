@@ -50,13 +50,16 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewSwapPage extends StatefulWidget {
   NewSwapPage(this.exchangeViewModel, this.authService, this.initialPaymentRequest,
-      {required this.walletSwitcherViewModel}) {
+      {required this.walletSwitcherViewModel, CryptoCurrency? initialCurrency}) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
         : null;
     receiveWalletName = exchangeViewModel.receiveCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
         : null;
+    if (initialCurrency != null) {
+      exchangeViewModel.changeDepositCurrency(currency: initialCurrency);
+    }
   }
 
   final ExchangeViewModel exchangeViewModel;
@@ -424,6 +427,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
   @override
   Widget build(BuildContext context) {
     return KeyboardHideOverlay(
+      unfocusOnTap: true,
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
@@ -571,62 +575,65 @@ class _NewSwapPageState extends State<NewSwapPage> {
                           ],
                         ),
                       ),
-                      Column(
-                        spacing: 12,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if(widget.exchangeViewModel.status is! SyncedSyncStatus)
-                          SendSyncingIndicator(status: widget.exchangeViewModel.status),
-                          SwapProviderPreview(exchangeViewModel: widget.exchangeViewModel),
-                          Observer(
-                            builder: (_) => LoadingPrimaryButton(
-                              key: ValueKey('exchange_page_exchange_button_key'),
-                              text: widget.exchangeViewModel.isAvailableInSelected
-                                  ? S.of(context).swap
-                                  : S.of(context).change_selected_exchanges,
-                              onPressed: widget.exchangeViewModel.isAvailableInSelected
-                                  ? () {
-                                      FocusScope.of(context).unfocus();
-                                      if (formKey.currentState != null &&
-                                          formKey.currentState!.validate()) {
-                                        if (_shouldWaitTillSynced) {
-                                          showPopUp<void>(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertWithOneAction(
-                                                alertTitle: S.of(context).exchange,
-                                                alertContent: S.of(context).exchange_sync_alert_content,
-                                                buttonText: S.of(context).ok,
-                                                buttonAction: () => Navigator.of(context).pop(),
-                                              );
-                                            },
-                                          );
-                                        } else {
-                                          final check = widget.exchangeViewModel.shouldDisplayTOTP();
-                                          widget.authService.authenticateAction(
-                                            context,
-                                            conditionToDetermineIfToUse2FA: check,
-                                            onAuthSuccess: (value) {
-                                              if (value) {
-                                                widget.exchangeViewModel.createTrade();
-                                              }
-                                            },
-                                          );
+                      Observer(
+                        builder: (_) => Column(
+                          spacing: 12,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (widget.exchangeViewModel.status is! SyncedSyncStatus)
+                              SendSyncingIndicator(status: widget.exchangeViewModel.status),
+                            SwapProviderPreview(exchangeViewModel: widget.exchangeViewModel),
+                            Observer(
+                              builder: (_) => LoadingPrimaryButton(
+                                key: ValueKey('exchange_page_exchange_button_key'),
+                                text: widget.exchangeViewModel.isAvailableInSelected
+                                    ? S.of(context).swap
+                                    : S.of(context).change_selected_exchanges,
+                                onPressed: widget.exchangeViewModel.isAvailableInSelected
+                                    ? () {
+                                        FocusScope.of(context).unfocus();
+                                        if (formKey.currentState != null &&
+                                            formKey.currentState!.validate()) {
+                                          if (_shouldWaitTillSynced) {
+                                            showPopUp<void>(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertWithOneAction(
+                                                  alertTitle: S.of(context).exchange,
+                                                  alertContent:
+                                                      S.of(context).exchange_sync_alert_content,
+                                                  buttonText: S.of(context).ok,
+                                                  buttonAction: () => Navigator.of(context).pop(),
+                                                );
+                                              },
+                                            );
+                                          } else {
+                                            final check =
+                                                widget.exchangeViewModel.shouldDisplayTOTP();
+                                            widget.authService.authenticateAction(
+                                              context,
+                                              conditionToDetermineIfToUse2FA: check,
+                                              onAuthSuccess: (value) {
+                                                if (value) {
+                                                  widget.exchangeViewModel.createTrade();
+                                                }
+                                              },
+                                            );
+                                          }
                                         }
-
                                       }
-
-                                    }
-                                  : () => PresentProviderPicker(
-                                          exchangeViewModel: widget.exchangeViewModel)
-                                      .presentProviderPicker(context),
-                              color: Theme.of(context).colorScheme.primary,
-                              textColor: Theme.of(context).colorScheme.onPrimary,
-                              isDisabled: _swapButtonDisabled(),
-                              isLoading: widget.exchangeViewModel.tradeState is TradeIsCreating,
+                                    : () => PresentProviderPicker(
+                                            exchangeViewModel: widget.exchangeViewModel)
+                                        .presentProviderPicker(context),
+                                color: Theme.of(context).colorScheme.primary,
+                                textColor: Theme.of(context).colorScheme.onPrimary,
+                                isDisabled: _swapButtonDisabled(),
+                                isLoading: widget.exchangeViewModel.tradeState is TradeIsCreating,
+                              ),
                             ),
-                          ),
-                        ],
+                            SizedBox()
+                          ],
+                        ),
                       )
                     ],
                   ),

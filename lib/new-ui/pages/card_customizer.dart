@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -55,7 +55,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ModalTopBar(
-                    title: editEnabled ? "Edit Account" : "Edit Card",
+                    title: editEnabled ? S.of(context).edit_account : S.of(context).edit_card,
                     leadingIcon: Icon(Icons.close),
                     trailingIcon: editEnabled ? Icon(Icons.delete_forever) : null,
                     onLeadingPressed: () => Navigator.of(context).maybePop(),
@@ -68,7 +68,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                         spacing: 8.0,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Account name"),
+                          Text(S.of(context).account_name),
                           TextField(
                             onChanged: (value) {
                               context.read<CardCustomizerBloc>().add(AccountNameChanged(value));
@@ -105,7 +105,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                   spacing: 8.0,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("Card style"),
+                                    Text(S.of(context).card_style),
                                     Container(
                                       height: 63,
                                       child: ListView.separated(
@@ -158,7 +158,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                   spacing: 8.0,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("Color"),
+                                    Text(S.of(context).color),
                                     Container(
                                         width: double.infinity,
                                         child: Wrap(
@@ -228,7 +228,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                             ),
                             onPressed: Navigator.of(context).maybePop,
                             child: Text(
-                              'Cancel',
+                              S.of(context).cancel,
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelLarge
@@ -250,7 +250,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                               Navigator.of(context).maybePop();
                             },
                             child: Text(
-                              'Save',
+                              S.of(context).save,
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelLarge

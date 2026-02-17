@@ -3,7 +3,6 @@ import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
@@ -165,16 +164,33 @@ class CoinActionRow extends StatelessWidget {
 
       if (code == null || code.isEmpty) return;
 
+      late final PaymentRequest req;
       if (SendViewModelBase.isNonZeroAmountLightningInvoice(code) ||
           OpenCryptoPayService.isOpenCryptoPayQR(code)) {
-        Navigator.of(context).pushNamed(Routes.send,
-            arguments: {"paymentRequest": PaymentRequest(code, "", "", "", "")});
-        return;
+        req = PaymentRequest(code, "", "", "", "");
+      } else {
+        final uri = Uri.tryParse(code);
+        if (uri == null) return;
+        req = PaymentRequest.fromUri(uri);
       }
 
-      final uri = Uri.tryParse(code);
-      if (uri == null) return;
-      rootKey.currentState?.handleDeepLinking(uri);
-    };
+      final sendPage = getIt.get<NewSendPage>(
+        param1: SendPageParams(initialPaymentRequest: req),
+      );
+
+      CupertinoScaffold.showCupertinoModalBottomSheet(
+        context: context,
+        barrierColor: Colors.black.withAlpha(60),
+        builder: (context) {
+          return Material(
+            child: ModalNavigator(
+              rootPage: sendPage,
+              parentContext: context,
+            ),
+          );
+        },
+      );
+    }
+    ;
   }
 }

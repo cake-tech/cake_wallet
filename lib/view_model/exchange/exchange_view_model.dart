@@ -204,6 +204,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       loadLimits();
     });
 
+    reaction((_) => forceDecentralizedExchanges, (val) {
+      if (val && (bestRateProvider?.description.isCentralized ?? false)) {
+        bestRateProvider = null;
+        bestRate = 0.0;
+        loadLimits();
+      }
+    });
+
     if (isElectrumWallet) {
       bitcoin!.updateFeeRates(wallet);
     }
@@ -1292,12 +1300,21 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @action
   void toggleForceDecentralizedExchanges() {
     _settingsStore.forceDecentralizedExchanges = !_settingsStore.forceDecentralizedExchanges;
-    final providers = selectedProviders.toList();
-    for (final provider in providers) {
-      if (forceDecentralizedExchanges && provider.description.isCentralized) {
-        removeExchangeProvider(provider);
+    if(forceDecentralizedExchanges) {
+      final providers = selectedProviders.toList();
+      for (final provider in providers) {
+        if (forceDecentralizedExchanges && provider.description.isCentralized) {
+          removeExchangeProvider(provider);
+        }
+      }
+    } else {
+      for(final provider in providerList) {
+        if(!selectedProviders.contains(provider) && provider.description.isCentralized) {
+          addExchangeProvider(provider);
+        }
       }
     }
+
   }
 
   void _setAvailableProviders() {
