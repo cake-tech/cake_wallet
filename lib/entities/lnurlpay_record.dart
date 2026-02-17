@@ -13,7 +13,7 @@ class LNUrlPayRecord {
   final String address;
 
   static Future<String?> checkWellKnownUsername(String username, CryptoCurrency currency) async {
-    if (currency != CryptoCurrency.btc) return null;
+    if (![CryptoCurrency.btc, CryptoCurrency.btcln].contains(currency)) return null;
 
     // split the string by the @ symbol:
     try {
