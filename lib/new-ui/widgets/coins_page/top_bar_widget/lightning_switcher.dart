@@ -21,26 +21,28 @@ class LightningSwitcher extends StatelessWidget {
           decoration: ShapeDecoration(
               shape: RoundedSuperellipseBorder(borderRadius: BorderRadiusGeometry.circular(900.0)),
               color: Theme.of(context).colorScheme.surfaceContainer),
-          width: 84,
-          height: 44,
-          padding: EdgeInsets.all(4),
+          width: 70,
+          height: 36,
+          padding: EdgeInsets.symmetric(vertical: 2),
           child: Stack(
             children: [
               AnimatedContainer(
                 alignment: Alignment.centerRight,
-                margin: EdgeInsets.only(left: lightningMode ? 40 : 0),
+                margin: EdgeInsets.only(left: lightningMode ? 36 : 2),
                 duration: Duration(milliseconds: 250),
                 curve: Curves.easeOutCubic,
-                width: 36,
-                height: double.infinity,
+                width: 32,
+                height: 32,
+                // height: double.infinity,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(900.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(9999990.0)),
                     color: Theme.of(context).colorScheme.primary),
               ),
               Container(
                 child: Row(
-                  spacing: 4.0,
+                  spacing: 2.0,
                   children: [
+                    SizedBox(),
                     AnimatedSwitcher(
                       duration: Duration(milliseconds: 150),
                       transitionBuilder: (child, animation) =>
@@ -48,8 +50,8 @@ class LightningSwitcher extends StatelessWidget {
                       child: SvgPicture.asset(
                         key: ValueKey(lightningMode),
                         'assets/new-ui/switcher-bitcoin.svg',
-                        width: 36,
-                        height: 36,
+                        width: 32,
+                        height: 32,
                         colorFilter: ColorFilter.mode(
                           lightningMode
                               ? Theme.of(context).colorScheme.primary
@@ -65,8 +67,8 @@ class LightningSwitcher extends StatelessWidget {
                       child: SvgPicture.asset(
                         key: ValueKey(lightningMode),
                         'assets/new-ui/switcher-lightning.svg',
-                        width: 36,
-                        height: 36,
+                        width: 32,
+                        height: 32,
                         colorFilter: ColorFilter.mode(
                           lightningMode
                               ? Theme.of(context).colorScheme.surfaceContainer
