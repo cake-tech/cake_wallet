@@ -51,7 +51,7 @@ class ModalTopBar extends StatelessWidget {
                   duration: const Duration(milliseconds: 200),
                   child: Text(
                     title,
-                    key: ValueKey(title),
+                    key: UniqueKey(),
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
