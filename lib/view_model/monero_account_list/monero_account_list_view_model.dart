@@ -2,7 +2,6 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -66,7 +65,6 @@ abstract class MoneroAccountListViewModelBase with Store {
   final WalletBase _wallet;
 
   void select(AccountListItem item) {
-    printV(item.id);
     if (_wallet.type == WalletType.monero) {
       monero!.setCurrentAccount(
         _wallet,
