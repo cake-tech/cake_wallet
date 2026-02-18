@@ -85,38 +85,40 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
     final Completer<String?> initialShortcutCompleter = Completer<String?>();
 
-    const QuickActions quickActions = QuickActions();
+    // Quick Actions plugin supports only iOS/Android platforms
+    if (Platform.isIOS || Platform.isAndroid) {
+      const QuickActions quickActions = QuickActions();
 
-    quickActions.initialize((String shortcutType) {
-      // Complete the completer only once (for cold starts)
-      if (!initialShortcutCompleter.isCompleted) {
-        initialShortcutCompleter.complete(shortcutType);
-      }
+      quickActions.initialize((String shortcutType) {
+        // Complete the completer only once (for cold starts)
+        if (!initialShortcutCompleter.isCompleted) {
+          initialShortcutCompleter.complete(shortcutType);
+        }
 
-      // Convert the shortcut type to a URI and add it to the stream
-      final uri = Uri.parse('cakewallet://quickaction/$shortcutType');
-      quickActionsStream.sink.add(uri);
-    });
+        // Convert the shortcut type to a URI and add it to the stream
+        final uri = Uri.parse('cakewallet://quickaction/$shortcutType');
+        quickActionsStream.sink.add(uri);
+      });
 
-    quickActions.setShortcutItems(<ShortcutItem>[
-      const ShortcutItem(
-          type: 'send',
-          icon: 'send',
-          localizedTitle: 'Send',
-          localizedSubtitle: 'Send funds'),
-      const ShortcutItem(
-          type: 'receive',
-          icon: 'receive',
-          localizedTitle: 'Receive',
-          localizedSubtitle: 'Receive funds')
-    ]);
+      quickActions.setShortcutItems(<ShortcutItem>[
+        const ShortcutItem(
+            type: 'send', icon: 'send', localizedTitle: 'Send', localizedSubtitle: 'Send funds'),
+        const ShortcutItem(
+            type: 'receive',
+            icon: 'receive',
+            localizedTitle: 'Receive',
+            localizedSubtitle: 'Receive funds')
+      ]);
 
-    // Fallback in case the initial shortcut is not received (normal cold start)
-    Future<void>.delayed(const Duration(milliseconds: 500), () {
-      if (!initialShortcutCompleter.isCompleted) {
-        initialShortcutCompleter.complete(null);
-      }
-    });
+      // Fallback in case the initial shortcut is not received (normal cold start)
+      Future<void>.delayed(const Duration(milliseconds: 500), () {
+        if (!initialShortcutCompleter.isCompleted) {
+          initialShortcutCompleter.complete(null);
+        }
+      });
+    } else {
+      initialShortcutCompleter.complete(null);
+    }
 
     final initialQuickAction = await initialShortcutCompleter.future;
     FlutterError.onError = ExceptionHandler.onError;
@@ -137,10 +139,10 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     } catch (e) {
       printV("Failed to initialize tor: $e");
     }
-    
+
     try {
       await linuxSymlinkSharedPreferences();
-    } catch (e) { 
+    } catch (e) {
       printV("Failed to symlink linux preferences: $e");
     }
 
@@ -162,7 +164,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     }
     var zcashPassword = await secureStorageShared.read(key: "com.cakewallet.cw_zcash/zec.db");
     if (zcashPassword == null || zcashPassword.isEmpty) {
-      zcashPassword = generateKey().substring(0,32);
+      zcashPassword = generateKey().substring(0, 32);
       secureStorageShared.write(key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
     }
     zcash?.unlockDatabase(zcashPassword);
@@ -172,11 +174,17 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       runApp(
         DefaultAssetBundle(
           bundle: TestAssetBundle(),
-          child: App(key: topLevelKey, initialQuickAction:initialQuickAction,quickActionsStream: quickActionsStream.stream),
+          child: App(
+              key: topLevelKey,
+              initialQuickAction: initialQuickAction,
+              quickActionsStream: quickActionsStream.stream),
         ),
       );
     } else {
-      runApp(App(key: topLevelKey, initialQuickAction: initialQuickAction, quickActionsStream: quickActionsStream.stream));
+      runApp(App(
+          key: topLevelKey,
+          initialQuickAction: initialQuickAction,
+          quickActionsStream: quickActionsStream.stream));
     }
 
     isAppRunning = true;
@@ -396,7 +404,9 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         final authenticationStore = getIt.get<AuthenticationStore>();
         final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
             ? Routes.welcome
-            : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
+            : settingsStore.currentBuiltinTor
+                ? Routes.startTor
+                : Routes.login;
         final currentTheme = appStore.themeStore.currentTheme;
         final statusBarBrightness =
             currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;
