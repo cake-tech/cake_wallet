@@ -259,23 +259,23 @@ abstract class BalanceViewModelBase with Store {
 
       final availableFiatBalance = isFiatDisabled
           ? ''
-          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: key.formatAmount(BigInt.from(value.available))).withLocalSeperator()}';
+          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: key.formatAmount(BigInt.from(value.available)))}';
 
       final additionalFiatBalance = isFiatDisabled
           ? ''
-          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: key.formatAmount(BigInt.from(value.additional))).withLocalSeperator()}';
+          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: key.formatAmount(BigInt.from(value.additional)))}';
 
       final frozenFiatBalance = isFiatDisabled
           ? ''
-          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: value.frozen != null ? key.formatAmount(BigInt.from(value.frozen!)) : null).withLocalSeperator()}';
+          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: value.frozen != null ? key.formatAmount(BigInt.from(value.frozen!)) : null)}';
 
       final secondAvailableFiatBalance = isFiatDisabled
           ? ''
-          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: value.secondAvailable != null ? key.formatAmount(BigInt.from(value.secondAvailable!)) : null).withLocalSeperator()}';
+          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: value.secondAvailable != null ? key.formatAmount(BigInt.from(value.secondAvailable!)) : null)}';
 
       final secondAdditionalFiatBalance = isFiatDisabled
           ? ''
-          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: value.secondAdditional != null ? key.formatAmount(BigInt.from(value.secondAdditional!)) : null).withLocalSeperator()}';
+          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: value.secondAdditional != null ? key.formatAmount(BigInt.from(value.secondAdditional!)) : null)}';
 
       return MapEntry(
         key,
