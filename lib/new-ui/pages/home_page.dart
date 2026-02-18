@@ -40,7 +40,12 @@ class _NewHomePageState extends State<NewHomePage> {
   void initState() {
     super.initState();
     _setAccountViewModel();
-    reaction((_)=>widget.dashboardViewModel.wallet, (_)=>_setAccountViewModel());
+    reaction((_)=>widget.dashboardViewModel.wallet, (_) {
+      _setAccountViewModel();
+      setState(() {
+        _lightningMode = false;
+      });
+    });
   }
 
   void _setAccountViewModel() {
