@@ -1,5 +1,5 @@
 import 'package:cake_wallet/core/wallet_name_validator.dart';
-import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';

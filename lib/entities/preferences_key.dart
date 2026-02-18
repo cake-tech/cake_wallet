@@ -26,6 +26,7 @@ class PreferencesKey {
   static const currentZcashNodeIdKey = 'current_node_id_zec';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
+  static const displayAmountsInSatoshi = 'display_amounts_in_satoshi';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const isAppSecureKey = 'is_app_secure';
   static const disableTradeOption = 'disable_buy';
@@ -62,6 +63,7 @@ class PreferencesKey {
   static const zanoTransactionPriority = 'current_fee_priority_zano';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
   static const decredTransactionPriority = 'current_fee_priority_decred';
+  static const zcashTransactionPriority = 'current_fee_priority_decred';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const mwebCardDisplay = 'mwebCardDisplay';
@@ -105,6 +107,8 @@ class PreferencesKey {
   static const showPayjoinCard = 'show_payjoin_card';
   static const showCameraConsent = 'show_camera_consent';
   static const showDecredInfoCard = 'show_decred_info_card';
+  static const forceDecentralizedExchanges = 'force_decentralized_exchanges';
+  static const decentralizedExchangesPromptDismissed = 'decentralized_exchanges_prompt_dismissed';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';

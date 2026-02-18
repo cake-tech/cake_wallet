@@ -45,6 +45,7 @@ class DarkTheme extends MaterialThemeBase {
         onErrorContainer: const Color(0xFFFFDAD6),
         surface: surfaceColor,
         onSurface: const Color(0xFFD7E2F7),
+        surfaceDim: const Color(0xFF0F1A36),
         onSurfaceVariant: const Color(0xFF8C9FBB),
         surfaceContainerLowest: Color(0xFF171C30),
         surfaceContainerLow: Color(0xFF2D385C),
@@ -52,9 +53,9 @@ class DarkTheme extends MaterialThemeBase {
         surfaceContainerHigh: Color(0xFF2A3E73),
         surfaceContainerHighest: Color(0xFF334C8C),
         outline: const Color(0xFF9EACC1),
-        outlineVariant: const Color(0xFF3E5579),
+        outlineVariant: const Color(0xFF2A3E73),
       );
-  static const String fontFamily = 'Lato';
+  static const String fontFamily = 'Wix Madefor Text';
   @override
   TextTheme get textTheme => TextTheme(
         displayLarge: TextStyle(
@@ -76,26 +77,26 @@ class DarkTheme extends MaterialThemeBase {
           color: colorScheme.onSurface,
         ),
         headlineLarge: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.w400,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineMedium: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w400,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineSmall: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w400,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         titleLarge: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),

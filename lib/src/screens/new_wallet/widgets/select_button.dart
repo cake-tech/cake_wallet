@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:flutter/material.dart';
 
@@ -67,7 +68,7 @@ class SelectButton extends StatelessWidget {
         padding: padding ?? EdgeInsets.only(left: 30, right: 30),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(15)),
+          borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(18)),
           color: backgroundColor,
           border: borderColor != null ? Border.all(color: borderColor!, width: 2) : null,
         ),

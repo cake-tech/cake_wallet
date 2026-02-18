@@ -313,3 +313,11 @@ WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
       return null;
   }
 }
+
+WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
+  if(type.tag != null && type.tag != CryptoCurrency.btcln.tag) {
+    return cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
+  } else {
+    return cryptoCurrencyToWalletType(type);
+  }
+}

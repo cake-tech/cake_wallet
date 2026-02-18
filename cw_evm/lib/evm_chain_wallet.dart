@@ -99,7 +99,7 @@ abstract class EVMChainWalletBase
         _isTransactionUpdating = false,
         _client = client,
         selectedChainId = initialChainId ?? _getInitialChainId(walletInfo.type),
-        walletAddresses = EVMChainWalletAddresses(walletInfo),
+        walletAddresses = EVMChainWalletAddresses(walletInfo, initialChainId ?? _getInitialChainId(walletInfo.type)),
         balance = ObservableMap<CryptoCurrency, EVMChainERC20Balance>.of(
           {
             nativeCurrency: initialBalance ?? EVMChainERC20Balance(BigInt.zero),
@@ -261,6 +261,7 @@ abstract class EVMChainWalletBase
       } catch (_) {
         // erc20TokensBox doesn't exist yet, run migration from global box
         await _initEthereumErc20TokensBox();
+        await _normalizeEvmChainErc20TokensBoxKeys();
         return;
       }
     }

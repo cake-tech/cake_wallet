@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cake_wallet/core/payment_uris.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -30,6 +30,7 @@ import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -112,6 +113,8 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   late Output output;
 
+  AmountParsingProxy get _amountParsingProxy => sendViewModel.amountParsingProxy;
+
   @observable
   Trade trade;
 
@@ -138,18 +141,18 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
-      ? '\n\n' + S.current.exchange_extra_info
-      : '';
+      ? "\n\n${S.current.exchange_extra_info}"
+      : "";
 
   @computed
   String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
-      ? ''
-      : sendViewModel.pendingTransactionFiatAmount + ' ' + sendViewModel.fiat.title;
+      ? ""
+      : "${sendViewModel.pendingTransactionFiatAmount} ${sendViewModel.fiat.title}";
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted => sendViewModel.isFiatDisabled
-      ? ''
-      : sendViewModel.pendingTransactionFeeFiatAmount + ' ' + sendViewModel.fiat.title;
+      ? ""
+      : "${sendViewModel.pendingTransactionFeeFiatAmount} ${sendViewModel.fiat.title}";
 
   @observable
   ObservableList<ExchangeTradeItem> items;
@@ -266,12 +269,12 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   void _updateItems() {
     final trade = tradesStore.trade!;
-    final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
 
+    final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
     final tradeTo = trade.toRaw >= 0 ? trade.to : trade.userCurrencyTo;
 
-    final tagFrom = tradeFrom?.tag != null ? '${tradeFrom!.tag}' + ' ' : '';
-    final tagTo = tradeTo?.tag != null ? '${tradeTo!.tag}' + ' ' : '';
+    final tagFrom = tradeFrom?.tag != null ? "${tradeFrom!.tag} " : "";
+    final tagTo = tradeTo?.tag != null ? "${tradeTo!.tag} " : "";
 
     items.clear();
 
@@ -279,7 +282,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       items.add(
         ExchangeTradeItem(
           title: "${trade.provider.title} ${S.current.id}",
-          data: '${trade.id}',
+          data: "${trade.id}",
           isCopied: true,
           isReceiveDetail: true,
           isExternalSendDetail: false,
@@ -290,17 +293,26 @@ abstract class ExchangeTradeViewModelBase with Store {
       items.addAll([
         ExchangeTradeItem(
           title: S.current.amount,
-          data: '${trade.amount} ${tradeFrom}',
+          data:
+              "${_amountParsingProxy.getDisplayCryptoAmount(trade.amount, tradeFrom!)} ${_amountParsingProxy.getCryptoSymbol(tradeFrom)}",
           isCopied: false,
           isReceiveDetail: false,
           isExternalSendDetail: true,
         ),
         ExchangeTradeItem(
-          title: S.current.you_will_receive_estimated_amount + ':',
-          data: '${tradesStore.trade?.receiveAmount} ${tradeTo}',
+          title: "${S.current.you_will_receive_estimated_amount}:",
+          data:
+              "${_amountParsingProxy.getDisplayCryptoAmount(tradesStore.trade?.receiveAmount ?? "0", tradeTo!)} ${_amountParsingProxy.getCryptoSymbol(tradeTo)}",
           isCopied: true,
           isReceiveDetail: true,
           isExternalSendDetail: false,
+        ),
+        ExchangeTradeItem(
+          title: "${S.current.send_to_this_address("${tradeFrom}", tagFrom)}:",
+          data: trade.inputAddress ?? "",
+          isCopied: false,
+          isReceiveDetail: false,
+          isExternalSendDetail: true,
         ),
       ]);
 
@@ -327,24 +339,25 @@ abstract class ExchangeTradeViewModelBase with Store {
     if (isExtraIdExist) {
       final title = tradeFrom == CryptoCurrency.xrp
           ? S.current.destination_tag
-          : tradeFrom == CryptoCurrency.xlm || tradeFrom == CryptoCurrency.ton
+          : [CryptoCurrency.xlm, CryptoCurrency.ton].contains(tradeFrom)
               ? S.current.memo
               : S.current.extra_id;
 
       items.add(
         ExchangeTradeItem(
-            title: title,
-            data: trade.extraId ?? '',
-            isCopied: true,
-            isReceiveDetail: !isExtraIdExist,
-            isExternalSendDetail: isExtraIdExist),
+          title: title,
+          data: trade.extraId ?? "",
+          isCopied: true,
+          isReceiveDetail: !isExtraIdExist,
+          isExternalSendDetail: isExtraIdExist,
+        ),
       );
     }
 
     items.add(
       ExchangeTradeItem(
-        title: S.current.arrive_in_this_address('${tradeTo}', tagTo) + ':',
-        data: trade.payoutAddress ?? '',
+        title: "${S.current.arrive_in_this_address("${tradeTo}", tagTo)}:",
+        data: trade.payoutAddress ?? "",
         isCopied: true,
         isReceiveDetail: true,
         isExternalSendDetail: false,
@@ -466,13 +479,11 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     switch (wallet.type) {
       case WalletType.bitcoin:
-        return BitcoinURI(amount: amount, address: inputAddress);
-      case WalletType.litecoin:
-        return LitecoinURI(amount: amount, address: inputAddress);
+        return BitcoinURI(address: inputAddress, amount: amount);
       case WalletType.bitcoinCash:
-        return BitcoinCashURI(amount: amount, address: inputAddress);
+        return BitcoinCashURI(address: inputAddress, amount: amount);
       case WalletType.dogecoin:
-        return DogeURI(amount: amount, address: inputAddress);
+        return DogeURI(address: inputAddress, amount: amount);
       case WalletType.ethereum:
         return _createERC681URI(fromCurrency, inputAddress, amount);
       // TODO: Expand ERC681URI support to Polygon(modify decoding flow for QRs, pay anything, and deep link handling)
@@ -489,17 +500,11 @@ abstract class ExchangeTradeViewModelBase with Store {
       case WalletType.tron:
         return TronURI(amount: amount, address: inputAddress);
       case WalletType.monero:
-        return MoneroURI(amount: amount, address: inputAddress);
+        return MoneroURI(address: inputAddress, amount: amount);
       case WalletType.wownero:
-        return WowneroURI(amount: amount, address: inputAddress);
-      case WalletType.zano:
-        return ZanoURI(amount: amount, address: inputAddress);
-      case WalletType.decred:
-        return DecredURI(amount: amount, address: inputAddress);
-      case WalletType.haven:
-        return HavenURI(amount: amount, address: inputAddress);
-      case WalletType.nano:
-        return NanoURI(amount: amount, address: inputAddress);
+        return MoneroURI(
+            address: inputAddress,
+            amount: amount);
       default:
         return null;
     }

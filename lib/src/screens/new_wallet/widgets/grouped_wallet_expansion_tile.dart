@@ -67,8 +67,8 @@ class GroupedWalletExpansionTile extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6),
       child: ExpansionTile(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
+        collapsedShape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
         collapsedBackgroundColor: backgroundColor,
         backgroundColor: backgroundColor,
         onExpansionChanged: onExpansionChanged,

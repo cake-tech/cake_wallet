@@ -11,6 +11,7 @@ import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ManageNodesPage extends BasePage {
   ManageNodesPage(this.isPow, {this.nodeListViewModel, this.powNodeListViewModel})
@@ -60,6 +61,7 @@ class ManageNodesPage extends BasePage {
                   nodeListViewModel?.nodes.length ?? powNodeListViewModel!.nodes.length;
               return Flexible(
                 child: SectionStandardList(
+                  scrollController: ModalScrollController.of(context),
                   sectionCount: 1,
                   dividerPadding: EdgeInsets.symmetric(horizontal: 24),
                   itemCounter: (int sectionIndex) => itemsCount,

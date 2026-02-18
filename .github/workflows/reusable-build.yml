@@ -58,6 +58,7 @@ jobs:
 
       - name: Add secrets
         run: |
+          touch cw_bitcoin/lib/.secrets.g.dart
           touch cw_evm/lib/.secrets.g.dart
           touch cw_solana/lib/.secrets.g.dart
           touch cw_core/lib/.secrets.g.dart
@@ -78,6 +79,8 @@ jobs:
 
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
 
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 
@@ -196,7 +199,10 @@ jobs:
           sanitized_branch_name=$(echo "$sanitized_branch_name" | sed 's/[^a-z0-9]//g')  # Remove all special characters
 
           echo -e "id=com.cakewallet.test_${sanitized_branch_name}\nname=${BRANCH_NAME}" > android/app.properties
-
+      
+      - name: Install Protoc
+        run: sudo apt-get update || true && sudo apt-get install -y protobuf-compiler
+        
       - name: Build
         run: |
           export ANDROID_NDK_HOME="$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION"

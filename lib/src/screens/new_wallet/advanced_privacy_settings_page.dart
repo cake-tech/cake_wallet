@@ -84,7 +84,7 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
 class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBody> {
   final TextEditingController passphraseController = TextEditingController();
   final TextEditingController confirmPassphraseController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<NodeFormState>();
   final _passphraseFormKey = GlobalKey<FormState>();
   bool? testnetValue;
 
@@ -274,7 +274,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                     Padding(
                       padding: EdgeInsets.only(left: 24, right: 24, top: 24),
                       child: NodeForm(
-                        formKey: _formKey,
+                        key: _formKey,
                         nodeViewModel: widget.nodeViewModel,
                       ),
                     )

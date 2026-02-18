@@ -24,7 +24,7 @@ class MwebSettingsPage extends BasePage {
           child: Column(
             children: [
               SettingsSwitcherCell(
-                title: S.current.litecoin_mweb_display_card,
+                title: S.current.litecoin_mweb_display,
                 value: _mwebSettingsViewModel.mwebCardDisplay,
                 onValueChange: (_, bool value) {
                   _mwebSettingsViewModel.setMwebCardDisplay(value);

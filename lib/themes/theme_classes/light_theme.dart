@@ -44,6 +44,7 @@ class LightTheme extends MaterialThemeBase {
         errorContainer: const Color(0xFFFFBDBD),
         onErrorContainer: const Color(0xFFE43D3D),
         surface: surfaceColor,
+        surfaceDim: const Color(0xFFE7E7FD),
         onSurface: const Color(0xFF312938),
         onSurfaceVariant: const Color(0xFF6C6772),
         surfaceContainerLowest: Color(0xFFE4E4E4),
@@ -51,8 +52,9 @@ class LightTheme extends MaterialThemeBase {
         surfaceContainer: Color(0xFFFBFBFD),
         surfaceContainerHigh: Color(0xFFFDFDFE),
         surfaceContainerHighest: Color(0xFFFFFFFF),
+        onInverseSurface: Color(0xFFFAFAFA),
         outline: const Color(0xFF7B757C),
-        outlineVariant: const Color(0xFFCBC4CB),
+        outlineVariant: const Color(0xFFEDEDF6),
       );
 
   @override
@@ -76,26 +78,26 @@ class LightTheme extends MaterialThemeBase {
           color: colorScheme.onSurface,
         ),
         headlineLarge: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.w400,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineMedium: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w400,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineSmall: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w400,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         titleLarge: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
@@ -149,7 +151,7 @@ class LightTheme extends MaterialThemeBase {
         ),
       );
 
-  static const String fontFamily = 'Lato';
+  static const String fontFamily = 'Wix Madefor Text';
   @override
   ThemeData get themeData => ThemeData(
         useMaterial3: true,

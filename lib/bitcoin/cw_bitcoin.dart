@@ -264,6 +264,7 @@ class CWBitcoin extends Bitcoin {
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
         case UnspentCoinType.nonMweb:
           return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.lightning:
         case UnspentCoinType.any:
           return true;
       }
@@ -320,30 +321,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<ReceivePageOption> getBitcoinReceivePageOptions(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    final keys = bitcoinWallet.keys;
-    if (keys.privateKey.isEmpty) {
-      return BitcoinReceivePageOption.allViewOnly;
-    }
-    return BitcoinReceivePageOption.all;
-  }
-
-  @override
-  List<ReceivePageOption> getLitecoinReceivePageOptions(Object wallet) {
-    final litecoinWallet = wallet as ElectrumWallet;
-    if (Platform.isLinux ||
-        Platform.isMacOS ||
-        Platform.isWindows ||
-        litecoinWallet.isHardwareWallet) {
-      return BitcoinReceivePageOption.allLitecoin
-          .where((element) => element != BitcoinReceivePageOption.mweb)
-          .toList();
-    }
-    return BitcoinReceivePageOption.allLitecoin;
-  }
-
-  @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
     switch (option) {
       case BitcoinReceivePageOption.p2pkh:
@@ -361,6 +338,13 @@ class CWBitcoin extends Bitcoin {
         return SegwitAddresType.p2wpkh;
     }
   }
+
+  @override
+  BitcoinReceivePageOption getBitcoinLightningReceivePageOption() => BitcoinReceivePageOption.lightning;
+  @override
+  BitcoinReceivePageOption getBitcoinSegwitPageOption() => BitcoinReceivePageOption.p2wpkh;
+  @override
+  BitcoinReceivePageOption getLitecoinMwebReceivePageOption() => BitcoinReceivePageOption.mweb;
 
   @override
   Future<List<DerivationType>> compareDerivationMethods(
@@ -703,6 +687,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
+    if (pendingTransaction is PendingLightningTransaction) return outputs;
+
     final pendingTx = pendingTransaction as PendingBitcoinTransaction;
 
     if (!pendingTx.hasSilentPayment) {
@@ -780,6 +766,15 @@ class CWBitcoin extends Bitcoin {
     }
   }
 
+  Future<String?> getUnusedSpakDepositAddress(Object wallet) async {
+    try {
+      final bitcoinWallet = wallet as BitcoinWallet;
+      return wallet.lightningWallet?.getDepositAddress();
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Future<void> commitPsbtUR(Object wallet, List<String> urCodes) {
     if (wallet is LitecoinWallet) return wallet.commitPsbtUR(urCodes);
@@ -838,5 +833,57 @@ class CWBitcoin extends Bitcoin {
      } catch (e) {}
 
     return addresses;
+  }
+
+  @override
+  String getNetworkName(Object wallet) {
+    return (wallet as ElectrumWallet).network.value;
+  }
+
+  @override
+  Future<void> setLightningUsername(Object wallet, String username) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    await electrumWallet.walletAddresses.setLightningAddress(wallet.name, newAddress: username);
+  }
+
+  @override
+  Future<String?> getLightningUsername(Object wallet) async {
+    final electrumWallet = wallet as ElectrumWallet;
+
+    if (electrumWallet.walletAddresses.lightningWallet == null) {
+      printV("lightning wallet is null");
+      return null;
+    }
+    return (await electrumWallet.walletAddresses.lightningWallet!.getAddress())
+        ?.replaceFirst("@cake.cash", "");
+  }
+
+  @override
+  String? getBreezSdkError(Object exception) {
+    if (exception is SdkError_SparkError) {
+      return (exception as SdkError_SparkError).field0.toString();
+    }
+    if (exception is SdkError_InvalidUuid) {
+      return (exception as SdkError_InvalidUuid).field0.toString();
+    }
+    if (exception is SdkError_InvalidInput) {
+      return (exception as SdkError_InvalidInput).field0.toString();
+    }
+    if (exception is SdkError_NetworkError) {
+      return (exception as SdkError_NetworkError).field0.toString();
+    }
+    if (exception is SdkError_StorageError) {
+      return (exception as SdkError_StorageError).field0.toString();
+    }
+    if (exception is SdkError_ChainServiceError) {
+      return (exception as SdkError_ChainServiceError).field0.toString();
+    }
+    if (exception is SdkError_LnurlError) {
+      return (exception as SdkError_LnurlError).field0.toString();
+    }
+    if (exception is SdkError_Generic) {
+      return (exception as SdkError_Generic).field0.toString();
+    }
+    return null;
   }
 }

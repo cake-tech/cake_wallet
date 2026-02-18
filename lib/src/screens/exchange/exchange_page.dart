@@ -615,7 +615,7 @@ class ExchangePage extends BasePage {
       try {
         exchangeViewModel.receiveCurrency =
             CryptoCurrency.fromString(initialPaymentRequest!.scheme);
-        exchangeViewModel.receiveAmount = initialPaymentRequest!.amount;
+        exchangeViewModel.setCanonicalReceiveAmount(initialPaymentRequest!.amount);
         exchangeViewModel.receiveAddress = initialPaymentRequest!.address;
       } catch (e) {
         printV('error: ${e.toString()}');
@@ -718,6 +718,7 @@ class ExchangePage extends BasePage {
               ? AmountValidator(
                   isAutovalidate: true,
                   currency: exchangeViewModel.depositCurrency,
+                  amountParsingProxy: exchangeViewModel.amountParsingProxy,
                   minValue: exchangeViewModel.limits.min.toString(),
                   maxValue: exchangeViewModel.limits.max.toString(),
                 ).call(value)
@@ -734,6 +735,7 @@ class ExchangePage extends BasePage {
           exchangeViewModel.depositAddress =
               await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
         },
+        useSatoshis: exchangeViewModel.useSatoshiDeposit,
       ),
     );
 
@@ -765,6 +767,7 @@ class ExchangePage extends BasePage {
               ? AmountValidator(
                   isAutovalidate: true,
                   currency: exchangeViewModel.receiveCurrency,
+                  amountParsingProxy: exchangeViewModel.amountParsingProxy,
                   minValue: exchangeViewModel.limits.min.toString(),
                   maxValue: exchangeViewModel.limits.max.toString(),
                 ).call(value)
@@ -781,6 +784,7 @@ class ExchangePage extends BasePage {
           exchangeViewModel.receiveAddress =
               await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
         },
+        useSatoshis: exchangeViewModel.useSatoshisReceive,
       ),
     );
 

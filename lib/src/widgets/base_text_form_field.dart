@@ -47,6 +47,7 @@ class BaseTextFormField extends StatelessWidget {
     this.suffixIconConstraints,
     super.key,
     this.suffixText,
+    this.borderRadius = const BorderRadius.all(Radius.circular(18)),
   });
 
   final TextEditingController? controller;
@@ -92,6 +93,7 @@ class BaseTextFormField extends StatelessWidget {
   final void Function(String)? onFieldSubmitted;
   final bool hasUnderlineBorder;
   final double borderWidth;
+  final BorderRadius borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -147,44 +149,49 @@ class BaseTextFormField extends StatelessWidget {
         labelStyle: !hasUnderlineBorder ? placeholderTextStyle : null,
         border: hasUnderlineBorder
             ? UnderlineInputBorder(
+                borderRadius: borderRadius,
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.outlineVariant,
                   style: borderWidth == 0.0 ? BorderStyle.none : BorderStyle.solid,
                   width: borderWidth,
                 ),
               )
-            : null,
+            : OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
         focusedBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
+                borderRadius: borderRadius,
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.outlineVariant,
                   style: borderWidth == 0.0 ? BorderStyle.none : BorderStyle.solid,
                   width: borderWidth,
                 ),
               )
-            : null,
+            : OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
         disabledBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
+                borderRadius: borderRadius,
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.outlineVariant,
                   width: borderWidth,
                 ),
               )
-            : null,
+            : OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
         enabledBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
+                borderRadius: borderRadius,
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.outlineVariant,
                   style: borderWidth == 0.0 ? BorderStyle.none : BorderStyle.solid,
                   width: borderWidth,
                 ),
               )
-            : null,
+            : OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
         errorBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
+                borderRadius: borderRadius,
                 borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
               )
-            : null,
+            : OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
       ),
       validator: validator,
     );

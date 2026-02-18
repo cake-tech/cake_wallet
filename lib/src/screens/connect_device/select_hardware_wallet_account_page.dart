@@ -1,5 +1,5 @@
 import 'package:cake_wallet/core/wallet_name_validator.dart';
-import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
@@ -11,7 +11,6 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';

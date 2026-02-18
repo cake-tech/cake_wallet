@@ -126,6 +126,7 @@ import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
+import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 """;
@@ -147,6 +148,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
@@ -231,9 +233,10 @@ abstract class Bitcoin {
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
-  List<ReceivePageOption> getBitcoinReceivePageOptions(Object wallet);
-  List<ReceivePageOption> getLitecoinReceivePageOptions(Object wallet);
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
+  ReceivePageOption getBitcoinLightningReceivePageOption();
+  ReceivePageOption getBitcoinSegwitPageOption();
+  ReceivePageOption getLitecoinMwebReceivePageOption();
   bool isPayjoinAvailable(Object wallet);
   bool hasSelectedSilentPayments(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);
@@ -272,6 +275,7 @@ abstract class Bitcoin {
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
+  Future<String?> getUnusedSpakDepositAddress(Object wallet);
   Future<void> commitPsbtUR(Object wallet, List<String> urCodes);
 
   void updatePayjoinState(Object wallet, bool state);
@@ -280,6 +284,10 @@ abstract class Bitcoin {
   void stopPayjoinSessions(Object wallet);
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
+  String getNetworkName(Object wallet);
+  Future<void> setLightningUsername(Object wallet, String username);
+  Future<String?> getLightningUsername(Object wallet);
+  String? getBreezSdkError(Object exception);
 }
   """;
 
@@ -1647,9 +1655,9 @@ abstract class Zcash {
   TransactionPriority getZcashTransactionPriorityAutomatic();
   TransactionPriority deserializeZcashTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
-  List<ReceivePageOption> getZcashReceivePageOptions(Object wallet);
   ReceivePageOption getSelectedAddressType(Object wallet);
   dynamic getZcashAddressType(ReceivePageOption option);
+  bool hasSelectedTransparentAddress(Object wallet);
   Future<void> setAddressType(Object wallet, dynamic option);
   dynamic getOptionToType(ReceivePageOption option);
   void unlockDatabase(String password);
