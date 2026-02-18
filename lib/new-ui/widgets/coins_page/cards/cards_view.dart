@@ -300,7 +300,7 @@ class _CardsViewState extends State<CardsView> {
       ));
       showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
         return FractionallySizedBox(
-            heightFactor: 0.65,
+            heightFactor: 0.6,
             child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
         );
       });
@@ -342,7 +342,7 @@ class _CardsViewState extends State<CardsView> {
       ));
       showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
         return FractionallySizedBox(
-          heightFactor: 0.65,
+          heightFactor: 0.6,
           child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
         );
       });

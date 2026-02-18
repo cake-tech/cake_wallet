@@ -79,9 +79,9 @@ class SendPageModes {
   final String? description;
   final String? confirmSheetIconPath;
   final SendPageHelpContent? helpContent;
-  final bool showConfirmationAsModal;
+  final bool popOnConfirmation;
 
-  const SendPageModes({required this.title, this.description, required this.showAddressField,this.confirmSheetIconPath, this.helpContent, this.showConfirmationAsModal=true}
+  const SendPageModes({required this.title, this.description, required this.showAddressField,this.confirmSheetIconPath, this.helpContent, this.popOnConfirmation=true}
       );
 
   static final SendPageModes normal = SendPageModes(title: S.current.send, showAddressField: true);
@@ -96,7 +96,7 @@ class SendPageModes {
           imagePath: "assets/new-ui/lightning_deposit_help.svg",
           description: S.current.lightning_deposit_desc,
           disclaimer: S.current.lightning_deposit_disclaimer),
-      showConfirmationAsModal: false);
+      popOnConfirmation: false);
 
 
   static final SendPageModes lightningWithdrawal = SendPageModes(
@@ -108,7 +108,7 @@ class SendPageModes {
           imagePath: "assets/new-ui/lightning_withdraw_help.svg",
           description: S.current.lightning_withdraw_desc,
           disclaimer: S.current.lightning_withdraw_disclaimer),
-      showConfirmationAsModal: false);
+      popOnConfirmation: false);
 
   static final SendPageModes mwebDeposit = SendPageModes(
       title: S.current.mask + " Litecoin",
@@ -119,7 +119,7 @@ class SendPageModes {
           imagePath: "assets/new-ui/mweb_help.svg",
           description: S.current.mweb_help_desc_1+"\n\n"+S.current.mweb_help_desc_2,
           disclaimer: S.current.mweb_help_disclaimer),
-      showConfirmationAsModal: false);
+      popOnConfirmation: false);
 
 
   static final SendPageModes mwebWithdrawal = SendPageModes(
@@ -131,7 +131,7 @@ class SendPageModes {
           imagePath: "assets/new-ui/mweb_help.svg",
           description: S.current.mweb_help_desc_1+"\n\n"+S.current.mweb_help_desc_2,
           disclaimer: S.current.mweb_help_disclaimer),
-      showConfirmationAsModal: false);
+      popOnConfirmation: false);
 
   static final all = [
     normal,
@@ -647,7 +647,9 @@ class _NewSendPageState extends State<NewSendPage> {
       conditionToDetermineIfToUse2FA: check,
       onAuthSuccess: (value) async {
         if (value) {
-          if (widget.mode.showConfirmationAsModal) {
+            if(!widget.mode.popOnConfirmation) {
+              Navigator.of(context, rootNavigator: true).pop();
+            }
             showModalBottomSheet(
                 isScrollControlled: true,
                 context: navigatorKey.currentContext ?? context,
@@ -664,18 +666,6 @@ class _NewSendPageState extends State<NewSendPage> {
               }
               widget.sendViewModel.dismissTransaction();
             });
-          } else {
-            Navigator.of(context).push(CupertinoPageRoute(
-                builder: (context) => Material(
-                    child: SendConfirmSheet(
-                      title: widget.mode.title,
-                      iconPath: widget.mode.confirmSheetIconPath ?? widget.mode.helpContent?.imagePath,
-                      isPage: true,
-                      sendViewModel: widget.sendViewModel,
-                    )))).then((value) async {
-              widget.sendViewModel.dismissTransaction();
-            });
-          }
 
           await widget.sendViewModel.createTransaction();
         }
