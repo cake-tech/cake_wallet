@@ -58,8 +58,8 @@ class HistoryTile extends StatelessWidget {
     if (asset == CryptoCurrency.btcln) {
       return Stack(
         children: [
-          Image.asset(
-            asset!.iconPath!,
+          SvgPicture.asset(
+            "assets/images/lightning-icon.svg",
             width: 34,
             height: 34,
           ),
