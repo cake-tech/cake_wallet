@@ -53,88 +53,91 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
           decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-          child: Column(
-            spacing: 24,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ModalTopBar(
-                  title: S.of(context).label_address,
-                  leadingIcon: Icon(Icons.close),
-                  onLeadingPressed: Navigator.of(context).pop,
-                  onTrailingPressed: () {}),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                child: Column(spacing: 24, children: [
-                  Text(
-                    S.of(context).address_label_explainer,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  ),
-                  NewListSections(sections: {
-                    "": [ListItemTextField(keyValue: "label", label: S.of(context).label)]
-                  }, controllers: {
-                    "label": _controller
-                  }),
-                  SizedBox(
-                    height: 36,
-                    child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: defaultLabels.length,
-                        separatorBuilder: (context, index) {
-                          return SizedBox(width: 8);
-                        },
-                        itemBuilder: (context, index) {
-                          return Container(
-                            height: 36,
-                            decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                borderRadius: BorderRadius.circular(999)),
-                            child: Material(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(999),
-                              child: InkWell(
+          child: SafeArea(
+            top:false,
+            child: Column(
+              spacing: 24,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ModalTopBar(
+                    title: S.of(context).label_address,
+                    leadingIcon: Icon(Icons.close),
+                    onLeadingPressed: Navigator.of(context).pop,
+                    onTrailingPressed: () {}),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  child: Column(spacing: 24, children: [
+                    Text(
+                      S.of(context).address_label_explainer,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
+                    NewListSections(sections: {
+                      "": [ListItemTextField(keyValue: "label", label: S.of(context).label)]
+                    }, controllers: {
+                      "label": _controller
+                    }),
+                    SizedBox(
+                      height: 36,
+                      child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: defaultLabels.length,
+                          separatorBuilder: (context, index) {
+                            return SizedBox(width: 8);
+                          },
+                          itemBuilder: (context, index) {
+                            return Container(
+                              height: 36,
+                              decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                  borderRadius: BorderRadius.circular(999)),
+                              child: Material(
+                                color: Colors.transparent,
                                 borderRadius: BorderRadius.circular(999),
-                                onTap: () {
-                                  _controller.text = defaultLabels[index];
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                  child: Center(
-                                    child: Text(
-                                      defaultLabels[index],
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          color: Theme.of(context).colorScheme.primary),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(999),
+                                  onTap: () {
+                                    _controller.text = defaultLabels[index];
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                    child: Center(
+                                      child: Text(
+                                        defaultLabels[index],
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            color: Theme.of(context).colorScheme.primary),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        }),
-                  ),
-                  Observer(
-                    builder: (_) {
-                      final isSaving =
-                          (widget.walletAddressEditOrCreateViewModel.state is AddressIsSaving);
+                            );
+                          }),
+                    ),
+                    Observer(
+                      builder: (_) {
+                        final isSaving =
+                            (widget.walletAddressEditOrCreateViewModel.state is AddressIsSaving);
 
-                      return NewPrimaryButton(
-                          isLoading: isSaving,
-                          onPressed: () {
-                            if (isSaving) return;
-                            widget.walletAddressEditOrCreateViewModel.label = _controller.text;
-                            widget.walletAddressEditOrCreateViewModel.save();
-                          },
-                          text: S.of(context).continue_text,
-                          color: Theme.of(context).colorScheme.primary,
-                          textColor: Theme.of(context).colorScheme.onPrimary);
-                    },
-                  )
-                ]),
-              ),
-              SizedBox()
-            ],
+                        return NewPrimaryButton(
+                            isLoading: isSaving,
+                            onPressed: () {
+                              if (isSaving) return;
+                              widget.walletAddressEditOrCreateViewModel.label = _controller.text;
+                              widget.walletAddressEditOrCreateViewModel.save();
+                            },
+                            text: S.of(context).continue_text,
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary);
+                      },
+                    )
+                  ]),
+                ),
+                SizedBox()
+              ],
+            ),
           )),
     );
   }
