@@ -49,6 +49,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         selectedCurrency = appStore.wallet!.currency,
         hasAccounts = [WalletType.monero, WalletType.wownero].contains(appStore.wallet!.type),
         _appStore = appStore,
+        receivePageOption = appStore.wallet!.walletAddresses.walletInfo.addressPageType ?? '',
         super(appStore: appStore) {
     _init();
   }
@@ -547,8 +548,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   bool get isLightning => wallet.type == WalletType.bitcoin && (uri is LightningPaymentRequest);
 
   @computed
-  bool get isZCashTransparent =>
-      wallet.type == WalletType.zcash && zcash!.hasSelectedTransparentAddress(wallet);
+  bool get isZCashTransparent {
+    receivePageOption;
+    return wallet.type == WalletType.zcash && zcash!.hasSelectedTransparentAddress(wallet);
+  }
+
+  @observable
+  String receivePageOption;
 
   @computed
   bool get isBitcoinViewOnly =>
@@ -584,6 +590,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   Future<void> setAddressType(dynamic option) async {
+    receivePageOption = option.toString();
     if ([WalletType.bitcoin, WalletType.litecoin].contains(wallet.type)) {
       await bitcoin!.setAddressType(wallet, option);
     }
