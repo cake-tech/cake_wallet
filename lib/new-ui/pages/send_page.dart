@@ -661,7 +661,8 @@ class _NewSendPageState extends State<NewSendPage> {
                     sendViewModel: widget.sendViewModel,
                   );
                 }).then((value) async {
-              if (widget.sendViewModel.state is TransactionCommitted) {
+              if (widget.sendViewModel.state is TransactionCommitted && widget.mode.popOnConfirmation) {
+                if(!mounted) return;
                 Navigator.of(context, rootNavigator: true).pop();
               }
               widget.sendViewModel.dismissTransaction();
