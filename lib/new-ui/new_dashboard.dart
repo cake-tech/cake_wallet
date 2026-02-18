@@ -46,11 +46,7 @@ class _NewDashboardState extends State<NewDashboard> {
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            MultiBlocProvider(providers: [
-              BlocProvider<CardCustomizerBloc>(
-                create: (_) => getIt.get<CardCustomizerBloc>(),
-              )
-            ], child: widget.dashboardPageWidgets[_selectedPage]),
+            widget.dashboardPageWidgets[_selectedPage],
             IgnorePointer(
               child: Container(
                 height: 150,
