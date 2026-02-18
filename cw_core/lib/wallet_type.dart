@@ -315,7 +315,7 @@ WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
 }
 
 WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
-  if(type.tag != null && type.tag != CryptoCurrency.btcln.tag) {
+  if(type.tag != null && type.tag != CryptoCurrency.btcln.tag && type.tag != CryptoCurrency.bnb.tag) {
     return cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
   } else {
     return cryptoCurrencyToWalletType(type);

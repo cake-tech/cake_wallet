@@ -1,5 +1,6 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -23,7 +24,7 @@ class AssetsSection extends StatelessWidget {
             shrinkWrap: true,
             padding: EdgeInsets.zero,
             physics: NeverScrollableScrollPhysics(),
-            itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length-1 + (hasMweb ? 2 : 0),
+            itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length + (hasMweb ? 1 : 0),
             itemBuilder: (context, index) {
               return Observer(builder: (context){
                 if (hasMweb) {
@@ -41,12 +42,12 @@ class AssetsSection extends StatelessWidget {
                   );
                 }
 
-                final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index+1);
+                final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
                 return AssetTile(
                   showSwap: dashboardViewModel.isEnabledSwapAction,
                   balance: balance,
                   wallet: dashboardViewModel.wallet,
-                  chainIconPath: dashboardViewModel.wallet.currency.chainIconPath ?? "",
+                  chainIconPath: _getChainIconPath(),
                 );
               });
 
@@ -55,5 +56,14 @@ class AssetsSection extends StatelessWidget {
         }
       ),
     );
+  }
+
+  // TODO refactor chainIconPath to get rid of this ugly thing. it's needed because arbitrum's wallet currency isn't arb
+  String _getChainIconPath() {
+    try {
+      return CryptoCurrency.fromString(dashboardViewModel.wallet.currency.tag ??dashboardViewModel.wallet.currency.title).chainIconPath!;
+    } catch(e) {
+      return dashboardViewModel.wallet.currency.chainIconPath ?? "";
+    }
   }
 }

@@ -1103,12 +1103,15 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         context: context,
         backgroundColor: Colors.transparent,
         builder: (context) {
-          return FractionallySizedBox(
-              heightFactor: 0.6,
-              child: SwapAddressSelectionModal(
-                isSelectingReceiver: widget.isReceiverCard,
-                exchangeViewModel: widget.exchangeViewModel,
-              ));
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.6,
+            ),
+            child: SwapAddressSelectionModal(
+              isSelectingReceiver: widget.isReceiverCard,
+              exchangeViewModel: widget.exchangeViewModel,
+            ),
+          );
         });
     if (res != null && res is SwapAddressSelectionResult) {
       if (widget.isReceiverCard) {

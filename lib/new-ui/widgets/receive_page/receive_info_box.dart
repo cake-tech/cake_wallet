@@ -19,6 +19,7 @@ class ReceiveInfoBox extends StatelessWidget {
       case WalletType.tron:
       case WalletType.polygon:
       case WalletType.zano:
+      case WalletType.bsc:
         if(autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled)
           return null;
         return ReceiveInfoBox(

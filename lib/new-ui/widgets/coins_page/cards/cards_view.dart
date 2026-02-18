@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
@@ -113,8 +114,13 @@ class _CardsViewState extends State<CardsView> {
             late final String walletBalance;
             late final String walletFiatBalance;
             if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
-              walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
-              walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
+              if(widget.dashboardViewModel.balanceViewModel.displayMode == BalanceDisplayMode.hiddenBalance) {
+                walletBalance = '●●●●●●';
+                walletFiatBalance = '●●●●●●';
+              } else {
+                walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
+                walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
+              }
             } else {
               walletBalance = walletBalanceRecord?.availableBalance ?? "0";
               walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";

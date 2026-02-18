@@ -36,6 +36,7 @@ class NodeFormState extends State<NodeForm> {
     for(final key in vm.textFieldKeys) {
       _controllers[key] = TextEditingController();
 
+      _controllers[key]!.text = vm.getTextValue(key);
       _controllers[key]!.addListener(() {
         final text = _controllers[key]!.text;
         vm.updateViewModelFromText(key, text);

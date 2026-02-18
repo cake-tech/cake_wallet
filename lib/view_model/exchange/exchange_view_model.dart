@@ -218,8 +218,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     fetchFiatPrice(receiveCurrency);
 
     () async {
-      depositAvailableAmount = _appStore.amountParsingProxy.getDisplayCryptoAmount(
-          (await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any)).toString(), depositCurrency);
+      depositAvailableAmount = _appStore.amountParsingProxy.getDisplayCryptoString(
+          (await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any)), depositCurrency);
     }.call();
   }
 

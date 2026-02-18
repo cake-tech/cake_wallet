@@ -72,13 +72,14 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
         child: SafeArea(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               ModalTopBar(
                 title: widget.isSelectingReceiver ? "${S.of(context).receive_to}..." : "${S.of(context).send_from}...",
                 leadingIcon: Icon(Icons.close),
                 onLeadingPressed: Navigator.of(context).pop,
               ),
-              Expanded(
+              Flexible(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0),
                   child: items.isEmpty
@@ -88,6 +89,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ))
                       : ListView.builder(
+                    shrinkWrap: true,
                           controller: ModalScrollController.of(context),
                           itemCount: items.length,
                     itemBuilder: (context, index) {
@@ -133,7 +135,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                 color: Theme.of(context).colorScheme.surfaceContainerHigh,
               ),
               Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0,vertical: 18),
                 child: !widget.isSelectingReceiver
                     ? GestureDetector(
                         behavior: HitTestBehavior.opaque,

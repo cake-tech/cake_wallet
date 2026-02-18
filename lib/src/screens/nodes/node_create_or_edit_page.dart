@@ -80,96 +80,99 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
   @override
   Widget build(BuildContext context) {
 
-    return Column(
-      children: [
-        ModalTopBar(
-          title: widget.editingNode != null ? S.current.edit_node : S.current.node_new,
-          leadingIcon: Icon(Icons.arrow_back_ios_new),
-          onLeadingPressed: Navigator.of(context).pop,
-          trailingIcon: SvgPicture.asset(
-            "assets/new-ui/scan.svg",width:24,height:24,
-            colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: Column(
+        children: [
+          ModalTopBar(
+            title: widget.editingNode != null ? S.current.edit_node : S.current.node_new,
+            leadingIcon: Icon(Icons.arrow_back_ios_new),
+            onLeadingPressed: Navigator.of(context).pop,
+            trailingIcon: SvgPicture.asset(
+              "assets/new-ui/scan.svg",width:24,height:24,
+              colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+            ),
+            onTrailingPressed: () => widget.nodeCreateOrEditViewModel.scanQRCodeForNewNode(context),
           ),
-          onTrailingPressed: () => widget.nodeCreateOrEditViewModel.scanQRCodeForNewNode(context),
-        ),
-        Expanded(
-          child: KeyboardHideOverlay(
-            child: Container(
-              padding: const EdgeInsets.only(left: 18, right: 18),
-              child: ScrollableWithBottomSection(
-                contentPadding: const EdgeInsets.only(bottom: 24.0, top: 8),
-                content: NodeForm(
-                  key: _nodeFormKey,
-                  nodeViewModel: widget.nodeCreateOrEditViewModel,
-                ),
-                bottomSectionPadding: const EdgeInsets.only(bottom: 24),
-                bottomSection: Observer(
-                  builder: (_) => Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Flexible(
-                        child: Container(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: LoadingPrimaryButton(
-                            onPressed: () async {
-                              final confirmed = await showPopUp<bool>(
-                                    context: context,
-                                    builder: (context) => AlertWithTwoActions(
-                                      alertTitle: S.of(context).remove_node,
-                                      alertContent: S.of(context).remove_node_message,
-                                      rightButtonText: S.of(context).remove,
-                                      leftButtonText: S.of(context).cancel,
-                                      actionRightButton: () => Navigator.pop(context, true),
-                                      actionLeftButton: () => Navigator.pop(context, false),
-                                    ),
-                                  ) ??
-                                  false;
+          Expanded(
+            child: KeyboardHideOverlay(
+              child: Container(
+                padding: const EdgeInsets.only(left: 18, right: 18),
+                child: ScrollableWithBottomSection(
+                  contentPadding: const EdgeInsets.only(bottom: 24.0, top: 8),
+                  content: NodeForm(
+                    key: _nodeFormKey,
+                    nodeViewModel: widget.nodeCreateOrEditViewModel,
+                  ),
+                  bottomSectionPadding: const EdgeInsets.only(bottom: 24),
+                  bottomSection: Observer(
+                    builder: (_) => Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: LoadingPrimaryButton(
+                              onPressed: () async {
+                                final confirmed = await showPopUp<bool>(
+                                      context: context,
+                                      builder: (context) => AlertWithTwoActions(
+                                        alertTitle: S.of(context).remove_node,
+                                        alertContent: S.of(context).remove_node_message,
+                                        rightButtonText: S.of(context).remove,
+                                        leftButtonText: S.of(context).cancel,
+                                        actionRightButton: () => Navigator.pop(context, true),
+                                        actionLeftButton: () => Navigator.pop(context, false),
+                                      ),
+                                    ) ??
+                                    false;
 
-                              if (confirmed) {
-                                await widget.editingNode!.delete();
-                                Navigator.of(context).pop();
-                              }
-                            },
-                            text: S.of(context).delete,
-                            isDisabled: widget.editingNode == null ||
-                                !widget.nodeCreateOrEditViewModel.isReady ||
-                                (widget.isSelected ?? false),
-                            color: Theme.of(context).colorScheme.errorContainer,
-                            textColor: Theme.of(context).colorScheme.onErrorContainer,
+                                if (confirmed) {
+                                  await widget.editingNode!.delete();
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                              text: S.of(context).delete,
+                              isDisabled: widget.editingNode == null ||
+                                  !widget.nodeCreateOrEditViewModel.isReady ||
+                                  (widget.isSelected ?? false),
+                              color: Theme.of(context).colorScheme.errorContainer,
+                              textColor: Theme.of(context).colorScheme.onErrorContainer,
+                            ),
                           ),
                         ),
-                      ),
-                      Flexible(
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: PrimaryButton(
-                            onPressed: () async {
-                              if (_nodeFormKey.currentState != null && !_nodeFormKey.currentState!.validate()) {
-                                return;
-                              }
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: PrimaryButton(
+                              onPressed: () async {
+                                if (_nodeFormKey.currentState != null && !_nodeFormKey.currentState!.validate()) {
+                                  return;
+                                }
 
-                              await widget.nodeCreateOrEditViewModel.save(
-                                  editingNode: widget.editingNode, saveAsCurrent: widget.isSelected ?? false);
-                              if (context.mounted) {
-                                Navigator.of(context).pop();
-                              }
-                            },
-                            text: S.of(context).save,
-                            color: Theme.of(context).colorScheme.primary,
-                            textColor: Theme.of(context).colorScheme.onPrimary,
-                            isDisabled: (!widget.nodeCreateOrEditViewModel.isReady) ||
-                                (widget.nodeCreateOrEditViewModel.connectionState is IsExecutingState),
+                                await widget.nodeCreateOrEditViewModel.save(
+                                    editingNode: widget.editingNode, saveAsCurrent: widget.isSelected ?? false);
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                              text: S.of(context).save,
+                              color: Theme.of(context).colorScheme.primary,
+                              textColor: Theme.of(context).colorScheme.onPrimary,
+                              isDisabled: (!widget.nodeCreateOrEditViewModel.isReady) ||
+                                  (widget.nodeCreateOrEditViewModel.connectionState is IsExecutingState),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -185,6 +185,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
     }
 
     return ListView.builder(
+      padding: EdgeInsets.only(bottom: 128),
       itemCount: groupedContacts.length * 2,
       itemBuilder: (context, index) {
         if (index.isOdd) {
