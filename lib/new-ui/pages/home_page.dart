@@ -101,11 +101,13 @@ class _NewHomePageState extends State<NewHomePage> {
                     );
                   },
                 ),
-                WalletInfo(
-                  lightningMode: _lightningMode,
-                  hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
-                  name: widget.dashboardViewModel.wallet.name,
-                  onCustomizeButtonTap: openCustomizer
+                Observer(
+                  builder: (_)=>WalletInfoBar(
+                    lightningMode: _lightningMode,
+                    hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
+                    name: widget.dashboardViewModel.wallet.name,
+                    onCustomizeButtonTap: openCustomizer
+                  ),
                 ),
                 Column(
                   children: [

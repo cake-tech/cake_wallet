@@ -22,8 +22,8 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/token_selection_bottom_shee
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/wallet_info.dart';
 import "package:cw_core/wallet_type.dart";
-import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart';
