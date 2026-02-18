@@ -434,16 +434,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       ].contains(wallet.type) && !isLightning && isZCashTransparent;
 
   @computed
-  bool get hasAddressRotation => [
-    WalletType.monero,
-    WalletType.wownero,
-    WalletType.haven,
-    WalletType.bitcoinCash,
-    WalletType.bitcoin,
-    WalletType.litecoin,
-    WalletType.decred,
-    WalletType.dogecoin,
-  ].contains(wallet.type);
+  bool get hasAddressRotation => hasAddressList && wallet.type != WalletType.zcash;
 
   @computed
   bool get isElectrumWallet => [
@@ -549,6 +540,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get isZCashTransparent {
+    if(wallet.type != WalletType.zcash) {
+      return true;
+    }
     receivePageOption;
     return wallet.type == WalletType.zcash && zcash!.hasSelectedTransparentAddress(wallet);
   }

@@ -200,7 +200,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
               onTrailingPressed: () {
                 if (_largeQrMode) {
                   Share.share(widget.addressListViewModel.uri.toString());
-                } else if (widget.addressListViewModel.hasAddressList) {
+                } else if (widget.addressListViewModel.hasAddressRotation) {
                   widget.addressListViewModel.rotateAddress();
                 }
               },
@@ -247,7 +247,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       showAccountsButton: widget.addressListViewModel.hasAddressList,
                       showLabelButton: widget.addressListViewModel.hasAddressList && !hasLabel,
                       onCopyButtonPressed: () {
-                        printV(widget.addressListViewModel.items);
+                        printV(widget.addressListViewModel.hasAddressList);
                         Clipboard.setData(
                           ClipboardData(text: widget.addressListViewModel.uri.address),
                         );
