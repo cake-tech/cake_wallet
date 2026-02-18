@@ -100,6 +100,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             accountName: accounts[index].label,
             balance: accounts[index].balance ?? "0.00",
             accountBalance: accounts[index].balance ?? "0.00",
+            designSwitchDuration: Duration(milliseconds: 200),
             assetName: widget.accountListViewModel.currency.title,
             selected: i == accounts.length - 1,
             width: cardWidth,
@@ -201,8 +202,10 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                                     onTap: () {
                                       Navigator.of(context).push(CupertinoPageRoute(
                                         builder: (context) {
+                                          final bloc = getIt.get<CardCustomizerBloc>(param1: false);
+
                                           return BlocProvider(
-                                            create: (context) => getIt.get<CardCustomizerBloc>(param1: false),
+                                            create: (context) => bloc,
                                             child: Material(
                                               child: BlocListener<CardCustomizerBloc,
                                                       CardCustomizerState>(
@@ -213,13 +216,18 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                                                       loadCards();
                                                     }
                                                   },
-                                                  child: CardCustomizer(
-                                                    cryptoTitle: widget.dashboardViewModel.wallet
-                                                            .currency.fullName ??
-                                                        widget.dashboardViewModel.wallet.currency
-                                                            .name,
-                                                    cryptoName: widget
-                                                        .dashboardViewModel.wallet.currency.name,
+                                                  child: PopScope(
+                                                    onPopInvokedWithResult: (didPop, result) {
+                                                      bloc.add(DesignSaved());
+                                                    },
+                                                    child: CardCustomizer(
+                                                      cryptoTitle: widget.dashboardViewModel.wallet
+                                                              .currency.fullName ??
+                                                          widget.dashboardViewModel.wallet.currency
+                                                              .name,
+                                                      cryptoName: widget
+                                                          .dashboardViewModel.wallet.currency.name,
+                                                    ),
                                                   )),
                                             ),
                                           );
@@ -307,6 +315,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             balance: _items[i].card.balance,
             accountBalance: _items[i].card.accountBalance,
             assetName: _items[i].card.assetName,
+            designSwitchDuration: _items[i].card.designSwitchDuration,
             selected: i == _items.length - 1,
             width: _items[i].card.width,
             design: _items[i].card.design,
@@ -366,6 +375,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             accountBalance: accounts[i].balance ?? "0.00",
             assetName: widget.accountListViewModel.currency.title,
             selected: true,
+            designSwitchDuration: Duration(milliseconds: 200),
             width: cardWidth,
             design: widget.dashboardViewModel.cardDesigns[i],
           ),

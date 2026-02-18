@@ -166,44 +166,42 @@ class _NewHomePageState extends State<NewHomePage> {
         );
   }
 
-  void openCustomizer() {
-    CupertinoScaffold.showCupertinoModalBottomSheet(
+  void openCustomizer() async {
+    final bloc = getIt.get<CardCustomizerBloc>(
+        param1: _lightningMode,
+        param2: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi);
+
+
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
       barrierColor: Colors.black.withAlpha(60),
       context: context,
       builder: (context) {
-        final bloc = getIt.get<CardCustomizerBloc>(
-            param1: _lightningMode,
-            param2: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi);
-
         return ModalNavigator(
           parentContext: context,
           heightMode: ModalHeightModes.fullScreen,
           rootPage: BlocProvider(
             create: (context) => bloc,
             child: Material(
-              child: BlocListener<CardCustomizerBloc, CardCustomizerState>(
-                listener: (context, state) {
-                  if (state is CardCustomizerSaved) {
-                    widget.dashboardViewModel.loadCardDesigns();
-                  }
-                },
-                child: accountListViewModel == null
-                    ? CardCustomizer(
-                  cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
-                      widget.dashboardViewModel.wallet.currency.name,
-                  cryptoName: widget.dashboardViewModel.wallet.currency.name,
-                )
-                    : AccountCustomizer(
-                  accountListViewModel: accountListViewModel!,
-                  accountEditOrCreateViewModel:
-                  getIt.get<MoneroAccountEditOrCreateViewModel>(),
-                  dashboardViewModel: widget.dashboardViewModel,
-                ),
+              child: accountListViewModel == null
+                  ? CardCustomizer(
+                cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
+                    widget.dashboardViewModel.wallet.currency.name,
+                cryptoName: widget.dashboardViewModel.wallet.currency.name,
+              )
+                  : AccountCustomizer(
+                accountListViewModel: accountListViewModel!,
+                accountEditOrCreateViewModel:
+                getIt.get<MoneroAccountEditOrCreateViewModel>(),
+                dashboardViewModel: widget.dashboardViewModel,
               ),
             ),
           ),
         );
       },
     );
+
+    bloc.add(DesignSaved());
+    await bloc.stream.firstWhere((s) => s is CardCustomizerSaved);
+    widget.dashboardViewModel.loadCardDesigns();
   }
 }
