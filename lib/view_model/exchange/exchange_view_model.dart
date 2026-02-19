@@ -415,6 +415,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final List<WalletInfoAddressInfo> ret = [];
     final addresses = await wallet.getAddressInfos();
     for (var list in addresses.values) {
+      // we only want the "primary" account addresses - those that contain account names.
       ret.addAll(list.where((item) => item.label.split(" ").length > 1));
     }
     return ret;
