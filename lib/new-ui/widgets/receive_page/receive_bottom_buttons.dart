@@ -111,10 +111,14 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
   Future<bool> shouldShowCopied() async {
     if (!Platform.isAndroid) return true;
 
-    final deviceInfo = DeviceInfoPlugin();
-    final androidInfo = await deviceInfo.androidInfo;
-    final sdk = androidInfo.version.sdkInt;
-
-    return sdk < 33;
+    try {
+        final deviceInfo = DeviceInfoPlugin();
+        final androidInfo = await deviceInfo.androidInfo;
+        final sdk = androidInfo.version.sdkInt;
+    
+        return sdk < 33;
+    } catch (_) {
+        return true;
+    }
   }
 }
