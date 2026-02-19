@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
@@ -42,7 +44,6 @@ class DisplaySettingsPage extends StatelessWidget {
                 physics: ClampingScrollPhysics(),
                 child: Observer(builder: (_) {
                   return Container(
-                    padding: EdgeInsets.only(top: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -121,16 +122,15 @@ class DisplaySettingsPage extends StatelessWidget {
                             return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;
                           },
                         ),
-        
                         if (FeatureFlag.customBackgroundEnabled)
                           StandardListRow(
                             title: "Custom background",
                             isSelected: false,
                             onTap: (_) => _pickImage(context),
                           ),
-        
-                        if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile) ...[
-                          SizedBox(height: 24),
+                        if (responsiveLayoutUtil.shouldRenderMobileUI &&
+                            DeviceInfo.instance.isMobile) ...[
+                          SizedBox(height: 18),
                           Padding(
                             padding: const EdgeInsets.only(left: 24),
                             child: Text(
@@ -146,10 +146,10 @@ class DisplaySettingsPage extends StatelessWidget {
                           SizedBox(height: 12),
                           Container(
                             margin: EdgeInsets.symmetric(horizontal: 20),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainer,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
+                            decoration: ShapeDecoration(
+                                color: Theme.of(context).colorScheme.surfaceContainer,
+                                shape: RoundedSuperellipseBorder(
+                                    borderRadius: BorderRadius.circular(18))),
                             child: Column(
                               children: [
                                 SettingsChoicesCell(
@@ -168,10 +168,10 @@ class DisplaySettingsPage extends StatelessWidget {
                                   padding: EdgeInsets.all(12),
                                 ),
                                 Container(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
+                                  decoration: ShapeDecoration(
+                                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                      shape: RoundedSuperellipseBorder(
+                                          borderRadius: BorderRadius.circular(18))),
                                   child: Column(
                                     children: [
                                       Semantics(
