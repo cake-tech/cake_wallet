@@ -17,6 +17,7 @@ import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_button_widget.da
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -194,9 +195,10 @@ class WalletListBodyState extends State<WalletListBody> {
                                 borderRadius: BorderRadius.all(Radius.circular(18)),
                                 title: groupName,
                                 tileKey: ValueKey('group_wallets_expansion_tile_widget_$index'),
-                                leadingWidget: Icon(
-                                  Icons.account_balance_wallet_outlined,
-                                  size: 28,
+                                leadingWidget: CakeImageWidget(
+                                  imageUrl: "assets/new-ui/navbar/wallets.svg",
+                                  width: 28,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 trailingWidget: EditWalletButtonWidget(
                                   width: 88,
