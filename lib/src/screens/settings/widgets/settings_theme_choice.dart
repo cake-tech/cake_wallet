@@ -14,7 +14,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
 
   final double cellHeight = 25;
   final double cellWidth = 12;
-  final double cellRadius = 8;
+  final double cellRadius = 18;
 
   @override
   Widget build(BuildContext context) {
@@ -28,14 +28,17 @@ class SettingsThemeChoicesCell extends StatelessWidget {
         final previewHeight = _getResponsivePreviewHeight(screenHeight);
         final previewWidth = previewHeight * 0.6;
 
-        return Container(
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
           height: getHeight(context, currentTheme, currentTheme.hasAccentColors),
           padding: EdgeInsets.all(12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
+              SizedBox(
+                height: previewHeight,
                 child: ListView.builder(
                   itemCount: availableThemes.length,
                   scrollDirection: Axis.horizontal,
@@ -50,16 +53,16 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                         onTap: () {
                           _displaySettingsViewModel.onThemeSelected(theme);
                         },
-                        child: Container(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
                           margin: EdgeInsets.only(right: 24),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(cellRadius),
-                            border: isSelected
-                                ? Border.all(
-                                    color: Theme.of(context).colorScheme.primary,
+                          decoration: ShapeDecoration(
+                            shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(cellRadius),
+                            side: BorderSide(
+                                    color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
                                     strokeAlign: BorderSide.strokeAlignOutside)
-                                : null,
-                          ),
+                          )),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(cellRadius),
                             child: CakeImageWidget(
@@ -75,46 +78,74 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                   },
                 ),
               ),
-              if (_displaySettingsViewModel.currentTheme.hasAccentColors) ...[
-                SizedBox(height: cellHeight),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      S.of(context).accent_color,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    Container(
-                      child: Row(
-                        children: availableAccentColors.map((accentColor) {
-                          final isSelected = _displaySettingsViewModel
-                              .isAccentColorSelected(accentColor.name.toLowerCase());
-                          return GestureDetector(
-                            onTap: () {
-                              _displaySettingsViewModel
-                                  .onAccentColorSelected(accentColor.name.toLowerCase());
-                            },
-                            child: Container(
-                              width: 26,
-                              height: 26,
-                              margin: EdgeInsets.only(right: 11),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                border: isSelected
-                                    ? Border.all(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        width: 3)
-                                    : null,
-                                color: accentColor.color,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SizeTransition(
+                    sizeFactor: animation,
+                    axisAlignment: -1,
+                    child: child,
+                  ),
                 ),
-              ],
+                child: _displaySettingsViewModel.currentTheme.hasAccentColors
+                    ? Column(
+                        key: const ValueKey('accent'),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(height: cellHeight),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                S.of(context).accent_color,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              Row(
+                                spacing: 4,
+                                children: availableAccentColors.map((accentColor) {
+                                  final isSelected = _displaySettingsViewModel
+                                      .isAccentColorSelected(accentColor.name.toLowerCase());
+                                  return GestureDetector(
+                                    onTap: () {
+                                      _displaySettingsViewModel
+                                          .onAccentColorSelected(accentColor.name.toLowerCase());
+                                    },
+                                    child: Stack(
+                                      children: [
+                                        AnimatedOpacity(
+                                          duration: Duration(milliseconds: 200),
+                                          opacity: isSelected ? 1 : 0,
+                                          child: Container(
+                                              width:28,height:28,decoration: BoxDecoration(borderRadius: BorderRadius.circular(99999999),border: Border.all(color:Theme.of(context)
+                                              .colorScheme
+                                              .onSurface))
+                                          ),
+                                        ),
+                                        AnimatedScale(
+                                          duration: Duration(milliseconds: 200),
+                                          scale: isSelected ? 0.8 : 1,
+                                          child: Container(
+                                            width: 28,
+                                            height: 28,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(99999999),
+                                                color: accentColor.color),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                          ),
+                        ],
+                      )
+                    : const SizedBox.shrink(key: ValueKey('no-accent')),
+              ),
               if (_displaySettingsViewModel.currentTheme is BlackTheme)
                 SettingsSwitcherCell(
                   title: S.current.oled_mode,
@@ -135,14 +166,14 @@ class SettingsThemeChoicesCell extends StatelessWidget {
   double getHeight(BuildContext context, MaterialThemeBase theme, bool hasAccentColors) {
     final screenHeight = MediaQuery.of(context).size.height;
 
-    double baseHeight = (screenHeight * 0.25).clamp(150.0, screenHeight * 0.5);
+    double baseHeight = (screenHeight * 0.246).clamp(150.0, screenHeight * 0.5);
 
     if (hasAccentColors) {
       baseHeight += (screenHeight * 0.05).clamp(35.0, 60.0);
     }
 
     if (theme is BlackTheme) {
-      baseHeight += (screenHeight * 0.08).clamp(48.0, 96.0);
+      baseHeight += (screenHeight * 0.05).clamp(48.0, 96.0);
     }
 
     return baseHeight;
