@@ -135,6 +135,9 @@ class CWTron extends Tron {
   }
 
   @override
+  List<TronToken> getDefaultTronTokens() => DefaultTronTokens().initialTronTokens;
+
+  @override
   List<String> getDefaultTokenContractAddresses() {
     return DefaultTronTokens().initialTronTokens.map((e) => e.contractAddress).toList();
   }
