@@ -1,6 +1,7 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -37,7 +38,7 @@ class AssetTile extends StatelessWidget {
                 showSwap: showSwap,
                 asset: balance.asset,
                 title: title ?? balance.asset.fullName ?? balance.asset.name,
-                chainTitle: wallet.currency.title,
+                chainTitle: _getChainTitle(),
                 subtitle: trailingText ?? "",
                 amount: showSecondary ? balance.secondAvailableBalance : balance.availableBalance,
                 currencyTitle: balance.asset.title,
@@ -163,5 +164,13 @@ class AssetTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getChainTitle() {
+    try {
+      return CryptoCurrency.fromString(wallet.currency.tag ??wallet.currency.title).title;
+    } catch(e) {
+      return wallet.currency.title;
+    }
   }
 }

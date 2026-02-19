@@ -3,8 +3,8 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class WalletInfo extends StatelessWidget {
-  const WalletInfo(
+class WalletInfoBar extends StatelessWidget {
+  const WalletInfoBar(
       {super.key,
       required this.lightningMode,
       required this.name,

@@ -75,12 +75,15 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
           tabs: tabs.map((item) => item.title).toList(),
           onTabChange: (index) {
             setState(() {
-              _selectedTab = index;
-            });
-          },
-          selectedTab: _selectedTab,
-        ),
-        tabs[_selectedTab].content,
+                _selectedTab = index;
+              });
+            },
+            selectedTab: _selectedTab,
+          ),
+        IndexedStack(
+          index: _selectedTab,
+          children: List.generate(tabs.length, (index) => tabs[index].content),
+        )
       ],
     );
   }

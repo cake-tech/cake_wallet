@@ -19,14 +19,16 @@ class CardCustomizer extends StatefulWidget {
 
 class _CardCustomizerState extends State<CardCustomizer> {
   final accountNameController = TextEditingController();
-  late final bool editEnabled;
+  bool editEnabled = false;
+  late final CardCustomizerBloc bloc;
+
 
   @override
   void initState() {
     super.initState();
 
     // wait for the bloc to load, then figure out if we should allow name editing.
-    final bloc = context.read<CardCustomizerBloc>();
+    bloc = context.read<CardCustomizerBloc>();
     late final StreamSubscription sub;
     sub = bloc.stream.listen((state) {
       if (state is! CardCustomizerNotLoaded) {
@@ -57,9 +59,9 @@ class _CardCustomizerState extends State<CardCustomizer> {
                   ModalTopBar(
                     title: editEnabled ? S.of(context).edit_account : S.of(context).edit_card,
                     leadingIcon: Icon(Icons.close),
-                    trailingIcon: editEnabled ? Icon(Icons.delete_forever) : null,
+                    // trailingIcon: editEnabled ? Icon(Icons.delete_forever) : null,
                     onLeadingPressed: () => Navigator.of(context).maybePop(),
-                    onTrailingPressed: () {},
+                    // onTrailingPressed: () {},
                   ),
                   if (editEnabled)
                     Padding(
@@ -211,55 +213,6 @@ class _CardCustomizerState extends State<CardCustomizer> {
                           ],
                         ),
                       )),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: FilledButton(
-                            style: FilledButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 52),
-                            ),
-                            onPressed: Navigator.of(context).maybePop,
-                            child: Text(
-                              S.of(context).cancel,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(color: Theme.of(context).colorScheme.primary)),
-                          ),
-                        ),
-                        SizedBox(width: 8.0),
-                        Expanded(
-                          child: FilledButton(
-                            style: FilledButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 52),
-                            ),
-                            onPressed: () {
-                              context.read<CardCustomizerBloc>().add(DesignSaved());
-                              Navigator.of(context).maybePop();
-                            },
-                            child: Text(
-                              S.of(context).save,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
                 ],
               ),
             ),

@@ -55,7 +55,7 @@ class BuySellPage extends BasePage {
   bool get extendBodyBehindAppBar => true;
 
   @override
-  AppBarStyle get appBarStyle => AppBarStyle.transparent;
+  AppBarStyle get appBarStyle => AppBarStyle.completelyTransparent;
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {

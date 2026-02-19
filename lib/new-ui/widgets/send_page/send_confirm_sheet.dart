@@ -218,7 +218,7 @@ class SendTransactionDetails extends StatelessWidget {
                           fontWeight: FontWeight.w400,
                           color: Theme.of(context).colorScheme.onSurface),
                     ),
-                    Text(sendViewModel.currencySymbol,
+                    Text(sendViewModel.selectedCryptoCurrency.title,
                         style: TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.w400,

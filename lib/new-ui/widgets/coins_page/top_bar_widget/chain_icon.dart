@@ -26,14 +26,10 @@ class ChainIcon extends StatelessWidget {
             AnimatedOpacity(
               duration: Duration(milliseconds: 100),
               opacity: done ? 0 : 1,
-              child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 100),
-                child: CircularProgressIndicator(
-                  key: ValueKey(progress),
-                  value: progress,
-                  color: Color(0xFFFFB84E),
-                  strokeWidth: 2,
-                ),
+              child: CircularProgressIndicator(
+                value: progress,
+                color: Color(0xFFFFB84E),
+                strokeWidth: 2,
               ),
             ),
             AnimatedScale(

@@ -1,11 +1,11 @@
+import 'dart:io';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
-class ReceiveBottomButtons extends StatelessWidget {
+class ReceiveBottomButtons extends StatefulWidget {
   final bool largeQrMode;
   final VoidCallback onCopyButtonPressed;
   final VoidCallback onAmountButtonPressed;
@@ -14,25 +14,43 @@ class ReceiveBottomButtons extends StatelessWidget {
   final bool showLabelButton;
   final bool showAccountsButton;
 
-  const ReceiveBottomButtons(
-      {super.key,
-      required this.largeQrMode,
-      required this.onCopyButtonPressed,
-      required this.onAccountsButtonPressed,
-      required this.onAmountButtonPressed,
-      required this.onLabelButtonPressed,
-      required this.showLabelButton,
-      required this.showAccountsButton});
+  const ReceiveBottomButtons({
+    super.key,
+    required this.largeQrMode,
+    required this.onCopyButtonPressed,
+    required this.onAccountsButtonPressed,
+    required this.onAmountButtonPressed,
+    required this.onLabelButtonPressed,
+    required this.showLabelButton,
+    required this.showAccountsButton,
+  });
+
+  @override
+  State<ReceiveBottomButtons> createState() => _ReceiveBottomButtonsState();
+}
+
+class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
+  bool copied = false;
+
+  void handleCopy() async {
+    widget.onCopyButtonPressed();
+    if (await shouldShowCopied()) {
+      setState(() => copied = true);
+      Future.delayed(const Duration(milliseconds: 1200), () {
+        if (mounted) setState(() => copied = false);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final double targetOpacity = largeQrMode ? 0 : 1;
+    final double targetOpacity = widget.largeQrMode ? 0 : 1;
 
     return ClipRect(
       child: AnimatedAlign(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
-        heightFactor: largeQrMode ? 0 : 1,
+        heightFactor: widget.largeQrMode ? 0 : 1,
         alignment: Alignment.bottomCenter,
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 300),
@@ -45,34 +63,38 @@ class ReceiveBottomButtons extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 16,
               children: [
-                ModernButton.svg(
-                  size: 60,
-                  iconSize: 32,
-                  svgPath: "assets/new-ui/copy.svg",
-                  onPressed: onCopyButtonPressed,
-                  label: S.of(context).copy,
-                  iconColor: Theme.of(context).colorScheme.surfaceContainer,
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+                AnimatedSwitcher(
+                  duration: Duration(milliseconds: 200),
+                  child: ModernButton.svg(
+                    key: ValueKey(copied),
+                    size: 60,
+                    iconSize: 32,
+                    svgPath: "assets/new-ui/copy.svg",
+                    onPressed: handleCopy,
+                    label: copied ? S.of(context).copied : S.of(context).copy,
+                    iconColor: copied ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer,
+                    backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHighest : Theme.of(context).colorScheme.primary,
+                  ),
                 ),
                 ModernButton.svg(
                     size: 60,
                     iconSize: 32,
                     svgPath: "assets/new-ui/set-amount.svg",
-                    onPressed: onAmountButtonPressed,
+                    onPressed: widget.onAmountButtonPressed,
                     label: S.of(context).set_amount),
-                if (showLabelButton)
+                if (widget.showLabelButton)
                   ModernButton.svg(
                       size: 60,
                       iconSize: 32,
                       svgPath: "assets/new-ui/add-label.svg",
-                      onPressed: onLabelButtonPressed,
+                      onPressed: widget.onLabelButtonPressed,
                       label: S.of(context).label),
-                if (showAccountsButton)
+                if (widget.showAccountsButton)
                   ModernButton.svg(
                       size: 60,
                       iconSize: 32,
                       svgPath: "assets/new-ui/addr-book.svg",
-                      onPressed: onAccountsButtonPressed,
+                      onPressed: widget.onAccountsButtonPressed,
                       label: S.of(context).addresses),
               ],
             ),
@@ -80,5 +102,23 @@ class ReceiveBottomButtons extends StatelessWidget {
         ),
       ),
     );
+  }
+
+
+
+  // android 13 (sdk 33) added a built-in "text was copied to clipboard" ui element
+  // older android and iphone still needs an indicator though
+  Future<bool> shouldShowCopied() async {
+    if (!Platform.isAndroid) return true;
+
+    try {
+        final deviceInfo = DeviceInfoPlugin();
+        final androidInfo = await deviceInfo.androidInfo;
+        final sdk = androidInfo.version.sdkInt;
+    
+        return sdk < 33;
+    } catch (_) {
+        return true;
+    }
   }
 }
