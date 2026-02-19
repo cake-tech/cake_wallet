@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_aler
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
@@ -121,12 +122,11 @@ class WalletTypeFormState extends State<WalletTypeForm> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(24, 24, 24, 12),
+              padding: EdgeInsets.fromLTRB(FeatureFlag.hasNewUi ? 0 : 24, 24, FeatureFlag.hasNewUi ? 0 : 24, 12),
               child: SearchBarWidget(searchController: searchController),
             ),
             Expanded(
               child: ScrollableWithBottomSection(
-                contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
                 scrollableKey: ValueKey('new_wallet_type_scrollable_key'),
                 content: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -155,7 +155,6 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                     ),
                   ],
                 ),
-                bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
                 bottomSection: PrimaryButton(
                   key: ValueKey('new_wallet_type_next_button_key'),
                   onPressed: () => onTypeSelected(),

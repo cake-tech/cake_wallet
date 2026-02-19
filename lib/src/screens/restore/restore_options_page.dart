@@ -73,7 +73,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
       child: Container(
         width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
         height: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+        padding: EdgeInsets.symmetric(vertical: 24),
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
@@ -93,7 +93,6 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     image: imageRestoreCupcake,
                     title: S.of(context).restore_title_from_cupcake,
                     description: S.of(context).restore_description_from_cupcake,
-                    tag: S.of(context).new_tag,
                   ),
                 ),
               Padding(

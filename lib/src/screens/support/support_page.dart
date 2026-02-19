@@ -34,35 +34,27 @@ class SupportPage extends BasePage {
   @override
   Widget body(BuildContext context) => Center(
         child: Container(
-          padding: const EdgeInsets.only(left: 24, right: 24),
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
           child: Column(
+            spacing: 16,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: OptionTile(
-                  image: Image.asset(_imageSupportChat, width: 55, height: 55),
-                  title: S.of(context).support_title_live_chat,
-                  description: S.of(context).support_description_live_chat,
-                  onPressed: () => _onPressedSupportChat(context),
-                ),
+              OptionTile(
+                image: Image.asset(_imageSupportChat, width: 55, height: 55),
+                title: S.of(context).support_title_live_chat,
+                description: S.of(context).support_description_live_chat,
+                onPressed: () => _onPressedSupportChat(context),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: OptionTile(
-                  image: Image.asset(_imageSupportDocs, width: 55, height: 55),
-                  title: S.of(context).support_title_guides,
-                  description: S.of(context).support_description_guides,
-                  onPressed: () => _launchUrl(supportViewModel.docsUrl),
-                ),
+              OptionTile(
+                image: Image.asset(_imageSupportDocs, width: 55, height: 55),
+                title: S.of(context).support_title_guides,
+                description: S.of(context).support_description_guides,
+                onPressed: () => _launchUrl(supportViewModel.docsUrl),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: OptionTile(
-                  image: Image.asset(_imageSupportLinks, width: 55, height: 55),
-                  title: S.of(context).support_title_other_links,
-                  description: S.of(context).support_description_other_links,
-                  onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
-                ),
+              OptionTile(
+                image: Image.asset(_imageSupportLinks, width: 55, height: 55),
+                title: S.of(context).support_title_other_links,
+                description: S.of(context).support_description_other_links,
+                onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
               ),
             ],
           ),
