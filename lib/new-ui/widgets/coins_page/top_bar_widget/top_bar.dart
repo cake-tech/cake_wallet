@@ -25,7 +25,7 @@ class TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 18.0, right: 18.0, top: 10.0),
+      padding: const EdgeInsets.only(left: 18.0, right: 18.0, top: 10.0, bottom: 10.0),
       child: Observer(
         builder: (_) => Row(
           spacing: 12,

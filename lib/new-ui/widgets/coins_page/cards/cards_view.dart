@@ -246,7 +246,7 @@ class _CardsViewState extends State<CardsView> {
 
 
       final bool compactMode = numCards >= compactModeTreshold;
-      final double overlapAmount = compactMode ? 5.0 : 60.0;
+      final double overlapAmount = compactMode ? 5.0 : 50.0;
       for (int i = min(numCards - 1, maxCards); i >= 0; i--) {
         int visualIndex = (_selectedIndex - i + numCards) % numCards;
 
