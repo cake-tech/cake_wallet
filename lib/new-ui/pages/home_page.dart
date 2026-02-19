@@ -76,6 +76,8 @@ class _NewHomePageState extends State<NewHomePage> {
             SliverPadding(
               padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
               sliver: CupertinoSliverRefreshControl(
+                refreshTriggerPullDistance: 160,
+                refreshIndicatorExtent: 90,
                 onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
               ),
             ),
