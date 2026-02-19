@@ -490,12 +490,10 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
               controller: _tabController,
               children: [
                 SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: _buildWalletRestoreFromSeedTab(),
                 ),
                 if (_hasKeysTab)
                   SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: _buildWalletRestoreFromKeysTab(),
                   ),
               ],
