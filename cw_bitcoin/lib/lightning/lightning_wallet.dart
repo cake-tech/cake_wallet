@@ -212,10 +212,12 @@ class LightningWallet {
     throw UnimplementedError();
   }
 
-  Future<Map<String, ElectrumTransactionInfo>> getTransactionHistory() async {
+  Future<Map<String, ElectrumTransactionInfo>> getTransactionHistory({DateTime? fromDate}) async {
     final request = ListPaymentsRequest(
       typeFilter: [PaymentType.send, PaymentType.receive],
       // statusFilter: [PaymentStatus.completed],
+      fromTimestamp:
+          fromDate != null ? BigInt.from((fromDate.millisecondsSinceEpoch / 1000).round()) : null,
       assetFilter: AssetFilter.bitcoin(),
       offset: 0,
       limit: 50,

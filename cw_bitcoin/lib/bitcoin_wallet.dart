@@ -346,7 +346,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
     if (lightningWallet != null) {
-      lightningWallet!.getTransactionHistory().then((lnHistory) async {
+      final existingTx = transactionHistory.transactions.values
+          .where((e) => (e.additionalInfo["isLightning"] as bool?) == true)
+          .lastOrNull;
+
+      lightningWallet!.getTransactionHistory(fromDate: existingTx?.date).then((lnHistory) async {
         transactionHistory.addMany(lnHistory);
         await transactionHistory.save();
       }).onError((_, __) {});
