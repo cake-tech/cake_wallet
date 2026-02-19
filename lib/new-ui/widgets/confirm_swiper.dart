@@ -65,7 +65,10 @@ class _ConfirmSwiperState extends State<ConfirmSwiper> {
                   color: Theme.of(context).colorScheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(99999),
                 ),
-                child: Center(child: FlowingText(text: widget.swiperText, opacity: 1 - (drag / (areaWidth - pillSize)))),
+                child: Padding(
+                  padding: EdgeInsets.only(left: (((areaWidth / 2) - (widget.swiperText.length / 2) + 0.4 * (pillSize / 2))) - MediaQuery.of(context).size.width * 0.23 - pillSize),
+                  child: Center(child: FlowingText(text: widget.swiperText, opacity: 1 - (drag / (areaWidth - pillSize)))),
+                ),
               ),
             ),
             Positioned(
