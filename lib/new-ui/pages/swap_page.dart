@@ -584,6 +584,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                           children: [
                             if (widget.exchangeViewModel.status is! SyncedSyncStatus)
                               SendSyncingIndicator(status: widget.exchangeViewModel.status),
+                            if(widget.exchangeViewModel.isFixedRateMode)
+                              Text(S.of(context).exchange_rate_is_fixed, style:TextStyle(color:Theme.of(context).colorScheme.onSurfaceVariant,fontSize:12)),
                             SwapProviderPreview(exchangeViewModel: widget.exchangeViewModel),
                             Observer(
                               builder: (_) => LoadingPrimaryButton(

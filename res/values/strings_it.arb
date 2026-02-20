@@ -432,6 +432,7 @@
   "exchange_new_template": "Nuovo modello",
   "exchange_provider_unsupported": "${providerName} non è più supportato!",
   "exchange_providers": "Fornitori di scambio",
+  "exchange_rate_is_fixed": "Il tasso di cambio è fisso",
   "exchange_result_confirm": "Cliccando su Conferma, invierai ${fetchingLabel} ${from} dal tuo portafoglio chiamato ${walletName} all'indirizzo mostrato qui sotto. Oppure puoi inviare dal tuo portafoglio esterno all'indirizzo/codice QR mostrato in basso.\n\nClicca su Conferma per continuare, o torna indietro per cambiare l'importo.",
   "exchange_result_description": "Devi inviare un minimo di ${fetchingLabel} ${from} all'indirizzo mostrato nella pagina seguente. Se invii un importo inferiore a ${fetchingLabel} ${from} la conversione potrebbe non andare a buon fine, e l'indirizzo potrebbe non essere rimborsato.",
   "exchange_result_write_down_ID": "*Copia o trascrivi il tuo ID mostrato in alto.",

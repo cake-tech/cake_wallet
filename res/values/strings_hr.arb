@@ -432,6 +432,7 @@
   "exchange_new_template": "Novi predložak",
   "exchange_provider_unsupported": "${providerName} više nije podržan!",
   "exchange_providers": "Pružatelji usluga razmjene",
+  "exchange_rate_is_fixed": "Tečaj je fiksan",
   "exchange_result_confirm": "Pritiskom na potvrdi, poslat ćete ${fetchingLabel} ${from} sa svog novčanika pod nazivom ${walletName} na adresu prikazanu ispod ili iznos možete poslati s vanjskog novčanika na niže navedenu adresu. /QR code.\n\nMolimo potvrdite za nastavak ili se vratite natrag za promjenu iznosa.",
   "exchange_result_description": "Potrebno poslati minimalno ${fetchingLabel} ${from} na adresu prikazanu na sljedećoj stranici. Ukoliko pošaljete iznos manji od ${fetchingLabel} ${from}, postoji mogućnost da razmjena neće biti uspješna i da iznos neće biti vraćen.",
   "exchange_result_write_down_ID": "*Molimo kopirajte ili zapišite svoj ID prikazan ispod.",

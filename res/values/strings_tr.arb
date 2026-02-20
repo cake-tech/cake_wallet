@@ -432,6 +432,7 @@
   "exchange_new_template": "Yeni şablon",
   "exchange_provider_unsupported": "${providerName} artık desteklenmiyor!",
   "exchange_providers": "Değişim Sağlayıcıları",
+  "exchange_rate_is_fixed": "Döviz kuru sabitlendi",
   "exchange_result_confirm": "Onaylaya basarak, ${fetchingLabel} ${from} miktarında ${walletName} olarak adlandırılan cüzdanından aşağıda gösterilen adrese gönderilecek. Veya harici cüzdanından aşağıdaki adrese / QR koduna gönderebilirsin.\n\nLütfen devam etmek için onayla'ya bas veya tutarı değiştirmek için geri dön.",
   "exchange_result_description": "Lütfen en az ${fetchingLabel} miktarındaki ${from}'yi sonraki sayfada gönsterilen adrese gönder. Eğer ${fetchingLabel} ${from}'den az gönderirsen takas gerçekleşmeyebilir ve size geri iade edilebilir.",
   "exchange_result_write_down_ID": "*Lütfen yukarıda gösterilen ID'ni kopyala veya bir yere yaz.",

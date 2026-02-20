@@ -432,6 +432,7 @@
   "exchange_new_template": "Sabon template",
   "exchange_provider_unsupported": "${providerName}",
   "exchange_providers": "Masu Bayar da Musanya",
+  "exchange_rate_is_fixed": "An kayyade farashin canji",
   "exchange_result_confirm": "Ta danna tabbatarwa, zaku aika ${fetchingLabel} ${from} daga walat ɗin ku mai suna ${walletName} zuwa address dake kasa. Ko zaka iya aika daga kwalinku na external zuwa address/QR code dake kasa.\n\nDon Allah shigar da confirm don ci gaba ko dawo ka canja adadinku.",
   "exchange_result_description": "Dole ne ku aika mafi ƙarancin ${fetchingLabel} ${from} zuwa adireshin da aka nuna akan shafi na gaba. Idan ka aika adadi kasa da ${fetchingLabel} ${from} bazai yi converting ba kuma ba zai koma ba.",
   "exchange_result_write_down_ID": "*Don Allah kwafi ko rubuta ID dake nuna sama.",

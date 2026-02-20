@@ -432,6 +432,7 @@
   "exchange_new_template": "Nová šablona",
   "exchange_provider_unsupported": "${providerName} již není podporováno!",
   "exchange_providers": "Poskytovatelé výměny",
+  "exchange_rate_is_fixed": "Směnný kurz je pevný",
   "exchange_result_confirm": "Po stisknutí Potvrdit odešlete ${fetchingLabel} ${from} ze své peněženky s názvem ${walletName} na adresu uvedenou níže. Nebo můžete prostředky poslat ze své externí peněženky na níže uvedenou adresu/QR kód.\n\nProsím stiskněte Potvrdit pro pokračování, nebo se vraťte zpět pro změnu částky.",
   "exchange_result_description": "Musíte poslat minimálně ${fetchingLabel} ${from} na adresu uvedenou na následující stránce. Pokud pošlete nižší částku než ${fetchingLabel} ${from} nemusí dojít ke směně, ani k jejímu vrácení.",
   "exchange_result_write_down_ID": "*Prosím zkopírujte si, nebo zapište si výše uvedené ID.",

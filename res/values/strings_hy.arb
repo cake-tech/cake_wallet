@@ -432,6 +432,7 @@
   "exchange_new_template": "Նոր տեսակ",
   "exchange_provider_unsupported": "${providerName} այլևս չի ապահովվում",
   "exchange_providers": "Փոխանակման մատակարարներ",
+  "exchange_rate_is_fixed": "Փոխարժեքը ֆիքսված է",
   "exchange_result_confirm": "Սեղմելով հաստատել, դուք կուղարկեք ${fetchingLabel} ${from} ձեր հաշվեհամարից ${walletName} հետևյալ հասցեին: Կամ կարող եք ուղարկել ձեր արտաքին հաշվեհամարից հետևյալ հասցեին/QR կոդին:\n\nԽնդրում ենք սեղմել հաստատել կամ վերադառնալ գումարը փոխելու համար",
   "exchange_result_description": "Դուք պետք է ուղարկեք նվազագույնը ${fetchingLabel} ${from} հետևյալ էջում ցուցադրված հասցեին: Եթե դուք ուղարկում եք ավելի ցածր գումար, քան ${fetchingLabel} ${from} այն կարող է չփոխանակվել և չվերադարձվել",
   "exchange_result_write_down_ID": "*Խնդրում ենք պատճենել կամ գրել ձեր ID-ն վերևում",

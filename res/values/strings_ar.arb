@@ -432,6 +432,7 @@
   "exchange_new_template": "قالب جديد",
   "exchange_provider_unsupported": "${providerName} لم يعد مدعومًا!",
   "exchange_providers": "مقدمي التبادل",
+  "exchange_rate_is_fixed": "سعر الصرف ثابت",
   "exchange_result_confirm": "بالضغط على تأكيد ، سترسل ${fetchingLabel} ${from} من محفظتك المسماة ${walletName} إلى العنوان الموضح أدناه. أو يمكنك الإرسال من محفظتك الخارجية إلى العنوان أدناه / QR.\n\nيرجى الضغط على تأكيد للمتابعة أو الرجوع لتغيير المبالغ.",
   "exchange_result_description": "يجب عليك إرسال ما لا يقل عن ${fetchingLabel} ${from} إلى العنوان المعروض في الصفحة التالية. إذا أرسلت مبلغًا أقل من ${fetchingLabel} ${from} فقد لا يتم تحويله وقد لا يتم رده.",
   "exchange_result_write_down_ID": "* يرجى نسخ أو كتابة معرف هويتك الأعلى لحفظة.",

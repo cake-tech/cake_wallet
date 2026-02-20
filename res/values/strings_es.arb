@@ -432,6 +432,7 @@
   "exchange_new_template": "Nueva plantilla",
   "exchange_provider_unsupported": "¡${providerName} ya no está soportado!",
   "exchange_providers": "Proveedores de intercambio",
+  "exchange_rate_is_fixed": "El tipo de cambio es fijo.",
   "exchange_result_confirm": "Al presionar confirmar, enviará ${fetchingLabel} ${from} desde tu cartera llamada ${walletName} a la dirección que se muestra a continuación. O puedes enviar desde tu cartera externa a la dirección o código QR que se muestra a continuación.\n\nPresiona confirmar para continuar o regresa para cambiar los importes.",
   "exchange_result_description": "Debes enviar un mínimo de ${fetchingLabel} ${from} a la dirección que se muestra en la página siguiente. Si envías una cantidad inferior a ${fetchingLabel} ${from}, es posible que no se convierta y que no sea reembolsado.",
   "exchange_result_write_down_ID": "*Copia o anota tu ID que se muestra arriba.",

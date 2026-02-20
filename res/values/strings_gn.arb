@@ -335,6 +335,7 @@
   "exchange_new_template": "Plantilla pyahú",
   "exchange_provider_unsupported": "¡${providerName} ndaikatúi ojeipuruve!",
   "exchange_providers": "Umi ome’ẽva intercambio .",
+  "exchange_rate_is_fixed": "Tasa de cambio ha'e fija",
   "exchange_result_confirm": "jejopyvo ñemoañeteha, oñemondota${fetchingLabel} ${from} nde billetera guive hérava${walletName} pe dirección ohechaukava upe rire. Térã ikatu remondo nde billetera  okápeguá guive ambué dirección / código  QR mboyvegua-pe Emboguapyvo ‘ñemoañete’ reike hag̃ua térã eju jey remoambue hag̃ua pe monto.",
   "exchange_result_description": "Tekotevẽ remondo peteĩ mba’e michĩvéva ${fetchingLabel} ${from}  pe dirección ojehechaukáva kuatiápe upe rire. Remondóramo michĩve ${fetchingLabel} ${from}-gui, ikatu ndoñembohasai ha ndojehepyme’ẽjeymo’ãi.",
   "exchange_result_write_down_ID": "Ekopiáke térã rehaí nde ID ojehechaukáva yvate.",

@@ -432,6 +432,7 @@
   "exchange_new_template": "เทมเพลทใหม่",
   "exchange_provider_unsupported": "${providerName} ไม่ได้รับการสนับสนุนอีกต่อไป!",
   "exchange_providers": "ผู้ให้บริการแลกเปลี่ยน",
+  "exchange_rate_is_fixed": "อัตราแลกเปลี่ยนได้รับการแก้ไขแล้ว",
   "exchange_result_confirm": "โดยกดปุ่มยืนยัน, คุณจะส่ง ${fetchingLabel} ${from} จากกระเป๋าของคุณที่เรียกว่า ${walletName} ไปยังที่อยู่ที่แสดงข้างล่าง หรือคุณสามารถส่งจากกระเป๋าภายนอกไปยังที่อยู่/รหัส QR ด้านล่าง\n\nโปรดกดปุ่มยืนยันเพื่อดำเนินการต่อหรือกลับไปเปลี่ยนจำนวน",
   "exchange_result_description": "คุณต้องส่งอย่างน้อย ${fetchingLabel} ${from} ไปยังที่อยู่ที่แสดงบนหน้าถัดไป หากคุณส่งจำนวนน้อยกว่า ${fetchingLabel} ${from} อาจจะไม่ถูกแปลงและอาจไม่ถูกเรียกคืน",
   "exchange_result_write_down_ID": "*โปรดคัดลอกหรือเขียนรหัสของคุณด้านบน",

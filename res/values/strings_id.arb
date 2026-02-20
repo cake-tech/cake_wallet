@@ -432,6 +432,7 @@
   "exchange_new_template": "Template baru",
   "exchange_provider_unsupported": "${providerName} tidak lagi didukung!",
   "exchange_providers": "Penyedia Pertukaran",
+  "exchange_rate_is_fixed": "Nilai tukar tetap",
   "exchange_result_confirm": "Dengan menekan tombol konfirmasi, Anda akan mengirimkan ${fetchingLabel} ${from} dari dompet Anda yang disebut ${walletName} ke alamat yang ditampilkan di bawah. Anda juga dapat mengirim dari dompet eksternal Anda ke alamat/QR code di bawah.\n\nSilakan tekan konfirmasi untuk melanjutkan atau kembali untuk mengubah jumlah.",
   "exchange_result_description": "Anda harus mengirimkan minimal ${fetchingLabel} ${from} ke alamat yang ditampilkan di halaman berikutnya. Jika Anda mengirimkan jumlah yang lebih rendah dari ${fetchingLabel} ${from} maka uang tersebut mungkin tidak akan diubah dan mungkin tidak akan dikembalikan.",
   "exchange_result_write_down_ID": "*Silakan salin atau tulis ID Anda yang ditampilkan di atas.",
