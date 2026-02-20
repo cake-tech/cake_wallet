@@ -90,8 +90,8 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
             ModalTopBar(
               title: "",
               leadingWidget: SwapModalHeader(
-                  fromIconPath: widget.exchangeTradeViewModel.trade.from?.iconPath ?? "",
-                  toIconPath: widget.exchangeTradeViewModel.trade.to?.iconPath ?? ""),
+                  fromIconPath: widget.exchangeViewModel.depositCurrency.iconPath ?? "",
+                  toIconPath: widget.exchangeViewModel.receiveCurrency.iconPath ?? ""),
               trailingIcon: Icon(Icons.close),
               onTrailingPressed: Navigator.of(context).maybePop,
             ),
@@ -107,11 +107,11 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "send value",
-                              label: widget.exchangeTradeViewModel.trade.from?.fullName ?? "",
-                              iconPath: widget.exchangeTradeViewModel.trade.from?.iconPath ?? "",
+                              label: widget.exchangeViewModel.depositCurrency.fullName ?? "",
+                              iconPath: widget.exchangeViewModel.depositCurrency.iconPath ?? "",
                               trailingText: widget.exchangeTradeViewModel.trade.amountFormatted() +
                                   " " +
-                                  (widget.exchangeTradeViewModel.trade.from?.title ?? "")),
+                                  (widget.exchangeViewModel.depositCurrency.title)),
                           if(widget.exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
                           ListItemRegularRow(
                               showArrow: false,
@@ -131,11 +131,11 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "receive value",
-                              label: widget.exchangeTradeViewModel.trade.to?.fullName ?? "",
-                              iconPath: widget.exchangeTradeViewModel.trade.to?.iconPath ?? "",
+                              label: widget.exchangeViewModel.receiveCurrency.fullName ?? "",
+                              iconPath: widget.exchangeViewModel.receiveCurrency.iconPath ?? "",
                               trailingText: (widget.receiveAmount) +
                                   " " +
-                                  (widget.exchangeTradeViewModel.trade.to?.title ?? "")),
+                                  (widget.exchangeViewModel.receiveCurrency.title)),
                           ListItemRegularRow(
                               keyValue: "receiver",
                               label: S.of(context).to,
