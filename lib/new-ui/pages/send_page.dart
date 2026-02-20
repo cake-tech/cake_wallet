@@ -111,7 +111,7 @@ class SendPageModes {
       popOnConfirmation: false);
 
   static final SendPageModes mwebDeposit = SendPageModes(
-      title: S.current.mask + " Litecoin",
+      title: "${S.current.mask} Litecoin",
       showAddressField: false,
       confirmSheetIconPath: "assets/new-ui/mask.svg",
       helpContent: SendPageHelpContent(
@@ -123,7 +123,7 @@ class SendPageModes {
 
 
   static final SendPageModes mwebWithdrawal = SendPageModes(
-      title: S.current.unmask + " Litecoin",
+      title: "${S.current.unmask} Litecoin",
       showAddressField: false,
       confirmSheetIconPath: "assets/new-ui/unmask.svg",
       helpContent: SendPageHelpContent(
@@ -420,11 +420,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                       captionColor: Theme.of(context).colorScheme.onSurface,
                                       borderColor: Theme.of(context).colorScheme.primary,
                                       iconColor: Theme.of(context).colorScheme.primary,
-                                      value:
-                                      widget.sendViewModel.coinTypeToSpendFrom == UnspentCoinType.any,
-                                      onChanged: (bool? value) {
-                                        widget.sendViewModel.setAllowMwebCoins(value ?? false);
-                                      },
+                                      value: [UnspentCoinType.any, UnspentCoinType.mweb]
+                                          .contains(widget.sendViewModel.coinTypeToSpendFrom),
+                                      onChanged: (value) =>
+                                          widget.sendViewModel.setAllowMwebCoins(value),
                                     ),
                                   if (widget.sendViewModel.hasCoinControl ||
                                       widget.sendViewModel.hasFees)
