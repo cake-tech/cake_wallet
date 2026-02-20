@@ -12,7 +12,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
 
   final DisplaySettingsViewModel _displaySettingsViewModel;
 
-  final double cellHeight = 25;
+  final double cellHeight = 12;
   final double cellWidth = 12;
   final double cellRadius = 18;
 
@@ -29,7 +29,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
         final previewWidth = previewHeight * 0.6;
 
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 250),
           curve: Curves.easeInOut,
           height: getHeight(context, currentTheme, currentTheme.hasAccentColors),
           padding: EdgeInsets.all(12),
@@ -54,7 +54,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                           _displaySettingsViewModel.onThemeSelected(theme);
                         },
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 250),
                           curve: Curves.easeInOut,
                           margin: EdgeInsets.only(right: 24),
                           decoration: ShapeDecoration(
@@ -79,7 +79,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                 ),
               ),
               AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 250),
                 switchInCurve: Curves.easeOut,
                 switchOutCurve: Curves.easeIn,
                 transitionBuilder: (child, animation) => FadeTransition(
@@ -95,6 +95,10 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                         key: const ValueKey('accent'),
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          Padding(
+                              padding: EdgeInsets.only(top: 14),
+                              child: Container(height: 1, color: Theme.of(context).colorScheme.outlineVariant)
+                          ),
                           SizedBox(height: cellHeight),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -116,7 +120,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                                     child: Stack(
                                       children: [
                                         AnimatedOpacity(
-                                          duration: Duration(milliseconds: 200),
+                                          duration: Duration(milliseconds: 250),
                                           opacity: isSelected ? 1 : 0,
                                           child: Container(
                                               width:28,height:28,decoration: BoxDecoration(borderRadius: BorderRadius.circular(99999999),border: Border.all(color:Theme.of(context)
@@ -125,7 +129,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                                           ),
                                         ),
                                         AnimatedScale(
-                                          duration: Duration(milliseconds: 200),
+                                          duration: Duration(milliseconds: 250),
                                           scale: isSelected ? 0.8 : 1,
                                           child: Container(
                                             width: 28,
@@ -147,15 +151,21 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                     : const SizedBox.shrink(key: ValueKey('no-accent')),
               ),
               if (_displaySettingsViewModel.currentTheme is BlackTheme)
-                SettingsSwitcherCell(
-                  title: S.current.oled_mode,
-                  value: _displaySettingsViewModel.isBlackThemeOledEnabled,
-                  onValueChange: (_, bool value) {
-                    _displaySettingsViewModel.setBlackThemeOled(value);
-                  },
-                  padding: EdgeInsets.zero,
-                  switchBackgroundColor: currentTheme.colorScheme.secondaryContainer,
+                Padding(
+                    padding: EdgeInsets.only(top: 12, bottom: 4),
+                    child: Container(height: 1, color: Theme.of(context).colorScheme.outlineVariant)
                 ),
+              if (_displaySettingsViewModel.currentTheme is BlackTheme)
+              SettingsSwitcherCell(
+                height: 40,
+                title: S.current.oled_mode,
+                value: _displaySettingsViewModel.isBlackThemeOledEnabled,
+                onValueChange: (_, bool value) {
+                  _displaySettingsViewModel.setBlackThemeOled(value);
+                },
+                padding: EdgeInsets.zero,
+                switchBackgroundColor: currentTheme.colorScheme.secondaryContainer,
+              ),
             ],
           ),
         );
@@ -166,14 +176,14 @@ class SettingsThemeChoicesCell extends StatelessWidget {
   double getHeight(BuildContext context, MaterialThemeBase theme, bool hasAccentColors) {
     final screenHeight = MediaQuery.of(context).size.height;
 
-    double baseHeight = (screenHeight * 0.246).clamp(150.0, screenHeight * 0.5);
+    double baseHeight = (screenHeight * 0.247).clamp(150.0, screenHeight * 0.5);
 
     if (hasAccentColors) {
-      baseHeight += (screenHeight * 0.05).clamp(35.0, 60.0);
+      baseHeight += (screenHeight * 0.6).clamp(35.0, 60.0);
     }
 
     if (theme is BlackTheme) {
-      baseHeight += (screenHeight * 0.05).clamp(48.0, 96.0);
+      baseHeight += (screenHeight * 0.057).clamp(48.0, 96.0);
     }
 
     return baseHeight;
