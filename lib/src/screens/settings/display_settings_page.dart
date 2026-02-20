@@ -3,14 +3,19 @@ import 'dart:io';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -33,121 +38,26 @@ class DisplaySettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.surface,
-      child: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            ModalTopBar(title: S.of(context).display_settings,leadingIcon: Icon(Icons.arrow_back_ios_new),onLeadingPressed: () => Navigator.of(context).pop()),
-            Expanded(
+      child: Column(
+        children: [
+          ModalTopBar(title: S.of(context).display_settings,leadingIcon: Icon(Icons.arrow_back_ios_new),onLeadingPressed: () => Navigator.of(context).pop()),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18.0),
               child: SingleChildScrollView(
                 controller: ModalScrollController.of(context),
                 physics: ClampingScrollPhysics(),
                 child: Observer(builder: (_) {
                   return Container(
                     child: Column(
+                      spacing: 16,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SettingsSwitcherCell(
-                          title: S.of(context).apps,
-                          value: _displaySettingsViewModel.shouldShowMarketPlaceInDashboard,
-                          onValueChange: (_, bool value) {
-                            _displaySettingsViewModel.setShouldShowMarketPlaceInDashbaord(value);
-                          },
-                        ),
-                        SettingsSwitcherCell(
-                          title: S.of(context).show_address_book_popup,
-                          value: _displaySettingsViewModel.showAddressBookPopup,
-                          onValueChange: (_, bool value) {
-                            _displaySettingsViewModel.setShowAddressBookPopup(value);
-                          },
-                        ),
-                        if (_displaySettingsViewModel.showZcashCardSetting)
-                        SettingsSwitcherCell(
-                          title: S.of(context).show_zcash_card,
-                          value: _displaySettingsViewModel.showZcashCard,
-                          onValueChange: (_, bool value) {
-                            _displaySettingsViewModel.setShowZcashCard(value);
-                          },
-                        ),
-                        SettingsPickerCell<SyncStatusDisplayMode>(
-                          title: S.current.sync_status_display_mode,
-                          items: SyncStatusDisplayMode.values.toList(),
-                          selectedItem: _displaySettingsViewModel.syncStatusDisplayMode,
-                          onItemSelected: (SyncStatusDisplayMode mode) =>
-                              _displaySettingsViewModel.setSyncStatusDisplayMode(mode),
-                          displayItem: (SyncStatusDisplayMode mode) => mode.title,
-                          isGridView: false,
-                        ),
-                        if (_displaySettingsViewModel.showDisplayAmountsInSatoshiSetting)
-                          SettingsPickerCell<BitcoinAmountDisplayMode>(
-                            title: S.of(context).bitcoin_amount_display,
-                            items: BitcoinAmountDisplayMode.all,
-                            selectedItem: _displaySettingsViewModel.displayAmountsInSatoshi,
-                            onItemSelected: _displaySettingsViewModel.setDisplayAmountsInSatoshi,
-                            displayItem: (mode) => mode.title,
-                            isGridView: false,
-                          ),
-                        //if (!isHaven) it does not work correctly
-                        if (!_displaySettingsViewModel.disabledFiatApiMode)
-                          SettingsPickerCell<FiatCurrency>(
-                            title: S.of(context).settings_currency,
-                            searchHintText: S.of(context).search_currency,
-                            items: FiatCurrency.all,
-                            selectedItem: _displaySettingsViewModel.fiatCurrency,
-                            onItemSelected: (FiatCurrency currency) =>
-                                _displaySettingsViewModel.setFiatCurrency(currency),
-                            images: FiatCurrency.all
-                                .map((e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
-                                .toList(),
-                            isGridView: true,
-                            matchingCriteria: (FiatCurrency currency, String searchText) {
-                              return currency.title.toLowerCase().contains(searchText) ||
-                                  currency.fullName.toLowerCase().contains(searchText);
-                            },
-                          ),
-                        SettingsPickerCell<String>(
-                          title: S.of(context).settings_change_language,
-                          searchHintText: S.of(context).search_language,
-                          items: LanguageService.list.keys.toList(),
-                          displayItem: (dynamic code) {
-                            return LanguageService.list[code] ?? '';
-                          },
-                          selectedItem: _displaySettingsViewModel.languageCode,
-                          onItemSelected: _displaySettingsViewModel.onLanguageSelected,
-                          images: LanguageService.list.keys
-                              .map((e) => Image.asset(
-                                  "assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
-                              .toList(),
-                          matchingCriteria: (String code, String searchText) {
-                            return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;
-                          },
-                        ),
-                        if (FeatureFlag.customBackgroundEnabled)
-                          StandardListRow(
-                            title: "Custom background",
-                            isSelected: false,
-                            onTap: (_) => _pickImage(context),
-                          ),
                         if (responsiveLayoutUtil.shouldRenderMobileUI &&
                             DeviceInfo.instance.isMobile) ...[
-                          SizedBox(height: 18),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 24),
-                            child: Text(
-                              S.current.appearance,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14,
-                                    height: 22 / 14,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                            ),
-                          ),
-                          SizedBox(height: 12),
                           Container(
-                            margin: EdgeInsets.symmetric(horizontal: 20),
                             decoration: ShapeDecoration(
-                                color: Theme.of(context).colorScheme.surfaceContainer,
+                                color: Theme.of(context).colorScheme.surfaceContainerHigh,
                                 shape: RoundedSuperellipseBorder(
                                     borderRadius: BorderRadius.circular(18))),
                             child: Column(
@@ -169,7 +79,7 @@ class DisplaySettingsPage extends StatelessWidget {
                                 ),
                                 Container(
                                   decoration: ShapeDecoration(
-                                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                      color: Theme.of(context).colorScheme.surfaceContainer,
                                       shape: RoundedSuperellipseBorder(
                                           borderRadius: BorderRadius.circular(18))),
                                   child: Column(
@@ -185,14 +95,170 @@ class DisplaySettingsPage extends StatelessWidget {
                             ),
                           ),
                         ],
+                        // ModalHeader(
+                        //     iconPath: "assets/new-ui/settings_row_icons/display.svg",
+                        //     message: S.of(context).privacy_and_security_desc,
+                        //     title: S.of(context).display),
+                        Observer(
+                          builder: (_) => NewListSections(
+                            sections: {
+                              "": [
+                                ListItemToggle(
+                                    keyValue: "apps",
+                                    label: S.of(context).apps,
+                                    value: _displaySettingsViewModel.shouldShowMarketPlaceInDashboard,
+                                    onChanged: (val) {
+                                      _displaySettingsViewModel.setShouldShowMarketPlaceInDashbaord(val);
+                                    }),
+                                ListItemToggle(
+                                    keyValue: "display_settings_show_address_book_popup",
+                                    label: S.of(context).show_address_book_popup,
+                                    value: _displaySettingsViewModel.showAddressBookPopup,
+                                    onChanged: (val) {
+                                      _displaySettingsViewModel.setShowAddressBookPopup(val);
+                                    }),
+                                if (_displaySettingsViewModel.showZcashCardSetting)
+                                ListItemToggle(
+                                    keyValue: "display_settings_show_zcashcard",
+                                    label: S.of(context).show_zcash_card,
+                                    value: _displaySettingsViewModel.showZcashCard,
+                                    onChanged: (val) {
+                                      _displaySettingsViewModel.setShowZcashCard(val);
+                                    }),
+                                ListItemRegularRow(
+                                    keyValue: "display_settings_sync_status_display",
+                                    label: S.current.sync_status_display_mode,
+                                    trailingText: _displaySettingsViewModel.syncStatusDisplayMode.title,
+                                    onTap: () async {
+                                      final items = SyncStatusDisplayMode.values.toList();
+
+                                      final selectedAtIndex =
+                                      items.indexOf(_displaySettingsViewModel.syncStatusDisplayMode);
+
+                                      await showPopUp<void>(
+                                        context: context,
+                                        builder: (_) => Picker(
+                                          items: items,
+                                          selectedAtIndex: selectedAtIndex,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          onItemSelected: (SyncStatusDisplayMode mode) {
+                                            _displaySettingsViewModel.setSyncStatusDisplayMode(mode);
+                                          },
+                                          displayItem: (SyncStatusDisplayMode mode) => mode.title,
+                                          isSeparated: false,
+                                        ),
+                                      );
+                                    }),
+                                if (_displaySettingsViewModel.showDisplayAmountsInSatoshiSetting)
+                                ListItemRegularRow(
+                                    keyValue: "display_settings_bitcoin_amount_display",
+                                    label: S.of(context).bitcoin_amount_display,
+                                    trailingText: _displaySettingsViewModel.displayAmountsInSatoshi.title,
+                                    onTap: () async {
+                                      final items = BitcoinAmountDisplayMode.all;
+
+                                      final selectedAtIndex =
+                                      items.indexOf(_displaySettingsViewModel.displayAmountsInSatoshi);
+
+                                      await showPopUp<void>(
+                                        context: context,
+                                        builder: (_) => Picker(
+                                          items: items,
+                                          selectedAtIndex: selectedAtIndex,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          onItemSelected: _displaySettingsViewModel.setDisplayAmountsInSatoshi,
+                                          displayItem: (BitcoinAmountDisplayMode mode) => mode.title,
+                                          isSeparated: false,
+                                        ),
+                                      );
+                                    }),
+                                if (!_displaySettingsViewModel.disabledFiatApiMode)
+                                ListItemRegularRow(
+                                    keyValue: "display_settings_fiat_currency",
+                                    label: S.of(context).settings_currency,
+                                    trailingText: _displaySettingsViewModel.fiatCurrency.title,
+                                    onTap: () async {
+                                      final items = FiatCurrency.all;
+
+                                      final selectedAtIndex =
+                                      items.indexOf(_displaySettingsViewModel.fiatCurrency);
+
+                                      await showPopUp<void>(
+                                        context: context,
+                                        builder: (_) => Picker(
+                                          items: items,
+                                          selectedAtIndex: selectedAtIndex,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          onItemSelected: (FiatCurrency currency) {
+                                            _displaySettingsViewModel.setFiatCurrency(currency);
+                                          },
+                                          images: FiatCurrency.all
+                                              .map((e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
+                                              .toList(),
+                                          hintText: S.of(context).search_currency,
+                                          isGridView: true,
+                                          matchingCriteria: (FiatCurrency currency, String searchText) {
+                                            return currency.title.toLowerCase().contains(searchText) ||
+                                                currency.fullName.toLowerCase().contains(searchText);
+                                          },
+                                          //displayItem: (BitcoinAmountDisplayMode mode) => mode.title,
+                                          isSeparated: false,
+
+                                        ),
+                                      );
+                                    }),
+                                ListItemRegularRow(
+                                    keyValue: "display_settings_language",
+                                    label: S.of(context).settings_change_language,
+                                    trailingText: LanguageService.list[_displaySettingsViewModel.languageCode] ?? '',
+                                    onTap: () async {
+                                      final items = LanguageService.list.keys.toList();
+
+                                      final selectedAtIndex =
+                                      items.indexOf(_displaySettingsViewModel.languageCode);
+
+                                      await showPopUp<void>(
+                                        context: context,
+                                        builder: (_) => Picker(
+                                          displayItem: (dynamic code) {
+                                            return LanguageService.list[code] ?? '';
+                                          },
+                                          items: items,
+                                          selectedAtIndex: selectedAtIndex,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          onItemSelected: _displaySettingsViewModel.onLanguageSelected,
+                                          images: LanguageService.list.keys
+                                              .map((e) => Image.asset(
+                                              "assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
+                                              .toList(),
+                                          hintText: S.of(context).search_language,
+                                          matchingCriteria: (String code, String searchText) {
+                                            return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;
+                                          },
+                                          //displayItem: (BitcoinAmountDisplayMode mode) => mode.title,
+                                          isSeparated: true,
+
+                                        ),
+                                      );
+                                    }),
+                              ],
+                            },
+                          ),
+                        ),
+                        if (FeatureFlag.customBackgroundEnabled)
+                          StandardListRow(
+                            title: "Custom background",
+                            isSelected: false,
+                            onTap: (_) => _pickImage(context),
+                          ),
                       ],
                     ),
                   );
                 }),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
