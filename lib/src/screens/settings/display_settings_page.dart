@@ -7,11 +7,8 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
@@ -95,10 +92,6 @@ class DisplaySettingsPage extends StatelessWidget {
                             ),
                           ),
                         ],
-                        // ModalHeader(
-                        //     iconPath: "assets/new-ui/settings_row_icons/display.svg",
-                        //     message: S.of(context).privacy_and_security_desc,
-                        //     title: S.of(context).display),
                         Observer(
                           builder: (_) => NewListSections(
                             sections: {
@@ -201,7 +194,6 @@ class DisplaySettingsPage extends StatelessWidget {
                                             return currency.title.toLowerCase().contains(searchText) ||
                                                 currency.fullName.toLowerCase().contains(searchText);
                                           },
-                                          //displayItem: (BitcoinAmountDisplayMode mode) => mode.title,
                                           isSeparated: false,
 
                                         ),
@@ -235,7 +227,6 @@ class DisplaySettingsPage extends StatelessWidget {
                                           matchingCriteria: (String code, String searchText) {
                                             return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;
                                           },
-                                          //displayItem: (BitcoinAmountDisplayMode mode) => mode.title,
                                           isSeparated: true,
 
                                         ),
