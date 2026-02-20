@@ -9,6 +9,7 @@ import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import "package:cw_core/wallet_type.dart";
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class L2SendExternalModal extends StatefulWidget {
@@ -155,9 +156,8 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
                       ),
                       AddressFormatter.buildSegmentedAddress(
                           address: output.address,
-                          evenTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                          evenTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface,fontFamily: "IBM Plex Mono"),
                           textAlign: TextAlign.center),
-                      SizedBox(),
                       Container(
                           decoration: BoxDecoration(
                             color: warningBackgroundColor,
@@ -174,11 +174,29 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
                                   fontWeight: FontWeight.w500),
                             ),
                           )),
-                      NewPrimaryButton(
-                          onPressed: Navigator.of(context).pop,
-                          text: S.of(context).sent_the_funds,
-                          color: Theme.of(context).colorScheme.surfaceContainer,
-                          textColor: Theme.of(context).colorScheme.primary),
+                      Row(
+                        spacing: 8,
+                        children: [
+                          Flexible(
+                            child: NewPrimaryButton(
+                                onPressed:(){
+                                  Clipboard.setData(
+                                    ClipboardData(text: output.address),
+                                  );
+                                },
+                                text: S.of(context).copy,
+                                color: Theme.of(context).colorScheme.primary,
+                                textColor: Theme.of(context).colorScheme.onPrimary),
+                          ),
+                          Flexible(
+                            child: NewPrimaryButton(
+                                onPressed: Navigator.of(context).pop,
+                                text: S.of(context).sent_the_funds,
+                                color: Theme.of(context).colorScheme.surfaceContainer,
+                                textColor: Theme.of(context).colorScheme.primary),
+                          ),
+                        ],
+                      ),
                       SizedBox()
                     ],
                   ),

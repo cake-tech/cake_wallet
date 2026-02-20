@@ -217,10 +217,20 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
     fetchFiatPrice(receiveCurrency);
 
-    () async {
-      depositAvailableAmount = _appStore.amountParsingProxy.getDisplayCryptoString(
+    updateDepositAvailableAmount();
+  }
+
+  Future<void> updateDepositAvailableAmount() async {
+    if(depositCurrency == CryptoCurrency.btcln) {
+      depositAvailableAmount = _appStore.amountParsingProxy.getDisplayCryptoString(wallet.balance[depositCurrency]!.fullAvailableBalance, depositCurrency);
+    } else {
+      final currency = depositCurrency;
+      final amount = _appStore.amountParsingProxy.getDisplayCryptoString(
           (await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any)), depositCurrency);
-    }.call();
+      if(depositCurrency == currency) {
+        depositAvailableAmount = amount;
+      }
+    }
   }
 
   void showFiatCurrencyPicker(BuildContext context) {
@@ -251,6 +261,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   bool useSameWalletAddress(CryptoCurrency currency) =>
       currency == wallet.currency ||
+      currency == CryptoCurrency.btcln && wallet.currency == CryptoCurrency.btc ||
       (currency.tag != null && currency.tag == wallet.currency.tag) ||
       currency.tag == wallet.currency.title;
 
@@ -404,7 +415,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final List<WalletInfoAddressInfo> ret = [];
     final addresses = await wallet.getAddressInfos();
     for (var list in addresses.values) {
-      ret.addAll(list);
+      // we only want the "primary" account addresses - those that contain account names.
+      ret.addAll(list.where((item) => item.label.split(" ").length > 1));
     }
     return ret;
   }
@@ -476,7 +488,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         WalletType.bitcoinCash,
         WalletType.dogecoin,
       ].contains(wallet.type) &&
-      depositCurrency == wallet.currency;
+      (depositCurrency == wallet.currency ||
+          depositCurrency == CryptoCurrency.btcln && wallet.currency == CryptoCurrency.btc);
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
 
@@ -660,6 +673,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _onPairChange();
     isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
     fetchFiatPrice(currency);
+    updateDepositAvailableAmount();
   }
 
   @action
@@ -1075,12 +1089,19 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     ].contains(wallet.type)) {
       final priority = _settingsStore.getPriority(wallet.type)!;
 
-      final amount = await bitcoin!.estimateFakeSendAllTxAmount(
-        wallet,
-        priority,
-        coinTypeToSpendFrom:
-            wallet.type == WalletType.litecoin ? UnspentCoinType.nonMweb : UnspentCoinType.any,
-      );
+      final amount = depositCurrency == CryptoCurrency.btcln
+          // FIXME amount estimation is broken/impossible for ln, konsti suggested this
+          ? (amountParsingProxy
+          .parseCryptoString(depositAvailableAmount, depositCurrency).toInt() - 10)
+          : await bitcoin!.estimateFakeSendAllTxAmount(
+              wallet,
+              priority,
+              coinTypeToSpendFrom: wallet.type == WalletType.litecoin
+                  ? UnspentCoinType.nonMweb
+                  : depositCurrency == CryptoCurrency.btcln
+                      ? UnspentCoinType.lightning
+                      : UnspentCoinType.any,
+            );
 
       changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.from(amount)), isCanonical: true);
     } else if (wallet.type == WalletType.monero) {

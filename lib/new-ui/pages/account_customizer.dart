@@ -140,6 +140,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             child: Stack(
               children: [
                 ReorderableListView.builder(
+                  padding: EdgeInsets.only(bottom: 196),
                   scrollController: ModalScrollController.of(context),
                   onReorder: reorder,
                   proxyDecorator: (child, index, animation) {

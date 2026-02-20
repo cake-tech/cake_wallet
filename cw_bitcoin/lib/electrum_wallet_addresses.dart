@@ -776,13 +776,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     late final String username;
 
     if (newAddress.isEmpty) {
-      if (lightningAddress == null) {
+      if (lightningAddress != null) return;
+
         final randomNumber = Random.secure().nextInt(9999);
         final randomName = await generateName();
         username = "${randomName.replaceAll(" ", "")}$randomNumber".toLowerCase();
-      } else {
-        return;
-      }
     } else {
       username = newAddress;
     }

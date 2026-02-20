@@ -192,6 +192,7 @@ class _NewSendPageState extends State<NewSendPage> {
   List<TextEditingController> _amountControllers = [];
   List<TextEditingController> _addressControllers = [];
   final _formKey = GlobalKey<FormState>();
+  final _addressFocusNode = FocusNode();
   BuildContext? loadingBottomSheetContext;
   BuildContext? dialogContext;
   ContactRecord? newContactAddress;
@@ -238,11 +239,21 @@ class _NewSendPageState extends State<NewSendPage> {
         },
       );
     }
+
+    _addressFocusNode.addListener(() async {
+      if (!_addressFocusNode.hasFocus && _addressControllers[_selectedOutput].text.isNotEmpty) {
+        final output = widget.sendViewModel.outputs[_selectedOutput];
+        output.fetchParsedAddress(context).then((val){
+          if(_addressControllers[_selectedOutput].text != output.extractedAddress) {
+            _addressControllers[_selectedOutput].text = output.extractedAddress;
+          }
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-
 
     return Observer(
       builder: (_) {
@@ -335,6 +346,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                               ? widget.sendViewModel.textValidator
                                               : widget.sendViewModel.addressValidator,
                                           addressController: _addressControllers[_selectedOutput],
+                                        focusNode: _addressFocusNode,
                                         onURIScanned: (uri) async {
                                           output.resetParsedAddress();
                                           await output.fetchParsedAddress(context);
