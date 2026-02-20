@@ -52,6 +52,16 @@ class DisplaySettingsPage extends StatelessWidget {
                       children: [
                         if (responsiveLayoutUtil.shouldRenderMobileUI &&
                             DeviceInfo.instance.isMobile) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(left: 14, top: 14),
+                            child: Text(
+                              S.current.appearance,
+                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                height: 0.2,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
                           Container(
                             decoration: ShapeDecoration(
                                 color: Theme.of(context).colorScheme.surfaceContainerHigh,
@@ -72,7 +82,7 @@ class DisplaySettingsPage extends StatelessWidget {
                                     },
                                   ),
                                   useGenericColor: false,
-                                  padding: EdgeInsets.all(12),
+                                  padding: EdgeInsets.all(14),
                                 ),
                                 Container(
                                   decoration: ShapeDecoration(
