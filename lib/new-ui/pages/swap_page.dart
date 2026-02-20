@@ -30,6 +30,7 @@ import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
@@ -49,13 +50,16 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewSwapPage extends StatefulWidget {
   NewSwapPage(this.exchangeViewModel, this.authService, this.initialPaymentRequest,
-      {required this.walletSwitcherViewModel}) {
+      {required this.walletSwitcherViewModel, CryptoCurrency? initialCurrency}) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
         : null;
     receiveWalletName = exchangeViewModel.receiveCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
         : null;
+    if (initialCurrency != null) {
+      exchangeViewModel.changeDepositCurrency(currency: initialCurrency);
+    }
   }
 
   final ExchangeViewModel exchangeViewModel;
@@ -394,6 +398,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
+    printV("$domain");
     final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
     return extractAddressFromParsed(context, parsedAddress);
   }
@@ -422,6 +427,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
   @override
   Widget build(BuildContext context) {
     return KeyboardHideOverlay(
+      unfocusOnTap: true,
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
@@ -492,6 +498,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 addressTextFieldValidator:
                                     AddressValidator(type: widget.exchangeViewModel.depositCurrency),
                                 onPushPasteButton: (context) async {
+                                  final clipboard = await Clipboard.getData('text/plain');
+                                  widget.exchangeViewModel.depositAddress = clipboard?.text ?? '';
+
                                   final domain = widget.exchangeViewModel.depositAddress;
                                   widget.exchangeViewModel.depositAddress = await fetchParsedAddress(
                                       context, domain, widget.exchangeViewModel.depositCurrency);
@@ -549,6 +558,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 addressTextFieldValidator:
                                     AddressValidator(type: widget.exchangeViewModel.receiveCurrency),
                                 onPushPasteButton: (context) async {
+                                  final clipboard = await Clipboard.getData('text/plain');
+                                  widget.exchangeViewModel.receiveAddress = clipboard?.text ?? '';
+
                                   final domain = widget.exchangeViewModel.receiveAddress;
                                   widget.exchangeViewModel.receiveAddress = await fetchParsedAddress(
                                       context, domain, widget.exchangeViewModel.receiveCurrency);
@@ -563,62 +575,65 @@ class _NewSwapPageState extends State<NewSwapPage> {
                           ],
                         ),
                       ),
-                      Column(
-                        spacing: 12,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if(widget.exchangeViewModel.status is! SyncedSyncStatus)
-                          SendSyncingIndicator(status: widget.exchangeViewModel.status),
-                          SwapProviderPreview(exchangeViewModel: widget.exchangeViewModel),
-                          Observer(
-                            builder: (_) => LoadingPrimaryButton(
-                              key: ValueKey('exchange_page_exchange_button_key'),
-                              text: widget.exchangeViewModel.isAvailableInSelected
-                                  ? S.of(context).swap
-                                  : S.of(context).change_selected_exchanges,
-                              onPressed: widget.exchangeViewModel.isAvailableInSelected
-                                  ? () {
-                                      FocusScope.of(context).unfocus();
-                                      if (formKey.currentState != null &&
-                                          formKey.currentState!.validate()) {
-                                        if (_shouldWaitTillSynced) {
-                                          showPopUp<void>(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertWithOneAction(
-                                                alertTitle: S.of(context).exchange,
-                                                alertContent: S.of(context).exchange_sync_alert_content,
-                                                buttonText: S.of(context).ok,
-                                                buttonAction: () => Navigator.of(context).pop(),
-                                              );
-                                            },
-                                          );
-                                        } else {
-                                          final check = widget.exchangeViewModel.shouldDisplayTOTP();
-                                          widget.authService.authenticateAction(
-                                            context,
-                                            conditionToDetermineIfToUse2FA: check,
-                                            onAuthSuccess: (value) {
-                                              if (value) {
-                                                widget.exchangeViewModel.createTrade();
-                                              }
-                                            },
-                                          );
+                      Observer(
+                        builder: (_) => Column(
+                          spacing: 12,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (widget.exchangeViewModel.status is! SyncedSyncStatus)
+                              SendSyncingIndicator(status: widget.exchangeViewModel.status),
+                            SwapProviderPreview(exchangeViewModel: widget.exchangeViewModel),
+                            Observer(
+                              builder: (_) => LoadingPrimaryButton(
+                                key: ValueKey('exchange_page_exchange_button_key'),
+                                text: widget.exchangeViewModel.isAvailableInSelected
+                                    ? S.of(context).swap
+                                    : S.of(context).change_selected_exchanges,
+                                onPressed: widget.exchangeViewModel.isAvailableInSelected
+                                    ? () {
+                                        FocusScope.of(context).unfocus();
+                                        if (formKey.currentState != null &&
+                                            formKey.currentState!.validate()) {
+                                          if (_shouldWaitTillSynced) {
+                                            showPopUp<void>(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertWithOneAction(
+                                                  alertTitle: S.of(context).exchange,
+                                                  alertContent:
+                                                      S.of(context).exchange_sync_alert_content,
+                                                  buttonText: S.of(context).ok,
+                                                  buttonAction: () => Navigator.of(context).pop(),
+                                                );
+                                              },
+                                            );
+                                          } else {
+                                            final check =
+                                                widget.exchangeViewModel.shouldDisplayTOTP();
+                                            widget.authService.authenticateAction(
+                                              context,
+                                              conditionToDetermineIfToUse2FA: check,
+                                              onAuthSuccess: (value) {
+                                                if (value) {
+                                                  widget.exchangeViewModel.createTrade();
+                                                }
+                                              },
+                                            );
+                                          }
                                         }
-
                                       }
-
-                                    }
-                                  : () => PresentProviderPicker(
-                                          exchangeViewModel: widget.exchangeViewModel)
-                                      .presentProviderPicker(context),
-                              color: Theme.of(context).colorScheme.primary,
-                              textColor: Theme.of(context).colorScheme.onPrimary,
-                              isDisabled: _swapButtonDisabled(),
-                              isLoading: widget.exchangeViewModel.tradeState is TradeIsCreating,
+                                    : () => PresentProviderPicker(
+                                            exchangeViewModel: widget.exchangeViewModel)
+                                        .presentProviderPicker(context),
+                                color: Theme.of(context).colorScheme.primary,
+                                textColor: Theme.of(context).colorScheme.onPrimary,
+                                isDisabled: _swapButtonDisabled(),
+                                isLoading: widget.exchangeViewModel.tradeState is TradeIsCreating,
+                              ),
                             ),
-                          ),
-                        ],
+                            SizedBox()
+                          ],
+                        ),
                       )
                     ],
                   ),
@@ -1088,12 +1103,15 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         context: context,
         backgroundColor: Colors.transparent,
         builder: (context) {
-          return FractionallySizedBox(
-              heightFactor: 0.6,
-              child: SwapAddressSelectionModal(
-                isSelectingReceiver: widget.isReceiverCard,
-                exchangeViewModel: widget.exchangeViewModel,
-              ));
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.6,
+            ),
+            child: SwapAddressSelectionModal(
+              isSelectingReceiver: widget.isReceiverCard,
+              exchangeViewModel: widget.exchangeViewModel,
+            ),
+          );
         });
     if (res != null && res is SwapAddressSelectionResult) {
       if (widget.isReceiverCard) {
@@ -1146,7 +1164,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         ? widget.exchangeViewModel.receiveAmountFiat
         : widget.exchangeViewModel.depositAmountFiat;
 
-    if (double.parse(fiatAmountController.text) != double.parse(newText)) {
+    if (double.tryParse(fiatAmountController.text) != double.tryParse(newText)) {
       if (newText == "0.00") {
         fiatAmountController.text = "";
       } else {

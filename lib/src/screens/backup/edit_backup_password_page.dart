@@ -1,34 +1,35 @@
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
-import 'package:mobx/mobx.dart';
 
-class EditBackupPasswordPage extends StatelessWidget {
-  EditBackupPasswordPage(this.editBackupPasswordViewModel)
-      : textEditingController = TextEditingController() {
-    textEditingController.text = editBackupPasswordViewModel.backupPassword;
+class EditBackupPasswordPage extends StatefulWidget {
+  EditBackupPasswordPage(this.editBackupPasswordViewModel);
+
+  final EditBackupPasswordViewModel editBackupPasswordViewModel;
+
+  @override
+  State<EditBackupPasswordPage> createState() => _EditBackupPasswordPageState();
+}
+
+class _EditBackupPasswordPageState extends State<EditBackupPasswordPage> {
+  final textEditingController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    textEditingController.text = widget.editBackupPasswordViewModel.backupPassword;
     textEditingController
-        .addListener(() => editBackupPasswordViewModel.backupPassword = textEditingController.text);
-
-    reaction((_) => editBackupPasswordViewModel.backupPassword, (_) {
-      if (textEditingController.text != editBackupPasswordViewModel.backupPassword) {
-        textEditingController.text = editBackupPasswordViewModel.backupPassword;
+        .addListener(() {
+      if(textEditingController.text != widget.editBackupPasswordViewModel.backupPassword) {
+        widget.editBackupPasswordViewModel.backupPassword = textEditingController.text;
       }
     });
   }
-
-  final EditBackupPasswordViewModel editBackupPasswordViewModel;
-  final TextEditingController textEditingController;
-
-  @override
-  String get title => S.current.edit_backup_password;
 
   @override
   Widget build(BuildContext context) {
@@ -48,12 +49,12 @@ class EditBackupPasswordPage extends StatelessWidget {
               children: [
                 Center(
                   child: Observer(
-                    builder: (_) => BaseTextFormField(
+                    builder: (_) => TextFormField(
                       enableSuggestions: false,
                       autocorrect: false,
                       keyboardType: TextInputType.visiblePassword,
                       controller: textEditingController,
-                      textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
                     ),
@@ -66,7 +67,7 @@ class EditBackupPasswordPage extends StatelessWidget {
                       text: S.of(context).save,
                       color: Theme.of(context).colorScheme.primary,
                       textColor: Theme.of(context).colorScheme.onPrimary,
-                      isDisabled: !editBackupPasswordViewModel.canSave,
+                      isDisabled: !widget.editBackupPasswordViewModel.canSave,
                     ),
                   ),
                   bottom: 24,
@@ -92,7 +93,8 @@ class EditBackupPasswordPage extends StatelessWidget {
               rightButtonText: S.of(context).ok,
               leftButtonText: S.of(context).cancel,
               actionRightButton: () async {
-                await editBackupPasswordViewModel.save();
+                widget.editBackupPasswordViewModel.backupPassword = textEditingController.text;
+                await widget.editBackupPasswordViewModel.save();
                 Navigator.of(dialogContext).pop();
                 if (context.mounted) {
                   Navigator.of(context).pop();

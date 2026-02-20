@@ -188,6 +188,17 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     return false;
   }
 
+  String getTextValue(String key) {
+    if (key == nodeLabelUIKey) return label;
+    if (key == nodeAddressUIKey) return address;
+    if (key == nodePortUIKey) return port;
+    if (key == nodePathUIKey) return path;
+    if (key == nodeUsernameUIKey) return login;
+    if (key == nodePasswordUIKey) return password;
+    if (key == socksProxyAddressUIKey) return socksProxyAddress;
+    return '';
+  }
+
   @action
   void reset() {
     address = '';

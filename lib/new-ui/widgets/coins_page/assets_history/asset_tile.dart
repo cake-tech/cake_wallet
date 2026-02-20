@@ -1,5 +1,7 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -13,10 +15,11 @@ class AssetTile extends StatelessWidget {
       this.title,
       this.trailingText,
       this.modalMode = AssetDetailsModalModes.normal,
-      required this.wallet});
+      required this.wallet, required this.showSwap});
 
   final BalanceRecord balance;
   final bool showSecondary;
+  final bool showSwap;
   final String chainIconPath;
   final String? title;
   final String? trailingText;
@@ -32,8 +35,10 @@ class AssetTile extends StatelessWidget {
             isScrollControlled: true,
             builder: (context) {
               return AssetDetailsModal(
+                showSwap: showSwap,
+                asset: balance.asset,
                 title: title ?? balance.asset.fullName ?? balance.asset.name,
-                chainTitle: wallet.currency.title,
+                chainTitle: _getChainTitle(),
                 subtitle: trailingText ?? "",
                 amount: showSecondary ? balance.secondAvailableBalance : balance.availableBalance,
                 currencyTitle: balance.asset.title,
@@ -138,7 +143,7 @@ class AssetTile extends StatelessWidget {
                           ],
                         ),
                         Text(
-                           "${showSecondary ?balance.secondAvailableBalance: balance.availableBalance} ${balance.formattedAssetTitle}",
+                           "${showSecondary ?balance.secondAvailableBalance: balance.availableBalance} ${balance.formattedAssetTitle.safeSubString(0, 6)}",
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
@@ -159,5 +164,13 @@ class AssetTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getChainTitle() {
+    try {
+      return CryptoCurrency.fromString(wallet.currency.tag ??wallet.currency.title).title;
+    } catch(e) {
+      return wallet.currency.title;
+    }
   }
 }

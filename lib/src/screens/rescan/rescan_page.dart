@@ -36,19 +36,22 @@ class _RescanPageState extends State<RescanPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Observer(
-              builder: (_) => BlockchainHeightWidget(
-                // key: _blockchainHeightWidgetKey,
-                onHeightOrDateEntered: (value) => widget._rescanViewModel.isButtonEnabled = value,
-                isSilentPaymentsScan: widget._rescanViewModel.isSilentPaymentsScan,
-                isMwebScan: widget._rescanViewModel.isMwebScan,
-                doSingleScan: widget._rescanViewModel.doSingleScan,
-                hasDatePicker: !widget._rescanViewModel.isMwebScan,
-                // disable date picker for mweb for now
-                toggleSingleScan: () =>
-                    widget._rescanViewModel.doSingleScan = !widget._rescanViewModel.doSingleScan,
-                walletType: widget._rescanViewModel.wallet.type,
-                heightController: _heightController,
-                bitcoinMempoolAPIEnabled: widget._rescanViewModel.isBitcoinMempoolAPIEnabled,
+              builder: (_) => SingleChildScrollView(
+                controller: ModalScrollController.of(context),
+                child: BlockchainHeightWidget(
+                  // key: _blockchainHeightWidgetKey,
+                  onHeightOrDateEntered: (value) => widget._rescanViewModel.isButtonEnabled = value,
+                  isSilentPaymentsScan: widget._rescanViewModel.isSilentPaymentsScan,
+                  isMwebScan: widget._rescanViewModel.isMwebScan,
+                  doSingleScan: widget._rescanViewModel.doSingleScan,
+                  hasDatePicker: !widget._rescanViewModel.isMwebScan,
+                  // disable date picker for mweb for now
+                  toggleSingleScan: () =>
+                      widget._rescanViewModel.doSingleScan = !widget._rescanViewModel.doSingleScan,
+                  walletType: widget._rescanViewModel.wallet.type,
+                  heightController: _heightController,
+                  bitcoinMempoolAPIEnabled: widget._rescanViewModel.isBitcoinMempoolAPIEnabled,
+                ),
               ),
             ),
             Observer(
@@ -116,8 +119,7 @@ class _RescanPageState extends State<RescanPage> {
                 Expanded(
                     child: Padding(
                   padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                  child: SingleChildScrollView(
-                      controller: ModalScrollController.of(context), child: child),
+                  child: child,
                 )),
               ],
             ),

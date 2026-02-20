@@ -10,7 +10,19 @@ import 'package:flutter/services.dart';
 import "package:permission_handler_platform_interface/permission_handler_platform_interface.dart";
 
 class NewSendAddressInput extends StatelessWidget {
-  const NewSendAddressInput({super.key, required this.addressController, this.onURIScanned, this.onPushPasteButton, required this.selectedCurrency, this.onSelectedContact, this.onPushAddressBookButton, required this.onEditingComplete, this.bottomPadding=false, this.validator});
+  const NewSendAddressInput({
+    super.key,
+    required this.addressController,
+    this.onURIScanned,
+    this.onPushPasteButton,
+    required this.selectedCurrency,
+    this.onSelectedContact,
+    this.onPushAddressBookButton,
+    required this.onEditingComplete,
+    this.bottomPadding = false,
+    this.validator,
+    this.focusNode,
+  });
 
   final TextEditingController addressController;
   final Function(Uri)? onURIScanned;
@@ -21,9 +33,7 @@ class NewSendAddressInput extends StatelessWidget {
   final VoidCallback onEditingComplete;
   final bool bottomPadding;
   final FormFieldValidator<String>? validator;
-
-
-
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +50,19 @@ class NewSendAddressInput extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-                child: TextFormField(
-                    // onSubmitted: (val)=> FocusScope.of(context).unfocus(),
-                    validator: validator,
-                    onEditingComplete: onEditingComplete,
-                    controller: addressController,
-                    decoration: InputDecoration(
-                        hintText: S.of(context).search_or_enter, errorMaxLines: 3))),
+              child: TextFormField(
+                focusNode: focusNode,
+                // onSubmitted: (val)=> FocusScope.of(context).unfocus(),
+                validator: validator,
+                onEditingComplete: onEditingComplete,
+                onTapOutside: (_) => onEditingComplete.call(),
+                controller: addressController,
+                decoration: InputDecoration(
+                  hintText: S.of(context).search_or_enter,
+                  errorMaxLines: 3,
+                ),
+              ),
+            ),
             Row(
               spacing: 12,
               children: [

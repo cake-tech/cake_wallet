@@ -434,8 +434,6 @@ abstract class DashboardViewModelBase with Store {
           newOrder[setting!.cardOrder] = i;
       }
     }
-    printV(numAccounts);
-    printV(newOrder);
 
     // making sure ALL accounts have numbers, even the ones that existed before this feature was a thing
     for (int i = 0; i < numAccounts; i++) {
@@ -444,7 +442,6 @@ abstract class DashboardViewModelBase with Store {
         while (newOrder.containsValue(free)) {
           free++;
         }
-        printV("$i $free");
         if(wallet.type == WalletType.bitcoin) {
           newOrder[free] = 0;
         } else {
@@ -454,8 +451,6 @@ abstract class DashboardViewModelBase with Store {
       }
     }
     cardOrder = newOrder.asObservable();
-    printV(newOrder);
-    printV(cardOrder);
   }
 
   void _transactionDisposerCallback(int _) async {

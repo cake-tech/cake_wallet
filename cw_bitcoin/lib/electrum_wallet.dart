@@ -633,7 +633,9 @@ abstract class ElectrumWalletBase
 
       if (server.toLowerCase().contains('electrs')) {
         node!.isElectrs = true;
-        node!.save();
+        if (node!.isInBox) {
+          node!.save();
+        }
         return node!.isElectrs!;
       }
     }

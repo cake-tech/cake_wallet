@@ -22,7 +22,7 @@ class SeedVerificationSuccessView extends StatelessWidget {
           ConstrainedBox(
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
               child: CakeImageWidget(
-                height: 200,
+                height: 128,
                 imageUrl: currentTheme.isDark
                     ? 'assets/images/seed_verified_dark.png'
                     : 'assets/images/seed_verified_light.png',

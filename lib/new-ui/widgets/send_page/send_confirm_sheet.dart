@@ -161,7 +161,7 @@ class SendTransactionDetails extends StatelessWidget {
         (transaction == null)
             ? sumStr(
                 sendViewModel.outputs.where((e) => !e.sendAll).toList(),
-                (o) => double.parse(o.roundedCryptoAmount(8)),
+                (o) => double.tryParse(o.cryptoAmount) ?? 0,
               )
             : formatAmount(transaction.amountFormatted),
         sendViewModel.selectedCryptoCurrency);
@@ -170,7 +170,7 @@ class SendTransactionDetails extends StatelessWidget {
         (transaction == null)
             ? sumStr(
                 sendViewModel.outputs,
-                (o) => double.parse(o.estimatedFee.replaceAll(",", "")),
+                (o) => double.tryParse(o.estimatedFee.replaceAll(",", "")) ?? 0,
               )
             : transaction.feeFormattedValue,
         sendViewModel.currency)} ${sendViewModel.currencySymbol}";
@@ -178,7 +178,7 @@ class SendTransactionDetails extends StatelessWidget {
     final fiatAmount = (transaction == null)
         ? sumWithUnit(
             sendViewModel.outputs,
-            (o) => double.parse(o.fiatAmount.replaceAll(",", "")),
+            (o) => double.tryParse(o.fiatAmount.replaceAll(",", "")) ?? 0,
             sendViewModel.fiatCurrency.title,
           )
         : sendViewModel.pendingTransactionFiatAmountFormatted;
@@ -186,7 +186,7 @@ class SendTransactionDetails extends StatelessWidget {
     final fiatFee = (transaction == null)
         ? sumWithUnit(
             sendViewModel.outputs,
-            (o) => double.parse(o.estimatedFeeFiatAmount.replaceAll(",", "")),
+            (o) => double.tryParse(o.estimatedFeeFiatAmount.replaceAll(",", "")) ?? 0,
             sendViewModel.fiatCurrency.title,
           )
         : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
@@ -218,7 +218,7 @@ class SendTransactionDetails extends StatelessWidget {
                           fontWeight: FontWeight.w400,
                           color: Theme.of(context).colorScheme.onSurface),
                     ),
-                    Text(sendViewModel.currencySymbol,
+                    Text(sendViewModel.selectedCryptoCurrency.title,
                         style: TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.w400,
@@ -386,7 +386,7 @@ class TransactionCommitedScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            S.of(context).transaction_commited,
+            S.of(context).transaction_sent_new,
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
           ),
           Image.asset(width: 256, height: 256, "assets/images/birthday_cake.png")

@@ -163,7 +163,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                   clipBehavior: Clip.none,
                   children: [
                     CakeImageWidget(
-                      imageUrl: detectedCurrency.iconPath!,
+                      imageUrl: detectedCurrency.iconPath ?? '',
                       width: 32,
                       height: 32,
                     ),

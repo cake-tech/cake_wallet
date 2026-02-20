@@ -37,12 +37,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 
 class NewReceivePage extends StatefulWidget {
-  const NewReceivePage(
+  NewReceivePage(
       {super.key,
       required this.addressListViewModel,
       required this.receiveOptionViewModel,
       required this.dashboardViewModel,
-      required this.lightningMode});
+      required this.lightningMode,
+      CryptoCurrency? initialCurrency}) {
+    if (initialCurrency != null) {
+      addressListViewModel.setTokenCurrency(initialCurrency);
+    }
+  }
 
   final WalletAddressListViewModel addressListViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;
@@ -195,7 +200,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
               onTrailingPressed: () {
                 if (_largeQrMode) {
                   Share.share(widget.addressListViewModel.uri.toString());
-                } else if (widget.addressListViewModel.hasAddressList) {
+                } else if (widget.addressListViewModel.hasAddressRotation) {
                   widget.addressListViewModel.rotateAddress();
                 }
               },
@@ -242,7 +247,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       showAccountsButton: widget.addressListViewModel.hasAddressList,
                       showLabelButton: widget.addressListViewModel.hasAddressList && !hasLabel,
                       onCopyButtonPressed: () {
-                        printV(widget.addressListViewModel.items);
+                        printV(widget.addressListViewModel.hasAddressList);
                         Clipboard.setData(
                           ClipboardData(text: widget.addressListViewModel.uri.address),
                         );

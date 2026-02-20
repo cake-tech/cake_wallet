@@ -280,22 +280,29 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           paymentRequest: paymentRequest,
           fixedNetwork: fixedNetwork,
           onNext: (PaymentFlowResult newResult) {
-            final selectedChainId = newResult.chainId;
-            final isCompatible = selectedChainId == evm!.getSelectedChainId(sendViewModel.wallet);
+            final canCheckCompatibility = evm != null &&
+                isEVMCompatibleChain(sendViewModel.wallet.type) &&
+                newResult.chainId != null;
 
-            if (isCompatible) {
-              sendViewModel.setSelectedCryptoCurrency(
-                newResult.addressDetectionResult!.detectedCurrency!.title,
-              );
-              _applyPaymentRequest(paymentRequest);
-            } else {
-              _showPaymentConfirmation(
-                paymentViewModel,
-                walletSwitcherViewModel,
-                paymentRequest,
-                newResult,
-              );
+            if (canCheckCompatibility) {
+              final selectedChainId = newResult.chainId!;
+              final isCompatible = selectedChainId == evm!.getSelectedChainId(sendViewModel.wallet);
+
+              if (isCompatible) {
+                sendViewModel.setSelectedCryptoCurrency(
+                  newResult.addressDetectionResult!.detectedCurrency!.title,
+                );
+                _applyPaymentRequest(paymentRequest);
+                return;
+              }
             }
+
+            _showPaymentConfirmation(
+              paymentViewModel,
+              walletSwitcherViewModel,
+              paymentRequest,
+              newResult,
+            );
           },
         );
       },

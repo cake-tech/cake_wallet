@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
@@ -12,6 +13,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/card_design.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -113,11 +115,16 @@ class _CardsViewState extends State<CardsView> {
             late final String walletBalance;
             late final String walletFiatBalance;
             if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
-              walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
-              walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
+              if(widget.dashboardViewModel.balanceViewModel.displayMode == BalanceDisplayMode.hiddenBalance) {
+                walletBalance = '●●●●●●';
+                walletFiatBalance = '●●●●●●';
+              } else {
+                walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
+                walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
+              }
             } else {
               walletBalance = walletBalanceRecord?.availableBalance ?? "0";
-              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
+              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "${widget.dashboardViewModel.appStore.settingsStore.fiatCurrency.title} 0.00";
             }
 
             // the card designs is empty if widget gets built before it loads.
@@ -169,7 +176,7 @@ class _CardsViewState extends State<CardsView> {
               accountName: accountName,
               accountBalance: accountBalance,
               designSwitchDuration: Duration(milliseconds: 150),
-              assetName: walletBalanceRecord?.formattedAssetTitle ?? "",
+              assetName: walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback,
               capitalizeAssetName: _shouldCapitalizeAssetName(),
               balance: walletBalance,
               fiatBalance: walletFiatBalance,
@@ -182,6 +189,11 @@ class _CardsViewState extends State<CardsView> {
       ),
     );
   }
+
+  String get assetTitleFallback => widget.dashboardViewModel.appStore.amountParsingProxy.getCryptoSymbol(
+      widget.lightningMode
+          ? CryptoCurrency.btcln
+          : widget.dashboardViewModel.wallet.currency);
 
   bool _shouldCapitalizeAssetName() {
     if(widget.dashboardViewModel.wallet.type != WalletType.bitcoin) {
@@ -294,7 +306,7 @@ class _CardsViewState extends State<CardsView> {
       ));
       showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
         return FractionallySizedBox(
-            heightFactor: 0.65,
+            heightFactor: 0.6,
             child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
         );
       });
@@ -336,7 +348,7 @@ class _CardsViewState extends State<CardsView> {
       ));
       showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
         return FractionallySizedBox(
-          heightFactor: 0.65,
+          heightFactor: 0.6,
           child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
         );
       });

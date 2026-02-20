@@ -45,7 +45,7 @@ class TopBar extends StatelessWidget {
             ),
             ModernButton.svg(
               iconColor: Theme.of(context).colorScheme.primary,
-              size: 44,
+              size: 36,
               onPressed: () {
                 HapticFeedback.mediumImpact();
                 onSettingsButtonPress();

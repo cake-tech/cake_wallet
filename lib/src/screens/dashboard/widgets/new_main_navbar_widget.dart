@@ -24,7 +24,6 @@ class NewMainNavBar extends StatefulWidget {
 class _NEWNewMainNavBarState extends State<NewMainNavBar> {
 
   static const barHeight = 68.0;
-  static const barBottomPadding = 22.0;
 
   static const iconBoxWidth = 48.0;
   static const iconWidth = 28.0;
@@ -140,7 +139,8 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
         bottom: !(Platform.isIOS),
         top: false,
         child: Padding(
-         padding: EdgeInsets.only(bottom: Platform.isIOS ? barBottomPadding : 0),
+          // tux PLEASE consult me (malik) before removing this padding.
+         padding: EdgeInsets.only(bottom: Platform.isIOS ? 22 : 12),
           child: AnimatedContainer(
             duration: barResizeDuration,
             curve: Curves.easeOutCubic,

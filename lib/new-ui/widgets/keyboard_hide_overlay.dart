@@ -4,14 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class KeyboardHideOverlay extends StatelessWidget {
-  const KeyboardHideOverlay({super.key, required this.child});
+  const KeyboardHideOverlay({super.key, required this.child, this.unfocusOnTap = false});
 
   final Widget child;
+  final bool unfocusOnTap;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: [Positioned.fill(child: child), if (Platform.isIOS) KeyboardHideButton()],
+      children: [
+        Positioned.fill(
+            child: GestureDetector(
+                onTap: () {
+                  if (unfocusOnTap) {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  }
+                },
+                child: child)),
+        if (Platform.isIOS) KeyboardHideButton()
+      ],
     );
   }
 }

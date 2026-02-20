@@ -30,6 +30,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -475,7 +476,10 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    if (_loadingWallet) return;
+    if (_loadingWallet) {
+      printV("_loadWallet abandoned because _loadingWallet");
+      return;
+    }
 
     _loadingWallet = true;
 
@@ -498,6 +502,7 @@ class WalletListBodyState extends State<WalletListBody> {
       context,
       onAuthSuccess: (isAuthenticatedSuccessfully) async {
         if (!isAuthenticatedSuccessfully) {
+          printV("!isAuthenticatedSuccessfully");
           _loadingWallet = false;
           return;
         }
@@ -563,6 +568,7 @@ class WalletListBodyState extends State<WalletListBody> {
       conditionToDetermineIfToUse2FA:
           widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
     );
+    _loadingWallet = false;
   }
 
   void changeProcessText(String text) {

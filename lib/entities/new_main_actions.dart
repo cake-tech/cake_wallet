@@ -28,7 +28,7 @@ class NewMainActions {
   ];
 
   static NewMainActions homeAction = NewMainActions._(
-    name: (context) => 'Home', //TODO S.of(context).home,
+    name: (context) => S.of(context).home,
     image: 'assets/new-ui/Home.svg',
     key: ValueKey('dashboard_page_home_action_button_key'),
     onTap: () {},
@@ -42,7 +42,7 @@ class NewMainActions {
   );
 
   static NewMainActions contactsAction = NewMainActions._(
-    name: (context) => 'Contacts', //TODO S.of(context).contacts,
+    name: (context) => S.of(context).contacts,
     image: 'assets/new-ui/Contacts.svg',
     key: ValueKey('dashboard_page_contacts_action_button_key'),
     onTap: () {},

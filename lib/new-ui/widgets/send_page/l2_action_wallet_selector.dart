@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/l2_send_external_modal.dart';
@@ -68,14 +69,14 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.max,
+      mainAxisSize: MainAxisSize.min,
       children: [
         ModalTopBar(
-          title: widget.action == l2actions.deposit ? "Send from..." : "Receive to...",
+          title: widget.action == l2actions.deposit ? "${S.of(context).send_from}..." : "${S.of(context).receive_to}...",
           leadingIcon: Icon(Icons.arrow_back_ios_new),
           onLeadingPressed: Navigator.of(context).pop,
         ),
-        Expanded(
+        Flexible(
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -88,8 +89,9 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 12,
                       children: [
-                        Text("Current wallet"),
+                        Text(S.of(context).choose_wallet),
                         WalletRow(
+                          isCurrent: true,
                             currencyIconPath:
                                 widget.sendViewModel.wallet.currency.iconPath ?? "",
                             walletName: widget.sendViewModel.wallet.name,
@@ -106,7 +108,6 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                             }),
                       ],
                     ),
-                    Spacer(),
                     Container(
                       height: 1,
                       color: Theme.of(context).colorScheme.surfaceContainer,
@@ -148,7 +149,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                                           BlendMode.srcIn),
                                     ),
                                     Text(
-                                      "Select other Wallet",
+                                      S.of(context).select_other_wallet,
                                       style: TextStyle(
                                           color: Theme.of(context).colorScheme.primary,fontWeight: FontWeight.w500,fontSize:15),
                                     )
@@ -231,7 +232,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                                             BlendMode.srcIn),
                                       ),
                                       Text(
-                                        "Send from External",
+                                        S.of(context).send_from_external,
                                         style: TextStyle(
                                             color: Theme.of(context).colorScheme.primary,fontWeight: FontWeight.w500,fontSize:15),
                                       )
@@ -305,17 +306,18 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
 
 class WalletRow extends StatelessWidget {
   const WalletRow(
-      {super.key, required this.currencyIconPath, required this.walletName, required this.onTap, this.isLoading=false});
+      {super.key, required this.currencyIconPath, required this.walletName, required this.onTap, this.isLoading=false, this.isCurrent=false});
 
   final String currencyIconPath;
   final String walletName;
   final VoidCallback onTap;
+  final bool isCurrent;
   final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 64,
+      height: isCurrent ? 80 : 64,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
@@ -339,7 +341,15 @@ class WalletRow extends StatelessWidget {
                       height: 24,
                       width: 24,
                     ),
-                    Text(walletName)
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(walletName),
+                        if(isCurrent)
+                          Text(S.of(context).current_wallet, style: TextStyle(fontSize: 12,color: Theme.of(context).colorScheme.onSurfaceVariant),)
+                      ],
+                    )
                   ],
                 ),
                 isLoading ? CupertinoActivityIndicator() : Icon(

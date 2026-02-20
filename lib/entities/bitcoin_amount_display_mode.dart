@@ -10,9 +10,9 @@ class BitcoinAmountDisplayMode extends EnumerableItem<int> with Serializable<int
     BitcoinAmountDisplayMode.bitcoin,
   ];
   static const satoshiForLightning =
-      BitcoinAmountDisplayMode(raw: 0, title: 'Sats for Lightning');
-  static const bitcoin = BitcoinAmountDisplayMode(raw: 1, title: 'Bitcoin');
-  static const satoshi = BitcoinAmountDisplayMode(raw: 2, title: 'Sats');
+      BitcoinAmountDisplayMode(raw: 0, title: 'sats (LN)');
+  static const bitcoin = BitcoinAmountDisplayMode(raw: 1, title: 'BTC');
+  static const satoshi = BitcoinAmountDisplayMode(raw: 2, title: 'sats');
 
   static BitcoinAmountDisplayMode deserialize({required int raw}) {
     switch (raw) {
