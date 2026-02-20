@@ -124,6 +124,10 @@ class _NewSwapPageState extends State<NewSwapPage> {
       if (limitsState is LimitsLoadedSuccessfully) {}
 
       depositFiatAmountController.addListener(() {
+        if(!depositKey.currentState!.amountFocusNode.hasFocus) {
+          return;
+        }
+        widget.exchangeViewModel.isFixedRateMode = false;
         Future.delayed(Duration(milliseconds: 200)).then((_) {
           if (double.tryParse(depositFiatAmountController.text) != null) {
             widget.exchangeViewModel
@@ -133,6 +137,10 @@ class _NewSwapPageState extends State<NewSwapPage> {
         });
       });
       receiveFiatAmountController.addListener(() {
+        if(!receiveKey.currentState!.amountFocusNode.hasFocus) {
+          return;
+        }
+        widget.exchangeViewModel.enableFixedRateMode();
         Future.delayed(Duration(milliseconds: 200)).then((_) {
           if (double.tryParse(receiveFiatAmountController.text) != null) {
             String text = receiveFiatAmountController.text;
@@ -143,6 +151,15 @@ class _NewSwapPageState extends State<NewSwapPage> {
             widget.exchangeViewModel
                 .setReceiveAmountFromFiat(fiatAmount: receiveFiatAmountController.text);
             depositKey.currentState!.updateFiatAmount();
+          }
+        });
+      });
+      reaction((_) => widget.exchangeViewModel.isFixedRateMode, (val) {
+        Future.delayed(Duration(seconds: 3)).then((_) {
+          if (val) {
+            depositKey.currentState!.updateFiatAmount();
+          } else {
+            receiveKey.currentState!.updateFiatAmount();
           }
         });
       });
@@ -297,6 +314,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
             widget.exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
             widget.exchangeViewModel.isReceiveAmountEntered = false;
             widget.exchangeViewModel.isFixedRateMode = false;
+            if(!receiveKey.currentState!.amountFocusNode.hasFocus) {
+              receiveKey.currentState!.updateFiatAmount();
+            }
           });
         }
       });
@@ -311,6 +331,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
             widget.exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
             widget.exchangeViewModel.isReceiveAmountEntered = true;
             widget.exchangeViewModel.enableFixedRateMode();
+            if(!depositKey.currentState!.amountFocusNode.hasFocus) {
+              depositKey.currentState!.updateFiatAmount();
+            }
           });
         }
       });
@@ -800,6 +823,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   final addressController = TextEditingController();
   final amountController = TextEditingController();
   final fiatAmountController = TextEditingController();
+  final amountFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -846,6 +870,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           keyboardType: TextInputType.numberWithOptions(signed:false,decimal:true),
                       validator: _fiatInputMode ? null : widget.currencyValueValidator,
                       controller: _fiatInputMode ? fiatAmountController : amountController,
+                      focusNode: amountFocusNode,
                       style: TextStyle(
                           fontSize: 28,
                           color: Theme.of(context).colorScheme.onSurface,
@@ -1179,7 +1204,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       if (newText == "0.00") {
         fiatAmountController.text = "";
       } else {
-        fiatAmountController.text = newText.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+        fiatAmountController.text = newText
+            .replaceAll(RegExp(r'(?<=\.\d*)0+$'), '')
+            .replaceAll(RegExp(r'\.$'), '');
       }
     }
   }
