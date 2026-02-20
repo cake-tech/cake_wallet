@@ -370,11 +370,31 @@ class _NewSendPageState extends State<NewSendPage> {
                                           output.resetParsedAddress();
                                         },
                                         onSelectedContact: (contact) {
-                                          output.loadContact(contact);
-                                        },
-                                        selectedCurrency: widget.sendViewModel.selectedCryptoCurrency,
-                                      ),
-                                    ],
+                                            output.loadContact(contact);
+                                          },
+                                          onPushPasteButton: (context) async {
+                                            output.resetParsedAddress();
+                                            await output.fetchParsedAddress(context);
+
+                                            final address = output.isParsedAddress
+                                                ? output.extractedAddress
+                                                : output.address;
+
+                                            await _handlePaymentFlow(
+                                              address,
+                                              PaymentRequest(
+                                                address,
+                                                _amountControllers[_selectedOutput].text,
+                                                "",
+                                                "",
+                                                null,
+                                              ),
+                                            );
+                                          },
+                                          selectedCurrency:
+                                              widget.sendViewModel.selectedCryptoCurrency,
+                                        ),
+                                      ],
                                     ),
                                                   Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:12,children: [
                                           Text(S.of(context).amount),
