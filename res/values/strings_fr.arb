@@ -751,6 +751,7 @@
   "processing": "Traitement",
   "processing_signed_tx": "Traitement de la transaction signée",
   "profile": "Profil",
+  "provider": "Fournisseur",
   "provider_error": "Erreur de ${provider}",
   "providers": "Fournisseurs",
   "public_key": "Clef publique",

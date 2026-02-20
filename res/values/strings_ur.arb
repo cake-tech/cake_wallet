@@ -753,6 +753,7 @@
   "processing": "پروسیسنگ",
   "processing_signed_tx": "پروسیسنگ پر دستخط شدہ لین دین",
   "profile": "پروفائل",
+  "provider": "فراہم کرنے والا",
   "provider_error": "${provider} خرابی۔",
   "providers": "فراہم کرنے والے",
   "public_key": "عوامی کلید",

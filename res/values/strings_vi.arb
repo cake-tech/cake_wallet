@@ -749,6 +749,7 @@
   "processing": "Xử lý",
   "processing_signed_tx": "Xử lý giao dịch đã ký",
   "profile": "Hồ sơ",
+  "provider": "nhà cung cấp",
   "provider_error": "Lỗi ${provider}",
   "providers": "Nhà cung cấp",
   "public_key": "Khóa công khai",

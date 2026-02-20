@@ -752,6 +752,7 @@
   "processing": "Elaborazione",
   "processing_signed_tx": "Elaborazione della transazione firmata",
   "profile": "Profilo",
+  "provider": "Fornitore",
   "provider_error": "${provider} errore",
   "providers": "Fornitori",
   "public_key": "Chiave pubblica",

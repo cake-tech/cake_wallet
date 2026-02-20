@@ -752,6 +752,7 @@
   "processing": "処理",
   "processing_signed_tx": "署名されたトランザクションの処理",
   "profile": "プロフィール",
+  "provider": "プロバイダー",
   "provider_error": "${provider} エラー",
   "providers": "プロバイダー",
   "public_key": "公開鍵",

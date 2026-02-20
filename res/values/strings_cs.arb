@@ -751,6 +751,7 @@
   "processing": "Zpracování",
   "processing_signed_tx": "Zpracování podepsané transakce",
   "profile": "Profil",
+  "provider": "Poskytovatel",
   "provider_error": "${provider} chyba",
   "providers": "Poskytovatelé",
   "public_key": "Veřejný klíč",

@@ -751,6 +751,7 @@
   "processing": "يعالج",
   "processing_signed_tx": "معالجة المعاملة الموقعة",
   "profile": "حساب تعريفي",
+  "provider": "مزود",
   "provider_error": "خطأ ${provider}",
   "providers": "مقدمي الخدمات",
   "public_key": "مفتاح عمومي",

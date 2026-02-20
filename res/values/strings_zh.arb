@@ -751,6 +751,7 @@
   "processing": "处理中",
   "processing_signed_tx": "处理签名的交易",
   "profile": "个人资料",
+  "provider": "提供者",
   "provider_error": "${provider} 错误",
   "providers": "供应商",
   "public_key": "公钥",

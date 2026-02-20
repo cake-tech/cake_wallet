@@ -751,6 +751,7 @@
   "processing": "Обработка",
   "processing_signed_tx": "Обработка подписана транзакция",
   "profile": "Профил",
+  "provider": "Доставчик",
   "provider_error": "Грешка на ${provider} ",
   "providers": "Доставчици",
   "public_key": "Публичен ключ",

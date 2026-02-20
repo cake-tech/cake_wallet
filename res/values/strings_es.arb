@@ -752,6 +752,7 @@
   "processing": "Procesando",
   "processing_signed_tx": "Procesando transacción firmada",
   "profile": "Perfil",
+  "provider": "Proveedor",
   "provider_error": "error de ${provider}",
   "providers": "Proveedores",
   "public_key": "Clave pública",

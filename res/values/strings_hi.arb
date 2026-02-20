@@ -752,6 +752,7 @@
   "processing": "प्रसंस्करण",
   "processing_signed_tx": "हस्ताक्षरित लेनदेन प्रसंस्करण",
   "profile": "प्रोफ़ाइल",
+  "provider": "प्रदाता",
   "provider_error": "${provider} त्रुटि",
   "providers": "प्रदाताओं",
   "public_key": "सार्वजनिक कुंजी",

@@ -750,6 +750,7 @@
   "processing": "Przetwarzanie",
   "processing_signed_tx": "Przetwarzanie podpisanej transakcji",
   "profile": "Profil",
+  "provider": "Dostawca",
   "provider_error": "Błąd ${provider}",
   "providers": "Dostawcy",
   "public_key": "Klucz publiczny",

@@ -753,6 +753,7 @@
   "processing": "Pengolahan",
   "processing_signed_tx": "Memproses transaksi yang ditandatangani",
   "profile": "Profil",
+  "provider": "Penyedia",
   "provider_error": "${provider} error",
   "providers": "Penyedia",
   "public_key": "Kunci publik",

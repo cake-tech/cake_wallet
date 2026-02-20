@@ -751,6 +751,7 @@
   "processing": "လုပ်ကိုင်ခြင်း",
   "processing_signed_tx": "ထုတ်ယူခြင်းလက်မှတ်ရေးထိုးငွေလွှဲလုပ်ငန်း",
   "profile": "ကိုယ်ရေးအကျဉ်း",
+  "provider": "ပံ့ပိုးပေးသူ",
   "provider_error": "${provider} အမှား",
   "providers": "ပံ့ပိုးပေးသည်။",
   "public_key": "အများသူငှာသော့",

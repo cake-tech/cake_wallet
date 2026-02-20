@@ -752,6 +752,7 @@
   "processing": "처리 중",
   "processing_signed_tx": "서명 된 거래 처리",
   "profile": "프로필",
+  "provider": "공급자",
   "provider_error": "${provider} 오류",
   "providers": "공급자",
   "public_key": "공개 키",

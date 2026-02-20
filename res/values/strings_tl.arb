@@ -751,6 +751,7 @@
   "processing": "Pagproseso",
   "processing_signed_tx": "Pagproseso ng naka -sign transaksyon",
   "profile": "Profile",
+  "provider": "Provider",
   "provider_error": "${provider} error",
   "providers": "Mga provider",
   "public_key": "Public key",

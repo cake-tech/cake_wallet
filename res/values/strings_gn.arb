@@ -582,6 +582,7 @@
   "proceed_on_device": "Ehasave nde rembipuru ndive.",
   "proceed_on_device_description": "Ejapo ojerurehaichaite ndeve rejapo hag̃ua nde billetera hardware-pe",
   "profile": "Ta’anga techaukaha",
+  "provider": "Proveedor rehegua",
   "provider_error": "Ojavy ${provider}",
   "providers": "Proveedor-kuéra rehegua .",
   "public_key": "Papapy jekuaahapyre",

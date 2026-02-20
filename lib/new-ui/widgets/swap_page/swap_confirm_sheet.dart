@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -97,6 +98,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
               onTrailingPressed: Navigator.of(context).maybePop,
             ),
             SafeArea(
+              top:false,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
@@ -151,19 +153,28 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                                   ClipboardData(text: widget.exchangeTradeViewModel.trade.id)),
                               label: widget.exchangeTradeViewModel.trade.provider.title,
                               iconPath: widget.exchangeTradeViewModel.trade.provider.image,
-                              trailingText: widget.exchangeTradeViewModel.trade.id)
+                              trailingText: widget.exchangeTradeViewModel.trade.id),
+                          if(widget.exchangeTradeViewModel.trade.provider == ExchangeProviderDescription.trocador)
+                            ListItemRegularRow(
+                              showArrow: false,
+                              keyValue: "trocador provider name",
+                              label: "Trocador ${S.of(context).provider}",
+                              trailingText: widget.exchangeTradeViewModel.trade.providerName??""
+                            )
                         ]
                       }),
                     ),
-                    widget.exchangeViewModel.isSendFromExternal
-                        ? NewPrimaryButton(
-                            onPressed: _showExternalSendModal,
-                            text: S.of(context).continue_text,
-                            color: Theme.of(context).colorScheme.primary,
-                            textColor: Theme.of(context).colorScheme.onPrimary)
-                        : SendConfirmBottomWidget(
-                            sendViewModel: widget.exchangeTradeViewModel.sendViewModel),
-                    SizedBox()
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: widget.exchangeViewModel.isSendFromExternal
+                          ? NewPrimaryButton(
+                              onPressed: _showExternalSendModal,
+                              text: S.of(context).continue_text,
+                              color: Theme.of(context).colorScheme.primary,
+                              textColor: Theme.of(context).colorScheme.onPrimary)
+                          : SendConfirmBottomWidget(
+                              sendViewModel: widget.exchangeTradeViewModel.sendViewModel),
+                    ),
                   ],
                 ),
               ),

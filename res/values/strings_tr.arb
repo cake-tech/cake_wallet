@@ -751,6 +751,7 @@
   "processing": "İşleme",
   "processing_signed_tx": "İmzalı işlemin işlenmesi",
   "profile": "Profil",
+  "provider": "sağlayıcı",
   "provider_error": "${provider} hatası",
   "providers": "Sağlayıcılar",
   "public_key": "Genel Anahtar",

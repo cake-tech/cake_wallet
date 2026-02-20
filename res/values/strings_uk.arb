@@ -751,6 +751,7 @@
   "processing": "Обробка",
   "processing_signed_tx": "Обробка підписана транзакція",
   "profile": "Профіль",
+  "provider": "Провайдер",
   "provider_error": "${provider} помилка",
   "providers": "Провайдери",
   "public_key": "Публічний ключ",

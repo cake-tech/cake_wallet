@@ -751,6 +751,7 @@
   "processing": "Obrada",
   "processing_signed_tx": "Obrada potpisana transakcija",
   "profile": "Profil",
+  "provider": "Davatelj",
   "provider_error": "${provider} greška",
   "providers": "Pružatelji usluga",
   "public_key": "Javni ključ",

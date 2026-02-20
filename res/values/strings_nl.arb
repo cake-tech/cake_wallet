@@ -751,6 +751,7 @@
   "processing": "Verwerking",
   "processing_signed_tx": "Verwerking ondertekende transactie",
   "profile": "Profiel",
+  "provider": "Aanbieder",
   "provider_error": "${provider} fout",
   "providers": "Aanbieders",
   "public_key": "Publieke sleutel",

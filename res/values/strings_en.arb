@@ -752,6 +752,7 @@
   "processing": "Processing",
   "processing_signed_tx": "Processing signed transaction",
   "profile": "Profile",
+  "provider": "Provider",
   "provider_error": "${provider} error",
   "providers": "Providers",
   "public_key": "Public key",

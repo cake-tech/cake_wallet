@@ -752,6 +752,7 @@
   "processing": "Verarbeitung",
   "processing_signed_tx": "Verarbeitung unterschriebene Transaktion",
   "profile": "Profil",
+  "provider": "Anbieter",
   "provider_error": "${provider}-Fehler",
   "providers": "Anbieter",
   "public_key": "Öffentlicher Schlüssel",
