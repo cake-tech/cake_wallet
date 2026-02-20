@@ -1,6 +1,6 @@
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_minotari/src/rust/api/wallet.dart'
-    show WalletCreationDetails, createWallet, restoreWallet;
+    show WalletCreationDetails, createWallet, restoreWallet, importViewOnlyWallet, renameWallet;
 import 'package:cw_minotari/src/rust/api/balance.dart' as balance;
 import 'package:cw_minotari/src/rust/api/address.dart' as address;
 import 'package:cw_minotari/src/rust/api/db.dart';
@@ -28,6 +28,7 @@ class MinotariFfi {
   bool _isInitialized = false;
 
   static bool _rustLibInitialized = false;
+  static bool _dbInitialized = false;
 
   MinotariFfi({required this.dataPath, required this.walletName});
 
@@ -46,6 +47,15 @@ class MinotariFfi {
     }
   }
 
+  /// Initializes the shared database once for all Minotari wallets.
+  /// Subsequent calls are no-ops since all wallets share the same DB file.
+  static Future<void> _ensureDbInitialized({required String path}) async {
+    if (!_dbInitialized) {
+      await initializeDatabase(path: path);
+      _dbInitialized = true;
+    }
+  }
+
   void _ensureWalletInitialized() {
     if (!_isInitialized) {
       throw Exception('Wallet not initialized');
@@ -58,7 +68,7 @@ class MinotariFfi {
 
     printV('[MinotariFfi] Opening wallet "$walletName" at path: $dataPath');
     try {
-      await initializeDatabase(path: dataPath);
+      await _ensureDbInitialized(path: dataPath);
       printV('[MinotariFfi] Database initialized successfully for wallet "$walletName"');
     } catch (e) {
       printV('[MinotariFfi] Failed to initialize database: $e');
@@ -76,7 +86,7 @@ class MinotariFfi {
   Future<WalletCreationDetails> create(TariNetwork network, {required String passphrase}) async {
     await _ensureRustLibInitialized();
 
-    await initializeDatabase(path: dataPath);
+    await _ensureDbInitialized(path: dataPath);
 
     final details = await createWallet(walletName: walletName, network: network, passphrase: passphrase);
 
@@ -96,7 +106,7 @@ class MinotariFfi {
   }) async {
     await _ensureRustLibInitialized();
 
-    await initializeDatabase(path: dataPath);
+    await _ensureDbInitialized(path: dataPath);
 
     // Convert mnemonic string to list of words
     final seedWords = mnemonic.split(' ').where((word) => word.isNotEmpty).toList();
@@ -116,6 +126,47 @@ class MinotariFfi {
     _isInitialized = true;
 
     return details;
+  }
+
+  /// Import a view-only wallet from keys
+  /// [viewPrivateKeyHex] - the private view key in hex
+  /// [spendPublicKeyHex] - the public spend key in hex
+  /// [birthday] - block height to start scanning from (like restore height)
+  /// [passphrase] - BIP39 passphrase for key derivation
+  Future<WalletCreationDetails> importViewOnly({
+    required String viewPrivateKeyHex,
+    required String spendPublicKeyHex,
+    required int birthday,
+    required String passphrase,
+    required TariNetwork network,
+  }) async {
+    await _ensureRustLibInitialized();
+
+    await _ensureDbInitialized(path: dataPath);
+
+    final details = await importViewOnlyWallet(
+      walletName: walletName,
+      viewPrivateKeyHex: viewPrivateKeyHex,
+      spendPublicKeyHex: spendPublicKeyHex,
+      birthday: birthday,
+      passphrase: passphrase,
+      network: network,
+    );
+
+    _networkInternal = network;
+    _isInitialized = true;
+
+    return details;
+  }
+
+  /// Rename this wallet (updates internal state in the SQLite DB)
+  /// Does not require the wallet to be open — only the Rust library needs to be initialized.
+  Future<void> rename({required String newWalletName}) async {
+    await _ensureRustLibInitialized();
+    await _ensureDbInitialized(path: dataPath);
+
+    printV("[MinotariFfi] Renaming wallet from \"$walletName\" to \"$newWalletName\"");
+    await renameWallet(currentWalletName: walletName, newWalletName: newWalletName);
   }
 
   /// Get wallet address
@@ -153,7 +204,7 @@ class MinotariFfi {
     required String baseNodeAddress,
     required String passphrase,
     bool continuous = false,
-    int batchSize = 1000,
+    int batchSize = 25,
     int pollIntervalSeconds = 60,
     int requiredConfirmations = 3, // Default to 3 confirmations for transaction discovery
   }) {

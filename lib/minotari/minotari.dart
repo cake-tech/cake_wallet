@@ -33,6 +33,16 @@ abstract class Minotari {
     WalletInfo? walletInfo,
   });
 
+  WalletCredentials createMinotariRestoreWalletFromKeysCredentials({
+    required String name,
+    required String password,
+    required String viewPrivateKeyHex,
+    required String spendPublicKeyHex,
+    required int birthday,
+    String? passphrase,
+    WalletInfo? walletInfo,
+  });
+
   double? getMinotariEstimatedFee(Object wallet);
 
   List<TransactionPriority> getTransactionPriorities();
