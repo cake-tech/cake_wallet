@@ -221,8 +221,21 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   Future<void> updateDepositAvailableAmount() async {
-    if(depositCurrency == CryptoCurrency.btcln) {
-      depositAvailableAmount = _appStore.amountParsingProxy.getDisplayCryptoString(wallet.balance[depositCurrency]!.fullAvailableBalance, depositCurrency);
+    if (depositCurrency == CryptoCurrency.btcln) {
+      final currency = depositCurrency;
+      Future.doWhile(() async {
+        await Future.delayed(const Duration(milliseconds: 400));
+        if (depositCurrency != currency) {
+          return false;
+        }
+        final balance = wallet.balance[depositCurrency];
+        if (balance != null) {
+          depositAvailableAmount = _appStore.amountParsingProxy
+              .getDisplayCryptoString(balance.fullAvailableBalance, depositCurrency);
+          return false;
+        }
+        return true;
+      });
     } else {
       final currency = depositCurrency;
       final amount = _appStore.amountParsingProxy.getDisplayCryptoString(
