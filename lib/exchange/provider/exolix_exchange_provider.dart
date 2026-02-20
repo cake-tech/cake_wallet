@@ -102,7 +102,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
       if (amount == 0) return 0.0;
 
       final params = {
-        'coinFrom': _normalizeCurrency(from),
+        'coinFrom': _normalizeCurrency(_overrideFromCryptoCurrency(from)),
         'coinTo': _normalizeCurrency(to),
         'networkFrom': _networkFor(from),
         'networkTo': _networkFor(to),
@@ -192,7 +192,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }) async {
     final headers = {'Content-Type': 'application/json'};
     final body = {
-      'coinFrom': _normalizeCurrency(request.fromCurrency),
+      'coinFrom': _normalizeCurrency(_overrideFromCryptoCurrency(request.fromCurrency)),
       'coinTo': _normalizeCurrency(_overrideToCryptoCurrency(request.toCurrency, request.toAddress)),
       'networkFrom': _networkFor(request.fromCurrency),
       'networkTo': _networkFor(request.toCurrency),
