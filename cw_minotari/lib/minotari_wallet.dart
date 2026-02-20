@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -39,6 +40,8 @@ abstract class MinotariWalletBase
     required String password,
     required this.encryptionFileUtils,
     this.passphrase,
+    this.viewPrivateKeyHex,
+    this.spendPublicKeyHex,
   })  : _mnemonic = mnemonic,
         _password = password,
         balance = ObservableMap.of({
@@ -91,8 +94,16 @@ abstract class MinotariWalletBase
   @override
   final String? passphrase;
 
+  final String? viewPrivateKeyHex;
+  final String? spendPublicKeyHex;
+
   @override
-  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, passphrase: passphrase);
+  WalletKeysData get walletKeysData => WalletKeysData(
+    mnemonic: _mnemonic,
+    passphrase: passphrase,
+    scanSecret: viewPrivateKeyHex,
+    spendPubkey: spendPublicKeyHex,
+  );
 
   @override
   Object get keys => {};
@@ -101,8 +112,8 @@ abstract class MinotariWalletBase
 
   Future<void> init() async {
     try {
-      final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
-      _ffi = MinotariFfi(dataPath: path, walletName: walletInfo.name);
+      final dbPath = '${await pathForWalletTypeDir(type: walletInfo.type)}/wallet.db';
+      _ffi = MinotariFfi(dataPath: dbPath, walletName: walletInfo.name);
 
       // Get the network from wallet info (defaults to mainnet if not set)
      final network = TariNetwork.values.firstWhere(
@@ -426,7 +437,27 @@ abstract class MinotariWalletBase
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    // TODO: Implement wallet file renaming
+    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
+    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+
+    final newWalletPath = await pathForWallet(name: newWalletName, type: walletInfo.type);
+
+    printV('renameWalletFiles from \"${walletInfo.name}\" (in ${currentWalletPath} ) to \"$newWalletName\"');
+    final typeDir = await pathForWalletTypeDir(type: walletInfo.type);
+    final ffi = MinotariFfi(dataPath: '$typeDir/wallet.db', walletName: walletInfo.name);
+    await ffi.rename(newWalletName: newWalletName);
+
+    final currentKeysFile = File('$currentWalletPath.keys');
+    if (currentKeysFile.existsSync()) {
+      await currentKeysFile.copy('$newWalletPath.keys');
+    }
+
+    final currentKeysBackupFile = File('$currentWalletPath.keys.backup');
+    if (currentKeysBackupFile.existsSync()) {
+      await currentKeysBackupFile.copy('$newWalletPath.keys.backup');
+    }
+
+    await Directory(currentDirPath).delete(recursive: true);
   }
 
   @override
