@@ -155,7 +155,7 @@ class AssetTile extends StatelessWidget {
                 Text(
                   showSecondary ? balance.fiatSecondAvailableBalance : balance.fiatAvailableBalance,
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
