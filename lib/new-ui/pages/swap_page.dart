@@ -1065,6 +1065,13 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     final currencies = widget.isReceiverCard
         ? widget.exchangeViewModel.receiveCurrencies
         : widget.exchangeViewModel.depositCurrencies;
+    if(widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
+      currencies.sort((a, b) {
+        if(a == CryptoCurrency.btcln) return -1;
+        if(b == CryptoCurrency.btcln) return 1;
+        return 0;
+      });
+    }
 
     showPopUp<void>(
       context: context,
