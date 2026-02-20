@@ -57,7 +57,7 @@ class WalletInfoBar extends StatelessWidget {
         ModernButton.svg(
           size: 24,
           onPressed: onCustomizeButtonTap,
-          svgPath: "assets/new-ui/3dots.svg",
+          svgPath: "assets/new-ui/icon-accounts.svg",
         )
       ],
     );
