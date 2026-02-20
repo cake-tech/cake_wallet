@@ -68,6 +68,9 @@ abstract class OutputBase with Store {
   @observable
   String cryptoAmount;
 
+  @observable
+  String? displayName;
+
   @computed
   String get displayCryptoAmount =>
       _appStore.amountParsingProxy.getDisplayCryptoAmount(cryptoAmount, cryptoCurrencyHandler());
@@ -319,6 +322,7 @@ abstract class OutputBase with Store {
   }
 
   void resetParsedAddress() {
+    displayName = null;
     extractedAddress = '';
     parsedAddress = ParsedAddress(addresses: []);
   }
@@ -390,6 +394,9 @@ abstract class OutputBase with Store {
     final domain = address;
     final currency = cryptoCurrencyHandler();
     parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
+    if(parsedAddress.name.isNotEmpty) {
+      displayName = parsedAddress.name;
+    }
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);
     note = parsedAddress.description;
   }

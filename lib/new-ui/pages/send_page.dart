@@ -342,6 +342,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                       spacing:12,children: [
                                       Text(S.of(context).address_or_alias),
                                       NewSendAddressInput(
+                                        displayName: output.displayName,
                                           validator: output.isParsedAddress
                                               ? widget.sendViewModel.textValidator
                                               : widget.sendViewModel.addressValidator,
@@ -358,11 +359,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                           );
                                         },
                                         onEditingComplete: (){
-                                          output.fetchParsedAddress(context).then((val){
-                                            if(_addressControllers[_selectedOutput].text != output.extractedAddress) {
-                                              _addressControllers[_selectedOutput].text = output.extractedAddress;
-                                            }
-                                          });
+                                          _addressFocusNode.unfocus();
+                                          // output.fetchParsedAddress(context).then((val){
+                                          //   if(_addressControllers[_selectedOutput].text != output.extractedAddress) {
+                                          //     _addressControllers[_selectedOutput].text = output.extractedAddress;
+                                          //   }
+                                          // });
                                         },
                                         onPushAddressBookButton: (context) async {
                                           output.resetParsedAddress();
@@ -585,7 +587,7 @@ class _NewSendPageState extends State<NewSendPage> {
       final address = _addressControllers[_selectedOutput].text;
       final output = widget.sendViewModel.outputs[_selectedOutput];
 
-      if (output.address != address) {
+      if (output.address != address && output.extractedAddress != address) {
         output.resetParsedAddress();
         output.address = address;
       }
