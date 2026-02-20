@@ -30,7 +30,8 @@ class TopBar extends StatelessWidget {
         builder: (_) => Row(
           spacing: 12,
           children: [
-            (dashboardViewModel.wallet.type == WalletType.bitcoin)
+            (dashboardViewModel.wallet.type == WalletType.bitcoin &&
+                    dashboardViewModel.wallet.isSoftwareWallet)
                 ? LightningSwitcher(
                     lightningMode: lightningMode,
                     onLightningSwitchPress: onLightningSwitchPress,

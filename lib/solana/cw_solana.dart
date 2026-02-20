@@ -173,6 +173,9 @@ class CWSolana extends Solana {
   }
 
   @override
+  List<SPLToken> getDefaultSPLTokens() => DefaultSPLTokens().initialSPLTokens;
+
+  @override
   List<String> getDefaultTokenContractAddresses() {
     return DefaultSPLTokens().initialSPLTokens.map((e) => e.mintAddress).toList();
   }

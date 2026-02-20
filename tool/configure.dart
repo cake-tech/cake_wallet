@@ -976,6 +976,7 @@ abstract class Solana {
   String getTokenAddress(CryptoCurrency asset);
   List<int>? getValidationLength(CryptoCurrency type);
   double? getEstimateFees(WalletBase wallet);
+  List<SPLToken> getDefaultSPLTokens();
   List<String> getDefaultTokenContractAddresses();
   List<String> getDefaultTokenSymbols();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
@@ -1102,6 +1103,7 @@ abstract class Tron {
   String? getTronTRC20EstimatedFee(WalletBase wallet);
 
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled);
+  List<TronToken> getDefaultTronTokens();
   List<String> getDefaultTokenContractAddresses();
   List<String> getDefaultTokenSymbols();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
@@ -1498,6 +1500,7 @@ abstract class EVM {
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
   
   // Utility methods
+  List<Erc20Token> getDefaultTokensByChainId(int chainId);
   List<String> getDefaultTokenContractAddresses(WalletBase wallet);
   List<String> getDefaultTokenSymbols(WalletBase wallet);
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);

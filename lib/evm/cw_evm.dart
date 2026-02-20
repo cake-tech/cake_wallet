@@ -308,6 +308,10 @@ class CWEVM extends EVM {
       EVMChainTrezorService(connect);
 
   @override
+  List<Erc20Token> getDefaultTokensByChainId(int chainId) =>
+      EVMChainDefaultTokens.getDefaultTokensByChainId(chainId);
+
+  @override
   List<String> getDefaultTokenContractAddresses(WalletBase wallet) {
     final chainId = getSelectedChainId(wallet);
     if (chainId == null) return [];
