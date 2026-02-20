@@ -197,6 +197,18 @@ jobs:
 
           echo -e "id=com.cakewallet.test_${sanitized_branch_name}\nname=${BRANCH_NAME}" > android/app.properties
 
+      - name: Replace email address
+        run: |
+          PATTERN1="support@cakewallet.com"
+          PATTERN1REP="dev.testflight.cakewallet@mrcyjanek.net"
+          echo lib/utils/exception_handler.dart \
+            lib/view_model/support_view_model.dart \
+            | while IFS= read -r -d '' file; do
+              sed -i.bak \
+                  -e "s|$PATTERN1|$PATTERN1REP|g" \
+                  "$file"
+          done
+
       - name: Build
         run: |
           export ANDROID_NDK_HOME="$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION"
