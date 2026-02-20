@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -13,6 +14,23 @@ import 'package:cw_minotari/src/rust/api/network.dart';
 
 /// Encryption utils for Minotari - always use XChaCha20 (no legacy wallet support needed)
 final _encryptionFileUtils = encryptionFileUtilsFor(true);
+
+extension _PassphraseExtension on String? {
+  String getOrGenerateRandom() {
+    if (this != null && this!.isNotEmpty) return this!;
+
+    const allowedChars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#\$%-=_+[]{}|;:,.<>?';
+    final random = Random.secure();
+    final buffer = StringBuffer();
+
+    for (int i = 0; i < 32; i++) {
+      buffer.write(allowedChars[random.nextInt(allowedChars.length)]);
+    }
+
+    return buffer.toString();
+  }
+}
 
 class MinotariWalletService extends WalletService<
     MinotariNewWalletCredentials,
@@ -33,13 +51,10 @@ class MinotariWalletService extends WalletService<
     MinotariNewWalletCredentials credentials, {
     bool? isTestnet,
   }) async {
-    final path = await pathForWallet(
-      name: credentials.name,
-      type: getType(),
-    );
+    final dbPath = '${await pathForWalletTypeDir(type: getType())}/wallet.db';
 
-    final ffi = MinotariFfi(dataPath: path, walletName: credentials.name);
-    final passphrase = credentials.passphrase ?? '';
+    final ffi = MinotariFfi(dataPath: dbPath, walletName: credentials.name);
+    final passphrase = credentials.passphrase.getOrGenerateRandom();
 
     // Create wallet - get WalletCreationDetails with seed words
     final network = _getNetwork(isTestnet);
@@ -47,7 +62,7 @@ class MinotariWalletService extends WalletService<
     final walletDetails = await ffi.create(network, passphrase: passphrase);
 
     // Extract seed words from WalletCreationDetails
-    final seedWords = walletDetails.seedWords.words;
+    final seedWords = walletDetails.seedWords!.words;
     final mnemonic = seedWords.join(' ');
 
     // Save network to wallet info
@@ -107,6 +122,8 @@ class MinotariWalletService extends WalletService<
       passphrase: passphrase,
       password: password,
       encryptionFileUtils: _encryptionFileUtils,
+      viewPrivateKeyHex: keysData.scanSecret,
+      spendPublicKeyHex: keysData.spendPubkey,
     );
     await wallet.init();
 
@@ -146,6 +163,7 @@ class MinotariWalletService extends WalletService<
 
     await currentWallet.renameWalletFiles(newName);
 
+    currentWalletInfo.id = WalletBase.idFor(newName, getType());
     currentWalletInfo.name = newName;
 
     await currentWalletInfo.save();
@@ -156,23 +174,57 @@ class MinotariWalletService extends WalletService<
     MinotariRestoreWalletFromKeysCredentials credentials, {
     bool? isTestnet,
   }) async {
-    // Minotari uses mnemonic-based restoration
-    throw UnimplementedError('Minotari wallets use mnemonic-based restoration');
+    final dbPath = '${await pathForWalletTypeDir(type: getType())}/wallet.db';
+
+    final ffi = MinotariFfi(dataPath: dbPath, walletName: credentials.name);
+    final passphrase = credentials.passphrase.getOrGenerateRandom();
+    final walletInfo = credentials.walletInfo!;
+    final network = _getNetwork(isTestnet);
+
+    await ffi.importViewOnly(
+      viewPrivateKeyHex: credentials.viewPrivateKeyHex,
+      spendPublicKeyHex: credentials.spendPublicKeyHex,
+      birthday: credentials.height ?? 0,
+      passphrase: passphrase,
+      network: network,
+    );
+
+    walletInfo.network = network.name;
+    await walletInfo.save();
+
+    // Get and set the wallet address
+    final address = await ffi.getAddress(passphrase: passphrase);
+
+    // Dispose the temporary FFI - wallet.init() will create its own
+    await ffi.dispose();
+
+    final derivationInfo = await walletInfo.getDerivationInfo();
+    final wallet = MinotariWallet(
+      walletInfo,
+      derivationInfo,
+      password: credentials.password!,
+      passphrase: passphrase,
+      encryptionFileUtils: _encryptionFileUtils,
+      viewPrivateKeyHex: credentials.viewPrivateKeyHex,
+      spendPublicKeyHex: credentials.spendPublicKeyHex,
+    );
+    wallet.walletAddresses.setAddress(address);
+
+    await wallet.init();
+    await wallet.save();
+
+    return wallet;
   }
 
-  /// TODO : Need to generate a random passphrase if none is provided
   @override
   Future<WalletBase> restoreFromSeed(
     MinotariRestoreWalletFromSeedCredentials credentials, {
     bool? isTestnet,
   }) async {
-    final path = await pathForWallet(
-      name: credentials.name,
-      type: getType(),
-    );
+    final dbPath = '${await pathForWalletTypeDir(type: getType())}/wallet.db';
 
-    final ffi = MinotariFfi(dataPath: path, walletName: credentials.name);
-    final passphrase = credentials.passphrase ?? '';
+    final ffi = MinotariFfi(dataPath: dbPath, walletName: credentials.name);
+    final passphrase = credentials.passphrase.getOrGenerateRandom();
     final walletInfo = credentials.walletInfo!;
 
     // Restore wallet from mnemonic - get WalletCreationDetails with seed words
@@ -226,8 +278,8 @@ class MinotariWalletService extends WalletService<
   @override
   Future<bool> isWalletExit(String name) async {
     try {
-      final path = await pathForWallet(name: name, type: getType());
-      return File(path).existsSync();
+      final typeDir = await pathForWalletTypeDir(type: getType());
+      return File('$typeDir/$name/$name.keys').existsSync();
     } catch (_) {
       return false;
     }
@@ -266,9 +318,19 @@ class MinotariRestoreWalletFromKeysCredentials extends WalletCredentials {
   MinotariRestoreWalletFromKeysCredentials({
     required String name,
     required String password,
-    required this.language,
+    required this.viewPrivateKeyHex,
+    required this.spendPublicKeyHex,
+    required int birthday,
+    String? passphrase,
     WalletInfo? walletInfo,
-  }) : super(name: name, password: password, walletInfo: walletInfo);
+  }) : super(
+          name: name,
+          password: password,
+          height: birthday,
+          walletInfo: walletInfo,
+          passphrase: passphrase,
+        );
 
-  final String language;
+  final String viewPrivateKeyHex;
+  final String spendPublicKeyHex;
 }

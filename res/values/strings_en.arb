@@ -732,6 +732,7 @@
   "restore_restore_wallet": "Restore Wallet",
   "restore_seed_keys_restore": "Seed/Keys Restore",
   "restore_spend_key_private": "Spend key (private)",
+  "restore_spend_key_public": "Spend key (public)",
   "restore_title_from_backup": "Restore from backup",
   "restore_title_from_cupcake": "Cupcake App",
   "restore_title_from_hardware_wallet": "Restore from hardware wallet",

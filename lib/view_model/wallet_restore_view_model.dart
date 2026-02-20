@@ -59,12 +59,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.zcash:
+      case WalletType.minotari:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       case WalletType.bitcoinCash:
       case WalletType.zano:
       case WalletType.dogecoin:
-      case WalletType.minotari:
         availableModes = [WalletRestoreMode.seed];
         break;
       case WalletType.none:
@@ -324,6 +324,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             privateKey: options['private_key'] as String,
             password: password,
             height: height
+          );
+        case WalletType.minotari:
+          return minotari!.createMinotariRestoreWalletFromKeysCredentials(
+            name: name,
+            password: password,
+            viewPrivateKeyHex: viewKey!,
+            spendPublicKeyHex: spendPubkey!,
+            birthday: height,
           );
         default:
           break;

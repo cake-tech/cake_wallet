@@ -37,6 +37,26 @@ class CWMinotari extends Minotari {
       );
 
   @override
+  WalletCredentials createMinotariRestoreWalletFromKeysCredentials({
+    required String name,
+    required String password,
+    required String viewPrivateKeyHex,
+    required String spendPublicKeyHex,
+    required int birthday,
+    String? passphrase,
+    WalletInfo? walletInfo,
+  }) =>
+      MinotariRestoreWalletFromKeysCredentials(
+        name: name,
+        password: password,
+        viewPrivateKeyHex: viewPrivateKeyHex,
+        spendPublicKeyHex: spendPublicKeyHex,
+        birthday: birthday,
+        passphrase: passphrase,
+        walletInfo: walletInfo,
+      );
+
+  @override
   double? getMinotariEstimatedFee(Object wallet) {
     final minotariWallet = wallet as MinotariWallet;
     final feeEstimate = minotariWallet.cachedFeeEstimate;
@@ -104,9 +124,15 @@ class CWMinotari extends Minotari {
       keys['seed'] = seed;
     }
 
-    // TODO: Add view key, spend key if Minotari exposes them
-    // keys['privateSpendKey'] = ...;
-    // keys['publicSpendKey'] = ...;
+    final viewKey = minotariWallet.viewPrivateKeyHex;
+    if (viewKey != null) {
+      keys['viewPrivateKey'] = viewKey;
+    }
+
+    final spendKey = minotariWallet.spendPublicKeyHex;
+    if (spendKey != null) {
+      keys['spendPublicKey'] = spendKey;
+    }
 
     return keys;
   }
