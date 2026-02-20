@@ -1094,6 +1094,7 @@
   "synchronizing": "Synchronizacja",
   "syncing_wallet_alert_content": "Twoje saldo i lista transakcji mogą nie być kompletne, dopóki nie pojawi się na górze napis „SYNCHRONIZED”. Kliknij/stuknij, aby dowiedzieć się więcej.",
   "syncing_wallet_alert_title": "Twój portfel się synchronizuje",
+  "tap_to_copy": "Kliknij, aby skopiować",
   "template": "Szablon",
   "template_name": "Nazwa szablonu",
   "testnet_coins_no_value": "Monety testnet nie mają wartości",

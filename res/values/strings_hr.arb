@@ -1095,6 +1095,7 @@
   "synchronizing": "Sinkronizirajući",
   "syncing_wallet_alert_content": "Vaš saldo i popis transakcija možda neće biti potpuni sve dok na vrhu ne piše \"SINKRONIZIRANO\". Kliknite/dodirnite da biste saznali više.",
   "syncing_wallet_alert_title": "Vaš novčanik se sinkronizira",
+  "tap_to_copy": "Dodirnite za kopiranje",
   "template": "Predložak",
   "template_name": "Naziv predloška",
   "testnet_coins_no_value": "TestNet kovanice nemaju vrijednost",

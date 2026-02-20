@@ -1096,6 +1096,7 @@
   "synchronizing": "同期",
   "syncing_wallet_alert_content": "上部に「同期済み」と表示されるまで、残高と取引リストが完了していない可能性があります。詳細については、クリック/タップしてください。",
   "syncing_wallet_alert_title": "ウォレットは同期中です",
+  "tap_to_copy": "タップしてコピーします",
   "template": "テンプレート",
   "template_name": "テンプレート名",
   "testnet_coins_no_value": "テストネットコインには価値がありません",

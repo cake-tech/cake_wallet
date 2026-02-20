@@ -1095,6 +1095,7 @@
   "synchronizing": "Synchronisation",
   "syncing_wallet_alert_content": "Votre solde et votre liste de transactions peuvent ne pas être à jour tant que la mention « SYNCHRONISÉ » n'apparaît en haut de l'écran. Cliquez/appuyez pour en savoir plus.",
   "syncing_wallet_alert_title": "Votre portefeuille (wallet) est en cours de synchronisation",
+  "tap_to_copy": "Appuyez pour copier",
   "template": "Modèle",
   "template_name": "Nom du modèle",
   "testnet_coins_no_value": "Les pièces TestNet n'ont aucune valeur",

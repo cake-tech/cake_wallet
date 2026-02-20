@@ -1097,6 +1097,7 @@
   "synchronizing": "Sincronizando",
   "syncing_wallet_alert_content": "Seu saldo e lista de transações podem não estar completos até que diga “SYNCHRONIZED” no topo. Clique/toque para saber mais.",
   "syncing_wallet_alert_title": "Sua carteira está sincronizando",
+  "tap_to_copy": "Toque para copiar",
   "template": "Modelo",
   "template_name": "Nome do modelo",
   "testnet_coins_no_value": "As moedas de teste não têm valor",

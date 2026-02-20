@@ -1095,6 +1095,7 @@
   "synchronizing": "Synchronisatie",
   "syncing_wallet_alert_content": "Uw saldo- en transactielijst is mogelijk pas compleet als er bovenaan 'GESYNCHRONISEERD' staat. Klik/tik voor meer informatie.",
   "syncing_wallet_alert_title": "Uw portemonnee wordt gesynchroniseerd",
+  "tap_to_copy": "Tik om te kopiëren",
   "template": "Sjabloon",
   "template_name": "Sjabloonnaam",
   "testnet_coins_no_value": "Testnet -munten hebben geen waarde",

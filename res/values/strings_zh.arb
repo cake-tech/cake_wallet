@@ -1095,6 +1095,7 @@
   "synchronizing": "同步",
   "syncing_wallet_alert_content": "同步中，余额和交易列表可能不完整，直至顶部显示“已同步”。点击了解详情。",
   "syncing_wallet_alert_title": "您的钱包正在同步",
+  "tap_to_copy": "点击复制",
   "template": "模板",
   "template_name": "模板名称",
   "testnet_coins_no_value": "TestNet币没有实际价值",

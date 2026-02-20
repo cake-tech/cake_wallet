@@ -1095,6 +1095,7 @@
   "synchronizing": "Pag -synchronize",
   "syncing_wallet_alert_content": "Ang iyong balanse at listahan ng transaksyon ay maaaring hindi kumpleto hanggang sa sabihin nito na \"NAKA-SYNCHRONIZE\" sa tuktok. Mag-click/tap upang malaman ang higit pa.",
   "syncing_wallet_alert_title": "Ang iyong wallet ay nag-sync",
+  "tap_to_copy": "I-tap para kopyahin",
   "template": "Template",
   "template_name": "Pangalan ng Template",
   "testnet_coins_no_value": "Ang mga barya ng testnet ay walang halaga",

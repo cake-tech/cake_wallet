@@ -13,6 +13,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -142,10 +143,12 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                               showArrow: false,
                               trailingText: widget.exchangeViewModel.receiveAddressDisplayName ?? middleTruncate(widget.exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8))
                         ],
-                        S.of(context).swap_id: [
+                        "${S.of(context).swap_id} (${S.of(context).tap_to_copy})": [
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "provider",
+                              onTap: () => Clipboard.setData(
+                                  ClipboardData(text: widget.exchangeTradeViewModel.trade.id)),
                               label: widget.exchangeTradeViewModel.trade.provider.title,
                               iconPath: widget.exchangeTradeViewModel.trade.provider.image,
                               trailingText: widget.exchangeTradeViewModel.trade.id)

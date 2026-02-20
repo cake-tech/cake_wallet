@@ -1095,6 +1095,7 @@
   "synchronizing": "المزامنة",
   "syncing_wallet_alert_content": "قد لا يكتمل رصيدك وقائمة المعاملات الخاصة بك حتى تظهر عبارة “SYNCHRONIZED“ في الأعلى. انقر / اضغط لمعرفة المزيد.",
   "syncing_wallet_alert_title": "محفظتك تتم مزامنتها",
+  "tap_to_copy": "انقر للنسخ",
   "template": "قالب",
   "template_name": "اسم القالب",
   "testnet_coins_no_value": "عملات TestNet ليس لها قيمة",

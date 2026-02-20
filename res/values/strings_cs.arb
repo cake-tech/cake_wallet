@@ -1095,6 +1095,7 @@
   "synchronizing": "Synchronizace",
   "syncing_wallet_alert_content": "Váš seznam zůstatků a transakcí nemusí být úplný, dokud nebude nahoře uvedeno „SYNCHRONIZOVANÉ“. Kliknutím/klepnutím se dozvíte více.",
   "syncing_wallet_alert_title": "Vaše peněženka se synchronizuje",
+  "tap_to_copy": "Klepnutím zkopírujete",
   "template": "Šablona",
   "template_name": "Název šablony",
   "testnet_coins_no_value": "Mince TestNet nemají žádnou hodnotu",

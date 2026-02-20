@@ -1098,6 +1098,7 @@
   "synchronizing": "Sinkronisasi",
   "syncing_wallet_alert_content": "Saldo dan daftar transaksi Anda mungkin belum lengkap sampai tertulis “SYNCHRONIZED” di bagian atas. Klik/ketuk untuk mempelajari lebih lanjut.",
   "syncing_wallet_alert_title": "Dompet Anda sedang disinkronkan",
+  "tap_to_copy": "Ketuk untuk menyalin",
   "template": "Template",
   "template_name": "Nama Templat",
   "testnet_coins_no_value": "Koin TestNet tidak memiliki nilai",

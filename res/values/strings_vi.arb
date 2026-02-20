@@ -1092,6 +1092,7 @@
   "synchronizing": "Đồng bộ hóa",
   "syncing_wallet_alert_content": "Số dư và danh sách giao dịch của bạn có thể không đầy đủ cho đến khi nó hiển thị “ĐÃ ĐỒNG BỘ” ở trên cùng. Nhấn vào đây để tìm hiểu thêm.",
   "syncing_wallet_alert_title": "Ví của bạn đang đồng bộ",
+  "tap_to_copy": "Nhấn để sao chép",
   "template": "Mẫu",
   "template_name": "Tên mẫu",
   "testnet_coins_no_value": "Tiền tệ testnet không có giá trị",
