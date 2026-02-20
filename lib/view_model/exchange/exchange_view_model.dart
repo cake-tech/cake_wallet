@@ -261,7 +261,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   bool useSameWalletAddress(CryptoCurrency currency) =>
       currency == wallet.currency ||
-      (currency == CryptoCurrency.btcln && wallet.currency == CryptoCurrency.btc && !wallet.isHardwareWallet) ||
+      (currency == CryptoCurrency.btcln && wallet.currency == CryptoCurrency.btc && wallet.isSoftwareWallet) ||
       (currency.tag != null && currency.tag == wallet.currency.tag) ||
       currency.tag == wallet.currency.title;
 
