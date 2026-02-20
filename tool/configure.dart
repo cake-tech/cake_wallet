@@ -287,6 +287,7 @@ abstract class Bitcoin {
   String getNetworkName(Object wallet);
   Future<void> setLightningUsername(Object wallet, String username);
   Future<String?> getLightningUsername(Object wallet);
+  Future<String?> getLightningInvoice(Object wallet, BigInt amount);
   String? getBreezSdkError(Object exception);
 }
   """;

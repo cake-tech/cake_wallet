@@ -859,6 +859,16 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  Future<String?> getLightningInvoice(Object wallet, BigInt amount) async {
+    final electrumWallet = wallet as ElectrumWallet;
+
+    if (electrumWallet is BitcoinWallet && electrumWallet.lightningWallet != null) {
+      return electrumWallet.lightningWallet!.getBolt11Invoice(amount, "Send to CakeWallet");
+    }
+    return null;
+  }
+
+  @override
   String? getBreezSdkError(Object exception) {
     if (exception is SdkError_SparkError) {
       return (exception as SdkError_SparkError).field0.toString();
