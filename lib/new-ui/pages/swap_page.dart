@@ -296,6 +296,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
             widget.exchangeViewModel.calculateBestRate();
             widget.exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
             widget.exchangeViewModel.isReceiveAmountEntered = false;
+            widget.exchangeViewModel.isFixedRateMode = false;
           });
         }
       });
@@ -309,6 +310,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
             widget.exchangeViewModel.calculateBestRate();
             widget.exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
             widget.exchangeViewModel.isReceiveAmountEntered = true;
+            widget.exchangeViewModel.enableFixedRateMode();
           });
         }
       });
