@@ -228,10 +228,18 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
   }
 
   void _presentFiatCurrencyPicker(BuildContext context) async {
+    final currs = widget.walletAddressListViewModel.currencies.toList();
+    // the first options should be the crypto and the default fiat currency
+    currs.sort((a, b) {
+      if(a == widget.walletAddressListViewModel.fiatCurrency || a is CryptoCurrency) return -1;
+      if(b == widget.walletAddressListViewModel.fiatCurrency || a is CryptoCurrency) return 1;
+      return 0;
+    });
+
     await showPopUp(
       builder: (_) => CurrencyPicker(
-        selectedAtIndex: widget.walletAddressListViewModel.selectedCurrencyIndex,
-        items: widget.walletAddressListViewModel.currencies,
+        selectedAtIndex: currs.indexOf(widget.walletAddressListViewModel.selectedCurrency),
+        items: currs,
         hintText: S.of(context).search_currency,
         onItemSelected: widget.walletAddressListViewModel.selectCurrency,
       ),
