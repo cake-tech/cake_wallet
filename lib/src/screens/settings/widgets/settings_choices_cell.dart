@@ -55,7 +55,7 @@ class SettingsChoicesCell extends StatelessWidget {
                     children: [
                       if (selectedIndex >= 0)
                         AnimatedPositioned(
-                          duration: const Duration(milliseconds: 220),
+                          duration: const Duration(milliseconds: 450),
                           curve: Curves.easeInOut,
                           left: selectedIndex * itemWidth,
                           top: 0,

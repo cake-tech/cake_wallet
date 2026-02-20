@@ -29,7 +29,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
         final previewWidth = previewHeight * 0.6;
 
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
+          duration: const Duration(milliseconds: 350),
           curve: Curves.easeInOut,
           height: getHeight(context, currentTheme, currentTheme.hasAccentColors),
           padding: EdgeInsets.all(14),
@@ -54,7 +54,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                           _displaySettingsViewModel.onThemeSelected(theme);
                         },
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
+                          duration: const Duration(milliseconds: 350),
                           curve: Curves.easeInOut,
                           margin: EdgeInsets.only(right: 24),
                           decoration: ShapeDecoration(
@@ -79,7 +79,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                 ),
               ),
               AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
+                duration: const Duration(milliseconds: 350),
                 switchInCurve: Curves.easeOut,
                 switchOutCurve: Curves.easeIn,
                 transitionBuilder: (child, animation) => FadeTransition(
@@ -120,7 +120,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                                     child: Stack(
                                       children: [
                                         AnimatedOpacity(
-                                          duration: Duration(milliseconds: 250),
+                                          duration: Duration(milliseconds: 350),
                                           opacity: isSelected ? 1 : 0,
                                           child: Container(
                                               width:28,height:28,decoration: BoxDecoration(borderRadius: BorderRadius.circular(99999999),border: Border.all(color:Theme.of(context)
@@ -129,7 +129,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                                           ),
                                         ),
                                         AnimatedScale(
-                                          duration: Duration(milliseconds: 250),
+                                          duration: Duration(milliseconds: 350),
                                           scale: isSelected ? 0.8 : 1,
                                           child: Container(
                                             width: 28,
