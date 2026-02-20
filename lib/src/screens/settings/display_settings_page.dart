@@ -40,7 +40,7 @@ class DisplaySettingsPage extends StatelessWidget {
           ModalTopBar(title: S.of(context).display_settings,leadingIcon: Icon(Icons.arrow_back_ios_new),onLeadingPressed: () => Navigator.of(context).pop()),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
               child: SingleChildScrollView(
                 controller: ModalScrollController.of(context),
                 physics: ClampingScrollPhysics(),
@@ -252,6 +252,7 @@ class DisplaySettingsPage extends StatelessWidget {
                             isSelected: false,
                             onTap: (_) => _pickImage(context),
                           ),
+                        SizedBox(height: 80)
                       ],
                     ),
                   );
