@@ -20,6 +20,8 @@ class LightningWallet {
   final Network network;
   late BreezSdk sdk;
 
+  static int MAX_RETRIES = 10;
+
   LightningWallet({
     required this.mnemonic,
     this.passphrase,
@@ -68,7 +70,17 @@ class LightningWallet {
     await sdk.disconnect();
   }
 
-  Future<String?> getAddress() async => (await sdk.getLightningAddress())?.lightningAddress;
+  Future<String?> getAddress() async {
+    var retries = 0;
+    while (retries < MAX_RETRIES) {
+      final address = (await sdk.getLightningAddress())?.lightningAddress;
+
+      if (address != null) return address;
+      retries++;
+      await Future.delayed(Duration(milliseconds: 500));
+    }
+    return null;
+  }
 
   Future<String?> getLNURL() async => (await sdk.getLightningAddress())?.lnurl;
 
