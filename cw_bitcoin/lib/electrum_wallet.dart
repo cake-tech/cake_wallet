@@ -1468,6 +1468,7 @@ abstract class ElectrumWalletBase
             ? SegwitAddresType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
+        'lightningBalance': balance[CryptoCurrency.btcln]?.toJSON(),
         'derivationTypeIndex': derivationInfo.derivationType?.index,
         'derivationPath': derivationInfo.derivationPath,
         'silent_addresses': walletAddresses.silentAddresses.map((addr) => addr.toJSON()).toList(),

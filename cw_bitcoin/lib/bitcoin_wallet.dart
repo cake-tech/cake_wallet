@@ -63,6 +63,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     BasedUtxoNetwork? networkParam,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
+    ElectrumBalance? initialLightningBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     String? passphrase,
@@ -136,6 +137,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
+
+    if (initialLightningBalance != null) {
+      balance[CryptoCurrency.btcln] = initialLightningBalance;
+    }
   }
 
   @override
@@ -288,6 +293,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         initialSilentAddresses: snp?.silentAddresses,
         initialSilentAddressIndex: snp?.silentAddressIndex ?? 0,
         initialBalance: snp?.balance,
+        initialLightningBalance: snp?.lightningBalance,
         encryptionFileUtils: encryptionFileUtils,
         seedBytes: seedBytes,
         initialRegularAddressIndex: snp?.regularAddressIndex,

@@ -8,7 +8,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -55,11 +54,11 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     if (isFixedRateMode) {
       params['coinFrom'] = _normalizeCurrency(to);
-      params['coinTo'] = _normalizeCurrency(from);
+      params['coinTo'] = _normalizeCurrency(_overrideFromCryptoCurrency(from));
       params['networkFrom'] = _networkFor(to);
       params['networkTo'] = _networkFor(from);
     } else {
-      params['coinFrom'] = _normalizeCurrency(from);
+      params['coinFrom'] = _normalizeCurrency(_overrideFromCryptoCurrency(from));
       params['coinTo'] = _normalizeCurrency(to);
       params['networkFrom'] = _networkFor(from);
       params['networkTo'] = _networkFor(to);
@@ -103,7 +102,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
       if (amount == 0) return 0.0;
 
       final params = {
-        'coinFrom': _normalizeCurrency(from),
+        'coinFrom': _normalizeCurrency(_overrideFromCryptoCurrency(from)),
         'coinTo': _normalizeCurrency(to),
         'networkFrom': _networkFor(from),
         'networkTo': _networkFor(to),
@@ -180,6 +179,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         },
       );
       printV(e.toString());
+      printV(s.toString());
       return 0.0;
     }
   }
@@ -192,8 +192,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }) async {
     final headers = {'Content-Type': 'application/json'};
     final body = {
-      'coinFrom': _normalizeCurrency(request.fromCurrency),
-      'coinTo': _normalizeCurrency(request.toCurrency),
+      'coinFrom': _normalizeCurrency(_overrideFromCryptoCurrency(request.fromCurrency)),
+      'coinTo': _normalizeCurrency(_overrideToCryptoCurrency(request.toCurrency, request.toAddress)),
       'networkFrom': _networkFor(request.fromCurrency),
       'networkTo': _networkFor(request.toCurrency),
       'withdrawalAddress': _normalizeAddress(request.toAddress),
@@ -217,7 +217,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final errors = responseJSON['errors'] as Map<String, String>;
+      final errors = responseJSON['error'] as Map<String, String>;
       final errorMessage = errors.values.join(', ');
       
       ExchangeProviderLogger.logError(
@@ -394,6 +394,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
     switch (currency) {
       case CryptoCurrency.arb:
         return 'ARBITRUM';
+      case CryptoCurrency.btcln:
+        return 'LIGHTNING';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : currency.title;
     }
@@ -406,6 +408,18 @@ class ExolixExchangeProvider extends ExchangeProvider {
     };
   }
 
+  CryptoCurrency _overrideFromCryptoCurrency(CryptoCurrency currency) {
+    if (currency == CryptoCurrency.zec)
+      return CryptoCurrency.zaddr; // Sending is always shielded zcash
+    return currency;
+  }
+
+  CryptoCurrency _overrideToCryptoCurrency(CryptoCurrency currency, String address) {
+    if (RegExp(r'u1[a-zA-Z0-9]{100,300}').hasMatch(address) && currency == CryptoCurrency.zec)
+      return CryptoCurrency.zaddr; // If the user pastes a unified address use shielded zcash
+    return currency;
+  }
+
   String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.nano:
@@ -414,6 +428,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
         return 'BTT';
       case CryptoCurrency.zec:
         return 'ZEC';
+      case CryptoCurrency.zaddr:
+        return 'ZEC-SHIELDED';
       default:
         return currency.title;
     }

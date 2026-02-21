@@ -6,7 +6,6 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class ElectrumWalletSnapshot {
@@ -28,6 +27,7 @@ class ElectrumWalletSnapshot {
     this.passphrase,
     this.derivationType,
     this.derivationPath,
+    this.lightningBalance,
   });
 
   final String name;
@@ -50,6 +50,7 @@ class ElectrumWalletSnapshot {
   bool alwaysScan;
 
   ElectrumBalance balance;
+  ElectrumBalance? lightningBalance;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
   int silentAddressIndex;
@@ -87,6 +88,8 @@ class ElectrumWalletSnapshot {
 
     final balance = ElectrumBalance.fromJSON(data['balance'] as String?) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
+    final lightningBalance = ElectrumBalance.fromJSON(data['lightningBalance'] as String?);
+
     var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var silentAddressIndex = 0;
@@ -120,6 +123,7 @@ class ElectrumWalletSnapshot {
       xpub: xpub,
       addresses: addresses,
       balance: balance,
+      lightningBalance: lightningBalance,
       regularAddressIndex: regularAddressIndexByType,
       changeAddressIndex: changeAddressIndexByType,
       addressPageType: data['address_page_type'] as String?,

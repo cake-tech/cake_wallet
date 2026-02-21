@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -13,6 +14,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -90,12 +92,13 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
             ModalTopBar(
               title: "",
               leadingWidget: SwapModalHeader(
-                  fromIconPath: widget.exchangeTradeViewModel.trade.from?.iconPath ?? "",
-                  toIconPath: widget.exchangeTradeViewModel.trade.to?.iconPath ?? ""),
+                  fromIconPath: widget.exchangeViewModel.depositCurrency.iconPath ?? "",
+                  toIconPath: widget.exchangeViewModel.receiveCurrency.iconPath ?? ""),
               trailingIcon: Icon(Icons.close),
               onTrailingPressed: Navigator.of(context).maybePop,
             ),
             SafeArea(
+              top:false,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
@@ -107,11 +110,11 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "send value",
-                              label: widget.exchangeTradeViewModel.trade.from?.fullName ?? "",
-                              iconPath: widget.exchangeTradeViewModel.trade.from?.iconPath ?? "",
+                              label: widget.exchangeViewModel.depositCurrency.fullName ?? "",
+                              iconPath: widget.exchangeViewModel.depositCurrency.iconPath ?? "",
                               trailingText: widget.exchangeTradeViewModel.trade.amountFormatted() +
                                   " " +
-                                  (widget.exchangeTradeViewModel.trade.from?.title ?? "")),
+                                  (widget.exchangeViewModel.depositCurrency.title)),
                           if(widget.exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
                           ListItemRegularRow(
                               showArrow: false,
@@ -131,36 +134,47 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "receive value",
-                              label: widget.exchangeTradeViewModel.trade.to?.fullName ?? "",
-                              iconPath: widget.exchangeTradeViewModel.trade.to?.iconPath ?? "",
+                              label: widget.exchangeViewModel.receiveCurrency.fullName ?? "",
+                              iconPath: widget.exchangeViewModel.receiveCurrency.iconPath ?? "",
                               trailingText: (widget.receiveAmount) +
                                   " " +
-                                  (widget.exchangeTradeViewModel.trade.to?.title ?? "")),
+                                  (widget.exchangeViewModel.receiveCurrency.title)),
                           ListItemRegularRow(
                               keyValue: "receiver",
                               label: S.of(context).to,
                               showArrow: false,
                               trailingText: widget.exchangeViewModel.receiveAddressDisplayName ?? middleTruncate(widget.exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8))
                         ],
-                        S.of(context).swap_id: [
+                        "${S.of(context).swap_id} (${S.of(context).tap_to_copy})": [
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "provider",
+                              onTap: () => Clipboard.setData(
+                                  ClipboardData(text: widget.exchangeTradeViewModel.trade.id)),
                               label: widget.exchangeTradeViewModel.trade.provider.title,
                               iconPath: widget.exchangeTradeViewModel.trade.provider.image,
-                              trailingText: widget.exchangeTradeViewModel.trade.id)
+                              trailingText: widget.exchangeTradeViewModel.trade.id),
+                          if(widget.exchangeTradeViewModel.trade.provider == ExchangeProviderDescription.trocador)
+                            ListItemRegularRow(
+                              showArrow: false,
+                              keyValue: "trocador provider name",
+                              label: "Trocador ${S.of(context).provider}",
+                              trailingText: widget.exchangeTradeViewModel.trade.providerName??""
+                            )
                         ]
                       }),
                     ),
-                    widget.exchangeViewModel.isSendFromExternal
-                        ? NewPrimaryButton(
-                            onPressed: _showExternalSendModal,
-                            text: S.of(context).continue_text,
-                            color: Theme.of(context).colorScheme.primary,
-                            textColor: Theme.of(context).colorScheme.onPrimary)
-                        : SendConfirmBottomWidget(
-                            sendViewModel: widget.exchangeTradeViewModel.sendViewModel),
-                    SizedBox()
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: widget.exchangeViewModel.isSendFromExternal
+                          ? NewPrimaryButton(
+                              onPressed: _showExternalSendModal,
+                              text: S.of(context).continue_text,
+                              color: Theme.of(context).colorScheme.primary,
+                              textColor: Theme.of(context).colorScheme.onPrimary)
+                          : SendConfirmBottomWidget(
+                              sendViewModel: widget.exchangeTradeViewModel.sendViewModel),
+                    ),
                   ],
                 ),
               ),

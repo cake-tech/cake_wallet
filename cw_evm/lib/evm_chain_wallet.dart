@@ -1004,6 +1004,10 @@ abstract class EVMChainWalletBase
       if (currencyBalance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
+      if (transactionCurrency is! Erc20Token &&
+          totalAmount + estimatedFeesForTransaction > currencyBalance.balance) {
+        throw EVMChainTransactionFeesException.fromCurrency(currency.title);
+      }
     }
 
     if (transactionCurrency is Erc20Token &&

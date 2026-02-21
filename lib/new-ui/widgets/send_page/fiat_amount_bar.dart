@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -49,7 +50,7 @@ class FiatAmountBar extends StatelessWidget {
                   onTap: onSwitchButtonPressed,
                   child: Text(
                         fiatInputMode
-                            ? "${cryptoAmount.isEmpty ? "0" : cryptoAmount} ${cryptoCurrency}"
+                            ? "${cryptoAmount.isEmpty ? "0" : cryptoAmount.withMaxDecimals(8)} ${cryptoCurrency}"
                             : "${fiatAmount.isEmpty ? "0" : fiatAmount} ${fiatCurrency}",
                         style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
                       ),

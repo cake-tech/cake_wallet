@@ -221,8 +221,21 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   Future<void> updateDepositAvailableAmount() async {
-    if(depositCurrency == CryptoCurrency.btcln) {
-      depositAvailableAmount = _appStore.amountParsingProxy.getDisplayCryptoString(wallet.balance[depositCurrency]!.fullAvailableBalance, depositCurrency);
+    if (depositCurrency == CryptoCurrency.btcln) {
+      final currency = depositCurrency;
+      Future.doWhile(() async {
+        await Future.delayed(const Duration(milliseconds: 400));
+        if (depositCurrency != currency) {
+          return false;
+        }
+        final balance = wallet.balance[depositCurrency];
+        if (balance != null) {
+          depositAvailableAmount = _appStore.amountParsingProxy
+              .getDisplayCryptoString(balance.fullAvailableBalance, depositCurrency);
+          return false;
+        }
+        return true;
+      });
     } else {
       final currency = depositCurrency;
       final amount = _appStore.amountParsingProxy.getDisplayCryptoString(
@@ -261,7 +274,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   bool useSameWalletAddress(CryptoCurrency currency) =>
       currency == wallet.currency ||
-      currency == CryptoCurrency.btcln && wallet.currency == CryptoCurrency.btc ||
+      (currency == CryptoCurrency.btcln && wallet.currency == CryptoCurrency.btc && wallet.isSoftwareWallet) ||
       (currency.tag != null && currency.tag == wallet.currency.tag) ||
       currency.tag == wallet.currency.title;
 
@@ -943,6 +956,22 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     }
 
+    if (depositCurrency == CryptoCurrency.btcln &&
+        depositAddress == wallet.walletAddresses.addressForExchange) {
+      final invoice = await bitcoin!.getLightningInvoice(wallet, BigInt.zero);
+      if (invoice != null) {
+        depositAddress = invoice;
+      }
+    }
+
+    if (receiveCurrency == CryptoCurrency.btcln &&
+        receiveAddress == wallet.walletAddresses.addressForExchange) {
+      final invoice = await bitcoin!.getLightningInvoice(wallet, BigInt.zero);
+      if (invoice != null) {
+        receiveAddress = invoice;
+      }
+    }
+
     late final Map<double, ExchangeProvider> providers;
     if (forcedProvider != null) {
       providers = {forcedProviderRate: forcedProvider!};
@@ -1462,12 +1491,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> _injectUserEthTokensIntoCurrencyLists() async {
-    final userTokens = await TokenUtilities.loadAllUniqueEvmTokens();
-
+    final tokens = await TokenUtilities.loadEvmTokensForSwap();
     final toAddReceive = <CryptoCurrency>[];
     final toAddDeposit = <CryptoCurrency>[];
 
-    for (final token in userTokens) {
+    for (final token in tokens) {
       if (!_listContainsToken(receiveCurrencies, token)) toAddReceive.add(token);
       if (!_listContainsToken(depositCurrencies, token)) toAddDeposit.add(token);
     }
@@ -1500,12 +1528,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> _injectUserSplTokensIntoCurrencyLists() async {
-    final userTokens = await TokenUtilities.loadAllUniqueSolTokens();
-
+    final tokens = await TokenUtilities.loadSolTokensForSwap();
     final toAddReceive = <CryptoCurrency>[];
     final toAddDeposit = <CryptoCurrency>[];
 
-    for (final token in userTokens) {
+    for (final token in tokens) {
       if (!_listContainsSplToken(receiveCurrencies, token)) toAddReceive.add(token);
       if (!_listContainsSplToken(depositCurrencies, token)) toAddDeposit.add(token);
     }
@@ -1528,12 +1555,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> _injectUserTronTokensIntoCurrencyLists() async {
-    final userTokens = await TokenUtilities.loadAllUniqueTronTokens();
-
+    final tokens = await TokenUtilities.loadTronTokensForSwap();
     final toAddReceive = <CryptoCurrency>[];
     final toAddDeposit = <CryptoCurrency>[];
 
-    for (final token in userTokens) {
+    for (final token in tokens) {
       if (!_listContainsTronToken(receiveCurrencies, token)) toAddReceive.add(token);
       if (!_listContainsTronToken(depositCurrencies, token)) toAddDeposit.add(token);
     }

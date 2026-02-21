@@ -305,9 +305,12 @@ class _CardsViewState extends State<CardsView> {
         mode: SendPageModes.lightningDeposit,
       ));
       showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
-        return FractionallySizedBox(
-            heightFactor: 0.6,
-            child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: SizedBox(
+              height:MediaQuery.of(context).size.height*0.6,
+              child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
+          ),
         );
       });
     } else {
@@ -347,9 +350,12 @@ class _CardsViewState extends State<CardsView> {
         mode: SendPageModes.lightningWithdrawal,
       ));
       showCupertinoModalBottomSheet(context: context, barrierColor: Colors.black.withAlpha(128), builder: (context){
-        return FractionallySizedBox(
-          heightFactor: 0.6,
-          child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: SizedBox(
+height:MediaQuery.of(context).size.height*0.6,
+              child:ModalNavigator(parentContext:context,rootPage: Material(child: page))
+          ),
         );
       });
     } else {
