@@ -20,7 +20,7 @@ class WalletInfoBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => {onCustomizeButtonTap, HapticFeedback.mediumImpact()},
+      onTap: () => {onCustomizeButtonTap(), HapticFeedback.mediumImpact()},
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -59,7 +59,7 @@ class WalletInfoBar extends StatelessWidget {
           SizedBox(width: 8),
           ModernButton.svg(
             size: 24,
-            onPressed: () => {onCustomizeButtonTap, HapticFeedback.mediumImpact()},
+            onPressed: () => {onCustomizeButtonTap(), HapticFeedback.mediumImpact()},
             svgPath: "assets/new-ui/icon-accounts.svg",
           )
         ],
