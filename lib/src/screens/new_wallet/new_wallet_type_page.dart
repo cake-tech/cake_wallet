@@ -11,7 +11,6 @@ import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_aler
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
-import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
@@ -38,19 +37,19 @@ class NewWalletTypePage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-        FocusScopeNode currentFocus = FocusScope.of(context);
-        if (!currentFocus.hasPrimaryFocus) {
-          currentFocus.focusedChild?.unfocus();
-        }
-      };
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(
-        walletImage: currentTheme.isDark ? walletTypeImage : walletTypeLightImage,
-        isCreate: newWalletTypeArguments.isCreate,
-        onTypeSelected: newWalletTypeArguments.onTypeSelected,
-        hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
-      );
+    walletImage: currentTheme.isDark ? walletTypeImage : walletTypeLightImage,
+    isCreate: newWalletTypeArguments.isCreate,
+    onTypeSelected: newWalletTypeArguments.onTypeSelected,
+    hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
+  );
 }
 
 class WalletTypeForm extends StatefulWidget {
@@ -87,10 +86,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   void initState() {
     types = filteredTypes = availableWalletTypes
         .where((element) =>
-            !widget.isHardwareWallet ||
-            DeviceConnectionType.supportedConnectionTypes(
-                    element, widget.hardwareWalletType!, Platform.isIOS)
-                .isNotEmpty)
+    !widget.isHardwareWallet ||
+        DeviceConnectionType.supportedConnectionTypes(
+            element, widget.hardwareWalletType!, Platform.isIOS)
+            .isNotEmpty)
         .toList();
     super.initState();
 
@@ -117,22 +116,23 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                 S.of(context).choose_wallet_currency,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(FeatureFlag.hasNewUi ? 0 : 24, 24, FeatureFlag.hasNewUi ? 0 : 24, 12),
+              padding: EdgeInsets.fromLTRB(24, 24, 24, 12),
               child: SearchBarWidget(searchController: searchController),
             ),
             Expanded(
               child: ScrollableWithBottomSection(
+                contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
                 scrollableKey: ValueKey('new_wallet_type_scrollable_key'),
                 content: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     ...filteredTypes.map(
-                      (type) => Padding(
+                          (type) => Padding(
                         padding: EdgeInsets.only(top: 12),
                         child: SelectButton(
                           key: ValueKey('new_wallet_type_${type.name}_button_key'),
@@ -148,13 +148,14 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                           onTap: () => setState(() => selected = type),
                           deviceConnectionTypes: widget.isHardwareWallet
                               ? DeviceConnectionType.supportedConnectionTypes(
-                                  type, widget.hardwareWalletType!, Platform.isIOS)
+                              type, widget.hardwareWalletType!, Platform.isIOS)
                               : [],
                         ),
                       ),
                     ),
                   ],
                 ),
+                bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
                 bottomSection: PrimaryButton(
                   key: ValueKey('new_wallet_type_next_button_key'),
                   onPressed: () => onTypeSelected(),

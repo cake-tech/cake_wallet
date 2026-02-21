@@ -18,48 +18,51 @@ class WalletInfoBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
+    return GestureDetector(
+      onTap: onCustomizeButtonTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
 
-      children: [
-        AnimatedSwitcher(
-          duration: Duration(milliseconds: 150),
-          transitionBuilder: (child, animation) {
-            return SizeTransition(
-              axis: Axis.horizontal,
-              sizeFactor: animation,
-              child: FadeTransition(opacity: animation, child: child),
-            );
-          },
-          child: hardwareWalletIcon == null
-              ? const SizedBox.shrink(key: ValueKey("empty"))
-              : Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: SvgPicture.asset(
-                    hardwareWalletIcon!,
-                    key: ValueKey("hardware_wallet_icon"),
-                    width: 24,
-                    height: 24,
-                    colorFilter: ColorFilter.mode(
-                      Theme.of(context).colorScheme.onSurfaceVariant,
-                      BlendMode.srcIn,
+        children: [
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 150),
+            transitionBuilder: (child, animation) {
+              return SizeTransition(
+                axis: Axis.horizontal,
+                sizeFactor: animation,
+                child: FadeTransition(opacity: animation, child: child),
+              );
+            },
+            child: hardwareWalletIcon == null
+                ? const SizedBox.shrink(key: ValueKey("empty"))
+                : Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: SvgPicture.asset(
+                      hardwareWalletIcon!,
+                      key: ValueKey("hardware_wallet_icon"),
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).colorScheme.onSurfaceVariant,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
-                ),
-        ),
-        Text(
-          name,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface),
-        ),
-        SizedBox(width: 8),
-        ModernButton.svg(
-          size: 24,
-          onPressed: onCustomizeButtonTap,
-          svgPath: "assets/new-ui/icon-accounts.svg",
-        )
-      ],
+          ),
+          Text(
+            name,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface),
+          ),
+          SizedBox(width: 8),
+          ModernButton.svg(
+            size: 24,
+            onPressed: onCustomizeButtonTap,
+            svgPath: "assets/new-ui/icon-accounts.svg",
+          )
+        ],
+      ),
     );
   }
 
