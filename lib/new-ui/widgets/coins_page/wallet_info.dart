@@ -1,6 +1,7 @@
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class WalletInfoBar extends StatelessWidget {
@@ -19,7 +20,7 @@ class WalletInfoBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onCustomizeButtonTap,
+      onTap: () => {onCustomizeButtonTap, HapticFeedback.mediumImpact()},
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -58,7 +59,7 @@ class WalletInfoBar extends StatelessWidget {
           SizedBox(width: 8),
           ModernButton.svg(
             size: 24,
-            onPressed: onCustomizeButtonTap,
+            onPressed: () => {onCustomizeButtonTap, HapticFeedback.mediumImpact()},
             svgPath: "assets/new-ui/icon-accounts.svg",
           )
         ],
