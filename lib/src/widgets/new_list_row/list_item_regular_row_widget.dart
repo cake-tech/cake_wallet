@@ -14,7 +14,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
     this.hasImage,
     this.isFirstInSection = false,
     this.isLastInSection = false,
-    this.showArrow = true
+    this.showArrow = true,
+    this.trailingIconPath
   });
 
   final String keyValue;
@@ -27,6 +28,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final bool isFirstInSection;
   final bool isLastInSection;
   final bool showArrow;
+  final String? trailingIconPath;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +85,13 @@ class ListItemRegularRowWidget extends StatelessWidget {
                         style: labelStyle,
                       ),
                     ),
-                  if(showArrow)
+                  if(trailingIconPath != null)
+                    SvgPicture.asset(
+                      trailingIconPath!,
+                      width:18,
+                      colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),
+                    )
+                  else if(showArrow)
                   SvgPicture.asset(
                     "assets/new-ui/arrow_forward.svg",
                     height: 14,

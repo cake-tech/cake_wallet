@@ -153,6 +153,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
                                   ClipboardData(text: widget.exchangeTradeViewModel.trade.id)),
                               label: widget.exchangeTradeViewModel.trade.provider.title,
                               iconPath: widget.exchangeTradeViewModel.trade.provider.image,
+                              trailingIconPath: "assets/new-ui/copy.svg",
                               trailingText: widget.exchangeTradeViewModel.trade.id),
                           if(widget.exchangeTradeViewModel.trade.provider == ExchangeProviderDescription.trocador)
                             ListItemRegularRow(
