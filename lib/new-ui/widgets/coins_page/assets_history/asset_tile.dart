@@ -78,79 +78,91 @@ class AssetTile extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                        width: 45,
-                        height: 45,
-                        child: Stack(
+                Expanded(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                          width: 45,
+                          height: 45,
+                          child: Stack(
+                            children: [
+                              if((balance.asset.iconPath??"").isNotEmpty)
+                              Image.asset(balance.asset.iconPath!)
+                              else
+                                Container(
+                                  width: 45,
+                                  height: 45,
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      borderRadius: BorderRadius.circular(99999)),
+                                  child: Center(
+                                      child: Text(
+                                    balance.asset.name.substring(0, 2),
+                                    style: TextStyle(
+                                        fontSize: 20, color: Theme.of(context).colorScheme.onPrimary),
+                                  )),
+                                ),
+                              if (chainIconPath.isNotEmpty)
+                                Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Container(
+                                        decoration: ShapeDecoration(
+                                            shape: RoundedSuperellipseBorder(
+                                                borderRadius: BorderRadius.circular(5),side: BorderSide(color: Colors.black)),
+                                            color: Colors.white),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(2.0),
+                                          child: SvgPicture.asset(
+                                            chainIconPath,
+                                            width: 12,
+                                            height: 12,
+                                            colorFilter:
+                                                ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                                          ),
+                                        )))
+                            ],
+                          )),
+                      SizedBox(width: 8.0),
+                      Expanded(
+                        child: Column(
+                          spacing: 4.0,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if((balance.asset.iconPath??"").isNotEmpty)
-                            Image.asset(balance.asset.iconPath!)
-                            else
-                              Container(
-                                width: 45,
-                                height: 45,
-                                decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(99999)),
-                                child: Center(
-                                    child: Text(
-                                  balance.asset.name.substring(0, 2),
+                            Row(
+                              spacing: 4,
+                              children: [
+                                Text(
+                                  title ?? balance.asset.fullName ?? balance.asset.name,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                if(trailingText != null)
+                                Text(
+                                  trailingText!,
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 4.0),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                   "${showSecondary ?balance.secondAvailableBalance: balance.availableBalance} ${balance.formattedAssetTitle.safeSubString(0, 6)}",
+                                  maxLines:1,
                                   style: TextStyle(
-                                      fontSize: 20, color: Theme.of(context).colorScheme.onPrimary),
-                                )),
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
                               ),
-                            if (chainIconPath.isNotEmpty)
-                              Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Container(
-                                      decoration: ShapeDecoration(
-                                          shape: RoundedSuperellipseBorder(
-                                              borderRadius: BorderRadius.circular(5),side: BorderSide(color: Colors.black)),
-                                          color: Colors.white),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(2.0),
-                                        child: SvgPicture.asset(
-                                          chainIconPath,
-                                          width: 12,
-                                          height: 12,
-                                          colorFilter:
-                                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                                        ),
-                                      )))
-                          ],
-                        )),
-                    SizedBox(width: 8.0),
-                    Column(
-                      spacing: 4.0,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          spacing: 4,
-                          children: [
-                            Text(
-                              title ?? balance.asset.fullName ?? balance.asset.name,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            if(trailingText != null)
-                            Text(
-                              trailingText!,
-                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                           ],
                         ),
-                        Text(
-                           "${showSecondary ?balance.secondAvailableBalance: balance.availableBalance} ${balance.formattedAssetTitle.safeSubString(0, 6)}",
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
                 Text(
                   showSecondary ? balance.fiatSecondAvailableBalance : balance.fiatAvailableBalance,
