@@ -1367,6 +1367,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
+import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -1468,6 +1469,7 @@ abstract class EVM {
   void updateScanProviderUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
+  BigInt? getERC20AvailableBalance(Object balance);
   
   Future<bool> isApprovalRequired(
     WalletBase wallet,

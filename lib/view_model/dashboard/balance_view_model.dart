@@ -17,7 +17,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:mobx/mobx.dart';
 
 part 'balance_view_model.g.dart';
@@ -258,8 +257,8 @@ abstract class BalanceViewModelBase with Store {
       //   throw Exception('Price is null for: $key');
       // }
 
-      final available = value is EVMChainERC20Balance ? value.balance : BigInt.from(value.available);
-      final additional = value is EVMChainERC20Balance ? value.balance : BigInt.from(value.additional);
+      final available = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.available);
+      final additional = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.additional);
 
       final availableFiatBalance = isFiatDisabled
           ? ''

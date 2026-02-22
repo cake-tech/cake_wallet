@@ -469,6 +469,14 @@ class CWEVM extends EVM {
   }
 
   @override
+  BigInt? getERC20AvailableBalance(Object balance) {
+    if(balance is EVMChainERC20Balance) {
+      return balance.balance;
+    }
+    return null;
+  }
+
+  @override
   List<ChainInfo> getAllChains() {
     final allChains = _registry.getAllChains();
     return allChains
