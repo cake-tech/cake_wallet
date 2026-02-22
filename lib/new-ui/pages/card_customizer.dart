@@ -44,7 +44,9 @@ class _CardCustomizerState extends State<CardCustomizer> {
       listenWhen: (previous, current) =>
       previous.accountName != current.accountName,
       listener: (context, state) {
-        accountNameController.text = state.accountName;
+        if(accountNameController.text != state.accountName) {
+          accountNameController.text = state.accountName;
+        }
       },
   child: BlocBuilder<CardCustomizerBloc, CardCustomizerState>(
       builder: (context, state) {
