@@ -28,7 +28,7 @@ class ContactPage extends BasePage {
     _nameController.addListener(() => contactViewModel.name = _nameController.text);
     _addressController.addListener(() => contactViewModel.address = _addressController.text);
 
-    autorun((_) => _currencyTypeController.text = contactViewModel.currency?.toString() ?? '');
+    autorun((_) => _currencyTypeController.text = "${contactViewModel.currency?.toString() ?? ""} ${contactViewModel.currency?.tag != null ? "(${contactViewModel.currency?.tag})" : ""}");
   }
 
   @override
