@@ -65,7 +65,7 @@ class SelectButton extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: height,
-        padding: padding ?? EdgeInsets.only(left: 30, right: 30),
+        padding: padding ?? EdgeInsets.only(left: 16, right: 16),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(18)),
@@ -84,7 +84,7 @@ class SelectButton extends StatelessWidget {
                 children: <Widget>[
                   image ?? Offstage(),
                   Padding(
-                    padding: image != null ? EdgeInsets.only(left: 15) : EdgeInsets.only(left: 0),
+                    padding: image != null ? EdgeInsets.only(left: 14) : EdgeInsets.only(left: 0),
                     child: Text(
                       text,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(

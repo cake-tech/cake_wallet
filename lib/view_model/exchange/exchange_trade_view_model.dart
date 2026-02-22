@@ -394,6 +394,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         wallet.currency == CryptoCurrency.bnb && tradeFrom?.tag == CryptoCurrency.bnb.tag;
 
     return tradeFrom == wallet.currency ||
+        tradeFrom == CryptoCurrency.btcln && wallet.currency == CryptoCurrency.btc ||
         tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
         _isEthToken() ||
         _isPolygonToken() ||

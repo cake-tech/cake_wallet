@@ -287,6 +287,7 @@ abstract class Bitcoin {
   String getNetworkName(Object wallet);
   Future<void> setLightningUsername(Object wallet, String username);
   Future<String?> getLightningUsername(Object wallet);
+  Future<String?> getLightningInvoice(Object wallet, BigInt amount);
   String? getBreezSdkError(Object exception);
 }
   """;
@@ -976,6 +977,7 @@ abstract class Solana {
   String getTokenAddress(CryptoCurrency asset);
   List<int>? getValidationLength(CryptoCurrency type);
   double? getEstimateFees(WalletBase wallet);
+  List<SPLToken> getDefaultSPLTokens();
   List<String> getDefaultTokenContractAddresses();
   List<String> getDefaultTokenSymbols();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
@@ -1102,6 +1104,7 @@ abstract class Tron {
   String? getTronTRC20EstimatedFee(WalletBase wallet);
 
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled);
+  List<TronToken> getDefaultTronTokens();
   List<String> getDefaultTokenContractAddresses();
   List<String> getDefaultTokenSymbols();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
@@ -1364,6 +1367,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
+import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -1465,6 +1469,7 @@ abstract class EVM {
   void updateScanProviderUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
+  BigInt? getERC20AvailableBalance(Object balance);
   
   Future<bool> isApprovalRequired(
     WalletBase wallet,
@@ -1506,6 +1511,7 @@ abstract class EVM {
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
   
   // Utility methods
+  List<Erc20Token> getDefaultTokensByChainId(int chainId);
   List<String> getDefaultTokenContractAddresses(WalletBase wallet);
   List<String> getDefaultTokenSymbols(WalletBase wallet);
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);

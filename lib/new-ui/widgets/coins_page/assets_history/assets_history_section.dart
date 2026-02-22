@@ -80,10 +80,7 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
             },
             selectedTab: _selectedTab,
           ),
-        IndexedStack(
-          index: _selectedTab,
-          children: List.generate(tabs.length, (index) => tabs[index].content),
-        )
+        tabs[_selectedTab].content
       ],
     );
   }

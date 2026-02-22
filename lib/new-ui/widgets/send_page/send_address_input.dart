@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import "package:permission_handler_platform_interface/permission_handler_platform_interface.dart";
 
-class NewSendAddressInput extends StatelessWidget {
+class NewSendAddressInput extends StatefulWidget {
   const NewSendAddressInput({
     super.key,
     required this.addressController,
@@ -21,7 +21,7 @@ class NewSendAddressInput extends StatelessWidget {
     required this.onEditingComplete,
     this.bottomPadding = false,
     this.validator,
-    this.focusNode,
+    this.focusNode, this.displayName,
   });
 
   final TextEditingController addressController;
@@ -29,6 +29,7 @@ class NewSendAddressInput extends StatelessWidget {
   final Function(BuildContext)? onPushPasteButton;
   final Function(BuildContext)? onPushAddressBookButton;
   final Function(ContactBase)? onSelectedContact;
+  final String? displayName;
   final Currency selectedCurrency;
   final VoidCallback onEditingComplete;
   final bool bottomPadding;
@@ -36,9 +37,27 @@ class NewSendAddressInput extends StatelessWidget {
   final FocusNode? focusNode;
 
   @override
+  State<NewSendAddressInput> createState() => _NewSendAddressInputState();
+}
+
+class _NewSendAddressInputState extends State<NewSendAddressInput> {
+  FocusNode? node;
+
+  @override
+  void initState() {
+    super.initState();
+    node = widget.focusNode ?? FocusNode();
+    node!.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: bottomPadding
+      padding: widget.bottomPadding
           ? EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom,
             )
@@ -50,17 +69,33 @@ class NewSendAddressInput extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: TextFormField(
-                focusNode: focusNode,
-                // onSubmitted: (val)=> FocusScope.of(context).unfocus(),
-                validator: validator,
-                onEditingComplete: onEditingComplete,
-                onTapOutside: (_) => onEditingComplete.call(),
-                controller: addressController,
-                decoration: InputDecoration(
-                  hintText: S.of(context).search_or_enter,
-                  errorMaxLines: 3,
-                ),
+              child: Stack(
+                children: [
+                  TextFormField(
+                    focusNode: widget.focusNode,
+                    // onSubmitted: (val)=> FocusScope.of(context).unfocus(),
+                    validator: widget.validator,
+                    onEditingComplete: widget.onEditingComplete,
+                    onTapOutside: (_) => widget.onEditingComplete.call(),
+                    controller: widget.addressController,
+                    decoration: InputDecoration(
+                      hintText: S.of(context).search_or_enter,
+                      errorMaxLines: 3,
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: AnimatedOpacity(
+                          duration: Duration(milliseconds: 150),
+                          opacity: (widget.focusNode == null || widget.focusNode!.hasFocus || widget.addressController.text.isEmpty) ? 0 : 1,
+                          child: SendAddressOverlay(
+                            address: widget.addressController.text,
+                            displayName: widget.displayName,
+                          )
+                        ),
+                    ),
+                  ),
+                ],
               ),
             ),
             Row(
@@ -101,10 +136,10 @@ class NewSendAddressInput extends StatelessWidget {
 
     try {
       final uri = Uri.parse(code);
-      addressController.text = uri.path;
-      onURIScanned?.call(uri);
+      widget.addressController.text = uri.path;
+      widget.onURIScanned?.call(uri);
     } catch (_) {
-      addressController.text = code;
+      widget.addressController.text = code;
     }
   }
 
@@ -118,28 +153,71 @@ class NewSendAddressInput extends StatelessWidget {
       if (address.contains("=")) {
         try {
           final uri = Uri.parse(address);
-          addressController.text = uri.path;
-          onURIScanned?.call(uri);
+          widget.addressController.text = uri.path;
+          widget.onURIScanned?.call(uri);
         } catch (_) {
-          addressController.text = address;
+          widget.addressController.text = address;
         }
       } else {
-        addressController.text = address;
+        widget.addressController.text = address;
       }
     }
 
-    onPushPasteButton?.call(context);
+    widget.onPushPasteButton?.call(context);
   }
-
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {
     final contact = await Navigator.of(context)
-        .pushNamed(Routes.pickerAddressBook, arguments: [selectedCurrency, false]);
+        .pushNamed(Routes.pickerAddressBook, arguments: [widget.selectedCurrency, false]);
 
     if (contact is ContactBase) {
-      addressController.text = contact.address;
-      onPushAddressBookButton?.call(context);
-      onSelectedContact?.call(contact);
+      widget.addressController.text = contact.address;
+      widget.onPushAddressBookButton?.call(context);
+      widget.onSelectedContact?.call(contact);
     }
+  }
+}
+
+class SendAddressOverlay extends StatelessWidget {
+  const SendAddressOverlay({super.key, required this.address, this.displayName});
+
+  final String address;
+  final String? displayName;
+
+  @override
+  Widget build(BuildContext context) {
+    final primaryTextStyle = TextStyle(fontSize: 16.5);
+    final secondaryTextStyle =
+        TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant);
+
+    final showDisplayName =
+        displayName != null && displayName!.isNotEmpty && displayName != address;
+
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (showDisplayName)
+              Text(
+                displayName!,maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: primaryTextStyle,
+              ),
+            Text(
+              address,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: showDisplayName ? secondaryTextStyle : primaryTextStyle,
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

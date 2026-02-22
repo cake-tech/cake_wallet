@@ -29,28 +29,28 @@ class NewMainActions {
 
   static NewMainActions homeAction = NewMainActions._(
     name: (context) => S.of(context).home,
-    image: 'assets/new-ui/Home.svg',
+    image: 'assets/new-ui/navbar/home.svg',
     key: ValueKey('dashboard_page_home_action_button_key'),
     onTap: () {},
   );
 
   static NewMainActions walletsAction = NewMainActions._(
     name: (context) => S.of(context).wallets,
-    image: 'assets/new-ui/Wallets.svg',
+    image: 'assets/new-ui/navbar/wallets.svg',
     key: ValueKey('dashboard_page_wallets_action_button_key'),
     onTap: () {},
   );
 
   static NewMainActions contactsAction = NewMainActions._(
     name: (context) => S.of(context).contacts,
-    image: 'assets/new-ui/Contacts.svg',
+    image: 'assets/new-ui/navbar/contacts.svg',
     key: ValueKey('dashboard_page_contacts_action_button_key'),
     onTap: () {},
   );
 
   static NewMainActions appsAction = NewMainActions._(
     name: (context) => S.of(context).apps,
-    image: 'assets/new-ui/Apps.svg',
+    image: 'assets/new-ui/navbar/apps.svg',
     key: ValueKey('dashboard_page_apps_action_button_key'),
     canShow: (dashboardVM) => dashboardVM.showApps,
     onTap: () {},
@@ -58,7 +58,7 @@ class NewMainActions {
 
   // static NewMainActions chartsAction = NewMainActions._(
   //   name: (context) => 'Charts', //TODO S.of(context).charts,
-  //   image: 'assets/new-ui/Charts.svg',
+  //   image: 'assets/new-ui/navbar/charts.svg',
   //   key: ValueKey('dashboard_page_charts_action_button_key'),
   //   onTap: () {},
   // );

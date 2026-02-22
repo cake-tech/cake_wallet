@@ -127,19 +127,22 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 12.0),
-      child: Scaffold(
-          key: _key,
-          appBar: CupertinoNavigationBar(
-              leading: widget.closable
-                  ? ModernButton(size: 36, icon: Icon(Icons.close), onPressed: Navigator.of(context).pop)
-                  : Container(),
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              border: null),
-          resizeToAvoidBottomInset: false,
-          body: PinCode((pin, _) => widget.authViewModel.auth(password: pin), (_) => null,
-              widget.authViewModel.pinLength, false, _pinCodeKey)),
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: Scaffold(
+            key: _key,
+            appBar: CupertinoNavigationBar(
+                leading: widget.closable
+                    ? ModernButton(size: 36, icon: Icon(Icons.close), onPressed: Navigator.of(context).pop, iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
+                    : Container(),
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                border: null),
+            resizeToAvoidBottomInset: false,
+            body: PinCode((pin, _) => widget.authViewModel.auth(password: pin), (_) => null,
+                widget.authViewModel.pinLength, false, _pinCodeKey)),
+      ),
     );
   }
 

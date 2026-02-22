@@ -35,6 +35,14 @@ class AmountParsingProxy {
     return cryptoCurrency.formatAmount(BigInt.from(amount));
   }
 
+  String getDisplayCryptoStrungFromBigInt(BigInt amount, CryptoCurrency cryptoCurrency) {
+    if (useSatoshi(cryptoCurrency)) {
+      return "$amount";
+    }
+
+    return cryptoCurrency.formatAmount(amount);
+  }
+
   /// [getCryptoStringFromDouble] turns the input [amount] into the preferred representation of [cryptoCurrency] and
   String getDisplayCryptoStringFromDouble(double amount, CryptoCurrency cryptoCurrency) {
     if (useSatoshi(cryptoCurrency)) {

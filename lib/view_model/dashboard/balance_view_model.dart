@@ -257,13 +257,16 @@ abstract class BalanceViewModelBase with Store {
       //   throw Exception('Price is null for: $key');
       // }
 
+      final available = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.available);
+      final additional = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.additional);
+
       final availableFiatBalance = isFiatDisabled
           ? ''
-          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: key.formatAmount(BigInt.from(value.available)))}';
+          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: key.formatAmount(available))}';
 
       final additionalFiatBalance = isFiatDisabled
           ? ''
-          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: key.formatAmount(BigInt.from(value.additional)))}';
+          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: key.formatAmount(additional))}';
 
       final frozenFiatBalance = isFiatDisabled
           ? ''
@@ -280,16 +283,16 @@ abstract class BalanceViewModelBase with Store {
       return MapEntry(
         key,
         BalanceRecord(
-          availableBalance: _getFormattedCryptoAmount(key, value.available),
+          availableBalance: _getFormattedCryptoAmount(key, available),
           fiatAvailableBalance: availableFiatBalance,
-          additionalBalance: _getFormattedCryptoAmount(key, value.additional),
+          additionalBalance: _getFormattedCryptoAmount(key, additional),
           fiatAdditionalBalance: additionalFiatBalance,
           frozenBalance:
-              (value.frozen ?? 0) > 0 ? _getFormattedCryptoAmount(key, value.frozen) : '',
+              (value.frozen ?? 0) > 0 ? _getFormattedCryptoAmount(key, BigInt.from(value.frozen??0)) : '',
           fiatFrozenBalance: frozenFiatBalance,
-          secondAvailableBalance: _getFormattedCryptoAmount(secondAsset, value.secondAvailable),
+          secondAvailableBalance: _getFormattedCryptoAmount(secondAsset, BigInt.from(value.secondAvailable??0)),
           fiatSecondAvailableBalance: secondAvailableFiatBalance,
-          secondAdditionalBalance: _getFormattedCryptoAmount(secondAsset, value.secondAdditional),
+          secondAdditionalBalance: _getFormattedCryptoAmount(secondAsset, BigInt.from(value.secondAdditional??0)),
           fiatSecondAdditionalBalance: secondAdditionalFiatBalance,
           asset: key,
           secondAsset: secondAsset,
@@ -339,11 +342,11 @@ abstract class BalanceViewModelBase with Store {
         WalletType.zcash
       ].contains(type);
 
-  String _getFormattedCryptoAmount(CryptoCurrency cryptoCurrency, int? amount) {
+  String _getFormattedCryptoAmount(CryptoCurrency cryptoCurrency, BigInt? amount) {
     if (amount == null) return "";
 
     return appStore.amountParsingProxy
-        .getDisplayCryptoString(amount, cryptoCurrency)
+        .getDisplayCryptoStrungFromBigInt(amount, cryptoCurrency)
         .withMaxDecimals(8).withLocalSeperator();
   }
 

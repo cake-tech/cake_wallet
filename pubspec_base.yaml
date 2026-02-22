@@ -159,6 +159,7 @@ dependencies:
   torch_dart:
     path: ./scripts/torch_dart
   quick_actions: ^1.1.0
+  fl_chart: ^0.70.2
 
 dev_dependencies:
   flutter_test:
@@ -274,6 +275,7 @@ flutter:
     - assets/new-ui/address-type-picker-icons/
     - assets/new-ui/address-type-picker-icons/zec/
     - assets/new-ui/trade_providers/
+    - assets/new-ui/navbar/
 
   fonts:
     - family: Lato

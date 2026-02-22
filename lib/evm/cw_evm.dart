@@ -319,6 +319,10 @@ class CWEVM extends EVM {
       EVMChainTrezorService(connect);
 
   @override
+  List<Erc20Token> getDefaultTokensByChainId(int chainId) =>
+      EVMChainDefaultTokens.getDefaultTokensByChainId(chainId);
+
+  @override
   List<String> getDefaultTokenContractAddresses(WalletBase wallet) {
     final chainId = getSelectedChainId(wallet);
     if (chainId == null) return [];
@@ -473,6 +477,14 @@ class CWEVM extends EVM {
   @override
   WalletType? getWalletTypeByChainId(int chainId) {
     return _registry.getWalletTypeByChainId(chainId);
+  }
+
+  @override
+  BigInt? getERC20AvailableBalance(Object balance) {
+    if(balance is EVMChainERC20Balance) {
+      return balance.balance;
+    }
+    return null;
   }
 
   @override
