@@ -395,6 +395,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   Limits limits;
 
   @observable
+  bool tradeStarted = false;
+
+  @observable
   bool isSendFromExternal = false;
 
   @computed
