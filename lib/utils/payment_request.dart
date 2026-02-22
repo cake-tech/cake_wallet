@@ -38,7 +38,16 @@ class PaymentRequest {
       }
 
       address = uri.queryParameters['address'] ?? uri.path;
-      amount = uri.queryParameters['tx_amount'] ?? uri.queryParameters['amount'] ?? "";
+      try {
+        final lnAmount =
+            CryptoCurrency.btcln.formatAmount(BigInt.from(getBolt11Amount(uri.path) ?? 0));
+        if (lnAmount != 0) {
+          amount = lnAmount;
+        }
+      } catch (_) {}
+      if (amount.isEmpty) {
+        amount = uri.queryParameters['tx_amount'] ?? uri.queryParameters['amount'] ?? "";
+      }
       note = uri.queryParameters['tx_description'] ?? uri.queryParameters['message'] ?? "";
       scheme = uri.scheme;
       callbackUrl = uri.queryParameters['callback'];
