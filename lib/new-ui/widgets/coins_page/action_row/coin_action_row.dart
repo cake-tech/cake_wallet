@@ -121,13 +121,11 @@ class CoinActionRow extends StatelessWidget {
                   CupertinoScaffold.showCupertinoModalBottomSheet(
                     context: context,
                     barrierColor: Colors.black.withAlpha(85),
-                    builder: (context) => FractionallySizedBox(
-                        heightFactor: 0.97,
-                        child: Material(
-                            child: ModalNavigator(
-                          rootPage: page,
-                          parentContext: context,
-                        ))),
+                    builder: (context) => Material(
+                        child: ModalNavigator(
+                      rootPage: page,
+                      parentContext: context,
+                    )),
                   );
                 } else {
                   Navigator.of(context).pushNamed(Routes.exchange);
