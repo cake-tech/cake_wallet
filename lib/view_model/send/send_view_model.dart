@@ -1302,7 +1302,25 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return S.current.tx_invalid_input;
     }
 
+    if(wallet.type == WalletType.bitcoin) {
+      final lnError = getLightningErrorMessage(error);
+      if(lnError != null) return lnError;
+    }
+
     return errorMessage;
+  }
+
+  String? getLightningErrorMessage(Object error) {
+    // TODO add more patterns
+    Map<String, String> errorPatterns = {
+      "insufficient funds": S.current.insufficient_funds_for_tx
+    };
+
+    for(final pattern in errorPatterns.keys) {
+      if(error.toString().contains(pattern)) return errorPatterns[pattern]!;
+    }
+
+    return null;
   }
 
   bool _hasTaprootInput(PendingTransaction? pendingTransaction) {
