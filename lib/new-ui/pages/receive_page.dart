@@ -44,7 +44,7 @@ class NewReceivePage extends StatefulWidget {
       required this.dashboardViewModel,
       required this.lightningMode,
       CryptoCurrency? initialCurrency}) {
-    if (initialCurrency != null) {
+    if (initialCurrency != null && initialCurrency != addressListViewModel.selectedCurrency) {
       addressListViewModel.setTokenCurrency(initialCurrency);
     }
   }
