@@ -118,7 +118,7 @@
   "bitcoin_payments_require_1_confirmation": "Bitcoin payments require 1 confirmation, which can take 20 minutes or longer. Thanks for your patience! You will be emailed when the payment is confirmed.",
   "block_height": "Block height",
   "block_remaining": "1 Block Remaining",
-  "Blocks_remaining": "${status} Blocks",
+  "Blocks_remaining": "${status} Blocks Remaining",
   "bluetooth": "Bluetooth",
   "bright_theme": "Bright",
   "bscscan_history": "BSCScan History",
