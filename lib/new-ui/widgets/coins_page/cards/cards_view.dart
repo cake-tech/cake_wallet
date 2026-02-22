@@ -103,7 +103,7 @@ class _CardsViewState extends State<CardsView> {
             HapticFeedback.heavyImpact();
           },
           child: Observer(builder: (_) {
-            if(realIndex > (widget.accountListViewModel?.accounts.length ?? 1)) {
+            if(realIndex >= (widget.accountListViewModel?.accounts.length ?? 1)) {
               return Container();
             }
             final account = widget.accountListViewModel?.accounts[realIndex];
