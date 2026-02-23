@@ -43,36 +43,40 @@ class ListItemRegularRowWidget extends StatelessWidget {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  if(iconPath != null)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12.0),
-                      child: iconPath!.split(".").last.toLowerCase() == "svg"
-                          ? SvgPicture.asset(
-                              iconPath!,
-                              width: 24,
-                              height: 24,
-                            )
-                          : Image.asset(
-                              iconPath!,
-                              width: 24,
-                              height: 24,
+              Expanded(
+                child: Row(
+                  children: [
+                    if(iconPath != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 12.0),
+                        child: iconPath!.split(".").last.toLowerCase() == "svg"
+                            ? SvgPicture.asset(
+                                iconPath!,
+                                width: 24,
+                                height: 24,
+                              )
+                            : Image.asset(
+                                iconPath!,
+                                width: 24,
+                                height: 24,
+                              ),
+                      ),
+                    Flexible(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(label, style: textStyle),
+                          if (subtitle != null)
+                            Text(
+                              subtitle!,
+                              style: labelStyle.copyWith(fontSize: 12),
                             ),
+                        ],
+                      ),
                     ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(label, style: textStyle),
-                      if (subtitle != null)
-                        Text(
-                          subtitle!,
-                          style: labelStyle.copyWith(fontSize: 12),
-                        ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
 
               Row(

@@ -46,42 +46,46 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              spacing: 12,
-              children: [
-                if (widget.iconPath != null)
-                  widget.iconPath!.toLowerCase().endsWith("svg")
-                      ? SvgPicture.asset(widget.iconPath!, height: 24, width: 24)
-                      : Image.asset(
-                          widget.iconPath!,
-                          width: 24,
-                          height: 24,
-                        ),
-                Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        Text(widget.label),
-                        if (widget.showArrow)
-                          Icon(
-                            Icons.chevron_right,
-                            size: 18,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          )
-                      ],
-                    ),
-                    if (widget.subtitle != null)
-                      Text(
-                        widget.subtitle!,
-                        style: TextStyle(
-                            fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      )
-                  ],
-                ),
-              ],
+            Expanded(
+              child: Row(
+                spacing: 12,
+                children: [
+                  if (widget.iconPath != null)
+                    widget.iconPath!.toLowerCase().endsWith("svg")
+                        ? SvgPicture.asset(widget.iconPath!, height: 24, width: 24)
+                        : Image.asset(
+                            widget.iconPath!,
+                            width: 24,
+                            height: 24,
+                          ),
+                  Expanded(
+                    child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(child: Text(widget.label)),
+                          if (widget.showArrow)
+                            Icon(
+                              Icons.chevron_right,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            )
+                        ],
+                      ),
+                      if (widget.subtitle != null)
+                        Text(
+                          widget.subtitle!,
+                          style: TextStyle(
+                              fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        )
+                    ],
+                  ),
+                  ),
+                ],
+              ),
             ),
             NewSimpleCheckbox(
               value: widget.value,
