@@ -346,7 +346,7 @@ abstract class BalanceViewModelBase with Store {
     if (amount == null) return "";
 
     return appStore.amountParsingProxy
-        .getDisplayCryptoStrungFromBigInt(amount, cryptoCurrency)
+        .getDisplayCryptoStringFromBigInt(amount, cryptoCurrency)
         .withMaxDecimals(8).withLocalSeperator();
   }
 
