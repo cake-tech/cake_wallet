@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
@@ -65,6 +67,17 @@ class _NewDashboardState extends State<NewDashboard> {
                       Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
                     ],
                   ),
+                ),
+              ),
+            ),
+            SafeArea(
+              bottom: !(Platform.isIOS),
+              child: SizedBox(
+                width: double.infinity,
+                height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
+                child: AbsorbPointer(
+                  absorbing: true,
+                  child: Container(color: Colors.transparent),
                 ),
               ),
             ),

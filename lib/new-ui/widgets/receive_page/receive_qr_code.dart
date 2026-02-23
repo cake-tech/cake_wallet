@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
@@ -35,9 +36,9 @@ class ReceiveQrCode extends StatelessWidget {
             opacity: largeQrMode ? 1 : 0,
             child: SvgPicture.asset(
               isLightMode
-              ? "assets/new-ui/cakewallet-wordmark-light.svg"
-              : "assets/new-ui/cakewallet-wordmark.svg",
-              height:45,
+                  ? "assets/new-ui/cakewallet-wordmark-light.svg"
+                  : "assets/new-ui/cakewallet-wordmark.svg",
+              height: 45,
             )),
         GestureDetector(
           onTap: onTap,
@@ -59,17 +60,45 @@ class ReceiveQrCode extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                         color: Colors.white,
                       ),
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: LayoutBuilder(
-                              builder: (context, constraints) => Observer(
-                                  builder: (_) => QrImage(
-                                      data: addressListViewModel.uri.toString(),
-                                      embeddedImagePath: addressListViewModel.tokenCurrency != null
-                                          ? addressListViewModel.tokenCurrency!.iconPath
-                                          : addressListViewModel.qrImage,
-                                      size: constraints.maxWidth)))),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                            color: addressListViewModel.isPayjoinAvailable
+                                ? Theme.of(context).colorScheme.surfaceContainer
+                                : Colors.transparent),
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: LayoutBuilder(
+                                builder: (context, constraints) => Observer(
+                                    builder: (_) => QrImage(
+                                        data: addressListViewModel.uri.toString(),
+                                        embeddedImagePath:
+                                            addressListViewModel.tokenCurrency != null
+                                                ? addressListViewModel.tokenCurrency!.iconPath
+                                                : addressListViewModel.qrImage,
+                                        size: constraints.maxWidth)))),
+                      ),
                     ),
+                    if (addressListViewModel.isPayjoinAvailable)
+                      Opacity(
+                          opacity: largeQrMode ? 0 : 1,
+                          child: Container(
+                            width:resolvedSize,
+                              decoration: BoxDecoration(
+                                  borderRadius:
+                                  BorderRadius.vertical(bottom: Radius.circular(8)),
+                                  color: Theme.of(context).colorScheme.surfaceContainer),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 2.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: 4,
+                                  children: [
+                                    SvgPicture.asset("assets/new-ui/payjoin.svg"),
+                                    Text(S.of(context).payjoin_enabled)
+                                  ],
+                                ),
+                              ))),
                     AnimatedSize(
                         duration: Duration(milliseconds: 300),
                         // curve: Curves.easeOutCubic,

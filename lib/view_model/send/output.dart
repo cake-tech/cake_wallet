@@ -106,7 +106,7 @@ abstract class OutputBase with Store {
     if (fiatAmount.split(".").last.length <= digits) {
       return fiatAmount;
     }
-    return double.parse(fiatAmount).toStringAsPrecision(digits);
+    return double.parse(fiatAmount.replaceAll(",", "")).toStringAsPrecision(digits);
   }
 
   @observable

@@ -1,11 +1,15 @@
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_trade_tile.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
+import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -105,6 +109,42 @@ class HistorySection extends StatelessWidget {
                   bottomSeparator: !roundedBottom,
                 ),
               );
+            } else if (item is PayjoinTransactionListItem) {
+              final session = item.session;
+
+              return GestureDetector(
+                onTap: () => Navigator.of(context).pushNamed(
+                  Routes.payjoinDetails,
+                  arguments: [item.sessionId, item.transaction],
+                ),
+                child: PayjoinHistoryTile(
+                    createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
+                    amount: dashboardViewModel.appStore.amountParsingProxy
+                        .getDisplayCryptoString(session.amount.toInt(), CryptoCurrency.btc),
+                    currency: item.transaction?.from ?? "BTC",
+                    state: item.status,
+                    isSending: session.isSenderSession,
+                    roundedTop: roundedTop,
+                    roundedBottom: roundedBottom,
+                    bottomSeparator: !roundedBottom),
+              );
+            } else if (item is AnonpayTransactionListItem) {
+              final transactionInfo = item.transaction;
+
+              return GestureDetector(
+                  onTap: () => Navigator.of(context)
+                      .pushNamed(Routes.anonPayDetailsPage, arguments: transactionInfo),
+                  child: AnonpayHistoryTile(
+                      provider: transactionInfo.provider,
+                      createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
+                      amount: transactionInfo.fiatAmount?.toString() ??
+                          (transactionInfo.amountTo?.toString() ?? ''),
+                      currency: transactionInfo.fiatAmount != null
+                          ? transactionInfo.fiatEquiv ?? ''
+                          : CryptoCurrency.fromFullName(transactionInfo.coinTo).name.toUpperCase(),
+                      roundedTop: roundedTop,
+                      roundedBottom: roundedBottom,
+                      bottomSeparator: !roundedBottom));
             } else
               return Text(item.runtimeType.toString());
           }),

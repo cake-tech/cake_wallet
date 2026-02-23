@@ -17,13 +17,15 @@ class NewMainNavBar extends StatefulWidget {
   final int selectedIndex;
   final Function(int index) onItemTap;
 
+  static const barHeight = 68.0;
+  static final barBottomPadding = Platform.isIOS ? 22.0 : 12.0;
+
   @override
   State<NewMainNavBar> createState() => _NEWNewMainNavBarState();
 }
 
 class _NEWNewMainNavBarState extends State<NewMainNavBar> {
 
-  static const barHeight = 68.0;
 
   static const iconBoxWidth = 48.0;
   static const iconWidth = 28.0;
@@ -140,7 +142,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
         top: false,
         child: Padding(
           // tux PLEASE consult me (malik) before removing this padding.
-         padding: EdgeInsets.only(bottom: Platform.isIOS ? 22 : 12),
+         padding: EdgeInsets.only(bottom: NewMainNavBar.barBottomPadding),
           child: AnimatedContainer(
             duration: barResizeDuration,
             curve: Curves.easeOutCubic,
@@ -150,7 +152,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
                 child: Container(
-                    height: barHeight,
+                    height: NewMainNavBar.barHeight,
                     decoration: ShapeDecoration(
                       color: backgroundColor,
                       shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(barBorderRadius),
@@ -211,7 +213,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                         duration: iconColorChangeDuration,
                                         builder: (context, value, child) {
                                             return Container(
-                                              height: barHeight,
+                                              height: NewMainNavBar.barHeight,
                                                 child: SvgPicture.asset(
                                                   visibleActions[i].image,
                                                   width: iconWidth,

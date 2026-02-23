@@ -47,7 +47,7 @@ class BaseTextFormField extends StatelessWidget {
     this.suffixIconConstraints,
     super.key,
     this.suffixText,
-    this.borderRadius = const BorderRadius.all(Radius.circular(18)),
+    this.borderRadius = const BorderRadius.all(Radius.circular(18)), this.onEditingComplete,
   });
 
   final TextEditingController? controller;
@@ -83,6 +83,7 @@ class BaseTextFormField extends StatelessWidget {
   final bool? autocorrect;
   final bool? enableSuggestions;
   final void Function(String)? onChanged;
+  final VoidCallback? onEditingComplete;
   final EdgeInsetsGeometry? contentPadding;
   final bool? alignLabelWithHint;
   final FloatingLabelBehavior? floatingLabelBehavior;
@@ -112,6 +113,7 @@ class BaseTextFormField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
+      onEditingComplete: onEditingComplete,
       textAlign: textAlign,
       autovalidateMode: autovalidateMode,
       obscureText: obscureText,
