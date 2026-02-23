@@ -101,11 +101,11 @@ jobs:
             ./build_zcash.sh
           popd
 
-      - name: Execute Build and Setup Commands
+      - name: Build Bitbox Flutter
         run: |
-          pushd scripts/linux
-            source ./app_env.sh cakewallet
-            ./app_config.sh
+          set -x -e
+          pushd scripts
+            ./build_bitbox_flutter.sh
           popd
 
       - name: Build monero_c
@@ -118,11 +118,11 @@ jobs:
             unxz -fv release/*/*.xz
           popd
 
-      - name: Build Bitbox Flutter
+      - name: Execute Build and Setup Commands
         run: |
-          set -x -e
-          pushd scripts
-            ./build_bitbox_flutter.sh
+          pushd scripts/linux
+            source ./app_env.sh cakewallet
+            ./app_config.sh
           popd
 
       - name: Install Flutter dependencies
