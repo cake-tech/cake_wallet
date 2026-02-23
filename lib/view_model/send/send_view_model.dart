@@ -429,7 +429,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
 
+  @computed
   AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
+
+  @computed
+  String get languageCode => _appStore.settingsStore.languageCode;
 
   @observable
   bool hasMultipleTokens;
