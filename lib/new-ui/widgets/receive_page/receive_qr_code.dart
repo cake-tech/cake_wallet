@@ -1,6 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -65,9 +66,12 @@ class ReceiveQrCode extends StatelessWidget {
                               builder: (context, constraints) => Observer(
                                   builder: (_) => QrImage(
                                       data: addressListViewModel.uri.toString(),
-                                      embeddedImagePath: addressListViewModel.tokenCurrency != null
-                                          ? addressListViewModel.tokenCurrency!.iconPath
-                                          : addressListViewModel.qrImage,
+                                      embeddedImagePath:
+                                          addressListViewModel.tokenCurrency == CryptoCurrency.btcln
+                                              ? addressListViewModel.qrImage
+                                              : addressListViewModel.tokenCurrency != null
+                                                  ? addressListViewModel.tokenCurrency!.iconPath
+                                                  : addressListViewModel.qrImage,
                                       size: constraints.maxWidth)))),
                     ),
                     AnimatedSize(
