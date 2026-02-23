@@ -147,6 +147,9 @@ class SendTransactionDetails extends StatelessWidget {
   double sumBy<T>(List<T> list, double Function(T) picker) =>
       list.map(picker).fold(0.0, (a, b) => a + b);
 
+  BigInt sumByBigInt<T>(List<T> list, BigInt Function(T) picker) =>
+      list.map(picker).fold(BigInt.zero, (a, b) => a + b);
+
   String sumStr<T>(List<T> list, double Function(T) picker) =>
       sumBy(list, picker).toString();
 
@@ -157,14 +160,17 @@ class SendTransactionDetails extends StatelessWidget {
   Widget _buildMainContent(BuildContext context) {
     final transaction = sendViewModel.pendingTransaction;
 
-    final amount = sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
-        (transaction == null)
-            ? sumStr(
-                sendViewModel.outputs.where((e) => !e.sendAll).toList(),
-                (o) => double.tryParse(o.cryptoAmount) ?? 0,
-              )
-            : formatAmount(transaction.amountFormatted),
-        sendViewModel.selectedCryptoCurrency);
+    final amount = (transaction == null)
+        ? sendViewModel.amountParsingProxy.getDisplayCryptoStringFromBigInt(
+            sumByBigInt(
+              sendViewModel.outputs.where((e) => !e.sendAll).toList(),
+              (o) =>
+                  sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ??
+                  BigInt.zero,
+            ),
+            sendViewModel.selectedCryptoCurrency)
+        : sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
+            formatAmount(transaction.amountFormatted), sendViewModel.selectedCryptoCurrency);
 
     final fee = "${sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
         (transaction == null)
@@ -266,13 +272,17 @@ class SendTransactionDetails extends StatelessWidget {
                           children: outputs
                               .map(
                                 (item) => Column(children: [
-                                  MultiSendAddressPreview(index: outputs.indexOf(item) + 1,
-                                      address:  item.isParsedAddress ? item.extractedAddress : item.address,
-                                      amount: item.roundedCryptoAmount(8) + " " +
-                                          sendViewModel.currency.title,
-                                      fiatAmount: item.fiatAmount + " " +
-                                          sendViewModel.fiatCurrency.title),
-                                  if(item != outputs.last)
+                                    MultiSendAddressPreview(
+                                      index: outputs.indexOf(item) + 1,
+                                      address: item.isParsedAddress
+                                          ? item.extractedAddress
+                                          : item.address,
+                                      amount:
+                                          "${item.roundedCryptoAmount(8).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currency.title}",
+                                      fiatAmount:
+                                          "${item.fiatAmount.withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.fiatCurrency.title}",
+                                    ),
+                                    if(item != outputs.last)
                                     Container(width: double.infinity, height: 1, color: Theme.of(context).colorScheme.surfaceContainerHigh)
                                 ],),
                               )
@@ -302,13 +312,13 @@ class SendTransactionDetails extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              fee,
+                              fee.withLocalSeperator(sendViewModel.languageCode),
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
-                            Text(fiatFee,
+                            Text(fiatFee.withLocalSeperator(sendViewModel.languageCode),
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
