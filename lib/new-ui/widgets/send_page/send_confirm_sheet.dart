@@ -160,6 +160,8 @@ class SendTransactionDetails extends StatelessWidget {
   Widget _buildMainContent(BuildContext context) {
     final transaction = sendViewModel.pendingTransaction;
 
+    final currencySymbol = sendViewModel.amountParsingProxy.getCryptoSymbol(sendViewModel.selectedCryptoCurrency);
+
     final amount = (transaction == null)
         ? sendViewModel.amountParsingProxy.getDisplayCryptoStringFromBigInt(
             sumByBigInt(
@@ -223,7 +225,7 @@ class SendTransactionDetails extends StatelessWidget {
                           fontWeight: FontWeight.w400,
                           color: Theme.of(context).colorScheme.onSurface),
                     ),
-                    Text(sendViewModel.selectedCryptoCurrency.title,
+                    Text(currencySymbol,
                         style: TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.w400,
