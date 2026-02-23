@@ -6,15 +6,14 @@ void nothing(){}
 class ModalTopBar extends StatelessWidget {
   ModalTopBar(
       {super.key,
-      required this.title,
+        required this.title,
         this.subtitle,
-      this.onLeadingPressed=nothing,
-      this.onTrailingPressed=nothing,
-      this.leadingIcon,
-      this.trailingIcon,
-      this.leadingWidget,
-      this.trailingWidget,
-      this.content}) {
+        this.onLeadingPressed=nothing,
+        this.onTrailingPressed=nothing,
+        this.leadingIcon,
+        this.trailingIcon,
+        this.leadingWidget,
+        this.trailingWidget}) {
     if(leadingIcon != null && leadingWidget != null) {
       throw Exception("Cannot have both leadingIcon and leadingWidget");
     }
@@ -31,102 +30,73 @@ class ModalTopBar extends StatelessWidget {
   final Widget? trailingIcon;
   final Widget? leadingWidget;
   final Widget? trailingWidget;
-  final Widget? content;
 
   static const buttonSize = 36.0;
 
-  static const boxHeight = 64.0;
-
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        if (content != null) content!,
-        Container(
-          height: (MediaQuery.of(context).padding.top + 84),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: <Color>[
-                Theme.of(context).colorScheme.surface.withAlpha(5),
-                Theme.of(context).colorScheme.surface.withAlpha(25),
-                Theme.of(context).colorScheme.surface.withAlpha(50),
-                Theme.of(context).colorScheme.surface.withAlpha(100),
-                Theme.of(context).colorScheme.surface.withAlpha(150),
-                Theme.of(context).colorScheme.surface.withAlpha(200),
-                Theme.of(context).colorScheme.surface.withAlpha(235),
-                Theme.of(context).colorScheme.surface.withAlpha(255),
-                Theme.of(context).colorScheme.surface.withAlpha(255),
-                Theme.of(context).colorScheme.surface.withAlpha(255),
+    return Padding(
+      padding: const EdgeInsets.all(18),
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          Positioned(
+            top: 6,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 4,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    title,
+                    key: ValueKey(title),
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                if (subtitle != null && subtitle!.isNotEmpty)
+                  Text(
+                      subtitle!,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))
               ],
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(18),
-          child: Stack(
-            alignment: Alignment.center,
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 4,
-                  children: [
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: Text(
-                        title,
-                        key: ValueKey(title),
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(height: 2),
-                      ),
-                    ),
-                    if (subtitle != null && subtitle!.isNotEmpty)
-                      Text(
-                          subtitle!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (leadingIcon != null || leadingWidget != null)
-                    leadingIcon != null
-                        ? ModernButton(
-                            key: ValueKey(leadingIcon.hashCode),
-                            size: buttonSize,
-                            onPressed: onLeadingPressed,
-                            icon: leadingIcon!,
-                            iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
-                        : leadingWidget!
-                  else
-                    Container(width: buttonSize),
-                  if (trailingIcon != null || trailingWidget != null)
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: trailingIcon != null
-                          ? ModernButton(
-                              key: ValueKey(trailingIcon.hashCode),
-                              size: buttonSize,
-                              onPressed: onTrailingPressed,
-                              icon: trailingIcon!,)
-                          : trailingWidget!,
-                    )
-                  else
-                    Container(width: buttonSize),
-                ],
-              ),
+              if (leadingIcon != null || leadingWidget != null)
+                leadingIcon != null
+                    ? ModernButton(
+                    key: ValueKey(leadingIcon.hashCode),
+                    size: buttonSize,
+                    onPressed: onLeadingPressed,
+                    icon: leadingIcon!,
+                    iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
+                    : leadingWidget!
+              else
+                Container(width: buttonSize),
+              if (trailingIcon != null || trailingWidget != null)
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: trailingIcon != null
+                      ? ModernButton(
+                    key: ValueKey(trailingIcon.hashCode),
+                    size: buttonSize,
+                    onPressed: onTrailingPressed,
+                    icon: trailingIcon!,)
+                      : trailingWidget!,
+                )
+              else
+                Container(width: buttonSize),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
