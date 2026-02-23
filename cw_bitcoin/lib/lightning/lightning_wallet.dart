@@ -82,8 +82,6 @@ class LightningWallet {
     return null;
   }
 
-  Future<String?> getLNURL() async => (await sdk.getLightningAddress())?.lnurl;
-
   Future<String> getDepositAddress() async => (await sdk.receivePayment(
           request: ReceivePaymentRequest(paymentMethod: ReceivePaymentMethod.bitcoinAddress())))
       .paymentRequest;
@@ -359,6 +357,7 @@ extension _ConfigCopyWith on Config {
     bool? useDefaultExternalInputParsers,
     bool? privateEnabledDefault,
     OptimizationConfig? optimizationConfig,
+    int? maxConcurrentClaims,
   }) =>
       Config(
         lnurlDomain: lnurlDomain ?? this.lnurlDomain,
@@ -371,5 +370,6 @@ extension _ConfigCopyWith on Config {
             useDefaultExternalInputParsers ?? this.useDefaultExternalInputParsers,
         privateEnabledDefault: privateEnabledDefault ?? this.privateEnabledDefault,
         optimizationConfig: optimizationConfig ?? this.optimizationConfig,
+        maxConcurrentClaims: maxConcurrentClaims ?? this.maxConcurrentClaims,
       );
 }
