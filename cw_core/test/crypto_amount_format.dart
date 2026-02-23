@@ -107,5 +107,23 @@ void main() {
         expect(result, equals('1’000’000.4567'));
       });
     });
+
+    group('With XMR Suffix', () {
+      const locale = 'de_CH';
+
+      test('should handle Suffix expected', () {
+        final input = '1123.4567 XMR';
+        final result = input.withLocalSeperator(locale);
+
+        expect(result, equals('1’123.4567 XMR'));
+      });
+
+      test('should handle Suffix odd spacing', () {
+        final input = '1123.4567  XMR ';
+        final result = input.withLocalSeperator(locale);
+
+        expect(result, equals('1’123.4567  XMR '));
+      });
+    });
   });
 }
