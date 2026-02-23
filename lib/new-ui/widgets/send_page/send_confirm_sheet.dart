@@ -172,14 +172,13 @@ class SendTransactionDetails extends StatelessWidget {
         : sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
             formatAmount(transaction.amountFormatted), sendViewModel.selectedCryptoCurrency);
 
-    final fee = "${sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
-        (transaction == null)
-            ? sumStr(
-                sendViewModel.outputs,
-                (o) => double.tryParse(o.estimatedFee.replaceAll(",", "")) ?? 0,
-              )
-            : transaction.feeFormattedValue,
-        sendViewModel.currency)} ${sendViewModel.currencySymbol}";
+    final fee =
+        "${(transaction == null) ? sendViewModel.amountParsingProxy.getDisplayCryptoStringFromBigInt(sumByBigInt(
+              sendViewModel.outputs.where((e) => !e.sendAll).toList(),
+              (o) =>
+                  sendViewModel.currency.tryParseAmount(o.estimatedFee.replaceAll(",", "")) ??
+                  BigInt.zero,
+            ), sendViewModel.currency) : sendViewModel.amountParsingProxy.getDisplayCryptoAmount(transaction.feeFormattedValue, sendViewModel.currency)} ${sendViewModel.currencySymbol}";
 
     final fiatAmount = (transaction == null)
         ? sumWithUnit(
