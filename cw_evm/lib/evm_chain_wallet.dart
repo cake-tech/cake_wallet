@@ -1062,7 +1062,6 @@ abstract class EVMChainWalletBase
       56 => CryptoCurrency.bnb,
       8453 => CryptoCurrency.baseEth,
       42161 => CryptoCurrency.arbEth,
-      56 => CryptoCurrency.bnb,
       _ => CryptoCurrency.eth,
     };
 
@@ -1248,7 +1247,26 @@ abstract class EVMChainWalletBase
         continue;
       }
 
-      result[transactionModel.hash] = getTransactionInfo(transactionModel, address);
+      final newTxInfo = getTransactionInfo(transactionModel, address);
+      final existingTxInfo = result[transactionModel.hash];
+      final savedTxInfo = transactionHistory.transactions[transactionModel.hash];
+
+      // Prioritize saved incoming transactions
+      if (savedTxInfo != null &&
+          savedTxInfo.direction == TransactionDirection.incoming &&
+          newTxInfo.direction == TransactionDirection.outgoing) {
+        result[transactionModel.hash] = savedTxInfo;
+        continue;
+      }
+
+      if (existingTxInfo == null) {
+        result[transactionModel.hash] = newTxInfo;
+      }
+
+      else if (newTxInfo.direction == TransactionDirection.incoming &&
+          existingTxInfo.direction == TransactionDirection.outgoing) {
+        result[transactionModel.hash] = newTxInfo;
+      }
     }
 
     return result;
