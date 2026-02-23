@@ -82,18 +82,23 @@ class EVMChainClient {
 
           if (mergedMap.containsKey(key)) {
             try {
-              final currentVal = BigInt.parse(mergedMap[key]!['value']);
-              final newVal = BigInt.parse(tx['value']);
-              final total = currentVal + newVal;
+              final currentNet = getNetFlow(mergedMap[key]!, address);
+              final newNet = getNetFlow(tx, address);
+              final totalNet = currentNet + newNet;
 
-              mergedMap[key]!['value'] = total.toString();
+              mergedMap[key]!['value'] = totalNet.abs().toString();
+              if (totalNet < BigInt.zero) {
+                mergedMap[key]!['from'] = address;
+              } else {
 
-              // Keep the gasUsed from the last one (usually identical)
+                mergedMap[key]!['to'] = address;
+                mergedMap[key]!['from'] = '';
+              }
             } catch (e) {
               printV('Error merging transaction values: $e');
             }
           } else {
-            mergedMap[key] = tx as Map<String, dynamic>;
+            mergedMap[key] = Map<String, dynamic>.from(tx);
           }
         }
 
@@ -112,6 +117,18 @@ class EVMChainClient {
       return [];
     }
   }
+
+
+  BigInt getNetFlow(Map<String, dynamic> txData, String address) {
+    final val = BigInt.parse(txData['value'] ?? '0');
+    final isIncoming = txData['to']?.toLowerCase() == address.toLowerCase();
+    final isOutgoing = txData['from']?.toLowerCase() == address.toLowerCase();
+
+    if (isIncoming && !isOutgoing) return val;
+    if (isOutgoing && !isIncoming) return -val;
+    return BigInt.zero;
+  }
+
 
   Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
     try {
