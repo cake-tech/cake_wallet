@@ -6,6 +6,7 @@ import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
+import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -437,9 +438,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final coinTypeToSpendFrom = args?['coinTypeToSpendFrom'] as UnspentCoinType?;
 
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<SendPage>(
-          param1: initialPaymentRequest,
-          param2: coinTypeToSpendFrom,
+        (context) => Material(
+          child: getIt.get<NewSendPage>(
+            param1: SendPageParams(initialPaymentRequest: initialPaymentRequest,unspentCoinType: coinTypeToSpendFrom ?? UnspentCoinType.any),
+          ),
         ),
         settings: settings,
       );

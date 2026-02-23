@@ -23,13 +23,13 @@ class MwebSettingsPage extends BasePage {
           padding: EdgeInsets.only(top: 10),
           child: Column(
             children: [
-              SettingsSwitcherCell(
-                title: S.current.litecoin_mweb_display,
-                value: _mwebSettingsViewModel.mwebCardDisplay,
-                onValueChange: (_, bool value) {
-                  _mwebSettingsViewModel.setMwebCardDisplay(value);
-                },
-              ),
+              // SettingsSwitcherCell(
+              //   title: S.current.litecoin_mweb_display,
+              //   value: _mwebSettingsViewModel.mwebCardDisplay,
+              //   onValueChange: (_, bool value) {
+              //     _mwebSettingsViewModel.setMwebCardDisplay(value);
+              //   },
+              // ),
               SettingsSwitcherCell(
                 title: S.current.litecoin_mweb_enable,
                 value: _mwebSettingsViewModel.mwebEnabled,

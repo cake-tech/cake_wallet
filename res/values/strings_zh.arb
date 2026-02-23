@@ -1192,6 +1192,7 @@
   "trongrid_history": "Trongrid历史",
   "trusted": "值得信赖",
   "try_again": "再试一次",
+  "trying_to_spend_locked_funds": "交易被拒绝，因为您正在尝试花费具有相对时间锁定的资金，请稍候并稍后重试，或禁用硬币控制锁定的资金",
   "tx_commit_exception_no_dust_on_change": "交易被此金额拒绝。使用这些硬币，您可以发送${min}无需找零或返回${max}的找零。",
   "tx_commit_failed": "交易提交失败。请联系客服。",
   "tx_commit_failed_no_peers": "交易无法广播，请在一秒钟左右的时间内重试",

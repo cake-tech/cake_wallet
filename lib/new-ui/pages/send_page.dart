@@ -21,6 +21,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/token_selection_bottom_shee
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/wallet_info.dart';
 import "package:cw_core/wallet_type.dart";
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
@@ -401,6 +402,8 @@ class _NewSendPageState extends State<NewSendPage> {
                                             } finally {
                                               _justHandledPasteButton = false;
                                             }
+
+                                            _handleLightningInvoicePaste();
                                           },
                                           selectedCurrency:
                                               widget.sendViewModel.selectedCryptoCurrency,
@@ -767,6 +770,16 @@ class _NewSendPageState extends State<NewSendPage> {
         },
       ),
     );
+  }
+
+  void _handleLightningInvoicePaste() {
+    try {
+      final lnAmount = CryptoCurrency.btcln.formatAmount(
+          BigInt.from(getBolt11Amount(_addressControllers[_selectedOutput].text) ?? 0));
+      if (lnAmount != 0) {
+        _amountControllers[_selectedOutput].text = lnAmount;
+      }
+    } catch (_) {}
   }
 
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {

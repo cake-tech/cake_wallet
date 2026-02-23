@@ -1193,6 +1193,7 @@
   "trongrid_history": "Historial de TronGrid",
   "trusted": "Confiable",
   "try_again": "Inténtalo de nuevo",
+  "trying_to_spend_locked_funds": "Transacción rechazada porque está intentando gastar fondos que tienen un bloqueo de tiempo relativo. Espere y vuelva a intentarlo más tarde, o deshabilite los fondos bloqueados del control de monedas.",
   "tx_commit_exception_no_dust_on_change": "La transacción se rechaza con esta cantidad. Con estas monedas puedes enviar ${min} sin cambio o ${max} que devuelve cambio.",
   "tx_commit_failed": "Error al confirmar la transacción. Ponte en contacto con el soporte.",
   "tx_commit_failed_no_peers": "La transacción no se transmitió, por favor inténtalo de nuevo en un segundo más o menos",

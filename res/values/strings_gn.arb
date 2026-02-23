@@ -957,6 +957,7 @@
   "trocador_desc_kyc": "Pe proveedor réra ykére, ojehechauka peteĩ calificación KYC rehegua. Péva omoî Trocador ha oñemopyenda criterio orekóva rehe.",
   "trongrid_history": "trongrid rapykuere",
   "trusted": "jeroviaha",
+  "trying_to_spend_locked_funds": "Transacción oñembotove reñeha’ãgui reipuru umi fondo orekóva bloqueo tiempo relativo, eha’arõ ha eñeha’ã jey upe rire, térã embogue umi fondo bloqueado control de monedas-gui",
   "tx_commit_exception_no_dust_on_change": "Oñemboyke pe transacción ko monto reheve. Ko’ã moneda rupive ikatu remondo ${min} ndorekóiva ñemoambue térã ${max} ombohasa  jey pe ñemoambue.",
   "tx_commit_failed": "Pe transacción moañete ndoikói. Eñe’ẽ soporte ndive.",
   "tx_invalid_input": "Reipuru mba’e jeike ndaha’éiva ko hepyme’ẽme g̃uarã.",

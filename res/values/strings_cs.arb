@@ -1192,6 +1192,7 @@
   "trongrid_history": "Trongridní historie",
   "trusted": "Důvěřovat",
   "try_again": "Zkuste to znovu",
+  "trying_to_spend_locked_funds": "Transakce byla zamítnuta, protože se pokoušíte utratit prostředky, které mají relativní časový zámek, počkejte prosím a zkuste to znovu později, nebo vypněte uzamčené prostředky z kontroly mincí",
   "tx_commit_exception_no_dust_on_change": "Transakce je zamítnuta s touto částkou. S těmito mincemi můžete odeslat ${min} bez změny nebo ${max}, které se vrátí změna.",
   "tx_commit_failed": "Transakce COMPORT selhala. Kontaktujte prosím podporu.",
   "tx_commit_failed_no_peers": "Transakce se nepodařilo vysílat, zkuste to prosím znovu za vteřinu",

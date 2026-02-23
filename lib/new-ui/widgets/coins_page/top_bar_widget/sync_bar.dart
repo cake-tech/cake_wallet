@@ -68,17 +68,17 @@ class SyncBar extends StatelessWidget {
                         mainAxisSize: MainAxisSize.max,
                         children: [
                           if (icon != null) icon,
-                          if (dashboardViewModel.silentPaymentsScanningActive &&
-                              progressStatuses.contains(status.runtimeType)) ...[
-                            Text(
-                              "${(status.progress() * 100).toInt()}%",
-                              style: TextStyle(fontSize: 12, color: Color(0xFFEFBA5E)),
-                            ),
-                            Text(
-                              "·",
-                              style: TextStyle(fontSize: 12),
-                            )
-                          ],
+                          // if (dashboardViewModel.silentPaymentsScanningActive &&
+                          //     progressStatuses.contains(status.runtimeType)) ...[
+                          //   Text(
+                          //     "${(status.progress() * 100).toInt()}%",
+                          //     style: TextStyle(fontSize: 12, color: Color(0xFFEFBA5E)),
+                          //   ),
+                          //   Text(
+                          //     "·",
+                          //     style: TextStyle(fontSize: 12),
+                          //   )
+                          // ],
                           Text(
                             syncStatusTitle(
                                 status, dashboardViewModel.settingsStore.syncStatusDisplayMode),

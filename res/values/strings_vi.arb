@@ -1189,6 +1189,7 @@
   "trongrid_history": "Lịch sử TronGrid",
   "trusted": "Đã tin cậy",
   "try_again": "Hãy thử lại",
+  "trying_to_spend_locked_funds": "Giao dịch bị từ chối vì bạn đang cố gắng chi tiêu số tiền có khóa thời gian tương đối, vui lòng đợi và thử lại sau hoặc vô hiệu hóa số tiền bị khóa khỏi kiểm soát tiền xu",
   "tx_commit_exception_no_dust_on_change": "Giao dịch bị từ chối với số tiền này. Với số tiền này bạn có thể gửi ${min} mà không cần đổi tiền lẻ hoặc ${max} trả lại tiền lẻ.",
   "tx_commit_failed": "Giao dịch không thành công. Vui lòng liên hệ với hỗ trợ.",
   "tx_commit_failed_no_peers": "Giao dịch không phát sóng, vui lòng thử lại trong một giây hoặc lâu hơn",

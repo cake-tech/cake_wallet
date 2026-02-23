@@ -1193,6 +1193,7 @@
   "trongrid_history": "Itan Trongrid",
   "trusted": "A ti fọkàn ẹ̀ tán",
   "try_again": "Gbiyanju lẹẹkansi",
+  "trying_to_spend_locked_funds": "Ti kọ iṣowo nitori pe o n gbiyanju lati na owo ti o ni akoko titiipa ibatan, jọwọ duro ki o tun gbiyanju nigbamii, tabi mu awọn owo titiipa kuro lati iṣakoso owo-owo.",
   "tx_commit_exception_no_dust_on_change": "Iṣowo naa ti kọ pẹlu iye yii. Pẹlu awọn owó wọnyi o le firanṣẹ ${min} laisi ayipada tabi ${max} ni iyipada iyipada.",
   "tx_commit_failed": "Idunadura iṣowo kuna. Jọwọ kan si atilẹyin.",
   "tx_commit_failed_no_peers": "Idunadura kuna lati wa igbohungbe, jọwọ gbiyanju lẹẹkansi ni iṣẹju keji tabi bẹẹ",

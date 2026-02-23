@@ -237,6 +237,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
           });
         }
         if (state is TradeIsCreatedSuccessfully) {
+
+          if(widget.exchangeViewModel.tradeStarted) return;
           final receiveAmount = widget.exchangeViewModel.receiveAmount;
           // FIXME we don't know why a reset is/was needed here, it messes up ui so i removed it
           // widget.exchangeViewModel.reset();
@@ -246,6 +248,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           //             ExchangeProviderDescription.chainflip)
           //     ? Navigator.of(context).pushReplacementNamed(Routes.exchangeTrade)
           //     : Navigator.of(context).pushReplacementNamed(Routes.exchangeConfirm);
+          widget.exchangeViewModel.tradeStarted = true;
           final vm = getIt.get<ExchangeTradeViewModel>();
           final page = SwapConfirmSheet(
             exchangeViewModel: widget.exchangeViewModel,

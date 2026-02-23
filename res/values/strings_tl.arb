@@ -1192,6 +1192,7 @@
   "trongrid_history": "Kasaysayan ng TronGrid",
   "trusted": "Pinagkakatiwalaan",
   "try_again": "Subukang muli",
+  "trying_to_spend_locked_funds": "Tinanggihan ang transaksyon dahil sinusubukan mong gumastos ng mga pondo na may relatibong lock ng oras, mangyaring maghintay at subukang muli sa ibang pagkakataon, o huwag paganahin ang mga naka-lock na pondo mula sa coin control",
   "tx_commit_exception_no_dust_on_change": "Ang transaksyon ay tinanggihan sa halagang ito. Sa mga barya na ito maaari kang magpadala ng ${min} nang walang sukli o ${max} na nagbabalik ng sukli.",
   "tx_commit_failed": "Nabigo ang transaksyon. Mangyaring makipag-ugnay sa suporta.",
   "tx_commit_failed_no_peers": "Nabigo ang transaksyon na mag -broadcast, mangyaring subukang muli sa isang segundo o higit pa",
