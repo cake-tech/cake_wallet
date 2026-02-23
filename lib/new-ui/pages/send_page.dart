@@ -607,7 +607,7 @@ class _NewSendPageState extends State<NewSendPage> {
         return;
       }
 
-      final amount = _amountControllers[_selectedOutput].text;
+      final amount = _amountControllers[_selectedOutput].text.replaceAll(',', '.');
       final output = widget.sendViewModel.outputs[_selectedOutput];
 
       if (_fiatInputMode) {

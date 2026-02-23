@@ -111,18 +111,43 @@ void main() {
     group('With XMR Suffix', () {
       const locale = 'de_CH';
 
-      test('should handle Suffix expected', () {
+      test('should handle suffix expected', () {
         final input = '1123.4567 XMR';
         final result = input.withLocalSeperator(locale);
 
         expect(result, equals('1’123.4567 XMR'));
       });
 
-      test('should handle Suffix odd spacing', () {
+      test('should handle suffix odd spacing', () {
         final input = '1123.4567  XMR ';
         final result = input.withLocalSeperator(locale);
 
         expect(result, equals('1’123.4567  XMR '));
+      });
+    });
+
+    group('With > < prefix', () {
+      const locale = 'de_CH';
+
+      test('should handle prefix and suffix', () {
+        final input = '> 1123.4567 XMR';
+        final result = input.withLocalSeperator(locale);
+
+        expect(result, equals('> 1’123.4567 XMR'));
+      });
+
+      test('should handle prefix and suffix odd spacing', () {
+        final input = '< 1123.4567  XMR ';
+        final result = input.withLocalSeperator(locale);
+
+        expect(result, equals('< 1’123.4567  XMR '));
+      });
+
+      test('should handle just prefix', () {
+        final input = '< 1123.4567';
+        final result = input.withLocalSeperator(locale);
+
+        expect(result, equals('< 1’123.4567'));
       });
     });
   });

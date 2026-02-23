@@ -21,6 +21,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/format_fixed.dart';
@@ -99,12 +100,7 @@ abstract class OutputBase with Store {
   bool get isParsedAddress =>
       parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
 
-  String roundedCryptoAmount(int digits) {
-    if (displayCryptoAmount.split(".").last.length <= digits) {
-      return displayCryptoAmount;
-    }
-    return double.parse(displayCryptoAmount).toStringAsPrecision(digits);
-  }
+  String roundedCryptoAmount(int digits) => displayCryptoAmount.withMaxDecimals(digits);
 
   String roundedFiatAmount(int digits) {
     if (fiatAmount.split(".").last.length <= digits) {
