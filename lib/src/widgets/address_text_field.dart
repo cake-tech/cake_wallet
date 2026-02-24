@@ -29,6 +29,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     this.onPushPasteButton,
     this.onPushAddressBookButton,
     this.onPushAddressPickerButton,
+    this.onEditingComplete,
     this.onSelectedContact,
     this.selectedCurrency,
     this.addressKey,
@@ -49,6 +50,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final Function(Uri)? onURIScanned;
   final List<AddressTextFieldOption> options;
   final FormFieldValidator<String>? validator;
+  final VoidCallback? onEditingComplete;
 
   final Color? buttonColor;
   final Color? fillColor;
@@ -77,6 +79,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
           borderWidth: borderWidth,
           hasUnderlineBorder: hasUnderlineBorder,
           key: addressKey,
+          onEditingComplete: onEditingComplete,
           enableIMEPersonalizedLearning: false,
           keyboardType: TextInputType.visiblePassword,
           onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),

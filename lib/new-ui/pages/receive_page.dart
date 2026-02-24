@@ -10,6 +10,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_large_amount_preview.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_token_display.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
@@ -225,6 +226,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
                     },
                     largeQrMode: _largeQrMode,
                   ),
+                  if (widget.addressListViewModel.tokenCurrency != null)
+                    ReceiveTokenDisplay(addressListViewModel: widget.addressListViewModel),
                   if (hasAddressTypeSelector)
                   ReceiveAddressTypeDisplay(
                     lightningMode: widget.lightningMode,

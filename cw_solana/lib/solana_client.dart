@@ -126,7 +126,7 @@ class SolanaWalletClient {
         totalBalance += balanceAsDouble;
       }
 
-      return SolanaBalance(totalBalance);
+      return SolanaBalance(totalBalance, true);
     } catch (_) {
       if (throwOnError) {
         rethrow;

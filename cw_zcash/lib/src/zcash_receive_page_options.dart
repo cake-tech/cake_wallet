@@ -36,7 +36,7 @@ class ZcashReceivePageOption implements ReceivePageOption {
   final String? iconPath;
   final String? description;
   final bool isCommon;
-  final bool addAddressWord;
+  final bool addAddressWord = false;
 
   static const transparent = ZcashReceivePageOption._(
     ZcashAddressType.transparent,

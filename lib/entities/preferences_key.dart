@@ -135,4 +135,5 @@ class PreferencesKey {
   static const enableAutomaticNodeSwitching = 'enable_automatic_node_switching';
   static const syncStatusDisplayMode = 'sync_status_display_mode';
   static const backgroundImage = 'background_image';
+  static const mwebAdDismissed = "mweb_ad_dismissed";
 }

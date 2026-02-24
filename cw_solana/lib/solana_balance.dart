@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:cw_core/balance.dart';
 
 class SolanaBalance extends Balance {
-  SolanaBalance(this.balance) : super(balance.toInt(), balance.toInt());
+  SolanaBalance(this.balance, bool isToken) : super(
+      int.tryParse(balance.toStringAsFixed(isToken ? 6 : 9).replaceFirst(".", "")) ?? 0,
+      int.tryParse(balance.toStringAsFixed(isToken ? 6 : 9).replaceFirst(".", "")) ?? 0);
 
   final double balance;
 
@@ -21,7 +23,7 @@ class SolanaBalance extends Balance {
     return stringBalance;
   }
 
-  static SolanaBalance? fromJSON(String? jsonSource) {
+  static SolanaBalance? fromJSON(String? jsonSource, bool isToken) {
     if (jsonSource == null) {
       return null;
     }
@@ -29,9 +31,9 @@ class SolanaBalance extends Balance {
     final decoded = json.decode(jsonSource) as Map;
 
     try {
-      return SolanaBalance(decoded['balance']);
+      return SolanaBalance(decoded['balance'], isToken);
     } catch (e) {
-      return SolanaBalance(0.0);
+      return SolanaBalance(0.0, isToken);
     }
   }
 

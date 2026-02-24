@@ -464,6 +464,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool get shouldDisplayTOTP2FAForExchangesToExternalWallet =>
       _settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets;
 
+  @computed
+  String? get balanceDisplay {
+    final bal = wallet.balance[depositCurrency]?.fullAvailableBalance;
+    if(bal == null) return null;
+    return amountParsingProxy.getDisplayCryptoString(bal, depositCurrency);
+  }
+
   //* Still open to further optimize these checks
   //* It works but can be made better
   @action
@@ -504,8 +511,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         WalletType.bitcoinCash,
         WalletType.dogecoin,
       ].contains(wallet.type) &&
-      (depositCurrency == wallet.currency ||
-          depositCurrency == CryptoCurrency.btcln && wallet.currency == CryptoCurrency.btc);
+      (depositCurrency == wallet.currency);
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
 

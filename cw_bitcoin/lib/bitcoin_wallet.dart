@@ -449,8 +449,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     credentials = credentials as BitcoinTransactionCredentials;
+    final lnAddr = credentials.outputs.first.isParsedAddress ? credentials.outputs.first.extractedAddress! : credentials.outputs.first.address;
 
-    final isLNCompatible = await lightningWallet?.isCompatible(credentials.outputs.first.address);
+    final isLNCompatible = await lightningWallet?.isCompatible(lnAddr);
     if ((credentials.coinTypeToSpendFrom == UnspentCoinType.lightning && lightningWallet != null) ||
         isLNCompatible == true) {
 
@@ -465,7 +466,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             8);
       }
 
-      return lightningWallet!.createTransaction(credentials.outputs.first.address,
+      return lightningWallet!.createTransaction(lnAddr,
           amount > BigInt.zero ? amount : null, credentials.priority);
     }
 

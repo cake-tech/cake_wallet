@@ -57,7 +57,7 @@ class AnimatedURPage extends BasePage {
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: URQR(
             urqr: urQr,
             walletType: animatedURmodel.wallet.type,
@@ -66,7 +66,6 @@ class AnimatedURPage extends BasePage {
         ),
         if (["ur:xmr-txunsigned", "ur:xmr-output", "ur:psbt", BBQR.header]
             .contains(urQrType)) ...{
-          Spacer(),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: SizedBox(

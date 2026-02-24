@@ -540,6 +540,24 @@ abstract class DashboardViewModelBase with Store {
   SyncStatus get status => wallet.syncStatus;
 
   @computed
+  bool get shouldShowMwebAd {
+    if(wallet.type != WalletType.litecoin) return false;
+
+    if(mwebEnabled) return false;
+
+    if(settingsStore.mwebAdDismissed) return false;
+
+    return true;
+  }
+
+  @action
+  void dismissMwebAd(bool enableMweb) {
+    if(enableMweb) setMwebEnabled();
+
+    settingsStore.mwebAdDismissed = true;
+  }
+
+  @computed
   String get syncStatusText {
     var statusText = '';
 

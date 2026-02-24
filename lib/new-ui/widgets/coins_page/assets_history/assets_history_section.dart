@@ -63,6 +63,7 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
     reaction((_)=>widget.dashboardViewModel.balanceViewModel.formattedBalances, (value) {
       reloadTabs();
     });
+    reaction((_)=>widget.dashboardViewModel.mwebEnabled, (_)=>reloadTabs());
   }
 
   @override
