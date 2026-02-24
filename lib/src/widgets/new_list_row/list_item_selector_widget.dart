@@ -31,8 +31,7 @@ class ListItemSelectorWidget extends StatelessWidget {
         isFirstInSection: isFirstInSection,
         isLastInSection: isLastInSection,
         builder: (context, textStyle, labelStyle) {
-          return Expanded(
-            child: Row(
+          return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Flexible(child: Text(label, style: textStyle)),
@@ -51,8 +50,7 @@ class ListItemSelectorWidget extends StatelessWidget {
                   ],
                 ),
               ],
-            ),
-          );
+            );
         });
   }
 }
