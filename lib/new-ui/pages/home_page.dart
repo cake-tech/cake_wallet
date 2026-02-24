@@ -209,8 +209,10 @@ class _NewHomePageState extends State<NewHomePage> {
       },
     );
 
-    bloc.add(DesignSaved());
-    await bloc.stream.firstWhere((s) => s is CardCustomizerSaved);
+    if(accountListViewModel == null) {
+      bloc.add(DesignSaved());
+      await bloc.stream.firstWhere((s) => s is CardCustomizerSaved);
+    }
     widget.dashboardViewModel.loadCardDesigns();
   }
 }
