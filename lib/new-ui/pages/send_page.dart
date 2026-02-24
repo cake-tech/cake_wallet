@@ -481,7 +481,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                           widget.sendViewModel.setAllowMwebCoins(value),
                                     ),
                                   if(widget.sendViewModel.hasMemos)
-                                    NewSendMemoInput(memoController: _memoControllers[_selectedOutput]),
+                                    Observer(
+                                        builder: (_) => NewSendMemoInput(
+                                              memoController: _memoControllers[_selectedOutput],
+                                              maxMemoLength: widget.sendViewModel.maxMemoLength,
+                                              memoLength: output.memo.length,
+                                            )),
                                   if (widget.sendViewModel.hasCoinControl ||
                                       widget.sendViewModel.hasFees)
                                     AnimatedDropdown(
@@ -670,7 +675,7 @@ class _NewSendPageState extends State<NewSendPage> {
       final memo = _memoControllers[_selectedOutput].text;
       final output = widget.sendViewModel.outputs[_selectedOutput];
 
-      if (memo != output.memo) {
+      if (memo != output.memo && memo.length <= widget.sendViewModel.maxMemoLength) {
         output.memo = memo;
       }
 

@@ -598,6 +598,7 @@
   "max_amount": "حداکثر: ${value}",
   "max_value": "حداکثر: ${value} ${currency}",
   "memo": "یادداشت (Memo):",
+  "memo_disclaimer": "این یادداشت برای گیرنده قابل مشاهده خواهد بود",
   "memo_optional": "یادداشت (اختیاری)",
   "message": "پیام",
   "message_verified": "پیام با موفقیت تایید شد",

@@ -600,6 +600,7 @@
   "max_amount": "الحد الأقصى: ${value}",
   "max_value": "الحد الأقصى: ${value} ${currency}",
   "memo": "مذكرة:",
+  "memo_disclaimer": "ستكون هذه المذكرة مرئية للمستلم",
   "memo_optional": "مذكرة (اختياري)",
   "message": "ﺔﻟﺎﺳﺭ",
   "message_verified": "تم التحقق من الرسالة بنجاح",

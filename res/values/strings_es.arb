@@ -600,6 +600,7 @@
   "max_amount": "Máx: ${value}",
   "max_value": "Máx: ${value} ${currency}",
   "memo": "Memo",
+  "memo_disclaimer": "Esta nota será visible para el receptor.",
   "memo_optional": "Nota (opcional)",
   "message": "Mensaje",
   "message_verified": "El mensaje se verificó con éxito",

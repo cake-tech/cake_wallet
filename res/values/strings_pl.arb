@@ -599,6 +599,7 @@
   "max_amount": "Maks: ${value}",
   "max_value": "Maks.: ${value} ${currency}",
   "memo": "Notatka:",
+  "memo_disclaimer": "Ta notatka będzie widoczna dla odbiorcy",
   "memo_optional": "Notatka (opcjonalnie)",
   "message": "Wiadomość",
   "message_verified": "Wiadomość została pomyślnie zweryfikowana",

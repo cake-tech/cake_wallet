@@ -601,6 +601,7 @@
   "max_amount": "kò tóbi ju: ${value}",
   "max_value": "kò gbọ́dọ̀ tóbi ju ${value} ${currency}",
   "memo": "Àkọsílẹ̀:",
+  "memo_disclaimer": "Akọsilẹ yii yoo han si olugba",
   "memo_optional": "Akọsilẹ (aṣayan)",
   "message": "Ifiranṣẹ",
   "message_verified": "Ifiranṣẹ naa ni aṣeyọri ni ifijišẹ",

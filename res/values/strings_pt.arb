@@ -601,6 +601,7 @@
   "max_amount": "Máx.: ${valor}",
   "max_value": "Máx: ${value} ${currency}",
   "memo": "Memorando:",
+  "memo_disclaimer": "Este memorando ficará visível para o receptor",
   "memo_optional": "Memorando (opcional)",
   "message": "Mensagem",
   "message_verified": "A mensagem foi verificada com sucesso",

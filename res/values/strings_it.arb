@@ -600,6 +600,7 @@
   "max_amount": "Max: ${value}",
   "max_value": "Max: ${value} ${currency}",
   "memo": "Memo",
+  "memo_disclaimer": "Questo promemoria sarà visibile al destinatario",
   "memo_optional": "Promemoria (facoltativo)",
   "message": "Messaggio",
   "message_verified": "Il messaggio è stato verificato con successo",

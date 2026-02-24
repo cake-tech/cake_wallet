@@ -600,6 +600,7 @@
   "max_amount": "Max: ${value}",
   "max_value": "Max: ${value} ${currency}",
   "memo": "Memo",
+  "memo_disclaimer": "Wannan bayanin zai bayyana ga mai karɓa",
   "memo_optional": "Memo (na zaɓi)",
   "message": "Sako",
   "message_verified": "An yi nasarar tabbatar da sakon",

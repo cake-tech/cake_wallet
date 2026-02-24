@@ -600,6 +600,7 @@
   "max_amount": "Макс: ${value}",
   "max_value": "Макс: ${value} ${currency}",
   "memo": "Мемо:",
+  "memo_disclaimer": "Тази бележка ще бъде видима за получателя",
   "memo_optional": "Бележка (по избор)",
   "message": "Съобщение",
   "message_verified": "Съобщението беше успешно проверено",

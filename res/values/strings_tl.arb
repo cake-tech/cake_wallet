@@ -600,6 +600,7 @@
   "max_amount": "Max: ${value}",
   "max_value": "Max: ${value} ${currency}",
   "memo": "Memo",
+  "memo_disclaimer": "Ang memo na ito ay makikita ng tatanggap",
   "memo_optional": "Memo (opsyonal)",
   "message": "Mensahe",
   "message_verified": "Ang mensahe ay matagumpay na na -verify",

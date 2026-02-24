@@ -600,6 +600,7 @@
   "max_amount": "Maksimum: ${value}",
   "max_value": "Maks.: ${value} ${currency}",
   "memo": "Memo",
+  "memo_disclaimer": "Ovaj će dopis biti vidljiv primatelju",
   "memo_optional": "Podsjetnik (nije obavezno)",
   "message": "Poruka",
   "message_verified": "Poruka je uspješno provjerena",

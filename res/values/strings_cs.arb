@@ -600,6 +600,7 @@
   "max_amount": "Max: ${value}",
   "max_value": "Max: ${value} ${currency}",
   "memo": "Memo",
+  "memo_disclaimer": "Tato poznámka bude viditelná pro příjemce",
   "memo_optional": "Poznámka (volitelné)",
   "message": "Zpráva",
   "message_verified": "Zpráva byla úspěšně ověřena",

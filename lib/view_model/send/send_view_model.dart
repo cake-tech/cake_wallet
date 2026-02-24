@@ -1108,6 +1108,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get hasMemos => [WalletType.zcash].contains(wallet.type);
 
+  final Map<WalletType, int> _maxMemoLengths = {
+    WalletType.zcash: 512,
+  };
+
+  @computed
+  int get maxMemoLength => _maxMemoLengths[wallet.type] ?? 9999999;
+
+
   ContactRecord? newContactAddress() {
     final Set<String> contactAddresses =
         Set.from(contactListViewModel.contacts.map((contact) => contact.address))

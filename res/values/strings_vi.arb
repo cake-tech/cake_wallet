@@ -599,6 +599,7 @@
   "max_amount": "Tối đa: ${value}",
   "max_value": "Tối đa: ${value} ${currency}",
   "memo": "Ghi chú:",
+  "memo_disclaimer": "Bản ghi nhớ này sẽ được hiển thị cho người nhận",
   "memo_optional": "Bản ghi nhớ (tùy chọn)",
   "message": "Tin nhắn",
   "message_verified": "Tin nhắn đã được xác minh thành công",

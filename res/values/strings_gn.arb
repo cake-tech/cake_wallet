@@ -463,6 +463,7 @@
   "max_amount": "Tuichavéva: ${value}",
   "max_value": "Tuichavéva: ${value} ${currency}",
   "memo": "Manduʼapy:",
+  "memo_disclaimer": "Ko memo ojehecháta pe ohupytývape",
   "memo_optional": "Memo (ojeporavóva) .",
   "message": "Marandu",
   "message_verified": "Pe marandu ojehechapa porã",

@@ -600,6 +600,7 @@
   "max_amount": "Макс: ${value}",
   "max_value": "Макс: ${value} ${currency}",
   "memo": "Пам’ятка:",
+  "memo_disclaimer": "Це повідомлення буде видно одержувачу",
   "memo_optional": "Пам'ятка (необов'язково)",
   "message": "повідомлення",
   "message_verified": "Повідомлення було успішно перевірено",

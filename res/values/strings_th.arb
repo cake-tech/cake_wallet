@@ -600,6 +600,7 @@
   "max_amount": "จำนวนสูงสุด: ${value}",
   "max_value": "ขั้นสูง: ${value} ${currency}",
   "memo": "หมายเหตุ:",
+  "memo_disclaimer": "บันทึกนี้จะปรากฏแก่ผู้รับ",
   "memo_optional": "บันทึกช่วยจำ (ไม่บังคับ)",
   "message": "ข้อความ",
   "message_verified": "ข้อความได้รับการตรวจสอบอย่างประสบความสำเร็จ",

@@ -600,6 +600,7 @@
   "max_amount": "最大值: ${value}",
   "max_value": "最大: ${value} ${currency}",
   "memo": "备注:",
+  "memo_disclaimer": "接收者将可以看到该备忘录",
   "memo_optional": "备注（可选）",
   "message": "信息",
   "message_verified": "该消息已成功验证",

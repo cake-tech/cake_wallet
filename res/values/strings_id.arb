@@ -600,6 +600,7 @@
   "max_amount": "Max: ${value}",
   "max_value": "Max: ${value} ${currency}",
   "memo": "Memo",
+  "memo_disclaimer": "Memo ini akan terlihat oleh penerima",
   "memo_optional": "Memo (opsional)",
   "message": "Pesan",
   "message_verified": "Pesan itu berhasil diverifikasi",

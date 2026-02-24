@@ -600,6 +600,7 @@
   "max_amount": "زیادہ سے زیادہ: ${value}",
   "max_value": "زیادہ سے زیادہ: ${value} ${currency}",
   "memo": "میمو:",
+  "memo_disclaimer": "یہ میمو وصول کنندہ کو نظر آئے گا۔",
   "memo_optional": "میمو (اختیاری)",
   "message": "ﻡﺎﻐﯿﭘ",
   "message_verified": "پیغام کی کامیابی کے ساتھ تصدیق کی گئی",
