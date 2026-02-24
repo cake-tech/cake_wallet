@@ -51,7 +51,7 @@ class LightningWallet {
       final connectRequest = ConnectRequest(
         config: config,
         seed: seed,
-        storageDir: "$appPath/",
+        storageDir: "$appPath/.breez/",
       );
 
       sdk = await connect(request: connectRequest);
