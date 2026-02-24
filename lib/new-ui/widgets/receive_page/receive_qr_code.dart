@@ -2,6 +2,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -27,6 +28,10 @@ class ReceiveQrCode extends StatelessWidget {
   Widget build(BuildContext context) {
     final double targetY = largeQrMode ? 60 : 0;
     final double resolvedSize = MediaQuery.of(context).size.width * (largeQrMode ? 0.85 : 0.5);
+    final hasPayjoin = addressListViewModel.isPayjoinAvailable &&
+        addressListViewModel.wallet.type == WalletType.bitcoin &&
+        !addressListViewModel.isLightning &&
+        !addressListViewModel.isSilentPayments;
 
     return Stack(
       alignment: Alignment.topCenter,
@@ -63,7 +68,7 @@ class ReceiveQrCode extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                            color: addressListViewModel.isPayjoinAvailable
+                            color: hasPayjoin && !largeQrMode
                                 ? Theme.of(context).colorScheme.surfaceContainer
                                 : Colors.transparent),
                         child: ClipRRect(
@@ -79,7 +84,7 @@ class ReceiveQrCode extends StatelessWidget {
                                         size: constraints.maxWidth)))),
                       ),
                     ),
-                    if (addressListViewModel.isPayjoinAvailable)
+                    if (hasPayjoin)
                       Opacity(
                           opacity: largeQrMode ? 0 : 1,
                           child: Container(

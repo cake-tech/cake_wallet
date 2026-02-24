@@ -83,7 +83,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       _appStore.amountParsingProxy.getCryptoSymbol(tokenCurrency ?? wallet.currency);
 
   void setTokenCurrency(Currency curr) {
-    if(curr == wallet.currency) {
+    if(curr == wallet.currency || curr == CryptoCurrency.btcln) {
       tokenCurrency = null;
       selectedCurrency = wallet.currency;
       return;
