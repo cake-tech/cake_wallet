@@ -155,6 +155,7 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
           final uri = Uri.parse(address);
           widget.addressController.text = uri.path;
           widget.onURIScanned?.call(uri);
+          return;
         } catch (_) {
           widget.addressController.text = address;
         }

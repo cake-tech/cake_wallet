@@ -257,7 +257,7 @@ abstract class BalanceViewModelBase with Store {
       //   throw Exception('Price is null for: $key');
       // }
 
-      final available = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.available);
+      final available = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.fullAvailableBalance);
       final additional = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.additional);
 
       final availableFiatBalance = isFiatDisabled
@@ -346,8 +346,8 @@ abstract class BalanceViewModelBase with Store {
     if (amount == null) return "";
 
     return appStore.amountParsingProxy
-        .getDisplayCryptoStrungFromBigInt(amount, cryptoCurrency)
-        .withMaxDecimals(8).withLocalSeperator();
+        .getDisplayCryptoStringFromBigInt(amount, cryptoCurrency)
+        .withMaxDecimals(8).withLocalSeperator(settingsStore.languageCode);
   }
 
   @computed
@@ -450,10 +450,11 @@ abstract class BalanceViewModelBase with Store {
 
   String _getFiatBalance({required double price, String? cryptoAmount}) {
     if (cryptoAmount == null || cryptoAmount.isEmpty || double.tryParse(cryptoAmount) == null) {
-      return '0.00';
+      return '0.00'.withLocalSeperator(settingsStore.languageCode);
     }
 
-    return calculateFiatAmount(price: price, cryptoAmount: cryptoAmount);
+    return calculateFiatAmount(price: price, cryptoAmount: cryptoAmount)
+        .withLocalSeperator(settingsStore.languageCode);
   }
 
   String _formatterAsset(CryptoCurrency asset) {

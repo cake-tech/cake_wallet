@@ -575,6 +575,9 @@ class WalletListBodyState extends State<WalletListBody> {
 
   void changeProcessText(String text) {
     try {
+      if (_progressBar != null) {
+        _progressBar!.dismiss();
+      }
       _progressBar = createBar<void>(text, context, duration: null)
         ..show(context);
     }catch(e){}

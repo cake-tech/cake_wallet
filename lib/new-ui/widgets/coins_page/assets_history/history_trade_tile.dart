@@ -57,7 +57,8 @@ class HistoryTradeTile extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return HistoryTileBase(
-      title: "${from.toString()} → ${to.toString()}",
+      title:
+          "${from.toString()}${from == CryptoCurrency.btcln ? "-LN" : ""} → ${to.toString()}${to == CryptoCurrency.btcln ? "-LN" : ""}",
       date: date,
       amount: amount,
       amountFiat: receiveAmount,

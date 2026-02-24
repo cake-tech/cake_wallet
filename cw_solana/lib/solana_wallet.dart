@@ -57,7 +57,7 @@ abstract class SolanaWalletBase
         _client = SolanaWalletClient(),
         walletAddresses = SolanaWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, SolanaBalance>.of(
-            {CryptoCurrency.sol: initialBalance ?? SolanaBalance(BigInt.zero.toDouble())}),
+            {CryptoCurrency.sol: initialBalance ?? SolanaBalance(BigInt.zero.toDouble(), false)}),
         super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = SolanaTransactionHistory(
@@ -497,7 +497,7 @@ abstract class SolanaWalletBase
       if (!hasKeysFile) rethrow;
     }
 
-    final balance = SolanaBalance.fromJSON(data?['balance'] as String?) ?? SolanaBalance(0.0);
+    final balance = SolanaBalance.fromJSON(data?['balance'] as String?, false) ?? SolanaBalance(0.0, false);
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
@@ -545,7 +545,7 @@ abstract class SolanaWalletBase
   Future<SolanaBalance> _fetchSOLBalance() async {
     final balance = await _client.getBalance(solanaAddress);
 
-    return SolanaBalance(balance);
+    return SolanaBalance(balance, false);
   }
 
   /// Internal helper to update SPL token balances.
@@ -588,7 +588,7 @@ abstract class SolanaWalletBase
       for (final entry in results) {
         final token = entry.key;
         final fetchedBalance = entry.value;
-        final currentBalance = balance[token] ?? SolanaBalance(0.0);
+        final currentBalance = balance[token] ?? SolanaBalance(0.0, true);
         balance[token] = fetchedBalance ?? currentBalance;
       }
     }
@@ -636,7 +636,7 @@ abstract class SolanaWalletBase
     if (token.enabled) {
       final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, solanaAddress) ??
           balance[token] ??
-          SolanaBalance(0.0);
+          SolanaBalance(0.0, true);
 
       balance[token] = tokenBalance;
     } else {

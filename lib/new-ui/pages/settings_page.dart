@@ -7,6 +7,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import "package:cw_core/wallet_type.dart";
@@ -18,6 +19,8 @@ bool _falseFunc(DashboardViewModel _) => false;
 bool _isBtc(DashboardViewModel vm) => vm.wallet.type == WalletType.bitcoin;
 
 bool _hasMweb(DashboardViewModel vm) => vm.hasMweb;
+
+bool _isCupcake(DashboardViewModel vm) => vm.wallet.hardwareWalletType == HardwareWalletType.cupcake;
 
 class SettingsListItem {
   final String iconPath;
@@ -48,6 +51,7 @@ class SettingsSectionData {
         "Lightning ${S.current.username}", Routes.lightningUsernamePage, condition: _isBtc),
     SettingsListItem("assets/new-ui/settings_row_icons/silent-payments.svg", S.current.silent_payments_settings, Routes.silentPaymentsSettings, condition: _isBtc),
     SettingsListItem("assets/new-ui/settings_row_icons/mweb.svg", S.current.litecoin_mweb_settings, Routes.mwebSettings, condition: _hasMweb),
+    SettingsListItem("assets/new-ui/settings_row_icons/cupcake.svg", S.current.export_outputs, Routes.urqrAnimatedPage, routeArgs: {'export-outputs': 'export-outputs'}, condition: _isCupcake),
     SettingsListItem("assets/new-ui/settings_row_icons/other.svg", S.current.other, Routes.otherSettingsPage),
   ]);
 

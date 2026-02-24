@@ -239,5 +239,5 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
-  PaymentURI getPaymentUri(String amount) => ZcashURI(amount: amount, address: address);
+  PaymentURI getPaymentUri(final String amount) => ZcashURI(amount: amount, address: address);
 }

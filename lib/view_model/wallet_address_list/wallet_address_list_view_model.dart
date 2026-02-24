@@ -83,6 +83,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       _appStore.amountParsingProxy.getCryptoSymbol(tokenCurrency ?? wallet.currency);
 
   void setTokenCurrency(Currency curr) {
+    if(curr == wallet.currency) {
+      tokenCurrency = null;
+      selectedCurrency = wallet.currency;
+      return;
+    }
+
     tokenCurrency = curr as CryptoCurrency;
     if (selectedCurrency is CryptoCurrency) {
       selectedCurrency = curr;
@@ -135,6 +141,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (_amount.isEmpty) return "";
     var cryptoCurrency = tokenCurrency ?? wallet.currency;
     if (cryptoCurrency == CryptoCurrency.btcln) cryptoCurrency = CryptoCurrency.btc;
+    if(selectedCurrency is FiatCurrency && _fiatRate != null) {
+      return selectedCurrencyFiatAmount;
+    }
+
     if (!fiatConversionStore.prices.containsKey(cryptoCurrency)) return "";
     return (double.parse(_amount) * fiatConversionStore.prices[cryptoCurrency]!).toStringAsFixed(2);
   }

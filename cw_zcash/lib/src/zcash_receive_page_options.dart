@@ -10,15 +10,6 @@ enum ZcashAddressType {
 }
 
 class ZcashReceivePageOption implements ReceivePageOption {
-  const ZcashReceivePageOption._(this.type, this.value, {this.iconPath, this.description, this.isCommon = false, this.addAddressWord = true});
-
-  final String value;
-  final String? iconPath;
-  final String? description;
-  final bool isCommon;
-  final bool addAddressWord;
-
-
   factory ZcashReceivePageOption.fromType(final ZcashAddressType type) {
     switch (type) {
       case ZcashAddressType.transparent:
@@ -33,25 +24,53 @@ class ZcashReceivePageOption implements ReceivePageOption {
         return unified;
     }
   }
+  const ZcashReceivePageOption._(
+    this.type,
+    this.value, {
+    this.iconPath,
+    this.description,
+    this.isCommon = false,
+  });
+
+  final String value;
+  final String? iconPath;
+  final String? description;
+  final bool isCommon;
+  final bool addAddressWord = false;
 
   static const transparent = ZcashReceivePageOption._(
-      ZcashAddressType.transparent, "Public", description: "Static & Transparent",
-      iconPath: "assets/new-ui/address-type-picker-icons/zec/public.svg");
+    ZcashAddressType.transparent,
+    "Public",
+    description: "Static & Transparent",
+    iconPath: "assets/new-ui/address-type-picker-icons/zec/public.svg",
+  );
   static const transparentRotated = ZcashReceivePageOption._(
-      ZcashAddressType.transparentRotated, "Transparent", description: "Disposable",
-      iconPath: "assets/new-ui/address-type-picker-icons/zec/transparent.svg",
-      isCommon: true);
+    ZcashAddressType.transparentRotated,
+    "Transparent",
+    description: "Disposable",
+    iconPath: "assets/new-ui/address-type-picker-icons/zec/transparent.svg",
+    isCommon: true,
+  );
   static const shieldedSapling = ZcashReceivePageOption._(
-      ZcashAddressType.shieldedSapling, "Legacy Shielded", description: "Sapling",
-      iconPath: "assets/new-ui/address-type-picker-icons/zec/sapling.svg");
+    ZcashAddressType.shieldedSapling,
+    "Legacy Shielded",
+    description: "Sapling",
+    iconPath: "assets/new-ui/address-type-picker-icons/zec/sapling.svg",
+  );
   static const shieldedOrchard = ZcashReceivePageOption._(
-      ZcashAddressType.shieldedOrchard, "Shielded", description: "Default (Orchard)",
-      iconPath: "assets/new-ui/address-type-picker-icons/zec/shielded.svg",
-      isCommon: true);
+    ZcashAddressType.shieldedOrchard,
+    "Shielded",
+    description: "Default (Orchard)",
+    iconPath: "assets/new-ui/address-type-picker-icons/zec/shielded.svg",
+    isCommon: true,
+  );
   static const unified = ZcashReceivePageOption._(
-      ZcashAddressType.unifiedType, "Unified", description: "Compatible Shielded",
-      iconPath: "assets/new-ui/address-type-picker-icons/zec/unified.svg",
-      isCommon: true);
+    ZcashAddressType.unifiedType,
+    "Unified",
+    description: "Compatible Shielded",
+    iconPath: "assets/new-ui/address-type-picker-icons/zec/unified.svg",
+    isCommon: true,
+  );
 
   final ZcashAddressType type;
 
@@ -80,5 +99,4 @@ class ZcashReceivePageOption implements ReceivePageOption {
     printV("Not found for: $str");
     return ZcashAddressType.shieldedOrchard;
   }
-
 }

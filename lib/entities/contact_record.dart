@@ -14,6 +14,7 @@ abstract class ContactRecordBase extends Record<Contact> with Store implements C
       : name = original.name,
         address = original.address,
         type = original.type,
+        displayName = original.displayName,
         lastChange = original.lastChange,
         super(source, original);
 
@@ -28,6 +29,10 @@ abstract class ContactRecordBase extends Record<Contact> with Store implements C
   @override
   @observable
   CryptoCurrency type;
+
+  @override
+  @observable
+  String displayName;
 
   DateTime? lastChange;
 
