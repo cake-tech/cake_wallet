@@ -356,6 +356,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String get depositAmount =>
       amountParsingProxy.getDisplayCryptoAmount(_depositAmount, depositCurrency);
 
+  @computed
+  String get depositAmountCanonical => _depositAmount;
+
   @observable
   String _receiveAmount;
 
