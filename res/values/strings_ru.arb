@@ -908,6 +908,7 @@
   "seedtype_alert_content": "Обмен семенами с другими кошельками возможно только с BIP39 SeedType.",
   "seedtype_alert_title": "SEEDTYPE ALERT",
   "select_a_wallet": "Выберите кошелек",
+  "select_address_to_copy": "Выберите адрес для копирования",
   "select_all": "Выбрать все",
   "select_backup_file": "Выберите файл резервной копии",
   "select_buy_provider_notice": "Выберите поставщика покупки выше. Вы можете пропустить этот экран, установив поставщика покупки по умолчанию в настройках приложения.",

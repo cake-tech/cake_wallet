@@ -906,6 +906,7 @@
   "seedtype_alert_content": "Udostępnianie seedów innym portfelom jest możliwe tylko z BIP39 SeedType.",
   "seedtype_alert_title": "Ostrzeżenie SeedType",
   "select_a_wallet": "Wybierz portfel",
+  "select_address_to_copy": "Wybierz Adres do skopiowania",
   "select_all": "Zaznacz wszystko",
   "select_backup_file": "Wybierz plik kopii zapasowej",
   "select_buy_provider_notice": "Wybierz dostawcę zakupu powyżej. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę zakupu w ustawieniach aplikacji.",

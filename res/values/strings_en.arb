@@ -908,6 +908,7 @@
   "seedtype_alert_content": "Sharing seeds with other wallets is only possible with BIP39 SeedType.",
   "seedtype_alert_title": "SeedType Alert",
   "select_a_wallet": "Select a wallet",
+  "select_address_to_copy": "Select Address to Copy",
   "select_all": "Select all",
   "select_backup_file": "Select backup file",
   "select_buy_provider_notice": "Select a buy provider above. You can skip this screen by setting your default buy provider in app settings.",

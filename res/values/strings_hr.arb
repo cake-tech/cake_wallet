@@ -907,6 +907,7 @@
   "seedtype_alert_content": "Dijeljenje sjemena s drugim novčanicima moguće je samo s BIP39 sjemenom.",
   "seedtype_alert_title": "Upozorenje o sjemenu",
   "select_a_wallet": "Odaberite novčanik",
+  "select_address_to_copy": "Odaberite adresu za kopiranje",
   "select_all": "Odaberite sve",
   "select_backup_file": "Odaberite datoteku sigurnosne kopije",
   "select_buy_provider_notice": "Odaberite gornji davatelj kupnje. Ovaj zaslon možete preskočiti postavljanjem zadanog davatelja usluga kupnje u postavkama aplikacija.",

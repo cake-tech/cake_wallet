@@ -907,6 +907,7 @@
   "seedtype_alert_content": "Sdílení semen s jinými peněženkami je možné pouze u BIP39 SeedType.",
   "seedtype_alert_title": "Upozornění seedtype",
   "select_a_wallet": "Vyberte peněženku",
+  "select_address_to_copy": "Vyberte adresu pro kopírování",
   "select_all": "Vyberte vše",
   "select_backup_file": "Vybrat soubor se zálohou",
   "select_buy_provider_notice": "Vyberte výše uvedeného poskytovatele nákupu. Tuto obrazovku můžete přeskočit nastavením výchozího poskytovatele nákupu v nastavení aplikace.",

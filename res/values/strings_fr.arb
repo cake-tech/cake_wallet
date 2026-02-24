@@ -907,6 +907,7 @@
   "seedtype_alert_content": "Le partage de graines avec d'autres portefeuilles n'est possible qu'avec le type de graine BIP39.",
   "seedtype_alert_title": "Alerte Type de Graine",
   "select_a_wallet": "Sélectionnez un portefeuille",
+  "select_address_to_copy": "Sélectionnez l'adresse à copier",
   "select_all": "Tout sélectionner",
   "select_backup_file": "Sélectionnez le fichier de sauvegarde",
   "select_buy_provider_notice": "Sélectionnez un fournisseur d'achat ci-dessus. Vous pouvez ignorer cet écran en définissant votre fournisseur d'achat par défaut dans les paramètres de l'application.",

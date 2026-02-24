@@ -908,6 +908,7 @@
   "seedtype_alert_content": "La condivisione di semi con altri portafogli è possibile solo con Bip39 SeedType.",
   "seedtype_alert_title": "Avviso seedType",
   "select_a_wallet": "Seleziona un portafoglio",
+  "select_address_to_copy": "Seleziona Indirizzo da copiare",
   "select_all": "Seleziona tutto",
   "select_backup_file": "Seleziona file di backup",
   "select_buy_provider_notice": "Seleziona un provider di acquisto sopra. È possibile saltare questa schermata impostando il provider di acquisto predefinito nelle impostazioni dell'app.",

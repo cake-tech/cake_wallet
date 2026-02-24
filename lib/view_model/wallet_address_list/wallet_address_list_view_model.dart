@@ -161,6 +161,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     await wallet.walletInfo.save();
   }
 
+  // payjoinEndpoint getter is broken, but uri works
+  bool get hasPayjoin =>
+      wallet.type == WalletType.bitcoin && !isLightning && !isSilentPayments && uri.toString().contains("payjo.in");
+
   @computed
   FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
 
@@ -176,10 +180,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoin ? bitcoin!.getPayjoinEndpoint(wallet) : "";
 
   @computed
-  bool get isPayjoinUnavailable =>
-      wallet.type == WalletType.bitcoin &&
-      _appStore.settingsStore.usePayjoin &&
-      payjoinEndpoint.isEmpty;
+  bool get isPayjoinUnavailable => payjoinEndpoint.isEmpty;
 
   @observable
   PaymentURI? _lnPaymentRequest;

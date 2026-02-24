@@ -906,6 +906,7 @@
   "seedtype_alert_content": "Այլ դրամապանակներով սերմերի փոխանակումը հնարավոր է միայն BIP39 SEEDTYPE- ով:",
   "seedtype_alert_title": "SEEDTYPE ALERT",
   "select_a_wallet": "Ընտրեք դրամապանակ",
+  "select_address_to_copy": "Ընտրեք Հասցե՝ պատճենելու համար",
   "select_all": "Ընտրեք բոլորը",
   "select_backup_file": "Ընտրել կրկնօրինակ ֆայլ",
   "select_buy_provider_notice": "Ընտրեք գնման մատակարարը վերևում։ Դուք կարող եք բաց թողնել այս էկրանը ձեր լռելայն գնման մատակարարը հավելվածի կարգավորումներում սահմանելով",

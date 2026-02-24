@@ -909,6 +909,7 @@
   "seedtype_alert_content": "Compartilhar sementes com outras carteiras só é possível com o BIP39 SeedType.",
   "seedtype_alert_title": "Alerta de SeedType",
   "select_a_wallet": "Selecione uma carteira",
+  "select_address_to_copy": "Selecione o endereço para copiar",
   "select_all": "Selecionar tudo",
   "select_backup_file": "Selecione o arquivo de backup",
   "select_buy_provider_notice": "Selecione um provedor de compra acima. Você pode pular esta tela definindo seu provedor de compra padrão nas configurações de aplicativos.",

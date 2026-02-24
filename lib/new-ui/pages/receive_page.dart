@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/payjoin_copy_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_type.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_amount_display.dart';
@@ -253,10 +254,13 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       showAccountsButton: widget.addressListViewModel.hasAddressList,
                       showLabelButton: widget.addressListViewModel.hasAddressList && !hasLabel,
                       onCopyButtonPressed: () {
-                        printV(widget.addressListViewModel.hasAddressList);
-                        Clipboard.setData(
-                          ClipboardData(text: widget.addressListViewModel.uri.address),
-                        );
+                        if(widget.addressListViewModel.hasPayjoin) {
+                          showModalBottomSheet(isScrollControlled:true,context: context, builder: (context)=>PayjoinCopyModal(uri: widget.addressListViewModel.uri));
+                        } else {
+                          Clipboard.setData(
+                            ClipboardData(text: widget.addressListViewModel.uri.address),
+                          );
+                        }
                       },
                       onAmountButtonPressed: () {
                         showMaterialModalBottomSheet(

@@ -907,6 +907,7 @@
   "seedtype_alert_content": "只有BIP39助记词类型可以与其他钱包共享助记词。",
   "seedtype_alert_title": "助记词类型提示",
   "select_a_wallet": "选择一个钱包",
+  "select_address_to_copy": "选择要复制的地址",
   "select_all": "选择全部",
   "select_backup_file": "选择备份文件",
   "select_buy_provider_notice": "在上面选择买入提供商。您可以通过在应用程序设置中设置默认的购买提供商来跳过此屏幕。",

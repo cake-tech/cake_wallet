@@ -907,6 +907,7 @@
   "seedtype_alert_content": "Tohumları diğer cüzdanlarla paylaşmak sadece BIP39 tohumu ile mümkündür.",
   "seedtype_alert_title": "SeedType uyarısı",
   "select_a_wallet": "Bir Cüzdan Seçin",
+  "select_address_to_copy": "Kopyalanacak Adresi Seçin",
   "select_all": "Tümünü seç",
   "select_backup_file": "Yedek dosyası seç",
   "select_buy_provider_notice": "Yukarıda bir satın alma sağlayıcısı seçin. App ayarlarında varsayılan satın alma sağlayıcınızı ayarlayarak bu ekranı atlayabilirsiniz.",

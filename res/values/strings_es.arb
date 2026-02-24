@@ -908,6 +908,7 @@
   "seedtype_alert_content": "Compartir semillas con otras billeteras solo es posible con BIP39 SeedType.",
   "seedtype_alert_title": "Alerta de tipo de semilla",
   "select_a_wallet": "Selecciona una billetera",
+  "select_address_to_copy": "Seleccione la dirección para copiar",
   "select_all": "Seleccionar todo",
   "select_backup_file": "Seleccionar archivo de copia de seguridad",
   "select_buy_provider_notice": "Selecciona un proveedor de compra arriba. Puedes omitir esta pantalla configurando tu proveedor de compra predeterminado en la configuración de la aplicación.",

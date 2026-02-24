@@ -907,6 +907,7 @@
   "seedtype_alert_content": "အခြားပိုက်ဆံအိတ်များနှင့်မျိုးစေ့များကိုမျှဝေခြင်းသည် BIP39 sebyspe ဖြင့်သာဖြစ်သည်။",
   "seedtype_alert_title": "ပျိုးပင်သတိပေးချက်",
   "select_a_wallet": "ပိုက်ဆံအိတ်တစ်ခုရွေးပါ",
+  "select_address_to_copy": "ကူးယူရန် လိပ်စာကို ရွေးပါ။",
   "select_all": "အားလုံးကို ရွေးပါ။",
   "select_backup_file": "အရန်ဖိုင်ကို ရွေးပါ။",
   "select_buy_provider_notice": "အပေါ်ကဝယ်သူတစ် ဦး ကိုရွေးချယ်ပါ။ သင်၏ default 0 ယ်သူအား app settings တွင် setting လုပ်ခြင်းဖြင့်ဤ screen ကိုကျော်သွားနိုင်သည်။",

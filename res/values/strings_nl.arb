@@ -907,6 +907,7 @@
   "seedtype_alert_content": "Het delen van zaden met andere portefeuilles is alleen mogelijk met BIP39 SeedType.",
   "seedtype_alert_title": "Zaadtype alert",
   "select_a_wallet": "Selecteer een portemonnee",
+  "select_address_to_copy": "Selecteer Adres om te kopiëren",
   "select_all": "Selecteer alles",
   "select_backup_file": "Selecteer een back-upbestand",
   "select_buy_provider_notice": "Selecteer hierboven een koopprovider. U kunt dit scherm overslaan door uw standaard kopenprovider in te stellen in app -instellingen.",

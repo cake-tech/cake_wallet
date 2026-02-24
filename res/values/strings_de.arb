@@ -908,6 +908,7 @@
   "seedtype_alert_content": "Das Teilen von Seeds mit anderen Wallet ist nur mit bip39 Seedype möglich.",
   "seedtype_alert_title": "Seedype-Alarm",
   "select_a_wallet": "Wählen Sie eine Wallet",
+  "select_address_to_copy": "Wählen Sie die zu kopierende Adresse aus",
   "select_all": "Alles auswählen",
   "select_backup_file": "Sicherungsdatei auswählen",
   "select_buy_provider_notice": "Wählen Sie oben einen Anbieter kaufen. Sie können diese Seite überspringen, indem Sie Ihren Standard-Kaufanbieter in den App-Einstellungen festlegen.",

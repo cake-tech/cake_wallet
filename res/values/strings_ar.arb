@@ -907,6 +907,7 @@
   "seedtype_alert_content": "مشاركة البذور مع محافظ أخرى ممكن فقط مع BIP39 Seedtype.",
   "seedtype_alert_title": "تنبيه البذور",
   "select_a_wallet": "حدد محفظة",
+  "select_address_to_copy": "حدد العنوان المراد نسخه",
   "select_all": "حدد الكل",
   "select_backup_file": "حدد ملف النسخ الاحتياطي",
   "select_buy_provider_notice": "حدد مزود شراء أعلاه. يمكنك تخطي هذه الشاشة عن طريق تعيين مزود شراء الافتراضي في إعدادات التطبيق.",

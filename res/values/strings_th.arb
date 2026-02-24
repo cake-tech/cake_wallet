@@ -907,6 +907,7 @@
   "seedtype_alert_content": "การแบ่งปันเมล็ดกับกระเป๋าเงินอื่น ๆ เป็นไปได้เฉพาะกับ bip39 seedtype",
   "seedtype_alert_title": "การแจ้งเตือน seedtype",
   "select_a_wallet": "เลือกกระเป๋าเงิน",
+  "select_address_to_copy": "เลือกที่อยู่ที่จะคัดลอก",
   "select_all": "เลือกทั้งหมด",
   "select_backup_file": "เลือกไฟล์สำรอง",
   "select_buy_provider_notice": "เลือกผู้ให้บริการซื้อด้านบน คุณสามารถข้ามหน้าจอนี้ได้โดยการตั้งค่าผู้ให้บริการซื้อเริ่มต้นในการตั้งค่าแอป",
