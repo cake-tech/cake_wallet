@@ -67,11 +67,11 @@ class ReceiveQrCode extends StatelessWidget {
                                   builder: (_) => QrImage(
                                       data: addressListViewModel.uri.toString(),
                                       embeddedImagePath:
-                                          addressListViewModel.tokenCurrency == CryptoCurrency.btcln
+                                      addressListViewModel.tokenCurrency != null
+                                          ? addressListViewModel.tokenCurrency == CryptoCurrency.btcln
                                               ? addressListViewModel.qrImage
-                                              : addressListViewModel.tokenCurrency != null
-                                                  ? addressListViewModel.tokenCurrency!.iconPath
-                                                  : addressListViewModel.qrImage,
+                                              : addressListViewModel.tokenCurrency!.iconPath
+                                          : addressListViewModel.qrImage,
                                       size: constraints.maxWidth)))),
                     ),
                     AnimatedSize(
