@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/address_validator.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
@@ -22,7 +22,8 @@ class ContactPage extends BasePage {
       : _formKey = GlobalKey<FormState>(),
         _nameController = TextEditingController(),
         _addressController = TextEditingController(),
-        _currencyTypeController = TextEditingController() {
+        _currencyTypeController = TextEditingController(),
+        addressFocusNode = FocusNode(){
     _nameController.text = contactViewModel.name;
     _addressController.text = contactViewModel.address;
     _nameController.addListener(() => contactViewModel.name = _nameController.text);
@@ -33,6 +34,8 @@ class ContactPage extends BasePage {
 
   @override
   String get title => S.current.contact;
+
+  FocusNode addressFocusNode;
 
   final ContactViewModel contactViewModel;
   final GlobalKey<FormState> _formKey;
@@ -89,15 +92,17 @@ class ContactPage extends BasePage {
                 if (contactViewModel.currency != null)
                   Padding(
                     padding: EdgeInsets.only(top: 20),
-                    child: AddressTextField(
-                      controller: _addressController,
-                      options: [
-                        AddressTextFieldOption.paste,
-                        AddressTextFieldOption.qrCode,
-                      ],
-                      buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                      validator: AddressValidator(type: contactViewModel.currency!),
+                    child: Observer(
+                      builder: (_) {
+                        return NewSendAddressInput(
+                          focusNode: addressFocusNode,
+                        displayName: contactViewModel.displayName,
+                        addressController: _addressController,
+                        onEditingComplete: ()=> contactViewModel.extractParsedAddress(context),
+                        validator: AddressValidator(type: contactViewModel.currency!),
+                        selectedCurrency: contactViewModel.currency!,
+                      );
+                      },
                     ),
                   )
               ],
@@ -185,6 +190,12 @@ class ContactPage extends BasePage {
 
       if (state is ExecutedSuccessfullyState) {
         _onContactSavedSuccessfully(context);
+      }
+    });
+
+    reaction((_)=>contactViewModel.address, (val){
+      if(val != _addressController.text) {
+        _addressController.text = val;
       }
     });
   }

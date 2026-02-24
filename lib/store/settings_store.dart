@@ -142,6 +142,7 @@ abstract class SettingsStoreBase with Store {
       required this.mwebEnabled,
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
+      required this.mwebAdDismissed,
       required bool initialEnableAutomaticNodeSwitching,
       required String initialBackgroundImage,
       TransactionPriority? initialBitcoinTransactionPriority,
@@ -292,6 +293,8 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => shouldShowRepWarning,
         (bool val) => sharedPreferences.setBool(PreferencesKey.shouldShowRepWarning, val));
+
+    reaction((_)=>mwebAdDismissed, (val)=>sharedPreferences.setBool(PreferencesKey.mwebAdDismissed, val));
 
     priority.observe((change) {
       final String? key;
@@ -999,6 +1002,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool decentralizedExchangesPromptDismissed;
 
+  @observable
+  bool mwebAdDismissed;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
 
@@ -1544,7 +1550,8 @@ abstract class SettingsStoreBase with Store {
         ) ??
         '';
 
-
+    final mwebAdDismissed =
+        await sharedPreferences.getBool(PreferencesKey.mwebAdDismissed) ?? false;
 
     return SettingsStore(
       secureStorage: secureStorage,
@@ -1655,6 +1662,7 @@ abstract class SettingsStoreBase with Store {
       shouldShowDEuroDisclaimer: shouldShowDEuroDisclaimer,
       shouldShowRepWarning: shouldShowRepWarning,
       initialBuiltinTor: builtinTor,
+      mwebAdDismissed: mwebAdDismissed,
     );
   }
 

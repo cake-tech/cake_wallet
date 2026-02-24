@@ -5,7 +5,6 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
-import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -18,6 +17,7 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart
 import 'package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_provider_initial_preference_modal.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
@@ -120,8 +120,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
       final depositFiatAmountController = depositKey.currentState!.fiatAmountController;
       final receiveFiatAmountController = receiveKey.currentState!.fiatAmountController;
 
-      final limitsState = widget.exchangeViewModel.limitsState;
-      if (limitsState is LimitsLoadedSuccessfully) {}
 
       depositFiatAmountController.addListener(() {
         if(!depositKey.currentState!.amountFocusNode.hasFocus) {
@@ -258,29 +256,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
           showMaterialModalBottomSheet(
               context: context, builder: (context) => page, backgroundColor: Colors.transparent);
         }
-      });
-
-      reaction((_) => widget.exchangeViewModel.limitsState, (LimitsState state) {
-        String? min;
-        String? max;
-
-        if (state is LimitsLoadedSuccessfully) {
-          min = state.limits.min != null ? state.limits.min.toString() : null;
-          max = state.limits.max != null ? state.limits.max.toString() : null;
-        }
-
-        if (state is LimitsLoadedFailure) {
-          min = '0';
-          max = '0';
-        }
-
-        if (state is LimitsIsLoading) {
-          min = '...';
-          max = '...';
-        }
-
-        if (widget.exchangeViewModel.isFixedRateMode) {
-        } else {}
       });
 
       reaction((_) => widget.exchangeViewModel.bestRate, (double rate) {
@@ -488,7 +463,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
                       Form(
                         key: formKey,
                         child: Column(
-                          spacing: 12,
                           children: [
                             Observer(
                               builder: (_) => SwapAmountBox(
@@ -540,21 +514,25 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 },
                               ),
                             ),
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Container(
-                                  height: 1,
-                                  width: double.infinity,
-                                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                ),
-                                ModernButton.svg(
-                                  size: 36,
-                                  iconSize: 24,
-                                  svgPath: "assets/new-ui/swap_amounts.svg",
-                                  onPressed: widget.exchangeViewModel.reverseSwapDirection,
-                                ),
-                              ],
+                            SwapLimitPopup(exchangeViewModel: widget.exchangeViewModel),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12.0),
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    height: 1,
+                                    width: double.infinity,
+                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                  ),
+                                  ModernButton.svg(
+                                    size: 36,
+                                    iconSize: 24,
+                                    svgPath: "assets/new-ui/swap_amounts.svg",
+                                    onPressed: widget.exchangeViewModel.reverseSwapDirection,
+                                  ),
+                                ],
+                              ),
                             ),
                             Observer(
                               builder: (_) => SwapAmountBox(
@@ -927,17 +905,25 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                   ],
                 ),
                 Observer(
-                  builder: (_) => FiatAmountBar(
-                      foregroundElementColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                      textColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fiatInputMode: _fiatInputMode,
-                      allAmount: widget.isReceiverCard ||
-                              widget.exchangeViewModel.isSendFromExternal ||
-                              !widget.exchangeViewModel.hasAllAmount
-                          ? null
-                              : widget.exchangeViewModel.depositAvailableAmount,
-                      onSwitchButtonPressed: () {
-                        setState(() {
+                  builder: (_) {
+                    final hasAllAmount = !(widget.isReceiverCard ||
+                        widget.exchangeViewModel.isSendFromExternal ||
+                        !widget.exchangeViewModel.hasAllAmount);
+
+                    return FiatAmountBar(
+                        foregroundElementColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+                        textColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                        allAmountColor: hasAllAmount ? null : Colors.transparent,
+                        allAmountTextColor:
+                            hasAllAmount ? null : Theme.of(context).colorScheme.onSurfaceVariant,
+                        fiatInputMode: _fiatInputMode,
+                        allAmount: !hasAllAmount
+                            ? widget.isReceiverCard
+                                ? null
+                                : widget.exchangeViewModel.balanceDisplay
+                            : widget.exchangeViewModel.depositAvailableAmount,
+                        onSwitchButtonPressed: () {
+                          setState(() {
                           _fiatInputMode = !_fiatInputMode;
                         });
                         if (_fiatInputMode) {
@@ -958,7 +944,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           ? widget.exchangeViewModel.receiveCurrency.title
                           : widget.exchangeViewModel.depositCurrency.title,
 
-                      fiatCurrency: widget.exchangeViewModel.fiat.name),
+                      fiatCurrency: widget.exchangeViewModel.fiat.name);
+                  },
                 ),
                 Observer(
                   builder: (_) {

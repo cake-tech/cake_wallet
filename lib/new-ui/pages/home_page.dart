@@ -8,6 +8,7 @@ import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bl
 import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
@@ -129,10 +130,16 @@ class _NewHomePageState extends State<NewHomePage> {
                   ],
                 ),
                 Observer(
-                  builder: (_) => CoinActionRow(
-                    lightningMode: _lightningMode,
-                    showSwap: widget.dashboardViewModel.isEnabledSwapAction,
-                  ),
+                  builder: (_) {
+                    return Column(
+                      children: [
+                        CoinActionRow(
+                        lightningMode: _lightningMode,
+                        showSwap: widget.dashboardViewModel.isEnabledSwapAction,),
+                        MwebAd(dashboardViewModel: widget.dashboardViewModel,),
+                      ],
+                    );
+                  },
                 ),
                 Observer(
                   builder: (_) => AssetsHistorySection(

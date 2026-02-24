@@ -257,7 +257,7 @@ abstract class BalanceViewModelBase with Store {
       //   throw Exception('Price is null for: $key');
       // }
 
-      final available = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.available);
+      final available = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.fullAvailableBalance);
       final additional = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.additional);
 
       final availableFiatBalance = isFiatDisabled

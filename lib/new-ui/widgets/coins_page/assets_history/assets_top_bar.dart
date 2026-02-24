@@ -35,10 +35,17 @@ class AssetsTopBar extends StatelessWidget {
           ),
       Opacity(
         opacity: hasTokenSettingsButton ? 1 : 0,
-        child: ElevatedButton(
-                  onPressed: () {Navigator.of(context).pushNamed(Routes.homeSettings, arguments: dashboardViewModel.balanceViewModel,);},
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.zero,
+            child: ElevatedButton(
+              onPressed: () {
+                if (hasTokenSettingsButton) {
+                  Navigator.of(context).pushNamed(
+                    Routes.homeSettings,
+                    arguments: dashboardViewModel.balanceViewModel,
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(999999),
                     ),

@@ -16,7 +16,7 @@ class FiatAmountBar extends StatelessWidget {
       required this.fiatCurrency,
       this.allAmount,
       this.foregroundElementColor,
-      this.textColor});
+      this.textColor, this.allAmountColor, this.allAmountTextColor});
 
   final bool fiatInputMode;
   final VoidCallback onSwitchButtonPressed;
@@ -29,6 +29,8 @@ class FiatAmountBar extends StatelessWidget {
   final String? allAmount;
   final Color? foregroundElementColor;
   final Color? textColor;
+  final Color? allAmountColor;
+  final Color? allAmountTextColor;
 
   @override
   Widget build(BuildContext context) {
@@ -65,20 +67,28 @@ class FiatAmountBar extends StatelessWidget {
                 "${S.of(context).max}.",
                 style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
               ),
-              Material(
-                  color: foregroundElementColor ?? Theme.of(context).colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(99999),
-                  child: InkWell(
+              Container(
+                decoration: BoxDecoration(
+                    border: allAmountColor == Colors.transparent
+                        ? Border.all(
+                            width: 1, color: Theme.of(context).colorScheme.onSurfaceVariant)
+                        : null,
+                    borderRadius: BorderRadius.circular(999999)),
+                child: Material(
+                    color: allAmountColor ?? foregroundElementColor ?? Theme.of(context).colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(99999),
-                    onTap: onAllButtonPressed,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-                      child: Text(
-                        formatAmount(allAmount!),
-                        style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(99999),
+                      onTap: onAllButtonPressed,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                        child: Text(
+                          formatAmount(allAmount!),
+                          style: TextStyle(color:  allAmountTextColor ?? Theme.of(context).colorScheme.primary),
+                        ),
                       ),
-                    ),
-                  ))
+                    )),
+              )
             ],
           )
       ],
