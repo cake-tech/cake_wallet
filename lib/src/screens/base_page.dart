@@ -47,6 +47,8 @@ abstract class BasePage extends StatelessWidget {
 
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
+  bool get hideAppBar => false;
+
   Widget Function(BuildContext, Widget)? get rootWrapper => null;
 
   MaterialThemeBase get currentTheme => getIt.get<ThemeStore>().currentTheme;
@@ -199,7 +201,7 @@ abstract class BasePage extends StatelessWidget {
                 resizeToAvoidBottomInset: resizeToAvoidBottomInset,
                 extendBodyBehindAppBar: extendBodyBehindAppBar,
                 endDrawer: endDrawer,
-                appBar: appBar(context),
+                appBar: hideAppBar ? null : appBar(context),
                 body: SafeArea(
                   left: false,
                   right: false,
