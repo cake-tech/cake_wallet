@@ -207,7 +207,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     output = sendViewModel.outputs.first;
     output.address = trade.inputAddress ?? '';
     output.setCryptoAmount(trade.amount);
-    if (_provider is ThorChainExchangeProvider) output.memo = trade.memo;
+    if (_provider is ThorChainExchangeProvider) output.memo = trade.memo ?? "";
     if (trade.isSendAll == true) output.sendAll = true;
   }
 

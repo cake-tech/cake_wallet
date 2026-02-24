@@ -1105,6 +1105,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
+  @computed
+  bool get hasMemos => [WalletType.zcash].contains(wallet.type);
+
   ContactRecord? newContactAddress() {
     final Set<String> contactAddresses =
         Set.from(contactListViewModel.contacts.map((contact) => contact.address))

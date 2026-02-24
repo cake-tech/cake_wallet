@@ -16,6 +16,7 @@ import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/picker.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/token_selection_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
@@ -187,6 +188,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
   List<TextEditingController> _amountControllers = [];
   List<TextEditingController> _addressControllers = [];
+  List<TextEditingController> _memoControllers = [];
   final _formKey = GlobalKey<FormState>();
   final _addressFocusNode = FocusNode();
   BuildContext? loadingBottomSheetContext;
@@ -213,11 +215,18 @@ class _NewSendPageState extends State<NewSendPage> {
       }
     }));
 
+    reaction((_) => widget.sendViewModel.outputs[_selectedOutput].memo, (String memo) {
+      if (memo != _memoControllers[_selectedOutput].text) {
+        _memoControllers[_selectedOutput].text = memo;
+      }
+    });
+
     if (widget.initialPaymentRequest != null &&
         widget.sendViewModel.walletCurrencyName ==
             widget.initialPaymentRequest!.scheme.toLowerCase()) {
       _addressControllers[0].text = widget.initialPaymentRequest!.address;
       _amountControllers[0].text = widget.initialPaymentRequest!.amount;
+      _memoControllers[0].text = widget.initialPaymentRequest!.note;
     }
 
     /// if the current wallet doesn't match the one in the qr code
@@ -395,7 +404,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                                 PaymentRequest(
                                                   address,
                                                   _amountControllers[_selectedOutput].text,
-                                                  "",
+                                                  _memoControllers[_selectedOutput].text,
                                                   "",
                                                   null,
                                                 ),
@@ -471,6 +480,8 @@ class _NewSendPageState extends State<NewSendPage> {
                                       onChanged: (value) =>
                                           widget.sendViewModel.setAllowMwebCoins(value),
                                     ),
+                                  if(widget.sendViewModel.hasMemos)
+                                    NewSendMemoInput(memoController: _memoControllers[_selectedOutput]),
                                   if (widget.sendViewModel.hasCoinControl ||
                                       widget.sendViewModel.hasFees)
                                     AnimatedDropdown(
@@ -600,6 +611,7 @@ class _NewSendPageState extends State<NewSendPage> {
   void _addInputControllers() {
     _amountControllers.add(TextEditingController());
     _addressControllers.add(TextEditingController());
+    _memoControllers.add(TextEditingController());
 
     _amountControllers[_amountControllers.length - 1].addListener(() {
       if (_selectedOutput > widget.sendViewModel.outputs.length - 1) {
@@ -647,6 +659,21 @@ class _NewSendPageState extends State<NewSendPage> {
         output.resetParsedAddress();
         output.address = address;
       }
+    });
+
+    _memoControllers[_amountControllers.length - 1].addListener(() {
+      if (_selectedOutput > widget.sendViewModel.outputs.length - 1) {
+        printV(
+            "_selectedOutput > widget.sendViewModel.outputs.length - 1! this should NOT happen!");
+        return;
+      }
+      final memo = _memoControllers[_selectedOutput].text;
+      final output = widget.sendViewModel.outputs[_selectedOutput];
+
+      if (memo != output.memo) {
+        output.memo = memo;
+      }
+
     });
   }
 
@@ -1130,8 +1157,7 @@ class _NewSendPageState extends State<NewSendPage> {
           .getDisplayCryptoAmount(
               paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
     }
-    // TODO: add notes
-    // noteController.text = paymentRequest.note;
+    _memoControllers[_selectedOutput].text = paymentRequest.note;
   }
 
   Future<void> _handleSwapFlow(
