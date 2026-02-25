@@ -63,7 +63,7 @@ class ListItemStyleWrapper extends StatelessWidget {
             if(hasImage == true && isLastInSection == false) Container(
               color: theme.colorScheme.surfaceContainer,
               child: Padding(
-                padding: const EdgeInsets.only(left: 48, right: 13),
+                padding: const EdgeInsets.only(left: 50, right: 13),
                 child: Container(height: 1, color: theme.colorScheme.outlineVariant),
               ),
             )
