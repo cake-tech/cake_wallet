@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import "package:cw_core/wallet_type.dart";
 
@@ -44,12 +45,12 @@ class SettingsSectionData {
   static SettingsSectionData walletSettings =
       SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet_settings.svg", [
     SettingsListItem("assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
-    SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy, Routes.privacyPage),
+    SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy_features, Routes.privacyPage, condition: _isBtc),
     SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.showKeys,
         routeArgs: true, requireAuth: true, use2fa: (vm)=>vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
     SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
         "Lightning ${S.current.username}", Routes.lightningUsernamePage, condition: _isBtc),
-    SettingsListItem("assets/new-ui/settings_row_icons/silent-payments.svg", S.current.silent_payments_settings, Routes.silentPaymentsSettings, condition: _isBtc),
+    //SettingsListItem("assets/new-ui/settings_row_icons/silent-payments.svg", S.current.silent_payments_settings, Routes.silentPaymentsSettings, condition: _isBtc),
     SettingsListItem("assets/new-ui/settings_row_icons/mweb.svg", S.current.litecoin_mweb_settings, Routes.mwebSettings, condition: _hasMweb),
     SettingsListItem("assets/new-ui/settings_row_icons/cupcake.svg", S.current.export_outputs, Routes.urqrAnimatedPage, routeArgs: {'export-outputs': 'export-outputs'}, condition: _isCupcake),
     SettingsListItem("assets/new-ui/settings_row_icons/other.svg", S.current.other, Routes.otherSettingsPage),
@@ -60,13 +61,13 @@ class SettingsSectionData {
     SettingsListItem("assets/new-ui/settings_row_icons/connections.svg", S.current.connections, Routes.connectionSync),
     // SettingsListItem("assets/new-ui/settings_row_icons/defaults.svg", "Defaults", ""),
     SettingsListItem("assets/new-ui/settings_row_icons/display.svg", S.current.display, Routes.displaySettingsPage),
-    SettingsListItem("assets/new-ui/settings_row_icons/security.svg", S.current.security, Routes.securityBackupPage),
+    SettingsListItem("assets/new-ui/settings_row_icons/security.svg", S.current.privacy_and_security, Routes.securityBackupPage),
     SettingsListItem("assets/new-ui/settings_row_icons/backup.svg", S.current.backup, Routes.backup, requireAuth: true, use2fa: (vm)=>vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
   ]);
 
   static SettingsSectionData otherSettings = SettingsSectionData("", "", [
     SettingsListItem("assets/new-ui/settings_row_icons/support.svg", S.current.settings_support, Routes.support),
-    SettingsListItem("assets/new-ui/settings_row_icons/info.svg", S.current.about, Routes.aboutPage),
+    // SettingsListItem("assets/new-ui/settings_row_icons/info.svg", "About", ""),
   ]);
 
   static List<SettingsSectionData> all = [walletSettings, appSettings, otherSettings];
@@ -97,29 +98,30 @@ class SettingsMainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, List<ListItem>> sections =
-        Map.fromEntries(SettingsSectionData.all.map((section) => MapEntry(
-            section.title,
-            section.items
-                .map((item) => item.condition(dashboardViewModel)
-                    ? ListItemRegularRow(
-                        keyValue: item.title,
-                        label: item.title,
-                        iconPath: item.iconPath,
-                        onTap: () {
-                          if (item.route.isNotEmpty) {
-                            if(item.requireAuth) {
-                              authService.authenticateAction(context,
-                                  conditionToDetermineIfToUse2FA: item.use2fa(dashboardViewModel),
-                                  route: item.route);
-                            } else {
-                              Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
-                            }
-                          }
-                        })
-                    : null)
-                .whereType<ListItem>()
-                .toList())));
+    List<ListItem> buildItems(SettingsSectionData section) => section.items
+        .map((item) => item.condition(dashboardViewModel)
+            ? ListItemRegularRow(
+                keyValue: item.title,
+                label: item.title,
+                iconPath: item.iconPath,
+                onTap: () {
+                  if (item.route.isNotEmpty) {
+                    if (item.requireAuth) {
+                      authService.authenticateAction(context,
+                          conditionToDetermineIfToUse2FA: item.use2fa(dashboardViewModel),
+                          route: item.route);
+                    } else {
+                      Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
+                    }
+                  }
+                })
+            : null)
+        .whereType<ListItem>()
+        .toList();
+
+    final walletSettings = buildItems(SettingsSectionData.walletSettings);
+    final appSettings = buildItems(SettingsSectionData.appSettings);
+    final otherSettings = buildItems(SettingsSectionData.otherSettings);
 
     return Container(
       color: Theme.of(context).colorScheme.surface,
@@ -131,12 +133,36 @@ class SettingsMainPage extends StatelessWidget {
           onTrailingPressed: () {},
         ),
         Expanded(
-          child: ListView(
-            controller: ModalScrollController.of(context),
-            children: [Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-              child: NewListSections(
-                sections: sections,
+          child: ListView(controller: ModalScrollController.of(context), children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
+              child: Column(
+                spacing: 20,
+                children: [
+                  Row(
+                    spacing: 8,
+                    children: [
+                      SvgPicture.asset("assets/new-ui/wallet-setting.svg"),
+                      Text("Wallet Settings", style: Theme.of(context).textTheme.titleMedium),
+                    ],
+                  ),
+                  NewListSections(
+                    sections: {
+                      SettingsSectionData.walletSettings.title: walletSettings,
+                    },
+                  ),
+                  Row(
+                    spacing: 8,
+                    children: [
+                      SvgPicture.asset("assets/new-ui/cake-setting.svg"),
+                      Text("App Settings", style: Theme.of(context).textTheme.titleMedium),
+                    ],
+                  ),
+                  NewListSections(sections: {
+                    SettingsSectionData.appSettings.title: appSettings,
+                    SettingsSectionData.otherSettings.title: otherSettings,
+                  })
+                ],
               ),
             ),]
           ),
