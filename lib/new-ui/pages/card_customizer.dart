@@ -27,15 +27,22 @@ class _CardCustomizerState extends State<CardCustomizer> {
   void initState() {
     super.initState();
 
-    // wait for the bloc to load, then figure out if we should allow name editing.
     bloc = context.read<CardCustomizerBloc>();
-    late final StreamSubscription sub;
-    sub = bloc.stream.listen((state) {
-      if (state is! CardCustomizerNotLoaded) {
-        editEnabled = state.accountName.isNotEmpty;
-        sub.cancel();
-      }
-    });
+
+    if (bloc.state is! CardCustomizerNotLoaded) {
+      editEnabled = bloc.state.accountName.isNotEmpty;
+      accountNameController.text = bloc.state.accountName;
+    } else {
+      late final StreamSubscription sub;
+      sub = bloc.stream.listen((state) {
+        if (state is! CardCustomizerNotLoaded) {
+          setState(() {
+            editEnabled = state.accountName.isNotEmpty;
+          });
+          sub.cancel();
+        }
+      });
+    }
   }
 
   @override

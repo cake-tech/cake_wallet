@@ -135,45 +135,50 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                           ],
                         ),
                       ),
-                    SliverList.separated(
-                      itemCount: filteredItems.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredItems[index];
-                        if (item is WalletAddressListItem) {
-                          return Observer(
-                            builder: (_) => AddressRow(
-                              selected: item.address == widget.addressListViewModel.address.address,
-                              first: widget.showHidden && index == 0,
-                              last: index == filteredItems.length - 1,
-                              item: item,
-                              onSelect: () {
-                                widget.addressListViewModel.setAddress(item);
-                              },
-                              onLabelChanged: updateItems,
-                              onAddressHidden: () async {
-                                await widget.addressListViewModel.toggleHideAddress(item);
-                                updateItems();
-                              },
-                              walletType: widget.addressListViewModel.type,
-                            ),
-                          );
-                        }
-                        return SizedBox.shrink();
-                      },
-                      separatorBuilder: (_, __) => Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Container(
-                          height: 1,
-                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                    SliverPadding(
+                      padding: EdgeInsets.only(bottom: 64),
+                      sliver: SliverList.separated(
+                        itemCount: filteredItems.length,
+                        itemBuilder: (context, index) {
+                          final item = filteredItems[index];
+                          if (item is WalletAddressListItem) {
+                            return Observer(
+                              builder: (_) => AddressRow(
+                                selected: item.address == widget.addressListViewModel.address.address,
+                                first: widget.showHidden && index == 0,
+                                last: index == filteredItems.length - 1,
+                                item: item,
+                                onSelect: () {
+                                  widget.addressListViewModel.setAddress(item);
+                                },
+                                onLabelChanged: updateItems,
+                                onAddressHidden: () async {
+                                  await widget.addressListViewModel.toggleHideAddress(item);
+                                  updateItems();
+                                },
+                                walletType: widget.addressListViewModel.type,
+                              ),
+                            );
+                          }
+                          return SizedBox.shrink();
+                        },
+                        separatorBuilder: (_, __) => Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Container(
+                            height: 1,
+                            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                          ),
                         ),
                       ),
                     ),
                     SliverToBoxAdapter(child: SizedBox(height: 72))
                   ],
                 ),
-                Padding(
-                    padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                    child: AddressSearchBox(controller: _searchController)),
+                SafeArea(
+                  child: Padding(
+                      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                      child: AddressSearchBox(controller: _searchController)),
+                ),
               ],
             ),
           )

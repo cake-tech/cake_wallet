@@ -54,6 +54,7 @@ ICON_TINTED_83_5_2x_PATH=""
 ICON_TINTED_1024_1x_PATH=""
 
 DEST_DIR_PATH=`pwd`/../../ios/Runner/Assets.xcassets/AppIcon.appiconset
+mkdir -p $DEST_DIR_PATH
 
 case $APP_IOS_TYPE in
 	"monero.com")

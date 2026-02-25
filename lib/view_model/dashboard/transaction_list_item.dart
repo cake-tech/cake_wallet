@@ -62,10 +62,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       return '$amount ${_appStore.amountParsingProxy.getCryptoSymbol(crypto)}';
     }
 
-    return transaction
-        .amountFormatted()
-        .withMaxDecimals(8)
-        .withLocalSeperator(_appStore.settingsStore.languageCode);
+    return transaction.amountFormatted();
   }
 
   String get formattedTitle {

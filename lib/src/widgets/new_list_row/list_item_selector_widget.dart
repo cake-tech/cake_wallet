@@ -32,25 +32,25 @@ class ListItemSelectorWidget extends StatelessWidget {
         isLastInSection: isLastInSection,
         builder: (context, textStyle, labelStyle) {
           return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(label, style: textStyle),
-              Row(
-                children: [
-                  Text(
-                    options[selectedIndex],
-                    style: labelStyle,
-                  ),
-                  SvgPicture.asset(
-                    "assets/new-ui/chooser.svg",
-                    colorFilter:
-                        ColorFilter.mode(theme.colorScheme.onSurfaceVariant, BlendMode.srcIn),
-                  ),
-                  SizedBox(width: 8)
-                ],
-              ),
-            ],
-          );
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(child: Text(label, style: textStyle)),
+                Row(
+                  children: [
+                    Text(
+                      options[selectedIndex],
+                      style: labelStyle,
+                    ),
+                    SvgPicture.asset(
+                      "assets/new-ui/chooser.svg",
+                      colorFilter:
+                          ColorFilter.mode(theme.colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                    ),
+                    SizedBox(width: 8)
+                  ],
+                ),
+              ],
+            );
         });
   }
 }

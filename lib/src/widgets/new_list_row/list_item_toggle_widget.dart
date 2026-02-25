@@ -45,12 +45,16 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                spacing: 8,
-                children: [
-                  Text(widget.label, style: textStyle),
-                  if(widget.leadingEndWidget != null) widget.leadingEndWidget!
-                ],
+              Expanded(
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Flexible(
+                      child: Text(widget.label, style: textStyle, softWrap: true),
+                    ),
+                    if(widget.leadingEndWidget != null) widget.leadingEndWidget!
+                  ],
+                ),
               ),
               StandardSwitch(
                 value: widget.value,

@@ -375,11 +375,11 @@ abstract class DashboardViewModelBase with Store {
       return true;
     }
 
-    if (silentPaymentsScanningActive) {
+    if (wallet.type == WalletType.bitcoin && silentPaymentsScanningActive && hasSilentPayments) {
       return true;
     }
 
-    if (mwebEnabled) {
+    if (wallet.type == WalletType.litecoin && mwebEnabled && hasMweb) {
       return true;
     }
 

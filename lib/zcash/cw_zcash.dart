@@ -55,6 +55,7 @@ class CWZcash extends Zcash {
               cryptoAmount: out.cryptoAmount,
               address: out.address,
               note: out.note,
+              memo: out.memo,
               sendAll: out.sendAll,
               extractedAddress: out.extractedAddress,
               isParsedAddress: out.isParsedAddress,

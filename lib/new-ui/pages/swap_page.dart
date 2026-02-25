@@ -821,7 +821,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     final currencyToShow = _fiatInputMode
         ? widget.exchangeViewModel.fiat.title
         : (_selectedCurrency is CryptoCurrency)
-            ? (_selectedCurrency as CryptoCurrency).title.toUpperCase()
+            ? widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol(_selectedCurrency as CryptoCurrency)
             : _selectedCurrency.name.toUpperCase();
 
     return Column(

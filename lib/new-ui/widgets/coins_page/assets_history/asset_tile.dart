@@ -28,6 +28,8 @@ class AssetTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconPath = _getIconPath();
+
     return GestureDetector(
       onTap: (){
         showModalBottomSheet(
@@ -87,8 +89,8 @@ class AssetTile extends StatelessWidget {
                           height: 45,
                           child: Stack(
                             children: [
-                              if((balance.asset.iconPath??"").isNotEmpty)
-                              Image.asset(balance.asset.iconPath!)
+                              if((iconPath).isNotEmpty)
+                              Image.asset(iconPath)
                               else
                                 Container(
                                   width: 45,
@@ -184,5 +186,12 @@ class AssetTile extends StatelessWidget {
     } catch(e) {
       return wallet.currency.title;
     }
+  }
+
+  String _getIconPath() {
+    if(balance.asset == CryptoCurrency.baseEth)
+      return "assets/images/crypto/ethereum.webp";
+
+    return balance.asset.iconPath ?? "";
   }
 }

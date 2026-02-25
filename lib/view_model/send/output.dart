@@ -48,6 +48,7 @@ abstract class OutputBase with Store {
         fiatAmount = '',
         address = '',
         note = '',
+        memo = "",
         extractedAddress = '',
         estimatedFee = '0.0',
         parsedAddress = ParsedAddress(addresses: []) {
@@ -84,6 +85,9 @@ abstract class OutputBase with Store {
 
   @observable
   String note;
+  
+  @observable
+  String memo;
 
   @observable
   bool sendAll;
@@ -94,7 +98,6 @@ abstract class OutputBase with Store {
   @observable
   String extractedAddress;
 
-  String? memo;
 
   @computed
   bool get isParsedAddress =>
@@ -313,7 +316,7 @@ abstract class OutputBase with Store {
     fiatAmount = '';
     address = '';
     note = '';
-    memo = null;
+    memo = "";
     resetParsedAddress();
   }
 

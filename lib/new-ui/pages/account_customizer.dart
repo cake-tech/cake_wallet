@@ -201,39 +201,33 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(999999),
                                     onTap: () {
+                                      final bloc = getIt.get<CardCustomizerBloc>(param1: false);
+
                                       Navigator.of(context).push(CupertinoPageRoute(
                                         builder: (context) {
-                                          final bloc = getIt.get<CardCustomizerBloc>(param1: false);
-
                                           return BlocProvider(
                                             create: (context) => bloc,
                                             child: Material(
-                                              child: BlocListener<CardCustomizerBloc,
-                                                      CardCustomizerState>(
-                                                  listener: (context, state) async {
-                                                    if (state is CardCustomizerSaved) {
-                                                      await widget.dashboardViewModel
-                                                          .loadCardDesigns();
-                                                      loadCards();
-                                                    }
-                                                  },
-                                                  child: PopScope(
-                                                    onPopInvokedWithResult: (didPop, result) {
-                                                      bloc.add(DesignSaved());
-                                                    },
-                                                    child: CardCustomizer(
-                                                      cryptoTitle: widget.dashboardViewModel.wallet
-                                                              .currency.fullName ??
-                                                          widget.dashboardViewModel.wallet.currency
-                                                              .name,
-                                                      cryptoName: widget
-                                                          .dashboardViewModel.wallet.currency.name,
-                                                    ),
-                                                  )),
+                                              child: CardCustomizer(
+                                                cryptoTitle: widget.dashboardViewModel.wallet
+                                                        .currency.fullName ??
+                                                    widget.dashboardViewModel.wallet.currency
+                                                        .name,
+                                                cryptoName: widget
+                                                    .dashboardViewModel.wallet.currency.name,
+                                              ),
                                             ),
                                           );
                                         },
-                                      ));
+                                      )).then((_)async{
+
+                                        bloc.add(DesignSaved());
+                                         await bloc.stream.firstWhere((item)=>item is CardCustomizerSaved);
+                                        await widget.dashboardViewModel
+                                            .loadCardDesigns();
+                                        loadCards();
+                                      });
+
                                     },
                                     child: Container(
                                       child: Padding(
