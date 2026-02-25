@@ -25,6 +25,9 @@ abstract class DisplaySettingsViewModelBase with Store {
   final ThemeStore _themeStore;
 
   @computed
+  bool get disableTradeOption => _settingsStore.disableTradeOption;
+
+  @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
   @computed
@@ -109,6 +112,9 @@ abstract class DisplaySettingsViewModelBase with Store {
     }
     return [];
   }
+
+  @action
+  void setDisableTradeOption(bool value) => _settingsStore.disableTradeOption = value;
 
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;
