@@ -30,6 +30,30 @@ abstract class ConnectionSyncViewModelBase with Store {
   final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
 
   @computed
+  bool get lookupTwitter => _settingsStore.lookupsTwitter;
+
+  @computed
+  bool get lookupsZanoAlias => _settingsStore.lookupsZanoAlias;
+
+  @computed
+  bool get looksUpMastodon => _settingsStore.lookupsMastodon;
+
+  @computed
+  bool get looksUpYatService => _settingsStore.lookupsYatService;
+
+  @computed
+  bool get looksUpUnstoppableDomains => _settingsStore.lookupsUnstoppableDomains;
+
+  @computed
+  bool get looksUpOpenAlias => _settingsStore.lookupsOpenAlias;
+
+  @computed
+  bool get looksUpENS => _settingsStore.lookupsENS;
+
+  @computed
+  bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
+
+  @computed
   ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
 
   @computed
@@ -96,6 +120,30 @@ abstract class ConnectionSyncViewModelBase with Store {
 
   @computed
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
+
+  @action
+  void setLookupsTwitter(bool value) => _settingsStore.lookupsTwitter = value;
+
+  @action
+  void setLookupsZanoAlias(bool value) => _settingsStore.lookupsZanoAlias = value;
+
+  @action
+  void setLookupsMastodon(bool value) => _settingsStore.lookupsMastodon = value;
+
+  @action
+  void setLookupsENS(bool value) => _settingsStore.lookupsENS = value;
+
+  @action
+  void setLookupsWellKnown(bool value) => _settingsStore.lookupsWellKnown = value;
+
+  @action
+  void setLookupsYatService(bool value) => _settingsStore.lookupsYatService = value;
+
+  @action
+  void setLookupsUnstoppableDomains(bool value) => _settingsStore.lookupsUnstoppableDomains = value;
+
+  @action
+  void setLookupsOpenAlias(bool value) => _settingsStore.lookupsOpenAlias = value;
 
   @action
   void setUseMempoolFeeAPI(bool value) => _settingsStore.useMempoolFeeAPI = value;

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
@@ -126,10 +127,10 @@ class SecurityBackupPage extends BasePage {
                                 conditionToDetermineIfToUse2FA: _securitySettingsViewModel
                                     .shouldRequireTOTP2FAForAllSecurityAndBackupSettings);
                       }),
-                ListItemRegularRow(
+                ListItemSelector(
                     keyValue: "security_backup_page_require_pin_after_button_key",
                     label: S.current.require_pin_after,
-                    trailingText: _securitySettingsViewModel.pinCodeRequiredDuration.toString(),
+                    options: [_securitySettingsViewModel.pinCodeRequiredDuration.toString()],
                     onTap: () async {
                       final items = PinCodeRequiredDuration.values;
 

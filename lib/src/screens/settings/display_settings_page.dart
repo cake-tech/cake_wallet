@@ -175,10 +175,10 @@ class DisplaySettingsPage extends StatelessWidget {
                               );
                             }),
                       if (!_displaySettingsViewModel.disabledFiatApiMode)
-                        ListItemRegularRow(
+                        ListItemSelector(
                             keyValue: "display_settings_fiat_currency",
                             label: S.of(context).settings_currency,
-                            trailingText: _displaySettingsViewModel.fiatCurrency.title,
+                            options: [_displaySettingsViewModel.fiatCurrency.title],
                             onTap: () async {
                               final items = FiatCurrency.all;
 
@@ -208,10 +208,10 @@ class DisplaySettingsPage extends StatelessWidget {
                                 ),
                               );
                             }),
-                      ListItemRegularRow(
+                      ListItemSelector(
                           keyValue: "display_settings_language",
                           label: S.of(context).settings_change_language,
-                          trailingText: LanguageService.list[_displaySettingsViewModel.languageCode] ?? '',
+                          options: [LanguageService.list[_displaySettingsViewModel.languageCode] ?? ''],
                           onTap: () async {
                             final items = LanguageService.list.keys.toList();
 
