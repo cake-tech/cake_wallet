@@ -1,5 +1,8 @@
+import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 void nothing(){}
 
@@ -7,13 +10,18 @@ class ModalPageWrapper extends StatelessWidget {
   ModalPageWrapper(
       {super.key,
       required this.content,
-      required this.topBar}) {
+      required this.topBar,
+        this.header,
+      this.horizontalPadding = 18.0,
+      this.verticalPadding = 72.0}) {
   }
 
-  static const boxHeight = 64.0;
-
-  final ModalTopBar topBar;
   final Widget content;
+  final ModalTopBar topBar;
+  final ModalHeader? header;
+  final double horizontalPadding;
+  final double verticalPadding;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -21,7 +29,25 @@ class ModalPageWrapper extends StatelessWidget {
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          content,
+          Positioned.fill(
+            child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: Observer(builder: (context) {
+                  return CustomScrollView(
+                    controller: ModalScrollController.of(context),
+                    physics: ClampingScrollPhysics(),
+                    slivers: [
+                      SliverToBoxAdapter(child: SizedBox(height: verticalPadding)),
+                      if (header != null) ...[
+                        SliverToBoxAdapter(child: header),
+                        SliverToBoxAdapter(child: SizedBox(height: 20)),
+                      ],
+                      SliverSafeArea(sliver: SliverToBoxAdapter(child: content)),
+                      SliverToBoxAdapter(child: SizedBox(height: verticalPadding)),
+                    ],
+                  );
+                })),
+          ),
           Container(
             height: (MediaQuery.of(context).padding.top + 84),
             decoration: BoxDecoration(
