@@ -1,14 +1,18 @@
 import 'dart:io';
 
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import 'package:cake_wallet/new-ui/widgets/changelog_modal.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../view_model/dashboard/dashboard_view_model.dart';
 
 class NewDashboard extends StatefulWidget {
@@ -37,6 +41,8 @@ class _NewDashboardState extends State<NewDashboard> {
     reaction((_)=>widget.dashboardViewModel.appStore.wallet, (_){setState(() {
       _selectedPage = 0;
     });});
+    
+    Future.delayed(Duration(milliseconds: 300)).then((_)=>_showChangelog(context));
   }
 
   @override
@@ -94,5 +100,33 @@ class _NewDashboardState extends State<NewDashboard> {
         ),
       ),
     );
+  }
+
+  void _showChangelog(BuildContext context) async {
+    final sharedPrefs = await SharedPreferences.getInstance();
+    final currentAppVersion = VersionComparator.getExtendedVersionNumber(
+        widget.dashboardViewModel.settingsStore.appVersion);
+    final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
+    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
+
+    if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
+      Future<void>.delayed(
+        Duration(seconds: 1),
+        () {
+          showModalBottomSheet(
+              isScrollControlled: true,
+              context: context,
+              builder: (context) {
+                return ChangelogModal(
+                  version: widget.dashboardViewModel.settingsStore.appVersion,
+                );
+              });
+        },
+      );
+
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    } else if (isNewInstall!) {
+      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
   }
 }
