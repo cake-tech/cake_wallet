@@ -6,12 +6,14 @@ class StandardListRow extends StatelessWidget {
   StandardListRow({
     required this.title,
     required this.isSelected,
+    this.subtitle,
     this.onTap,
     this.decoration,
     super.key,
   });
 
   final String title;
+  final String? subtitle;
   final bool isSelected;
   final void Function(BuildContext context)? onTap;
   final Decoration? decoration;
@@ -48,18 +50,52 @@ class StandardListRow extends StatelessWidget {
   Widget? buildLeading(BuildContext context) => null;
 
   Widget buildCenter(BuildContext context, {required bool hasLeftOffset}) {
+
     return Expanded(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           if (hasLeftOffset) SizedBox(width: 10),
           Expanded(
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: titleColor(context),
-                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (subtitle != null && subtitle!.isNotEmpty)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      textAlign: TextAlign.left,
+                      subtitle!,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: titleColor(context),
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
+                          ),
+                    ),
                   ),
+                if (subtitle != null && subtitle!.isNotEmpty)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      textAlign: TextAlign.left,
+                      title,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
+                          ),
+                    ),
+                  ),
+                if (subtitle == null || subtitle!.isEmpty)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: titleColor(context),
+                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ],
             ),
           )
         ],
@@ -138,6 +174,7 @@ class SectionStandardList extends StatelessWidget {
     this.hasTopSeparator = false,
     this.scrollController,
     this.physics,
+    this.shrinkWrap = false,
   }) : totalRows = [];
 
   final int sectionCount;
@@ -150,6 +187,7 @@ class SectionStandardList extends StatelessWidget {
   final EdgeInsets dividerPadding;
   final ScrollController? scrollController;
   final ScrollPhysics? physics;
+  final bool shrinkWrap;
 
   List<Widget> transform(
       bool hasTopSeparator,
@@ -208,6 +246,7 @@ class SectionStandardList extends StatelessWidget {
     return ListView.separated(
       controller: scrollController,
       physics: physics,
+      shrinkWrap: shrinkWrap,
       separatorBuilder: (_, index) {
         final row = totalRows[index];
 
