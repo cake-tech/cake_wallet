@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'print_verbose_dummy.dart';
 import 'utils/translation/translation_constants.dart';
 import 'utils/translation/translation_utils.dart';
 
@@ -45,7 +46,7 @@ void main() async {
       });
 
       currentItem++;
-      print(
+      printV(
           "\r$currentLang/${langs.length} langs done, $currentItem/${defaultLangChangelog.length} items done");
     }
     currentLang++;
