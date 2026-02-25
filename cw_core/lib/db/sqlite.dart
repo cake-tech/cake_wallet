@@ -22,7 +22,22 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
 
-  db = await openDatabase(dbFile.path, version: 1,
+  db = await openDatabase(dbFile.path, version: 2,
+    onUpgrade: (Database db, int oldVersion, int newVersion) async {
+      if (oldVersion <= 1) {
+        await db.execute('''
+DELETE FROM WalletInfo
+WHERE walletInfoId NOT IN (
+    SELECT MIN(walletInfoId)
+    FROM WalletInfo
+    GROUP BY id
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_walletinfo_id_unique
+ON WalletInfo (id);
+''');
+      }
+    },
     onCreate: (Database db, int version) async {
       await db.execute(
         '''
@@ -100,6 +115,10 @@ CREATE TABLE "WalletInfoAddressMap" (
 );
         '''
       );
+      await db.execute('''
+CREATE UNIQUE INDEX IF NOT EXISTS idx_walletinfo_id_unique
+ON WalletInfo (id);
+''');
     }
   );
 }
