@@ -9,9 +9,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
@@ -31,7 +28,7 @@ class SecurityBackupPage extends BasePage {
   final AuthService _authService;
 
   @override
-  String get title => S.current.security_and_backup;
+  String get title => S.current.security;
 
   final SecuritySettingsViewModel _securitySettingsViewModel;
 
@@ -50,7 +47,7 @@ class SecurityBackupPage extends BasePage {
             ModalHeader(
                 iconPath: "assets/new-ui/settings_row_icons/security.svg",
                 message: S.of(context).privacy_and_security_desc,
-                title: S.of(context).privacy_and_security),
+                title: S.of(context).security),
             Observer(
               builder: (_) => NewListSections(sections: {
                 "": [
