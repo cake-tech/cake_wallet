@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/package_info.dart';
@@ -56,6 +57,33 @@ abstract class OtherSettingsViewModelBase with Store {
 
     return priority;
   }
+
+  @computed
+  bool get isAutoGenerateSubaddressesEnabled =>
+      _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
+
+  @action
+  void setAutoGenerateSubaddresses(bool value) {
+    _wallet.isEnabledAutoGenerateSubaddress = value;
+    _settingsStore.autoGenerateSubaddressStatus =
+    value ? AutoGenerateSubaddressStatus.enabled : AutoGenerateSubaddressStatus.disabled;
+  }
+
+  bool get isAutoGenerateSubaddressesVisible => [
+    WalletType.monero,
+    WalletType.wownero,
+    WalletType.bitcoin,
+    WalletType.litecoin,
+    WalletType.bitcoinCash,
+    WalletType.dogecoin,
+    WalletType.decred
+  ].contains(_wallet.type);
+
+  @computed
+  bool get isMoneroWallet => _wallet.type == WalletType.monero;
+
+  @computed
+  bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
   @computed
   bool get changeRepresentativeEnabled =>
@@ -126,6 +154,10 @@ abstract class OtherSettingsViewModelBase with Store {
 
   @computed
   double get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate.toDouble();
+
+  @action
+  void setShouldSaveRecipientAddress(bool value) =>
+      _settingsStore.shouldSaveRecipientAddress = value;
 
   int? get customPriorityItemIndex {
     final priorities = priorityForWalletType(walletType);
