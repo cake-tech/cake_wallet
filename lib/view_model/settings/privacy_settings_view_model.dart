@@ -28,6 +28,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
 
   @computed
+  bool get isBitcoin => _wallet.type == WalletType.bitcoin;
+
+  @computed
   bool get isAutoGenerateSubaddressesEnabled =>
       _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
 
