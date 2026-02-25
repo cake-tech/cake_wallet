@@ -1175,11 +1175,14 @@ Future<void> setup({
   );
 
   getIt.registerFactoryParam<NodeCreateOrEditPage, Node?, bool?>(
-      (Node? editingNode, bool? isSelected) => NodeCreateOrEditPage(
-          nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: {'isPow' : false,'editingNode': editingNode}),
+      (Node? editingNode, bool? isSelected) {
+        final vm = getIt.get<NodeCreateOrEditViewModel>(param1: {'isPow' : false,'editingNode': editingNode});
+        return NodeCreateOrEditPage(
+          nodeCreateOrEditViewModel: vm,
           editingNode: editingNode,
           isSelected: isSelected,
-          type: getIt.get<AppStore>().wallet!.type));
+          type: getIt.get<AppStore>().wallet!.type);
+      });
 
   getIt.registerFactoryParam<PowNodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(

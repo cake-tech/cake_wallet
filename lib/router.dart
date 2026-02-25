@@ -609,9 +609,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.newNode:
       final args = settings.arguments as Map<String, dynamic>?;
+      final page = getIt.get<NodeCreateOrEditPage>(
+        param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NodeCreateOrEditPage>(
-              param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
+          builder: (_) => page);
 
     case Routes.login:
       return CupertinoPageRoute<void>(
