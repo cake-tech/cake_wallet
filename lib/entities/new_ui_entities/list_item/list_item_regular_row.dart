@@ -10,7 +10,9 @@ class ListItemRegularRow extends ListItem {
     this.iconPath,
     this.onTap,
     this.trailingIconPath,
-    this.showArrow = true
+    this.showArrow = true,
+    this.foregroundColor,
+    this.trailingIconSize
   });
 
   final String? subtitle;
@@ -19,4 +21,6 @@ class ListItemRegularRow extends ListItem {
   final String? trailingIconPath;
   final VoidCallback? onTap;
   final bool showArrow;
+  final Color? foregroundColor;
+  final double? trailingIconSize;
 }

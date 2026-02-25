@@ -143,4 +143,5 @@ class Routes {
   static const dEuroSavings = '/integration/dEuro/savings';
 
   static const lightningUsernamePage = "/lightning_username_page";
+  static const aboutPage = "/about_page";
 }
