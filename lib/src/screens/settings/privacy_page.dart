@@ -1,5 +1,3 @@
-import 'package:cake_wallet/entities/exchange_api_mode.dart';
-import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -8,19 +6,10 @@ import 'package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import "package:cw_core/wallet_type.dart";
 
 class PrivacyPage extends BasePage {
   PrivacyPage(this._privacySettingsViewModel);
@@ -40,8 +29,8 @@ class PrivacyPage extends BasePage {
       ),
       header: ModalHeader(
           iconPath: "assets/new-ui/settings_row_icons/privacy.svg",
-          message: "Manage special Bitcoin privacy features",
-          title: S.of(context).privacy_features),
+          message: S.of(context).privacy_desc,
+          title: S.of(context).privacy),
       content: SingleChildScrollView(
         child: Container(
           child: Observer(builder: (_) {
@@ -50,6 +39,23 @@ class PrivacyPage extends BasePage {
               children: [
                 NewListSections(
                   sections: {
+                    "1": [
+                      if (_privacySettingsViewModel.isAutoGenerateSubaddressesVisible)
+                        ListItemToggle(
+                            keyValue: "auto_generate_subaddresses",
+                            label: S.current.auto_generate_subaddresses,
+                            value: _privacySettingsViewModel.isAutoGenerateSubaddressesEnabled,
+                            onChanged: (val) {
+                              _privacySettingsViewModel.setAutoGenerateSubaddresses(val);
+                            }),
+                      ListItemToggle(
+                          keyValue: "save_recipient_address",
+                          label: S.current.settings_save_recipient_address,
+                          value: _privacySettingsViewModel.shouldSaveRecipientAddress,
+                          onChanged: (val) {
+                            _privacySettingsViewModel.setShouldSaveRecipientAddress(val);
+                          }),
+                    ],
                     "": [
                     if (_privacySettingsViewModel.isBitcoin)
                       ListItemRegularRow(
@@ -69,17 +75,6 @@ class PrivacyPage extends BasePage {
                   ],
                 }
                 ),
-                // SettingsSwitcherCell(
-                //   title: S.current.disable_bulletin,
-                //   value: _privacySettingsViewModel.disableBulletin,
-                //   onValueChange: (BuildContext _, bool value) {
-                //     _privacySettingsViewModel.setDisableBulletin(value);
-                //   },
-                // ),
-                // SettingsCellWithArrow(
-                //   title: 'Trocador providers',
-                //   handler: (context) => Navigator.of(context).pushNamed(Routes.trocadorProvidersPage),
-                // ),
               ],
             );
           }),

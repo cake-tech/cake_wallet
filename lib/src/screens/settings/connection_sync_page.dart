@@ -37,7 +37,7 @@ class ConnectionSyncPage extends BasePage {
           onLeadingPressed: () => Navigator.of(context).pop()),
       header: ModalHeader(
           iconPath: "assets/new-ui/settings_row_icons/connections.svg",
-          message: "Manage connections to services and third party APIs",
+          message: S.of(context).connections_desc,
           title: S.of(context).connection_sync),
       content: Column(
         mainAxisSize: MainAxisSize.min,

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
@@ -25,7 +23,6 @@ import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class DisplaySettingsPage extends StatelessWidget {
   DisplaySettingsPage(this._displaySettingsViewModel);
@@ -37,7 +34,7 @@ class DisplaySettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ModalPageWrapper(
       topBar: ModalTopBar(
-        title: S.of(context).display_settings,
+        title: S.of(context).display,
         leadingIcon: Icon(Icons.arrow_back_ios_new),
         onLeadingPressed: () => Navigator.of(context).pop(),
       ),

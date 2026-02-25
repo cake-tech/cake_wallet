@@ -11,15 +11,11 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
@@ -52,7 +48,7 @@ class SecurityBackupPage extends BasePage {
       header: ModalHeader(
           iconPath: "assets/new-ui/settings_row_icons/security.svg",
           message: S.of(context).privacy_and_security_desc,
-          title: S.of(context).privacy_and_security),
+          title: S.of(context).security),
       content: Column(
         spacing: 16,
         mainAxisSize: MainAxisSize.min,
@@ -178,12 +174,6 @@ class SecurityBackupPage extends BasePage {
                         conditionToDetermineIfToUse2FA: _securitySettingsViewModel
                             .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
                       );
-                    }),
-                ListItemRegularRow(
-                    keyValue: "security_backup_page_sign_and_verify",
-                    label: S.current.sign_verify_title,
-                    onTap: () {
-                      Navigator.of(context).pushNamed(Routes.signPage);
                     }),
                 ListItemRegularRow(
                     keyValue: "security_backup_page_totp_2fa_button_key",
