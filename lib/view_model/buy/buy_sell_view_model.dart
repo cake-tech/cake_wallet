@@ -349,7 +349,14 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   String _getInitialCryptoCurrencyAddress() {
-    return cryptoCurrency == wallet.currency ? wallet.walletAddresses.address : '';
+    if (cryptoCurrency == wallet.currency) {
+      if ([CryptoCurrency.zec, CryptoCurrency.btc].contains(cryptoCurrency)) {
+        return wallet.walletAddresses.addressForBuy;
+      }
+
+      return wallet.walletAddresses.address;
+    }
+    return '';
   }
 
   @action

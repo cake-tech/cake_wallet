@@ -731,6 +731,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     });
   }
 
+  @override
+  String get addressForBuy => super.addressForBuy;
+
   @action
   Future<void> setAddressType(BitcoinAddressType type) async {
     _addressPageType = type;

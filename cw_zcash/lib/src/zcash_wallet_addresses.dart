@@ -126,6 +126,10 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   String get addressForExchange => transparentAddressRotated ?? transparentAddress;
 
   @override
+  @computed
+  String get addressForBuy => transparentAddressRotated ?? transparentAddress;
+
+  @override
   bool containsAddress(final String address) {
     return this.address == address || addressesMap.values.contains(address);
   }
