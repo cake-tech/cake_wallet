@@ -1,2 +1,2 @@
-Add support to Bitcoin Lightning
+Add support for Bitcoin Lightning
 New Design

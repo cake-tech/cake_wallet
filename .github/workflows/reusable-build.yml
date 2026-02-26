@@ -201,7 +201,7 @@ jobs:
           echo -e "id=com.cakewallet.test_${sanitized_branch_name}\nname=${BRANCH_NAME}" > android/app.properties
 
       - name: Install Protoc
-        run: sudo apt-get update || true && sudo apt-get install -y protobuf-compiler
+        run: sudo apt-get update || true && sudo apt-get install -y protobuf-compiler libprotobuf-dev
 
       - name: Replace email address
         run: |
