@@ -1,4 +1,5 @@
 import 'package:cw_core/transaction_priority.dart';
+import 'package:flutter/foundation.dart';
 
 class EVMChainTransactionPriority extends TransactionPriority {
   final int tip;
@@ -23,7 +24,10 @@ class EVMChainTransactionPriority extends TransactionPriority {
       case 2:
         return fast;
       default:
-        throw Exception('Unexpected token: $raw for EVMChainTransactionPriority deserialize');
+        if (kDebugMode) {
+          throw Exception('Unexpected token: $raw for EVMChainTransactionPriority deserialize');
+        }
+        return medium;
     }
   }
 
