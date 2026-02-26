@@ -32,8 +32,7 @@ class ModalPageWrapper extends StatelessWidget {
           Positioned.fill(
             child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                child: Observer(builder: (context) {
-                  return CustomScrollView(
+                  child: CustomScrollView(
                     controller: ModalScrollController.of(context),
                     physics: ClampingScrollPhysics(),
                     slivers: [
@@ -45,9 +44,8 @@ class ModalPageWrapper extends StatelessWidget {
                       SliverSafeArea(sliver: SliverToBoxAdapter(child: content)),
                       SliverToBoxAdapter(child: SizedBox(height: verticalPadding)),
                     ],
-                  );
-                })),
-          ),
+                  )
+                )),
           Container(
             height: (MediaQuery.of(context).padding.top + 84),
             decoration: BoxDecoration(
