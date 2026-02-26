@@ -64,6 +64,13 @@ class PrivacyPage extends BasePage {
                           label: S.current.silent_payments,
                           onTap: () =>
                               Navigator.of(context).pushNamed(Routes.silentPaymentsSettings)),
+                      if (_privacySettingsViewModel.isLitecoin)
+                        ListItemRegularRow(
+                            iconPath: "assets/new-ui/settings_row_icons/mweb.svg",
+                            keyValue: "mweb",
+                            label: "MWEB",
+                            onTap: () =>
+                                Navigator.of(context).pushNamed(Routes.mwebSettings)),
                     if (_privacySettingsViewModel.canUsePayjoin)
                       ListItemToggle(
                           keyValue: "use_payjoin",

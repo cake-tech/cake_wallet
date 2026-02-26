@@ -1143,7 +1143,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => TrocadorProvidersPage(getIt.get<TrocadorProvidersViewModel>()));
 
-  getIt.registerFactory(() => DomainLookupsPage(getIt.get<PrivacySettingsViewModel>()));
+  getIt.registerFactory(() => DomainLookupsPage(getIt.get<ConnectionSyncViewModel>()));
 
   getIt.registerFactory(() => DisplaySettingsPage(getIt.get<DisplaySettingsViewModel>()));
 

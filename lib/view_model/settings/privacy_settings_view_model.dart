@@ -23,6 +23,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get isBitcoin => _wallet.type == WalletType.bitcoin;
 
   @computed
+  bool get isLitecoin => _wallet.type == WalletType.litecoin;
+
+  @computed
   bool get isAutoGenerateSubaddressesEnabled =>
       _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
 
@@ -86,20 +89,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get usePayjoin => _settingsStore.usePayjoin;
 
-  bool get canUseEtherscan => _wallet.chainId == 1;
-
-  bool get canUsePolygonScan => _wallet.chainId == 137;
-
-  bool get canUseBaseScan => _wallet.chainId == 8453;
-
-  bool get canUseArbiScan => _wallet.chainId == 42161;
-
-  bool get canUseBscScan => _wallet.chainId == 56;
-
-  bool get canUseTronGrid => _wallet.type == WalletType.tron;
-
-  bool get canUseMempoolFeeAPI => _wallet.type == WalletType.bitcoin;
-
+  @computed
   bool get canUsePayjoin => _wallet.type == WalletType.bitcoin && DeviceInfo.instance.isMobile;
 
   @action
