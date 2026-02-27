@@ -239,8 +239,5 @@ abstract class PrivacySettingsViewModelBase with Store {
   }
 
   @action
-  void setUseLightning(bool value) {
-    _settingsStore.useLightning = value;
-    bitcoin!.updateUseLightning(_wallet, value);
-  }
+  void setUseLightning(bool value) => bitcoin!.updateUseLightning(_wallet, value);
 }
