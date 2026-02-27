@@ -447,6 +447,7 @@
   "expiresOn": "Istječe",
   "expiry_and_validity": "Istek i valjanost",
   "export_backup": "Izvezi sigurnosnu kopiju",
+  "export_lightning_logs": "Izvoz Lightning zapisa",
   "export_logs": "Izvozni trupci",
   "export_outputs": "Izvoz izlaza",
   "extend_session": "Proširiti sesiju",

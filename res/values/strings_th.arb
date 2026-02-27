@@ -447,6 +447,7 @@
   "expiresOn": "หมดอายุวันที่",
   "expiry_and_validity": "หมดอายุและถูกต้อง",
   "export_backup": "ส่งออกข้อมูลสำรอง",
+  "export_lightning_logs": "ส่งออกบันทึก Lightning",
   "export_logs": "บันทึกการส่งออก",
   "export_outputs": "เอาต์พุตส่งออก",
   "extend_session": "ขยายเซสชัน",

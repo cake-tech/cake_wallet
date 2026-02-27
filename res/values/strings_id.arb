@@ -447,6 +447,7 @@
   "expiresOn": "Kadaluarsa pada",
   "expiry_and_validity": "Kedaluwarsa dan validitas",
   "export_backup": "Ekspor cadangan",
+  "export_lightning_logs": "Ekspor log Lightning",
   "export_logs": "Log ekspor",
   "export_outputs": "Ekspor output",
   "extend_session": "Perpanjang sesi",

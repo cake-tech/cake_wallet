@@ -447,6 +447,7 @@
   "expiresOn": "Expires on",
   "expiry_and_validity": "Expiry and Validity",
   "export_backup": "Export backup",
+  "export_lightning_logs": "Export Lightning logs",
   "export_logs": "Export logs",
   "export_outputs": "Export outputs",
   "extend_session": "Extend Session",

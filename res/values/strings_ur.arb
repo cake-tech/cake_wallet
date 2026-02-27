@@ -447,6 +447,7 @@
   "expiresOn": "ﺩﺎﻌﯿﻣ ﯽﻣﺎﺘﺘﺧﺍ",
   "expiry_and_validity": "میعاد ختم اور صداقت",
   "export_backup": "بیک اپ برآمد کریں۔",
+  "export_lightning_logs": "بجلی کے نوشتہ جات برآمد کریں۔",
   "export_logs": "نوشتہ جات برآمد کریں",
   "export_outputs": "برآمد کے نتائج",
   "extend_session": "سیشن میں توسیع",

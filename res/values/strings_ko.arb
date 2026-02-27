@@ -447,6 +447,7 @@
   "expiresOn": "만료일",
   "expiry_and_validity": "만료 및 유효성",
   "export_backup": "백업 내보내기",
+  "export_lightning_logs": "Lightning 로그 내보내기",
   "export_logs": "로그 내보내기",
   "export_outputs": "출력 내보내기",
   "extend_session": "세션 연장",

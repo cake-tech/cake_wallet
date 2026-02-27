@@ -447,6 +447,7 @@
   "expiresOn": "到期",
   "expiry_and_validity": "到期和有效性",
   "export_backup": "导出备份",
+  "export_lightning_logs": "导出闪电日志",
   "export_logs": "导出日志",
   "export_outputs": "导出输出",
   "extend_session": "扩展会话",

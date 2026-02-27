@@ -447,6 +447,7 @@
   "expiresOn": "Վավերականությունը լրանում է",
   "expiry_and_validity": "Վավերականություն և լրացում",
   "export_backup": "Արտահանել կրկնօրինակը",
+  "export_lightning_logs": "Արտահանել Lightning տեղեկամատյանները",
   "export_logs": "Արտահանման տեղեկամատյաններ",
   "export_outputs": "Արտահանման արդյունքներ",
   "extend_session": "Ընդլայնված նիստ",

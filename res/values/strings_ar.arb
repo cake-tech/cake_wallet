@@ -447,6 +447,7 @@
   "expiresOn": "ﻲﻓ ﻪﺘﻴﺣﻼ﻿ﺻ ﻲﻬﺘﻨﺗ",
   "expiry_and_validity": "انتهاء الصلاحية والصلاحية",
   "export_backup": "تصدير نسخة احتياطية",
+  "export_lightning_logs": "تصدير سجلات Lightning",
   "export_logs": "سجلات التصدير",
   "export_outputs": "مخرجات التصدير",
   "extend_session": "تمديد الجلسة",

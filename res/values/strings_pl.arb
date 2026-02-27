@@ -446,6 +446,7 @@
   "expiresOn": "Wygasa dnia",
   "expiry_and_validity": "Wygaśnięcie i Ważność",
   "export_backup": "Eksportuj kopię zapasową",
+  "export_lightning_logs": "Eksportuj dzienniki Lightning",
   "export_logs": "Eksportuj logi",
   "export_outputs": "Eksportuj wyjścia",
   "extend_session": "Przedłuż sesję",

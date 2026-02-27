@@ -447,6 +447,7 @@
   "expiresOn": "Mag-e-expire sa",
   "expiry_and_validity": "Pag-expire at Bisa",
   "export_backup": "I-export ang backup",
+  "export_lightning_logs": "I-export ang Lightning logs",
   "export_logs": "Mga log ng pag -export",
   "export_outputs": "Mga output ng pag -export",
   "extend_session": "Palawakin ang session",

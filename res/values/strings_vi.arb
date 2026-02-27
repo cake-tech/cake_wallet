@@ -446,6 +446,7 @@
   "expiresOn": "Hết hạn vào",
   "expiry_and_validity": "Hạn và hiệu lực",
   "export_backup": "Xuất sao lưu",
+  "export_lightning_logs": "Xuất nhật ký Lightning",
   "export_logs": "Nhật ký xuất khẩu",
   "export_outputs": "Đầu ra xuất khẩu",
   "extend_session": "Mở rộng phiên",

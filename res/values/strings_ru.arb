@@ -447,6 +447,7 @@
   "expiresOn": "Годен до",
   "expiry_and_validity": "Истечение и достоверность",
   "export_backup": "Экспорт резервной копии",
+  "export_lightning_logs": "Экспорт журналов Lightning",
   "export_logs": "Экспортные журналы",
   "export_outputs": "Экспортные выходы",
   "extend_session": "Продлить сессию",

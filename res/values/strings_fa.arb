@@ -445,6 +445,7 @@
   "expiresOn": "منقضی می‌شود در",
   "expiry_and_validity": "انقضا و اعتبار",
   "export_backup": "خروجی گرفتن از نسخه پشتیبان",
+  "export_lightning_logs": "صادرات لاگ های لایتنینگ",
   "export_logs": "خروجی گرفتن از لاگ‌ها",
   "export_outputs": "خروجی گرفتن از خروجی‌ها",
   "extend_session": "تمدید نشست",

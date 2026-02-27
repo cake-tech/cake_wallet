@@ -447,6 +447,7 @@
   "expiresOn": "有効期限は次のとおりです",
   "expiry_and_validity": "有効期限と有効性",
   "export_backup": "バックアップのエクスポート",
+  "export_lightning_logs": "Export Lightning logs",
   "export_logs": "ログをエクスポートします",
   "export_outputs": "エクスポート出力",
   "extend_session": "セッションを拡張します",

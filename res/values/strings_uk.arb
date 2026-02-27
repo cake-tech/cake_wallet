@@ -447,6 +447,7 @@
   "expiresOn": "Термін дії закінчується",
   "expiry_and_validity": "Закінчення та обгрунтованість",
   "export_backup": "Експортувати резервну копію",
+  "export_lightning_logs": "Експортувати журнали Lightning",
   "export_logs": "Експортні журнали",
   "export_outputs": "Експортні результати",
   "extend_session": "Продовжити сеанс",

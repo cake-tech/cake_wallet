@@ -392,6 +392,7 @@
   "expiresOn": "到期",
   "expiry_and_validity": "到期和有效性",
   "export_backup": "匯出備份",
+  "export_lightning_logs": "Export Lightning logs",
   "export_logs": "匯出日誌",
   "export_outputs": "匯出輸出",
   "extend_session": "延長工作階段",

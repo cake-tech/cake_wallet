@@ -447,6 +447,7 @@
   "expiresOn": "Tarihinde sona eriyor",
   "expiry_and_validity": "Sona erme ve geçerlilik",
   "export_backup": "Yedeği dışa aktar",
+  "export_lightning_logs": "Lightning günlüklerini dışa aktar",
   "export_logs": "Dışa aktarma günlükleri",
   "export_outputs": "İhracat çıktıları",
   "extend_session": "Oturumu Genişlet",

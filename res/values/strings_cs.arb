@@ -447,6 +447,7 @@
   "expiresOn": "Vyprší dne",
   "expiry_and_validity": "Vypršení a platnost",
   "export_backup": "Exportovat zálohu",
+  "export_lightning_logs": "Exportujte protokoly Lightning",
   "export_logs": "Vývozní protokoly",
   "export_outputs": "Vývozní výstupy",
   "extend_session": "Prodloužit relaci",

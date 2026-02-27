@@ -392,6 +392,7 @@
   "expiresOn": "Expira em",
   "expiry_and_validity": "Expiração e validade",
   "export_backup": "Backup de exportação",
+  "export_lightning_logs": "Exportar registros do Lightning",
   "export_logs": "Exportar logs",
   "export_outputs": "Saídas de exportação",
   "extend_session": "Estender sessão",

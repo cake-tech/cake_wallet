@@ -447,6 +447,7 @@
   "expiresOn": "သက်တမ်းကုန်သည်။",
   "expiry_and_validity": "သက်တမ်းကုန်ဆုံးခြင်းနှင့်တရားဝင်မှု",
   "export_backup": "အရန်ကူးထုတ်ရန်",
+  "export_lightning_logs": "Lightning မှတ်တမ်းများကို ထုတ်ယူပါ။",
   "export_logs": "ပို့ကုန်မှတ်တမ်းများ",
   "export_outputs": "ပို့ကုန်ထုတ်ကုန်များ",
   "extend_session": "session တစ်ခုတိုးချဲ့",

@@ -82,7 +82,7 @@ class OtherSettingsPage extends BasePage {
                         ),
                       if (_otherSettingsViewModel.walletType == WalletType.bitcoin)
                         SettingsCellWithArrow(
-                          title: "Export Breez Lightning Log",
+                          title: S.of(context).export_lightning_logs,
                           handler: onExportLNLog,
                         ),
                       SettingsCellWithArrow(

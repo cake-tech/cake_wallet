@@ -447,6 +447,7 @@
   "expiresOn": "Verloopt op",
   "expiry_and_validity": "Vervallen en geldigheid",
   "export_backup": "Back-up exporteren",
+  "export_lightning_logs": "Lightning-logboeken exporteren",
   "export_logs": "Exporteer logboeken",
   "export_outputs": "Exportuitgangen exporteren",
   "extend_session": "Sessie verlengen",

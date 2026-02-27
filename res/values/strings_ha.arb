@@ -447,6 +447,7 @@
   "expiresOn": "Yana ƙarewa",
   "expiry_and_validity": "Karewa da inganci",
   "export_backup": "Ajiyayyen fitarwa",
+  "export_lightning_logs": "Fitar da gundumomin walƙiya",
   "export_logs": "Injin fitarwa",
   "export_outputs": "Fitarwar fitarwa",
   "extend_session": "Mika zaman",

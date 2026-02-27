@@ -447,6 +447,7 @@
   "expiresOn": "Изтича на",
   "expiry_and_validity": "Изтичане и валидност",
   "export_backup": "Експортиране на резервно копие",
+  "export_lightning_logs": "Експортиране на Lightning регистрационни файлове",
   "export_logs": "Експортни дневници",
   "export_outputs": "Експортни резултати",
   "extend_session": "Удължаване на сесията",
