@@ -298,6 +298,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     'wrappedether': weth,
     'shibainu': shib,
     'zcash': zec,
+    'lightning': btcln,
     'base': baseEth,
     'arbitrum': arbEth,
   };
