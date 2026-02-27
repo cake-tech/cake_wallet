@@ -221,17 +221,20 @@ class _NewSwapPageState extends State<NewSwapPage> {
       reaction((_) => widget.exchangeViewModel.tradeState, (ExchangeTradeState state) {
         if (state is TradeIsCreatedFailure) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            showPopUp<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertWithOneAction(
-                      key: ValueKey('exchange_page_trade_creation_failure_dialog_key'),
-                      buttonKey: ValueKey('exchange_page_trade_creation_failure_dialog_button_key'),
-                      alertTitle: S.of(context).provider_error(state.title),
-                      alertContent: state.error,
-                      buttonText: S.of(context).ok,
-                      buttonAction: () => Navigator.of(context).pop());
-                });
+            if (mounted) {
+              showPopUp<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertWithOneAction(
+                        key: ValueKey('exchange_page_trade_creation_failure_dialog_key'),
+                        buttonKey:
+                            ValueKey('exchange_page_trade_creation_failure_dialog_button_key'),
+                        alertTitle: S.of(context).provider_error(state.title),
+                        alertContent: state.error,
+                        buttonText: S.of(context).ok,
+                        buttonAction: () => Navigator.of(context).pop());
+                  });
+            }
           });
         }
         if (state is TradeIsCreatedSuccessfully) {
