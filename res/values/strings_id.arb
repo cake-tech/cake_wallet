@@ -376,6 +376,7 @@
   "enable_auto_node_switching": "Aktifkan switching simpul otomatis",
   "enable_builtin_tor": "Aktifkan built-in tor",
   "enable_for_auto_switching": "Aktifkan untuk pengalihan otomatis",
+  "enable_lightning": "Aktifkan Petir",
   "enable_mempool_api": "API Mempool untuk biaya dan tanggal yang akurat",
   "enable_replace_by_fee": "Aktifkan ganti-by-fee",
   "enable_silent_payments_scanning": "Mulailah memindai pembayaran diam, sampai ujung tercapai",

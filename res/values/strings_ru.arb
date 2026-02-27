@@ -376,6 +376,7 @@
   "enable_auto_node_switching": "Включить автоматическое переключение узлов",
   "enable_builtin_tor": "Включить встроенный в Tor",
   "enable_for_auto_switching": "Включить для автоматического переключения",
+  "enable_lightning": "Включить молнию",
   "enable_mempool_api": "Mempool API за точные сборы и даты",
   "enable_replace_by_fee": "Включить замену за пикой",
   "enable_silent_payments_scanning": "Начните сканировать безмолвные платежи, пока не будет достигнут наконечник",

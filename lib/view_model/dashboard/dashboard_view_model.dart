@@ -668,6 +668,10 @@ abstract class DashboardViewModelBase with Store {
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
   @computed
+  bool get hasLightning =>
+      wallet.type == WalletType.bitcoin && wallet.isSoftwareWallet && bitcoin!.useLightning(wallet);
+
+  @computed
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
 
   @computed

@@ -376,6 +376,7 @@
   "enable_auto_node_switching": "Ativar comutação automática de nó",
   "enable_builtin_tor": "Ative o Buildi-in Tor",
   "enable_for_auto_switching": "Ativar a troca automática",
+  "enable_lightning": "Ativar relâmpago",
   "enable_mempool_api": "Mempool API para taxas e datas precisas",
   "enable_replace_by_fee": "Habilite substituir por taxa",
   "enable_silent_payments_scanning": "Comece a escanear pagamentos silenciosos, até que o topo seja alcançada",

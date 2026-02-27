@@ -376,6 +376,7 @@
   "enable_auto_node_switching": "Abilita la commutazione del nodo automatico",
   "enable_builtin_tor": "Abilita buildi-in tor",
   "enable_for_auto_switching": "Abilita per il cambio automatico",
+  "enable_lightning": "Abilita Fulmine",
   "enable_mempool_api": "API Mempool per commissioni e date accurate",
   "enable_replace_by_fee": "Abilita Replace-By-Fee",
   "enable_silent_payments_scanning": "Inizia a scansionare le transazioni inviate al tuo indirizzo Silent Payments",

@@ -376,6 +376,7 @@
   "enable_auto_node_switching": "Միացնել ավտոմատ հանգույցի անջատումը",
   "enable_builtin_tor": "Միացրեք ներկառուցված ջահը",
   "enable_for_auto_switching": "Միացնել ավտոմատ անջատումը",
+  "enable_lightning": "Միացնել Lightning-ը",
   "enable_mempool_api": "Mempool API ճշգրիտ վճարների եւ ամսաթվերի համար",
   "enable_replace_by_fee": "Միացնել փոխարինումը միջնորդավճարով",
   "enable_silent_payments_scanning": "Միացնել Լուռ Վճարումների սկանավորումը",

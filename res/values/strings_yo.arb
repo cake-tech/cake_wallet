@@ -377,6 +377,7 @@
   "enable_auto_node_switching": "Mu oju-ọna yiyọ laifọwọyi",
   "enable_builtin_tor": "Mu ṣiṣẹ",
   "enable_for_auto_switching": "Mu ṣiṣẹ fun adaṣe-pada",
+  "enable_lightning": "Jeki Monomono",
   "enable_mempool_api": "Mempool API fun awọn owo deede ati awọn ọjọ",
   "enable_replace_by_fee": "Mu ki o rọpo",
   "enable_silent_payments_scanning": "Bẹrẹ awọn sisanwo ipalọlọ, titi ti o fi de opin",

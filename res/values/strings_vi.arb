@@ -375,6 +375,7 @@
   "enable_auto_node_switching": "Bật chuyển đổi nút tự động",
   "enable_builtin_tor": "Bật Buildi-In Tor",
   "enable_for_auto_switching": "Kích hoạt để chuyển đổi tự động",
+  "enable_lightning": "Kích hoạt tia sét",
   "enable_mempool_api": "API Mempool cho các khoản phí và ngày chính xác",
   "enable_replace_by_fee": "Bật Thay thế Bằng Phí",
   "enable_silent_payments_scanning": "Bật quét thanh toán im lặng",

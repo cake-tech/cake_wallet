@@ -122,6 +122,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get usePayjoin => _settingsStore.usePayjoin;
 
+  @computed
+  bool get useLightning => _wallet.type == WalletType.bitcoin && bitcoin!.useLightning(_wallet);
+
   bool get canUseEtherscan => _wallet.chainId == 1;
 
   bool get canUsePolygonScan => _wallet.chainId == 137;
@@ -137,6 +140,8 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get canUseMempoolFeeAPI => _wallet.type == WalletType.bitcoin;
 
   bool get canUsePayjoin => _wallet.type == WalletType.bitcoin && DeviceInfo.instance.isMobile;
+
+  bool get canUseLightning => _wallet.type == WalletType.bitcoin;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>
@@ -231,5 +236,11 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setUsePayjoin(bool value) {
     _settingsStore.usePayjoin = value;
     bitcoin!.updatePayjoinState(_wallet, value);
+  }
+
+  @action
+  void setUseLightning(bool value) {
+    _settingsStore.useLightning = value;
+    bitcoin!.updateUseLightning(_wallet, value);
   }
 }

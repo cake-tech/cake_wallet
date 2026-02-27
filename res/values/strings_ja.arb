@@ -376,6 +376,7 @@
   "enable_auto_node_switching": "自動ノードスイッチングを有効にします",
   "enable_builtin_tor": "組み込みのTORを有効にします",
   "enable_for_auto_switching": "自動スイッチを有効にします",
+  "enable_lightning": "ライトニングを有効にする",
   "enable_mempool_api": "正確な料金と日付のMempool API",
   "enable_replace_by_fee": "交換ごとに有効にします",
   "enable_silent_payments_scanning": "先端に達するまで、サイレント決済のスキャンを開始します",

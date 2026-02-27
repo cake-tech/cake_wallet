@@ -376,6 +376,7 @@
   "enable_auto_node_switching": "Povolit automatické přepínání uzlů",
   "enable_builtin_tor": "Povolte vestavěné tor",
   "enable_for_auto_switching": "Povolit automatické přepínání",
+  "enable_lightning": "Povolit blesk",
   "enable_mempool_api": "Mempool API pro přesné poplatky a data",
   "enable_replace_by_fee": "Povolit výměnu podle poplatku",
   "enable_silent_payments_scanning": "Začněte skenovat tiché platby, dokud není dosaženo špičky",

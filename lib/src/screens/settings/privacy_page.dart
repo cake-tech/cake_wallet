@@ -49,6 +49,12 @@ class PrivacyPage extends BasePage {
                       _privacySettingsViewModel.setExchangeApiMode(mode),
                 ),
               ),
+              if (_privacySettingsViewModel.canUseLightning)
+                SettingsSwitcherCell(
+                  title: S.of(context).enable_lightning,
+                  value: _privacySettingsViewModel.useLightning,
+                  onValueChange: (_, value) => _privacySettingsViewModel.setUseLightning(value),
+                ),
               if (_privacySettingsViewModel.canUsePayjoin)
                 SettingsSwitcherCell(
                   title: S.of(context).use_payjoin,

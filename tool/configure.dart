@@ -285,6 +285,8 @@ abstract class Bitcoin {
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
   String getNetworkName(Object wallet);
+  bool useLightning(Object wallet);
+  void updateUseLightning(Object wallet, bool value);
   Future<void> setLightningUsername(Object wallet, String username);
   Future<String?> getLightningUsername(Object wallet);
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);

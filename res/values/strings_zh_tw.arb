@@ -326,6 +326,7 @@
   "enable_auto_node_switching": "啟用自動節點切換",
   "enable_builtin_tor": "啟用內建的tor",
   "enable_for_auto_switching": "啟用自動開關",
+  "enable_lightning": "Enable Lightning",
   "enable_mempool_api": "Mempool API獲得準確的費用和日期",
   "enable_replace_by_fee": "啟用費用替換（RBF）",
   "enable_silent_payments_scanning": "開始掃描發送到您的靜默支付地址的交易",

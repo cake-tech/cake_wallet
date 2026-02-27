@@ -376,6 +376,7 @@
   "enable_auto_node_switching": "Activer la commutation automatique du nœud",
   "enable_builtin_tor": "Activer le réseau Tor intégré",
   "enable_for_auto_switching": "Activer pour le commutation automatique",
+  "enable_lightning": "Activer Lightning",
   "enable_mempool_api": "API Mempool pour les frais et dates précis",
   "enable_replace_by_fee": "Activer Remplace-by-Fee",
   "enable_silent_payments_scanning": "Commencez à analyser les transactions envoyées à votre adresse de paiement silencieux.",

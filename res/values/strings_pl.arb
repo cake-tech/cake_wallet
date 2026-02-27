@@ -376,6 +376,7 @@
   "enable_auto_node_switching": "Włącz automatyczne przełączanie węzłów",
   "enable_builtin_tor": "Włącz wbudowany Tor",
   "enable_for_auto_switching": "Włącz automatyczne przełączanie",
+  "enable_lightning": "Włącz błyskawicę",
   "enable_mempool_api": "Mempool API dla dokładnych opłat i dat",
   "enable_replace_by_fee": "Włącz Replace-By-Fee",
   "enable_silent_payments_scanning": "Rozpocznij skanowanie transakcji wysyłanych na Twój adres Silent Payment.",

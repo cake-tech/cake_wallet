@@ -376,6 +376,7 @@
   "enable_auto_node_switching": "Schakel automatische knoopschakeling in",
   "enable_builtin_tor": "Schakel ingebouwde tor in",
   "enable_for_auto_switching": "Inschakelen voor automatisch schakelen",
+  "enable_lightning": "Schakel Bliksem in",
   "enable_mempool_api": "Mempool API voor nauwkeurige kosten en datums",
   "enable_replace_by_fee": "Schakel vervangen door een fee",
   "enable_silent_payments_scanning": "Begin met het scannen van stille betalingen, totdat de tip is bereikt",

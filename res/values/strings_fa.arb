@@ -374,6 +374,7 @@
   "enable_auto_node_switching": "فعال‌سازی تغییر خودکار نود",
   "enable_builtin_tor": "فعال‌سازی تور (Tor) داخلی",
   "enable_for_auto_switching": "فعال‌سازی برای تغییر خودکار",
+  "enable_lightning": "Lightning را فعال کنید",
   "enable_mempool_api": "API ممپول برای کارمزدها و تاریخ‌های دقیق",
   "enable_replace_by_fee": "فعال‌سازی جایگزینی با کارمزد (RBF)",
   "enable_silent_payments_scanning": "شروع اسکن برای تراکنش‌های ارسال شده به آدرس پرداخت بی‌صدای شما.",

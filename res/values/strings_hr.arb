@@ -376,6 +376,7 @@
   "enable_auto_node_switching": "Omogući automatsko prebacivanje čvorova",
   "enable_builtin_tor": "Omogućite ugrađeni u tor",
   "enable_for_auto_switching": "Omogućite automatsko prebacivanje",
+  "enable_lightning": "Omogući Lightning",
   "enable_mempool_api": "Mempool API za točne naknade i datume",
   "enable_replace_by_fee": "Omogući zamjenu",
   "enable_silent_payments_scanning": "Započnite skeniranje tihih plaćanja, dok se ne postigne savjet",

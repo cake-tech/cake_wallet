@@ -800,6 +800,22 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  bool useLightning(Object wallet) {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is BitcoinWallet) return _wallet.useLightning;
+
+    return false;
+  }
+
+  @override
+  void updateUseLightning(Object wallet, bool value) {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is BitcoinWallet) {
+      _wallet.useLightning = value;
+    }
+  }
+
+  @override
   void resumePayjoinSessions(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
     (_wallet.walletAddresses as BitcoinWalletAddresses).initPayjoin();
