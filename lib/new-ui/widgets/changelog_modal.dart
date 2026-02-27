@@ -105,7 +105,9 @@ class _ChangelogModalState extends State<ChangelogModal> {
                 children: [
                   NewPrimaryButton(
                       onPressed: () {
-                        launchUrl(Uri.https("blog.cakewallet.com"));
+                        try {
+                            launchUrl(Uri.https("blog.cakewallet.com"));
+                        } catch (_) {}
                       },
                       text: S.of(context).view_more_info,
                       color: Theme.of(context).colorScheme.surfaceContainer,
