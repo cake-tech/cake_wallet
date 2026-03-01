@@ -42,7 +42,7 @@ class ElectrumBalance extends Balance {
   String toJSON() => json.encode({
         'confirmed': confirmed,
         'unconfirmed': unconfirmed,
-        'frozen': frozen,
+        'frozen': _frozen,
         'secondConfirmed': secondConfirmed,
         'secondUnconfirmed': secondUnconfirmed,
       });
