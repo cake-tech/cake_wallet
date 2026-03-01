@@ -767,7 +767,7 @@
   "seed_alert_back": "Volver",
   "seed_alert_content": "La semilla es la única forma de recuperar tu billetera. ¿La has escrito?",
   "seed_alert_title": "Atención",
-  "seed_alert_yes": "Sí, tengo",
+  "seed_alert_yes": "Sí, lo he escrito",
   "seed_choose": "Elige el idioma de la semilla",
   "seed_display_path": "Menú -> Seguridad y Copia de Seguridad -> Mostrar clave/semillas",
   "seed_hex_form": "Semilla de la billetera (formato hexadecimal)",
