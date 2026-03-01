@@ -2,15 +2,24 @@
 abstract class Balance {
   const Balance(this.available, this.additional, {this.secondAvailable, this.secondAdditional, this.frozen});
 
-  final int available;
-  final int additional;
+  Balance.fromInt(int available, int additional, {int? secondAvailable, int? secondAdditional, int? frozen}) :
+      available = BigInt.from(available),
+  additional = BigInt.from(additional),
+  secondAvailable = secondAvailable == null ? null : BigInt.from(secondAvailable),
+  secondAdditional = secondAdditional == null ? null : BigInt.from(secondAdditional),
+  frozen = frozen == null ? null : BigInt.from(frozen) {}
 
-  final int? secondAvailable;
-  final int? secondAdditional;
 
-  final int? frozen;
 
-  int get fullAvailableBalance => available;
+  final BigInt available;
+  final BigInt additional;
+
+  final BigInt? secondAvailable;
+  final BigInt? secondAdditional;
+
+  final BigInt? frozen;
+
+  BigInt get fullAvailableBalance => available;
 
   @deprecated
   String get formattedUnAvailableBalance => '';

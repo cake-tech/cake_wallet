@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:cw_core/balance.dart';
 
 class TronBalance extends Balance {
-  TronBalance(this.balance) : super(balance.toInt(), balance.toInt());
+  TronBalance(this.balance) : super(balance, balance);
 
   final BigInt balance;
 
