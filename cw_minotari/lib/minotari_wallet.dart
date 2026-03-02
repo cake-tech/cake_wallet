@@ -544,8 +544,14 @@ abstract class MinotariWalletBase
 
   @override
   Future<Map<String, MinotariTransactionInfo>> fetchTransactions() async {
-    // TODO Stub implementation - return empty map
-    return {};
+    final txDtos = await _ffi?.getTransactions();
+    if (txDtos == null) return {};
+
+    final result = <String, MinotariTransactionInfo>{};
+    for (final txDto in txDtos) {
+      result[txDto.id] = _dtoToTransactionInfo(txDto);
+    }
+    return result;
   }
 
   @override
@@ -581,11 +587,9 @@ abstract class MinotariWalletBase
 
       _isTransactionUpdating = true;
 
-      // Fetch transactions from FFI layer
-      final txDtos = await _ffi?.getTransactions();
-      if (txDtos != null && txDtos.isNotEmpty) {
-        await _processNewTransactions(txDtos);
-      }
+      final transactions = await fetchTransactions();
+      transactionHistory.transactions.addAll(transactions);
+      await transactionHistory.save();
 
       _isTransactionUpdating = false;
     } catch (e) {
@@ -594,52 +598,53 @@ abstract class MinotariWalletBase
     }
   }
 
-  /// Process new transactions from the FFI layer
+  MinotariTransactionInfo _dtoToTransactionInfo(DisplayedTransactionDto txDto) {
+    final direction = txDto.direction == DisplayedTransactionDirection.incoming
+        ? TransactionDirection.incoming
+        : TransactionDirection.outgoing;
+
+    final isPending = txDto.status != DisplayedTransactionStatus.confirmed;
+    final date = DateTime.tryParse(txDto.blockchain.timestamp) ?? DateTime.now();
+    final fee = txDto.fee?.amount.toInt();
+
+    final txInfo = MinotariTransactionInfo(
+      id: txDto.id,
+      amount: txDto.amount.toInt(),
+      date: date,
+      direction: direction,
+      isPending: isPending,
+      fee: fee,
+      height: txDto.blockchain.blockHeight.toInt(),
+      confirmations: txDto.blockchain.confirmations.toInt(),
+      payrefs: txDto.payrefs,
+    );
+
+    txInfo.additionalInfo['source'] = txDto.source.name;
+    txInfo.additionalInfo['status'] = txDto.status.name;
+    txInfo.additionalInfo['amountDisplay'] = txDto.amountDisplay;
+
+    if (txDto.message != null && txDto.message!.isNotEmpty) {
+      txInfo.additionalInfo['message'] = txDto.message!;
+    }
+
+    if (txDto.fee != null) {
+      txInfo.additionalInfo['feeDisplay'] = txDto.fee!.amountDisplay;
+    }
+
+    if (txDto.counterparty != null) {
+      txInfo.additionalInfo['counterpartyAddress'] = txDto.counterparty!.address;
+      txInfo.additionalInfo['counterpartyEmoji'] = txDto.counterparty!.addressEmoji;
+    }
+
+    return txInfo;
+  }
+
+  /// Process new transactions from the FFI layer (used by stream event handlers)
   Future<void> _processNewTransactions(List<dynamic> transactions) async {
     for (final txDynamic in transactions) {
       try {
-        // Cast to proper type
         final txDto = txDynamic as DisplayedTransactionDto;
-
-        final direction = txDto.direction == DisplayedTransactionDirection.incoming
-            ? TransactionDirection.incoming
-            : TransactionDirection.outgoing;
-
-        final isPending = txDto.status != DisplayedTransactionStatus.confirmed;
-        final date = DateTime.tryParse(txDto.blockchain.timestamp) ?? DateTime.now();
-        final fee = txDto.fee?.amount.toInt();
-
-        final txInfo = MinotariTransactionInfo(
-          id: txDto.id,
-          amount: txDto.amount.toInt(),
-          date: date,
-          direction: direction,
-          isPending: isPending,
-          fee: fee,
-          height: txDto.blockchain.blockHeight.toInt(),
-          confirmations: txDto.blockchain.confirmations.toInt(),
-          payrefs: txDto.payrefs,
-        );
-
-        // Store additional data in additionalInfo map for transaction details display
-        txInfo.additionalInfo['source'] = txDto.source.name;
-        txInfo.additionalInfo['status'] = txDto.status.name;
-        txInfo.additionalInfo['amountDisplay'] = txDto.amountDisplay;
-
-        if (txDto.message != null && txDto.message!.isNotEmpty) {
-          txInfo.additionalInfo['message'] = txDto.message!;
-        }
-
-        if (txDto.fee != null) {
-          txInfo.additionalInfo['feeDisplay'] = txDto.fee!.amountDisplay;
-        }
-
-        if (txDto.counterparty != null) {
-          txInfo.additionalInfo['counterpartyAddress'] = txDto.counterparty!.address;
-          txInfo.additionalInfo['counterpartyEmoji'] = txDto.counterparty!.addressEmoji;
-        }
-
-        transactionHistory.transactions[txDto.id] = txInfo;
+        transactionHistory.transactions[txDto.id] = _dtoToTransactionInfo(txDto);
       } catch (e) {
         printV('Error processing transaction: $e');
       }
