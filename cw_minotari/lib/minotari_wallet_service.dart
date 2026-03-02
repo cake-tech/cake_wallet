@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -11,6 +12,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_ffi.dart';
 import 'package:cw_minotari/src/rust/api/network.dart';
+import 'package:cw_minotari/src/rust/api/wallet.dart' show deleteWallet;
 
 /// Encryption utils for Minotari - always use XChaCha20 (no legacy wallet support needed)
 final _encryptionFileUtils = encryptionFileUtilsFor(true);
@@ -132,11 +134,21 @@ class MinotariWalletService extends WalletService<
 
   @override
   Future<void> remove(String wallet) async {
-    final path = await pathForWalletDir(name: wallet, type: getType());
-    final file = Directory(path);
+    try {
+      await deleteWallet(walletName: wallet);
+      printV('[MinotariWalletService] Successfully removed wallet "$wallet" from database');
+    } catch (e) {
+      printV('[MinotariWalletService] Failed to delete wallet from database: $e');
+      printV('[MinotariWalletService] Wallet deletion aborted!');
+      rethrow; // Rethrow the exception to indicate failure to the caller
+    }
 
-    if (await file.exists()) {
-      await file.delete(recursive: true);
+    final path = await pathForWalletDir(name: wallet, type: getType());
+    final dir = Directory(path);
+
+    if (await dir.exists()) {
+      await dir.delete(recursive: true);
+      printV('[MinotariWalletService] Deleted wallet directory: $path');
     }
 
     final walletInfo = await WalletInfo.get(wallet, getType());
@@ -144,6 +156,7 @@ class MinotariWalletService extends WalletService<
       throw Exception('Wallet not found');
     }
     await WalletInfo.delete(walletInfo);
+    printV('[MinotariWalletService] Deleted wallet info for "$wallet"');
   }
 
   @override
