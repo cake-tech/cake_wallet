@@ -383,14 +383,14 @@ class MoneroBalance extends Balance {
       : formattedFullBalance = monero!.formatterMoneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
             monero!.formatterMoneroAmountToString(amount: unlockedBalance),
-        super(unlockedBalance, fullBalance);
+        super.fromInt(unlockedBalance, fullBalance);
 
   MoneroBalance.fromString(
       {required this.formattedFullBalance,
       required this.formattedUnlockedBalance})
       : fullBalance = monero!.formatterMoneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-        super(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
+        super.fromInt(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
             monero!.formatterMoneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
@@ -590,14 +590,14 @@ class WowneroBalance extends Balance {
       : formattedFullBalance = wownero!.formatterWowneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
             wownero!.formatterWowneroAmountToString(amount: unlockedBalance),
-        super(unlockedBalance, fullBalance);
+        super.fromInt(unlockedBalance, fullBalance);
 
   WowneroBalance.fromString(
       {required this.formattedFullBalance,
       required this.formattedUnlockedBalance})
       : fullBalance = wownero!.formatterWowneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
-        super(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
+        super.fromInt(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
             wownero!.formatterWowneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
