@@ -469,7 +469,7 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                           await widget.accountEditOrCreateViewModel.save();
                           Navigator.of(context).pop(true);
                         },
-                        text: "Continue",
+                        text: S.of(context).continue_text,
                         color: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,
                         isLoading: _loading,

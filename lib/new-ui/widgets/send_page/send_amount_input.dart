@@ -56,6 +56,9 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                             child: TextField(
                               keyboardType:
                                   TextInputType.numberWithOptions(signed: false, decimal: true),
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))
+                              ],
                               onChanged: state.didChange,
                               controller: widget.amountController,
                               decoration: InputDecoration(hintText: "0", errorMaxLines: 3),

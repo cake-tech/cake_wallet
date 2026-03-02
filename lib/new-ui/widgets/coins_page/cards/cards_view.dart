@@ -88,7 +88,7 @@ class _CardsViewState extends State<CardsView> {
         scale: scale,
         child: GestureDetector(
           onTap: () {
-            printV(visualIndex);
+            // printV(visualIndex);
             if (compactMode && visualIndex != 0) {
               widget.onCompactModeBackgroundCardsTapped();
             } else if(!compactMode) {
@@ -113,7 +113,7 @@ class _CardsViewState extends State<CardsView> {
             final account = widget.accountListViewModel?.accounts[realIndex];
 
             // The second balance should always be the lightning balance
-            printV(widget.dashboardViewModel.balanceViewModel.formattedBalances.first.availableBalance);
+            // printV(widget.dashboardViewModel.balanceViewModel.formattedBalances.first.availableBalance);
             final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel.formattedBalances
                 .elementAtOrNull(widget.lightningMode ? 1 : 0);
 

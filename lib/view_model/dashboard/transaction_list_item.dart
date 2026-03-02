@@ -69,6 +69,14 @@ class TransactionListItem extends ActionListItem with Keyable {
     if (transaction.additionalInfo['autoShield'] == true) {
       return "Autoshield";
     }
+    if (transaction.isPending) {
+      final status = formattedStatus;
+      final baseString = transaction.direction == TransactionDirection.incoming
+          ? S.current.receiving
+          : S.current.sending;
+      return status.isNotEmpty ? "$baseString $status" : "$baseString...";
+    }
+
     if (transaction.direction == TransactionDirection.incoming) {
       return S.current.received;
     }

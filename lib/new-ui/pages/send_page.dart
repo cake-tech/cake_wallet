@@ -469,7 +469,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                       ),
                                     ],
                                   ),
-                                  if (widget.sendViewModel.isMwebAvailable)
+                                  if (widget.sendViewModel.isMwebAvailable && widget.mode == SendPageModes.normal)
                                     StandardCheckbox(
                                       caption: S.of(context).litecoin_mweb_allow_coins,
                                       captionColor: Theme.of(context).colorScheme.onSurface,
