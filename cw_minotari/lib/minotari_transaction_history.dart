@@ -26,7 +26,4 @@ abstract class MinotariTransactionHistoryBase
     this.transactions.addAll(transactions);
   }
 
-  Future<void> update() async {
-    // TODO: Fetch transactions from FFI layer
-  }
 }
