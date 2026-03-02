@@ -86,7 +86,7 @@ class OtherSettingsPage extends BasePage {
                           handler: onExportLNLog,
                         ),
                         SettingsCellWithArrow(
-                          title: "Export Payjoin Logs",
+                          title: S.of(context).export_payjoin_logs,
                           handler: onExportPJLog,
                         ),
                       ],
