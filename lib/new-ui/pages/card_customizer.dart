@@ -81,6 +81,8 @@ class _CardCustomizerState extends State<CardCustomizer> {
                         children: [
                           Text(S.of(context).account_name),
                           TextField(
+                            maxLength: 32,
+                            decoration: InputDecoration(counterText: ""),
                             onChanged: (value) {
                               context.read<CardCustomizerBloc>().add(AccountNameChanged(value));
                             },

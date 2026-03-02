@@ -256,7 +256,7 @@ String walletTypeToDisplayName(WalletType type) {
     case WalletType.dogecoin:
       return 'Dogecoin (DOGE)';
     case WalletType.base:
-      return 'Base (BASE)';
+      return 'Base';
     case WalletType.arbitrum:
       return 'Arbitrum (ARB)';
     case WalletType.zcash:

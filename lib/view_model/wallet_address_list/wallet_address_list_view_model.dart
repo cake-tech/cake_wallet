@@ -169,6 +169,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
 
   @computed
+  bool get isFiatDisabled => _appStore.settingsStore.fiatApiMode == FiatApiMode.disabled;
+
+  @computed
   WalletType get type => wallet.type;
 
   @computed

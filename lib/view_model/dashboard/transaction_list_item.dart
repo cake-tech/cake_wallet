@@ -123,10 +123,10 @@ class TransactionListItem extends ActionListItem with Keyable {
           str = " (${transaction.confirmations}/6)";
         }
         if (isPegIn) {
-          str += " (Peg In)";
+          str += " (Mask)";
         }
         if (isPegOut) {
-          str += " (Peg Out)";
+          str += " (Unmask)";
         }
         return str;
       default:
@@ -147,7 +147,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       return formattedPendingStatus;
     }
 
-    return transaction.isPending ? S.current.pending : '';
+    return "";
   }
 
   String get formattedType {

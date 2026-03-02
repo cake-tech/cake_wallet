@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/utilities.dart';
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/payjoin_copy_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_type.dart';
@@ -162,7 +163,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
         onDismissed: () {
           widget.addressListViewModel.dismissInfobox();
           setState(() {});
-        }, autoGenerateSubaddressStatus: widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus);
+        }, autoGenerateSubaddressStatus: widget.lightningMode ? AutoGenerateSubaddressStatus.disabled : widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus);
 
     return Container(
       decoration: BoxDecoration(
@@ -325,7 +326,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
   void _reloadAddressWithLabel(PaymentURI newAddress) {
     // FIXME: viewmodel doesn't want to load address name here, so we make it. investigate why later
     setState(() {
-      _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhere(
+      _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
               (item) => (item is WalletAddressListItem && item.address == newAddress.address))
           as WalletAddressListItem;
     });

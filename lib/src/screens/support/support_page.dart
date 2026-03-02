@@ -65,7 +65,7 @@ class SupportPage extends BasePage {
     if (DeviceInfo.instance.isDesktop) {
       _launchUrl(supportViewModel.fetchUrl());
     } else {
-      Navigator.pushNamed(context, Routes.supportLiveChat);
+      Navigator.of(context, rootNavigator: true).pushNamed(Routes.supportLiveChat);
     }
   }
 

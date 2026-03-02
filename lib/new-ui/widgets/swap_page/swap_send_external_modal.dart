@@ -8,6 +8,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SwapSendExternalModal extends StatefulWidget {
   const SwapSendExternalModal(
@@ -154,11 +155,25 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                                 color: warningTextColor, fontSize: 14, fontWeight: FontWeight.w500),
                           ),
                         )),
-                    NewPrimaryButton(
-                        onPressed: Navigator.of(context).pop,
-                        text: S.of(context).sent_the_funds,
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                        textColor: Theme.of(context).colorScheme.primary),
+                    Row(
+                      spacing:8,
+                      children: [
+                        Flexible(
+                          child: NewPrimaryButton(
+                              onPressed: ()=> Clipboard.setData(ClipboardData(text:widget.address)),
+                              text: S.of(context).copy,
+                              color: Theme.of(context).colorScheme.primary,
+                              textColor: Theme.of(context).colorScheme.onPrimary),
+                        ),
+                        Flexible(
+                          child: NewPrimaryButton(
+                              onPressed: Navigator.of(context).pop,
+                              text: S.of(context).sent_the_funds,
+                              color: Theme.of(context).colorScheme.surfaceContainer,
+                              textColor: Theme.of(context).colorScheme.primary),
+                        ),
+                      ],
+                    ),
                     SizedBox()
                   ],
                 ),

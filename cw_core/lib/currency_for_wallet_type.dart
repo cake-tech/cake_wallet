@@ -97,3 +97,16 @@ CryptoCurrency getCryptoCurrencyForWalletListItem(WalletType type, {bool isTestn
 
   return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId);
 }
+
+String getCryptoCurrencyIconForWalletListItem(WalletType type,
+    {bool isTestnet = false, int? chainId}) {
+  if (type == WalletType.arbitrum) {
+    return CryptoCurrency.arb.iconPath!;
+  }
+
+  if (type == WalletType.base) {
+    return "assets/images/crypto/base_icon.webp";
+  }
+
+  return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId).iconPath ?? "";
+}
