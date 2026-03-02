@@ -257,8 +257,8 @@ abstract class BalanceViewModelBase with Store {
       //   throw Exception('Price is null for: $key');
       // }
 
-      final available = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.fullAvailableBalance);
-      final additional = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.additional);
+      final available = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.fullAvailableBalance) - BigInt.from(value.secondAvailable??0);
+      final additional = evm?.getERC20AvailableBalance(value) ?? BigInt.from(value.additional) - BigInt.from(value.secondAdditional??0);
 
       final availableFiatBalance = isFiatDisabled
           ? ''
@@ -274,11 +274,11 @@ abstract class BalanceViewModelBase with Store {
 
       final secondAvailableFiatBalance = isFiatDisabled
           ? ''
-          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: value.secondAvailable != null ? key.formatAmount(BigInt.from(value.secondAvailable!)) : null)}';
+          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: value.secondAvailable != null ? key.formatAmount(BigInt.from(value.secondAvailable??0)) : null)}';
 
       final secondAdditionalFiatBalance = isFiatDisabled
           ? ''
-          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: value.secondAdditional != null ? key.formatAmount(BigInt.from(value.secondAdditional!)) : null)}';
+          : '$fiatCurrency ${_getFiatBalance(price: price, cryptoAmount: value.secondAdditional != null ? key.formatAmount(BigInt.from(value.secondAdditional??0)) : null)}';
 
       return MapEntry(
         key,

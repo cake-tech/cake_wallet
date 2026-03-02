@@ -26,7 +26,7 @@ class AssetsSection extends StatelessWidget {
             physics: NeverScrollableScrollPhysics(),
             itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length + (hasMweb ? 1 : 0),
             itemBuilder: (context, index) {
-              return Observer(builder: (context){
+              return Observer(builder: (context) {
                 if (hasMweb) {
                   return AssetTile(
                     showSwap: dashboardViewModel.isEnabledSwapAction,
