@@ -217,7 +217,7 @@ abstract class BalanceViewModelBase with Store {
   String additionalBalance(CryptoCurrency cryptoCurrency) {
     final balance = _currencyBalance(cryptoCurrency);
 
-    if (displayMode == BalanceDisplayMode.hiddenBalance || balance.additional == 0) return '0.0';
+    if (displayMode == BalanceDisplayMode.hiddenBalance || balance.additional == BigInt.zero) return '0.0';
 
     return cryptoCurrency.formatAmount(balance.additional);
   }
