@@ -32,15 +32,13 @@ class HistorySection extends StatelessWidget {
       child: Observer(
         builder: (_) => (dashboardViewModel.items.isEmpty &&
                 dashboardViewModel.status is! SyncingSyncStatus)
-            ? Expanded(
-                child: Padding(
-                    padding: EdgeInsets.only(top: 24),
-                    child: Text(S.of(context).transactions_will_appear_here,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant))),
-              )
+            ? Padding(
+                padding: EdgeInsets.only(top: 24),
+                child: Text(S.of(context).transactions_will_appear_here,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant)))
             : ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
           padding: EdgeInsets.zero,
