@@ -198,10 +198,16 @@ class AssetDetailsModal extends StatelessWidget {
                             withdrawFromL2(context);
                           }),
                     AssetDetailsModalBottomButton(
-                        iconPath: "assets/new-ui/send.svg",
-                        title: S.of(context).send,
-                        onPressed: () => openPage<NewSendPage>(context,
-                            param1: SendPageParams(initialCurrency: asset))),
+                      iconPath: "assets/new-ui/send.svg",
+                      title: S.of(context).send,
+                      onPressed: () => openPage<NewSendPage>(
+                        context,
+                        param1: SendPageParams(
+                          initialCurrency: asset,
+                          unspentCoinType: unspentCoinType,
+                        ),
+                      ),
+                    ),
                     AssetDetailsModalBottomButton(
                         iconPath: "assets/new-ui/receive.svg",
                         title: S.of(context).receive,
@@ -228,6 +234,17 @@ class AssetDetailsModal extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  UnspentCoinType get unspentCoinType {
+    switch (mode) {
+      case AssetDetailsModalModes.ltcTransparent:
+        return UnspentCoinType.nonMweb;
+      case AssetDetailsModalModes.ltcPrivate:
+        return UnspentCoinType.mweb;
+      case AssetDetailsModalModes.normal:
+        return UnspentCoinType.any;
+    }
   }
 
   void openPage<T extends Object>(BuildContext context, {dynamic param1, dynamic param2}) {
