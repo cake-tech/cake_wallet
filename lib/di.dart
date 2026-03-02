@@ -782,6 +782,7 @@ Future<void> setup({
 
   getIt.registerFactory<NewDashboard>(() => NewDashboard(
     dashboardViewModel: getIt.get<DashboardViewModel>(),
+    bottomSheetService: getIt.get<BottomSheetService>(),
   ));
 
   getIt.registerFactory<NewHomePage>(()=>NewHomePage(dashboardViewModel: getIt.get<DashboardViewModel>(),nftViewModel: getIt.get<NFTViewModel>(),));
