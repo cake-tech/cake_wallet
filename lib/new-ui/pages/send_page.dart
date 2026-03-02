@@ -771,6 +771,7 @@ class _NewSendPageState extends State<NewSendPage> {
   void _removeInputControllers(int index) {
     _amountControllers.removeAt(index);
     _addressControllers.removeAt(index);
+    _memoControllers.removeAt(index);
   }
 
   void _presentCurrencyPicker(BuildContext context) {

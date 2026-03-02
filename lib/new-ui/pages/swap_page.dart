@@ -96,7 +96,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
       _showFeeAlert(context);
     }
 
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!widget.exchangeViewModel.decentralizedExchangesPromptDismissed) {
         showMaterialModalBottomSheet(
@@ -120,9 +119,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
       final depositFiatAmountController = depositKey.currentState!.fiatAmountController;
       final receiveFiatAmountController = receiveKey.currentState!.fiatAmountController;
 
-
       depositFiatAmountController.addListener(() {
-        if(!depositKey.currentState!.amountFocusNode.hasFocus) {
+        if (!depositKey.currentState!.amountFocusNode.hasFocus) {
           return;
         }
         widget.exchangeViewModel.isFixedRateMode = false;
@@ -135,14 +133,14 @@ class _NewSwapPageState extends State<NewSwapPage> {
         });
       });
       receiveFiatAmountController.addListener(() {
-        if(!receiveKey.currentState!.amountFocusNode.hasFocus) {
+        if (!receiveKey.currentState!.amountFocusNode.hasFocus) {
           return;
         }
         widget.exchangeViewModel.enableFixedRateMode();
         Future.delayed(Duration(milliseconds: 200)).then((_) {
           if (double.tryParse(receiveFiatAmountController.text) != null) {
             String text = receiveFiatAmountController.text;
-            if(text.contains(".")) {
+            if (text.contains(".")) {
               text = text.replaceAll(RegExp(r'0+$'), '');
               text = text.replaceAll(RegExp(r'\.$'), '');
             }
@@ -238,8 +236,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           });
         }
         if (state is TradeIsCreatedSuccessfully) {
-
-          if(widget.exchangeViewModel.tradeStarted) return;
+          if (widget.exchangeViewModel.tradeStarted) return;
           final receiveAmount = widget.exchangeViewModel.receiveAmount;
           // FIXME we don't know why a reset is/was needed here, it messes up ui so i removed it
           // widget.exchangeViewModel.reset();
@@ -295,7 +292,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
             widget.exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
             widget.exchangeViewModel.isReceiveAmountEntered = false;
             widget.exchangeViewModel.isFixedRateMode = false;
-            if(!receiveKey.currentState!.amountFocusNode.hasFocus) {
+            if (!receiveKey.currentState!.amountFocusNode.hasFocus) {
               receiveKey.currentState!.updateFiatAmount();
             }
           });
@@ -312,7 +309,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
             widget.exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
             widget.exchangeViewModel.isReceiveAmountEntered = true;
             widget.exchangeViewModel.enableFixedRateMode();
-            if(!depositKey.currentState!.amountFocusNode.hasFocus) {
+            if (!depositKey.currentState!.amountFocusNode.hasFocus) {
               depositKey.currentState!.updateFiatAmount();
             }
           });
@@ -373,6 +370,15 @@ class _NewSwapPageState extends State<NewSwapPage> {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _depositAmountFocus.dispose();
+    _depositAddressFocus.dispose();
+    _receiveAmountFocus.dispose();
+    _receiveAddressFocus.dispose();
+  }
+
   void _onCurrencyChange(CryptoCurrency currency, ExchangeViewModel exchangeViewModel,
       GlobalKey<SwapAmountBoxState> key) {
     final isCurrentTypeWallet = exchangeViewModel.useSameWalletAddress(currency);
@@ -381,10 +387,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
     key.currentState!.changeSelectedCurrency(currency);
 
-    if(key == depositKey)
-    key.currentState!.changeAddress(
-        address:
-            isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.addressForExchange : '');
+    if (key == depositKey)
+      key.currentState!.changeAddress(
+          address: isCurrentTypeWallet
+              ? exchangeViewModel.wallet.walletAddresses.addressForExchange
+              : '');
 
     key.currentState!.changeAmount(amount: '');
   }
@@ -447,7 +454,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
               onLeadingPressed: Navigator.of(context).maybePop,
               trailingIcon: SvgPicture.asset(
                 "assets/new-ui/options.svg",
-                colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                colorFilter:
+                    ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
               ),
               onTrailingPressed: () {
                 Navigator.of(context).push(CupertinoPageRoute(
@@ -484,7 +492,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 currencies: widget.exchangeViewModel.depositCurrencies,
                                 onCurrencySelected: (currency) {
                                   if (currency is CryptoCurrency) {
-                                    widget.exchangeViewModel.changeDepositCurrency(currency: currency);
+                                    widget.exchangeViewModel
+                                        .changeDepositCurrency(currency: currency);
                                   }
                                 },
                                 currencyValueValidator: (value) {
@@ -500,20 +509,22 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         ).call(value)
                                       : null;
                                 },
-                                addressTextFieldValidator:
-                                    AddressValidator(type: widget.exchangeViewModel.depositCurrency),
+                                addressTextFieldValidator: AddressValidator(
+                                    type: widget.exchangeViewModel.depositCurrency),
                                 onPushPasteButton: (context) async {
                                   final clipboard = await Clipboard.getData('text/plain');
                                   widget.exchangeViewModel.depositAddress = clipboard?.text ?? '';
 
                                   final domain = widget.exchangeViewModel.depositAddress;
-                                  widget.exchangeViewModel.depositAddress = await fetchParsedAddress(
-                                      context, domain, widget.exchangeViewModel.depositCurrency);
+                                  widget.exchangeViewModel.depositAddress =
+                                      await fetchParsedAddress(context, domain,
+                                          widget.exchangeViewModel.depositCurrency);
                                 },
                                 onPushAddressBookButton: (context) async {
                                   final domain = widget.exchangeViewModel.depositAddress;
-                                  widget.exchangeViewModel.depositAddress = await fetchParsedAddress(
-                                      context, domain, widget.exchangeViewModel.depositCurrency);
+                                  widget.exchangeViewModel.depositAddress =
+                                      await fetchParsedAddress(context, domain,
+                                          widget.exchangeViewModel.depositCurrency);
                                 },
                               ),
                             ),
@@ -549,7 +560,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 currencies: widget.exchangeViewModel.receiveCurrencies,
                                 onCurrencySelected: (currency) {
                                   if (currency is CryptoCurrency) {
-                                    widget.exchangeViewModel.changeReceiveCurrency(currency: currency);
+                                    widget.exchangeViewModel
+                                        .changeReceiveCurrency(currency: currency);
                                   }
                                 },
                                 currencyValueValidator: (value) {
@@ -564,20 +576,22 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         ).call(value)
                                       : null;
                                 },
-                                addressTextFieldValidator:
-                                    AddressValidator(type: widget.exchangeViewModel.receiveCurrency),
+                                addressTextFieldValidator: AddressValidator(
+                                    type: widget.exchangeViewModel.receiveCurrency),
                                 onPushPasteButton: (context) async {
                                   final clipboard = await Clipboard.getData('text/plain');
                                   widget.exchangeViewModel.receiveAddress = clipboard?.text ?? '';
 
                                   final domain = widget.exchangeViewModel.receiveAddress;
-                                  widget.exchangeViewModel.receiveAddress = await fetchParsedAddress(
-                                      context, domain, widget.exchangeViewModel.receiveCurrency);
+                                  widget.exchangeViewModel.receiveAddress =
+                                      await fetchParsedAddress(context, domain,
+                                          widget.exchangeViewModel.receiveCurrency);
                                 },
                                 onPushAddressBookButton: (context) async {
                                   final domain = widget.exchangeViewModel.receiveAddress;
-                                  widget.exchangeViewModel.receiveAddress = await fetchParsedAddress(
-                                      context, domain, widget.exchangeViewModel.receiveCurrency);
+                                  widget.exchangeViewModel.receiveAddress =
+                                      await fetchParsedAddress(context, domain,
+                                          widget.exchangeViewModel.receiveCurrency);
                                 },
                               ),
                             )
@@ -591,8 +605,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
                           children: [
                             if (widget.exchangeViewModel.status is! SyncedSyncStatus)
                               SendSyncingIndicator(status: widget.exchangeViewModel.status),
-                            if(widget.exchangeViewModel.isFixedRateMode)
-                              Text(S.of(context).exchange_rate_is_fixed, style:TextStyle(color:Theme.of(context).colorScheme.onSurfaceVariant,fontSize:12)),
+                            if (widget.exchangeViewModel.isFixedRateMode)
+                              Text(S.of(context).exchange_rate_is_fixed,
+                                  style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      fontSize: 12)),
                             SwapProviderPreview(exchangeViewModel: widget.exchangeViewModel),
                             Observer(
                               builder: (_) => LoadingPrimaryButton(
@@ -658,16 +675,16 @@ class _NewSwapPageState extends State<NewSwapPage> {
   }
 
   bool _swapButtonDisabled() {
-    if(widget.exchangeViewModel.selectedProviders.isEmpty) {
+    if (widget.exchangeViewModel.selectedProviders.isEmpty) {
       return true;
     }
-    if(widget.exchangeViewModel.receiveAddress.isEmpty) {
+    if (widget.exchangeViewModel.receiveAddress.isEmpty) {
       return true;
     }
-    if(widget.exchangeViewModel.status is! SyncedSyncStatus) {
+    if (widget.exchangeViewModel.status is! SyncedSyncStatus) {
       return true;
     }
-    if(widget.exchangeViewModel.depositAmount.isEmpty) {
+    if (widget.exchangeViewModel.depositAmount.isEmpty) {
       return true;
     }
     return false;
@@ -681,13 +698,12 @@ class SwapProviderPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return                         Observer(builder: (_) {
-      if(exchangeViewModel.depositAmount.isEmpty) {
+    return Observer(builder: (_) {
+      if (exchangeViewModel.depositAmount.isEmpty) {
         return SizedBox.shrink();
       }
 
-      final provider = exchangeViewModel.forcedProvider ??
-          exchangeViewModel.providerDisplay;
+      final provider = exchangeViewModel.forcedProvider ?? exchangeViewModel.providerDisplay;
       final rate = exchangeViewModel.forcedProvider == null
           ? exchangeViewModel.bestRate
           : exchangeViewModel.forcedProviderRate;
@@ -696,9 +712,8 @@ class SwapProviderPreview extends StatelessWidget {
         onTap: () {
           if (provider != null) {
             Navigator.of(context).push(CupertinoPageRoute(
-                builder: (context) => Material(
-                    child: ProviderSelectorPage(
-                        exchangeViewModel: exchangeViewModel))));
+                builder: (context) =>
+                    Material(child: ProviderSelectorPage(exchangeViewModel: exchangeViewModel))));
           }
         },
         child: Container(
@@ -717,10 +732,8 @@ class SwapProviderPreview extends StatelessWidget {
                   children: [
                     if (provider != null)
                       provider.description.image.toLowerCase().endsWith("svg")
-                          ? SvgPicture.asset(provider.description.image,
-                          width: 28, height: 28)
-                          : Image.asset(provider.description.image,
-                          width: 28, height: 28),
+                          ? SvgPicture.asset(provider.description.image, width: 28, height: 28)
+                          : Image.asset(provider.description.image, width: 28, height: 28),
                     if (provider == null) CupertinoActivityIndicator(),
                     Text(
                       provider?.title ?? "${S.of(context).finding_provider}...",
@@ -741,14 +754,12 @@ class SwapProviderPreview extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
-                            color:
-                            Theme.of(context).colorScheme.onSurfaceVariant),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                       SvgPicture.asset(
                         "assets/new-ui/chooser.svg",
                         colorFilter: ColorFilter.mode(
-                            Theme.of(context).colorScheme.onSurfaceVariant,
-                            BlendMode.srcIn),
+                            Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
                       )
                     ],
                   )
@@ -760,7 +771,6 @@ class SwapProviderPreview extends StatelessWidget {
     });
   }
 }
-
 
 class SwapAmountBox extends StatefulWidget {
   SwapAmountBox({
@@ -824,7 +834,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     final currencyToShow = _fiatInputMode
         ? widget.exchangeViewModel.fiat.title
         : (_selectedCurrency is CryptoCurrency)
-            ? widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol(_selectedCurrency as CryptoCurrency)
+            ? widget.exchangeViewModel.amountParsingProxy
+                .getCryptoSymbol(_selectedCurrency as CryptoCurrency)
             : _selectedCurrency.name.toUpperCase();
 
     return Column(
@@ -851,7 +862,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                   children: [
                     Expanded(
                         child: TextFormField(
-                          keyboardType: TextInputType.numberWithOptions(signed:false,decimal:true),
+                      keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
                       validator: _fiatInputMode ? null : widget.currencyValueValidator,
                       controller: _fiatInputMode ? fiatAmountController : amountController,
                       focusNode: amountFocusNode,
@@ -883,12 +894,12 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                               if (!_fiatInputMode)
                                 Image.asset(_selectedCurrency.iconPath ?? "",
                                     width: 28, height: 28),
-                              if(!_fiatInputMode) SizedBox(width:10),
+                              if (!_fiatInputMode) SizedBox(width: 10),
                               Text(
                                 currencyToShow,
                                 textAlign: TextAlign.center,
                               ),
-                              if(!_fiatInputMode) SizedBox(width:10),
+                              if (!_fiatInputMode) SizedBox(width: 10),
                               if (!_fiatInputMode)
                                 RotatedBox(
                                     quarterTurns: 2,
@@ -899,7 +910,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                       colorFilter: ColorFilter.mode(
                                           Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                                     )),
-                              if(!_fiatInputMode) SizedBox(width:4),
+                              if (!_fiatInputMode) SizedBox(width: 4),
                             ],
                           ),
                         ),
@@ -927,27 +938,23 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             : widget.exchangeViewModel.depositAvailableAmount,
                         onSwitchButtonPressed: () {
                           setState(() {
-                          _fiatInputMode = !_fiatInputMode;
-                        });
-                        if (_fiatInputMode) {
-                          updateFiatAmount();
-                        }
-                      },
-                      onAllButtonPressed: widget.allAmount,
-
-                      cryptoAmount: widget.isReceiverCard
-                          ? widget.exchangeViewModel.roundedReceiveAmount(6)
-                          : widget.exchangeViewModel.roundedDepositAmount(6),
-
-                      fiatAmount: widget.isReceiverCard
-                          ? widget.exchangeViewModel.roundedReceiveAmountFiat(6)
-                          : widget.exchangeViewModel.roundedDepositAmountFiat(6),
-
-                      cryptoCurrency: widget.isReceiverCard
-                          ? widget.exchangeViewModel.receiveCurrency.title
-                          : widget.exchangeViewModel.depositCurrency.title,
-
-                      fiatCurrency: widget.exchangeViewModel.fiat.name);
+                            _fiatInputMode = !_fiatInputMode;
+                          });
+                          if (_fiatInputMode) {
+                            updateFiatAmount();
+                          }
+                        },
+                        onAllButtonPressed: widget.allAmount,
+                        cryptoAmount: widget.isReceiverCard
+                            ? widget.exchangeViewModel.roundedReceiveAmount(6)
+                            : widget.exchangeViewModel.roundedDepositAmount(6),
+                        fiatAmount: widget.isReceiverCard
+                            ? widget.exchangeViewModel.roundedReceiveAmountFiat(6)
+                            : widget.exchangeViewModel.roundedDepositAmountFiat(6),
+                        cryptoCurrency: widget.isReceiverCard
+                            ? widget.exchangeViewModel.receiveCurrency.title
+                            : widget.exchangeViewModel.depositCurrency.title,
+                        fiatCurrency: widget.exchangeViewModel.fiat.name);
                   },
                 ),
                 Observer(
@@ -955,8 +962,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                     final addressEmpty = (widget.isReceiverCard &&
                             widget.exchangeViewModel.receiveAddress.isEmpty) ||
                         (!widget.isReceiverCard && widget.exchangeViewModel.depositAddress.isEmpty);
-                    final addressPickerText =
-                        widget.isReceiverCard ? (addressEmpty ? S.of(context).select_receiver : S.of(context).to) : S.of(context).from;
+                    final addressPickerText = widget.isReceiverCard
+                        ? (addressEmpty ? S.of(context).select_receiver : S.of(context).to)
+                        : S.of(context).from;
                     final addressDescription = widget.isReceiverCard
                         ? widget.exchangeViewModel.receiveAddressDisplayName ??
                             _middleTruncate(widget.exchangeViewModel.receiveAddress, 8, 8)
@@ -995,8 +1003,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                                     ? Theme.of(context).colorScheme.onPrimary
                                                     : Theme.of(context).colorScheme.onSurface),
                                           ),
-                                          Text(
-                                            addressDescription,
+                                          Text(addressDescription,
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w500,
@@ -1087,10 +1094,10 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     final currencies = widget.isReceiverCard
         ? widget.exchangeViewModel.receiveCurrencies
         : widget.exchangeViewModel.depositCurrencies;
-    if(widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
+    if (widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
       currencies.sort((a, b) {
-        if(a == CryptoCurrency.btcln) return -1;
-        if(b == CryptoCurrency.btcln) return 1;
+        if (a == CryptoCurrency.btcln) return -1;
+        if (b == CryptoCurrency.btcln) return 1;
         return 0;
       });
     }
@@ -1197,9 +1204,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       if (newText == "0.00") {
         fiatAmountController.text = "";
       } else {
-        fiatAmountController.text = newText
-            .replaceAll(RegExp(r'(?<=\.\d*)0+$'), '')
-            .replaceAll(RegExp(r'\.$'), '');
+        fiatAmountController.text =
+            newText.replaceAll(RegExp(r'(?<=\.\d*)0+$'), '').replaceAll(RegExp(r'\.$'), '');
       }
     }
   }

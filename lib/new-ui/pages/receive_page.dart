@@ -70,12 +70,18 @@ class _NewReceivePageState extends State<NewReceivePage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.lightningMode) {
-        widget.receiveOptionViewModel.selectReceiveOption(widget.receiveOptionViewModel.options
-            .firstWhere((item) => item.value.contains("Lightning")));
+        widget.receiveOptionViewModel.selectReceiveOption(
+          widget.receiveOptionViewModel.options
+                  .firstWhereOrNull((item) => item.value.contains("Lightning")) ??
+              ReceivePageOption.mainnet,
+        );
         widget.addressListViewModel.setTokenCurrency(CryptoCurrency.btcln);
       } else if (widget.addressListViewModel.wallet.type == WalletType.bitcoin) {
-        widget.receiveOptionViewModel.selectReceiveOption(widget.receiveOptionViewModel.options
-            .firstWhere((item) => item.value.contains("Standard")));
+        widget.receiveOptionViewModel.selectReceiveOption(
+          widget.receiveOptionViewModel.options
+                  .firstWhereOrNull((item) => item.value.contains("Standard")) ??
+              ReceivePageOption.mainnet,
+        );
       }
     });
 
@@ -89,68 +95,67 @@ class _NewReceivePageState extends State<NewReceivePage> {
           item.address == widget.addressListViewModel.uri.address);
     }) as WalletAddressListItem?;
 
-
     reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption,
-            (ReceivePageOption option) {
-          if (widget.dashboardViewModel.type == WalletType.bitcoin &&
-              bitcoin!.isBitcoinReceivePageOption(option)) {
-            widget.addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
-            return;
-          }
-          if (widget.dashboardViewModel.type == WalletType.zcash) {
-            widget.addressListViewModel.setAddressType(zcash!.getOptionToType(option));
-            return;
-          }
+        (ReceivePageOption option) {
+      if (widget.dashboardViewModel.type == WalletType.bitcoin &&
+          bitcoin!.isBitcoinReceivePageOption(option)) {
+        widget.addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
+        return;
+      }
+      if (widget.dashboardViewModel.type == WalletType.zcash) {
+        widget.addressListViewModel.setAddressType(zcash!.getOptionToType(option));
+        return;
+      }
 
-          switch (option) {
-            case ReceivePageOption.anonPayInvoice:
-              Navigator.pushNamed(
-                context,
-                Routes.anonPayInvoicePage,
-                arguments: [widget.addressListViewModel.address.address, option],
-              );
-              break;
-            case ReceivePageOption.anonPayDonationLink:
-              final sharedPreferences = getIt.get<SharedPreferences>();
-              final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
-              final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
-              final donationWalletName =
+      switch (option) {
+        case ReceivePageOption.anonPayInvoice:
+          Navigator.pushNamed(
+            context,
+            Routes.anonPayInvoicePage,
+            arguments: [widget.addressListViewModel.address.address, option],
+          );
+          break;
+        case ReceivePageOption.anonPayDonationLink:
+          final sharedPreferences = getIt.get<SharedPreferences>();
+          final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
+          final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
+          final donationWalletName =
               sharedPreferences.getString(PreferencesKey.donationLinkWalletName);
 
-              if (clearnetUrl != null &&
-                  onionUrl != null &&
-                  widget.addressListViewModel.wallet.name == donationWalletName) {
-                Navigator.pushNamed(
-                  context,
-                  Routes.anonPayReceivePage,
-                  arguments: AnonPayReceivePageArgs(
-                    invoiceInfo: AnonpayDonationLinkInfo(
-                      clearnetUrl: clearnetUrl,
-                      onionUrl: onionUrl,
-                      address: widget.addressListViewModel.address.address,
-                    ),
-                    qrImage: widget.addressListViewModel.qrImage,
-                  ),
-                );
-              } else {
-                Navigator.pushNamed(
-                  context,
-                  Routes.anonPayInvoicePage,
-                  arguments: [widget.addressListViewModel.address.address, option],
-                );
-              }
-              break;
-            default:
-              if ([WalletType.bitcoin, WalletType.litecoin]
-                  .contains(widget.addressListViewModel.type)) {
-                widget.addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
-              }
-              if (widget.addressListViewModel.type == WalletType.zcash) {
-                printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
-                widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
-              }
+          if (clearnetUrl != null &&
+              onionUrl != null &&
+              widget.addressListViewModel.wallet.name == donationWalletName) {
+            Navigator.pushNamed(
+              context,
+              Routes.anonPayReceivePage,
+              arguments: AnonPayReceivePageArgs(
+                invoiceInfo: AnonpayDonationLinkInfo(
+                  clearnetUrl: clearnetUrl,
+                  onionUrl: onionUrl,
+                  address: widget.addressListViewModel.address.address,
+                ),
+                qrImage: widget.addressListViewModel.qrImage,
+              ),
+            );
+          } else {
+            Navigator.pushNamed(
+              context,
+              Routes.anonPayInvoicePage,
+              arguments: [widget.addressListViewModel.address.address, option],
+            );
           }
-        });
+          break;
+        default:
+          if ([WalletType.bitcoin, WalletType.litecoin]
+              .contains(widget.addressListViewModel.type)) {
+            widget.addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
+          }
+          if (widget.addressListViewModel.type == WalletType.zcash) {
+            printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
+            widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
+          }
+      }
+    });
   }
 
   @override
@@ -158,11 +163,12 @@ class _NewReceivePageState extends State<NewReceivePage> {
     final hasAddressTypeSelector = widget.receiveOptionViewModel.options.length > 1;
     final hasLabel = _addressItemWithLabel?.name != null && _addressItemWithLabel!.name!.isNotEmpty;
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
-    final infobox = ReceiveInfoBox.forWalletType(widget.addressListViewModel.type,
-        onDismissed: () {
-          widget.addressListViewModel.dismissInfobox();
-          setState(() {});
-        }, autoGenerateSubaddressStatus: widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus);
+    final infobox = ReceiveInfoBox.forWalletType(widget.addressListViewModel.type, onDismissed: () {
+      widget.addressListViewModel.dismissInfobox();
+      setState(() {});
+    },
+        autoGenerateSubaddressStatus:
+            widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus);
 
     return Container(
       decoration: BoxDecoration(
@@ -233,11 +239,11 @@ class _NewReceivePageState extends State<NewReceivePage> {
                   if (widget.addressListViewModel.tokenCurrency != null)
                     ReceiveTokenDisplay(addressListViewModel: widget.addressListViewModel),
                   if (hasAddressTypeSelector)
-                  ReceiveAddressTypeDisplay(
-                    lightningMode: widget.lightningMode,
-                    receiveOptionViewModel: widget.receiveOptionViewModel,
-                    largeQrMode: _largeQrMode,
-                  ),
+                    ReceiveAddressTypeDisplay(
+                      lightningMode: widget.lightningMode,
+                      receiveOptionViewModel: widget.receiveOptionViewModel,
+                      largeQrMode: _largeQrMode,
+                    ),
                   ReceiveAddressWidget(
                     addressListViewModel: widget.addressListViewModel,
                   ),
@@ -254,8 +260,12 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       showAccountsButton: widget.addressListViewModel.hasAddressList,
                       showLabelButton: widget.addressListViewModel.hasAddressList && !hasLabel,
                       onCopyButtonPressed: () {
-                        if(widget.addressListViewModel.hasPayjoin) {
-                          showModalBottomSheet(isScrollControlled:true,context: context, builder: (context)=>PayjoinCopyModal(uri: widget.addressListViewModel.uri));
+                        if (widget.addressListViewModel.hasPayjoin) {
+                          showModalBottomSheet(
+                              isScrollControlled: true,
+                              context: context,
+                              builder: (context) =>
+                                  PayjoinCopyModal(uri: widget.addressListViewModel.uri));
                         } else {
                           Clipboard.setData(
                             ClipboardData(text: widget.addressListViewModel.uri.address),
@@ -325,7 +335,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
   void _reloadAddressWithLabel(PaymentURI newAddress) {
     // FIXME: viewmodel doesn't want to load address name here, so we make it. investigate why later
     setState(() {
-      _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhere(
+      _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
               (item) => (item is WalletAddressListItem && item.address == newAddress.address))
           as WalletAddressListItem;
     });
