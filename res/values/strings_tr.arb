@@ -452,6 +452,7 @@
   "export_lightning_logs": "Lightning günlüklerini dışa aktar",
   "export_logs": "Dışa aktarma günlükleri",
   "export_outputs": "İhracat çıktıları",
+  "export_payjoin_logs": "Payjoin günlüklerini dışa aktar",
   "extend_session": "Oturumu Genişlet",
   "external": "Harici",
   "external_wallet": "Harici cüzdan",

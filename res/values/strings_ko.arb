@@ -452,6 +452,7 @@
   "export_lightning_logs": "Lightning 로그 내보내기",
   "export_logs": "로그 내보내기",
   "export_outputs": "출력 내보내기",
+  "export_payjoin_logs": "Payjoin 로그 내보내기",
   "extend_session": "세션 연장",
   "external": "외부",
   "external_wallet": "외부 지갑",

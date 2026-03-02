@@ -452,6 +452,7 @@
   "export_lightning_logs": "Izvoz Lightning zapisa",
   "export_logs": "Izvozni trupci",
   "export_outputs": "Izvoz izlaza",
+  "export_payjoin_logs": "Izvoz Payjoin zapisnika",
   "extend_session": "Proširiti sesiju",
   "external": "Vanjski",
   "external_wallet": "Vanjski novčanik",

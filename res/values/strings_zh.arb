@@ -452,6 +452,7 @@
   "export_lightning_logs": "导出闪电日志",
   "export_logs": "导出日志",
   "export_outputs": "导出输出",
+  "export_payjoin_logs": "导出Payjoin日志",
   "extend_session": "扩展会话",
   "external": "外部的",
   "external_wallet": "外部钱包",

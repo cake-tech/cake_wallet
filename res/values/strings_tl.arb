@@ -452,6 +452,7 @@
   "export_lightning_logs": "I-export ang Lightning logs",
   "export_logs": "Mga log ng pag -export",
   "export_outputs": "Mga output ng pag -export",
+  "export_payjoin_logs": "I-export ang Payjoin log",
   "extend_session": "Palawakin ang session",
   "external": "Panlabas",
   "external_wallet": "Panlabas na wallet",

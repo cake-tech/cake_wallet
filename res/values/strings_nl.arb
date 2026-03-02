@@ -452,6 +452,7 @@
   "export_lightning_logs": "Lightning-logboeken exporteren",
   "export_logs": "Exporteer logboeken",
   "export_outputs": "Exportuitgangen exporteren",
+  "export_payjoin_logs": "Exporteer Payjoin-logboeken",
   "extend_session": "Sessie verlengen",
   "external": "Extern",
   "external_wallet": "Externe portemonnee",

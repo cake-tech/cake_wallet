@@ -396,6 +396,7 @@
   "export_lightning_logs": "Exportar registros do Lightning",
   "export_logs": "Exportar logs",
   "export_outputs": "Saídas de exportação",
+  "export_payjoin_logs": "Exportar registros do Payjoin",
   "extend_session": "Estender sessão",
   "extra_id": "ID extra:",
   "extracted_address_content": "Você enviará fundos para\n${recipient_name}",

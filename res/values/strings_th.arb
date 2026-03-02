@@ -452,6 +452,7 @@
   "export_lightning_logs": "ส่งออกบันทึก Lightning",
   "export_logs": "บันทึกการส่งออก",
   "export_outputs": "เอาต์พุตส่งออก",
+  "export_payjoin_logs": "ส่งออกบันทึก Payjoin",
   "extend_session": "ขยายเซสชัน",
   "external": "ภายนอก",
   "external_wallet": "กระเป๋าเงินภายนอก",

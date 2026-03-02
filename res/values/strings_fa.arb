@@ -450,6 +450,7 @@
   "export_lightning_logs": "صادرات لاگ های لایتنینگ",
   "export_logs": "خروجی گرفتن از لاگ‌ها",
   "export_outputs": "خروجی گرفتن از خروجی‌ها",
+  "export_payjoin_logs": "گزارش های Payjoin را صادر کنید",
   "extend_session": "تمدید نشست",
   "external": "خارجی",
   "external_wallet": "کیف پول خارجی",

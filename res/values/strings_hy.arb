@@ -452,6 +452,7 @@
   "export_lightning_logs": "Արտահանել Lightning տեղեկամատյանները",
   "export_logs": "Արտահանման տեղեկամատյաններ",
   "export_outputs": "Արտահանման արդյունքներ",
+  "export_payjoin_logs": "Արտահանել Payjoin տեղեկամատյանները",
   "extend_session": "Ընդլայնված նիստ",
   "external": "Արտաքին",
   "external_wallet": "Արտաքին դրամապանակ",

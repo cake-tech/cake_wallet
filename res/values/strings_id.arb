@@ -452,6 +452,7 @@
   "export_lightning_logs": "Ekspor log Lightning",
   "export_logs": "Log ekspor",
   "export_outputs": "Ekspor output",
+  "export_payjoin_logs": "Ekspor Payjoin log",
   "extend_session": "Perpanjang sesi",
   "external": "Luar",
   "external_wallet": "Dompet eksternal",

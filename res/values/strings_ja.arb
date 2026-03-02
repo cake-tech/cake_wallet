@@ -452,6 +452,7 @@
   "export_lightning_logs": "Export Lightning logs",
   "export_logs": "ログをエクスポートします",
   "export_outputs": "エクスポート出力",
+  "export_payjoin_logs": "Payjoin ログをエクスポートする",
   "extend_session": "セッションを拡張します",
   "external": "外部の",
   "external_wallet": "外部ウォレット",

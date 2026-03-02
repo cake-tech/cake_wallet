@@ -452,6 +452,7 @@
   "export_lightning_logs": "Lightning မှတ်တမ်းများကို ထုတ်ယူပါ။",
   "export_logs": "ပို့ကုန်မှတ်တမ်းများ",
   "export_outputs": "ပို့ကုန်ထုတ်ကုန်များ",
+  "export_payjoin_logs": "Payjoin မှတ်တမ်းများကို ထုတ်ယူပါ။",
   "extend_session": "session တစ်ခုတိုးချဲ့",
   "external": "မာနတွေ",
   "external_wallet": "ပြင်ပပိုက်ဆံအိတ်",

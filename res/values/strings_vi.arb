@@ -451,6 +451,7 @@
   "export_lightning_logs": "Xuất nhật ký Lightning",
   "export_logs": "Nhật ký xuất khẩu",
   "export_outputs": "Đầu ra xuất khẩu",
+  "export_payjoin_logs": "Xuất nhật ký Payjoin",
   "extend_session": "Mở rộng phiên",
   "external": "Bên ngoài",
   "external_wallet": "Ví bên ngoài",

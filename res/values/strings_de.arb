@@ -1,5 +1,5 @@
 {
-  "about": "Um",
+  "about": "Über Cake Wallet",
   "about_cake_pay": "Mit Cake Pay können Sie ganz einfach Geschenkkarten mit virtuellen Vermögenswerten kaufen, die Sie sofort bei über 150.000 Händlern in den Vereinigten Staaten ausgeben können.",
   "about_litecoin_privacy": "Über Litecoin-Datenschutz",
   "accent_color": "Akzentfarbe",
@@ -452,6 +452,7 @@
   "export_lightning_logs": "Lightning-Protokolle exportieren",
   "export_logs": "Exportprotokolle",
   "export_outputs": "Exportausgaben",
+  "export_payjoin_logs": "Payjoin-Protokolle exportiern",
   "extend_session": "Sitzung verlängern",
   "external": "Extern",
   "external_wallet": "Externe Geldbörse",

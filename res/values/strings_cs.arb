@@ -452,6 +452,7 @@
   "export_lightning_logs": "Exportujte protokoly Lightning",
   "export_logs": "Vývozní protokoly",
   "export_outputs": "Vývozní výstupy",
+  "export_payjoin_logs": "Exportujte protokoly Payjoin",
   "extend_session": "Prodloužit relaci",
   "external": "Externí",
   "external_wallet": "Externí peněženka",

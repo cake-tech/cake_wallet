@@ -148,4 +148,12 @@ abstract class OtherSettingsViewModelBase with Store {
     if (await logFile.exists()) return logFile;
     return null;
   }
+
+  Future<File?> getPayjoinLog() async {
+    final path = await pathForWalletDir(name: _wallet.name, type: walletType);
+    final logFile = File("$path/payjoin.log");
+
+    if (await logFile.exists()) return logFile;
+    return null;
+  }
 }

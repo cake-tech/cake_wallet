@@ -452,6 +452,7 @@
   "export_lightning_logs": "بجلی کے نوشتہ جات برآمد کریں۔",
   "export_logs": "نوشتہ جات برآمد کریں",
   "export_outputs": "برآمد کے نتائج",
+  "export_payjoin_logs": "Payjoin لاگز برآمد کریں۔",
   "extend_session": "سیشن میں توسیع",
   "external": "بیرونی",
   "external_wallet": "بیرونی پرس",

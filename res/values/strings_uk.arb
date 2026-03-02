@@ -452,6 +452,7 @@
   "export_lightning_logs": "Експортувати журнали Lightning",
   "export_logs": "Експортні журнали",
   "export_outputs": "Експортні результати",
+  "export_payjoin_logs": "Експорт журналів Payjoin",
   "extend_session": "Продовжити сеанс",
   "external": "зовнішній",
   "external_wallet": "Зовнішній гаманець",

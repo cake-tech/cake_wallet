@@ -452,6 +452,7 @@
   "export_lightning_logs": "تصدير سجلات Lightning",
   "export_logs": "سجلات التصدير",
   "export_outputs": "مخرجات التصدير",
+  "export_payjoin_logs": "تصدير Payjoin السجلات",
   "extend_session": "تمديد الجلسة",
   "external": "خارجي",
   "external_wallet": "المحفظة الخارجية",

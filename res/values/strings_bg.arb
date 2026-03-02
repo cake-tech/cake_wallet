@@ -452,6 +452,7 @@
   "export_lightning_logs": "Експортиране на Lightning регистрационни файлове",
   "export_logs": "Експортни дневници",
   "export_outputs": "Експортни резултати",
+  "export_payjoin_logs": "Експортиране на Payjoin регистрационни файлове",
   "extend_session": "Удължаване на сесията",
   "external": "Външен",
   "external_wallet": "Външен портфейл",
