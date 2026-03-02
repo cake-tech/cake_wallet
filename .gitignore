@@ -82,6 +82,7 @@ android/app/.externalNativeBuild/
 cw_monero/ios/External/
 cw_monero/cw_monero/android/.externalNativeBuild/
 cw_monero/cw_monero/android/.cxx/
+cw_minotari/ios/Frameworks/
 
 # Generated dart files
 **/*.g.dart

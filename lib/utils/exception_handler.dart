@@ -198,6 +198,7 @@ class ExceptionHandler {
     'Exception: 6e00',
     'Exception: 6985',
     'Exception: 5515',
+    'transport error'
   ];
 
   static bool isLedgerError(Object exception) =>

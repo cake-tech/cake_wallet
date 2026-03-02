@@ -12,6 +12,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
@@ -58,6 +59,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.zcash:
+      case WalletType.minotari:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       case WalletType.bitcoinCash:
@@ -221,6 +223,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             passphrase: passphrase,
             height: height,
           );
+        case WalletType.minotari:
+          return minotari!.createMinotariRestoreWalletFromSeedCredentials(
+              name: name,
+              password: password,
+              mnemonic: seed,
+              height: height,
+              passphrase: passphrase,
+          );
         case WalletType.none:
         case WalletType.haven:
           break;
@@ -314,6 +324,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             privateKey: options['private_key'] as String,
             password: password,
             height: height
+          );
+        case WalletType.minotari:
+          return minotari!.createMinotariRestoreWalletFromKeysCredentials(
+            name: name,
+            password: password,
+            viewPrivateKeyHex: viewKey!,
+            spendPublicKeyHex: spendPubkey!,
+            birthday: height,
           );
         default:
           break;

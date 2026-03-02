@@ -166,6 +166,13 @@ class AddressValidator extends TextValidator {
         pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       case CryptoCurrency.doge:
         pattern = r'^D[a-km-zA-HJ-NP-Z1-9]{25,34}';
+      case CryptoCurrency.xtm:
+        // RFC-0155: Tari addresses support multiple formats:
+        // - Simplified (35 bytes) ~47 Base58 chars
+        // - Standard (67 bytes) ~91 Base58 chars
+        // - With payment ID: up to 323 bytes ~440 Base58 chars
+        // Base58 charset: 1-9, A-H, J-N, P-Z, a-k, m-z (no 0, O, I, l)
+        pattern = '[123Hdf][234678][1-9A-HJ-NP-Za-km-z]{45,448}';
       default:
         return '';
     }
@@ -306,6 +313,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.btcln:
       case CryptoCurrency.kaspa:
       case CryptoCurrency.zano:
+      case CryptoCurrency.xtm:
       default:
         return null;
     }
@@ -364,6 +372,8 @@ class AddressValidator extends TextValidator {
             '|zxviews[a-z0-9]{278}'
             '|u1[a-z0-9]{1,300}'
             ')';
+      case CryptoCurrency.xtm:
+        pattern = '[123Hdf][234678][1-9A-HJ-NP-Za-km-z]{45,448}';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           pattern = '0x[0-9a-zA-Z]+';

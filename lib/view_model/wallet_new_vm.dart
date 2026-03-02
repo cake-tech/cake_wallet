@@ -22,6 +22,8 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'advanced_privacy_settings_view_model.dart';
 
+import '../minotari/minotari.dart';
+
 part 'wallet_new_vm.g.dart';
 
 class WalletNewVM = WalletNewVMBase with _$WalletNewVM;
@@ -149,6 +151,12 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.decred:
         return decred!.createDecredNewWalletCredentials(name: name);
+      case WalletType.minotari:
+        return minotari!.createMinotariNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected type: ${type.toString()}');

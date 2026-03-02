@@ -97,6 +97,9 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.zcash:
         _addZcashListItems(tx, dateFormat);
+      case WalletType.minotari:
+        _addMinotariListItems(tx, dateFormat);
+        break;
       case WalletType.none:
       case WalletType.banano:
         break;
@@ -217,6 +220,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://blockchair.com/dogecoin/transaction/${txId}';
       case WalletType.zcash:
         return 'https://blockchair.com/zcash/transaction/${txId}';
+      case WalletType.minotari:
+        return 'https://explore.tari.com/search?hash=${txId}';
       case WalletType.none:
         return '';
     }
@@ -266,6 +271,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'arbiscan.io';
       case WalletType.zcash:
         return S.current.view_transaction_on + 'blockchair.com';
+      case WalletType.minotari:
+        return S.current.view_transaction_on + 'explore.tari.com';
       case WalletType.none:
         return '';
     }
@@ -997,5 +1004,105 @@ abstract class TransactionDetailsViewModelBase with Store {
       if (comment != null && comment.isNotEmpty)
         StandartListItem(title: S.current.transaction_details_title, value: comment),
     ]);
+  }
+
+  void _addMinotariListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final feeFormatted = tx.feeFormatted();
+    final status = tx.additionalInfo['status'] as String?;
+    final source = tx.additionalInfo['source'] as String?;
+    final message = tx.additionalInfo['message'] as String?;
+    final counterpartyAddress = tx.additionalInfo['counterpartyAddress'] as String?;
+    final counterpartyEmoji = tx.additionalInfo['counterpartyEmoji'] as String?;
+    final counterpartyLabel = tx.additionalInfo['counterpartyLabel'] as String?;
+
+    final _items = <TransactionDetailsListItem>[
+      StandartListItem(
+        title: S.current.transaction_details_transaction_id,
+        value: tx.txHash,
+        key: ValueKey('standard_list_item_transaction_details_id_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_date,
+        value: dateFormat.format(tx.date),
+        key: ValueKey('standard_list_item_transaction_details_date_key'),
+      ),
+      if (status != null)
+        StandartListItem(
+          title: 'Status',
+          value: status, // TODO: i18n translate status values
+          key: ValueKey('standard_list_item_transaction_details_status_key'),
+        ),
+      if (source != null)
+        StandartListItem(
+          title: 'Source',
+          value: source, // TODO: i18n translate source values
+          key: ValueKey('standard_list_item_transaction_details_source_key'),
+        ),
+      StandartListItem(
+        title: S.current.transaction_details_height,
+        value: '${tx.height}',
+        key: ValueKey('standard_list_item_transaction_details_height_key'),
+      ),
+      StandartListItem(
+        title: S.current.confirmations,
+        value: '${tx.confirmations}',
+        key: ValueKey('standard_list_item_transaction_details_confirmations_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_amount,
+        value: tx.amountFormatted(),
+        key: ValueKey('standard_list_item_transaction_details_amount_key'),
+      ),
+      if (feeFormatted != null)
+        StandartListItem(
+          title: S.current.transaction_details_fee,
+          value: feeFormatted,
+          key: ValueKey('standard_list_item_transaction_details_fee_key'),
+        ),
+    ];
+
+    // Add counterparty information based on transaction direction
+    if (counterpartyAddress != null) {
+      final addressTitle = tx.direction == TransactionDirection.incoming
+          ? S.current.transaction_details_source_address
+          : S.current.transaction_details_recipient_address;
+
+      // Combine address with emoji if available
+      final addressValue = counterpartyEmoji != null
+          ? '$counterpartyEmoji $counterpartyAddress'
+          : counterpartyAddress;
+
+      _items.add(
+        StandartListItem(
+          title: addressTitle,
+          value: addressValue,
+          key: ValueKey('standard_list_item_transaction_details_counterparty_address_key'),
+        ),
+      );
+
+      // Add counterparty label if available
+      if (counterpartyLabel != null && counterpartyLabel.isNotEmpty) {
+        _items.add(
+          StandartListItem(
+            title: 'Label',
+            value: counterpartyLabel,
+            key: ValueKey('standard_list_item_transaction_details_counterparty_label_key'),
+          ),
+        );
+      }
+    }
+
+    // Add message if available
+    if (message != null && message.isNotEmpty) {
+      _items.add(
+        StandartListItem(
+          title: 'Message',
+          value: message,
+          key: ValueKey('standard_list_item_transaction_details_message_key'),
+        ),
+      );
+    }
+
+    items.addAll(_items);
   }
 }

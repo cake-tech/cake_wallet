@@ -4,6 +4,7 @@ import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -98,6 +99,8 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         return transactionPriority == decred!.getDecredTransactionPrioritySlow();
       case WalletType.dogecoin:
         return transactionPriority == dogecoin!.getDogeCoinTransactionPrioritySlow();
+      case WalletType.minotari:
+        return transactionPriority == minotari!.getMinotariTransactionPrioritySlow();
       case WalletType.none:
       case WalletType.nano:
       case WalletType.banano:
@@ -212,6 +215,10 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         break;
       case WalletType.dogecoin:
         _settingsStore.setPriority(wallet.type, dogecoin!.getDefaultTransactionPriority());
+        break;
+      case WalletType.minotari:
+        _settingsStore.setPriority(
+            wallet.type, minotari!.getMinotariTransactionPriorityMedium());
         break;
       default:
         break;

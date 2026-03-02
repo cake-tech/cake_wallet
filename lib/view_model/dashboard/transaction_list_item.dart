@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -226,7 +227,12 @@ class TransactionListItem extends ActionListItem with Keyable {
         amount = calculateFiatAmountRaw(
             cryptoAmount: zcash!.formatterZcashAmountToDouble(amount: BigInt.from(transaction.amount)),
             price: price);
-      
+      case WalletType.minotari:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: minotari!.formatterMinotariAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
+
       case WalletType.none:
       case WalletType.banano:
       case WalletType.haven:

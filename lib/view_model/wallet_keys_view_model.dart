@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -62,7 +63,7 @@ abstract class WalletKeysViewModelBase with Store {
   }
 
   bool get isBitcoin => _wallet.type == WalletType.bitcoin;
-  
+
   // this is incomplete, needs legacy seed toggle for XMR
   bool get shouldShowHeightBox => [WalletType.bitcoin, WalletType.zcash].contains(_wallet.type);
   final ObservableList<StandartListItem> items;
@@ -206,6 +207,9 @@ abstract class WalletKeysViewModelBase with Store {
             StandartListItem(title: "xPub", value: electrumKeys['xpub']!),
         ]);
         break;
+      case WalletType.minotari:
+        keys = minotari!.getKeys(_wallet);
+        break;
       case WalletType.none:
       case WalletType.haven:
         break;
@@ -308,6 +312,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'dogecoin-wallet';
       case WalletType.zcash:
         return 'zcash-wallet';
+      case WalletType.minotari:
+        return 'minotari-wallet';
       case WalletType.none:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
     }
@@ -322,6 +328,9 @@ abstract class WalletKeysViewModelBase with Store {
     }
     if (_wallet.type == WalletType.zcash) {
       return zcash!.getKeys(_wallet)["restoreHeight"]?.toString();
+    }
+    if (_wallet.type == WalletType.minotari) {
+      return minotari!.getRestoreHeight(_wallet)?.toString();
     }
     if (_restoreHeightByTransactions != 0)
       return getRoundedRestoreHeight(_restoreHeightByTransactions);

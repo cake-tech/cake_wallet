@@ -82,4 +82,19 @@ post_install do |installer|
           ]
     end
   end
+  
+  # Workaround: patch sqlite3 amalgamation to undef conflicting MIN/MAX macros
+  begin
+    sqlite_files = Dir.glob(File.join(installer.sandbox.root, '**', 'sqlite3.c'))
+    sqlite_files.each do |f|
+      text = File.read(f)
+      unless text.include?('# undef MIN') && text.include?('# undef MAX')
+        patched = text.sub(/#define SQLITE_AMALGAMATION 1\n/, "#define SQLITE_AMALGAMATION 1\n#if defined(MIN)\n# undef MIN\n#endif\n#if defined(MAX)\n# undef MAX\n#endif\n")
+        File.write(f, patched)
+        puts "Patched sqlite3.c at: #{f}"
+      end
+    end
+  rescue => e
+    puts "Warning: failed to patch sqlite3.c: #{e}"
+  end
 end

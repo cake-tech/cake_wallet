@@ -12,6 +12,7 @@ const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
 const evmOutputPath = 'lib/evm/evm.dart';
 const zcashOutputPath = 'lib/zcash/zcash.dart';
+const minotariOutputPath = 'lib/minotari/minotari.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -36,6 +37,7 @@ Future<void> main(List<String> args) async {
   final hasArbitrum = args.contains('${prefix}arbitrum');
   final hasBsc = args.contains('${prefix}bsc');
   final hasZcash = args.contains('${prefix}zcash');
+  final hasMinotari = args.contains('${prefix}minotari');
   final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc;
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
@@ -52,6 +54,7 @@ Future<void> main(List<String> args) async {
   await generateDogecoin(hasDogecoin);
   await generateEVM(hasEVM);
   await generateZcash(hasZcash);
+  await generateMinotari(hasMinotari);
 
   await generatePubspec(
     hasMonero: hasMonero,
@@ -72,6 +75,7 @@ Future<void> main(List<String> args) async {
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
     hasZcash: hasZcash,
+    hasMinotari: hasMinotari,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -91,6 +95,7 @@ Future<void> main(List<String> args) async {
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
     hasZcash: hasZcash,
+    hasMinotari: hasMinotari,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
@@ -1671,6 +1676,86 @@ abstract class Zcash {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateMinotari(bool hasImplementation) async {
+  final outputFile = File(minotariOutputPath);
+  const minotariCommonHeaders = """
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+
+""";
+  const minotariCWHeaders = """
+import 'package:cw_minotari/minotari_amount_format.dart';
+import 'package:cw_minotari/minotari_transaction_priority.dart';
+import 'package:cw_minotari/minotari_wallet.dart';
+import 'package:cw_minotari/minotari_wallet_service.dart';
+import 'package:cw_minotari/pending_minotari_transaction.dart';
+""";
+  const minotariCwPart = "part 'cw_minotari.dart';";
+  const minotariContent = """
+abstract class Minotari {
+  WalletService createMinotariWalletService();
+
+  WalletCredentials createMinotariNewWalletCredentials({
+    required String name,
+    String? password,
+    String? passphrase,
+    WalletInfo? walletInfo,
+  });
+
+  WalletCredentials createMinotariRestoreWalletFromSeedCredentials({
+    required String name,
+    required String password,
+    required String mnemonic,
+    required int height,
+    String? passphrase,
+    WalletInfo? walletInfo,
+  });
+
+  double? getMinotariEstimatedFee(Object wallet);
+
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority deserializeMinotariTransactionPriority({required int raw});
+  TransactionPriority getMinotariTransactionPriorityMedium();
+  TransactionPriority getMinotariTransactionPrioritySlow();
+
+  Object createMinotariTransactionCredentials(List<Output> outputs);
+
+  Object createMinotariTransactionCredentialsRaw(List<OutputInfo> outputs);
+
+  int getHeightByDate({required DateTime date});
+  Future<int> getCurrentHeight();
+
+  Map<String, String> getKeys(Object wallet);
+  int? getRestoreHeight(Object wallet);
+
+  String formatterMinotariAmountToString({required int amount});
+  double formatterMinotariAmountToDouble({required int amount});
+  int formatterMinotariParseAmount({required String amount});
+}
+
+  """;
+
+  const minotariEmptyDefinition = 'Minotari? minotari;\n';
+  const minotariCWDefinition = 'Minotari? minotari = CWMinotari();\n';
+
+  final output = '$minotariCommonHeaders\n' +
+      (hasImplementation ? '$minotariCWHeaders\n' : '\n') +
+      (hasImplementation ? '$minotariCwPart\n\n' : '\n') +
+      (hasImplementation ? minotariCWDefinition : minotariEmptyDefinition) +
+      '\n' +
+      minotariContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generatePubspec({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1690,6 +1775,7 @@ Future<void> generatePubspec({
   required bool hasArbitrum,
   required bool hasBsc,
   required bool hasZcash,
+  required bool hasMinotari,
 }) async {
   const cwCore = """
   cw_core:
@@ -1753,6 +1839,10 @@ Future<void> generatePubspec({
   const cwZcash = """
   cw_zcash:
       path: ./cw_zcash
+  """;
+  const cwMinotari = """
+  cw_minotari:
+      path: ./cw_minotari
   """;
 
   final inputFile = File(pubspecOutputPath);
@@ -1820,6 +1910,10 @@ Future<void> generatePubspec({
     output += '\n$cwZcash';
   }
 
+  if (hasMinotari) {
+    output += '\n$cwMinotari';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -1850,6 +1944,7 @@ Future<void> generateWalletTypes({
   required bool hasArbitrum,
   required bool hasBsc,
   required bool hasZcash,
+  required bool hasMinotari,
 }) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -1927,6 +2022,10 @@ Future<void> generateWalletTypes({
 
   if (hasBanano) {
     outputContent += '\tWalletType.banano,\n';
+  }
+
+  if (hasMinotari) {
+    outputContent += '\tWalletType.minotari,\n';
   }
 
   // if (hasWownero) {

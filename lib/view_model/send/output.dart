@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -130,6 +131,9 @@ abstract class OutputBase with Store {
           case WalletType.zcash:
             _amount = zcash!.formatterZcashParseAmount(_cryptoAmount);
             break;
+          case WalletType.minotari:
+            _amount = minotari!.formatterMinotariParseAmount(amount: _cryptoAmount);
+            break;
           case WalletType.none:
           case WalletType.haven:
           case WalletType.nano:
@@ -157,7 +161,8 @@ abstract class OutputBase with Store {
   Future<void> calculateEstimatedFee() async {
     try {
       final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
-      if (isEVMCompatibleChain(_wallet.type)) {
+      // TODO check why fee isn't triggered for Minotari without this
+      if (isEVMCompatibleChain(_wallet.type) || _wallet.type == WalletType.minotari) {
         await _wallet.updateEstimatedFeesParams(priority);
       }
 
@@ -209,7 +214,7 @@ abstract class OutputBase with Store {
             estimatedFee = tron!.getTronTRC20EstimatedFee(_wallet).toString();
           }
           break;
-          
+
         case WalletType.zcash:
           estimatedFee = zcash!.formatterZcashAmountToDouble(amount: BigInt.from(fee)).toString();
           break;
@@ -233,6 +238,10 @@ abstract class OutputBase with Store {
           break;
 
         /// end EVMs
+
+        case WalletType.minotari:
+          estimatedFee = minotari!.getMinotariEstimatedFee(_wallet)?.toString() ?? '0.0';
+          break;
 
         case WalletType.haven:
         case WalletType.nano:
