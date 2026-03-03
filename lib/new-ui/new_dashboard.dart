@@ -107,7 +107,7 @@ class _NewDashboardState extends State<NewDashboard> {
     final currentAppVersion = VersionComparator.getExtendedVersionNumber(
         widget.dashboardViewModel.settingsStore.appVersion);
     final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
-    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall) ?? false;
+    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall) ?? true;
 
     if (currentAppVersion != lastSeenAppVersion && !isNewInstall) {
       Future<void>.delayed(
