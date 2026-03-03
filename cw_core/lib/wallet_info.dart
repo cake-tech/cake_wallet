@@ -75,12 +75,12 @@ class WalletInfoAddressInfo {
   static String get selfIdColumn => "${tableName}Id";
 
   static Future<List<WalletInfoAddressInfo>> selectList(int walletInfoId) async {
-    final query = await db.query(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
+    final query = await db!.query(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
     return List.generate(query.length, (index) => WalletInfoAddressInfo.fromJson(query[index]));
   }
 
   static Future<int> deleteByWalletInfoId(int walletInfoId) async {
-    return await db.delete(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
+    return await db!.delete(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
   }
 
   static Future<int> insert({
@@ -90,7 +90,7 @@ class WalletInfoAddressInfo {
     required String address,
     required String label,
   }) async {
-    return await db.insert(tableName, {
+    return await db!.insert(tableName, {
       "walletInfoId": walletInfoId,
       "mapKey": mapKey,
       "mapValueAccountIndex": accountIndex,
@@ -140,16 +140,16 @@ class WalletInfoAddressMap {
   static String get selfIdColumn => "${tableName}Id";
 
   static Future<List<WalletInfoAddressMap>> selectList(int walletInfoId) async {
-    final query = await db.query(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
+    final query = await db!.query(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
     return List.generate(query.length, (index) => WalletInfoAddressMap.fromJson(query[index]));
   }
 
   static Future<int> deleteByWalletInfoId(int walletInfoId) async {
-    return await db.delete(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
+    return await db!.delete(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
   }
 
   static Future<int> insert(int walletInfoId, String addressKey, String addressValue) async {
-    return await db.insert(tableName, {
+    return await db!.insert(tableName, {
       "walletInfoId": walletInfoId,
       "addressKey": addressKey,
       "addressValue": addressValue,
@@ -194,31 +194,31 @@ class WalletInfoAddress {
 
   static Future<List<WalletInfoAddress>> selectList(
       int walletInfoId, WalletInfoAddressType type) async {
-    final query = await db.query(tableName,
+    final query = await db!.query(tableName,
         where: 'walletInfoId = ? AND type = ?', whereArgs: [walletInfoId, type.index]);
     return List.generate(query.length, (index) => WalletInfoAddress.fromJson(query[index]));
   }
 
   static Future<int> deleteByAddress(
       int walletInfoId, WalletInfoAddressType type, String address) async {
-    return await db.delete(tableName,
+    return await db!.delete(tableName,
         where: 'walletInfoId = ? AND type = ? AND address = ?',
         whereArgs: [walletInfoId, type.index, address]);
   }
 
   static Future<int> deleteByType(int walletInfoId, WalletInfoAddressType type) async {
-    return await db.delete(tableName,
+    return await db!.delete(tableName,
         where: 'walletInfoId = ? AND type = ?', whereArgs: [walletInfoId, type.index]);
   }
 
   static Future<int> insert(int walletInfoId, WalletInfoAddressType type, String address) async {
-    final select = await db.query(tableName,
+    final select = await db!.query(tableName,
         where: 'walletInfoId = ? AND type = ? AND address = ?',
         whereArgs: [walletInfoId, type.index, address]);
     if (select.isNotEmpty) {
       return select[0][selfIdColumn] as int;
     }
-    return await db.insert(tableName, {
+    return await db!.insert(tableName, {
       "walletInfoId": walletInfoId,
       "type": type.index,
       "address": address,
@@ -271,7 +271,7 @@ class DerivationInfo {
   String? description;
 
   static Future<List<DerivationInfo>> selectList(String where, List<dynamic> whereArgs) async {
-    final query = await db.query(
+    final query = await db!.query(
       tableName,
       columns: [
         selfIdColumn,
@@ -320,7 +320,7 @@ class DerivationInfo {
     if (json[selfIdColumn] == 0) {
       json[selfIdColumn] = null;
     }
-    id = await db.insert(tableName, json, conflictAlgorithm: ConflictAlgorithm.replace);
+    id = await db!.insert(tableName, json, conflictAlgorithm: ConflictAlgorithm.replace);
     return id;
   }
 }
@@ -617,17 +617,17 @@ class WalletInfo {
     if (_derivationInfo != null) {
       derivationInfoId = await _derivationInfo!.save();
     }
-    internalId = await db.insert(tableName, json, conflictAlgorithm: ConflictAlgorithm.replace);
+    internalId = await db!.insert(tableName, json, conflictAlgorithm: ConflictAlgorithm.replace);
     return internalId;
   }
 
   static Future<int> delete(WalletInfo walletInfo) async {
-    return await db.delete(tableName, where: 'id = ?', whereArgs: [walletInfo.id]);
+    return await db!.delete(tableName, where: 'id = ?', whereArgs: [walletInfo.id]);
   }
 
   static Future<List<WalletInfo>> selectList(String where, List<dynamic> whereArgs,
       {String orderBy = 'sortOrder'}) async {
-    final list = await db.query(
+    final list = await db!.query(
       tableName,
       where: where.isNotEmpty ? where : "1 = 1",
       whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
