@@ -360,11 +360,13 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       }) {
     if (raw == null || raw.isEmpty) return null;
 
+    if(tag?.toLowerCase() == "lightning") tag = "LN";
+
     if (tag != null && tag.isNotEmpty) {
       final match = CryptoCurrency.all.firstWhereOrNull(
             (e) =>
         e.title.toUpperCase() == raw.toUpperCase() &&
-            e.tag?.toUpperCase() == tag.toUpperCase(),
+            e.tag?.toUpperCase() == tag?.toUpperCase(),
       );
       if (match != null) return match;
       return null;
