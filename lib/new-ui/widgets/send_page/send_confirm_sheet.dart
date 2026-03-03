@@ -177,9 +177,16 @@ class SendTransactionDetails extends StatelessWidget {
     final fee =
         "${(transaction == null) ? sendViewModel.amountParsingProxy.getDisplayCryptoStringFromBigInt(sumByBigInt(
               sendViewModel.outputs.where((e) => !e.sendAll).toList(),
-              (o) =>
-                  sendViewModel.currency.tryParseAmount(o.estimatedFee.replaceAll(",", "")) ??
-                  BigInt.zero,
+              (o) {
+                if (sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln) {
+                  return sendViewModel.amountParsingProxy.tryParseCryptoString(
+                          o.estimatedFee.replaceAll(",", ""),
+                          sendViewModel.selectedCryptoCurrency) ??
+                      BigInt.zero;
+                }
+                return sendViewModel.currency.tryParseAmount(o.estimatedFee.replaceAll(",", "")) ??
+                    BigInt.zero;
+              },
             ), sendViewModel.currency) : sendViewModel.amountParsingProxy.getDisplayCryptoAmount(transaction.feeFormattedValue, sendViewModel.currency)} ${sendViewModel.currencySymbol}";
 
     final fiatAmount = (transaction == null)
