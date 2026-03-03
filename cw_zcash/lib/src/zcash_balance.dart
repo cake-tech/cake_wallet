@@ -2,8 +2,9 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 class ZcashBalance extends Balance {
-  ZcashBalance({required this.confirmed, required this.unconfirmed, required int frozen})
-    : _frozen = frozen, super.fromInt(confirmed, unconfirmed);
+  ZcashBalance({required this.confirmed, required this.unconfirmed, required final int frozen})
+    : _frozen = frozen,
+      super.fromInt(confirmed, unconfirmed);
 
   factory ZcashBalance.zero() => ZcashBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
 

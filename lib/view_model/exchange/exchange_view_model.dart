@@ -1413,7 +1413,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         );
       }
 
-      final isNativeSupportedToken = walletTypes.contains(cryptoCurrencyToWalletType(tradeFrom));
+      final isNativeSupportedToken = walletTypes.contains(cryptoCurrencyOrTokenToWalletType(tradeFrom));
 
       if (!isNativeSupportedToken) {
 

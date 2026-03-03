@@ -72,12 +72,12 @@ class PayjoinManager {
     });
   }
 
-  Future<void> writePayjoinLog(String message) async {
+  void writePayjoinLog(String message) {
+    if (_logStreamController.isClosed) return;
+
     try {
       _logStreamController.add(message);
-    } catch (e) {
-      printV(e);
-    }
+    } catch (_) {}
   }
 
   Future<void> resumeSessions() async {
