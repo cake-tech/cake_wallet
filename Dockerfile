@@ -45,6 +45,8 @@ RUN apt-get update \
 RUN set -o xtrace \
     && cd /opt \
     && apt-get install -y --no-install-recommends --no-install-suggests \
+    # protobuf
+    protobuf-compiler libprotobuf-dev \
     # Core dependencies
     bc build-essential curl default-jdk git jq lcov libglu1-mesa libpulse0 libsqlite3-dev libstdc++6 locales openssh-client ruby-bundler ruby-full sudo unzip wget zip \
     # for x86 emulators
@@ -88,11 +90,11 @@ ENV GOROOT=/usr/local/go
 ENV GOPATH=${HOME}/go
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then \
-      wget https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz -O go.tar.gz; \
+    wget https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz -O go.tar.gz; \
     elif [ "$ARCH" = "aarch64" ]; then \
-      wget https://go.dev/dl/go${GOLANG_VERSION}.linux-arm64.tar.gz -O go.tar.gz; \
+    wget https://go.dev/dl/go${GOLANG_VERSION}.linux-arm64.tar.gz -O go.tar.gz; \
     else \
-      echo "Unsupported architecture: $ARCH"; exit 1; \
+    echo "Unsupported architecture: $ARCH"; exit 1; \
     fi && \
     rm -rf /usr/local/go && \
     tar -C /usr/local -xzf go.tar.gz && \
@@ -144,6 +146,10 @@ RUN ARCH=$(uname -m) && \
 
 # Install extra NDK dependency for sp_scanner
 ENV ANDROID_NDK_VERSION=28.2.13676358
+
+ENV ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION
+ENV ANDROID_NDK=$ANDROID_NDK_HOME
+
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" != "x86_64" ]; then exit 0; fi \
     && yes | sdkmanager "ndk;$ANDROID_NDK_VERSION"
@@ -172,7 +178,7 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
     do \
     for target in aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu aarch64-unknown-linux-gnu; \
     do \
-        rustup target add --toolchain $toolchain $target; \
+    rustup target add --toolchain $toolchain $target; \
     done \
     done
 
