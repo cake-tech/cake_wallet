@@ -592,7 +592,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   Future<void> rotateAddress() async {
     await createNewAddress(wallet, "");
     if (isElectrumWallet) {
-      wallet.walletAddresses.address = (addressList.last as WalletAddressListItem).address;
+      wallet.walletAddresses.address = addressList.whereType<WalletAddressListItem>().last.address;
     }
   }
 
