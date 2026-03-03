@@ -5,7 +5,14 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class NewSendAmountInput extends StatefulWidget {
-  const NewSendAmountInput({super.key, required this.currency, required this.hasPicker, required this.onPickerClicked, required this.currencyIconPath, required this.amountController, this.validator});
+  const NewSendAmountInput(
+      {super.key,
+      required this.currency,
+      required this.hasPicker,
+      required this.onPickerClicked,
+      required this.currencyIconPath,
+      required this.amountController,
+      this.validator});
 
   final String currency;
   final String currencyIconPath;
@@ -23,76 +30,105 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Container(
-          decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(18)
-          ),
-          child:Row(
-            children: [
-              Expanded(
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  spacing: 8,
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        keyboardType:TextInputType.numberWithOptions(signed: false,decimal: true),
-                        controller: widget.amountController,
-                        validator: widget.validator,
-                        decoration: InputDecoration(hintText: "0", errorMaxLines: 3),
-                      ),
-                    ),
-                    FloatingIconButton(
-                        iconPath: "assets/new-ui/paste.svg",
-                        onPressed: () async {
-                          final data = await Clipboard.getData(Clipboard.kTextPlain);
-                          if(data != null && data.text != null) {
-                            widget.amountController.text = data.text!;
-                          }
-                        }
-                    ),
-                    SizedBox.shrink()
-                  ],
-                ),
-              ),
-              IntrinsicWidth(
-                child: Observer(
-                  builder:(_) {
-
-                    return GestureDetector(
-                      onTap: widget.onPickerClicked,
-                      child: Container(
-                          alignment: Alignment.center,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(topRight: Radius.circular(18),bottomRight: Radius.circular(18)),
-                            color: widget.hasPicker ?Theme.of(context).colorScheme.surfaceContainerHigh:Theme.of(context).colorScheme.surfaceContainer,
+    return FormField<String>(
+      validator: widget.validator,
+      builder: (state) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+              decoration: BoxDecoration(
+                  color: widget.hasPicker
+                      ? Theme.of(context).colorScheme.surfaceContainerHigh
+                      : Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(18)),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.horizontal(left: Radius.circular(18))),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        spacing: 8,
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              keyboardType:
+                                  TextInputType.numberWithOptions(signed: false, decimal: true),
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))
+                              ],
+                              onChanged: state.didChange,
+                              controller: widget.amountController,
+                              decoration: InputDecoration(hintText: "0", errorMaxLines: 3),
+                            ),
                           ),
-                          child:Padding(
-                              padding:EdgeInsets.symmetric(horizontal: 12),
-                              child:Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.max,
-                                spacing: 8,
-                                children: [
-                                  if(widget.hasPicker&&widget.currencyIconPath.isNotEmpty)
-                                    Image.asset(widget.currencyIconPath, width:24,height:24),
-                                  Text(
-                                      widget.currency
-                                  ),
-                                  if(widget.hasPicker)
-                                    SvgPicture.asset("assets/new-ui/chooser.svg", width:12,height:12, colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),)
-                                ],
-                              ))
+                          FloatingIconButton(
+                              iconPath: "assets/new-ui/paste.svg",
+                              onPressed: () async {
+                                final data = await Clipboard.getData(Clipboard.kTextPlain);
+                                if (data != null && data.text != null) {
+                                  widget.amountController.text = data.text!;
+                                }
+                              }),
+                          SizedBox.shrink()
+                        ],
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                  IntrinsicWidth(
+                    child: Observer(
+                      builder: (_) {
+                        return GestureDetector(
+                          onTap: widget.onPickerClicked,
+                          child: Container(
+                              alignment: Alignment.center,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(18),
+                                    bottomRight: Radius.circular(18)),
+                                color: widget.hasPicker
+                                    ? Theme.of(context).colorScheme.surfaceContainerHigh
+                                    : Theme.of(context).colorScheme.surfaceContainer,
+                              ),
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.max,
+                                    spacing: 8,
+                                    children: [
+                                      if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
+                                        Image.asset(widget.currencyIconPath, width: 24, height: 24),
+                                      Text(widget.currency),
+                                      if (widget.hasPicker)
+                                        SvgPicture.asset(
+                                          "assets/new-ui/chooser.svg",
+                                          width: 12,
+                                          height: 12,
+                                          colorFilter: ColorFilter.mode(
+                                              Theme.of(context).colorScheme.primary,
+                                              BlendMode.srcIn),
+                                        )
+                                    ],
+                                  ))),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              )),
+          if (state.hasError)
+            Padding(
+              padding: EdgeInsets.only(top: 6, left: 8),
+              child: Text(
+                state.errorText!,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
               ),
-            ],
-          )
+            )
+        ],
       ),
     );
   }

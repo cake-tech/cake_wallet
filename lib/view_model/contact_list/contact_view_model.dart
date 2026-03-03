@@ -67,8 +67,7 @@ abstract class ContactViewModelBase with Store {
     if(parsedAddress.name.isNotEmpty) {
       displayName = parsedAddress.name;
     }
-    address = await extractAddressFromParsed(context, parsedAddress);
-    printV(displayName);
+    address = await extractAddressFromParsed(null, parsedAddress);
   }
 
   Future<void> save() async {

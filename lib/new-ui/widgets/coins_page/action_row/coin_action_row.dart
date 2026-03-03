@@ -140,7 +140,7 @@ class CoinActionRow extends StatelessWidget {
                 BlendMode.srcIn,
               ),
             ),
-            label: "Scan",
+            label: S.of(context).scan,
             action: () => _onPressedScan(context),
           ),
         ],

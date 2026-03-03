@@ -10,6 +10,8 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_listener_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -50,6 +52,7 @@ class _NewDashboardState extends State<NewDashboard> {
     });});
     
     Future.delayed(Duration(milliseconds: 300)).then((_)=>_showChangelog(context));
+    _showVulnerableSeedsPopup(context);
   }
 
   @override
@@ -117,9 +120,9 @@ class _NewDashboardState extends State<NewDashboard> {
     final currentAppVersion = VersionComparator.getExtendedVersionNumber(
         widget.dashboardViewModel.settingsStore.appVersion);
     final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
-    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
+    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall) ?? true;
 
-    if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
+    if (currentAppVersion != lastSeenAppVersion && !isNewInstall) {
       Future<void>.delayed(
         Duration(seconds: 1),
         () {
@@ -135,8 +138,26 @@ class _NewDashboardState extends State<NewDashboard> {
       );
 
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
-    } else if (isNewInstall!) {
+    } else if (isNewInstall) {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
+  }
+
+  void _showVulnerableSeedsPopup(BuildContext context) async {
+    final List<String> affectedWalletNames = await widget.dashboardViewModel.checkAffectedWallets();
+
+    if (affectedWalletNames.isNotEmpty) {
+      Future<void>.delayed(
+        Duration(seconds: 1),
+            () {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return VulnerableSeedsPopup(affectedWalletNames);
+            },
+          );
+        },
+      );
     }
   }
 }

@@ -354,7 +354,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get depositAmount =>
-      amountParsingProxy.getDisplayCryptoAmount(_depositAmount, depositCurrency);
+      _depositAmount == "..."? _depositAmount:amountParsingProxy.getDisplayCryptoAmount(_depositAmount, depositCurrency);
 
   @computed
   String get depositAmountCanonical => _depositAmount;
@@ -364,7 +364,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get receiveAmount =>
-      amountParsingProxy.getDisplayCryptoAmount(_receiveAmount, receiveCurrency);
+      _receiveAmount == "..." ? _receiveAmount:amountParsingProxy.getDisplayCryptoAmount(_receiveAmount, receiveCurrency);
 
   @action
   // only set canonical formated amounts here;
@@ -737,7 +737,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final _enteredAmount = double.tryParse(_receiveAmount.replaceAll(',', '.')) ?? 0;
 
     if (bestRate == 0) {
-      _depositAmount = S.current.fetching;
+      _depositAmount = "...";
 
       await calculateBestRate();
     }
@@ -791,7 +791,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     /// in case the best rate was not calculated yet
     if (bestRate == 0) {
-      _receiveAmount = S.current.fetching;
+      _receiveAmount = "...";
 
       await calculateBestRate();
     }

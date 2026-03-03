@@ -396,6 +396,7 @@
   "export_lightning_logs": "Export Lightning logs",
   "export_logs": "匯出日誌",
   "export_outputs": "匯出輸出",
+  "export_payjoin_logs": "Export Payjoin logs",
   "extend_session": "延長工作階段",
   "extra_id": "額外ID:",
   "extracted_address_content": "您將汇款至\n${recipient_name}",

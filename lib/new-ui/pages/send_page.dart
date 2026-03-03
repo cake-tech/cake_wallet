@@ -469,7 +469,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                       ),
                                     ],
                                   ),
-                                  if (widget.sendViewModel.isMwebAvailable)
+                                  if (widget.sendViewModel.isMwebAvailable && widget.mode == SendPageModes.normal)
                                     StandardCheckbox(
                                       caption: S.of(context).litecoin_mweb_allow_coins,
                                       captionColor: Theme.of(context).colorScheme.onSurface,
@@ -771,6 +771,7 @@ class _NewSendPageState extends State<NewSendPage> {
   void _removeInputControllers(int index) {
     _amountControllers.removeAt(index);
     _addressControllers.removeAt(index);
+    _memoControllers.removeAt(index);
   }
 
   void _presentCurrencyPicker(BuildContext context) {

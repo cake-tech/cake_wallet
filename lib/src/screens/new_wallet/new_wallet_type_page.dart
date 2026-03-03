@@ -137,7 +137,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                         child: SelectButton(
                           key: ValueKey('new_wallet_type_${type.name}_button_key'),
                           image: Image.asset(
-                            getCryptoCurrencyForWalletListItem(type).iconPath ?? '',
+                            getCryptoCurrencyIconForWalletListItem(type),
                             height: 24,
                             width: 24,
                           ),

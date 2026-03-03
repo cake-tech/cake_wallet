@@ -8,6 +8,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_grab_handle.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -16,6 +17,7 @@ import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_o
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/generate_name.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -98,10 +100,12 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
             accountName: accounts[index].label,
+            accountIndex: accounts[index].id,
             balance: accounts[index].balance ?? "0.00",
             accountBalance: accounts[index].balance ?? "0.00",
-            designSwitchDuration: Duration(milliseconds: 200),
+            designSwitchDuration: Duration.zero,
             assetName: widget.accountListViewModel.currency.title,
+            onCustomizeTapped: (i == accounts.length - 1) ? _openCardCustomizer : null,
             selected: i == accounts.length - 1,
             width: cardWidth,
             design: widget.dashboardViewModel.cardDesigns[index],
@@ -191,99 +195,40 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                         padding: EdgeInsets.only(bottom: 50),
                         child: Align(
                             alignment: Alignment.bottomCenter,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              spacing: 16,
-                              children: [
-                                Material(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
                                   borderRadius: BorderRadius.circular(999999),
-                                  color: Theme.of(context).colorScheme.surfaceContainer,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(999999),
-                                    onTap: () {
-                                      final bloc = getIt.get<CardCustomizerBloc>(param1: false);
-
-                                      Navigator.of(context).push(CupertinoPageRoute(
-                                        builder: (context) {
-                                          return BlocProvider(
-                                            create: (context) => bloc,
-                                            child: Material(
-                                              child: CardCustomizer(
-                                                cryptoTitle: widget.dashboardViewModel.wallet
-                                                        .currency.fullName ??
-                                                    widget.dashboardViewModel.wallet.currency
-                                                        .name,
-                                                cryptoName: widget
-                                                    .dashboardViewModel.wallet.currency.name,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      )).then((_)async{
-
-                                        bloc.add(DesignSaved());
-                                         await bloc.stream.firstWhere((item)=>item is CardCustomizerSaved);
-                                        await widget.dashboardViewModel
-                                            .loadCardDesigns();
-                                        loadCards();
-                                      });
-
-                                    },
-                                    child: Container(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(12),
-                                        child: Row(
-                                          spacing: 10,
-                                          children: [
-                                            Icon(Icons.edit,
+                                  onTap: _showAddAccountModal,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.surfaceContainer,
+                                        borderRadius: BorderRadius.circular(999999)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 18.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        spacing: 8,
+                                        children: [
+                                          Icon(
+                                            Icons.add,
+                                            size: 28,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          ),
+                                          Text(
+                                            S.of(context).add_account,
+                                            style: TextStyle(
                                                 color: Theme.of(context).colorScheme.primary,
-                                                size: 20),
-                                            Text(
-                                              S.of(context).edit_current,
-                                              style: TextStyle(
-                                                  color: Theme.of(context).colorScheme.primary,
-                                                  fontWeight: FontWeight.w500),
-                                            )
-                                          ],
-                                        ),
+                                                fontWeight: FontWeight.w500),
+                                          )
+                                        ],
                                       ),
                                     ),
                                   ),
                                 ),
-                                Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(999999),
-                                    onTap: () async {
-                                      final res = await showCupertinoModalBottomSheet(
-                                          context: context,
-                                          backgroundColor: Colors.transparent,
-                                          builder: (context) {
-                                            final modal = getIt.get<AccountCreationModal>();
-                                            return Material(
-                                                child: modal);
-                                          });
-                                      if (res != null && res is bool && res == true) {
-                                        await widget.dashboardViewModel.loadCardDesigns();
-                                        loadCards();
-                                        await saveCardOrder();
-                                      }
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.surfaceContainer,
-                                          borderRadius: BorderRadius.circular(999999)),
-                                      child: Padding(
-                                          padding: EdgeInsets.all(8),
-                                          child: Icon(
-                                            Icons.add,
-                                            size: 28,
-                                            color: Theme.of(context).colorScheme.primary,
-                                          )),
-                                    ),
-                                  ),
-                                )
-                              ],
+                              ),
                             )))),
               ],
             ),
@@ -291,6 +236,67 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
         ],
       ),
     );
+  }
+
+  bool _checkReadyToManage() {
+    if (widget.dashboardViewModel.status is! SyncedSyncStatus) {
+      showDialog(
+          context: context,
+          builder: (context) => AlertWithOneAction(
+              alertTitle: S.of(context).wallet_is_syncing,
+              alertContent: S.of(context).cannot_manage_accounts_during_sync,
+              buttonText: S.of(context).ok,
+              buttonAction: Navigator.of(context).pop));
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _showAddAccountModal() async {
+    if (!_checkReadyToManage()) {
+      return;
+    }
+
+    final res = await showCupertinoModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          final modal = getIt.get<AccountCreationModal>();
+          return Material(child: modal);
+        });
+    if (res != null && res is bool && res == true) {
+      await widget.dashboardViewModel.loadCardDesigns();
+      loadCards();
+      await saveCardOrder();
+    }
+  }
+
+  void _openCardCustomizer() {
+    if (!_checkReadyToManage()) {
+      return;
+    }
+
+    final bloc = getIt.get<CardCustomizerBloc>(param1: false);
+
+    Navigator.of(context).push(CupertinoPageRoute(
+      builder: (context) {
+        return BlocProvider(
+          create: (context) => bloc,
+          child: Material(
+            child: CardCustomizer(
+              cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
+                  widget.dashboardViewModel.wallet.currency.name,
+              cryptoName: widget.dashboardViewModel.wallet.currency.name,
+            ),
+          ),
+        );
+      },
+    )).then((_) async {
+      bloc.add(DesignSaved());
+      await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
+      await widget.dashboardViewModel.loadCardDesigns();
+      loadCards();
+    });
   }
 
   void reorder(int oldIndex, int newIndex) {
@@ -308,9 +314,11 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
           card: BalanceCard(
             accountName: _items[i].card.accountName,
             balance: _items[i].card.balance,
+            accountIndex: _items[i].card.accountIndex,
             accountBalance: _items[i].card.accountBalance,
             assetName: _items[i].card.assetName,
             designSwitchDuration: _items[i].card.designSwitchDuration,
+            onCustomizeTapped: (i == _items.length - 1) ? _openCardCustomizer : null,
             selected: i == _items.length - 1,
             width: _items[i].card.width,
             design: _items[i].card.design,
@@ -366,6 +374,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
             accountName: accounts[i].label,
+            accountIndex: accounts[i].id,
             balance: accounts[i].balance ?? "0.00",
             accountBalance: accounts[i].balance ?? "0.00",
             assetName: widget.accountListViewModel.currency.title,
@@ -460,7 +469,7 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                           await widget.accountEditOrCreateViewModel.save();
                           Navigator.of(context).pop(true);
                         },
-                        text: "Continue",
+                        text: S.of(context).continue_text,
                         color: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,
                         isLoading: _loading,

@@ -14,6 +14,7 @@ class HistoryTileBase extends StatelessWidget {
     required this.roundedTop,
     required this.roundedBottom,
     required this.bottomSeparator,
+    this.primaryTextColor,
     this.asset,
   });
 
@@ -25,6 +26,7 @@ class HistoryTileBase extends StatelessWidget {
   final bool roundedTop;
   final bool roundedBottom;
   final bool bottomSeparator;
+  final Color? primaryTextColor;
   final CryptoCurrency? asset;
 
   // String _getDirectionIcon() {
@@ -105,15 +107,21 @@ class HistoryTileBase extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(title),
-                              Text(date, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                            Text(title,
+                                style: TextStyle(
+                                    color: primaryTextColor ??
+                                        Theme.of(context).colorScheme.onSurface)),
+                            Text(date, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                             ],
                           ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(amount),
-                              Text(amountFiat, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                            Text(amount,
+                                style: TextStyle(
+                                    color: primaryTextColor ??
+                                        Theme.of(context).colorScheme.onSurface)),
+                            Text(amountFiat, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                             ],
                           ),
                         ],

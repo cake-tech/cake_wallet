@@ -10,17 +10,23 @@ class WalletInfoBar extends StatelessWidget {
       required this.lightningMode,
       required this.name,
       required this.hardwareWalletType,
-      required this.onCustomizeButtonTap});
+      required this.onCustomizeButtonTap, required this.hasCustomize});
 
   final bool lightningMode;
   final String name;
   final HardwareWalletType? hardwareWalletType;
+  final bool hasCustomize;
   final VoidCallback onCustomizeButtonTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => {onCustomizeButtonTap(), HapticFeedback.mediumImpact()},
+      onTap: () {
+        if (hasCustomize) {
+          onCustomizeButtonTap();
+          HapticFeedback.mediumImpact();
+        }
+      },
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -56,12 +62,19 @@ class WalletInfoBar extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface),
           ),
-          SizedBox(width: 8),
-          ModernButton.svg(
-            size: 24,
-            onPressed: () => {onCustomizeButtonTap(), HapticFeedback.mediumImpact()},
-            svgPath: "assets/new-ui/icon-accounts.svg",
-          )
+          if (hasCustomize) ...[
+            SizedBox(width: 8),
+            ModernButton.svg(
+              size: 24,
+              onPressed: () {
+                if (hasCustomize) {
+                  onCustomizeButtonTap();
+                  HapticFeedback.mediumImpact();
+                }
+              },
+              svgPath: "assets/new-ui/icon-accounts.svg",
+            )
+          ]
         ],
       ),
     );
