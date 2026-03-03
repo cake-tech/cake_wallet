@@ -98,9 +98,11 @@ class LightningWallet {
   Future<String?> getAddress() async {
     var retries = 0;
     while (retries < MAX_RETRIES) {
-      final address = (await sdk.getLightningAddress())?.lightningAddress;
+      try {
+        final address = (await sdk.getLightningAddress())?.lightningAddress;
 
-      if (address != null) return address;
+        if (address != null) return address;
+      } catch (_) {} // No need to log here since it should be in the lightning log
       retries++;
       await Future.delayed(Duration(milliseconds: 500));
     }

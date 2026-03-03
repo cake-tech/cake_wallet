@@ -80,11 +80,16 @@ class OtherSettingsPage extends BasePage {
                             },
                           }),
                         ),
-                      if (_otherSettingsViewModel.walletType == WalletType.bitcoin)
+                      if (_otherSettingsViewModel.walletType == WalletType.bitcoin) ...[
                         SettingsCellWithArrow(
                           title: S.of(context).export_lightning_logs,
                           handler: onExportLNLog,
                         ),
+                        SettingsCellWithArrow(
+                          title: S.of(context).export_payjoin_logs,
+                          handler: onExportPJLog,
+                        ),
+                      ],
                       SettingsCellWithArrow(
                         title: S.current.settings_terms_and_conditions,
                         handler: (context) => Navigator.of(context).pushNamed(Routes.readDisclaimer),
@@ -183,6 +188,14 @@ class OtherSettingsPage extends BasePage {
 
     if (file != null) {
       await ShareUtil.shareFile(filePath: file.path, fileName: "Lightning.log", context: context);
+    }
+  }
+
+  Future<void> onExportPJLog(BuildContext context) async {
+    final file = await _otherSettingsViewModel.getPayjoinLog();
+
+    if (file != null) {
+      await ShareUtil.shareFile(filePath: file.path, fileName: "Payjoin.log", context: context);
     }
   }
 }

@@ -153,16 +153,17 @@ class CWBitcoin extends Bitcoin {
     return BitcoinTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount,
-                memo: out.memo,
-                extra: out.extra))
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmount,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                  formattedCryptoAmount: out.formattedCryptoAmount,
+                  memo: out.memo.isNotEmpty ? out.memo : null,
+                  extra: out.extra,
+                ))
             .toList(),
         priority: priority as BitcoinTransactionPriority,
         feeRate: bitcoinFeeRate,
