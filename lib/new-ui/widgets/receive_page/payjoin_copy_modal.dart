@@ -36,7 +36,10 @@ class PayjoinCopyModal extends StatelessWidget {
                       iconPath: "assets/new-ui/pjmodal_btc.svg",
                       onTap: () {
                         Clipboard.setData(
-                          ClipboardData(text: uri.address),
+                          ClipboardData(
+                              text: uri.amount.isNotEmpty
+                                  ? BitcoinURI(amount: uri.amount, address: uri.address).toString()
+                                  : uri.address),
                         );
                         Navigator.of(context).pop();
                       }),

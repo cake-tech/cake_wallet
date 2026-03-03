@@ -268,7 +268,10 @@ class _NewReceivePageState extends State<NewReceivePage> {
                                   PayjoinCopyModal(uri: widget.addressListViewModel.uri));
                         } else {
                           Clipboard.setData(
-                            ClipboardData(text: widget.addressListViewModel.uri.address),
+                            ClipboardData(
+                                text: widget.addressListViewModel.displayAmount.isEmpty
+                                    ? widget.addressListViewModel.uri.address
+                                    : widget.addressListViewModel.uri.toString()),
                           );
                         }
                       },
