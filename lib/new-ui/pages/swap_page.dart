@@ -398,7 +398,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
   void _onWalletNameChange(ExchangeViewModel exchangeViewModel, CryptoCurrency currency,
       GlobalKey<SwapAmountBoxState> key) {
-    final isCurrentTypeWallet = currency == exchangeViewModel.wallet.currency;
+    final isCurrentTypeWallet = exchangeViewModel.useSameWalletAddress(currency);
 
     if (isCurrentTypeWallet) {
       key.currentState!.addressController.text =

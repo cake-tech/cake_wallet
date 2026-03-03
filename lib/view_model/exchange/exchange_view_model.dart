@@ -260,17 +260,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         },
       ),
     );
-    reaction((_) => wallet.currency, (_) async {
-      // When currency changes (e.g., EVM chain switch), update currencies
-      await Future.delayed(const Duration(milliseconds: 100));
-      receiveCurrency = wallet.currency;
-      depositCurrency = wallet.currency;
-
-      // Only refresh ETH tokens for EVM wallets
-      if (isEVMCompatibleChain(wallet.type)) {
-        _injectUserEthTokensIntoCurrencyLists();
-      }
-    });
   }
 
   bool useSameWalletAddress(CryptoCurrency currency) =>
