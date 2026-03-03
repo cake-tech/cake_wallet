@@ -12,6 +12,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -164,8 +165,12 @@ class CoinActionRow extends StatelessWidget {
       if (code == null || code.isEmpty) return;
 
       late final PaymentRequest req;
-      if (SendViewModelBase.isNonZeroAmountLightningInvoice(code) ||
-          OpenCryptoPayService.isOpenCryptoPayQR(code)) {
+      var unspentCoinType = UnspentCoinType.any;
+      if (SendViewModelBase.isNonZeroAmountLightningInvoice(code)) {
+        unspentCoinType = UnspentCoinType.lightning;
+        final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(getBolt11Amount(code) ?? 0));
+        req = PaymentRequest(code, amount, "", "", "");
+      } else if (OpenCryptoPayService.isOpenCryptoPayQR(code)) {
         req = PaymentRequest(code, "", "", "", "");
       } else {
         final uri = Uri.tryParse(code);
@@ -174,22 +179,22 @@ class CoinActionRow extends StatelessWidget {
       }
 
       final sendPage = getIt.get<NewSendPage>(
-        param1: SendPageParams(initialPaymentRequest: req),
+        param1: SendPageParams(
+          initialPaymentRequest: req,
+          unspentCoinType: unspentCoinType,
+        ),
       );
 
       CupertinoScaffold.showCupertinoModalBottomSheet(
         context: context,
         barrierColor: Colors.black.withAlpha(60),
-        builder: (context) {
-          return Material(
-            child: ModalNavigator(
-              rootPage: sendPage,
-              parentContext: context,
-            ),
-          );
-        },
+        builder: (context) => Material(
+          child: ModalNavigator(
+            rootPage: sendPage,
+            parentContext: context,
+          ),
+        ),
       );
     }
-    ;
   }
 }

@@ -41,11 +41,20 @@ class PayjoinManager {
 
   static const payjoinDirectoryUrl = 'https://payjo.in';
 
-  final _logStreamController = StreamController<String>.broadcast();
+  var _logStreamController = StreamController<String>.broadcast();
   Stream<String> get logStream => _logStreamController.stream;
   StreamSubscription<String>? _logSubscription;
 
   Future<void> initPayjoin() async {
+    await initLogging();
+
+    await pj_config.PConfig.initializeApp();
+  }
+
+  Future<void> initLogging() async {
+    _logSubscription?.cancel();
+    _logStreamController = StreamController<String>.broadcast();
+
     try {
       final path = await pathForWalletDir(name: _wallet.name, type: _wallet.type);
       File("$path/payjoin.log")
@@ -55,8 +64,6 @@ class PayjoinManager {
     } catch (e) {
       printV(e);
     }
-
-    await pj_config.PConfig.initializeApp();
   }
 
   void _subscribeToLogStream(File logFile) {
@@ -65,9 +72,16 @@ class PayjoinManager {
     });
   }
 
-  void writePayjoinLog(String message) => _logStreamController.add(message);
+  Future<void> writePayjoinLog(String message) async {
+    try {
+      _logStreamController.add(message);
+    } catch (e) {
+      printV(e);
+    }
+  }
 
   Future<void> resumeSessions() async {
+    await initLogging();
     final allSessions = _payjoinStorage.readAllOpenSessions(_wallet.id);
 
     final spawnedSessions = allSessions.map((session) {

@@ -26,11 +26,18 @@ class NewSendAmountInput extends StatefulWidget {
 }
 
 class _NewSendAmountInputState extends State<NewSendAmountInput> {
+  final formFieldKey = GlobalKey<FormFieldState<String>>();
 
+  @override
+  void initState() {
+    widget.amountController.addListener(()=>formFieldKey.currentState?.didChange(widget.amountController.text));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return FormField<String>(
+      key: formFieldKey,
       validator: widget.validator,
       builder: (state) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
