@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
@@ -31,6 +32,20 @@ class LightningWallet {
     this.network = Network.mainnet,
   });
 
+  StreamSubscription<SdkEvent>? _eventSubscription;
+  Stream<SdkEvent>? _eventStream;
+
+  StreamSubscription<LogEntry>? _logSubscription;
+  Stream<LogEntry>? _logStream;
+
+  void _subscribeToLogStream(File logFile) {
+    _logSubscription = _logStream?.listen((logEntry) {
+      logFile.writeAsString("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
+    }, onError: (e) {
+      logFile.writeAsString("[ERROR] $e\n", mode: FileMode.append);
+    });
+  }
+
   Future<bool> init(String appPath) async {
     try {
       if (_breezSdkSparkLibUninitialized) {
@@ -57,6 +72,15 @@ class LightningWallet {
       sdk = await connect(request: connectRequest);
 
       _eventStream ??= sdk.addEventListener().asBroadcastStream();
+      _logStream ??= initLogging().asBroadcastStream();
+
+      try {
+        final logFile = File("$appPath/lightning.log")
+          ..createSync();
+        _subscribeToLogStream(logFile);
+      } catch (e) {
+        printV(e);
+      }
 
       return true;
     } catch (e) {
@@ -68,14 +92,17 @@ class LightningWallet {
   Future<void> close() async {
     _eventSubscription?.cancel();
     await sdk.disconnect();
+    _logSubscription?.cancel();
   }
 
   Future<String?> getAddress() async {
     var retries = 0;
     while (retries < MAX_RETRIES) {
-      final address = (await sdk.getLightningAddress())?.lightningAddress;
+      try {
+        final address = (await sdk.getLightningAddress())?.lightningAddress;
 
-      if (address != null) return address;
+        if (address != null) return address;
+      } catch (_) {} // No need to log here since it should be in the lightning log
       retries++;
       await Future.delayed(Duration(milliseconds: 500));
     }
@@ -305,9 +332,6 @@ class LightningWallet {
 
     return response.txHex;
   }
-
-  StreamSubscription<SdkEvent>? _eventSubscription;
-  Stream<SdkEvent>? _eventStream;
 
   void setEventListener(
       {required Function(ElectrumTransactionInfo) onTransactionEvent, required Function onBalanceChangedEvent}) {

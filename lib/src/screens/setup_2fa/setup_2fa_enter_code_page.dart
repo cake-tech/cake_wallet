@@ -1,6 +1,7 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/auth_state.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -108,99 +109,120 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
   }
 }
 
-class TOTPEnterCode extends BasePage {
-  TOTPEnterCode({
+class TOTPEnterCode extends StatefulWidget {
+  const TOTPEnterCode({
     required this.setup2FAViewModel,
     required this.isForSetup,
     required this.isClosable,
-  }) : totpController = TextEditingController() {
-    totpController.addListener(() {
-      setup2FAViewModel.enteredOTPCode = totpController.text;
-    });
-  }
+  });
 
-  @override
-  String get title => isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa;
 
-  Widget? leading(BuildContext context) {
-    return isClosable ? super.leading(context) : null;
-  }
-
-  final TextEditingController totpController;
   final Setup2FAViewModel setup2FAViewModel;
   final bool isForSetup;
   final bool isClosable;
 
   @override
-  Widget body(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 24,
-      ),
-      child: Column(
-        children: [
-          BaseTextFormField(
-            textAlign: TextAlign.left,
-            hintText: S.current.totp_code,
-            controller: totpController,
-            keyboardType: TextInputType.number,
-            placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 16,
-                ),
-          ),
-          SizedBox(height: 16),
-          Text(
-            S.current.please_fill_totp,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  height: 1.2,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-            textAlign: TextAlign.center,
-          ),
-          Spacer(),
-          Observer(
-            builder: (context) {
-              return PrimaryButton(
-                isDisabled: setup2FAViewModel.enteredOTPCode.length != 8,
-                onPressed: () async {
-                  final result =
-                      await setup2FAViewModel.totp2FAAuth(totpController.text, isForSetup);
-                  final bannedState = setup2FAViewModel.state is AuthenticationBanned;
+  State<TOTPEnterCode> createState() => _TOTPEnterCodeState();
+}
 
-                  await showPopUp<void>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return PopUpCancellableAlertDialog(
-                        contentText: _textDisplayedInPopupOnResult(result, bannedState, context),
-                        actionButtonText: S.of(context).ok,
-                        buttonAction: () {
-                          result ? setup2FAViewModel.success() : null;
-                          if (isForSetup && result) {
-                            Navigator.pop(context);
-                            // Navigator.of(context)
-                            //     .popAndPushNamed(Routes.modify2FAPage);
-                          } else {
-                            Navigator.of(context).pop(result);
-                          }
-                        },
-                      );
-                    },
-                  );
-                  if (isForSetup && result) {
-                    if (context.mounted) {
-                      Navigator.pushReplacementNamed(context, Routes.modify2FAPage);
-                    }
-                  }
-                },
-                text: S.of(context).continue_text,
-                color: Theme.of(context).colorScheme.primary,
-                textColor: Theme.of(context).colorScheme.onPrimary,
-              );
-            },
-          ),
-          SizedBox(height: 24),
-        ],
+class _TOTPEnterCodeState extends State<TOTPEnterCode> {
+  final totpController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    totpController.addListener(() {
+      widget.setup2FAViewModel.enteredOTPCode = totpController.text;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: SafeArea(
+        child: Column(
+          children: [
+            ModalTopBar(
+              title: widget.isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa,
+              leadingIcon: Icon(Icons.arrow_back_ios_new),
+              onLeadingPressed: Navigator.of(context).pop,
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                ),
+                child: Column(
+                  children: [
+
+                    BaseTextFormField(
+                      textAlign: TextAlign.left,
+                      hintText: S.current.totp_code,
+                      controller: totpController,
+                      keyboardType: TextInputType.number,
+                      placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontSize: 16,
+                          ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      S.current.please_fill_totp,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            height: 1.2,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Spacer(),
+                    Observer(
+                      builder: (context) {
+                        return PrimaryButton(
+                          isDisabled: widget.setup2FAViewModel.enteredOTPCode.length != 8,
+                          onPressed: () async {
+                            final result =
+                                await widget.setup2FAViewModel.totp2FAAuth(totpController.text, widget.isForSetup);
+                            final bannedState = widget.setup2FAViewModel.state is AuthenticationBanned;
+
+                            await showPopUp<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return PopUpCancellableAlertDialog(
+                                  contentText: _textDisplayedInPopupOnResult(result, bannedState, context),
+                                  actionButtonText: S.of(context).ok,
+                                  buttonAction: () {
+                                    result ? widget.setup2FAViewModel.success() : null;
+                                    if (widget.isForSetup && result) {
+                                      Navigator.pop(context);
+                                      // Navigator.of(context)
+                                      //     .popAndPushNamed(Routes.modify2FAPage);
+                                    } else {
+                                      Navigator.of(context).pop(result);
+                                    }
+                                  },
+                                );
+                              },
+                            );
+                            if (widget.isForSetup && result) {
+                              if (context.mounted) {
+                                Navigator.pushReplacementNamed(context, Routes.modify2FAPage);
+                              }
+                            }
+                          },
+                          text: S.of(context).continue_text,
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                        );
+                      },
+                    ),
+                    SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -208,10 +230,10 @@ class TOTPEnterCode extends BasePage {
   String _textDisplayedInPopupOnResult(bool result, bool bannedState, BuildContext context) {
     switch (result) {
       case true:
-        return isForSetup ? S.current.totp_2fa_success : S.current.totp_verification_success;
+        return widget.isForSetup ? S.current.totp_2fa_success : S.current.totp_verification_success;
       case false:
         if (bannedState) {
-          final state = setup2FAViewModel.state as AuthenticationBanned;
+          final state = widget.setup2FAViewModel.state as AuthenticationBanned;
           return S.of(context).failed_authentication(state.error);
         } else {
           return S.current.totp_2fa_failure;

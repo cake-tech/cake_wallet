@@ -128,6 +128,10 @@ class ContactPage extends BasePage {
                 child: Observer(
                   builder: (_) => PrimaryButton(
                     onPressed: () async {
+                      FocusScope.of(context).unfocus();
+
+                      await contactViewModel.extractParsedAddress(context);
+
                       if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                         return;
                       }

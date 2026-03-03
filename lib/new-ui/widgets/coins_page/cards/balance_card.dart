@@ -26,6 +26,8 @@ class BalanceCard extends StatelessWidget {
     this.designSwitchDuration = const Duration(),
     this.actions = const [],
     this.capitalizeAssetName = true,
+    this.onCustomizeTapped,
+    this.accountIndex
   });
 
   final double width;
@@ -35,12 +37,14 @@ class BalanceCard extends StatelessWidget {
   final String accountName;
   final String balance;
   final String fiatBalance;
+  final int? accountIndex;
   final bool capitalizeAssetName;
   final String assetName;
   final bool selected;
   final CardDesign design;
   final List<BalanceCardAction> actions;
   final Duration designSwitchDuration;
+  final VoidCallback? onCustomizeTapped;
 
   @override
   Widget build(BuildContext context) {
@@ -103,20 +107,35 @@ class BalanceCard extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          AnimatedDefaultTextStyle(
-                            duration: designSwitchDuration,
-                            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: design.colors.textColor),
-                            child: Text(accountName),
-                          ),
-                          AnimatedOpacity(
-                            opacity: selected ? 0 : 1,
-                            duration: textFadeDuration,
-                            child: Text(
-                              accountBalance,
-                              style: TextStyle(color: design.colors.textColor, fontSize: 14),
+                          children: [
+                            Row(
+                              spacing: 4,
+                              children: [
+                                if (accountIndex != null)
+                                  Opacity(
+                                    opacity: 0.5,
+                                    child: AnimatedDefaultTextStyle(
+                                      duration: designSwitchDuration,
+                                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          color: design.colors.textColor),
+                                      child: Text("$accountIndex."),
+                                    ),
+                                  ),
+                                AnimatedDefaultTextStyle(
+                                  duration: designSwitchDuration,
+                                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                      fontWeight: FontWeight.w500, color: design.colors.textColor),
+                                  child: Text(accountName),
+                                ),
+                              ],
+                            ),
+                            AnimatedOpacity(
+                              opacity: selected ? 0 : 1,
+                              duration: textFadeDuration,
+                              child: Text(
+                                accountBalance,
+                                style: TextStyle(color: design.colors.textColor, fontSize: 14),
                             ),
                           ),
                         ],
@@ -233,6 +252,29 @@ class BalanceCard extends StatelessWidget {
               ],
             ),
           ),
+          Positioned(
+            right: 20,
+            top: 20,
+            child: AnimatedOpacity(
+              duration: designSwitchDuration,
+              opacity: onCustomizeTapped == null ? 0 : 1,
+              child: GestureDetector(
+                onTap: onCustomizeTapped,
+                child: Container(
+                  height: 36, width: 36, // for touch target
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0, left: 20),
+                    child: SvgPicture.asset(
+                      alignment: Alignment.topRight,
+                      "assets/new-ui/3dots_vertical.svg",
+                      colorFilter:
+                          ColorFilter.mode(design.colors.textColorSecondary, BlendMode.srcIn),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );

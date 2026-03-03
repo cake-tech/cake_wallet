@@ -70,6 +70,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     int initialSilentAddressIndex = 0,
     bool? alwaysScan,
+    bool? useLightning,
   }) : super(
           mnemonic: mnemonic,
           passphrase: passphrase,
@@ -90,6 +91,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           currency:
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
+          useLightning: useLightning ?? true,
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
@@ -97,7 +99,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     // String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
     // final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
 
-    if (mnemonic != null) {
+    if (mnemonic != null && this.useLightning) {
       try {
         lightningWallet = LightningWallet(
           mnemonic: mnemonic,
@@ -136,6 +138,22 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
+    });
+    
+    reaction((_) => this.useLightning, (bool useLightning) {
+      if (useLightning) {
+        if (mnemonic != null) {
+          lightningWallet = LightningWallet(
+            mnemonic: mnemonic,
+            passphrase: passphrase,
+            seedBytes: seedBytes,
+            apiKey: secrets.breezApiKey,
+            lnurlDomain: "cake.cash",
+          );
+        }
+      } else {
+        lightningWallet = null;
+      }
     });
 
     if (initialLightningBalance != null) {
@@ -198,6 +216,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       addressPageType: addressPageType,
       networkParam: network,
       payjoinBox: payjoinBox,
+      useLightning: true,
     );
   }
 
@@ -301,7 +320,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         addressPageType: snp?.addressPageType,
         networkParam: network,
         alwaysScan: snp?.alwaysScan,
-        payjoinBox: payjoinBox);
+        useLightning: snp?.useLightning,
+        payjoinBox: payjoinBox,
+    );
   }
 
   @override
@@ -326,7 +347,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return ElectrumBalance(
       confirmed: balance.confirmed,
       unconfirmed: balance.unconfirmed,
-      frozen: balance.frozen,
+      frozen: balance.frozen.toInt(),
     );
   }
 
@@ -365,7 +386,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return super.fetchTransactions();
   }
 
-  late final LightningWallet? lightningWallet;
+  late LightningWallet? lightningWallet;
 
   late final PayjoinManager payjoinManager;
 

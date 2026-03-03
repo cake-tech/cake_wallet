@@ -1261,14 +1261,17 @@ class SolanaWalletClient {
       commitment,
     );
 
-    bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
-      inputAmount: inputAmount,
-      fee: fee,
-      solBalance: solBalance,
-    );
+    if (!isSendAll) {
+      bool hasSufficientFundsLeft =
+          await hasSufficientFundsLeftForRent(
+        inputAmount: inputAmount,
+        fee: fee,
+        solBalance: solBalance,
+      );
 
-    if (!hasSufficientFundsLeft) {
-      throw SolanaSignNativeTokenTransactionRentException();
+      if (!hasSufficientFundsLeft) {
+        throw SolanaSignNativeTokenTransactionRentException();
+      }
     }
 
     String serializedTransaction;

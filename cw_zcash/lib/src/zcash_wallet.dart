@@ -395,7 +395,6 @@ abstract class ZcashWalletBase
     } catch (e) {
       printV("Rescan error: $e");
       syncStatus = FailedSyncStatus(error: e.toString());
-      rethrow;
     }
   }
 
@@ -1161,7 +1160,7 @@ abstract class ZcashWalletBase
     final bal =
         balance[CryptoCurrency.zec]!.confirmed +
         balance[CryptoCurrency.zec]!.unconfirmed +
-        balance[CryptoCurrency.zec]!.frozen;
+        balance[CryptoCurrency.zec]!.frozen.toInt();
     final osCacheDir = await getApplicationCacheDirectory();
     final cacheDir = osCacheDir.createTempSync("zkool-import");
     zkoolSweep = ZkoolSweep(

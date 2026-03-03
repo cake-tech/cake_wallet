@@ -1,4 +1,5 @@
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:flutter/foundation.dart';
 
 class DogecoinTransactionPriority extends BitcoinTransactionPriority {
   const DogecoinTransactionPriority({required String title, required int raw})
@@ -21,7 +22,10 @@ class DogecoinTransactionPriority extends BitcoinTransactionPriority {
       case 2:
         return fast;
       default:
-        throw Exception('Unexpected token: $raw for DogecoinTransactionPriority deserialize');
+        if (kDebugMode) {
+          throw Exception('Unexpected token: $raw for DogecoinTransactionPriority deserialize');
+        }
+        return medium;
     }
   }
 

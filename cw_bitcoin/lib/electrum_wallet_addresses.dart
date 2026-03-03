@@ -176,7 +176,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     if (addressPageType == LightningAddressType.p2l) {
-      return lightningAddress ?? ":(";
+      return lightningAddress ?? "Unable to fetch Lightning Address";
     }
 
     final typeMatchingAddresses =
@@ -730,6 +730,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
     });
   }
+
+  @override
+  String get addressForBuy => super.addressForBuy;
 
   @action
   Future<void> setAddressType(BitcoinAddressType type) async {

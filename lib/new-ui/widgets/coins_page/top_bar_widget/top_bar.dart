@@ -3,7 +3,6 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_s
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/sync_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -30,8 +29,7 @@ class TopBar extends StatelessWidget {
         builder: (_) => Row(
           spacing: 12,
           children: [
-            (dashboardViewModel.wallet.type == WalletType.bitcoin &&
-                    dashboardViewModel.wallet.isSoftwareWallet)
+            (dashboardViewModel.hasLightning)
                 ? LightningSwitcher(
                     lightningMode: lightningMode,
                     onLightningSwitchPress: onLightningSwitchPress,

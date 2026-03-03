@@ -126,7 +126,6 @@ import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
-import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 """;
@@ -156,6 +155,7 @@ import 'package:cw_bitcoin/hardware/litecoin_ledger_service.dart';
 import 'package:cw_bitcoin/hardware/bitbox_service.dart';
 import 'package:cw_bitcoin/hardware/trezor_service.dart';
 import 'package:mobx/mobx.dart';
+import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
@@ -285,6 +285,8 @@ abstract class Bitcoin {
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
   String getNetworkName(Object wallet);
+  bool useLightning(Object wallet);
+  void updateUseLightning(Object wallet, bool value);
   Future<void> setLightningUsername(Object wallet, String username);
   Future<String?> getLightningUsername(Object wallet);
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
@@ -381,14 +383,14 @@ class MoneroBalance extends Balance {
       : formattedFullBalance = monero!.formatterMoneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
             monero!.formatterMoneroAmountToString(amount: unlockedBalance),
-        super(unlockedBalance, fullBalance);
+        super.fromInt(unlockedBalance, fullBalance);
 
   MoneroBalance.fromString(
       {required this.formattedFullBalance,
       required this.formattedUnlockedBalance})
       : fullBalance = monero!.formatterMoneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-        super(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
+        super.fromInt(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
             monero!.formatterMoneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
@@ -588,14 +590,14 @@ class WowneroBalance extends Balance {
       : formattedFullBalance = wownero!.formatterWowneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
             wownero!.formatterWowneroAmountToString(amount: unlockedBalance),
-        super(unlockedBalance, fullBalance);
+        super.fromInt(unlockedBalance, fullBalance);
 
   WowneroBalance.fromString(
       {required this.formattedFullBalance,
       required this.formattedUnlockedBalance})
       : fullBalance = wownero!.formatterWowneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
-        super(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
+        super.fromInt(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
             wownero!.formatterWowneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;

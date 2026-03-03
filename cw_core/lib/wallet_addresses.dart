@@ -39,6 +39,8 @@ abstract class WalletAddresses {
 
   String get addressForExchange => address;
 
+  String get addressForBuy => address;
+
   Map<String, String> addressesMap;
   Map<String, String> allAddressesMap;
 

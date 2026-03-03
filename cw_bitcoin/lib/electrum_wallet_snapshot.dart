@@ -24,6 +24,7 @@ class ElectrumWalletSnapshot {
     required this.silentAddressIndex,
     required this.mwebAddresses,
     required this.alwaysScan,
+    required this.useLightning,
     this.passphrase,
     this.derivationType,
     this.derivationPath,
@@ -48,6 +49,7 @@ class ElectrumWalletSnapshot {
   List<BitcoinSilentPaymentAddressRecord> silentAddresses;
   List<BitcoinAddressRecord> mwebAddresses;
   bool alwaysScan;
+  bool useLightning;
 
   ElectrumBalance balance;
   ElectrumBalance? lightningBalance;
@@ -85,6 +87,7 @@ class ElectrumWalletSnapshot {
         .toList();
 
     final alwaysScan = data['alwaysScan'] as bool? ?? false;
+    final useLightning = data['useLightning'] as bool? ?? true;
 
     final balance = ElectrumBalance.fromJSON(data['balance'] as String?) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
@@ -133,6 +136,7 @@ class ElectrumWalletSnapshot {
       silentAddressIndex: silentAddressIndex,
       mwebAddresses: mwebAddresses,
       alwaysScan: alwaysScan,
+      useLightning: useLightning,
     );
   }
 }

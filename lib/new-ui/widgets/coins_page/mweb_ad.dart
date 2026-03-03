@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -15,12 +16,12 @@ class MwebAd extends StatelessWidget {
       if (!dashboardViewModel.shouldShowMwebAd) return SizedBox.shrink();
 
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0,vertical: 12),
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12, top: 24),
         child: Column(
           spacing: 12,
           children: [
             GestureDetector(
-              onTap: () => dashboardViewModel.dismissMwebAd(true),
+              onTap: () => Navigator.of(context).pushNamed(Routes.mwebSettings),
               child: Container(
                 height: 64,
                 decoration: BoxDecoration(

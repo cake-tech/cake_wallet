@@ -276,6 +276,8 @@ flutter:
     - assets/new-ui/address-type-picker-icons/zec/
     - assets/new-ui/trade_providers/
     - assets/new-ui/navbar/
+    - assets/new-ui/changelog/icons/
+    - assets/new-ui/changelog/text/
 
   fonts:
     - family: Lato

@@ -12,6 +12,8 @@ class ListItemRegularRow extends ListItem {
     this.trailingIconPath,
     this.showArrow = true,
     this.truncateTrailingText = false,
+    this.foregroundColor,
+    this.trailingIconSize
   });
 
   final String? subtitle;
@@ -21,4 +23,6 @@ class ListItemRegularRow extends ListItem {
   final VoidCallback? onTap;
   final bool showArrow;
   final bool truncateTrailingText;
+  final Color? foregroundColor;
+  final double? trailingIconSize;
 }

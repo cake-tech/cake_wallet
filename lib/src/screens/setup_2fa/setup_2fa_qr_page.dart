@@ -41,7 +41,7 @@ class Setup2FAQRPage extends BasePage {
           ),
           SizedBox(height: 10),
           ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
             child: AspectRatio(
               aspectRatio: 1.0,
               child: Container(

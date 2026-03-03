@@ -17,6 +17,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
     this.showArrow = true,
     this.trailingIconPath,
     this.truncateTrailingText = false,
+    this.foregroundColor,
+    this.trailingIconSize,
   });
 
   final String keyValue;
@@ -31,6 +33,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final bool showArrow;
   final String? trailingIconPath;
   final bool truncateTrailingText;
+  final Color? foregroundColor;
+  final double? trailingIconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +76,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(label, style: textStyle),
+                          Text(label, style: foregroundColor == null ? textStyle : textStyle.copyWith(color: foregroundColor)),
                           if (subtitle != null)
                             Text(
                               subtitle!,
@@ -98,8 +102,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
                   if(trailingIconPath != null)
                     SvgPicture.asset(
                       trailingIconPath!,
-                      width:18,
-                      colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),
+                      height: trailingIconSize ?? 18,
+                      width:trailingIconSize ?? 18,
+                      colorFilter: ColorFilter.mode(foregroundColor ?? Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),
                     )
                   else if(showArrow)
                   SvgPicture.asset(

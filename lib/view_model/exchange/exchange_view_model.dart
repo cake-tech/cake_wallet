@@ -232,7 +232,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         final balance = wallet.balance[depositCurrency];
         if (balance != null) {
           depositAvailableAmount = _appStore.amountParsingProxy
-              .getDisplayCryptoString(balance.fullAvailableBalance, depositCurrency);
+              .getDisplayCryptoStringFromBigInt(balance.fullAvailableBalance, depositCurrency);
           return false;
         }
         return true;
@@ -355,7 +355,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get depositAmount =>
-      amountParsingProxy.getDisplayCryptoAmount(_depositAmount, depositCurrency);
+      _depositAmount == "..."? _depositAmount:amountParsingProxy.getDisplayCryptoAmount(_depositAmount, depositCurrency);
 
   @computed
   String get depositAmountCanonical => _depositAmount;
@@ -365,7 +365,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get receiveAmount =>
-      amountParsingProxy.getDisplayCryptoAmount(_receiveAmount, receiveCurrency);
+      _receiveAmount == "..." ? _receiveAmount:amountParsingProxy.getDisplayCryptoAmount(_receiveAmount, receiveCurrency);
 
   @action
   // only set canonical formated amounts here;
@@ -423,9 +423,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @computed
   Future<List<WalletInfo>> get receiveWallets async {
     WalletType? type;
-    type = cryptoCurrencyToWalletType(receiveCurrency);
+    type = cryptoCurrencyOrTokenToWalletType(receiveCurrency);
     if (type == null) {
-      type = cryptoCurrencyToWalletType(CryptoCurrency.fromString(receiveCurrency.tag ?? ""));
+      type = cryptoCurrencyOrTokenToWalletType(CryptoCurrency.fromString(receiveCurrency.tag ?? ""));
     }
 
     return await WalletInfo.selectList("type = ?", [type!.index]);
@@ -444,12 +444,18 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @computed
   Future<List<WalletInfo>> get depositWallets async {
     WalletType? type;
-    type = cryptoCurrencyToWalletType(depositCurrency);
+    type = cryptoCurrencyOrTokenToWalletType(depositCurrency);
     if (type == null) {
-      type = cryptoCurrencyToWalletType(CryptoCurrency.fromString(depositCurrency.tag ?? ""));
+      try {
+        type = cryptoCurrencyOrTokenToWalletType(CryptoCurrency.fromString(depositCurrency.tag ?? ""));
+      } catch (_) {}
     }
 
-    return await WalletInfo.selectList("type = ?", [type!.index]);
+    if (type != null) {
+      return await WalletInfo.selectList("type = ?", [type.index]);
+    }
+
+    return await WalletInfo.getAll();
   }
 
   @action
@@ -472,7 +478,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String? get balanceDisplay {
     final bal = wallet.balance[depositCurrency]?.fullAvailableBalance;
     if(bal == null) return null;
-    return amountParsingProxy.getDisplayCryptoString(bal, depositCurrency);
+    return amountParsingProxy.getDisplayCryptoStringFromBigInt(bal, depositCurrency);
   }
 
   //* Still open to further optimize these checks
@@ -732,7 +738,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final _enteredAmount = double.tryParse(_receiveAmount.replaceAll(',', '.')) ?? 0;
 
     if (bestRate == 0) {
-      _depositAmount = S.current.fetching;
+      _depositAmount = "...";
 
       await calculateBestRate();
     }
@@ -786,7 +792,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     /// in case the best rate was not calculated yet
     if (bestRate == 0) {
-      _receiveAmount = S.current.fetching;
+      _receiveAmount = "...";
 
       await calculateBestRate();
     }

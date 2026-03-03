@@ -279,7 +279,7 @@ class ReceiveAddressTypeRow extends StatelessWidget {
                 Row(
                   children: [
                     if (iconPath != null)
-                      SvgPicture.asset(iconPath!, width: iconSize, height: iconSize)
+                      SvgPicture.asset(iconPath!, width: iconSize, height: iconSize,colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),)
                     else
                       Container(width: iconSize, height: iconSize),
                     Padding(

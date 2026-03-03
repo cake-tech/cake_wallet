@@ -114,18 +114,21 @@ class _NewHomePageState extends State<NewHomePage> {
                     lightningMode: _lightningMode,
                     hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
                     name: widget.dashboardViewModel.wallet.name,
-                    onCustomizeButtonTap: openCustomizer
-                  ),
-                ),
-                Column(
-                  children: [
-                    CardsView(
-                      key: ValueKey(widget.dashboardViewModel.wallet.name),
-                      dashboardViewModel: widget.dashboardViewModel,
-                      accountListViewModel: accountListViewModel,
-                      onCompactModeBackgroundCardsTapped: openCustomizer,
-                      lightningMode: _lightningMode,
-                    ),
+                            hasCustomize: accountListViewModel != null,
+                            onCustomizeButtonTap: openAccountCustomizer),
+                      ),
+                      Column(
+                        children: [
+                          Observer(
+                            builder: (_) => CardsView(
+                              key: ValueKey(widget.dashboardViewModel.wallet.name),
+                              onCustomizeTapped: openCardCustomizer,
+                              dashboardViewModel: widget.dashboardViewModel,
+                              accountListViewModel: accountListViewModel,
+                              onCompactModeBackgroundCardsTapped: openAccountCustomizer,
+                              lightningMode: _lightningMode,
+                            ),
+                          ),
                     UnconfirmedBalanceWidget(dashboardViewModel: widget.dashboardViewModel,),
                   ],
                 ),
@@ -175,12 +178,7 @@ class _NewHomePageState extends State<NewHomePage> {
         );
   }
 
-  void openCustomizer() async {
-    final bloc = getIt.get<CardCustomizerBloc>(
-        param1: _lightningMode,
-        param2: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi);
-
-
+  void openAccountCustomizer() async {
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       barrierColor: Colors.black.withAlpha(60),
       context: context,
@@ -188,31 +186,42 @@ class _NewHomePageState extends State<NewHomePage> {
         return ModalNavigator(
           parentContext: context,
           heightMode: ModalHeightModes.fullScreen,
-          rootPage: BlocProvider(
-            create: (context) => bloc,
-            child: Material(
-              child: accountListViewModel == null
-                  ? CardCustomizer(
-                cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
-                    widget.dashboardViewModel.wallet.currency.name,
-                cryptoName: widget.dashboardViewModel.wallet.currency.name,
-              )
-                  : AccountCustomizer(
-                accountListViewModel: accountListViewModel!,
-                accountEditOrCreateViewModel:
-                getIt.get<MoneroAccountEditOrCreateViewModel>(),
-                dashboardViewModel: widget.dashboardViewModel,
-              ),
-            ),
-          ),
+          rootPage: Material(
+              child: AccountCustomizer(
+            accountListViewModel: accountListViewModel!,
+            accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>(),
+            dashboardViewModel: widget.dashboardViewModel,
+          )),
         );
       },
     );
+    widget.dashboardViewModel.loadCardDesigns();
+  }
 
-    if(accountListViewModel == null) {
-      bloc.add(DesignSaved());
-      await bloc.stream.firstWhere((s) => s is CardCustomizerSaved);
-    }
+  void openCardCustomizer() async {
+    final bloc = getIt.get<CardCustomizerBloc>(
+        param1: _lightningMode,
+        param2: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi);
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
+      barrierColor: Colors.black.withAlpha(60),
+      context: context,
+      builder: (context) {
+        return ModalNavigator(
+            parentContext: context,
+            heightMode: ModalHeightModes.fullScreen,
+            rootPage: BlocProvider(
+              create: (context) => bloc,
+              child: Material(
+                  child: CardCustomizer(
+                cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
+                    widget.dashboardViewModel.wallet.currency.name,
+                cryptoName: widget.dashboardViewModel.wallet.currency.name,
+              )),
+            ));
+      },
+    );
+    bloc.add(DesignSaved());
+    await bloc.stream.firstWhere((s) => s is CardCustomizerSaved);
     widget.dashboardViewModel.loadCardDesigns();
   }
 }

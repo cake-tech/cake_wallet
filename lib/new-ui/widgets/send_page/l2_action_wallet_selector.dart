@@ -39,7 +39,6 @@ class L2ActionWalletSelector extends StatefulWidget {
   final ContactListViewModel contactListViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
 
-
   @override
   State<L2ActionWalletSelector> createState() => _L2ActionWalletSelectorState();
 }
@@ -59,14 +58,15 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
         items.addAll((await WalletInfo.getAll())
             .where((item) => item.type == widget.sendViewModel.walletType));
         items.sort((a, b) {
-          if (a.name == widget.sendViewModel.wallet.name) return -1;
+          if (a.name == widget.sendViewModel.wallet.name)
+            return -1;
           else if (b.name == widget.sendViewModel.wallet.name) return 1;
           return 0;
         });
         setState(() {});
       }.call();
     }
-    addressController.addListener((){
+    addressController.addListener(() {
       setState(() {
         textEntered = addressController.text.isNotEmpty;
       });
@@ -79,7 +79,9 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ModalTopBar(
-          title: widget.action == l2actions.deposit ? "${S.of(context).send_from}..." : "${S.of(context).receive_to}...",
+          title: widget.action == l2actions.deposit
+              ? "${S.of(context).send_from}..."
+              : "${S.of(context).receive_to}...",
           leadingIcon: Icon(Icons.arrow_back_ios_new),
           onLeadingPressed: Navigator.of(context).pop,
         ),
@@ -91,29 +93,28 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                 spacing: 12,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (!widget.showOtherWallets) Column(spacing: 8,                crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(S.of(context).choose_wallet),
-                        WalletRow(
-                          isCurrent: true,
-                            currencyIconPath:
-                                widget.sendViewModel.wallet.currency.iconPath ?? "",
-                            walletName: widget.sendViewModel.wallet.name,
-                                onTap: () {
-                                  Navigator.of(context).push(CupertinoPageRoute(
-                                      builder: (context) => Material(
-                                          child: L2ActionWalletSelector(
-                                              showOtherWallets: true,
-                                              sendViewModel: widget.sendViewModel,
-                                              action: widget.action,
-                                              onSendInitiated: widget.onSendInitiated,
-                                              contactListViewModel:
-                                                  widget.contactListViewModel,walletSwitcherViewModel: widget.walletSwitcherViewModel,))));
-                                },)
-                      ]),
-
-
-                  if(widget.showOtherWallets) ...[
+                  if (!widget.showOtherWallets)
+                    Column(spacing: 8, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(S.of(context).choose_wallet),
+                      WalletRow(
+                        isCurrent: true,
+                        currencyIconPath: widget.sendViewModel.wallet.currency.iconPath ?? "",
+                        walletName: widget.sendViewModel.wallet.name,
+                        onTap: () {
+                          Navigator.of(context).push(CupertinoPageRoute(
+                              builder: (context) => Material(
+                                      child: L2ActionWalletSelector(
+                                    showOtherWallets: true,
+                                    sendViewModel: widget.sendViewModel,
+                                    action: widget.action,
+                                    onSendInitiated: widget.onSendInitiated,
+                                    contactListViewModel: widget.contactListViewModel,
+                                    walletSwitcherViewModel: widget.walletSwitcherViewModel,
+                                  ))));
+                        },
+                      )
+                    ]),
+                  if (widget.showOtherWallets) ...[
                     Flexible(
                       child: ListView.builder(
                           shrinkWrap: true,
@@ -124,7 +125,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                               padding: const EdgeInsets.symmetric(vertical: 4.0),
                               child: WalletRow(
                                 currencyIconPath:
-                                walletTypeToCryptoCurrency(item.type).iconPath ?? "",
+                                    walletTypeToCryptoCurrency(item.type).iconPath ?? "",
                                 walletName: item.name,
                                 isCurrent: item.name == widget.sendViewModel.wallet.name,
                                 isSelected: _selectedWalletIndex == index && !textEntered,
@@ -197,7 +198,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                         //     ),
                         //   ),
                         // ),
-                        if(widget.action == l2actions.withdraw)
+                        if (widget.action == l2actions.withdraw)
                           Row(
                             children: [
                               Flexible(
@@ -208,55 +209,69 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                               ),
                             ],
                           ),
-
                       ],
                     ),
                   ],
-
-                  Column(spacing:8,children: [
-                    if(widget.action == l2actions.deposit && widget.showOtherWallets) ...[  Container(height:1,color: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(64),),SizedBox(),
-                      Container(
-                      height: 52,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                      ),
-                      child: Material(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () async {
-                            Navigator.of(context,rootNavigator: true).pop();
-                            showCupertinoModalBottomSheet(context: navigatorKey.currentContext??context, builder: (context){
-                              return Material(child: L2SendExternalModal(sendViewModel: widget.sendViewModel));
-                            });
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              spacing: 10,
-                              children: [
-                                SvgPicture.asset(
-                                  "assets/new-ui/send_from_external.svg",
-                                  colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.primary,
-                                      BlendMode.srcIn),
+                  Column(
+                    spacing: 8,
+                    children: [
+                      if (widget.action == l2actions.deposit && widget.showOtherWallets) ...[
+                        Container(
+                          height: 1,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(64),
+                        ),
+                        SizedBox(),
+                        Container(
+                          height: 52,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                          ),
+                          child: Material(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () async {
+                                Navigator.of(context, rootNavigator: true).pop();
+                                showCupertinoModalBottomSheet(
+                                  context: navigatorKey.currentContext ?? context,
+                                  builder: (context) {
+                                    return Material(
+                                      child: L2SendExternalModal(
+                                        sendViewModel: widget.sendViewModel,
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: 10,
+                                  children: [
+                                    SvgPicture.asset(
+                                      "assets/new-ui/send_from_external.svg",
+                                      colorFilter: ColorFilter.mode(
+                                          Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                                    ),
+                                    Text(
+                                      S.of(context).send_from_external,
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.primary,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 15,
+                                      ),
+                                    )
+                                  ],
                                 ),
-                                Text(
-                                  S.of(context).send_from_external,
-                                  style: TextStyle(
-                                      color: Theme.of(context).colorScheme.primary,fontWeight: FontWeight.w500,fontSize:15),
-                                )
-                              ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),],
-
-                    NewPrimaryButton(
+                      ],
+                      NewPrimaryButton(
                         onPressed: () async {
                           if (widget.sendViewModel.wallet.type == WalletType.bitcoin ||
                               widget.sendViewModel.wallet.type == WalletType.litecoin) {
@@ -280,12 +295,12 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                         },
                         text: S.of(context).continue_text,
                         color: Theme.of(context).colorScheme.primary,
-                      textColor: Theme.of(context).colorScheme.onPrimary,
-                      isLoading: _isLoading,
-                    ),
-                    SizedBox()
-                  ],),
-
+                        textColor: Theme.of(context).colorScheme.onPrimary,
+                        isLoading: _isLoading,
+                      ),
+                      SizedBox()
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -296,7 +311,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
   }
 
   Future<void> _handleChangeWallet(WalletInfo wallet) async {
-    if(wallet == widget.sendViewModel.wallet) {
+    if (wallet == widget.sendViewModel.wallet) {
       return;
     }
     setState(() {
@@ -310,19 +325,28 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
     if (success) {
       await Future.delayed(const Duration(seconds: 2));
       await widget.sendViewModel.updateWalletBalance();
-      if(bitcoin != null) {
+      if (bitcoin != null) {
         await bitcoin!.updateFeeRates(widget.sendViewModel.wallet);
       }
     }
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 }
 
 class WalletRow extends StatelessWidget {
-  const WalletRow(
-      {super.key, required this.currencyIconPath, required this.walletName, required this.onTap, this.isLoading=false, this.isCurrent=false, this.isSelected});
+  const WalletRow({
+    super.key,
+    required this.currencyIconPath,
+    required this.walletName,
+    required this.onTap,
+    this.isLoading = false,
+    this.isCurrent = false,
+    this.isSelected,
+  });
 
   final String currencyIconPath;
   final String walletName;
@@ -363,16 +387,23 @@ class WalletRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(walletName),
-                        if(isCurrent)
-                          Text(S.of(context).current_wallet, style: TextStyle(fontSize: 12,color: Theme.of(context).colorScheme.onSurfaceVariant),)
+                        if (isCurrent)
+                          Text(
+                            S.of(context).current_wallet,
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          )
                       ],
                     )
                   ],
                 ),
-                isSelected != null ? NewSimpleCheckbox(value: isSelected!, onChanged: (val){}) : Icon(
-                  Icons.chevron_right,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                )
+                isSelected != null
+                    ? NewSimpleCheckbox(value: isSelected!, onChanged: (val) {})
+                    : Icon(
+                        Icons.chevron_right,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      )
               ],
             ),
           ),

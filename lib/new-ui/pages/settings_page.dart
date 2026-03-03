@@ -44,7 +44,7 @@ class SettingsSectionData {
   static SettingsSectionData walletSettings =
       SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet_settings.svg", [
     SettingsListItem("assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
-    SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy_features, Routes.privacyPage),
+    SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy, Routes.privacyPage),
     SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.showKeys,
         routeArgs: true, requireAuth: true, use2fa: (vm)=>vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
     SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
@@ -60,13 +60,13 @@ class SettingsSectionData {
     SettingsListItem("assets/new-ui/settings_row_icons/connections.svg", S.current.connections, Routes.connectionSync),
     // SettingsListItem("assets/new-ui/settings_row_icons/defaults.svg", "Defaults", ""),
     SettingsListItem("assets/new-ui/settings_row_icons/display.svg", S.current.display, Routes.displaySettingsPage),
-    SettingsListItem("assets/new-ui/settings_row_icons/security.svg", S.current.privacy_and_security, Routes.securityBackupPage),
+    SettingsListItem("assets/new-ui/settings_row_icons/security.svg", S.current.security, Routes.securityBackupPage),
     SettingsListItem("assets/new-ui/settings_row_icons/backup.svg", S.current.backup, Routes.backup, requireAuth: true, use2fa: (vm)=>vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
   ]);
 
   static SettingsSectionData otherSettings = SettingsSectionData("", "", [
     SettingsListItem("assets/new-ui/settings_row_icons/support.svg", S.current.settings_support, Routes.support),
-    // SettingsListItem("assets/new-ui/settings_row_icons/info.svg", "About", ""),
+    SettingsListItem("assets/new-ui/settings_row_icons/info.svg", S.current.about, Routes.aboutPage),
   ]);
 
   static List<SettingsSectionData> all = [walletSettings, appSettings, otherSettings];

@@ -74,7 +74,7 @@ class UniversalAddressDetector {
 
       // Determine currency from scheme
       final currency = CryptoCurrency.fromString(uri.scheme.toLowerCase());
-      final walletType = cryptoCurrencyToWalletType(currency);
+      final walletType = cryptoCurrencyOrTokenToWalletType(currency);
       final chainId = getChainIdByCryptoCurrency(currency);
 
       return AddressDetectionResult(
@@ -111,7 +111,13 @@ class UniversalAddressDetector {
         pattern: RegExp(r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt)[a-z0-9]+$', caseSensitive: false),
         currency: CryptoCurrency.btcln,
       ),
-      
+
+      // Lightning Network (Bolt12 Offer format)
+      _DetectionPattern(
+        pattern: RegExp(r'^(lightning:)?(lno1)[a-z0-9]+$', caseSensitive: false),
+        currency: CryptoCurrency.btcln,
+      ),
+
       // Lightning Address (email format)
       _DetectionPattern(
         pattern: RegExp(r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'),
@@ -120,7 +126,7 @@ class UniversalAddressDetector {
       
       // Lightning Address (LNURL format)
       _DetectionPattern(
-        pattern: RegExp(r'^(lnurl)[a-z0-9]+$', caseSensitive: false),
+        pattern: RegExp(r'^(lightning:)?(lnurl)[a-z0-9]+$', caseSensitive: false),
         currency: CryptoCurrency.btcln,
       ),
 
@@ -233,7 +239,7 @@ class UniversalAddressDetector {
     // Test each pattern in order of specificity
     for (final pattern in detectionPatterns) {
       if (pattern.pattern.hasMatch(cleanInput)) {
-        final walletType = cryptoCurrencyToWalletType(pattern.currency);
+        final walletType = cryptoCurrencyOrTokenToWalletType(pattern.currency);
         final chainId = getChainIdByCryptoCurrency(pattern.currency);
         final amount = _getAmountFromInvoice(cleanInput, pattern.currency);
 
@@ -243,7 +249,7 @@ class UniversalAddressDetector {
           detectedWalletType: walletType,
           isValid: true,
           chainId: chainId,
-          amount: amount
+          amount: amount,
         );
       }
     }

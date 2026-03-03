@@ -69,10 +69,6 @@ class FiatAmountBar extends StatelessWidget {
               ),
               Container(
                 decoration: BoxDecoration(
-                    border: allAmountColor == Colors.transparent
-                        ? Border.all(
-                            width: 1, color: Theme.of(context).colorScheme.onSurfaceVariant)
-                        : null,
                     borderRadius: BorderRadius.circular(999999)),
                 child: Material(
                     color: allAmountColor ?? foregroundElementColor ?? Theme.of(context).colorScheme.surfaceContainer,

@@ -89,6 +89,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ))
                       : ListView.builder(
+                    padding: EdgeInsets.only(bottom: 12),
                     shrinkWrap: true,
                           controller: ModalScrollController.of(context),
                           itemCount: items.length,

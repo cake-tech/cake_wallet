@@ -21,14 +21,20 @@ cd cake_wallet
 # docker build -t ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly . # Uncomment to build the docker image yourself instead of pulling it from the registry
 docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly bash -x << EOF
 set -x -e
+git config --global --add safe.directory '*'
 pushd scripts/android
-    ./build_torch.sh
+    ./build_torch.sh # optional: this will fail on case-insensitive fs and will add extra few hours to the build process, without this embedded tor will not work.
+    ./build_reown_deps.sh
+    pushd ..
+        ./build_bitbox_flutter.sh
+    popd
     source ./app_env.sh cakewallet
     # source ./app_env.sh monero.com # Uncomment this line to build monero.com
     ./app_config.sh
-    ./build_monero_all.sh
+    ./build_monero_all.sh # optional, ommit to not build monero
     ./build_decred.sh
     ./build_mwebd.sh
+    ./build_zcash.sh
 popd
 pushd android/app
     [[ -f key.jks ]] || keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass hunter1 -keypass hunter1

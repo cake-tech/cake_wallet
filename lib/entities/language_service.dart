@@ -9,7 +9,7 @@ class LanguageService {
     'es': 'Español (Spanish)',
     'fa': 'فارسی (Persian)',
     'fr': 'Français (French)',
-    'gn': 'Guarani (Guarani)',
+    // 'gn': 'Guarani (Guarani)',
     'hi': 'हिंदी (Hindi)',
     'ja': '日本 (Japanese)',
     'ko': '한국어 (Korean)',

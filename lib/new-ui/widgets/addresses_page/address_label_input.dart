@@ -33,7 +33,7 @@ class _AddressLabelInputPopupState extends State<AddressLabelInputPopup> {
         (AddressEditOrCreateState state) {
       if (state is AddressSavedSuccessfully) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted)
+          if (mounted)
             Navigator.of(context).pop(widget.walletAddressEditOrCreateViewModel.label);
         });
       }

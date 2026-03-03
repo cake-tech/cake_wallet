@@ -54,6 +54,10 @@ class HistoryTile extends StatelessWidget {
     }
   }
 
+  Color? _getPrimaryTextColor() {
+    if (!pending && direction == TransactionDirection.incoming) return Color(0xFF55CD74);
+  }
+
   Widget _getLeadingIcon(BuildContext context) {
     if (asset == CryptoCurrency.btcln) {
       return Stack(
@@ -105,6 +109,7 @@ class HistoryTile extends StatelessWidget {
       amount: amount,
       amountFiat: amountFiat,
       leadingIcon: _getLeadingIcon(context),
+      primaryTextColor: _getPrimaryTextColor(),
       roundedTop: roundedTop,
       roundedBottom: roundedBottom,
       bottomSeparator: bottomSeparator,

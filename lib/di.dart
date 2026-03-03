@@ -50,6 +50,7 @@ import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
+import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
@@ -781,6 +782,7 @@ Future<void> setup({
 
   getIt.registerFactory<NewDashboard>(() => NewDashboard(
     dashboardViewModel: getIt.get<DashboardViewModel>(),
+    bottomSheetService: getIt.get<BottomSheetService>(),
   ));
 
   getIt.registerFactory<NewHomePage>(()=>NewHomePage(dashboardViewModel: getIt.get<DashboardViewModel>(),nftViewModel: getIt.get<NFTViewModel>(),));
@@ -1155,6 +1157,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => OtherSettingsPage(getIt.get<OtherSettingsViewModel>()));
 
+  getIt.registerFactory(()=> AboutPage(appVersion: getIt.get<SettingsStore>().appVersion));
+
   getIt.registerFactory(() => NanoChangeRepPage(
         settingsStore: getIt.get<AppStore>().settingsStore,
         wallet: getIt.get<AppStore>().wallet!,
@@ -1175,11 +1179,14 @@ Future<void> setup({
   );
 
   getIt.registerFactoryParam<NodeCreateOrEditPage, Node?, bool?>(
-      (Node? editingNode, bool? isSelected) => NodeCreateOrEditPage(
-          nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: {'isPow' : false,'editingNode': editingNode}),
+      (Node? editingNode, bool? isSelected) {
+        final vm = getIt.get<NodeCreateOrEditViewModel>(param1: {'isPow' : false,'editingNode': editingNode});
+        return NodeCreateOrEditPage(
+          nodeCreateOrEditViewModel: vm,
           editingNode: editingNode,
           isSelected: isSelected,
-          type: getIt.get<AppStore>().wallet!.type));
+          type: getIt.get<AppStore>().wallet!.type);
+      });
 
   getIt.registerFactoryParam<PowNodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(
@@ -1208,7 +1215,6 @@ Future<void> setup({
       ));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
-        getIt.get<ThemeStore>(),
         wallet: getIt.get<AppStore>().wallet!,
       ));
 

@@ -1,0 +1,27 @@
+[
+  {
+    "icon": "star",
+    "title": "New look",
+    "description": "Redesigned from the ground up"
+  },
+  {
+    "icon": "nav",
+    "title": "Easier navigation",
+    "description": "Improved navbar, layouts and flows"
+  },
+  {
+    "icon": "cards",
+    "title": "Improved account manaement",
+    "description": "Easier than ever"
+  },
+  {
+    "icon": "pallete",
+    "title": "Balance card customization",
+    "description": "Make it yours!"
+  },
+  {
+    "icon": "trans",
+    "title": "Quick transactions view",
+    "description": ""
+  }
+]

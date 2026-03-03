@@ -4,8 +4,8 @@ import 'package:cw_core/balance.dart';
 
 class SolanaBalance extends Balance {
   SolanaBalance(this.balance, bool isToken) : super(
-      int.tryParse(balance.toStringAsFixed(isToken ? 6 : 9).replaceFirst(".", "")) ?? 0,
-      int.tryParse(balance.toStringAsFixed(isToken ? 6 : 9).replaceFirst(".", "")) ?? 0);
+      BigInt.from(int.tryParse(balance.toStringAsFixed(isToken ? 6 : 9).replaceFirst(".", "")) ?? 0),
+      BigInt.from(int.tryParse(balance.toStringAsFixed(isToken ? 6 : 9).replaceFirst(".", "")) ?? 0));
 
   final double balance;
 
