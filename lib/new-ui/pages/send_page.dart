@@ -309,7 +309,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                   if (outputIndex == 0) _setOutput(0);
                                 }),
                           if (widget.mode == SendPageModes.normal &&
-                              widget.sendViewModel.sendTemplateViewModel.hasMultiRecipient)
+                              widget.sendViewModel.hasMultiRecipient)
                             ModernButton(
                                 size: 36,
                                 icon: Icon(Icons.add),

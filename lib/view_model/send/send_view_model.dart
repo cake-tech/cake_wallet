@@ -443,6 +443,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   @computed
+  bool get hasMultiRecipient =>
+      sendTemplateViewModel.hasMultiRecipient && coinTypeToSpendFrom != UnspentCoinType.lightning;
+
+  @computed
   String get languageCode => _appStore.settingsStore.languageCode;
 
   @observable
