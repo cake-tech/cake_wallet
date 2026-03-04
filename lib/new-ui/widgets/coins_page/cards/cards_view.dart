@@ -264,7 +264,10 @@ class _CardsViewState extends State<CardsView> {
 
         int realIndex = order[visualIndex]!;
 
-        if(visualIndex == _selectedIndex && widget.accountListViewModel != null) {
+        if (visualIndex == _selectedIndex &&
+            widget.accountListViewModel != null &&
+            widget.accountListViewModel?.selected.label !=
+                widget.accountListViewModel?.accounts[realIndex]?.label) {
           widget.accountListViewModel!
               .select(widget.accountListViewModel!.accounts[realIndex]);
         }
