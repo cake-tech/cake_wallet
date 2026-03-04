@@ -90,6 +90,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         cryptoAmountController = TextEditingController(),
         fiatAmountController = TextEditingController(),
         noteController = TextEditingController(),
+        memoController = TextEditingController(),
         extractedAddressController = TextEditingController(),
         addressFocusNode = FocusNode();
 
@@ -107,6 +108,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   final TextEditingController cryptoAmountController;
   final TextEditingController fiatAmountController;
   final TextEditingController noteController;
+  final TextEditingController memoController;
   final TextEditingController extractedAddressController;
   final FocusNode addressFocusNode;
 
@@ -147,6 +149,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     cryptoAmountController.dispose();
     fiatAmountController.dispose();
     noteController.dispose();
+    memoController.dispose();
     extractedAddressController.dispose();
     addressFocusNode.dispose();
     super.dispose();
@@ -499,6 +502,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       cryptoAmountController.text = paymentRequest.amount;
     }
     noteController.text = paymentRequest.note;
+    if (paymentRequest.memo != null) {
+      output.memo = paymentRequest.memo;
+      memoController.text = paymentRequest.memo!;
+    }
   }
 
   Future<void> _handleSwapFlow(
@@ -774,6 +781,27 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       ),
                 ),
               ),
+              if (sendViewModel.walletType == WalletType.zcash)
+                Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: BaseTextFormField(
+                    hasUnderlineBorder: true,
+                    contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    key: ValueKey('send_page_memo_textfield_key'),
+                    controller: memoController,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                    hintText: S.of(context).memo_optional,
+                    placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
               if (sendViewModel.feesViewModel.hasFees)
                 Observer(
                   builder: (_) => GestureDetector(
@@ -933,6 +961,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     }
     fiatAmountController.text = output.fiatAmount;
     noteController.text = output.note;
+    memoController.text = output.memo ?? '';
     extractedAddressController.text = output.extractedAddress;
 
     cryptoAmountController.addListener(() {
@@ -961,6 +990,15 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
       if (note != output.note) {
         output.note = note;
+      }
+    });
+
+    memoController.addListener(() {
+      final memo = memoController.text;
+      final currentMemo = output.memo ?? '';
+
+      if (memo != currentMemo) {
+        output.memo = memo.isEmpty ? null : memo;
       }
     });
 
@@ -1013,6 +1051,13 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       }
     });
 
+    reaction((_) => output.memo, (String? memo) {
+      final memoText = memo ?? '';
+      if (memoText != memoController.text) {
+        memoController.text = memoText;
+      }
+    });
+
     addressFocusNode.addListener(() async {
       if (!addressFocusNode.hasFocus && addressController.text.isNotEmpty) {
         final current = addressController.text.trim();
@@ -1061,6 +1106,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       addressController.text = initialPaymentRequest!.address;
       cryptoAmountController.text = initialPaymentRequest!.amount;
       noteController.text = initialPaymentRequest!.note;
+      if (initialPaymentRequest!.memo != null) {
+        output.memo = initialPaymentRequest!.memo;
+        memoController.text = initialPaymentRequest!.memo!;
+      }
     }
 
     reaction((_) => sendViewModel.isReadyForSend, (bool isReadyForSend) {
