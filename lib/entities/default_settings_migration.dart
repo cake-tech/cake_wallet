@@ -590,28 +590,11 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentBscNodeIdKey,
           );
           break;
-        case 58:
-          await db.execute('''
-            CREATE TABLE BalanceCardStyleSettings (
-              walletInfoId INTEGER,
-              accountIndex INTEGER DEFAULT -1,
-              gradientIndex INTEGER DEFAULT -1,
-              useSpecialDesign BOOLEAN DEFAULT FALSE,
-              backgroundImagePath TEXT DEFAULT "",
-              PRIMARY KEY (walletInfoId, accountIndex),
-              FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
-            );
-            ''');
-          break;
-        case 59:
-          await db.execute('''
-ALTER TABLE WalletInfo ADD COLUMN receiveInfoboxDismissed DEFAULT FALSE;
-          ''');
-          break;
-        case 60:
-          await db.execute('''
-ALTER TABLE BalanceCardStyleSettings ADD COLUMN cardOrder INTEGER DEFAULT 0;          
-          ''');
+        case 58: // BalanceCardStyleSettings no-op (handled in sqlite.dart)
+        case 59: // WalletInfo.receiveInfoboxDismissed no-op (handled in sqlite.dart)
+        case 60: // BalanceCardStyleSettings.cardOrder no-op (handled in sqlite.dart)
+        // Do not migrate SQLite here, do that in sqlite.dart in order to prevent runtime
+        // errors, missing row and missing tables.
           break;
         default:
           break;

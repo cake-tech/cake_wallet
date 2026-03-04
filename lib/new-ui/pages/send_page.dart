@@ -497,7 +497,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             keyValue: "",
                                             label: S.of(context).fees,
                                             subtitle:
-                                                "~${output.estimatedFee} ${widget.sendViewModel.currency} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
+                                                "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
                                             onTap: () {
                                               if (widget
                                                   .sendViewModel.feesViewModel.hasFeesPriority)

@@ -21,14 +21,15 @@ class BalanceCardStyleSettings {
   static const tableName = "BalanceCardStyleSettings";
 
   Map<String, dynamic> toJson() {
-    return {
+    final ret = {
       "walletInfoId": walletInfoId,
       "accountIndex": accountIndex,
       "gradientIndex": gradientIndex,
-      "useSpecialDesign": useSpecialDesign,
+      "useSpecialDesign": useSpecialDesign ? 1 : 0,
       "backgroundImagePath": backgroundImagePath,
       "cardOrder": cardOrder,
     };
+    return ret;
   }
 
   static BalanceCardStyleSettings fromJson(Map<String, dynamic> json) {
@@ -56,7 +57,7 @@ class BalanceCardStyleSettings {
   }
 
   static Future<BalanceCardStyleSettings?> get(int walletInfoId, int accountIndex) async {
-    final json = await db.query(
+    final json = await db!.query(
       tableName,
       where: "walletInfoId = ? AND accountIndex = ?",
       whereArgs: [walletInfoId, accountIndex],
@@ -70,7 +71,7 @@ class BalanceCardStyleSettings {
   }
 
   static Future<List<BalanceCardStyleSettings>> getAll(int walletInfoId) async {
-    final json = await db.query(
+    final json = await db!.query(
       tableName,
       where: "walletInfoId = ?",
       whereArgs: [walletInfoId],
@@ -79,6 +80,6 @@ class BalanceCardStyleSettings {
   }
 
   Future<void> insert() async {
-    db.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+    db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }

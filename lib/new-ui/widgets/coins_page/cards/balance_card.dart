@@ -259,6 +259,7 @@ class BalanceCard extends StatelessWidget {
               duration: designSwitchDuration,
               opacity: onCustomizeTapped == null ? 0 : 1,
               child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: onCustomizeTapped,
                 child: Container(
                   height: 36, width: 36, // for touch target

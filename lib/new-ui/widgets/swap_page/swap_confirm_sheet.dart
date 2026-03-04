@@ -201,7 +201,7 @@ class SwapTransactionDetails extends StatelessWidget {
                           iconPath: exchangeTradeViewModel.trade.provider.image,
                           trailingIconPath: "assets/new-ui/copy.svg",
                           trailingText: exchangeTradeViewModel.trade.id,
-                          truncateTrailingText: (exchangeTradeViewModel.trade.provider == ExchangeProviderDescription.swapsXyz)),
+                          truncateTrailingText: !exchangeTradeViewModel.trade.provider.isCentralized),
                       if(exchangeTradeViewModel.trade.provider == ExchangeProviderDescription.trocador)
                         ListItemRegularRow(
                             showArrow: false,

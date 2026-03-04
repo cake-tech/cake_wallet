@@ -1,7 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class HistoryTileBase extends StatelessWidget {
   const HistoryTileBase({
@@ -106,13 +104,13 @@ class HistoryTileBase extends StatelessWidget {
                         children: [
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                          children: [
                             Text(title,
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                            Text(date,
                                 style: TextStyle(
-                                    color: primaryTextColor ??
-                                        Theme.of(context).colorScheme.onSurface)),
-                            Text(date, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                            ],
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          ],
                           ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,

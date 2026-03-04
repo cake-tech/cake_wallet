@@ -3,7 +3,6 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -59,13 +58,13 @@ abstract class TransactionDetailsViewModelBase with Store {
         _addMoneroListItems(tx, dateFormat);
         break;
       case WalletType.bitcoin:
-        _addElectrumListItems(tx, dateFormat);
+        _addElectrumListItems(tx, dateFormat, CryptoCurrency.btc);
         if (!canReplaceByFee) _checkForRBF(tx);
         break;
       case WalletType.litecoin:
         _addLitecoinListItems(tx, dateFormat);
       case WalletType.bitcoinCash:
-        _addElectrumListItems(tx, dateFormat);
+        _addElectrumListItems(tx, dateFormat, CryptoCurrency.bch);
         break;
       case WalletType.haven:
         _addHavenListItems(tx, dateFormat);
@@ -355,13 +354,16 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.addAll(_items);
   }
 
-  void _addElectrumListItems(TransactionInfo tx, DateFormat dateFormat) {
+  void _addElectrumListItems(
+      TransactionInfo tx, DateFormat dateFormat, CryptoCurrency cryptoCurrency) {
     final isLightning = (tx.additionalInfo["isLightning"] as bool?) ?? false;
-    final amountFormatted = _appStore.amountParsingProxy
-        .getDisplayCryptoString(tx.amount, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc);
+
+    final currency = isLightning ? CryptoCurrency.btcln : cryptoCurrency;
+    final symbol = _appStore.amountParsingProxy.getCryptoSymbol(currency);
+    final amountFormatted = _appStore.amountParsingProxy.getDisplayCryptoString(
+        tx.amount, currency);
     final feeFormatted = (tx.fee != null)
-        ? _appStore.amountParsingProxy
-            .getDisplayCryptoString(tx.fee!, isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc)
+        ? _appStore.amountParsingProxy.getDisplayCryptoString(tx.fee!, currency)
         : "";
 
     final _items = [
@@ -389,13 +391,13 @@ abstract class TransactionDetailsViewModelBase with Store {
       ],
       StandartListItem(
         title: S.current.transaction_details_amount,
-        value: amountFormatted,
+        value: '$amountFormatted $symbol',
         key: ValueKey('standard_list_item_transaction_details_amount_key'),
       ),
       if (tx.feeFormatted()?.isNotEmpty ?? false)
         StandartListItem(
           title: S.current.transaction_details_fee,
-          value: feeFormatted,
+          value: '$feeFormatted $symbol',
           key: ValueKey('standard_list_item_transaction_details_fee_key'),
         ),
     ];
@@ -425,7 +427,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addLitecoinListItems(TransactionInfo tx, DateFormat dateFormat) {
-    _addElectrumListItems(tx, dateFormat);
+    _addElectrumListItems(tx, dateFormat, CryptoCurrency.ltc);
 
     bool isMweb = bitcoin!.txIsMweb(tx);
 

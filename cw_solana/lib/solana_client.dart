@@ -293,83 +293,105 @@ class SolanaWalletClient {
     return null;
   }
 
-  /// Detects if a transaction is a swap by checking for both native SOL
-  /// and SPL token balance changes involving the wallet address
+  /// Detects if a transaction is a swap by checking that the wallet both sends one asset and receives another.
+  ///
+  /// A simple token transfer is NOT a swap (wallet only sends or receives, not both).
   bool _isSwapTransaction(
     ConfirmedTransactionMeta meta,
     VersionedMessage message,
     String walletAddress,
   ) {
-    bool hasNativeBalanceChange = false;
-    bool hasTokenBalanceChange = false;
-
-    // First we check if there are any native SOL balance changes for the wallet
+    final fee = meta.fee;
     final preBalances = meta.preBalances;
     final postBalances = meta.postBalances;
     final accountKeys = message.accountKeys;
 
+    bool walletSentSol = false;
+    bool walletReceivedSol = false;
+
     if (preBalances.isNotEmpty && postBalances.isNotEmpty) {
-      final maxLength =
-          accountKeys.length < preBalances.length ? accountKeys.length : preBalances.length;
+      final maxLength = [
+        accountKeys.length,
+        preBalances.length,
+        postBalances.length,
+      ].reduce((a, b) => a < b ? a : b);
 
-      for (int i = 0; i < maxLength && i < postBalances.length; i++) {
-        final accountKey = accountKeys[i];
-        final accountAddress = accountKey.address;
+      for (int i = 0; i < maxLength; i++) {
+        if (accountKeys[i].address != walletAddress) {
+          continue;
+        }
 
-        if (accountAddress == walletAddress) {
-          final preBalance = preBalances[i];
-          final postBalance = postBalances[i];
-          final balanceChange = postBalance - preBalance;
+        final change = postBalances[i] - preBalances[i];
 
-          if (balanceChange != BigInt.zero) {
-            hasNativeBalanceChange = true;
-            break;
+        if (change > BigInt.zero) {
+          walletReceivedSol = true;
+        } else if (change < BigInt.zero) {
+          // Only count as sent if the decrease
+          // exceeds the fee (otherwise it's just fees).
+          final netDecrease = change.abs() - BigInt.from(fee);
+          if (netDecrease > BigInt.zero) {
+            walletSentSol = true;
           }
         }
+        break;
       }
     }
 
-    // Next, we check if there are any SPL token balance changes
+    bool walletSentToken = false;
+    bool walletReceivedToken = false;
 
-    // There is a caveat though, Jupiter swaps token accounts might be intermediate accounts, so we need to check for that, otherwise we might miss some transactions
     final preTokenBalances = meta.preTokenBalances;
     final postTokenBalances = meta.postTokenBalances;
 
     if (preTokenBalances != null && postTokenBalances != null) {
-      bool hasTokenDecrease = false;
-      bool hasTokenIncrease = false;
+      // Check wallet-owned balances that exist in pre
+      for (final preBal in preTokenBalances) {
+        if (preBal.owner?.address != walletAddress) {
+          continue;
+        }
 
-      for (final preTokenBal in preTokenBalances) {
-        final mint = preTokenBal.mint.address;
-        final preAmount = preTokenBal.uiTokenAmount.uiAmount ?? 0.0;
+        final mint = preBal.mint.address;
+        final preAmt = preBal.uiTokenAmount.uiAmount ?? 0.0;
 
-        // We find the corresponding post balance by matching mint and owner
-        for (final postTokenBal in postTokenBalances) {
-          final postMint = postTokenBal.mint.address;
-          final postOwner = postTokenBal.owner?.address ?? '';
-          final preOwner = preTokenBal.owner?.address ?? '';
-          final postAmount = postTokenBal.uiTokenAmount.uiAmount ?? 0.0;
-
-          if (postMint == mint && postOwner == preOwner) {
-            final diff = postAmount - preAmount;
-            if (diff < 0) {
-              hasTokenDecrease = true;
-            } else if (diff > 0) {
-              hasTokenIncrease = true;
-            }
+        double postAmt = preAmt;
+        for (final postBal in postTokenBalances) {
+          if (postBal.owner?.address == walletAddress && postBal.mint.address == mint) {
+            postAmt = postBal.uiTokenAmount.uiAmount ?? 0.0;
             break;
           }
         }
+
+        final diff = postAmt - preAmt;
+        if (diff < 0) {
+          walletSentToken = true;
+        } else if (diff > 0) {
+          walletReceivedToken = true;
+        }
       }
 
-      // If we have both token decreases and increases, or if wallet sent SOL and there are token changes, it's likely a swap
-      if (hasNativeBalanceChange && (hasTokenDecrease || hasTokenIncrease)) {
-        hasTokenBalanceChange = true;
+      // Check for tokens the wallet received into
+      // a newly created ATA (no pre-balance entry).
+      for (final postBal in postTokenBalances) {
+        if (postBal.owner?.address != walletAddress) {
+          continue;
+        }
+        final postAmt = postBal.uiTokenAmount.uiAmount ?? 0.0;
+        if (postAmt <= 0) continue;
+
+        final mint = postBal.mint.address;
+        final existsInPre = preTokenBalances.any(
+          (p) => p.owner?.address == walletAddress && p.mint.address == mint,
+        );
+        if (!existsInPre) {
+          walletReceivedToken = true;
+        }
       }
     }
 
-    // It's a swap if both native and token balances changed
-    return hasNativeBalanceChange && hasTokenBalanceChange;
+    // A swap requires the wallet to both send and receive across different assets.
+    final walletSent = walletSentSol || walletSentToken;
+    final walletReceived = walletReceivedSol || walletReceivedToken;
+    return walletSent && walletReceived;
   }
 
   /// Parses a swap transaction and creates dual entries (outgoing and incoming)
@@ -422,8 +444,7 @@ class SolanaWalletClient {
       }
     }
 
-    final bool isSplToSplSwap =
-        decreasedMintForWallet != null &&
+    final bool isSplToSplSwap = decreasedMintForWallet != null &&
         increasedMintForWallet != null &&
         decreasedMintForWallet != increasedMintForWallet;
 
@@ -698,57 +719,67 @@ class SolanaWalletClient {
     required String signature,
     required BigInt? blockTime,
   }) async {
-    // Calculate total balance changes across all accounts
-    BigInt totalBalanceChange = BigInt.zero;
-    String? sender;
-    String? receiver;
+    final accountKeys = message.accountKeys;
+    final preBalances = meta.preBalances;
+    final postBalances = meta.postBalances;
 
-    final accountKeysLength = message.accountKeys.length;
-    final balancesLength = meta.preBalances.length;
-    final maxLength = accountKeysLength < balancesLength ? accountKeysLength : balancesLength;
+    final maxLen = [
+      accountKeys.length,
+      preBalances.length,
+      postBalances.length,
+    ].reduce((a, b) => a < b ? a : b);
 
-    for (int i = 0; i < maxLength; i++) {
-      final preBalance = meta.preBalances[i];
-      final postBalance = meta.postBalances[i];
-      final balanceChange = preBalance - postBalance;
-
-      if (balanceChange > BigInt.zero) {
-        // This account sent funds
-        if (i < accountKeysLength) {
-          sender = message.accountKeys[i].address;
-          totalBalanceChange += balanceChange;
-        }
-      } else if (balanceChange < BigInt.zero) {
-        // This account received funds
-        if (i < accountKeysLength) {
-          receiver = message.accountKeys[i].address;
-        }
+    // Find the wallet's own balance change.
+    int walletIndex = -1;
+    for (int i = 0; i < maxLen; i++) {
+      if (accountKeys[i].address == walletAddress) {
+        walletIndex = i;
+        break;
       }
     }
 
-    // We subtract the fee from total balance change if the fee payer is the sender
-    if (sender != null &&
-        feePayerIndex < message.accountKeys.length &&
-        sender == message.accountKeys[feePayerIndex].address) {
-      totalBalanceChange -= BigInt.from(fee);
+    if (walletIndex < 0) return null;
+
+    final walletPre = preBalances[walletIndex];
+    final walletPost = postBalances[walletIndex];
+    // Positive = wallet lost SOL, negative = wallet gained.
+    final walletChange = walletPre - walletPost;
+
+    final bool walletPaidFee =
+        feePayerIndex < accountKeys.length && accountKeys[feePayerIndex].address == walletAddress;
+
+    // Net transfer amount excluding the fee.
+    final netChange = walletPaidFee ? walletChange - BigInt.from(fee) : walletChange;
+
+    final isOutgoing = netChange > BigInt.zero;
+    final amountLamports = netChange.abs();
+    final amountInSol = amountLamports.toDouble() / SolanaUtils.lamportsPerSol;
+
+    if (amountInSol < minValidAmount) return null;
+
+    // Find the most likely receiver, the account that has the largest opposite balance change.
+    String? receiver;
+    BigInt bestChange = BigInt.zero;
+
+    for (int i = 0; i < maxLen; i++) {
+      if (i == walletIndex) continue;
+      final change = postBalances[i] - preBalances[i];
+
+      if (isOutgoing && change > bestChange) {
+        bestChange = change;
+        receiver = accountKeys[i].address;
+      } else if (!isOutgoing && change < BigInt.zero && change.abs() > bestChange) {
+        bestChange = change.abs();
+        receiver = accountKeys[i].address;
+      }
     }
 
-    if (sender == null || receiver == null) {
-      return null;
-    }
-
-    final amount = totalBalanceChange / BigInt.from(1e9);
-    final amountInSol = amount.abs().toDouble();
-
-    // Skip transactions with very small amounts (likely spam)
-    if (amountInSol < minValidAmount) {
-      return null;
-    }
+    if (receiver == null) return null;
 
     return SolanaTransactionModel(
-      isOutgoingTx: sender == walletAddress,
-      from: sender,
-      to: receiver,
+      isOutgoingTx: isOutgoing,
+      from: isOutgoing ? walletAddress : receiver,
+      to: isOutgoing ? receiver : walletAddress,
       id: signature,
       amount: amountInSol,
       programId: SystemProgramConst.programId.address,
@@ -769,33 +800,57 @@ class SolanaWalletClient {
     required BigInt? blockTime,
     String? splTokenSymbol,
   }) async {
-    final preBalances = meta.preTokenBalances;
-    final postBalances = meta.postTokenBalances;
+    final preTokenBalances = meta.preTokenBalances;
+    final postTokenBalances = meta.postTokenBalances;
 
-    double amount = 0.0;
-    bool isOutgoing = false;
+    final accountKeys = message.accountKeys;
+    final accounts = instruction.accounts;
+
+    // TransferChecked has 4 accounts:
+    //   [0] source, [1] mint, [2] destination, [3] owner
+    // Transfer has 3 accounts:
+    //   [0] source, [1] destination, [2] owner
+    final isTransferChecked = accounts.length >= 4;
+
+    final sourceAccountIndex = accounts[0];
+    final destinationAccountIndex = isTransferChecked ? accounts[2] : accounts[1];
+
     String? mintAddress;
+    if (isTransferChecked) {
+      mintAddress = accountKeys[accounts[1]].address;
+    }
 
     double userPreAmount = 0.0;
-    if (preBalances != null && preBalances.isNotEmpty) {
-      for (final preBal in preBalances) {
-        if (preBal.owner?.address == walletAddress) {
-          userPreAmount = preBal.uiTokenAmount.uiAmount ?? 0.0;
+    double userPostAmount = 0.0;
 
-          mintAddress = preBal.mint.address;
-          break;
+    if (preTokenBalances != null) {
+      for (final preBal in preTokenBalances) {
+        final idx = preBal.accountIndex;
+        if (idx == sourceAccountIndex || idx == destinationAccountIndex) {
+          if (preBal.owner?.address == walletAddress) {
+            if (mintAddress != null && preBal.mint.address != mintAddress) {
+              continue;
+            }
+            mintAddress ??= preBal.mint.address;
+            userPreAmount = preBal.uiTokenAmount.uiAmount ?? 0.0;
+            break;
+          }
         }
       }
     }
 
-    double userPostAmount = 0.0;
-    if (postBalances != null && postBalances.isNotEmpty) {
-      for (final postBal in postBalances) {
-        if (postBal.owner?.address == walletAddress) {
-          userPostAmount = postBal.uiTokenAmount.uiAmount ?? 0.0;
-
-          mintAddress ??= postBal.mint.address;
-          break;
+    if (postTokenBalances != null) {
+      for (final postBal in postTokenBalances) {
+        final idx = postBal.accountIndex;
+        if (idx == sourceAccountIndex || idx == destinationAccountIndex) {
+          if (postBal.owner?.address == walletAddress) {
+            if (mintAddress != null && postBal.mint.address != mintAddress) {
+              continue;
+            }
+            mintAddress ??= postBal.mint.address;
+            userPostAmount = postBal.uiTokenAmount.uiAmount ?? 0.0;
+            break;
+          }
         }
       }
     }
@@ -804,17 +859,35 @@ class SolanaWalletClient {
     final rawAmount = diff.abs();
 
     final amountInString = rawAmount.toStringAsFixed(6);
-    amount = double.parse(amountInString);
+    final amount = double.parse(amountInString);
+    final isOutgoing = diff > 0;
 
-    isOutgoing = diff > 0;
+    // Resolve sender/receiver from token balance owners
+    String? senderOwner;
+    String? receiverOwner;
 
-    if (mintAddress == null && instruction.accounts.length >= 4) {
-      final mintIndex = instruction.accounts[3];
-      mintAddress = message.accountKeys[mintIndex].address;
+    final allBalances = [
+      ...?preTokenBalances,
+      ...?postTokenBalances,
+    ];
+
+    for (final bal in allBalances) {
+      if (mintAddress != null && bal.mint.address != mintAddress) {
+        continue;
+      }
+      if (bal.accountIndex == sourceAccountIndex) {
+        senderOwner ??= bal.owner?.address;
+      }
+      if (bal.accountIndex == destinationAccountIndex) {
+        receiverOwner ??= bal.owner?.address;
+      }
+      if (senderOwner != null && receiverOwner != null) {
+        break;
+      }
     }
 
-    final sender = message.accountKeys[instruction.accounts[0]].address;
-    final receiver = message.accountKeys[instruction.accounts[1]].address;
+    final sender = senderOwner ?? accountKeys[sourceAccountIndex].address;
+    final receiver = receiverOwner ?? accountKeys[destinationAccountIndex].address;
 
     String? tokenSymbol = splTokenSymbol;
 
@@ -1262,8 +1335,7 @@ class SolanaWalletClient {
     );
 
     if (!isSendAll) {
-      bool hasSufficientFundsLeft =
-          await hasSufficientFundsLeftForRent(
+      bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
         inputAmount: inputAmount,
         fee: fee,
         solBalance: solBalance,
@@ -1437,7 +1509,7 @@ class SolanaWalletClient {
     // For transaction history loading (shouldCreateATA: false), try standard token program first
     // to avoid unnecessary RPC call. Only fetch token program ID when creating accounts.
     SolAddress tokenProgramId = SPLTokenProgramConst.tokenProgramId;
-    
+
     if (shouldCreateATA) {
       // Only fetch token program ID when we need to create an account
       tokenProgramId = await _getTokenProgramId(mintAddress);
@@ -1475,7 +1547,7 @@ class SolanaWalletClient {
             owner: ownerAddress,
             tokenProgramId: token2022ProgramId,
           );
-          
+
           try {
             accountInfo = await _provider!.request(
               SolanaRPCGetAccountInfo(

@@ -2,9 +2,26 @@
 import 'dart:io';
 
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-late Database db;
+Database? db;
+
+Future<void> _addColumnIfNotExists(
+  Database db, {
+  required String table,
+  required String column,
+  required String definition,
+}) async {
+  final result = await db.rawQuery("PRAGMA table_info($table)");
+  final columnExists = result.any((row) => row['name'] == column);
+
+  if (!columnExists) {
+    await db.execute(
+      'ALTER TABLE $table ADD COLUMN $column $definition;',
+    );
+  }
+}
 
 Future<void> initDb({String? pathOverride}) async {
   if (Platform.isLinux || Platform.isWindows) {
@@ -21,9 +38,10 @@ Future<void> initDb({String? pathOverride}) async {
       dbFileOld.deleteSync();
     }
   }
-
-  db = await openDatabase(dbFile.path, version: 2,
+  await db?.close();
+  db = await openDatabase(dbFile.path, version: 3,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
+      printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
         await db.execute('''
 DELETE FROM WalletInfo
@@ -36,6 +54,32 @@ WHERE walletInfoId NOT IN (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_walletinfo_id_unique
 ON WalletInfo (id);
 ''');
+      }
+      if (oldVersion <= 2) {
+        await db.execute('''
+CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
+  walletInfoId INTEGER,
+  accountIndex INTEGER DEFAULT -1,
+  gradientIndex INTEGER DEFAULT -1,
+  useSpecialDesign BOOLEAN DEFAULT FALSE,
+  backgroundImagePath TEXT DEFAULT "",
+  PRIMARY KEY (walletInfoId, accountIndex),
+  FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
+);
+''');
+        await _addColumnIfNotExists(
+          db,
+          table: 'WalletInfo',
+          column: 'receiveInfoboxDismissed',
+          definition: 'BOOLEAN DEFAULT FALSE',
+        );
+
+        await _addColumnIfNotExists(
+          db,
+          table: 'BalanceCardStyleSettings',
+          column: 'cardOrder',
+          definition: 'INTEGER DEFAULT 0',
+        );
       }
     },
     onCreate: (Database db, int version) async {
@@ -62,7 +106,8 @@ CREATE TABLE WalletInfo (
   parentAddress TEXT,
   hashedWalletIdentifier TEXT,
   isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
-  sortOrder INTEGER DEFAULT (0) NOT NULL
+  sortOrder INTEGER DEFAULT (0) NOT NULL,
+  receiveInfoboxDismissed BOOLEAN DEFAULT FALSE
 );
 ''');
 
@@ -119,6 +164,18 @@ CREATE TABLE "WalletInfoAddressMap" (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_walletinfo_id_unique
 ON WalletInfo (id);
 ''');
+      await db.execute('''
+CREATE TABLE BalanceCardStyleSettings (
+  walletInfoId INTEGER,
+  accountIndex INTEGER DEFAULT -1,
+  gradientIndex INTEGER DEFAULT -1,
+  useSpecialDesign BOOLEAN DEFAULT FALSE,
+  backgroundImagePath TEXT DEFAULT "",
+  cardOrder INTEGER DEFAULT 0,
+  PRIMARY KEY (walletInfoId, accountIndex),
+  FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
+);
+        ''');
     }
   );
 }
@@ -140,10 +197,10 @@ Future<List<String>> _getTableNames(Database db) async {
 }
 
 Future<Map<String, dynamic>> _dumpDb() async {
-  final tableNames = await _getTableNames(db);
+  final tableNames = await _getTableNames(db!);
   final ret = <String, dynamic>{};
   for (final tableName in tableNames) {
-    ret[tableName] = await db.query(tableName);
+    ret[tableName] = await db!.query(tableName);
   }
   return ret;
 }

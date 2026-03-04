@@ -1405,9 +1405,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       final isNativeSupportedToken = walletTypes.contains(cryptoCurrencyOrTokenToWalletType(tradeFrom));
 
       if (!isNativeSupportedToken) {
-
-
-
         bool _isEthToken() =>
             wallet.currency == CryptoCurrency.eth && tradeFrom.tag == CryptoCurrency.eth.title;
 
@@ -1427,7 +1424,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         bool isArbitrumToken() =>
             wallet.currency == CryptoCurrency.arbEth && tradeFrom.tag == CryptoCurrency.arbEth.tag;
 
-        if(!(_isEthToken() || _isPolygonToken() || _isBaseToken() || _isTronToken() || _isSplToken() || isArbitrumToken())) {
+        bool isBscToken() =>
+            wallet.currency == CryptoCurrency.bnb && tradeFrom.tag == CryptoCurrency.bnb.tag;
+
+        if(!(_isEthToken() || _isPolygonToken() || _isBaseToken() || _isTronToken() || _isSplToken() || isArbitrumToken() || isBscToken())) {
           return CreateTradeResult(
             result: false,
             errorMessage: 'This token isn’t supported on the current wallet/network for Swaps.xyz. Switch to a supported wallet or asset',

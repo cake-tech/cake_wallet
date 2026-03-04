@@ -24,6 +24,7 @@ import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
@@ -807,6 +808,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // Regular flow
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
+
+      if (trade?.isSendAll == true) {
+        if (provider is NearIntentsExchangeProvider) {
+          final txAmountDouble = double.tryParse(pendingTransaction?.amountFormatted ?? '0') ?? 0.0;
+          final tradeAmountDouble = double.tryParse(trade?.amount ?? '0') ?? 0.0;
+          if (txAmountDouble != tradeAmountDouble) {
+            throw Exception(
+                'Transaction amount $txAmountDouble does not match expected trade amount $tradeAmountDouble');
+          }
+        }
+      }
 
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;

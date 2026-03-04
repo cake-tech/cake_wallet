@@ -1480,6 +1480,7 @@ abstract class ElectrumWalletBase
         'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
         'alwaysScan': alwaysScan,
         'useLightning': useLightning,
+        'cachedLightningAddress': walletAddresses.lightningAddress
       });
 
   int feeRate(TransactionPriority priority) {
