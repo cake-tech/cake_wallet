@@ -25,6 +25,7 @@ class ElectrumWalletSnapshot {
     required this.mwebAddresses,
     required this.alwaysScan,
     required this.useLightning,
+    this.cachedLightningAddress,
     this.passphrase,
     this.derivationType,
     this.derivationPath,
@@ -50,6 +51,7 @@ class ElectrumWalletSnapshot {
   List<BitcoinAddressRecord> mwebAddresses;
   bool alwaysScan;
   bool useLightning;
+  String? cachedLightningAddress;
 
   ElectrumBalance balance;
   ElectrumBalance? lightningBalance;
@@ -88,6 +90,7 @@ class ElectrumWalletSnapshot {
 
     final alwaysScan = data['alwaysScan'] as bool? ?? false;
     final useLightning = data['useLightning'] as bool? ?? true;
+    final cachedLightningAddress = data['cachedLightningAddress'] as String?;
 
     final balance = ElectrumBalance.fromJSON(data['balance'] as String?) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
@@ -137,6 +140,7 @@ class ElectrumWalletSnapshot {
       mwebAddresses: mwebAddresses,
       alwaysScan: alwaysScan,
       useLightning: useLightning,
+      cachedLightningAddress: cachedLightningAddress,
     );
   }
 }
