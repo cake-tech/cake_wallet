@@ -142,6 +142,18 @@ class OtherSettingsPage extends BasePage {
         ],
           if(FeatureFlag.hasDevOptions)
           "dev": [
+            if(_otherSettingsViewModel.walletType == WalletType.bitcoin) ...[
+              ListItemRegularRow(
+                  keyValue: "export_lightning_logs",
+                  label: S.of(context).export_lightning_logs,
+                  onTap: () => onExportLNLog
+              ),
+              ListItemRegularRow(
+                  keyValue: "export_payjoin_logs",
+                  label: S.of(context).export_payjoin_logs,
+                  onTap: () => onExportPJLog
+              ),
+            ],
             if (FeatureFlag.hasDevOptions &&
                 _otherSettingsViewModel.walletType == WalletType.monero)
             ListItemRegularRow(
