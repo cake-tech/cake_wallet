@@ -75,8 +75,12 @@ Future<String> extractAddressFromParsed(
       break;
     case ParseFrom.zcashAddress:
       title = S.of(context).address_detected;
-      content = S.of(context).extracted_address_content('${parsedAddress.name} (Zcash.me)');
       address = parsedAddress.addresses.first;
+      if (parsedAddress.addressVerified == true) {
+        content = S.of(context).extracted_address_content('${parsedAddress.name} (Zcash.me ✓ Verified)');
+      } else {
+        content = S.of(context).extracted_address_content('${parsedAddress.name} (Zcash.me ⚠ Unverified)');
+      }
       break;
     case ParseFrom.bip353:
       title = S.of(context).address_detected;
