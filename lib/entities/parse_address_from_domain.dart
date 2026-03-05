@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
@@ -217,15 +218,15 @@ class AddressResolver {
   Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency) async {
     final ticker = currency.title;
     try {
-      if (text.startsWith("zcash.me")) {
+      if (text.startsWith("zcash.me/")) {
         final parts = text.split("/");
-        final handle = parts.last;
-        if (parts.length == 2 && handle.isNotEmpty) {
-          final extractZcashAddress = await _fetchZcashAddress(handle);
-          if (extractZcashAddress != null) {
+        final username = parts.last;
+        if (parts.length == 2 && username.isNotEmpty) {
+          final result = await _lookupZcashMe(username);
+          if (result != null) {
             return ParsedAddress.zcashAddress(
-              address: extractZcashAddress,
-              name: handle,
+              address: result['address'] as String,
+              name: result['display_name'] as String? ?? username,
             );
           }
         }
@@ -494,26 +495,21 @@ class AddressResolver {
     return ParsedAddress(addresses: [text]);
   }
 
-  Future<String?> _fetchZcashAddress(String handle) async {
-    final url = Uri.parse('https://zcash.me/$handle');
+  Future<Map<String, dynamic>?> _lookupZcashMe(String username) async {
+    final url = Uri.parse('https://zcash.me/api/lookup/$username');
 
     try {
       final response = await ProxyWrapper().get(clearnetUri: url);
 
       if (response.statusCode == 200) {
-        final addressRegex = RegExp(
-          r'(t1[0-9A-Za-z]{33}|t3[0-9A-Za-z]{33}|zs[a-z0-9]{76}|u1[a-z0-9]{1,300})',
-          caseSensitive: true,
-        );
-
-        final match = addressRegex.firstMatch(response.body);
-
-        if (match != null) {
-          return match.group(0);
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        final address = json['address'] as String?;
+        if (address != null && address.isNotEmpty) {
+          return json;
         }
       }
     } catch (e) {
-      printV('Error fetching zcash.me profile: $e');
+      printV('Error looking up zcash.me/$username: $e');
     }
     return null;
   }
