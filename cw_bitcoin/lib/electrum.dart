@@ -256,6 +256,13 @@ class ElectrumClient {
       (Uint8List event) {
         try {
           final msg = utf8.decode(event.toList());
+          final isBatchResponse = msg.trim().startsWith('[') && msg.trim().endsWith(']');
+          if (isBatchResponse) {
+            printV("Received batch response: $msg");
+
+          } else {
+            printV("Received message: $msg");
+          }
           final messagesList = msg.split("\n");
           for (var message in messagesList) {
             // For some reason, some servers will serve us garbage whitespace characters
@@ -688,7 +695,7 @@ class ElectrumClient {
     final _reqNow = DateTime.now();
     _recentRequestTimestamps.add(_reqNow);
     _recentRequestTimestamps.removeWhere((t) => _reqNow.difference(t).inSeconds > 10);
-    printV("[ELECTRUM_REQ] id=$batchId | session=#$_requestsThisConnection total=#$_requestCount req/s:${(_recentRequestTimestamps.length / 10.0).toStringAsFixed(2)}");
+    printV("[ELECTRUM_REQ] batch id=$id | session=#$_requestsThisConnection total=#$_requestCount req/s:${(_recentRequestTimestamps.length / 10.0).toStringAsFixed(2)}");
     printV("We write a batch to socket with id $id: $batchJsonString");
     socket!.write(batchJsonString + '\n');
 
