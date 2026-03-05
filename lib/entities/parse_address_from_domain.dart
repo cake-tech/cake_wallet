@@ -231,6 +231,32 @@ class AddressResolver {
           }
         }
       }
+
+      if (text.startsWith("/") && !text.contains(" ")) {
+        final username = text.substring(1);
+        if (username.isNotEmpty) {
+          final result = await _lookupZcashMe(username);
+          if (result != null) {
+            return ParsedAddress.zcashAddress(
+              address: result['address'] as String,
+              name: result['display_name'] as String? ?? username,
+            );
+          }
+        }
+      }
+
+      if (text.endsWith(".zcash") && !text.contains("/")) {
+        final username = text.substring(0, text.length - 6);
+        if (username.isNotEmpty) {
+          final result = await _lookupZcashMe(username);
+          if (result != null && result['address_verified'] == true) {
+            return ParsedAddress.zcashAddress(
+              address: result['address'] as String,
+              name: result['display_name'] as String? ?? username,
+            );
+          }
+        }
+      }
       // twitter handle example: @username
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
         if (currency == CryptoCurrency.zano && settingsStore.lookupsZanoAlias) {
