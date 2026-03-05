@@ -76,6 +76,7 @@ abstract class ElectrumWalletBase
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
     bool? alwaysScan,
+    bool? isSyncing,
   })  : _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
         accountHD = getAccountHDWallet(
             currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType),
@@ -546,6 +547,14 @@ abstract class ElectrumWalletBase
   @action
   @override
   Future<void> startSync() async {
+    // Lock out other processes because this is the main entry point for syncing and we don't want multiple sync processes running at the same time
+    
+    if (isSyncing) {
+      printV("startSync: already syncing, try later");
+      return;
+    }
+    
+
     final historyBatchSw = Stopwatch()..start();
     printV("[SYNC_BENCHMARK]     ▶ get_history batch for addrs) starting...");
     final addressList = await getWalletAddressList();
@@ -561,6 +570,9 @@ abstract class ElectrumWalletBase
     final batchHistoriesJson = await electrumClient.batchGetData(scriptHashes, method);
     historyBatchSw.stop();
     return;
+    // final batchHistoriesJson = await electrumClient.batchGetData(scriptHashes, method);
+    //historyBatchSw.stop();
+    // return;
     final _startSyncSw = Stopwatch()..start();
     printV("[startSync] ▶ BEGIN at ${DateTime.now()}");
     try {
