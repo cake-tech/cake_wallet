@@ -674,6 +674,27 @@ class ElectrumClient {
     return completer.future;
   }
 
+  Future<dynamic> batchCall(
+      {required String batchJsonString, required String batchId, Function(int)? idCallback}) async {
+    if (!isConnected) return null;
+    final completer = Completer<dynamic>();
+    _id += 1;
+    final id = _id;
+    printV("[batchCall: ${batchId}] call");
+    idCallback?.call(id);
+    _registryTask(id, completer);
+    _requestCount++;
+    _requestsThisConnection++;
+    final _reqNow = DateTime.now();
+    _recentRequestTimestamps.add(_reqNow);
+    _recentRequestTimestamps.removeWhere((t) => _reqNow.difference(t).inSeconds > 10);
+    printV("[ELECTRUM_REQ] id=$batchId | session=#$_requestsThisConnection total=#$_requestCount req/s:${(_recentRequestTimestamps.length / 10.0).toStringAsFixed(2)}");
+    printV("We write a batch to socket with id $id: $batchJsonString");
+    socket!.write(batchJsonString + '\n');
+
+    return completer.future;
+  }
+
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
