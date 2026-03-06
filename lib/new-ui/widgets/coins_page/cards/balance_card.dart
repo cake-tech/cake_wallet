@@ -27,7 +27,8 @@ class BalanceCard extends StatelessWidget {
     this.actions = const [],
     this.capitalizeAssetName = true,
     this.onCustomizeTapped,
-    this.accountIndex
+    this.accountIndex,
+    this.showIconOnCard = false,
   });
 
   final double width;
@@ -45,6 +46,7 @@ class BalanceCard extends StatelessWidget {
   final List<BalanceCardAction> actions;
   final Duration designSwitchDuration;
   final VoidCallback? onCustomizeTapped;
+  final bool showIconOnCard;
 
   @override
   Widget build(BuildContext context) {
@@ -232,7 +234,8 @@ class BalanceCard extends StatelessWidget {
                       duration: designSwitchDuration,
                       switchInCurve: Curves.easeInOut,
                       switchOutCurve: Curves.easeInOut,
-                      child: design.backgroundType == CardDesignBackgroundTypes.svgIcon
+                      child: design.backgroundType == CardDesignBackgroundTypes.svgIcon &&
+                              showIconOnCard
                           ? SvgPicture.asset(
                               design.imagePath,
                               key: const ValueKey('svgIcon'),

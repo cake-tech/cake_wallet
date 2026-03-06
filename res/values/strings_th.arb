@@ -1017,6 +1017,7 @@
   "show_balance_toast": "กดค้างเพื่อซ่อนหรือแสดงยอดคงเหลือ",
   "show_details": "แสดงรายละเอียด",
   "show_hidden_addresses": "แสดงที่อยู่ที่ซ่อนอยู่",
+  "show_icon_on_card": "แสดงไอคอนบนการ์ด",
   "show_keys": "แสดงซีด/คีย์",
   "show_market_place": "แสดงมาร์เก็ตเพลส",
   "show_seed": "แสดงวลีเมล็ดพันธุ์",

@@ -18,14 +18,14 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   final bool displaySats;
 
   CardCustomizerBloc(this._wallet, {this.lightningMode = false, this.displaySats = false})
-      : super(CardCustomizerNotLoaded(0, 0, [CardDesign.genericDefault], [], "", -1, displaySats, 0)) {
-
+      : super(CardCustomizerNotLoaded(
+            0, 0, [CardDesign.genericDefault], [], "", -1, displaySats, 0, false)) {
     on<_Init>(_init);
     on<CardDesignSelected>(_onDesignSelected);
     on<ColorSelected>(_onColorSelected);
     on<DesignSaved>(_onDesignSaved);
     on<AccountNameChanged>(_onAccountNameChanged);
-
+    on<ShowIconOnCardToggled>(_onShowIconOnCardToggled);
 
     add(_Init());
   }
@@ -65,7 +65,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
   int _initSelectedColor(CardDesign currentDesign) {
     int ret = CardDesign.allGradients.indexOf(currentDesign.gradient);
-    if(ret == -1) {
+    if (ret == -1) {
       // special design with its own color. select last color in list.
       return CardDesign.allGradients.length;
     } else if (ret == -1) {
@@ -88,22 +88,32 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     }
     final accountName = (account?.label ?? "") as String;
     late final int accountIndex;
-    if(account != null) {
+    if (account != null) {
       accountIndex = account.id as int;
-    } else if(lightningMode) {
+    } else if (lightningMode) {
       accountIndex = 0;
     } else {
       accountIndex = -1;
     }
     final currentDesignSettings = await _loadCurrentDesignSettings(accountIndex);
-    final currentDesign = CardDesign.fromStyleSettings(currentDesignSettings, lightningMode ? CryptoCurrency.btcln : _wallet.currency);
+    final currentDesign = CardDesign.fromStyleSettings(
+        currentDesignSettings, lightningMode ? CryptoCurrency.btcln : _wallet.currency);
     final availableDesigns = _initAvailableDesigns(lightningMode: lightningMode);
     final availableColors = _updateAvailableColors(currentDesign);
     final selectedDesign = _initSelectedDesign(currentDesign);
     final selectedColor = _initSelectedColor(currentDesign);
 
-    emit(CardCustomizerInitial(selectedDesign, selectedColor, availableDesigns, availableColors,
-        accountName, accountIndex, displaySats, currentDesignSettings?.cardOrder ?? 0));
+    emit(CardCustomizerInitial(
+      selectedDesign,
+      selectedColor,
+      availableDesigns,
+      availableColors,
+      accountName,
+      accountIndex,
+      displaySats,
+      currentDesignSettings?.cardOrder ?? 0,
+      currentDesignSettings?.showIconOnCard ?? false,
+    ));
   }
 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {
@@ -129,13 +139,26 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     emit(state.copyWith(accountName: event.newAccountName));
   }
 
+  void _onShowIconOnCardToggled(ShowIconOnCardToggled event, Emitter<CardCustomizerState> emit) {
+    emit(state.copyWith(showIconOnCard: !state.showIconOnCard));
+  }
+
   void _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) {
-    BalanceCardStyleSettings.fromCardDesign(
-            _wallet.walletInfo.internalId, state.accountIndex, state.cardOrder, state.selectedDesign)
+    BalanceCardStyleSettings.fromCardDesign(_wallet.walletInfo.internalId, state.accountIndex,
+            state.cardOrder, state.selectedDesign,
+            showIconOnCard: state.showIconOnCard)
         .insert()
         .then((value) {
-      emit(CardCustomizerSaved(state.selectedDesignIndex, state.selectedColorIndex,
-          state.availableDesigns, state.availableColors, state.accountName, state.accountIndex, state.displaySats, state.cardOrder));
+      emit(CardCustomizerSaved(
+          state.selectedDesignIndex,
+          state.selectedColorIndex,
+          state.availableDesigns,
+          state.availableColors,
+          state.accountName,
+          state.accountIndex,
+          state.displaySats,
+          state.cardOrder,
+          state.showIconOnCard));
     });
     saveAccountName();
   }

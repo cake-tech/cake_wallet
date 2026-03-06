@@ -1017,6 +1017,7 @@
   "show_balance_toast": "Bakiyeyi gizlemek veya göstermek için uzun basın",
   "show_details": "Detayları Göster",
   "show_hidden_addresses": "Gizli adresleri göster",
+  "show_icon_on_card": "Karttaki simgeyi göster",
   "show_keys": "Seed'i/anahtarları göster",
   "show_market_place": "Pazaryerini Göster",
   "show_seed": "Seed'i göster",

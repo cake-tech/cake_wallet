@@ -48,6 +48,7 @@ import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/card_design.dart';
+import 'package:cw_core/card_display_config.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
@@ -203,7 +204,7 @@ abstract class DashboardViewModelBase with Store {
         name = appStore.wallet!.name,
         type = appStore.wallet!.type,
         transactions = ObservableList<TransactionListItem>(),
-        cardDesigns = ObservableList<CardDesign>(),
+        cardConfigs = ObservableList<CardDisplayConfig>(),
         cardOrder = ObservableMap<int, int>(),
         wallet = appStore.wallet! {
     showDecredInfoCard = wallet.type == WalletType.decred &&
@@ -402,7 +403,7 @@ abstract class DashboardViewModelBase with Store {
       } else {
         numAccounts = 1;
       }
-    cardDesigns.clear();
+    cardConfigs.clear();
       Map<int, int> newOrder = {};
 
     for (int i = 0; i < numAccounts; i++) {
@@ -429,7 +430,10 @@ abstract class DashboardViewModelBase with Store {
       }
 
 
-      cardDesigns.add(CardDesign.fromStyleSettings(setting, curr));
+      cardConfigs.add(CardDisplayConfig(
+        design: CardDesign.fromStyleSettings(setting, curr),
+        showIconOnCard: setting?.showIconOnCard ?? false,
+      ));
       if(setting?.cardOrder != null) {
           newOrder[setting!.cardOrder] = i;
       }
@@ -522,7 +526,7 @@ abstract class DashboardViewModelBase with Store {
   bool isShowThirdYatIntroduction;
 
   @observable
-  ObservableList<CardDesign> cardDesigns;
+  ObservableList<CardDisplayConfig> cardConfigs;
 
   @observable
   ObservableMap<int, int> cardOrder;

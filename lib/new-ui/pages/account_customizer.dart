@@ -16,6 +16,7 @@ import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dar
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
+import 'package:cw_core/card_design.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -61,8 +62,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadCards();
       final activeId = monero!.getCurrentAccount(widget.dashboardViewModel.wallet).id;
-      for (int i = 0; i < _items.length-1; i++) {
-        if(_items[i].accountListItem.id == activeId) {
+      for (int i = 0; i < _items.length - 1; i++) {
+        if (_items[i].accountListItem.id == activeId) {
           final lastIndex = _items.length - 1;
           final temp = _items[i];
           _items[i] = _items[lastIndex];
@@ -72,10 +73,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
           break;
         }
       }
-
     });
-
-
   }
 
   @override
@@ -91,12 +89,16 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     for (int i = 0; i < accounts.length; i++) {
       final index = widget.dashboardViewModel.cardOrder[i];
 
-      if(index == null || index >= accounts.length) {
+      if (index == null || index < 0 || index >= accounts.length) {
         // db order broken.
         reset();
         break;
       }
 
+      final cardConfigs = widget.dashboardViewModel.cardConfigs;
+      final design =
+          index < cardConfigs.length ? cardConfigs[index].design : CardDesign.genericDefault;
+      final showIconOnCard = index < cardConfigs.length ? cardConfigs[index].showIconOnCard : false;
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
             accountName: accounts[index].label,
@@ -108,7 +110,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             onCustomizeTapped: (i == accounts.length - 1) ? _openCardCustomizer : null,
             selected: i == accounts.length - 1,
             width: cardWidth,
-            design: widget.dashboardViewModel.cardDesigns[index],
+            design: design,
+            showIconOnCard: showIconOnCard,
           ),
           order: index,
           accountListItem: accounts[index]));
@@ -322,6 +325,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             selected: i == _items.length - 1,
             width: _items[i].card.width,
             design: _items[i].card.design,
+            showIconOnCard: _items[i].card.showIconOnCard,
           ),
           order: i,
           accountListItem: _items[i].accountListItem);
@@ -336,13 +340,16 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     for (int i = 0; i < _items.length; i++) {
       final idx = _items.indexWhere((element) => element.accountListItem.id == i);
       printV("$i: $idx");
+      if (idx == -1) continue;
 
+      final card = _items[idx].card;
       await BalanceCardStyleSettings.fromCardDesign(
-              widget.dashboardViewModel.wallet.walletInfo.internalId,
-              i,
-              idx,
-              _items[idx].card.design)
-          .insert();
+        widget.dashboardViewModel.wallet.walletInfo.internalId,
+        i,
+        idx,
+        card.design,
+        showIconOnCard: card.showIconOnCard,
+      ).insert();
     }
   }
 
@@ -360,7 +367,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
               },
               actionRightButton: Navigator.of(context).pop);
         });
-    if(res != null && res is bool && res) {
+    if (res != null && res is bool && res) {
       reset();
     }
   }
@@ -370,6 +377,11 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
 
     final accounts = widget.accountListViewModel.accounts;
     for (int i = 0; i < widget.accountListViewModel.accounts.length; i++) {
+      final cardConfigs = widget.dashboardViewModel.cardConfigs;
+
+      final design = i < cardConfigs.length ? cardConfigs[i].design : CardDesign.genericDefault;
+
+      final showIconOnCard = i < cardConfigs.length ? cardConfigs[i].showIconOnCard : false;
 
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
@@ -381,7 +393,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             selected: true,
             designSwitchDuration: Duration(milliseconds: 200),
             width: cardWidth,
-            design: widget.dashboardViewModel.cardDesigns[i],
+            design: design,
+            showIconOnCard: showIconOnCard,
           ),
           order: i,
           accountListItem: accounts[i]));

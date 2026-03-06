@@ -7,6 +7,7 @@ sealed class CardCustomizerState {
   final int accountIndex;
   final int cardOrder;
   final bool displaySats;
+  final bool showIconOnCard;
   final List<CardDesign> availableDesigns;
   final List<Gradient> availableColors;
 
@@ -17,8 +18,9 @@ sealed class CardCustomizerState {
     this.availableColors,
     this.accountName,
     this.accountIndex,
-      this.displaySats,
-      this.cardOrder
+    this.displaySats,
+    this.cardOrder,
+    this.showIconOnCard,
   );
 
   CardDesign get selectedDesign {
@@ -33,16 +35,34 @@ sealed class CardCustomizerState {
     String? accountName,
     int? accountIndex,
     int? cardOrder,
+    bool? showIconOnCard,
   });
 
   Gradient get selectedColor => availableColors[selectedColorIndex];
 }
 
 final class CardCustomizerNotLoaded extends CardCustomizerState {
-  CardCustomizerNotLoaded(super.selectedDesignIndex, super.selectedColorIndex, super.availableDesigns, super.availableColors, super.accountName, super.accountIndex, super.displaySats, super.cardOrder);
+  CardCustomizerNotLoaded(
+      super.selectedDesignIndex,
+      super.selectedColorIndex,
+      super.availableDesigns,
+      super.availableColors,
+      super.accountName,
+      super.accountIndex,
+      super.displaySats,
+      super.cardOrder,
+      super.showIconOnCard);
 
   @override
-  CardCustomizerState copyWith({int? selectedDesignIndex, int? selectedColorIndex, List<CardDesign>? availableDesigns, List<Gradient>? availableColors, String? accountName, int? accountIndex, int? cardOrder}) {
+  CardCustomizerState copyWith(
+      {int? selectedDesignIndex,
+      int? selectedColorIndex,
+      List<CardDesign>? availableDesigns,
+      List<Gradient>? availableColors,
+      String? accountName,
+      int? accountIndex,
+      int? cardOrder,
+      bool? showIconOnCard}) {
     // this is never gonna be copied. it's near-instantly replaced with initial
     throw UnimplementedError();
   }
@@ -56,10 +76,11 @@ final class CardCustomizerInitial extends CardCustomizerState {
     List<Gradient> availableColors,
     String accountName,
     int accountIndex,
-      bool displaySats,
-      int cardOrder,
+    bool displaySats,
+    int cardOrder,
+    bool showIconOnCard,
   ) : super(selectedDesignIndex, selectedColorIndex, availableDesigns, availableColors, accountName,
-            accountIndex, displaySats, cardOrder);
+            accountIndex, displaySats, cardOrder, showIconOnCard);
 
   CardCustomizerInitial copyWith({
     int? selectedDesignIndex,
@@ -70,6 +91,7 @@ final class CardCustomizerInitial extends CardCustomizerState {
     int? accountIndex,
     bool? displaySats,
     int? cardOrder,
+    bool? showIconOnCard,
   }) {
     return CardCustomizerInitial(
       selectedDesignIndex ?? this.selectedDesignIndex,
@@ -80,13 +102,22 @@ final class CardCustomizerInitial extends CardCustomizerState {
       accountIndex ?? this.accountIndex,
       displaySats ?? this.displaySats,
       cardOrder ?? this.cardOrder,
+      showIconOnCard ?? this.showIconOnCard,
     );
   }
 }
 
 final class CardCustomizerSaved extends CardCustomizerState {
-  CardCustomizerSaved(super.selectedDesignIndex, super.selectedColorIndex, super.availableDesigns,
-      super.availableColors, super.accountName, super.accountIndex, super.displaySats, super.cardOrder);
+  CardCustomizerSaved(
+      super.selectedDesignIndex,
+      super.selectedColorIndex,
+      super.availableDesigns,
+      super.availableColors,
+      super.accountName,
+      super.accountIndex,
+      super.displaySats,
+      super.cardOrder,
+      super.showIconOnCard);
 
   @override
   CardCustomizerState copyWith(
@@ -96,8 +127,9 @@ final class CardCustomizerSaved extends CardCustomizerState {
       List<Gradient>? availableColors,
       String? accountName,
       int? accountIndex,
-        bool? displaySats,
-      int? cardOrder}) {
+      bool? displaySats,
+      int? cardOrder,
+      bool? showIconOnCard}) {
     return CardCustomizerSaved(
       selectedDesignIndex ?? this.selectedDesignIndex,
       selectedColorIndex ?? this.selectedColorIndex,
@@ -107,6 +139,7 @@ final class CardCustomizerSaved extends CardCustomizerState {
       accountIndex ?? this.accountIndex,
       displaySats ?? this.displaySats,
       cardOrder ?? this.cardOrder,
+      showIconOnCard ?? this.showIconOnCard,
     );
   }
 }

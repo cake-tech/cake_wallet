@@ -1017,6 +1017,7 @@
   "show_balance_toast": "လက်ချောင်းကို ကြာကြာဖိထားပြီး လက်ကျန်ငွေကို ဖျောက်/ပြပါ",
   "show_details": "အသေးစိတ်ပြရန်",
   "show_hidden_addresses": "ဝှက်ထားသောလိပ်စာများကို ပြပါ",
+  "show_icon_on_card": "ကတ်ပေါ်တွင် အိုင်ကွန်ပြပါ။",
   "show_keys": "Seed/Key များကို ပြပါ",
   "show_market_place": "Marketplace ကိုပြပါ",
   "show_seed": "Seed ကိုပြပါ",

@@ -4,6 +4,8 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -101,6 +103,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                     assetName: state.displaySats ? "sats" : widget.cryptoName,
                     capitalizeAssetName: !state.displaySats,
                     design: state.selectedDesign,
+                    showIconOnCard: state.showIconOnCard,
                   ),
                   Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 18.0),
@@ -152,6 +155,12 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                     designSwitchDuration: Duration(milliseconds: 300),
                                                     design: state.availableDesigns[index],
                                                     gradient: state.selectedDesign.gradient,
+                                                    showIconOnCard: state
+                                                            .availableDesigns[index]
+                                                            .backgroundType ==
+                                                        CardDesignBackgroundTypes.svgIcon
+                                                        ? state.showIconOnCard
+                                                        : true,
                                                   ),
                                                 ),
                                               ),
@@ -220,7 +229,18 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                   ],
                                 ),
                               ),
-                            )
+                            ),
+                            if (state.selectedDesign.backgroundType ==
+                                  CardDesignBackgroundTypes.svgIcon)
+                                SettingsSwitcherCell(
+                                  title: S.of(context).show_icon_on_card,
+                                  value: state.showIconOnCard,
+                                  onValueChange: (_, value) {
+                                    context.read<CardCustomizerBloc>().add(ShowIconOnCardToggled());
+                                  },
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                ),
+                       
                           ],
                         ),
                       )),

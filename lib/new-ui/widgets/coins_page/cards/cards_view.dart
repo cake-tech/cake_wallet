@@ -13,6 +13,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/card_design.dart';
+import 'package:cw_core/card_display_config.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -102,7 +103,7 @@ class _CardsViewState extends State<CardsView> {
           onLongPress: () {
             if (_selectedIndex == visualIndex) {
               widget.dashboardViewModel.balanceViewModel.switchBalanceValue();
-            };
+            }
             HapticFeedback.heavyImpact();
           },
           child: Observer(builder: (_) {
@@ -131,16 +132,19 @@ class _CardsViewState extends State<CardsView> {
               walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "${widget.dashboardViewModel.appStore.settingsStore.fiatCurrency.title} 0.00";
             }
 
-            // the card designs is empty if widget gets built before it loads.
+            // the card configs is empty if widget gets built before it loads.
             // should get populated before user sees anything
-            final CardDesign cardDesign;
-            if (widget.dashboardViewModel.cardDesigns.isEmpty ||
-                realIndex >= widget.dashboardViewModel.cardDesigns.length)
-              cardDesign = CardDesign.genericDefault;
-            else if(widget.lightningMode)
-              cardDesign = widget.dashboardViewModel.cardDesigns[realIndex + 1];
+            final cardConfigs = widget.dashboardViewModel.cardConfigs;
+            final CardDisplayConfig config;
+            if (cardConfigs.isEmpty || realIndex >= cardConfigs.length)
+              config = CardDisplayConfig(
+                design: CardDesign.genericDefault,
+                showIconOnCard: false,
+              );
+            else if (widget.lightningMode && realIndex + 1 < cardConfigs.length)
+              config = cardConfigs[realIndex + 1];
             else
-              cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
+              config = cardConfigs[realIndex];
 
             final String accountName;
             final String accountBalance;
@@ -186,8 +190,9 @@ class _CardsViewState extends State<CardsView> {
               fiatBalance: walletFiatBalance,
               selected: _selectedIndex == visualIndex,
               onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
-              design: cardDesign,
+              design: config.design,
               actions: actions,
+              showIconOnCard: config.showIconOnCard,
             );
           }),
         ),
@@ -233,7 +238,7 @@ class _CardsViewState extends State<CardsView> {
 
     int numCards = widget.dashboardViewModel.wallet.type == WalletType.bitcoin
         ? 1
-        : widget.dashboardViewModel.cardDesigns.length;
+        : widget.dashboardViewModel.cardConfigs.length;
         if(numCards == 0) numCards = 1;
 
       if (_selectedIndex >= (numCards)) {

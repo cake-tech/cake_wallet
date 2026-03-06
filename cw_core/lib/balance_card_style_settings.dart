@@ -9,14 +9,17 @@ class BalanceCardStyleSettings {
   final bool useSpecialDesign;
   final String backgroundImagePath;
   final int cardOrder;
+  final bool showIconOnCard;
 
-  BalanceCardStyleSettings(
-      {required this.walletInfoId,
-        required this.accountIndex,
-        required this.gradientIndex,
-        required this.useSpecialDesign,
-        required this.backgroundImagePath,
-        required this.cardOrder});
+  BalanceCardStyleSettings({
+    required this.walletInfoId,
+    required this.accountIndex,
+    required this.gradientIndex,
+    required this.useSpecialDesign,
+    required this.backgroundImagePath,
+    required this.cardOrder,
+    this.showIconOnCard = false,
+  });
 
   static const tableName = "BalanceCardStyleSettings";
 
@@ -28,6 +31,7 @@ class BalanceCardStyleSettings {
       "useSpecialDesign": useSpecialDesign ? 1 : 0,
       "backgroundImagePath": backgroundImagePath,
       "cardOrder": cardOrder,
+      "showIconOnCard": showIconOnCard ? 1 : 0,
     };
     return ret;
   }
@@ -40,19 +44,26 @@ class BalanceCardStyleSettings {
       useSpecialDesign: json["useSpecialDesign"] == 1,
       backgroundImagePath: json["backgroundImagePath"] as String? ?? "",
       cardOrder: json["cardOrder"] as int? ?? -1,
+      showIconOnCard: (json["showIconOnCard"] as int?) == 1,
     );
   }
 
   static BalanceCardStyleSettings fromCardDesign(
-      int walletInfoId, int accountIndex, int cardOrder, CardDesign design) {
+    int walletInfoId,
+    int accountIndex,
+    int cardOrder,
+    CardDesign design, {
+    bool showIconOnCard = false,
+  }) {
     return BalanceCardStyleSettings(
       walletInfoId: walletInfoId,
       accountIndex: accountIndex,
       gradientIndex: CardDesign.allGradients.indexOf(design.gradient),
       useSpecialDesign: design.backgroundType == CardDesignBackgroundTypes.svgFull,
       backgroundImagePath:
-      design.backgroundType == CardDesignBackgroundTypes.image ? design.imagePath : "",
+          design.backgroundType == CardDesignBackgroundTypes.image ? design.imagePath : "",
       cardOrder: cardOrder,
+      showIconOnCard: showIconOnCard,
     );
   }
 

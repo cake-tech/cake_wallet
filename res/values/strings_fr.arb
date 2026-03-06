@@ -1018,6 +1018,7 @@
   "show_balance_toast": "Appuyez longuement pour masquer ou afficher le solde",
   "show_details": "Afficher les détails",
   "show_hidden_addresses": "Afficher les adresses masquées",
+  "show_icon_on_card": "Afficher l'icône sur la carte",
   "show_keys": "Afficher la phrase de récupération/les clés",
   "show_market_place": "Afficher la Marketplace",
   "show_seed": "Afficher la seed",

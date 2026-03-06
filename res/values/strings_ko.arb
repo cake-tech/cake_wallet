@@ -1018,6 +1018,7 @@
   "show_balance_toast": "길게 눌러 잔액을 숨기거나 표시하세요",
   "show_details": "세부 정보 보기",
   "show_hidden_addresses": "숨겨진 주소 표시",
+  "show_icon_on_card": "카드에 아이콘 표시",
   "show_keys": "시드/키 보기",
   "show_market_place": "마켓플레이스 표시",
   "show_seed": "시드 보기",

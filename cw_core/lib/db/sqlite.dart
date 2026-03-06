@@ -39,7 +39,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 3,
+  db = await openDatabase(dbFile.path, version: 4,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -78,6 +78,14 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           db,
           table: 'BalanceCardStyleSettings',
           column: 'cardOrder',
+          definition: 'INTEGER DEFAULT 0',
+        );
+      }
+      if (oldVersion <= 3) {
+        await _addColumnIfNotExists(
+          db,
+          table: 'BalanceCardStyleSettings',
+          column: 'showIconOnCard',
           definition: 'INTEGER DEFAULT 0',
         );
       }
@@ -172,6 +180,7 @@ CREATE TABLE BalanceCardStyleSettings (
   useSpecialDesign BOOLEAN DEFAULT FALSE,
   backgroundImagePath TEXT DEFAULT "",
   cardOrder INTEGER DEFAULT 0,
+  showIconOnCard INTEGER DEFAULT 0,
   PRIMARY KEY (walletInfoId, accountIndex),
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );

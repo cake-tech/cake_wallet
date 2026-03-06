@@ -56,7 +56,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
             _moneroAccountList.accounts.length,
             _moneroAccountList.accounts.length,
             CardDesign.specialDesignsForCurrencies[_wallet.currency]!
-                .withGradient(gradients[Random().nextInt(gradients.length)]))
+                .withGradient(gradients[Random().nextInt(gradients.length)]),showIconOnCard: false)
         .insert();
   }
 

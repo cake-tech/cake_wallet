@@ -1019,6 +1019,7 @@
   "show_balance_toast": "Lange drücken, um den Kontostand auszublenden oder anzuzeigen",
   "show_details": "Details anzeigen",
   "show_hidden_addresses": "Versteckte Adressen anzeigen",
+  "show_icon_on_card": "Symbol auf der Karte anzeigen",
   "show_keys": "Seed/Schlüssel anzeigen",
   "show_market_place": "Marktplatz anzeigen",
   "show_seed": "Seed anzeigen",

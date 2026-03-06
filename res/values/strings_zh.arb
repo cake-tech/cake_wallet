@@ -1017,6 +1017,7 @@
   "show_balance_toast": "长按以隐藏或显示余额",
   "show_details": "显示详情",
   "show_hidden_addresses": "显示隐藏的地址",
+  "show_icon_on_card": "在卡片上显示图标",
   "show_keys": "显示种子短语/密钥",
   "show_market_place": "显示 Marketplace",
   "show_seed": "显示助记词",

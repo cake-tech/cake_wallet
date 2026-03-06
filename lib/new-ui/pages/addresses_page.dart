@@ -76,10 +76,12 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
       });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      reaction((context) => widget.dashboardViewModel.cardDesigns.first, (value) {
-        setState(() {
-          design = value;
-        });
+      reaction((context) => widget.dashboardViewModel.cardConfigs, (configs) {
+        if (configs.isNotEmpty) {
+          setState(() {
+            design = configs.first.design;
+          });
+        }
       });
     });
   }
