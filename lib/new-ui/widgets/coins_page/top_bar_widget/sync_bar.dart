@@ -54,10 +54,6 @@ class SyncBar extends StatelessWidget {
                       imageUrl: "assets/new-ui/tor.svg",
                       width: 20,
                       height: 20,
-                      colorFilter: ColorFilter.mode(
-                        Color(0xFF8A38F5),
-                        BlendMode.srcIn,
-                      ),
                     ),
                     if (_showDot()) PulsingDot(),
                   ],
@@ -166,7 +162,7 @@ class SyncBar extends StatelessWidget {
       children.add(SvgPicture.asset(
         "assets/new-ui/mweb_sync.svg",
         colorFilter:
-        ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+            ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
       ));
     }
     if (dashboardViewModel.hasSilentPayments) {
