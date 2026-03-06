@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/sync_status_title.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/pulsing_dot.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:flutter/material.dart';
@@ -44,8 +45,24 @@ class SyncBar extends StatelessWidget {
           child: Stack(
             alignment: Alignment.centerLeft,
             children: [
-              if (_showDot())
-                PulsingDot(),
+              if (dashboardViewModel.isTorEnabled && !_showFullBar())
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 6,
+                  children: [
+                    CakeImageWidget(
+                      imageUrl: "assets/new-ui/tor.svg",
+                      width: 20,
+                      height: 20,
+                      colorFilter: ColorFilter.mode(
+                        Color(0xFF8A38F5),
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    if (_showDot()) PulsingDot(),
+                  ],
+                ),
+              if (!dashboardViewModel.isTorEnabled && _showDot()) PulsingDot(),
               if (_showFullBar())
                 GestureDetector(
                   onTap: () {
