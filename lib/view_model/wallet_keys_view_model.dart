@@ -60,7 +60,7 @@ abstract class WalletKeysViewModelBase with Store {
     final hwSuffix =
         wallet.isHardwareWallet ? ' (${_hardwareWalletTypeLabel(wallet.hardwareWalletType!)})' : '';
 
-    return '$baseName $keysLabel$hwSuffix';
+    return '$baseName $keysLabel $hwSuffix';
   }
 
   static String _hardwareWalletTypeLabel(HardwareWalletType type) {
