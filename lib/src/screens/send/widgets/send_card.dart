@@ -561,27 +561,30 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     //     child: Text('Send Card'),
     //   ),
     // );
-    return Container(
-      decoration: responsiveLayoutUtil.shouldRenderMobileUI
-          ? BoxDecoration(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
-              ),
-              color: Theme.of(context).colorScheme.surfaceContainer,
-            )
-          : null,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          24,
-          responsiveLayoutUtil.shouldRenderMobileUI ? 110 : 55,
-          24,
-          responsiveLayoutUtil.shouldRenderMobileUI ? 32 : 0,
-        ),
-        child: Observer(
-          builder: (_) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          decoration: responsiveLayoutUtil.shouldRenderMobileUI
+              ? BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                )
+              : null,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              24,
+              responsiveLayoutUtil.shouldRenderMobileUI ? 110 : 55,
+              24,
+              responsiveLayoutUtil.shouldRenderMobileUI ? 32 : 0,
+            ),
+            child: Observer(
+              builder: (_) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
               Observer(builder: (_) {
                 final validator = output.isParsedAddress
                     ? sendViewModel.textValidator
@@ -761,26 +764,27 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   allAmountButton: false,
                 ),
               Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
-              Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: BaseTextFormField(
-                  hasUnderlineBorder: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 8),
-                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  key: ValueKey('send_page_note_textfield_key'),
-                  controller: noteController,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                  hintText: S.of(context).note_optional,
-                  placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+              if (sendViewModel.walletType != WalletType.zcash)
+                Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: BaseTextFormField(
+                    hasUnderlineBorder: true,
+                    contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    key: ValueKey('send_page_note_textfield_key'),
+                    controller: noteController,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                    hintText: S.of(context).note_optional,
+                    placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
                 ),
-              ),
               if (sendViewModel.walletType == WalletType.zcash)
                 Padding(
                   padding: EdgeInsets.only(top: 20),
@@ -941,10 +945,40 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     ),
                   ),
                 ),
-            ],
+                ],
+              ),
+            ),
           ),
         ),
-      ),
+        if (sendViewModel.walletType == WalletType.zcash)
+          Container(
+            margin: EdgeInsets.only(top: 16),
+            padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+            decoration: responsiveLayoutUtil.shouldRenderMobileUI
+                ? BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                  )
+                : null,
+            child: BaseTextFormField(
+              hasUnderlineBorder: true,
+              contentPadding: EdgeInsets.symmetric(vertical: 8),
+              fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              key: ValueKey('send_page_note_textfield_key'),
+              controller: noteController,
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+              hintText: 'Internal note',
+              placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ),
+      ],
     );
   }
 
