@@ -268,6 +268,7 @@ abstract class ElectrumWalletBase
   DateTime _lastBatchStart = DateTime.now();
   DateTime _lastBatchResponse = DateTime.now();
   int batchCount = 0;
+  bool isSyncing = false; // startSync running
 
 // ── end of batch timers ──────────────────────────────────────────────────────────
 
@@ -488,7 +489,8 @@ abstract class ElectrumWalletBase
               await save();
             }
 
-            await updateAllUnspents();
+            // KB: uncomment and replace this
+            // await updateAllUnspents();
           }
         }
       }
@@ -557,6 +559,7 @@ abstract class ElectrumWalletBase
 
     final historyBatchSw = Stopwatch()..start();
     printV("[SYNC_BENCHMARK]     ▶ get_history batch for addrs) starting...");
+    // debug cmd that retrieves 30 real addresses
     final addressList = await getWalletAddressList();
     final method = "blockchain.scripthash.get_history";
     var batchCollection = Map<int, String>();
@@ -565,14 +568,14 @@ abstract class ElectrumWalletBase
       batchCollection[i] = addressList[i].getScriptHash(network);
       scriptHashes.add(addressList[i].getScriptHash(network));
     }
-    // final batchHistoriesJson =
-    //     await getBatchCollectionResults(addressList, 'blockchain.scripthash.get_history');
+    // for the future: if we want to do more than 30 addresses, we can split them into batches of 30 and do multiple batch requests, but for now let's just do 30 to get a benchmark for the batch request time
     final batchHistoriesJson = await electrumClient.batchGetData(scriptHashes, method);
-    historyBatchSw.stop();
-    return;
-    // final batchHistoriesJson = await electrumClient.batchGetData(scriptHashes, method);
     //historyBatchSw.stop();
-    // return;
+    printV(batchHistoriesJson);
+    
+    // At this point we've got the histories for the 30 addresses
+
+    return;
     final _startSyncSw = Stopwatch()..start();
     printV("[startSync] ▶ BEGIN at ${DateTime.now()}");
     try {
@@ -606,17 +609,18 @@ abstract class ElectrumWalletBase
               }
           });
 
-          if (rescanHeights.isNotEmpty)
-            _setListeners(walletInfo.restoreHeight, rescanHeights: rescanHeights);
+          // This invokes processes we want to migrate away from
+          // if (rescanHeights.isNotEmpty)
+          //   _setListeners(walletInfo.restoreHeight, rescanHeights: rescanHeights);
         }
       }
 
       printV("[startSync] ▶ subscribeForUpdates() at ${_startSyncSw.elapsedMilliseconds}ms");
-      await subscribeForUpdates();
+      //await subscribeForUpdates();
       printV("[startSync] ✅ subscribeForUpdates done at ${_startSyncSw.elapsedMilliseconds}ms");
 
       printV("[startSync] ▶ updateTransactions() at ${_startSyncSw.elapsedMilliseconds}ms");
-      await updateTransactions();
+      // await updateTransactions();
       printV("[startSync] ✅ updateTransactions done at ${_startSyncSw.elapsedMilliseconds}ms");
 
       printV("[startSync] ▶ updateAllUnspents() at ${_startSyncSw.elapsedMilliseconds}ms");
@@ -631,6 +635,7 @@ abstract class ElectrumWalletBase
       await updateFeeRates();
       printV("[startSync] ✅ updateFeeRates done at ${_startSyncSw.elapsedMilliseconds}ms");
 
+      // Karl replace this
       _updateFeeRateTimer ??=
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
@@ -1494,7 +1499,7 @@ abstract class ElectrumWalletBase
 
           unspentCoins
               .removeWhere((utxo) => estimatedTx.utxos.any((e) => e.utxo.txHash == utxo.hash));
-
+          // KB TODO: mutexes
           await updateBalance();
           await updateAllUnspents();
         });
@@ -1791,6 +1796,7 @@ abstract class ElectrumWalletBase
   }
 
   @action
+  // KB TODO: batch this 
   Future<List<BitcoinUnspent>?> fetchUnspent(BitcoinAddressRecord address) async {
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
@@ -1799,9 +1805,11 @@ abstract class ElectrumWalletBase
     // Failed to fetch unspents
     if (unspents == null) return null;
 
+    // This is the rubbish we want to remove
     await Future.wait(unspents.map((unspent) async {
       try {
         final coin = BitcoinUnspent.fromJSON(address, unspent);
+        // 
         final tx = await fetchTransactionInfo(hash: coin.hash);
         coin.isChange = address.isHidden;
         coin.confirmations = tx?.confirmations;
@@ -2161,7 +2169,9 @@ abstract class ElectrumWalletBase
             }
           });
           transactionHistory.addOne(transaction);
+          // Really? Entire balances?! We know what coins have been spent and fees
           await updateBalance();
+          // I mean, why not just delete the spent coins and add the change coins?
           await updateAllUnspents();
         });
     } catch (e) {
@@ -2294,7 +2304,7 @@ abstract class ElectrumWalletBase
     try {
       printV("[fetchTransactions] ▶ START walletType=$type");
       final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
-
+      // Rewrite this to batch fetch these instead of using hundreds of calls
       if (type == WalletType.bitcoin) {
         await Future.wait(BITCOIN_ADDRESS_TYPES
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
@@ -2315,6 +2325,7 @@ abstract class ElectrumWalletBase
             (tx.isPending || tx.confirmations == 0) && historiesWithDetails[tx.id] == null;
 
         if (isPendingSilentPaymentUtxo) {
+          // KB: See if this Utxo is silent payment
           final info =
               await fetchTransactionInfo(hash: tx.id, height: tx.height, retryOnFailure: true);
 
@@ -2344,6 +2355,7 @@ abstract class ElectrumWalletBase
     final receiveAddresses = addressesByType.where((addr) => addr.isHidden == false);
     walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
+    // We need to batch this
     await Future.wait(addressesByType.map((addressRecord) async {
       final history = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
 
@@ -2366,7 +2378,7 @@ abstract class ElectrumWalletBase
             matchedAddresses.toList(),
             addressRecord.isHidden,
             (address) async {
-              await subscribeForUpdates();
+              // await subscribeForUpdates(); // KB TODO: why are we calling the whole fn again?
               return _fetchAddressHistory(address, await getCurrentChainTip())
                   .then((history) => history.isNotEmpty ? address.address : null);
             },
@@ -2393,6 +2405,7 @@ abstract class ElectrumWalletBase
       printV("[_fetchAddressHistory] SEND getHistory address=${addressRecord.address}");
       final _addrScripthash = addressRecord.getScriptHash(network);
 
+      // Replace this with batches
       final history = await electrumClient.getHistory(addressRecord.getScriptHash(network));
       printV(
           "[_fetchAddressHistory] RECV getHistory reqId=${electrumClient.lastRequestId} count=${history.length} address=${addressRecord.address}");
@@ -2428,6 +2441,7 @@ abstract class ElectrumWalletBase
 
             historiesWithDetails[txid] = storedTx;
           } else {
+            // Karl replace this
             final tx = await fetchTransactionInfo(hash: txid, height: height, retryOnFailure: true);
 
             if (tx != null) {
@@ -2499,7 +2513,8 @@ abstract class ElectrumWalletBase
       }
 
       _isTransactionUpdating = true;
-      await fetchTransactions();
+      // TODO: enable this once PoC done
+      // await fetchTransactions();
       walletAddresses.updateReceiveAddresses();
       _isTransactionUpdating = false;
     } catch (e, stacktrace) {
@@ -2510,49 +2525,53 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> subscribeForUpdates() async {
-    final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
-      (address) =>
-          !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)) &&
-          address.type != SegwitAddresType.mweb,
-    );
+    // final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
+    //   (address) =>
+    //       !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)) &&
+    //       address.type != SegwitAddresType.mweb,
+    // );
 
-    await Future.wait(unsubscribedScriptHashes.map((address) async {
-      final sh = address.getScriptHash(network);
-      if (!(_scripthashesUpdateSubject[sh]?.isClosed ?? true)) {
-        try {
-          await _scripthashesUpdateSubject[sh]?.close();
-        } catch (e) {
-          printV("failed to close: $e");
-        }
-      }
-      try {
-        _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
-        printV(
-            "[subscribeForUpdates] SENT scripthashSubscribe reqId=${electrumClient.lastRequestId} address=${address.address}");
-      } catch (e, stacktrace) {
-        printV(
-            "[subscribeForUpdates] ERROR scripthashSubscribe reqId=${electrumClient.lastRequestId} address=${address.address}: $e");
-        printV(stacktrace);
-      }
-      _scripthashesUpdateSubject[sh]?.listen((event) async {
-        try {
-          await updateUnspentsForAddress(address);
+    // await Future.wait(unsubscribedScriptHashes.map((address) async {
+    //   final sh = address.getScriptHash(network);
+    //   if (!(_scripthashesUpdateSubject[sh]?.isClosed ?? true)) {
+    //     try {
+    //       await _scripthashesUpdateSubject[sh]?.close();
+    //     } catch (e) {
+    //       printV("failed to close: $e");
+    //     }
+    //   }
+    //   try {
+    //     // Karl replace this
+    //     _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
+    //     printV(
+    //         "[subscribeForUpdates] SENT scripthashSubscribe reqId=${electrumClient.lastRequestId} address=${address.address}");
+    //   } catch (e, stacktrace) {
+    //     printV(
+    //         "[subscribeForUpdates] ERROR scripthashSubscribe reqId=${electrumClient.lastRequestId} address=${address.address}: $e");
+    //     printV(stacktrace);
+    //   }
+    //   _scripthashesUpdateSubject[sh]?.listen((event) async {
+    //     try {
+    //       // Karl replace this
+    //       await updateUnspentsForAddress(address);
 
-          await updateBalance();
+    //       // Karl replace this
+    //       await updateBalance();
 
-          await _fetchAddressHistory(address, await getCurrentChainTip());
-        } catch (e, s) {
-          printV("sub error: $e");
-          _onError?.call(FlutterErrorDetails(
-            exception: e,
-            stack: s,
-            library: this.runtimeType.toString(),
-          ));
-        }
-      }, onError: (e, s) {
-        printV("sub_listen error: $e $s");
-      });
-    }));
+    //       // Karl replace this
+    //       await _fetchAddressHistory(address, await getCurrentChainTip());
+    //     } catch (e, s) {
+    //       printV("sub error: $e");
+    //       _onError?.call(FlutterErrorDetails(
+    //         exception: e,
+    //         stack: s,
+    //         library: this.runtimeType.toString(),
+    //       ));
+    //     }
+    //   }, onError: (e, s) {
+    //     printV("sub_listen error: $e $s");
+    //   });
+    // }));
   }
 
   Future<ElectrumBalance> fetchBatchBalances() async {
@@ -2689,13 +2708,14 @@ abstract class ElectrumWalletBase
     if (batch.isEmpty) {
       return {};
     }
+    printV(batch);
     try {
       final List<Map<String, dynamic>> batchRequest = [];
       for (var i = 0; i < batch.length; i++) {
         final sh = batch[i].getScriptHash(network);
         var id = batchCount + 1;
         batchRequest.add({
-          'id': i,
+          'id': id,
           'method': method,
           'params': [sh],
         });
@@ -3138,6 +3158,7 @@ abstract class ElectrumWalletBase
   Future<void> updateBalance() async {
     printV("[updateBalance] ▶ START");
     try {
+      // Karl replace this
       balance[currency] = await fetchBalances();
       await save();
       printV("[updateBalance] ✅ DONE");
@@ -3161,6 +3182,7 @@ abstract class ElectrumWalletBase
 
       final firstAddress = addresses.first;
       final sh = firstAddress.getScriptHash(network);
+      // Karl replace this
       await electrumClient.getBalance(sh, throwOnError: true);
       return true;
     } catch (e) {
@@ -3252,6 +3274,7 @@ abstract class ElectrumWalletBase
       await walletInfo.updateRestoreHeight(currentChainTip!);
     }
 
+    // Karl replace this
     _chainTipUpdateSubject = electrumClient.chainTipSubscribe();
     _chainTipUpdateSubject?.listen((e) async {
       final event = e as Map<String, dynamic>;
@@ -3323,6 +3346,7 @@ abstract class ElectrumWalletBase
       Timer(reconnectionDelay, () {
         if (this.syncStatus is NotConnectedSyncStatus ||
             this.syncStatus is LostConnectionSyncStatus) {
+          // Karl replace this
           this.electrumClient.connectToUri(
                 node!.uri,
                 useSSL: node!.useSSL ?? false,
@@ -3448,6 +3472,7 @@ abstract class ElectrumWalletBase
       // Make a call to the server to check if the connection is healthy
       // If the call fails, we need to reconnect
       try {
+        // Karl replace this
         final result = await electrumClient.call(
           method: 'server.version',
           params: ['', '1.4'],
@@ -3513,6 +3538,7 @@ abstract class ElectrumWalletBase
       if (node != null) {
         electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
+        // Karl replace this
         await electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
 
         await startSync();
