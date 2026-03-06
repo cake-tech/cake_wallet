@@ -169,10 +169,11 @@ class ParsedAddress {
     );
   }
 
-  factory ParsedAddress.zcashAddress({required String address, required String name, bool? addressVerified}) {
+  factory ParsedAddress.zcashAddress({required String address, required String name, String profileName = '', bool? addressVerified}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
+      profileName: profileName,
       parseFrom: ParseFrom.zcashAddress,
       addressVerified: addressVerified,
     );

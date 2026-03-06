@@ -226,7 +226,8 @@ class AddressResolver {
           if (result != null) {
             return ParsedAddress.zcashAddress(
               address: result['address'] as String,
-              name: result['display_name'] as String? ?? username,
+              name: username,
+              profileName: result['display_name'] as String? ?? username,
               addressVerified: result['address_verified'] as bool?,
             );
           }
@@ -240,7 +241,8 @@ class AddressResolver {
           if (result != null) {
             return ParsedAddress.zcashAddress(
               address: result['address'] as String,
-              name: result['display_name'] as String? ?? username,
+              name: username,
+              profileName: result['display_name'] as String? ?? username,
               addressVerified: result['address_verified'] as bool?,
             );
           }
@@ -254,7 +256,8 @@ class AddressResolver {
           if (result != null && result['address_verified'] == true) {
             return ParsedAddress.zcashAddress(
               address: result['address'] as String,
-              name: result['display_name'] as String? ?? username,
+              name: username,
+              profileName: result['display_name'] as String? ?? username,
               addressVerified: true,
             );
           }

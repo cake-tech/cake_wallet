@@ -11,6 +11,7 @@ class AlertWithOneAction extends BaseAlertDialog {
     this.headerTitleText,
     this.headerImageProfileUrl,
     this.buttonKey,
+    this.alertWidget,
     Key? key,
   });
 
@@ -22,12 +23,31 @@ class AlertWithOneAction extends BaseAlertDialog {
   final String? headerTitleText;
   final String? headerImageProfileUrl;
   final Key? buttonKey;
+  final Widget? alertWidget;
 
   @override
   String get titleText => alertTitle;
 
   @override
   String get contentText => alertContent;
+
+  @override
+  Widget? get contentTextWidget => alertWidget != null
+      ? Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              alertContent,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            alertWidget!,
+          ],
+        )
+      : null;
 
   @override
   bool get barrierDismissible => alertBarrierDismissible;
