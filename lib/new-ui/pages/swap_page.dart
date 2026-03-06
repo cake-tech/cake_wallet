@@ -25,6 +25,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -458,7 +459,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
               title: S.of(context).swap,
               leadingIcon: Icon(Icons.close),
               onLeadingPressed: Navigator.of(context).maybePop,
-              trailingIcon: SvgPicture.asset(
+              trailingIcon: CakeImageWidget(imageUrl:
                 "assets/new-ui/options.svg",
                 colorFilter:
                     ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
@@ -737,9 +738,7 @@ class SwapProviderPreview extends StatelessWidget {
                   spacing: 12,
                   children: [
                     if (provider != null)
-                      provider.description.image.toLowerCase().endsWith("svg")
-                          ? SvgPicture.asset(provider.description.image, width: 28, height: 28)
-                          : Image.asset(provider.description.image, width: 28, height: 28),
+                      CakeImageWidget(imageUrl:provider.description.image,width:28,height:28),
                     if (provider == null) CupertinoActivityIndicator(),
                     Text(
                       provider?.title ?? "${S.of(context).finding_provider}...",
@@ -762,7 +761,7 @@ class SwapProviderPreview extends StatelessWidget {
                             fontWeight: FontWeight.w400,
                             color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
-                      SvgPicture.asset(
+                      CakeImageWidget(imageUrl:
                         "assets/new-ui/chooser.svg",
                         colorFilter: ColorFilter.mode(
                             Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
@@ -927,17 +926,17 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                   currencyToShow,
                                   textAlign: TextAlign.center,
                                 ),
-                                SizedBox(width: 10),
-                                RotatedBox(
-                                    quarterTurns: 2,
-                                    child: SvgPicture.asset(
-                                      "assets/new-ui/dropdown_arrow.svg",
-                                      width: 4,
-                                      height: 4,
-                                      colorFilter: ColorFilter.mode(
-                                          Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                                    )),
-                                SizedBox(width: 4),
+                                SizedBox(width:10),
+                                  RotatedBox(
+                                      quarterTurns: 2,
+                                      child: CakeImageWidget(imageUrl:
+                                        "assets/new-ui/dropdown_arrow.svg",
+                                        width: 4,
+                                        height: 4,
+                                        colorFilter: ColorFilter.mode(
+                                            Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                                      )),
+                                SizedBox(width:4),
                               ],
                             ),
                           ),
@@ -1040,7 +1039,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                       ),
                                       RotatedBox(
                                         quarterTurns: 2,
-                                        child: SvgPicture.asset(
+                                        child: CakeImageWidget(imageUrl:
                                           "assets/new-ui/dropdown_arrow.svg",
                                           colorFilter: ColorFilter.mode(
                                               (addressEmpty && widget.isReceiverCard)

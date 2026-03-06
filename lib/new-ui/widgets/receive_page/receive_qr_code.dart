@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -35,7 +36,7 @@ class ReceiveQrCode extends StatelessWidget {
         AnimatedOpacity(
             duration: Duration(milliseconds: 300),
             opacity: largeQrMode ? 1 : 0,
-            child: SvgPicture.asset(
+            child: CakeImageWidget(imageUrl:
               isLightMode
                   ? "assets/new-ui/cakewallet-wordmark-light.svg"
                   : "assets/new-ui/cakewallet-wordmark.svg",
@@ -98,7 +99,7 @@ class ReceiveQrCode extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     spacing: 4,
                                     children: [
-                                      SvgPicture.asset("assets/new-ui/payjoin.svg"),
+                                      CakeImageWidget(imageUrl: "assets/new-ui/payjoin.svg"),
                                       Text(S.of(context).payjoin_enabled)
                                     ],
                                   ),
