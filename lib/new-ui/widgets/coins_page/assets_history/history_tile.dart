@@ -55,7 +55,6 @@ class HistoryTile extends StatelessWidget {
   }
 
   Color? _getPrimaryTextColor() {
-    if (!pending && direction == TransactionDirection.incoming) return Color(0xFF55CD74);
   }
 
   Widget _getLeadingIcon(BuildContext context) {

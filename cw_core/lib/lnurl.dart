@@ -6,7 +6,7 @@ const _LNURL_PREFIXES = ["lnbcrt", "lntbs", "lnbc", "lntb"];
 
 String encodeLNURL(String url) {
   final raw = _convert(utf8.encode(url), 8, 5, true);
-  return const Bech32Codec().encode(Bech32('lnurl', raw), 255);
+  return const Bech32Codec().encode(Bech32('lnurl', raw), 999);
 }
 
 bool isBolt11ZeroInvoice(String invoice) {

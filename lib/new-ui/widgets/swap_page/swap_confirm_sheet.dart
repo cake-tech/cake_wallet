@@ -238,8 +238,8 @@ class SwapTransactionDetails extends StatelessWidget {
           return SwapSendExternalModal(
               amount: exchangeTradeViewModel.trade.amount,
               exchangeTradeViewModel: exchangeTradeViewModel,
-              from: exchangeTradeViewModel.trade.from!,
-              to: exchangeTradeViewModel.trade.to!,
+              from: exchangeTradeViewModel.trade.from ?? exchangeViewModel.depositCurrency,
+              to: exchangeTradeViewModel.trade.to ?? exchangeViewModel.receiveCurrency,
               address: exchangeTradeViewModel.trade.inputAddress ?? "");
         });
   }

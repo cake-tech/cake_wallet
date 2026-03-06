@@ -29,7 +29,9 @@ class AssetDetailsModal extends StatelessWidget {
       required this.iconPath,
       required this.chainIconPath,
       required this.mode,
-      required this.wallet, required this.showSwap, this.asset});
+      required this.wallet,
+      required this.showSwap,
+      this.asset});
 
   final String title;
   final CryptoCurrency? asset;
@@ -70,29 +72,30 @@ class AssetDetailsModal extends StatelessWidget {
                       height: 75,
                       child: Stack(
                         children: [
-                          if(iconPath.isNotEmpty)
-                          Image.asset(iconPath, width: 75, height: 75)
+                          if (iconPath.isNotEmpty)
+                            Image.asset(iconPath, width: 75, height: 75)
                           else
-                          Container(
-                            width: 75,
-                            height: 75,
-                            decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary,
-                                borderRadius: BorderRadius.circular(99999)),
-                            child: Center(
-                                child: Text(
-                                  title.substring(0, 2),
-                                  style: TextStyle(
-                                      fontSize: 28, color: Theme.of(context).colorScheme.onPrimary),
-                                )),
-                          ),
+                            Container(
+                              width: 75,
+                              height: 75,
+                              decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(99999)),
+                              child: Center(
+                                  child: Text(
+                                title.substring(0, 2),
+                                style: TextStyle(
+                                    fontSize: 28, color: Theme.of(context).colorScheme.onPrimary),
+                              )),
+                            ),
                           if (chainIconPath.isNotEmpty)
                             Align(
                                 alignment: Alignment.bottomRight,
                                 child: Container(
                                     decoration: ShapeDecoration(
                                         shape: RoundedSuperellipseBorder(
-                                            borderRadius: BorderRadius.circular(8),side: BorderSide(color: Colors.black)),
+                                            borderRadius: BorderRadius.circular(8),
+                                            side: BorderSide(color: Colors.black)),
                                         color: Colors.white),
                                     child: Padding(
                                       padding: const EdgeInsets.all(4.0),
@@ -101,7 +104,7 @@ class AssetDetailsModal extends StatelessWidget {
                                         width: 18,
                                         height: 18,
                                         colorFilter:
-                                        ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                                            ColorFilter.mode(Colors.black, BlendMode.srcIn),
                                       ),
                                     )))
                         ],
@@ -183,20 +186,22 @@ class AssetDetailsModal extends StatelessWidget {
                   children: [
                     if (mode == AssetDetailsModalModes.ltcTransparent)
                       AssetDetailsModalBottomButton(
-                          iconPath: "assets/new-ui/mask.svg",
-                          title: S.of(context).mask,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            depositToL2(context);
-                          }),
+                        iconPath: "assets/new-ui/mask.svg",
+                        title: S.of(context).mask,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          depositToL2(context);
+                        },
+                      ),
                     if (mode == AssetDetailsModalModes.ltcPrivate)
                       AssetDetailsModalBottomButton(
-                          iconPath: "assets/new-ui/unmask.svg",
-                          title: S.of(context).unmask,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            withdrawFromL2(context);
-                          }),
+                        iconPath: "assets/new-ui/unmask.svg",
+                        title: S.of(context).unmask,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          withdrawFromL2(context);
+                        },
+                      ),
                     AssetDetailsModalBottomButton(
                       iconPath: "assets/new-ui/send.svg",
                       title: S.of(context).send,
@@ -209,22 +214,24 @@ class AssetDetailsModal extends StatelessWidget {
                       ),
                     ),
                     AssetDetailsModalBottomButton(
-                        iconPath: "assets/new-ui/receive.svg",
-                        title: S.of(context).receive,
-                        onPressed: () async {
-                          if (mode == AssetDetailsModalModes.ltcPrivate) {
-                            await bitcoin!.setAddressType(
-                                wallet,
-                                bitcoin!
-                                    .getOptionToType(bitcoin!.getLitecoinMwebReceivePageOption()));
-                          }
-                          openPage<NewReceivePage>(context, param2: asset);
-                        }),
-                    if(showSwap)
-                    AssetDetailsModalBottomButton(
+                      iconPath: "assets/new-ui/receive.svg",
+                      title: S.of(context).receive,
+                      onPressed: () async {
+                        if (mode == AssetDetailsModalModes.ltcPrivate) {
+                          await bitcoin!.setAddressType(
+                              wallet,
+                              bitcoin!
+                                  .getOptionToType(bitcoin!.getLitecoinMwebReceivePageOption()));
+                        }
+                        openPage<NewReceivePage>(context, param2: asset);
+                      },
+                    ),
+                    if (showSwap && mode != AssetDetailsModalModes.ltcPrivate)
+                      AssetDetailsModalBottomButton(
                         iconPath: "assets/new-ui/exchange.svg",
                         title: S.of(context).swap,
-                          onPressed: () => openPage<NewSwapPage>(context, param2: asset)),
+                        onPressed: () => openPage<NewSwapPage>(context, param2: asset),
+                      ),
                   ],
                 ),
                 SizedBox()

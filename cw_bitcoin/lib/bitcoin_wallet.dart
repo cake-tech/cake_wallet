@@ -71,6 +71,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     int initialSilentAddressIndex = 0,
     bool? alwaysScan,
     bool? useLightning,
+    String? cachedLightningAddress,
   }) : super(
           mnemonic: mnemonic,
           passphrase: passphrase,
@@ -107,6 +108,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           seedBytes: seedBytes,
           apiKey: secrets.breezApiKey,
           lnurlDomain: "cake.cash",
+          cachedAddress: cachedLightningAddress,
         );
       } catch (e) {
         printV(e);
@@ -321,6 +323,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         networkParam: network,
         alwaysScan: snp?.alwaysScan,
         useLightning: snp?.useLightning,
+        cachedLightningAddress: snp?.cachedLightningAddress,
         payjoinBox: payjoinBox,
     );
   }

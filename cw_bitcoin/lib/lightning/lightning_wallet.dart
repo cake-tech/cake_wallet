@@ -11,6 +11,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 
 bool _breezSdkSparkLibUninitialized = true;
+Stream<LogEntry>? _logStream;
 
 class LightningWallet {
   final String mnemonic;
@@ -21,6 +22,8 @@ class LightningWallet {
   final Network network;
   late BreezSdk sdk;
 
+  String? cachedAddress;
+
   static int MAX_RETRIES = 10;
 
   LightningWallet({
@@ -30,13 +33,13 @@ class LightningWallet {
     required this.apiKey,
     required this.lnurlDomain,
     this.network = Network.mainnet,
+    this.cachedAddress
   });
 
   StreamSubscription<SdkEvent>? _eventSubscription;
   Stream<SdkEvent>? _eventStream;
 
   StreamSubscription<LogEntry>? _logSubscription;
-  Stream<LogEntry>? _logStream;
 
   void _subscribeToLogStream(File logFile) {
     _logSubscription = _logStream?.listen((logEntry) {
@@ -101,12 +104,16 @@ class LightningWallet {
       try {
         final address = (await sdk.getLightningAddress())?.lightningAddress;
 
-        if (address != null) return address;
+        if (address != null) {
+          cachedAddress = address;
+          return address;
+        }
       } catch (_) {} // No need to log here since it should be in the lightning log
       retries++;
       await Future.delayed(Duration(milliseconds: 500));
     }
-    return null;
+
+    return cachedAddress;
   }
 
   Future<String> getDepositAddress() async => (await sdk.receivePayment(

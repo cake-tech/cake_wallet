@@ -253,17 +253,18 @@ class BalanceCard extends StatelessWidget {
             ),
           ),
           Positioned(
-            right: 20,
-            top: 20,
+            right: 8,
+            top: 8,
             child: AnimatedOpacity(
               duration: designSwitchDuration,
               opacity: onCustomizeTapped == null ? 0 : 1,
               child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: onCustomizeTapped,
                 child: Container(
-                  height: 36, width: 36, // for touch target
+                  height: 48, width: 48, // for touch target
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0, left: 20),
+                    padding: const EdgeInsets.only(bottom: 20, left: 20, top: 12, right: 12),
                     child: SvgPicture.asset(
                       alignment: Alignment.topRight,
                       "assets/new-ui/3dots_vertical.svg",
