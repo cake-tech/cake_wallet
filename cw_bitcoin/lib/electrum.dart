@@ -250,30 +250,48 @@ class ElectrumClient {
       return;
     }
 
+    Future<void> _handleBatchResponse(String msg) async {
+      try {
+        final decoded = json.decode(msg);
+        if (decoded is List) {
+          for (final item in decoded) {
+            if (item is Map<String, dynamic>) {
+              _handleResponse(item);
+            }
+          }
+        } else {
+          printV("Unexpected batch response format: $msg");
+        }
+      } catch (e) {
+        printV("Error handling batch response: $e");
+      }
+    }
     // use ping to determine actual connection status since we could've just not timed out yet:
     // _setConnectionStatus(ConnectionStatus.connected);
     socket!.listen(
       (Uint8List event) {
         try {
           final msg = utf8.decode(event.toList());
-          final isBatchResponse = msg.trim().startsWith('[') && msg.trim().endsWith(']');
-          if (isBatchResponse) {
-            printV("Received batch response: $msg");
-
-          } else {
-            printV("Received message: $msg");
-          }
           final messagesList = msg.split("\n");
           for (var message in messagesList) {
             // For some reason, some servers will serve us garbage whitespace characters
             // Skip empty messages or messages with only whitespace/control chars
             message = message.trim();
+            final isBatchResponse = RegExp(r'"id"\s*:', caseSensitive: false).allMatches(msg).length > 1;
             if (message.isEmpty || message.replaceAll(RegExp(r'[\s\x00-\x1F\x7F]'), '').isEmpty) {
               continue;
+            }
+            
+            if (isBatchResponse) {
+              printV("Received batch response: $msg");
+              _handleBatchResponse(msg);
+            } else {
+              printV("Received message: $msg");
             }
             printV("Received message: $message");
             _parseResponse(message);
           }
+          
         } catch (e) {
           printV("socket.listen: $e");
         }
@@ -287,7 +305,7 @@ class ElectrumClient {
         _setConnectionStatus(ConnectionStatus.disconnected);
       },
       onDone: () {
-        printV("SOCKET CLOSED!!!!!");
+        printV("SOCKET CLOSED!");
         printV("The socket ID was ${_id}");
         unterminatedString = '';
         try {
@@ -310,6 +328,7 @@ class ElectrumClient {
     try {
       final decoded = json.decode(message);
       // Handle batch response (list) or single response (object)
+      printV("Decoded message: $decoded");
       if (decoded is List) {
         // Handle batch response - find matching batch task by ID range
         printV("Received batch response with ${decoded.length} items");
