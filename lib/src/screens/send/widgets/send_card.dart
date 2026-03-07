@@ -971,7 +971,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
               textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
-              hintText: 'Internal note',
+              hintText: 'Internal Note (Optional)',
               placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,

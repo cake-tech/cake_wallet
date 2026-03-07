@@ -140,7 +140,7 @@ Future<String> extractAddressFromParsed(
       headerTitleText: profileName.isEmpty ? null : profileName,
       headerImageProfileUrl: profileImageUrl.isEmpty ? null : profileImageUrl,
       alertContent: content,
-      buttonText: S.of(context).ok,
+      buttonText: S.of(context).confirm,
       buttonAction: () => Navigator.of(context).pop(),
       alertWidget: profileLink != null
           ? TextButton(
