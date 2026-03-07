@@ -45,20 +45,20 @@ class SyncBar extends StatelessWidget {
           child: Stack(
             alignment: Alignment.centerLeft,
             children: [
-              if (dashboardViewModel.isTorEnabled && !_showFullBar())
+              if (!_showFullBar())
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   spacing: 6,
                   children: [
-                    CakeImageWidget(
-                      imageUrl: "assets/new-ui/tor.svg",
-                      width: 20,
-                      height: 20,
-                    ),
+                    if (dashboardViewModel.isTorEnabled)
+                      CakeImageWidget(
+                        imageUrl: "assets/new-ui/tor.svg",
+                        width: 20,
+                        height: 20,
+                      ),
                     if (_showDot()) PulsingDot(),
                   ],
                 ),
-              if (!dashboardViewModel.isTorEnabled && _showDot()) PulsingDot(),
               if (_showFullBar())
                 GestureDetector(
                   onTap: () {

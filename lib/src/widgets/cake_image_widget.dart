@@ -33,6 +33,8 @@ class CakeImageWidget extends StatelessWidget {
 
     final isSvg = imageUrl!.toLowerCase().endsWith('.svg');
     final isAsset = imageUrl!.startsWith('assets/');
+    final effectiveColorFilter = colorFilter ??
+        (color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null);
 
     Widget imageWidget;
     if (isAsset) {
@@ -41,7 +43,7 @@ class CakeImageWidget extends StatelessWidget {
               imageUrl!,
               height: height,
               width: width,
-              colorFilter: colorFilter,
+              colorFilter: effectiveColorFilter,
               fit: fit ?? BoxFit.contain,
             )
           : Image.asset(
@@ -57,8 +59,7 @@ class CakeImageWidget extends StatelessWidget {
               imageUrl!,
               height: height,
               width: width,
-              color: color,
-              colorFilter: colorFilter,
+              colorFilter: effectiveColorFilter,
               fit: fit ?? BoxFit.contain,
               placeholderBuilder: (_) {
                 return loadingWidget ?? const Center(child: CircularProgressIndicator());
