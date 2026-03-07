@@ -153,9 +153,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
       reaction((_) => widget.exchangeViewModel.isFixedRateMode, (val) {
         Future.delayed(Duration(seconds: 3)).then((_) {
           if (val) {
-            depositKey.currentState!.updateFiatAmount();
+            if (depositKey.currentState?.mounted == true)
+              depositKey.currentState!.updateFiatAmount();
           } else {
-            receiveKey.currentState!.updateFiatAmount();
+            if (receiveKey.currentState?.mounted == true)
+              receiveKey.currentState!.updateFiatAmount();
           }
         });
       });
@@ -832,7 +834,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   @override
   Widget build(BuildContext context) {
     final currencyToShow = (_selectedCurrency is CryptoCurrency)
-        ? widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol(_selectedCurrency as CryptoCurrency)
+        ? widget.exchangeViewModel.amountParsingProxy
+            .getCryptoSymbol(_selectedCurrency as CryptoCurrency)
         : _selectedCurrency.name.toUpperCase();
 
     return Column(
@@ -860,19 +863,21 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                   onTap: amountFocusNode.requestFocus,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    spacing:4,
+                    spacing: 4,
                     children: [
                       Expanded(
                         child: Row(
-                          spacing:4,
+                          spacing: 4,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Flexible(
                               child: IntrinsicWidth(
                                   child: TextFormField(
-                                    keyboardType: TextInputType.numberWithOptions(signed:false,decimal:true),
+                                keyboardType:
+                                    TextInputType.numberWithOptions(signed: false, decimal: true),
                                 validator: _fiatInputMode ? null : widget.currencyValueValidator,
-                                controller: _fiatInputMode ? fiatAmountController : amountController,
+                                controller:
+                                    _fiatInputMode ? fiatAmountController : amountController,
                                 focusNode: amountFocusNode,
                                 style: TextStyle(
                                     fontSize: 28,
@@ -889,9 +894,14 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                 ),
                               )),
                             ),
-                            if(_fiatInputMode)
-                              Center(child: Text(  widget.exchangeViewModel.fiat.title,style: TextStyle(fontSize:16,color: Theme.of(context).colorScheme.onSurfaceVariant),)),
-
+                            if (_fiatInputMode)
+                              Center(
+                                  child: Text(
+                                widget.exchangeViewModel.fiat.title,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              )),
                           ],
                         ),
                       ),
@@ -906,24 +916,24 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                  Image.asset(_selectedCurrency.iconPath ?? "",
-                                      width: 28, height: 28),
-                                SizedBox(width:10),
+                                Image.asset(_selectedCurrency.iconPath ?? "",
+                                    width: 28, height: 28),
+                                SizedBox(width: 10),
                                 Text(
                                   currencyToShow,
                                   textAlign: TextAlign.center,
                                 ),
-                                SizedBox(width:10),
-                                  RotatedBox(
-                                      quarterTurns: 2,
-                                      child: SvgPicture.asset(
-                                        "assets/new-ui/dropdown_arrow.svg",
-                                        width: 4,
-                                        height: 4,
-                                        colorFilter: ColorFilter.mode(
-                                            Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                                      )),
-                                SizedBox(width:4),
+                                SizedBox(width: 10),
+                                RotatedBox(
+                                    quarterTurns: 2,
+                                    child: SvgPicture.asset(
+                                      "assets/new-ui/dropdown_arrow.svg",
+                                      width: 4,
+                                      height: 4,
+                                      colorFilter: ColorFilter.mode(
+                                          Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                                    )),
+                                SizedBox(width: 4),
                               ],
                             ),
                           ),
@@ -1103,7 +1113,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   }
 
   void _presentCurrencyPicker() {
-
     final currencies = widget.isReceiverCard
         ? widget.exchangeViewModel.receiveCurrencies
         : widget.exchangeViewModel.depositCurrencies;
