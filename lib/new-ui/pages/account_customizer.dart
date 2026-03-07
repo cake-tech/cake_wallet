@@ -98,7 +98,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       final cardConfigs = widget.dashboardViewModel.cardConfigs;
       final design =
           index < cardConfigs.length ? cardConfigs[index].design : CardDesign.genericDefault;
-      final showIconOnCard = index < cardConfigs.length ? cardConfigs[index].showIconOnCard : false;
+      final showIconOnCard = index < cardConfigs.length && cardConfigs[index].showIconOnCard;
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
             accountName: accounts[index].label,
