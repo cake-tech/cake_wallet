@@ -80,9 +80,9 @@ Future<String> extractAddressFromParsed(
       title = S.of(context).address_detected;
       address = parsedAddress.addresses.first;
       if (parsedAddress.addressVerified == true) {
-        content = '${parsedAddress.profileName} is verified ✓\nAre you sure you want to send to ${parsedAddress.profileName}?';
+        content = '${parsedAddress.profileName} may not be the person you think. Are you sure you want to send to ${parsedAddress.profileName}?';
       } else {
-        content = '${parsedAddress.profileName} is not verified ⚠\nAre you sure you want to send to ${parsedAddress.profileName}?';
+        content = '${parsedAddress.profileName} may not be the person you think. Are you sure you want to send to ${parsedAddress.profileName}?';
       }
       profileLink = 'https://zcash.me/${parsedAddress.name}';
       profileLinkText = 'zcash.me/${parsedAddress.name}';
