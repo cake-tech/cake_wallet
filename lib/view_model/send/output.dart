@@ -83,6 +83,7 @@ abstract class OutputBase with Store {
   @observable
   String extractedAddress;
 
+  @observable
   String? memo;
 
   @computed

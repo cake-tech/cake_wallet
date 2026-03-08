@@ -3,6 +3,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'choose_yat_address_alert.dart';
 
 Future<String> extractAddressFromParsed(
@@ -15,6 +16,8 @@ Future<String> extractAddressFromParsed(
   var address = '';
   var profileImageUrl = '';
   var profileName = '';
+  String? profileLink;
+  String? profileLinkText;
 
   switch (parsedAddress.parseFrom) {
     case ParseFrom.unstoppableDomains:
@@ -75,8 +78,14 @@ Future<String> extractAddressFromParsed(
       break;
     case ParseFrom.zcashAddress:
       title = S.of(context).address_detected;
-      content = S.of(context).extracted_address_content('${parsedAddress.name} (Zcash.me)');
       address = parsedAddress.addresses.first;
+      if (parsedAddress.addressVerified == true) {
+        content = '${parsedAddress.profileName} may not be the person you think. Are you sure you want to send to ${parsedAddress.profileName}?';
+      } else {
+        content = '${parsedAddress.profileName} may not be the person you think. Are you sure you want to send to ${parsedAddress.profileName}?';
+      }
+      profileLink = 'https://zcash.me/${parsedAddress.name}';
+      profileLinkText = 'zcash.me/${parsedAddress.name}';
       break;
     case ParseFrom.bip353:
       title = S.of(context).address_detected;
@@ -131,8 +140,20 @@ Future<String> extractAddressFromParsed(
       headerTitleText: profileName.isEmpty ? null : profileName,
       headerImageProfileUrl: profileImageUrl.isEmpty ? null : profileImageUrl,
       alertContent: content,
-      buttonText: S.of(context).ok,
+      buttonText: S.of(context).confirm,
       buttonAction: () => Navigator.of(context).pop(),
+      alertWidget: profileLink != null
+          ? TextButton(
+              onPressed: () => launchUrl(Uri.parse(profileLink!), mode: LaunchMode.externalApplication),
+              child: Text(
+                profileLinkText!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            )
+          : null,
     ),
   );
 

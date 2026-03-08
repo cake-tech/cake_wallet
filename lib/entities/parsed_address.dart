@@ -28,6 +28,7 @@ class ParsedAddress {
     this.profileName = '',
     this.parseFrom = ParseFrom.notParsed,
     this.bip353DnsProof,
+    this.addressVerified,
   });
 
   factory ParsedAddress.fetchEmojiAddress({
@@ -168,11 +169,13 @@ class ParsedAddress {
     );
   }
 
-  factory ParsedAddress.zcashAddress({required String address, required String name}) {
+  factory ParsedAddress.zcashAddress({required String address, required String name, String profileName = '', bool? addressVerified}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
+      profileName: profileName,
       parseFrom: ParseFrom.zcashAddress,
+      addressVerified: addressVerified,
     );
   }
 
@@ -191,4 +194,5 @@ class ParsedAddress {
   final String profileName;
   final ParseFrom parseFrom;
   final String? bip353DnsProof;
+  final bool? addressVerified;
 }

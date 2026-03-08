@@ -222,6 +222,12 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.doge,
       ),
 
+      // Zcash (transparent t1/t3, Sapling zs, Unified u1)
+      _DetectionPattern(
+        pattern: RegExp(r'^(?:t1[0-9A-Za-z]{33}|t3[0-9A-Za-z]{33}|zs[a-z0-9]{76}|u1[a-z0-9]{1,300})$'),
+        currency: CryptoCurrency.zec,
+      ),
+
       // Solana (Base58 format)
       _DetectionPattern(
         pattern: RegExp(r'^[1-9A-HJ-NP-Za-km-z]{43,44}$'),

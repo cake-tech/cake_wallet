@@ -1,9 +1,10 @@
+import 'dart:convert';
 import 'package:cake_wallet/core/payment_uris.dart';
 import 'package:cake_wallet/nano/nano.dart';
 
 class PaymentRequest {
   PaymentRequest(this.address, this.amount, this.note, this.scheme, this.pjUri,
-      {this.callbackUrl, this.callbackMessage, this.contractAddress});
+      {this.callbackUrl, this.callbackMessage, this.contractAddress, this.memo});
 
   factory PaymentRequest.fromUri(Uri? uri) {
     var address = "";
@@ -15,6 +16,7 @@ class PaymentRequest {
     String? callbackMessage;
     String? pjUri;
     String? contractAddress;
+    String? memo;
 
     if (uri != null) {
       if (uri.queryParameters['pj'] != null) {
@@ -35,6 +37,17 @@ class PaymentRequest {
         address = paymentUri.address;
         amount = paymentUri.amount;
         contractAddress = paymentUri.contractAddress;
+      }
+
+      if (scheme == "zcash") {
+        final memoParam = uri.queryParameters['memo'];
+        if (memoParam != null && memoParam.isNotEmpty) {
+          try {
+            memo = utf8.decode(base64Url.decode(base64Url.normalize(memoParam)));
+          } catch (_) {
+            memo = memoParam;
+          }
+        }
       }
     }
 
@@ -63,6 +76,7 @@ class PaymentRequest {
       callbackUrl: callbackUrl,
       callbackMessage: callbackMessage,
       contractAddress: contractAddress,
+      memo: memo,
     );
   }
 
@@ -74,6 +88,7 @@ class PaymentRequest {
   final String? callbackUrl;
   final String? callbackMessage;
   final String? contractAddress;
+  final String? memo;
 
   /// Checks if the amount string is already in a usable format (e.g., "123.45") and doesn't need to be converted from raw format.
   ///
