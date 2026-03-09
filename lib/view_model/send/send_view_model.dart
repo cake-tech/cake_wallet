@@ -579,6 +579,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider, Trade? trade}) async {
     _currentTrade = trade;
     _currentProvider = provider;
+    pendingTransaction = null;
 
     try {
       if (!(state is IsExecutingState)) state = IsExecutingState();

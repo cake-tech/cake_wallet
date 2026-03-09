@@ -301,7 +301,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       amount: widget.addressListViewModel.displayAmount,
                       currency: widget.addressListViewModel.cryptoCurrencySymbol,
                       largeQrMode: _largeQrMode),
-                  if (infobox != null)
+                  if (infobox != null && !widget.addressListViewModel.isLightning)
                     ClipRect(
                         child: AnimatedAlign(
                       duration: const Duration(milliseconds: 200),

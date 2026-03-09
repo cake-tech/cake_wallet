@@ -63,8 +63,8 @@ class _RescanPageState extends State<RescanPage> {
                     return _toggleSilentPaymentsScanning(context);
                   }
 
-                  widget._rescanViewModel
-                      .rescanCurrentWallet(restoreHeight: int.parse(_heightController.text));
+                  widget._rescanViewModel.rescanCurrentWallet(
+                      restoreHeight: int.tryParse(_heightController.text) ?? 0);
 
                   Navigator.of(context).pop();
                 },

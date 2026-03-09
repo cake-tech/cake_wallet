@@ -3191,8 +3191,9 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               final addToWallet = <String, dynamic>{};
 
               receivers.forEach((receiver) {
+                final preparedList = outputPubkeys.keys.toList().map((e) => [e]).toList();
                 // NOTE: scanOutputs, from sp_scanner package, called from rust here
-                final scanResult = scanOutputs([outputPubkeys.keys.toList()], tweak, receiver);
+                final scanResult = scanOutputs(preparedList, tweak, receiver);
 
                 if (scanResult.isEmpty) return;
 

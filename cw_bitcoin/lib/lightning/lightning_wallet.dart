@@ -11,6 +11,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 
 bool _breezSdkSparkLibUninitialized = true;
+Stream<LogEntry>? _logStream;
 
 class LightningWallet {
   final String mnemonic;
@@ -39,7 +40,6 @@ class LightningWallet {
   Stream<SdkEvent>? _eventStream;
 
   StreamSubscription<LogEntry>? _logSubscription;
-  Stream<LogEntry>? _logStream;
 
   void _subscribeToLogStream(File logFile) {
     _logSubscription = _logStream?.listen((logEntry) {

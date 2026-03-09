@@ -43,15 +43,17 @@ class NewDashboard extends StatefulWidget {
 
 class _NewDashboardState extends State<NewDashboard> {
   int _selectedPage = 0;
-  
+
   @override
   void initState() {
     super.initState();
-    reaction((_)=>widget.dashboardViewModel.appStore.wallet, (_){setState(() {
-      _selectedPage = 0;
-    });});
-    
-    Future.delayed(Duration(milliseconds: 300)).then((_)=>_showChangelog(context));
+    reaction((_) => widget.dashboardViewModel.appStore.wallet, (_) {
+      setState(() {
+        _selectedPage = 0;
+      });
+    });
+
+    Future.delayed(Duration(milliseconds: 300)).then((_) => _showChangelog(context));
     _showVulnerableSeedsPopup(context);
   }
 
@@ -69,50 +71,50 @@ class _NewDashboardState extends State<NewDashboard> {
                 index: _selectedPage,
                 children: widget.dashboardPageWidgets,
               ),
-            IgnorePointer(
-              child: Container(
-                height: 150,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: <Color>[
-                      Theme.of(context).colorScheme.surfaceDim.withAlpha(5),
-                      Theme.of(context).colorScheme.surfaceDim.withAlpha(50),
-                      Theme.of(context).colorScheme.surfaceDim.withAlpha(100),
-                      Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
-                      Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
-                      Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
-                    ],
+              IgnorePointer(
+                child: Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: <Color>[
+                        Theme.of(context).colorScheme.surfaceDim.withAlpha(5),
+                        Theme.of(context).colorScheme.surfaceDim.withAlpha(50),
+                        Theme.of(context).colorScheme.surfaceDim.withAlpha(100),
+                        Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
+                        Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
+                        Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            SafeArea(
-              bottom: !(Platform.isIOS),
-              child: SizedBox(
-                width: double.infinity,
-                height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
-                child: AbsorbPointer(
-                  absorbing: true,
-                  child: Container(color: Colors.transparent),
+              SafeArea(
+                bottom: !(Platform.isIOS),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
+                  child: AbsorbPointer(
+                    absorbing: true,
+                    child: Container(color: Colors.transparent),
+                  ),
                 ),
               ),
-            ),
-            NewMainNavBar(
-              dashboardViewModel: widget.dashboardViewModel,
-              selectedIndex: _selectedPage,
-              onItemTap: (index) {
-                setState(() {
-                  _selectedPage = index;
-                });
-              },
-            )
-          ],
+              NewMainNavBar(
+                dashboardViewModel: widget.dashboardViewModel,
+                selectedIndex: _selectedPage,
+                onItemTap: (index) {
+                  setState(() {
+                    _selectedPage = index;
+                  });
+                },
+              )
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
   }
 
   void _showChangelog(BuildContext context) async {
@@ -126,14 +128,16 @@ class _NewDashboardState extends State<NewDashboard> {
       Future<void>.delayed(
         Duration(seconds: 1),
         () {
-          showModalBottomSheet(
-              isScrollControlled: true,
-              context: context,
-              builder: (context) {
-                return ChangelogModal(
-                  version: widget.dashboardViewModel.settingsStore.appVersion,
-                );
-              });
+          if (context.mounted) {
+            showModalBottomSheet(
+                isScrollControlled: true,
+                context: context,
+                builder: (context) {
+                  return ChangelogModal(
+                    version: widget.dashboardViewModel.settingsStore.appVersion,
+                  );
+                });
+          }
         },
       );
 
@@ -149,13 +153,15 @@ class _NewDashboardState extends State<NewDashboard> {
     if (affectedWalletNames.isNotEmpty) {
       Future<void>.delayed(
         Duration(seconds: 1),
-            () {
-          showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return VulnerableSeedsPopup(affectedWalletNames);
-            },
-          );
+        () {
+          if (context.mounted) {
+            showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return VulnerableSeedsPopup(affectedWalletNames);
+              },
+            );
+          }
         },
       );
     }
