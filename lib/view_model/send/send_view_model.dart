@@ -573,6 +573,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         !isBolt11ZeroInvoice(txt);
   }
 
+  static bool isLnurlInvoice(String txt) {
+    return RegExp(AddressValidator.lnurlMatcher, caseSensitive: false).hasMatch(txt) &&
+        !isBolt11ZeroInvoice(txt);
+  }
+
   Timer? _ledgerTxStateTimer;
 
   @action

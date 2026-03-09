@@ -170,6 +170,10 @@ class CoinActionRow extends StatelessWidget {
         unspentCoinType = UnspentCoinType.lightning;
         final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(getBolt11Amount(code) ?? 0));
         req = PaymentRequest(code, amount, "", "", "");
+      } else if (SendViewModelBase.isLnurlInvoice(code)) {
+        unspentCoinType = UnspentCoinType.lightning;
+        final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(await LNURL.getPayRequestAmount(code) ?? 0));
+        req = PaymentRequest(code, amount, "", "", "");
       } else if (OpenCryptoPayService.isOpenCryptoPayQR(code)) {
         req = PaymentRequest(code, "", "", "", "");
       } else {

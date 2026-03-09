@@ -1,18 +1,15 @@
 import 'dart:convert';
 
 import 'package:bech32/bech32.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
-const _LNURL_PREFIXES = ["lnbcrt", "lntbs", "lnbc", "lntb"];
-
-String encodeLNURL(String url) {
-  final raw = _convert(utf8.encode(url), 8, 5, true);
-  return const Bech32Codec().encode(Bech32('lnurl', raw), 999);
-}
+const _BOLT_PREFIXES = ["lnbcrt", "lntbs", "lnbc", "lntb"];
+const _LUD17_PREFIXES = ['lnurlw', 'lnurlc', 'lnurlp', 'keyauth'];
 
 bool isBolt11ZeroInvoice(String invoice) {
   final request = Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
 
-  final prefix = _LNURL_PREFIXES
+  final prefix = _BOLT_PREFIXES
       .firstWhere((prefix) => request.hrp.startsWith(prefix), orElse: () => "");
 
   return request.hrp.length == prefix.length;
@@ -22,7 +19,7 @@ bool isBolt11ZeroInvoice(String invoice) {
 int? _getAmountBolt11Msat(String invoice) {
   final request = Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
 
-  final prefix = _LNURL_PREFIXES.firstWhere(
+  final prefix = _BOLT_PREFIXES.firstWhere(
         (prefix) => request.hrp.startsWith(prefix),
     orElse: () => throw FormatException('Invalid BOLT11 invoice: unknown HRP prefix.'),
   );
@@ -61,53 +58,80 @@ int? _getAmountBolt11Msat(String invoice) {
 
 int? getBolt11Amount(String invoice) {
   final msat = _getAmountBolt11Msat(invoice);
-  if (msat == null) return null;
-  if (msat % 1000 != 0) return null;
+  if (msat == null || msat % 1000 != 0) return null;
   return msat ~/ 1000;
 }
 
-Uri decodeLNURL(String encodedUrl) {
-  Uri decodedUri;
+class LNURL {
+  static Future<int?> getPayRequestAmount(String lnurl) async {
+    final url = decode(lnurl);
+    final response = await ProxyWrapper().get(clearnetUri: url);
 
-  /// The URL doesn't have to be encoded at all as per LUD-17: Protocol schemes and raw (non bech32-encoded) URLs.
-  /// https://github.com/lnurl/luds/blob/luds/17.md
-  /// Handle non bech32-encoded LNURL
-  final lud17prefixes = ['lnurlw', 'lnurlc', 'lnurlp', 'keyauth'];
-  decodedUri = Uri.parse(encodedUrl);
-  for (final prefix in lud17prefixes) {
-    if (decodedUri.scheme.contains(prefix)) {
-      decodedUri = decodedUri.replace(scheme: prefix);
+    if (response.statusCode != 200) return null;
+
+    try {
+      final body = jsonDecode(response.body) as Map;
+      final tag = body["tag"] as String?;
+
+      if (tag != "payRequest") return null;
+
+      final msat = body["minSendable"] as int?;
+      final maxSendable = body["maxSendable"] as int?;
+
+      // if minSendable and maxSendable are the same we assume a specific payment request
+      if (msat != maxSendable)
+        return null;
+
+      if (msat == null || msat % 1000 != 0) return null;
+      return msat ~/ 1000;
+    } catch (_) {
+      return null;
     }
   }
-  if (lud17prefixes.contains(decodedUri.scheme)) {
-    /// If the non-bech32 LNURL is a Tor address, the port has to be http instead of https for the clearnet LNURL so check if the host ends with '.onion' or '.onion.'
-    decodedUri = decodedUri.replace(
-        scheme: decodedUri.host.endsWith('onion') || decodedUri.host.endsWith('onion.')
-            ? 'http'
-            : 'https');
-  } else {
-    /// Try to parse the input as a lnUrl. Will throw an error if it fails.
-    final lnUrl = _findLnUrl(encodedUrl);
 
-    /// Decode the lnurl using bech32
-    final bech32 = const Bech32Codec().decode(lnUrl, lnUrl.length);
-    decodedUri = Uri.parse(utf8.decode(_convert(bech32.data, 5, 8, false)));
+  static String encode(String url) {
+    final raw = _convert(utf8.encode(url), 8, 5, true);
+    return const Bech32Codec().encode(Bech32('lnurl', raw), 999);
   }
-  return decodedUri;
+
+  static Uri decode(String encodedUrl) {
+    Uri decodedUri;
+
+    /// The URL doesn't have to be encoded at all as per LUD-17: Protocol schemes and raw (non bech32-encoded) URLs.
+    /// https://github.com/lnurl/luds/blob/luds/17.md
+    /// Handle non bech32-encoded LNURL
+    decodedUri = Uri.parse(encodedUrl);
+    for (final prefix in _LUD17_PREFIXES) {
+      if (decodedUri.scheme.contains(prefix)) {
+        decodedUri = decodedUri.replace(scheme: prefix);
+      }
+    }
+    if (_LUD17_PREFIXES.contains(decodedUri.scheme)) {
+      /// If the non-bech32 LNURL is a Tor address, the port has to be http instead of https for the clearnet LNURL so check if the host ends with '.onion' or '.onion.'
+      decodedUri = decodedUri.replace(
+          scheme: decodedUri.host.endsWith('onion') || decodedUri.host.endsWith('onion.')
+              ? 'http'
+              : 'https');
+    } else {
+      /// Try to parse the input as a lnUrl. Will throw an error if it fails.
+      final lnUrl = _findLnUrl(encodedUrl);
+
+      /// Decode the lnurl using bech32
+      final bech32 = const Bech32Codec().decode(lnUrl, lnUrl.length);
+      decodedUri = Uri.parse(utf8.decode(_convert(bech32.data, 5, 8, false)));
+    }
+    return decodedUri;
+  }
 }
 
 /// Parse and return a given lnurl string if it's valid. Will remove
 /// `lightning:` from the beginning of it if present.
 String _findLnUrl(String input) {
-  final res = RegExp(
-    r',*?((lnurl)([0-9]+[a-z0-9]+))',
-  ).allMatches(input.toLowerCase());
+  final res = RegExp(r',*?((lnurl)([0-9]+[a-z0-9]+))').allMatches(input.toLowerCase());
 
-  if (res.length == 1) {
-    return res.first.group(0)!;
-  } else {
+  if (res.length != 1)
     throw ArgumentError('Not a valid lnurl string');
-  }
+  return res.first.group(0)!;
 }
 
 /// Taken from bech32 (bitcoinjs): https://github.com/bitcoinjs/bech32
@@ -130,11 +154,8 @@ List<int> _convert(List<int> data, int inBits, int outBits, bool pad) {
   if (pad) {
     if (bits > 0) result.add((value << (outBits - bits)) & maxV);
   } else {
-    if (bits >= inBits) throw Exception('Excess padding');
-
-    if ((value << (outBits - bits)) & maxV > 0) {
-      throw Exception('Non-zero padding');
-    }
+    if (bits >= inBits) throw Exception('[BECH32] Excess padding');
+    if ((value << (outBits - bits)) & maxV > 0) throw Exception('[BECH32] Non-zero padding');
   }
 
   return result;

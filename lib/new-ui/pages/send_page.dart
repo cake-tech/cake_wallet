@@ -819,7 +819,8 @@ class _NewSendPageState extends State<NewSendPage> {
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
     if (uri.contains('@') || paymentRequest.address.contains('@')) return;
 
-    if (OpenCryptoPayService.isOpenCryptoPayQR(uri)) {
+    if (OpenCryptoPayService.isOpenCryptoPayQR(uri) &&
+        widget.sendViewModel.selectedCryptoCurrency != CryptoCurrency.btcln) {
       widget.sendViewModel.createOpenCryptoPayTransaction(uri);
       return;
     }
