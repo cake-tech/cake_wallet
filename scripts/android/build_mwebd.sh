@@ -1,4 +1,6 @@
 #!/bin/bash
+set -x -e
+cd "$(dirname "$0")"
 
 if [[ "$1" == "--install" ]]; then
   # install go > 1.24:
