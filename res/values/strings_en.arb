@@ -242,6 +242,7 @@
   "connected": "Connected",
   "connection_sync": "Connection and sync",
   "connections": "Connections",
+  "connections_desc": "Manage connections to services and third party APIs.",
   "connectWalletPrompt": "Connect your wallet with WalletConnect to make transactions",
   "contact": "Contact",
   "contact_list_contacts": "Contacts",
@@ -1365,6 +1366,5 @@
   "zcash_card_enable_later": "You can always enable this card later in settings",
   "zcash_card_missing_funds": "Missing funds?",
   "zcash_card_scan": "Scan",
-  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch.",
-  "connections_desc": "Manage connections to services and third party APIs."
+  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch."
 }
