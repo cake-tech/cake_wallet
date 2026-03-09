@@ -634,7 +634,8 @@ class _NewSendPageState extends State<NewSendPage> {
           output.setFiatAmount(amount);
         }
       } else {
-        if (output.sendAll && amount != S.of(context).all) {
+        final isAll = context.mounted && amount != S.of(context).all;
+        if (output.sendAll && isAll) {
           output.sendAll = false;
         }
 
