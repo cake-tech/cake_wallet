@@ -146,14 +146,16 @@ class WalletGroupsDisplayBody extends StatelessWidget {
 
   Future<void> onTypeSelected(BuildContext context) async {
     final mnemonic = await walletGroupsDisplayViewModel.getSelectedWalletMnemonic();
-    Navigator.of(context).pushNamed(
-      Routes.newWallet,
-      arguments: NewWalletArguments(
-        type: walletGroupsDisplayViewModel.type,
-        mnemonic: mnemonic,
-        isChildWallet: true,
-      ),
-    );
+    if (context.mounted) {
+      Navigator.of(context).pushNamed(
+        Routes.newWallet,
+        arguments: NewWalletArguments(
+          type: walletGroupsDisplayViewModel.type,
+          mnemonic: mnemonic,
+          isChildWallet: true,
+        ),
+      );
+    }
   }
 }
 

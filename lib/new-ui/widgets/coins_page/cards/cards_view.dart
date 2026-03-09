@@ -15,7 +15,6 @@ import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_v
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -264,7 +263,10 @@ class _CardsViewState extends State<CardsView> {
 
         int realIndex = order[visualIndex]!;
 
-        if(visualIndex == _selectedIndex && widget.accountListViewModel != null) {
+        if (visualIndex == _selectedIndex &&
+            widget.accountListViewModel != null &&
+            widget.accountListViewModel?.selected.label !=
+                widget.accountListViewModel?.accounts[realIndex].label) {
           widget.accountListViewModel!
               .select(widget.accountListViewModel!.accounts[realIndex]);
         }

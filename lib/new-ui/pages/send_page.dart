@@ -634,7 +634,8 @@ class _NewSendPageState extends State<NewSendPage> {
           output.setFiatAmount(amount);
         }
       } else {
-        if (output.sendAll && amount != S.of(context).all) {
+        final isAll = context.mounted && amount != S.of(context).all;
+        if (output.sendAll && isAll) {
           output.sendAll = false;
         }
 
@@ -1159,9 +1160,13 @@ class _NewSendPageState extends State<NewSendPage> {
     }
     _addressControllers[_selectedOutput].text = paymentRequest.address;
     if (paymentRequest.amount.isNotEmpty) {
-      _amountControllers[_selectedOutput].text = widget.sendViewModel.amountParsingProxy
-          .getDisplayCryptoAmount(
-              paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
+      try{
+        _amountControllers[_selectedOutput].text = widget.sendViewModel.amountParsingProxy
+            .getDisplayCryptoAmount(
+            paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
+      } catch(e) {
+
+      }
     }
     _memoControllers[_selectedOutput].text = paymentRequest.note;
   }

@@ -1483,8 +1483,7 @@ abstract class EVM {
   Future<BigInt?> getAllowance(
       WalletBase wallet,
       String tokenContract,
-      String spender) =>
-      (wallet as EVMChainWallet).getAllowance(tokenContract, spender);
+      String spender);
   
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,

@@ -46,20 +46,22 @@ class ProviderSelectorPage extends StatelessWidget {
                     getCheckboxValue: (_) => exchangeViewModel.forcedProvider == null,
                     updateCheckboxValue: (key, value) {},
                     sections: {
-                      S.of(context).best_rate: [
-                        ListItemCheckbox(
-                            iconPath: exchangeViewModel.bestRateProvider!.description.image,
-                            keyValue: "bestrate",
-                            label: exchangeViewModel.bestRateProvider!.title,
-                            subtitle: exchangeViewModel.bestRateProvider!.description.isCentralized
-                                ? S.of(context).centralized
-                                : S.of(context).decentralized,
-                            value: exchangeViewModel.forcedProvider == null,
-                            onChanged: (val) {
-                              exchangeViewModel.setForcedProvider(null);
-                              Navigator.of(context).pop();
-                            }),
-                      ],
+                      if (exchangeViewModel.bestRateProvider != null)
+                        S.of(context).best_rate: [
+                          ListItemCheckbox(
+                              iconPath: exchangeViewModel.bestRateProvider!.description.image,
+                              keyValue: "bestrate",
+                              label: exchangeViewModel.bestRateProvider!.title,
+                              subtitle:
+                                  exchangeViewModel.bestRateProvider!.description.isCentralized
+                                      ? S.of(context).centralized
+                                      : S.of(context).decentralized,
+                              value: exchangeViewModel.forcedProvider == null,
+                              onChanged: (val) {
+                                exchangeViewModel.setForcedProvider(null);
+                                Navigator.of(context).pop();
+                              }),
+                        ],
                       S.of(context).decentralized: decentralizedProviders
                           .map((item) => ListItemRegularRow(
                               iconPath: item.description.image,
@@ -83,7 +85,7 @@ class ProviderSelectorPage extends StatelessWidget {
                     },
                   ),
                 ),
-                SizedBox(height:18),
+                SizedBox(height: 18),
               ],
             ),
           ),
