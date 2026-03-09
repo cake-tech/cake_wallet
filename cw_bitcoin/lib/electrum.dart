@@ -55,9 +55,10 @@ class ElectrumClient {
   static const _backoffBase = Duration(seconds: 5);
   static const _maxBackoff = Duration(seconds: 60);
   int _consecutiveFailures = 0;
-  // ─────────────────────────────────────────────────────────────────────────────
-
   // ── Batching ─────────────────────────────────────────────────────────────────
+  Map<String, String> batchMethodMap = {};
+  Map<String, String> batchToAddress = {};
+  // ─────────────────────────────────────────────────────────────────────────────
 
   String serverVersion = '';
 
@@ -81,7 +82,7 @@ class ElectrumClient {
       final requestId = _id;
       _registryTask(requestId, completer);
       socket!.write(batch + '\n');
-      
+
       final response = await completer.future.timeout(
         Duration(seconds: 60),
         onTimeout: () {
@@ -94,10 +95,7 @@ class ElectrumClient {
       printV("Error preparing batch request: $e");
       rethrow;
     }
-
-    
   }
-      
 
   Future<dynamic> batchGetData(List<String> scriptHashes, String method) async {
     // throw UnimplementedError("Deprecated");
@@ -109,36 +107,40 @@ class ElectrumClient {
       // OPTIMIZATION: Split into batches of max 50 operations
       const int maxBatchSize = 50;
       final List<dynamic> allResults = [];
-      
+
       // We're not going to loop the whole dataset here
       // Loop the data in the invoking function so we can save results even when future batches fail
       for (int batchStart = 0; batchStart < scriptHashes.length; batchStart += maxBatchSize) {
-        final batchEnd = (batchStart + maxBatchSize < scriptHashes.length) 
-            ? batchStart + maxBatchSize 
+        final batchEnd = (batchStart + maxBatchSize < scriptHashes.length)
+            ? batchStart + maxBatchSize
             : scriptHashes.length;
         final batchScriptHashes = scriptHashes.sublist(batchStart, batchEnd);
-        
+
         // Build batch request payload for this chunk
         final List<Map<String, dynamic>> batchRequest = [];
         final int batchStartId = 0;
         final int batchEndId = batchScriptHashes.length - 1;
         _id++;
         final int batchBaseId = _id; // Base ID for this batch
-        final String batchId = 'batch_${batchStartId}_${batchEndId}_${batchBaseId}';
-        // We already incremented _id - so it is in sync 
-        
-        
+        String batchId = 'batch_${batchStartId}_${batchEndId}_${batchBaseId}';
+        var batchToAddress[batchId] = batchAddress;
+
+        // We already incremented _id - so it is in sync
+        batchMethodMap[batchId] = method;
         for (int i = 0; i < batchScriptHashes.length; i++) {
           batchRequest.add({
             'jsonrpc': '2.0',
-            'id': 'batch_${batchStartId}_${_id}',
+            'id': '$batchId',
             'method': method,
             'params': [batchScriptHashes[i]],
           });
         }
 
+        batchMethodMap[]
+
         final batchRequestJson = json.encode(batchRequest);
-        printV('batchGetData: Sending batch ${batchStart ~/ maxBatchSize + 1} of ${(scriptHashes.length / maxBatchSize).ceil()} (${batchScriptHashes.length} operations)');
+        printV(
+            'batchGetData: Sending batch ${batchStart ~/ maxBatchSize + 1} of ${(scriptHashes.length / maxBatchSize).ceil()} (${batchScriptHashes.length} operations)');
 
         // Send batch request
         if (!isConnected) {
@@ -148,12 +150,13 @@ class ElectrumClient {
         // Use a special string ID for batch requests to avoid conflicts
         final completer = Completer<dynamic>();
         //final batchId = 'batch_${batchStartId}_${_id}';
-        printV('batchId: $batchId');
         _tasks[batchId] = SocketTask(completer: completer, isSubscription: false);
+        printV(_tasks);
 
         // Write the batch request directly to socket
         socket!.write(batchRequestJson + '\n');
-        printV('batchGetData: Batch request sent with ID range: $batchStartId-$_id (batch key: $batchId)');
+        printV(
+            'batchGetData: Batch request sent with ID range: $batchStartId-$_id (batch key: $batchId)');
 
         final response = await completer.future.timeout(
           Duration(seconds: 60),
@@ -161,11 +164,11 @@ class ElectrumClient {
             throw TimeoutException('Batch request timed out after 60 seconds');
           },
         );
-        
+
         if (response is List<dynamic>) {
           allResults.addAll(response);
         }
-        
+
         // OPTIMIZATION: 100ms delay between batches to allow server processing time
         // This prevents overwhelming Fulcrum's request queue and gives it time to query bitcoind
         if (batchEnd < scriptHashes.length) {
@@ -250,13 +253,27 @@ class ElectrumClient {
       return;
     }
 
+    // Currently sort of interprets tx_hash results for batch get_history calls
     Future<void> _handleBatchResponse(String msg) async {
       try {
         final decoded = json.decode(msg);
         if (decoded is List) {
           for (final item in decoded) {
             if (item is Map<String, dynamic>) {
-              _handleResponse(item);
+              // Result can have multiple tx_hashes
+              try {
+                final result = item['result'];
+                if (result is List) {
+                  for (final historyItem in result) {
+                    if (historyItem is Map<String, dynamic>) {
+                      final tx_hash = historyItem['tx_hash'];
+                      printV("Got txhash: $tx_hash");
+                    }
+                  }
+                }
+              } catch (e) {
+                printV("Error handling batch item: $e");
+              }
             }
           }
         } else {
@@ -266,6 +283,7 @@ class ElectrumClient {
         printV("Error handling batch response: $e");
       }
     }
+
     // use ping to determine actual connection status since we could've just not timed out yet:
     // _setConnectionStatus(ConnectionStatus.connected);
     socket!.listen(
@@ -277,21 +295,24 @@ class ElectrumClient {
             // For some reason, some servers will serve us garbage whitespace characters
             // Skip empty messages or messages with only whitespace/control chars
             message = message.trim();
-            final isBatchResponse = RegExp(r'"id"\s*:', caseSensitive: false).allMatches(msg).length > 1;
             if (message.isEmpty || message.replaceAll(RegExp(r'[\s\x00-\x1F\x7F]'), '').isEmpty) {
               continue;
             }
-            
+            final isBatchResponse =
+                RegExp(r'"id"\s*:', caseSensitive: false).allMatches(msg).length > 1;
+            // We can't have two listeners to a single socket, so we pass off batchResponse handling as soon as possible
             if (isBatchResponse) {
-              printV("Received batch response: $msg");
-              _handleBatchResponse(msg);
-            } else {
-              printV("Received message: $msg");
-            }
+              if (isJSONStringCorrect(msg)) {
+                _handleBatchResponse(msg);
+                return;
+              } else {
+                unterminatedString += msg;
+                return;
+              }
+            } // By this point, we've handled batchResponse
             printV("Received message: $message");
             _parseResponse(message);
           }
-          
         } catch (e) {
           printV("socket.listen: $e");
         }
@@ -322,52 +343,57 @@ class ElectrumClient {
     keepAlive();
   }
 
-
-      // Check for single response (object) or batch response
+  // Check for single response (object) or batch response
   void _parseResponse(String message) {
     try {
       final decoded = json.decode(message);
       // Handle batch response (list) or single response (object)
       printV("Decoded message: $decoded");
+      printV(decoded);
       if (decoded is List) {
         // Handle batch response - find matching batch task by ID range
         printV("Received batch response with ${decoded.length} items");
-        
+
         if (decoded.isEmpty) {
           printV('Warning: Received empty batch response');
           return;
         }
-        
+
         // Extract ID range from batch response
         final ids = decoded
             .where((item) => item is Map<String, dynamic> && item['id'] != null)
             .map((item) => item['id'] as int)
             .toList();
-        
+
         if (ids.isEmpty) {
           printV('Warning: Batch response has no valid IDs');
           return;
         }
-        
+
         ids.sort();
         final minId = ids.first;
         final maxId = ids.last;
         final batchId = 'batch_${minId}_${maxId}';
-        
+
         printV('Looking for batch task with key: $batchId');
-        
+
         // Find and complete the matching batch task
         final task = _tasks[batchId];
-        if (task != null && !task.isSubscription && task.completer != null && !task.completer!.isCompleted) {
+        if (task != null &&
+            !task.isSubscription &&
+            task.completer != null &&
+            !task.completer!.isCompleted) {
           task.completer!.complete(decoded);
           _tasks.remove(batchId);
           printV('Completed batch request $batchId with ${decoded.length} results');
         } else {
-          printV('Warning: No matching batch task found for $batchId. Available tasks: ${_tasks.keys.where((k) => k.startsWith("batch_")).toList()}');
+          printV(
+              'Warning: No matching batch task found for $batchId. Available tasks: ${_tasks.keys.where((k) => k.startsWith("batch_")).toList()}');
         }
       } else if (decoded is Map<String, dynamic>) {
         // Handle single response
-        printV("Received response for message ID: ${decoded['id']} with method: ${decoded['method']}");
+        printV(
+            "Received response for message ID: ${decoded['id']} with method: ${decoded['method']}");
         _handleResponse(decoded);
       }
     } on FormatException catch (e) {
@@ -693,7 +719,8 @@ class ElectrumClient {
     final _reqNow = DateTime.now();
     _recentRequestTimestamps.add(_reqNow);
     _recentRequestTimestamps.removeWhere((t) => _reqNow.difference(t).inSeconds > 10);
-    printV("[ELECTRUM_REQ] id=$id method=$method | session=#$_requestsThisConnection total=#$_requestCount req/s:${(_recentRequestTimestamps.length / 10.0).toStringAsFixed(2)}");
+    printV(
+        "[ELECTRUM_REQ] id=$id method=$method | session=#$_requestsThisConnection total=#$_requestCount req/s:${(_recentRequestTimestamps.length / 10.0).toStringAsFixed(2)}");
     printV("We write to socket: ${jsonrpc(method: method, id: id, params: params)}");
     socket!.write(jsonrpc(method: method, id: id, params: params));
 
@@ -714,7 +741,8 @@ class ElectrumClient {
     final _reqNow = DateTime.now();
     _recentRequestTimestamps.add(_reqNow);
     _recentRequestTimestamps.removeWhere((t) => _reqNow.difference(t).inSeconds > 10);
-    printV("[ELECTRUM_REQ] batch id=$id | session=#$_requestsThisConnection total=#$_requestCount req/s:${(_recentRequestTimestamps.length / 10.0).toStringAsFixed(2)}");
+    printV(
+        "[ELECTRUM_REQ] batch id=$id | session=#$_requestsThisConnection total=#$_requestCount req/s:${(_recentRequestTimestamps.length / 10.0).toStringAsFixed(2)}");
     printV("We write a batch to socket with id $id: $batchJsonString");
     socket!.write(batchJsonString + '\n');
 
@@ -735,7 +763,8 @@ class ElectrumClient {
       final _reqNow = DateTime.now();
       _recentRequestTimestamps.add(_reqNow);
       _recentRequestTimestamps.removeWhere((t) => _reqNow.difference(t).inSeconds > 10);
-      printV("[ELECTRUM_REQ] id=$id method=$method (timeout=${timeout}ms) | session=#$_requestsThisConnection total=#$_requestCount req/s:${(_recentRequestTimestamps.length / 10.0).toStringAsFixed(2)}");
+      printV(
+          "[ELECTRUM_REQ] id=$id method=$method (timeout=${timeout}ms) | session=#$_requestsThisConnection total=#$_requestCount req/s:${(_recentRequestTimestamps.length / 10.0).toStringAsFixed(2)}");
       socket!.write(jsonrpc(method: method, id: id, params: params));
       Timer(Duration(milliseconds: timeout), () {
         if (!completer.isCompleted) {
@@ -829,11 +858,12 @@ class ElectrumClient {
 
   void _setConnectionStatus(ConnectionStatus status) {
     final now = DateTime.now();
-    
+
     if (status == ConnectionStatus.connected) {
       if (_disconnectedAt != null) {
         final reconnectMs = now.difference(_disconnectedAt!).inMilliseconds;
-        printV("[ELECTRUM_CONNECT] Reconnected after ${reconnectMs}ms (disconnected at $_disconnectedAt)");
+        printV(
+            "[ELECTRUM_CONNECT] Reconnected after ${reconnectMs}ms (disconnected at $_disconnectedAt)");
       } else {
         printV("[ELECTRUM_CONNECT] Connected at $now");
       }
@@ -848,7 +878,8 @@ class ElectrumClient {
       _disconnectedAt = now;
       if (_connectionEstablishedAt != null) {
         final sessionSecs = now.difference(_connectionEstablishedAt!).inSeconds;
-        printV("[ELECTRUM_DISCONNECT] status=$status | session lasted ${sessionSecs}s | requests this session: $_requestsThisConnection | total requests: $_requestCount");
+        printV(
+            "[ELECTRUM_DISCONNECT] status=$status | session lasted ${sessionSecs}s | requests this session: $_requestsThisConnection | total requests: $_requestCount");
       } else {
         printV("[ELECTRUM_DISCONNECT] status=$status at $now (no prior connection recorded)");
       }
