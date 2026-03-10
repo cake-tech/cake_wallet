@@ -58,17 +58,19 @@ class ElectrumClient {
   // ── Batching ─────────────────────────────────────────────────────────────────
   Map<String, String> batchMethodMap = {};
   Map<String, String> batchToAddress = {};
+  Map<String, String> batchToScripthash = {};
+
   // ─────────────────────────────────────────────────────────────────────────────
 
   String serverVersion = '';
 
-  Future<dynamic> getHistoryData(List<String> scriptHashes) async {
-    batchGetData(scriptHashes, 'blockchain.scripthash.get_history');
-    for (var i = 0; i < scriptHashes.length; i++) {
-      final sh = scriptHashes[i];
-      printV('getHistoryData: Requested history for scripthash $sh');
-    }
-  }
+  // Future<dynamic> getHistoryData(List<String> scriptHashes) async {
+  //   batchGetData(scriptHashes, 'blockchain.scripthash.get_history');
+  //   for (var i = 0; i < scriptHashes.length; i++) {
+  //     final sh = scriptHashes[i];
+  //     printV('getHistoryData: Requested history for scripthash $sh');
+  //   }
+  // }
 
   Future<dynamic> getBatchResults(String batch) async {
     if (batch.isEmpty) {
@@ -97,9 +99,10 @@ class ElectrumClient {
     }
   }
 
-  Future<dynamic> batchGetData(List<String> scriptHashes, String method) async {
+  Future<dynamic> batchGetData(
+      List<BitcoinAddressRecord> addresses, String method, BasedUtxoNetwork network) async {
     // throw UnimplementedError("Deprecated");
-    if (scriptHashes.isEmpty) {
+    if (addresses.isEmpty) {
       return {};
     }
 
@@ -110,37 +113,36 @@ class ElectrumClient {
 
       // We're not going to loop the whole dataset here
       // Loop the data in the invoking function so we can save results even when future batches fail
-      for (int batchStart = 0; batchStart < scriptHashes.length; batchStart += maxBatchSize) {
-        final batchEnd = (batchStart + maxBatchSize < scriptHashes.length)
+      for (int batchStart = 0; batchStart < addresses.length; batchStart += maxBatchSize) {
+        final batchEnd = (batchStart + maxBatchSize < addresses.length)
             ? batchStart + maxBatchSize
-            : scriptHashes.length;
-        final batchScriptHashes = scriptHashes.sublist(batchStart, batchEnd);
+            : addresses.length;
+        var scripthash = addresses[batchStart].scriptHash;
+        final batchAddresses = addresses.sublist(batchStart, batchEnd);
 
         // Build batch request payload for this chunk
         final List<Map<String, dynamic>> batchRequest = [];
         final int batchStartId = 0;
-        final int batchEndId = batchScriptHashes.length - 1;
+        final int batchEndId = batchAddresses.length - 1;
         _id++;
         final int batchBaseId = _id; // Base ID for this batch
         String batchId = 'batch_${batchStartId}_${batchEndId}_${batchBaseId}';
-        var batchToAddress[batchId] = batchAddress;
 
         // We already incremented _id - so it is in sync
+        batchToAddress[batchId] = batchAddresses[0].address;
         batchMethodMap[batchId] = method;
-        for (int i = 0; i < batchScriptHashes.length; i++) {
+        for (int i = 0; i < batchAddresses.length; i++) {
           batchRequest.add({
             'jsonrpc': '2.0',
             'id': '$batchId',
             'method': method,
-            'params': [batchScriptHashes[i]],
+            'params': [batchAddresses[i].getScriptHash(network)],
           });
         }
 
-        batchMethodMap[]
-
         final batchRequestJson = json.encode(batchRequest);
         printV(
-            'batchGetData: Sending batch ${batchStart ~/ maxBatchSize + 1} of ${(scriptHashes.length / maxBatchSize).ceil()} (${batchScriptHashes.length} operations)');
+            'batchGetData: Sending batch ${batchStart ~/ maxBatchSize + 1} of ${(addresses.length / maxBatchSize).ceil()} (${batchAddresses.length} operations)');
 
         // Send batch request
         if (!isConnected) {
@@ -155,8 +157,7 @@ class ElectrumClient {
 
         // Write the batch request directly to socket
         socket!.write(batchRequestJson + '\n');
-        printV(
-            'batchGetData: Batch request sent with ID range: $batchStartId-$_id (batch key: $batchId)');
+        printV('batchGetData: Batch request sent with ID range: 0(batch key: $batchId)');
 
         final response = await completer.future.timeout(
           Duration(seconds: 60),
@@ -171,7 +172,7 @@ class ElectrumClient {
 
         // OPTIMIZATION: 100ms delay between batches to allow server processing time
         // This prevents overwhelming Fulcrum's request queue and gives it time to query bitcoind
-        if (batchEnd < scriptHashes.length) {
+        if (batchEnd < addresses.length) {
           await Future.delayed(Duration(milliseconds: 100));
         }
       }
@@ -289,7 +290,7 @@ class ElectrumClient {
     socket!.listen(
       (Uint8List event) {
         try {
-          final msg = utf8.decode(event.toList());
+          var msg = utf8.decode(event.toList());
           final messagesList = msg.split("\n");
           for (var message in messagesList) {
             // For some reason, some servers will serve us garbage whitespace characters
@@ -299,13 +300,22 @@ class ElectrumClient {
               continue;
             }
             final isBatchResponse =
-                RegExp(r'"id"\s*:', caseSensitive: false).allMatches(msg).length > 1;
+                RegExp(r'"id"\s*:', caseSensitive: false).allMatches(msg).length >
+                    1; // safe to assume a batch because of the positioning of the quotation marks
             // We can't have two listeners to a single socket, so we pass off batchResponse handling as soon as possible
             if (isBatchResponse) {
+              printV("Received batch response: $msg");
+              msg.trim();
+              msg.replaceAll(RegExp(r'[\s\x00-\x1F\x7F]'), '');
+
               if (isJSONStringCorrect(msg)) {
+                unterminatedString += msg;
+                printV("Batch response is a complete JSON string, handling batch response");
                 _handleBatchResponse(msg);
                 return;
               } else {
+                printV(
+                    "Batch response is not a complete JSON string, appending to unterminatedString");
                 unterminatedString += msg;
                 return;
               }

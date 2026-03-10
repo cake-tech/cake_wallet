@@ -568,7 +568,7 @@ abstract class ElectrumWalletBase
       scriptHashes.add(addressList[i].getScriptHash(network));
     }
     // for the future: if we want to do more than 30 addresses, we can split them into batches of 30 and do multiple batch requests, but for now let's just do 30 to get a benchmark for the batch request time
-    final batchHistoriesJson = await electrumClient.batchGetData(scriptHashes, method);
+    final batchHistoriesJson = await electrumClient.batchGetData(addressList, method, network);
     //historyBatchSw.stop();
     printV("Here we go!");
     printV(batchHistoriesJson);
