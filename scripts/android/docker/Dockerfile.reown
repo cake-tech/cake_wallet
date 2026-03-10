@@ -1,0 +1,21 @@
+ARG BASE_IMAGE
+FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
+
+RUN mkdir -p /w/scripts/android
+COPY scripts/prepare_reown.sh /w/scripts/prepare_reown.sh
+COPY scripts/android/build_reown_deps.sh /w/scripts/android/build_reown_deps.sh
+RUN /w/scripts/android/build_reown_deps.sh \
+    && rm -rf /w/scripts/reown_flutter/packages/reown_core/.dart_tool \
+    && rm -rf /w/scripts/reown_flutter/packages/reown_sign/.dart_tool \
+    && rm -rf /w/scripts/reown_flutter/packages/reown_cli/.dart_tool \
+    && rm -rf /w/scripts/reown_flutter/packages/reown_walletkit/example/.dart_tool \
+    && rm -rf /w/scripts/reown_flutter/packages/reown_walletkit/.dart_tool \
+    && rm -rf /w/scripts/reown_flutter/packages/reown_yttrium/.dart_tool \
+    && rm -rf /w/scripts/reown_flutter/packages/reown_appkit/example/base/.dart_tool \
+    && rm -rf /w/scripts/reown_flutter/packages/reown_appkit/example/modal/.dart_tool \
+    && rm -rf /w/scripts/reown_flutter/packages/reown_appkit/.dart_tool \
+    && rm -rf /w/scripts/reown_flutter/.dart_tool \
+    && rm -rf /w/scripts/reown_flutter/scripts/yttrium/target
+
+FROM --platform=linux/amd64 alpine
+COPY --from=build /w /w

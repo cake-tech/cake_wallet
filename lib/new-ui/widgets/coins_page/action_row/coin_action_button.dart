@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,11 +22,13 @@ class CoinActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size.width * sizeFactor;
+    final double effectiveSize = min(size, 80);
+
     return Column(
       children: [
         Container(
-          width: size,
-          height: size,
+          width: effectiveSize,
+          height: effectiveSize,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(

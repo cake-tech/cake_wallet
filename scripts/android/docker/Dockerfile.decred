@@ -1,0 +1,17 @@
+ARG BASE_IMAGE
+ARG TORCH_IMAGE
+
+FROM ${TORCH_IMAGE} AS torch_source
+
+FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
+
+RUN mkdir -p /w/scripts/android
+RUN mkdir -p /w/cw_decred/lib/api
+COPY --from=torch_source /w/scripts/torch_dart /w/scripts/torch_dart
+COPY cw_core/pubspec.yaml /w/cw_core/pubspec.yaml
+COPY cw_decred/pubspec.yaml /w/cw_decred/pubspec.yaml
+COPY scripts/android/build_decred.sh /w/scripts/android/build_decred.sh
+RUN /w/scripts/android/build_decred.sh
+
+FROM --platform=linux/amd64 alpine
+COPY --from=build /w /w
