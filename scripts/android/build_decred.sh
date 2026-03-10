@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -e -x
 cd "$(dirname "$0")"
 # . ./config.sh
 

@@ -420,6 +420,10 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
   void _showFeeAlert(BuildContext context) async {
     await Future<void>.delayed(Duration(seconds: 1));
+    if (!context.mounted) {
+      return;
+    }
+
     final confirmed = await showPopUp<bool>(
             context: context,
             builder: (dialogContext) {

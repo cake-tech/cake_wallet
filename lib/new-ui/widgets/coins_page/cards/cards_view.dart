@@ -62,6 +62,7 @@ class _CardsViewState extends State<CardsView> {
   static const int compactModeTreshold = 4;
   static const int maxCards = 5;
   late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
+  late final double effectiveCardWidth = min(cardWidth, 768);
 
   Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
       Map<int, int> order, bool compactMode, double overlapAmount) {
@@ -73,7 +74,7 @@ class _CardsViewState extends State<CardsView> {
 
     final top = baseTop - (howFarBehind * overlapAmount);
 
-    final left = (parentWidth - cardWidth) / 2.0;
+    final left = (parentWidth - effectiveCardWidth) / 2.0;
 
     return AnimatedPositioned(
       key: ValueKey("$visualIndex $realIndex"),
@@ -176,7 +177,7 @@ class _CardsViewState extends State<CardsView> {
                     : [];
 
             return BalanceCard(
-              width: cardWidth,
+              width: effectiveCardWidth,
               accountName: accountName,
               accountBalance: accountBalance,
               designSwitchDuration: Duration(milliseconds: 150),
@@ -220,7 +221,7 @@ class _CardsViewState extends State<CardsView> {
   double _getBoxHeight(int numCards, double overlapAmount) {
     return
         /* height of initial card */
-        (2 / 3.2) * (cardWidth) +
+        (2 / 3.2) * (effectiveCardWidth) +
             /* height of bg card * amount of bg cards */
             overlapAmount * ((numCards) - 1);
   }
