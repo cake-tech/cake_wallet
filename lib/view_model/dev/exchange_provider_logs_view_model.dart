@@ -43,10 +43,11 @@ abstract class ExchangeProviderLogsViewModelBase with Store {
   int get errorLogs => logs.where((log) => !log.isSuccess).length;
 
   @computed
-  Map<ExchangeProviderDescription, int> get logsByProvider {
+  Map<ExchangeProviderDescription?, int> get logsByProvider {
     final Map<ExchangeProviderDescription, int> counts = {};
     for (final log in logs) {
-      counts[log.provider] = (counts[log.provider] ?? 0) + 1;
+      if (log.provider == null) continue;
+      counts[log.provider!] = (counts[log.provider!] ?? 0) + 1;
     }
     return counts;
   }

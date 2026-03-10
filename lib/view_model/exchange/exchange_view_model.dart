@@ -1011,7 +1011,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
       if (providers.isEmpty) {
         ExchangeProviderLogger.logError(
-          provider: ExchangeProviderDescription.changeNow,
+          provider: null,
           function: 'createTrade',
           error: 'No providers available for $depositCurrency->$receiveCurrency',
           requestData: {
