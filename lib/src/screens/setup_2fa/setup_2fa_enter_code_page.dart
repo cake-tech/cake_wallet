@@ -93,7 +93,6 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _key,
-      resizeToAvoidBottomInset: false,
       body: TOTPEnterCode(
         setup2FAViewModel: widget.setup2FAViewModel,
         isForSetup: widget.totpArguments.isForSetup ?? false,
