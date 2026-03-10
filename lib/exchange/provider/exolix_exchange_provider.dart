@@ -142,7 +142,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         throw Exception(message);
       }
 
-      final rate = responseJSON['rate'] as double;
+      final rate = double.tryParse(responseJSON['rate']?.toString() ?? '') ?? 0.0;
 
       ExchangeProviderLogger.logSuccess(
         provider: description,

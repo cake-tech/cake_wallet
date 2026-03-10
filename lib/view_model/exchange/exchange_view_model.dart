@@ -38,6 +38,7 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/currency.dart';
 import "package:cw_core/wallet_info.dart";
@@ -677,14 +678,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (receiveAmountFiat.split(".").last.length <= digits) {
       return receiveAmountFiat;
     }
-    return double.parse(receiveAmountFiat).toStringAsPrecision(digits);
+
+    return double.tryParse(receiveAmountFiat)?.toStringAsPrecision(digits) ?? '0.00';
   }
 
   String roundedDepositAmountFiat(int digits) {
     if (depositAmountFiat.split(".").last.length <= digits) {
       return depositAmountFiat;
     }
-    return double.parse(depositAmountFiat).toStringAsPrecision(digits);
+
+    return double.tryParse(depositAmountFiat)?.toStringAsPrecision(digits) ?? '0.00';
   }
 
   @action
@@ -871,6 +874,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           // will throw "Concurrent modification during iteration" error if modified at the same
           // time [createTrade] is called, as this is not a normal map, but a sorted map
         }
+      } else {
+        printV('calculateBestRate: ${_providers[i].title} returned rate=0');
       }
     }
 
@@ -980,18 +985,42 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     }
 
-    late final Map<double, ExchangeProvider> providers;
+    Map<double, ExchangeProvider> providers;
     if (forcedProvider != null) {
       providers = {forcedProviderRate: forcedProvider!};
     } else {
-      providers = _sortedAvailableProviders;
+      providers = Map.fromEntries(
+        _sortedAvailableProviders.entries.where(
+          (e) => selectedProviders.contains(e.value),
+        ),
+      );
     }
 
     // Ensure we have providers available before attempting to create trade
     if (providers.isEmpty) {
       await calculateBestRate();
+      if (forcedProvider != null) {
+        providers = {forcedProviderRate: forcedProvider!};
+      } else {
+        providers = Map.fromEntries(
+          _sortedAvailableProviders.entries.where(
+            (e) => selectedProviders.contains(e.value),
+          ),
+        );
+      }
 
       if (providers.isEmpty) {
+        ExchangeProviderLogger.logError(
+          provider: ExchangeProviderDescription.changeNow,
+          function: 'createTrade',
+          error: 'No providers available for $depositCurrency->$receiveCurrency',
+          requestData: {
+            'from': depositCurrency.title,
+            'to': receiveCurrency.title,
+            'fromAmount': _depositAmount,
+            'toAmount': _receiveAmount,
+          },
+        );
         tradeState = TradeIsCreatedFailure(
             title: S.current.trade_not_created,
             error: S.current.none_of_selected_providers_can_exchange);
@@ -1007,6 +1036,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       for (var i = 0; i < providersSnapshot.length; i++) {
         final provider = providersSnapshot[i];
         final providerRate = ratesSnapshot[i];
+
+        printV('createTrade: trying provider=${provider.title}');
 
         if (!(await provider.checkIsAvailable())) continue;
 
@@ -1034,7 +1065,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         amount = amount.replaceAll(',', '.');
 
         if (limitsState is LimitsLoadedSuccessfully) {
-          if (double.tryParse(amount) == null) continue;
+          if (double.tryParse(amount) == null) {
+            printV('createTrade: ${provider.title} amount parse failed: "$amount"');
+            continue;
+          }
 
           if (limits.min != null && double.parse(amount) < limits.min!) {
             continue;
@@ -1054,6 +1088,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
               final canCreateTrade = await isCanCreateTrade(trade);
               if (!canCreateTrade.result) {
+                ExchangeProviderLogger.logError(
+                  provider: provider.description,
+                  function: 'createTrade',
+                  error: canCreateTrade.errorMessage ?? 'isCanCreateTrade returned false',
+                  requestData: {
+                    'from': depositCurrency.title,
+                    'to': receiveCurrency.title,
+                    'fromAmount': _depositAmount,
+                    'toAmount': _receiveAmount,
+                  },
+                );
                 continue;
               }
 
@@ -1063,7 +1108,21 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
               /// return after the first successful trade
               return;
-            } catch (e) {
+            } catch (e, s) {
+              ExchangeProviderLogger.logError(
+                provider: provider.description,
+                function: 'createTrade',
+                error: e,
+                stackTrace: s,
+                requestData: {
+                  'from': depositCurrency.title,
+                  'to': receiveCurrency.title,
+                  'fromAmount': _depositAmount,
+                  'toAmount': _receiveAmount,
+                  'toAddress': receiveAddress,
+                  'refundAddress': depositAddress,
+                },
+              );
               continue;
             }
           }
@@ -1185,6 +1244,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _receiveAmount = '';
     bestRate = 0.0;
     bestRateProvider = null;
+    _sortedAvailableProviders.clear();
     loadLimits();
     _setAvailableProviders();
   }

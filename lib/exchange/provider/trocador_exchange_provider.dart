@@ -104,10 +104,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     final coinJson = responseJSON.first as Map<String, dynamic>;
 
-    return Limits(
-      min: coinJson['minimum'] as double?,
-      max: coinJson['maximum'] as double?,
-    );
+    final min = double.tryParse(coinJson['minimum']?.toString() ?? '');
+    final max = double.tryParse(coinJson['maximum']?.toString() ?? '');
+    return Limits(min: min, max: max == 0 ? null : max);
   }
 
   @override
@@ -135,12 +134,21 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final uri = await _getUri(newRatePath, params);
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
 
+      if (response.statusCode != 200) return 0.0;
+
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final fromAmount = double.parse(responseJSON['amount_from'].toString());
-      final toAmount = double.parse(responseJSON['amount_to'].toString());
+      final fromAmount = double.tryParse(responseJSON['amount_from']?.toString() ?? '') ?? 0.0;
+      final toAmount = double.tryParse(responseJSON['amount_to']?.toString() ?? '') ?? 0.0;
+
+      if (fromAmount <= 0 || toAmount <= 0) return 0.0;
+
+      final quotesData = responseJSON['quotes'];
       final rateId = responseJSON['trade_id'] as String? ?? '';
 
-      var quotes = responseJSON['quotes']['quotes'] as List;
+      if (quotesData == null || quotesData is! Map<String, dynamic>) {
+        return 0.0;
+      }
+      final quotes = (quotesData['quotes'] as List?) ?? [];
       _provider = quotes
           .where((quote) => providerStates[quote['provider']] != false)
           .map((quote) => quote['provider'])
