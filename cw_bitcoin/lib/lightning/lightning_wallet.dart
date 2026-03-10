@@ -173,9 +173,16 @@ class LightningWallet {
               ((paymentMethod.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
           fee: lightningFeeSats.toInt() + (sparkTransferFeeSats?.toInt() ?? 0),
           commitOverride: () async {
-            final res = await sdk.sendPayment(
-                request: SendPaymentRequest(prepareResponse: prepareResponse));
-            printV(res.payment.status.name);
+            try {
+              final res = await sdk.sendPayment(
+                  request: SendPaymentRequest(prepareResponse: prepareResponse));
+              printV(res.payment.status.name);
+            } on SdkError_SparkError catch (e) {
+              if (e.field0.contains("AlreadyExists")) {
+                throw Exception("Invoice already paid");
+              }
+              rethrow;
+            }
           },
         );
       }
