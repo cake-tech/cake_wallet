@@ -179,7 +179,6 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                       child: GestureDetector(
                         onTap: () {
                           reorder(index, _items.length);
-                          Navigator.of(context).maybePop();
                         },
                         child: Align(
                           alignment: Alignment.topCenter,
