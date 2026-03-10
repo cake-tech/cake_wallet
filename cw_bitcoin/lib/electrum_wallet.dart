@@ -550,13 +550,12 @@ abstract class ElectrumWalletBase
   @override
   Future<void> startSync() async {
     // Lock out other processes because this is the main entry point for syncing and we don't want multiple sync processes running at the same time
-    
-    if (isSyncing) {
-      printV("startSync: already syncing, try later");
-      return;
-    }
-    
 
+    // if (isSyncing) {
+    //   printV("startSync: already syncing, try later");
+    //   return;
+    // }
+    printV(isSyncing);
     final historyBatchSw = Stopwatch()..start();
     printV("[SYNC_BENCHMARK]     ▶ get_history batch for addrs) starting...");
     // debug cmd that retrieves 30 real addresses
@@ -564,15 +563,16 @@ abstract class ElectrumWalletBase
     final method = "blockchain.scripthash.get_history";
     var batchCollection = Map<int, String>();
     List<String> scriptHashes = [];
-    for (var i = 0; i < 30; i++) {
+    for (var i = 0; i < 20; i++) {
       batchCollection[i] = addressList[i].getScriptHash(network);
       scriptHashes.add(addressList[i].getScriptHash(network));
     }
     // for the future: if we want to do more than 30 addresses, we can split them into batches of 30 and do multiple batch requests, but for now let's just do 30 to get a benchmark for the batch request time
     final batchHistoriesJson = await electrumClient.batchGetData(scriptHashes, method);
     //historyBatchSw.stop();
+    printV("Here we go!");
     printV(batchHistoriesJson);
-    
+
     // At this point we've got the histories for the 30 addresses
 
     return;
@@ -1796,7 +1796,7 @@ abstract class ElectrumWalletBase
   }
 
   @action
-  // KB TODO: batch this 
+  // KB TODO: batch this
   Future<List<BitcoinUnspent>?> fetchUnspent(BitcoinAddressRecord address) async {
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
@@ -1809,7 +1809,7 @@ abstract class ElectrumWalletBase
     await Future.wait(unspents.map((unspent) async {
       try {
         final coin = BitcoinUnspent.fromJSON(address, unspent);
-        // 
+        //
         final tx = await fetchTransactionInfo(hash: coin.hash);
         coin.isChange = address.isHidden;
         coin.confirmations = tx?.confirmations;
@@ -2169,9 +2169,9 @@ abstract class ElectrumWalletBase
             }
           });
           transactionHistory.addOne(transaction);
-          // Really? Entire balances?! We know what coins have been spent and fees
+          // Really? Entire
           await updateBalance();
-          // I mean, why not just delete the spent coins and add the change coins?
+          // Karl replace this
           await updateAllUnspents();
         });
     } catch (e) {
@@ -2186,12 +2186,14 @@ abstract class ElectrumWalletBase
     int? confirmations;
 
     printV("[getTransactionExpanded] SEND getTransactionVerbose hash=$hash");
+    // Karl replace this
     final verboseTransaction = await electrumClient.getTransactionVerbose(hash: hash);
     printV(
         "[getTransactionExpanded] RECV getTransactionVerbose reqId=${electrumClient.lastRequestId} isEmpty=${verboseTransaction.isEmpty}");
 
     if (verboseTransaction.isEmpty) {
       printV("[getTransactionExpanded] SEND getTransactionHex hash=$hash");
+      // Karl replace this
       transactionHex = await electrumClient.getTransactionHex(hash: hash);
       printV(
           "[getTransactionExpanded] RECV getTransactionHex reqId=${electrumClient.lastRequestId} hexLen=${transactionHex.length}");
@@ -2249,6 +2251,7 @@ abstract class ElectrumWalletBase
 
     for (final vin in original.inputs) {
       printV("[getTransactionExpanded] SEND getTransactionVerbose (input) hash=${vin.txId}");
+      // Karl replace this
       final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
       printV(
           "[getTransactionExpanded] RECV getTransactionVerbose (input) reqId=${electrumClient.lastRequestId} isEmpty=${verboseTransaction.isEmpty}");
@@ -2257,6 +2260,7 @@ abstract class ElectrumWalletBase
 
       if (verboseTransaction.isEmpty) {
         printV("[getTransactionExpanded] SEND getTransactionHex (input) hash=${vin.txId}");
+        // Karl replace this
         inputTransactionHex = await electrumClient.getTransactionHex(hash: hash);
         printV(
             "[getTransactionExpanded] RECV getTransactionHex (input) reqId=${electrumClient.lastRequestId}");
@@ -2278,6 +2282,7 @@ abstract class ElectrumWalletBase
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
       {required String hash, int? height, bool? retryOnFailure}) async {
     try {
+      // Karl replace this
       return ElectrumTransactionInfo.fromElectrumBundle(
         await getTransactionExpanded(hash: hash, height: height),
         walletInfo.type,
@@ -2304,7 +2309,7 @@ abstract class ElectrumWalletBase
     try {
       printV("[fetchTransactions] ▶ START walletType=$type");
       final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
-      // Rewrite this to batch fetch these instead of using hundreds of calls
+
       if (type == WalletType.bitcoin) {
         await Future.wait(BITCOIN_ADDRESS_TYPES
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
@@ -2325,7 +2330,7 @@ abstract class ElectrumWalletBase
             (tx.isPending || tx.confirmations == 0) && historiesWithDetails[tx.id] == null;
 
         if (isPendingSilentPaymentUtxo) {
-          // KB: See if this Utxo is silent payment
+          // Karl replace this
           final info =
               await fetchTransactionInfo(hash: tx.id, height: tx.height, retryOnFailure: true);
 
@@ -2355,7 +2360,6 @@ abstract class ElectrumWalletBase
     final receiveAddresses = addressesByType.where((addr) => addr.isHidden == false);
     walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
-    // We need to batch this
     await Future.wait(addressesByType.map((addressRecord) async {
       final history = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
 
@@ -2405,7 +2409,7 @@ abstract class ElectrumWalletBase
       printV("[_fetchAddressHistory] SEND getHistory address=${addressRecord.address}");
       final _addrScripthash = addressRecord.getScriptHash(network);
 
-      // Replace this with batches
+      // Karl replace this
       final history = await electrumClient.getHistory(addressRecord.getScriptHash(network));
       printV(
           "[_fetchAddressHistory] RECV getHistory reqId=${electrumClient.lastRequestId} count=${history.length} address=${addressRecord.address}");
@@ -2513,8 +2517,7 @@ abstract class ElectrumWalletBase
       }
 
       _isTransactionUpdating = true;
-      // TODO: enable this once PoC done
-      // await fetchTransactions();
+      //await fetchTransactions();
       walletAddresses.updateReceiveAddresses();
       _isTransactionUpdating = false;
     } catch (e, stacktrace) {
@@ -3182,7 +3185,7 @@ abstract class ElectrumWalletBase
 
       final firstAddress = addresses.first;
       final sh = firstAddress.getScriptHash(network);
-      // Karl replace this
+      // TODO: possibly consider not throwing on error. Server may be overloaded and drop this request but still be connected
       await electrumClient.getBalance(sh, throwOnError: true);
       return true;
     } catch (e) {
@@ -3274,7 +3277,6 @@ abstract class ElectrumWalletBase
       await walletInfo.updateRestoreHeight(currentChainTip!);
     }
 
-    // Karl replace this
     _chainTipUpdateSubject = electrumClient.chainTipSubscribe();
     _chainTipUpdateSubject?.listen((e) async {
       final event = e as Map<String, dynamic>;
@@ -3335,7 +3337,7 @@ abstract class ElectrumWalletBase
     if (syncStatus is NotConnectedSyncStatus || syncStatus is LostConnectionSyncStatus) {
       // Needs to re-subscribe to all scripthashes when reconnected
       _scripthashesUpdateSubject = {};
-
+      isSyncing = false;
       if (_isTryingToConnect) return;
 
       _isTryingToConnect = true;
@@ -3346,7 +3348,6 @@ abstract class ElectrumWalletBase
       Timer(reconnectionDelay, () {
         if (this.syncStatus is NotConnectedSyncStatus ||
             this.syncStatus is LostConnectionSyncStatus) {
-          // Karl replace this
           this.electrumClient.connectToUri(
                 node!.uri,
                 useSSL: node!.useSSL ?? false,
@@ -3472,7 +3473,6 @@ abstract class ElectrumWalletBase
       // Make a call to the server to check if the connection is healthy
       // If the call fails, we need to reconnect
       try {
-        // Karl replace this
         final result = await electrumClient.call(
           method: 'server.version',
           params: ['', '1.4'],
@@ -3538,9 +3538,9 @@ abstract class ElectrumWalletBase
       if (node != null) {
         electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
-        // Karl replace this
         await electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
-
+        // remove printV
+        printV("attempt to sync");
         await startSync();
 
         SocketHealthLogger().logHealthCheck(
