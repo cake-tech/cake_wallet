@@ -80,7 +80,13 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             EdgeInsets.symmetric(vertical: 1, horizontal: !isCurrentlySelectedWallet ? 16 : 0),
         iconColor: effectiveArrowColor,
         collapsedIconColor: effectiveArrowColor,
-        leading: leadingWidget,
+        leading: (childWallets.isEmpty && onTitleTapped != null && leadingWidget != null)
+            ? GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onTitleTapped,
+                child: leadingWidget,
+              )
+            : leadingWidget,
         trailing: trailingWidget ?? (childWallets.isEmpty ? SizedBox.shrink() : null),
         title: GestureDetector(
           onTap: onTitleTapped,
