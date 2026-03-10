@@ -329,7 +329,7 @@ abstract class EVMChainWalletBase
     if (prefs.getBool(migrationKey) ?? false) return;
 
     final box = evmChainErc20TokensBox;
-    final keys = box.keys.cast<String>().toList(growable: false);
+    final keys = box.keys.toList();
 
     if (keys.isEmpty) {
       await prefs.setBool(migrationKey, true);
@@ -347,7 +347,8 @@ abstract class EVMChainWalletBase
         continue;
       }
 
-      final lowerKey = key.toLowerCase();
+      final lowerKey = key is String ? key.toLowerCase() : token.contractAddress.toLowerCase();
+      if (key is int) needsRewrite = true;
 
       final Erc20Token normalizedToken =
           token.contractAddress == token.contractAddress.toLowerCase()
