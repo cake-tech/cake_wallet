@@ -142,10 +142,11 @@ class SettingsMainPage extends StatelessWidget {
                         child: Row(
                           spacing: 8,
                           children: [
-                            SvgPicture.asset(section.titleIconPath, colorFilter: ColorFilter.mode(
-                              Theme.of(context).colorScheme.onSurfaceVariant,
-                              BlendMode.srcIn,
-                            ),),
+                            SvgPicture.asset(section.titleIconPath,
+                                colorFilter: ColorFilter.mode(
+                                  Theme.of(context).colorScheme.onSurfaceVariant,
+                                  BlendMode.srcIn,
+                                )),
                             Text(section.title, style: Theme.of(context).textTheme.titleMedium),
                           ],
                         ),

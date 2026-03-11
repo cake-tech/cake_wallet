@@ -83,8 +83,8 @@ class StandardListRow extends StatelessWidget {
                             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
                           ),
                     ),
-                  ),
-                if (subtitle == null || subtitle!.isEmpty)
+                  )
+               else
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
