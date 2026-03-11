@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ const List<String> aboutPageEasterEggs = [
   "IOU a hug <3",
   "Warning: up to 4.8% programmed by cats",
   "We love collecting your data <3\nWe're just really incompetent at it"
+  ""
 ];
 
 class AboutPage extends StatefulWidget {
@@ -51,61 +53,60 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        color: Theme.of(context).colorScheme.surface,
-        child: Column(children: [
-          ModalTopBar(
-            title: S.of(context).about,
-            leadingIcon: Icon(Icons.arrow_back_ios_new),
-            onLeadingPressed: Navigator.of(context).pop,
-          ),
-          Column(
-            children: [
-              Column(
-                spacing: 16,
-                children: [
-                  SizedBox(),
-                  GestureDetector(
-                    onTap: _easterEgg,
-                    child: SvgPicture.asset(
-                      "assets/new-ui/cake_squircle_icon.svg",
-                      width: 128,
-                      height: 128,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 8,
-                    children: [
-                      Text(
-                        "Cake Wallet",
-                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.w500),
+    return ModalPageWrapper(
+      topBar: ModalTopBar(
+        title: S.of(context).about,
+        leadingIcon: Icon(Icons.arrow_back_ios_new),
+        onLeadingPressed: Navigator.of(context).pop,
+      ),
+      content: Container(
+          color: Theme.of(context).colorScheme.surface,
+          child: Column(children: [
+            Column(
+              children: [
+                Column(
+                  spacing: 16,
+                  children: [
+                    SizedBox(),
+                    GestureDetector(
+                      onTap: _easterEgg,
+                      child: SvgPicture.asset(
+                        "assets/new-ui/cake_squircle_icon.svg",
+                        width: 128,
+                        height: 128,
                       ),
-                      Text(widget.appVersion,
-                          style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant))
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: Wrap(
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 8,
                       children: [
                         Text(
-                          _bottomText,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          "Cake Wallet",
+                          style: TextStyle(fontSize: 32, fontWeight: FontWeight.w500),
                         ),
+                        Text(widget.appVersion,
+                            style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant))
                       ],
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 32),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: NewListSections(sections: {
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Wrap(
+                        children: [
+                          Text(
+                            _bottomText,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 32),
+                NewListSections(sections: {
                   "": [
                     ListItemRegularRow(
                         keyValue: "official website",
@@ -145,10 +146,10 @@ class _AboutPageState extends State<AboutPage> {
                         foregroundColor: Theme.of(context).colorScheme.primary,
                         trailingIconSize: 10)
                   ]
-                }),
-              )
-            ],
-          )
-        ]));
+                })
+              ],
+            )
+          ])),
+    );
   }
 }

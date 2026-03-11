@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -226,5 +227,20 @@ class OtherSettingsPage extends BasePage {
       }
       ),
     );
+  }
+  Future<void> onExportLNLog(BuildContext context) async {
+    final file = await _otherSettingsViewModel.getLightningLog();
+
+    if (file != null) {
+      await ShareUtil.shareFile(filePath: file.path, fileName: "Lightning.log", context: context);
+    }
+  }
+
+  Future<void> onExportPJLog(BuildContext context) async {
+    final file = await _otherSettingsViewModel.getPayjoinLog();
+
+    if (file != null) {
+      await ShareUtil.shareFile(filePath: file.path, fileName: "Payjoin.log", context: context);
+    }
   }
 }
