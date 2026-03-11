@@ -563,7 +563,7 @@ abstract class ElectrumWalletBase
     final method = "blockchain.scripthash.get_history";
     var batchCollection = Map<int, String>();
     List<String> scriptHashes = [];
-    for (var i = 0; i < 20; i++) {
+    for (var i = 0; i < 10; i++) {
       batchCollection[i] = addressList[i].getScriptHash(network);
       scriptHashes.add(addressList[i].getScriptHash(network));
     }
@@ -572,6 +572,7 @@ abstract class ElectrumWalletBase
     //historyBatchSw.stop();
     printV("Here we go!");
     printV(batchHistoriesJson);
+    printV("And we are back");
 
     // At this point we've got the histories for the 30 addresses
 
