@@ -6,8 +6,9 @@ class BalanceCardAction {
   final String label;
   final IconData icon;
   final VoidCallback onTap;
+  final double? iconSize;
 
-  const BalanceCardAction({required this.label, required this.icon, required this.onTap});
+  const BalanceCardAction({required this.label, required this.icon, required this.onTap, this.iconSize = 16});
 }
 
 class BalanceCard extends StatelessWidget {
@@ -299,7 +300,7 @@ class BalanceCard extends StatelessWidget {
                   style: TextStyle(color: design.colors.textColor, fontSize: 16),
                 ),
               ),
-              Icon(Icons.arrow_forward_ios_rounded, color: design.colors.textColorSecondary, size: 12,),
+              Icon(action.icon, color: design.colors.textColorSecondary, size: action.iconSize),
             ],
           ),
         ),
