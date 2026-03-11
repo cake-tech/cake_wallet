@@ -43,7 +43,7 @@ class SettingsSectionData {
   const SettingsSectionData(this.title, this.titleIconPath, this.items);
 
   static SettingsSectionData walletSettings =
-      SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet_settings.svg", [
+      SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet-setting.svg", [
     SettingsListItem("assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
     SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy, Routes.privacyPage),
     SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.showKeys,
@@ -57,7 +57,7 @@ class SettingsSectionData {
   ]);
 
   static SettingsSectionData appSettings =
-      SettingsSectionData(S.current.app_settings, "assets/new-ui/app_settings.svg", [
+      SettingsSectionData(S.current.app_settings, "assets/new-ui/cake-setting.svg", [
     SettingsListItem("assets/new-ui/settings_row_icons/connections.svg", S.current.connections, Routes.connectionSync),
     // SettingsListItem("assets/new-ui/settings_row_icons/defaults.svg", "Defaults", ""),
     SettingsListItem("assets/new-ui/settings_row_icons/display.svg", S.current.display, Routes.displaySettingsPage),
@@ -119,10 +119,6 @@ class SettingsMainPage extends StatelessWidget {
         .whereType<ListItem>()
         .toList();
 
-    final walletSettings = buildItems(SettingsSectionData.walletSettings);
-    final appSettings = buildItems(SettingsSectionData.appSettings);
-    final otherSettings = buildItems(SettingsSectionData.otherSettings);
-
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: Column(children: [
@@ -135,34 +131,28 @@ class SettingsMainPage extends StatelessWidget {
         Expanded(
           child: ListView(controller: ModalScrollController.of(context), children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
-                spacing: 20,
-                children: [
-                  Row(
-                    spacing: 8,
-                    children: [
-                      SvgPicture.asset("assets/new-ui/wallet-setting.svg"),
-                      Text("Wallet Settings", style: Theme.of(context).textTheme.titleMedium),
-                    ],
-                  ),
-                  NewListSections(
-                    sections: {
-                      SettingsSectionData.walletSettings.title: walletSettings,
-                    },
-                  ),
-                  Row(
-                    spacing: 8,
-                    children: [
-                      SvgPicture.asset("assets/new-ui/cake-setting.svg"),
-                      Text("App Settings", style: Theme.of(context).textTheme.titleMedium),
-                    ],
-                  ),
-                  NewListSections(sections: {
-                    SettingsSectionData.appSettings.title: appSettings,
-                    SettingsSectionData.otherSettings.title: otherSettings,
-                  })
-                ],
+                spacing: 16,
+                children: SettingsSectionData.all.expand((section) {
+                  return [
+                    if (section.titleIconPath.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            SvgPicture.asset(section.titleIconPath, colorFilter: ColorFilter.mode(
+                              Theme.of(context).colorScheme.onSurfaceVariant,
+                              BlendMode.srcIn,
+                            ),),
+                            Text(section.title, style: Theme.of(context).textTheme.titleMedium),
+                          ],
+                        ),
+                      ),
+                    NewListSections(sections: {section.title: buildItems(section)}),
+                  ];
+                }).toList(),
               ),
             ),]
           ),
