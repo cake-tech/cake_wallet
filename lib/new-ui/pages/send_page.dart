@@ -686,6 +686,12 @@ class _NewSendPageState extends State<NewSendPage> {
   void _handleSend() async {
     //TODO refactor this action. code was copied over from old ui. i don't like it.
 
+    for(int i=0; i<widget.sendViewModel.outputs.length; i++) {
+      if(i < _amountControllers.length) {
+        widget.sendViewModel.outputs[i].cryptoAmount = _amountControllers[i].text;
+      }
+    }
+
     if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
       if (widget.sendViewModel.outputs.length > 1) {
         showErrorValidationAlert(context);
