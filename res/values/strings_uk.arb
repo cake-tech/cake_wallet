@@ -475,6 +475,7 @@
   "file_saved": "Файл збережено",
   "fill_code": "Будь ласка, введіть код підтвердження, надісланий на вашу електронну адресу",
   "filter_by": "Фільтрувати за",
+  "filters": "Фільтри",
   "finding_provider": "Пошук провайдера",
   "first_wallet_text": "Чудовий гаманець для Monero, Bitcoin, Ethereum, Litecoin та Haven",
   "fixed_pair_not_supported": "Ця фіксована пара не підтримується вибраними сервісами обміну",

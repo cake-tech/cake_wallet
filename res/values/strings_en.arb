@@ -475,6 +475,7 @@
   "file_saved": "File saved",
   "fill_code": "Please fill in the verification code provided to your email",
   "filter_by": "Filter by",
+  "filters": "Filters",
   "finding_provider": "Finding provider",
   "first_wallet_text": "Awesome wallet for Monero, Bitcoin, Ethereum, Litecoin, and Haven",
   "fixed_pair_not_supported": "This fixed pair is not supported with the selected swap services",

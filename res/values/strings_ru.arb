@@ -475,6 +475,7 @@
   "file_saved": "Файл сохранён",
   "fill_code": "Пожалуйста, введите код подтверждения, отправленный на вашу электронную почту",
   "filter_by": "Фильтровать по",
+  "filters": "Фильтры",
   "finding_provider": "Поиск провайдера",
   "first_wallet_text": "Отличный кошелёк для Monero, Bitcoin, Ethereum, Litecoin и Haven",
   "fixed_pair_not_supported": "Эта фиксированная пара не поддерживается выбранными сервисами обмена",

@@ -475,6 +475,7 @@
   "file_saved": "บันทึกไฟล์แล้ว",
   "fill_code": "โปรดกรอกรหัสยืนยันที่ส่งไปยังอีเมลของคุณ",
   "filter_by": "กรองตาม",
+  "filters": "ตัวกรอง",
   "finding_provider": "กำลังค้นหาผู้ให้บริการ",
   "first_wallet_text": "กระเป๋าเงินที่ยอดเยี่ยมสำหรับ Monero, Bitcoin, Ethereum, Litecoin และ Haven",
   "fixed_pair_not_supported": "คู่แบบคงที่นี้ไม่รองรับกับบริการสวอปที่เลือก",

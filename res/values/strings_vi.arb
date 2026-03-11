@@ -474,6 +474,7 @@
   "file_saved": "Đã lưu tệp",
   "fill_code": "Vui lòng nhập mã xác minh được gửi đến email của bạn",
   "filter_by": "Lọc theo",
+  "filters": "Bộ lọc",
   "finding_provider": "Đang tìm nhà cung cấp",
   "first_wallet_text": "Ví tuyệt vời cho Monero, Bitcoin, Ethereum, Litecoin và Haven",
   "fixed_pair_not_supported": "Cặp tỷ giá cố định này không được hỗ trợ với các dịch vụ hoán đổi đã chọn",

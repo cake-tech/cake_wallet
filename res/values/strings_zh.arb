@@ -475,6 +475,7 @@
   "file_saved": "文件已保存",
   "fill_code": "请填写发送至您邮箱的验证码",
   "filter_by": "筛选条件",
+  "filters": "过滤器",
   "finding_provider": "正在查找服务提供商",
   "first_wallet_text": "适用于门罗币、比特币、以太坊、莱特币和 Haven 的超棒钱包",
   "fixed_pair_not_supported": "所选的兑换服务不支持该固定交易对",
