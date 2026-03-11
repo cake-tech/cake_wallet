@@ -64,6 +64,46 @@ class ElectrumClient {
 
   String serverVersion = '';
 
+  void _applyBatchResultToAddress(
+      BitcoinAddressRecord addressRecord, String method, dynamic result) {
+    switch (method) {
+      case 'blockchain.scripthash.get_history':
+        if (result is List) {
+          addressRecord.txCount = result.length;
+          if (result.isNotEmpty) {
+            addressRecord.setAsUsed();
+          }
+        }
+        break;
+      case 'blockchain.scripthash.get_balance':
+        if (result is Map<String, dynamic>) {
+          final confirmed = result['confirmed'] as int? ?? 0;
+          final unconfirmed = result['unconfirmed'] as int? ?? 0;
+          addressRecord.balance = confirmed + unconfirmed;
+          if (addressRecord.balance > 0) {
+            addressRecord.setAsUsed();
+          }
+        }
+        break;
+      case 'blockchain.scripthash.listunspent':
+        if (result is List) {
+          var total = 0;
+          for (final item in result) {
+            if (item is Map<String, dynamic>) {
+              total += item['value'] as int? ?? 0;
+            }
+          }
+          addressRecord.balance = total;
+          if (total > 0) {
+            addressRecord.setAsUsed();
+          }
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
   // Future<dynamic> getHistoryData(List<String> scriptHashes) async {
   //   batchGetData(scriptHashes, 'blockchain.scripthash.get_history');
   //   for (var i = 0; i < scriptHashes.length; i++) {
@@ -117,24 +157,24 @@ class ElectrumClient {
         final batchEnd = (batchStart + maxBatchSize < addresses.length)
             ? batchStart + maxBatchSize
             : addresses.length;
-        var scripthash = addresses[batchStart].scriptHash;
         final batchAddresses = addresses.sublist(batchStart, batchEnd);
 
         // Build batch request payload for this chunk
         final List<Map<String, dynamic>> batchRequest = [];
-        final int batchStartId = 0;
-        final int batchEndId = batchAddresses.length - 1;
+        final int batchStartId = batchStart;
+        final int batchEndId = batchEnd - 1;
         _id++;
-        final int batchBaseId = _id; // Base ID for this batch
-        String batchId = 'batch_${batchStartId}_${batchEndId}_${batchBaseId}';
+        final int batchUniqueId = _id;
+        final String batchId = 'batch_${batchStartId}_${batchEndId}_${batchUniqueId}';
 
         // We already incremented _id - so it is in sync
         batchToAddress[batchId] = batchAddresses[0].address;
+        batchToScripthash[batchId] = batchAddresses[0].getScriptHash(network);
         batchMethodMap[batchId] = method;
         for (int i = 0; i < batchAddresses.length; i++) {
           batchRequest.add({
             'jsonrpc': '2.0',
-            'id': '$batchId',
+            'id': batchId,
             'method': method,
             'params': [batchAddresses[i].getScriptHash(network)],
           });
@@ -157,7 +197,8 @@ class ElectrumClient {
 
         // Write the batch request directly to socket
         socket!.write(batchRequestJson + '\n');
-        printV('batchGetData: Batch request sent with ID range: 0(batch key: $batchId)');
+        printV(
+            'batchGetData: Batch request sent with ID range: ${batchStartId}-${batchEndId} (batch key: $batchId)');
         final response = await completer.future.timeout(
           Duration(seconds: 60),
           onTimeout: () {
@@ -166,6 +207,28 @@ class ElectrumClient {
         );
 
         if (response is List<dynamic>) {
+          final responseLen = response.length;
+          final expectedLen = batchAddresses.length;
+          if (responseLen != expectedLen) {
+            printV(
+                'batchGetData: response length mismatch for $batchId (expected $expectedLen, got $responseLen)');
+          }
+
+          final updateCount = responseLen < expectedLen ? responseLen : expectedLen;
+          for (int i = 0; i < updateCount; i++) {
+            final item = response[i];
+            if (item is! Map<String, dynamic>) {
+              continue;
+            }
+
+            final targetAddress = batchAddresses[i];
+            final result = item['result'];
+            _applyBatchResultToAddress(targetAddress, method, result);
+
+            printV(
+                'batchGetData: updated address index ${batchStart + i} (${targetAddress.address}) for method $method');
+          }
+
           allResults.addAll(response);
         }
 
@@ -176,23 +239,73 @@ class ElectrumClient {
         }
       }
 
-      // Sort all results by id field to maintain deterministic ordering
-      // Outside of non-key-value maps, we want to order transactions correctly
-      // The invoking function is expected to implement matching for results to script hashes too, not just for numbered lists
-      allResults.sort((a, b) {
-        if (a is Map<String, dynamic> && b is Map<String, dynamic>) {
-          final aId = a['id'] as int? ?? 0;
-          final bId = b['id'] as int? ?? 0;
-          return aId.compareTo(bId);
-        }
-        return 0;
-      });
-
       return allResults;
     } catch (e) {
       printV('batchGetResponse error: $e');
       return {};
     }
+  }
+
+  Future<List<Map<String, dynamic>>> batchCallByChunks({
+    required String method,
+    required List<List<Object>> paramsList,
+    int maxBatchSize = 50,
+    Duration timeout = const Duration(seconds: 60),
+  }) async {
+    if (paramsList.isEmpty) {
+      return <Map<String, dynamic>>[];
+    }
+
+    if (!isConnected) {
+      throw Exception('Not connected to Electrum server');
+    }
+
+    final allResults = <Map<String, dynamic>>[];
+
+    for (int batchStart = 0; batchStart < paramsList.length; batchStart += maxBatchSize) {
+      final batchEnd = (batchStart + maxBatchSize < paramsList.length)
+          ? batchStart + maxBatchSize
+          : paramsList.length;
+      final chunk = paramsList.sublist(batchStart, batchEnd);
+
+      _id++;
+      final batchBaseId = _id;
+      final batchId = 'batch_call_${method}_${batchStart}_${batchEnd - 1}_$batchBaseId';
+
+      final batchRequest = <Map<String, dynamic>>[];
+      for (int i = 0; i < chunk.length; i++) {
+        batchRequest.add({
+          'jsonrpc': '2.0',
+          'id': '$batchId:$i',
+          'method': method,
+          'params': chunk[i],
+        });
+      }
+
+      final completer = Completer<dynamic>();
+      _tasks[batchId] = SocketTask(completer: completer, isSubscription: false);
+      socket!.write('${json.encode(batchRequest)}\n');
+
+      final response = await completer.future.timeout(
+        timeout,
+        onTimeout: () =>
+            throw TimeoutException('Batch request timed out after ${timeout.inSeconds} seconds'),
+      );
+
+      if (response is List) {
+        for (final item in response) {
+          if (item is Map<String, dynamic>) {
+            allResults.add(item);
+          }
+        }
+      }
+
+      if (batchEnd < paramsList.length) {
+        await Future.delayed(const Duration(milliseconds: 1000));
+      }
+    }
+
+    return allResults;
   }
 
   bool get isConnected => socket != null && socket?.isClosed == false;
@@ -298,7 +411,8 @@ Completer code
         String? batchId;
 
         if (firstId is String) {
-          batchId = firstId;
+          final separatorIndex = firstId.indexOf(':');
+          batchId = separatorIndex > 0 ? firstId.substring(0, separatorIndex) : firstId;
         } else if (firstId is int) {
           final ids = batchResponses.map((item) => item['id']).whereType<int>().toList()..sort();
           if (ids.isNotEmpty) {
@@ -327,7 +441,7 @@ Completer code
         }
 
         printV(
-            'Warning: No matching batch task found for $batchId. Available tasks: ${_tasks.keys.where((k) => k.startsWith("batch_")).toList()}');
+            'Warning: No matching batch task found for $batchId. Available tasks: ${_tasks.keys.where((k) => k.startsWith("batch")).toList()}');
       } catch (e) {
         printV('Error handling batch response: $e');
       }

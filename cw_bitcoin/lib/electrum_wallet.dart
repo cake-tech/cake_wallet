@@ -2311,19 +2311,93 @@ abstract class ElectrumWalletBase
       printV("[fetchTransactions] ▶ START walletType=$type");
       final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
 
-      if (type == WalletType.bitcoin) {
-        await Future.wait(BITCOIN_ADDRESS_TYPES
-            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
-      } else if (type == WalletType.bitcoinCash) {
-        await Future.wait(BITCOIN_CASH_ADDRESS_TYPES
-            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
-      } else if (type == WalletType.litecoin) {
-        await Future.wait(LITECOIN_ADDRESS_TYPES
-            .where((type) => type != SegwitAddresType.mweb)
-            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
-      } else if (type == WalletType.dogecoin) {
-        await Future.wait(DOGECOIN_ADDRESS_TYPES
-            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
+      final relevantAddresses =
+          walletAddresses.allAddresses.where((addr) => addr.type != SegwitAddresType.mweb).toList();
+
+      final historyResponse = await electrumClient.batchGetData(
+          relevantAddresses, 'blockchain.scripthash.get_history', network);
+
+      final txHeightById = <String, int>{};
+      if (historyResponse is List) {
+        for (final item in historyResponse) {
+          if (item is! Map<String, dynamic>) {
+            continue;
+          }
+
+          final result = item['result'];
+          if (result is! List) {
+            continue;
+          }
+
+          for (final historyItem in result) {
+            if (historyItem is! Map<String, dynamic>) {
+              continue;
+            }
+
+            final txid = historyItem['tx_hash'] as String?;
+            final height = historyItem['height'] as int? ?? 0;
+            if (txid != null && txid.isNotEmpty) {
+              txHeightById[txid] = height;
+            }
+          }
+        }
+      }
+
+      final unknownTxids =
+          txHeightById.keys.where((txid) => transactionHistory.transactions[txid] == null).toList();
+
+      if (unknownTxids.isNotEmpty) {
+        final paramsList = unknownTxids.map<List<Object>>((txid) => [txid, true]).toList();
+        final txResponses = await electrumClient.batchCallByChunks(
+          method: 'blockchain.transaction.get',
+          paramsList: paramsList,
+          maxBatchSize: 25,
+        );
+
+        final txById = <String, Map<String, dynamic>>{};
+        for (final response in txResponses) {
+          final result = response['result'];
+          if (result is Map<String, dynamic>) {
+            final txid = result['txid'] as String?;
+            if (txid != null && txid.isNotEmpty) {
+              txById[txid] = result;
+            }
+          }
+        }
+
+        for (final txid in unknownTxids) {
+          final txObj = txById[txid];
+          if (txObj == null) {
+            continue;
+          }
+
+          final height = txHeightById[txid] ?? 0;
+          final txInfo = ElectrumTransactionInfo.fromElectrumVerbose(
+            txObj.cast<String, Object>(),
+            walletInfo.type,
+            addresses: walletAddresses.allAddresses,
+            height: height,
+          );
+          transactionHistory.addOne(txInfo);
+          historiesWithDetails[txid] = txInfo;
+        }
+
+        if (txById.isNotEmpty) {
+          await transactionHistory.save();
+        }
+      }
+
+      for (final txid in txHeightById.keys) {
+        final existing = transactionHistory.transactions[txid];
+        if (existing != null) {
+          final height = txHeightById[txid] ?? 0;
+          existing.height = height;
+          if ((currentChainTip ?? 0) > 0 && height > 0) {
+            existing.confirmations = (currentChainTip! - height) + 1;
+            existing.isPending = existing.confirmations == 0;
+          }
+          historiesWithDetails[txid] = existing;
+        }
       }
 
       transactionHistory.transactions.values.forEach((tx) async {
