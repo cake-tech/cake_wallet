@@ -3,7 +3,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 
-enum CardDesignBackgroundTypes { image, svgIcon, svgFull }
+enum CardDesignBackgroundTypes { image, svgIcon, svgFull, gradientOnly }
 
 class CardColorCombination {
   final Color textColor;
@@ -119,6 +119,10 @@ class CardDesign {
   ];
 
   static const genericDefault = CardDesign(gradient: gradientBlue);
+
+  static const gradientOnlyDesign = CardDesign(
+      backgroundType: CardDesignBackgroundTypes.gradientOnly,
+      gradient: gradientBlue);
 
   static const btc = CardDesign(
       imagePath: "assets/new-ui/balance_card_icons/bitcoin.svg");
@@ -337,6 +341,106 @@ class CardDesign {
   CardDesign withGradientAndColorCombination(Gradient gradient, CardColorCombination cardColorCombination) => CardDesign(
       gradient: gradient, colors: cardColorCombination, imagePath: imagePath, backgroundType: backgroundType);
 
+  CardDesign withImagePath(String path) => CardDesign(
+      gradient: gradient, colors: colors, imagePath: path, backgroundType: backgroundType);
+
+  static List<String> iconPathsForWalletType(CryptoCurrency currency) {
+    switch (currency) {
+      case CryptoCurrency.btc:
+        return [
+          "assets/images/crypto/bitcoin.webp",
+          "assets/new-ui/balance_card_icons/bitcoin.svg",
+        ];
+      case CryptoCurrency.eth:
+        return [
+          "assets/images/crypto/ethereum.webp",
+          "assets/new-ui/balance_card_icons/ethereum.svg",
+        ];
+      case CryptoCurrency.btcln:
+        return [
+          "assets/images/crypto/lightning.webp",
+          "assets/new-ui/balance_card_icons/lightning.svg",
+        ];
+      case CryptoCurrency.xmr:
+        return [
+          "assets/images/crypto/monero.webp",
+          "assets/new-ui/balance_card_icons/monero.svg",
+        ];
+      case CryptoCurrency.ltc:
+        return [
+          "assets/images/crypto/litecoin.webp",
+          "assets/new-ui/balance_card_icons/litecoin.svg",
+        ];
+      case CryptoCurrency.bch:
+        return [
+          "assets/images/crypto/bitcoin-cash.webp",
+          "assets/new-ui/balance_card_icons/bitcoin_cash.svg",
+        ];
+      case CryptoCurrency.doge:
+        return [
+          "assets/images/crypto/dogecoin.webp",
+          "assets/new-ui/balance_card_icons/dogecoin.svg",
+        ];
+      case CryptoCurrency.baseEth:
+        return [
+          "assets/images/crypto/base_icon.webp",
+          "assets/new-ui/balance_card_icons/base.svg",
+        ];
+      case CryptoCurrency.maticpoly:
+        return [
+          "assets/images/crypto/polygon.webp",
+          "assets/new-ui/balance_card_icons/polygon.svg",
+        ];
+      case CryptoCurrency.sol:
+        return [
+          "assets/images/crypto/solana.webp",
+          "assets/new-ui/balance_card_icons/solana.svg",
+        ];
+      case CryptoCurrency.trx:
+        return [
+          "assets/images/crypto/tron.webp",
+          "assets/new-ui/balance_card_icons/tron.svg",
+        ];
+      case CryptoCurrency.nano:
+        return [
+          "assets/images/crypto/nano.webp",
+          "assets/new-ui/balance_card_icons/nano.svg",
+        ];
+      case CryptoCurrency.zano:
+        return [
+          "assets/images/crypto/zano.webp",
+          "assets/new-ui/balance_card_icons/zano.svg",
+        ];
+      case CryptoCurrency.wow:
+        return [
+          "assets/images/crypto/wownero.webp",
+          "assets/new-ui/balance_card_icons/wownero.svg",
+        ];
+      case CryptoCurrency.dcr:
+        return [
+          "assets/images/crypto/decred.webp",
+          "assets/new-ui/balance_card_icons/decred.svg",
+        ];
+      case CryptoCurrency.arbEth:
+        return [
+          "assets/images/crypto/arbitrum.webp",
+          "assets/new-ui/balance_card_icons/arbitrum.svg",
+        ];
+      case CryptoCurrency.zec:
+        return [
+          "assets/images/crypto/zcash.webp",
+          "assets/new-ui/balance_card_icons/zcash.svg",
+        ];
+      case CryptoCurrency.bnb:
+        return [
+          "assets/images/crypto/bnb.webp",
+          "assets/new-ui/balance_card_icons/bnb.svg",
+        ];
+      default:
+        return [];
+    }
+  }
+
   static const List<CardDesign> all = [genericDefault, btc, eth, xmr, ltc, eth, pol, doge, base, sol, btcln, tron, zano, dcr, arbitrum, zec, bnb, ethSpecial, btcSpecial, xmrSpecial, ltcSpecial, lnSpecial, tronSpecial, bchSpecial, wowSpecial, dogeSpecial, polSpecial, dcrSpecial, zanoSpecial, arbitrumSpecial, zecSpecial, bnbSpecial];
 
   static CardDesign forCurrencySpecial(CryptoCurrency currency) {
@@ -407,27 +511,47 @@ class CardDesign {
       BalanceCardStyleSettings? setting, CryptoCurrency walletCurrency) {
     if (setting == null) {
       return CardDesign.forCurrencySpecial(walletCurrency);
-    } else if (setting.backgroundImagePath.isNotEmpty) {
-      return CardDesign(
-        imagePath: setting.backgroundImagePath,
-      );
-    } else if (setting.useSpecialDesign && setting.gradientIndex != -1) {
+    }
+
+    if (setting.isGradientOnly) {
+      final gradient = setting.gradientIndex != -1
+          ? CardDesign.allGradients[setting.gradientIndex]
+          : gradientBlue;
+      return gradientOnlyDesign.withGradient(gradient);
+    }
+
+    if (setting.backgroundImagePath.isNotEmpty) {
+      return CardDesign(imagePath: setting.backgroundImagePath);
+    }
+
+    if (setting.useSpecialDesign && setting.gradientIndex != -1) {
       return CardDesign.forCurrencySpecial(walletCurrency)
           .withGradient(CardDesign.allGradients[setting.gradientIndex]);
-    } else if (!setting.useSpecialDesign && setting.gradientIndex == -1) {
+    }
+
+    if (!setting.useSpecialDesign && setting.gradientIndex == -1) {
       final specialColors =
-          specialDesignsForCurrencies[walletCurrency] ??
-              genericDefault;
-      return CardDesign.forCurrencyIcon(walletCurrency)
-          .withGradientAndColorCombination(specialColors.gradient, specialColors.colors);
-    } else if (setting.useSpecialDesign) {
-      return CardDesign.forCurrencySpecial(walletCurrency);
-    } else if (setting.gradientIndex != -1) {
-      return CardDesign.forCurrencyIcon(walletCurrency)
-          .withGradient(CardDesign.allGradients[setting.gradientIndex]);
-    } else {
-      printV("somehow, the user saved the design settings with literally no customization?");
+          specialDesignsForCurrencies[walletCurrency] ?? genericDefault;
+      var design = CardDesign.forCurrencyIcon(walletCurrency)
+          .withGradientAndColorCombination(
+              specialColors.gradient, specialColors.colors);
+      return setting.iconPath.isNotEmpty
+          ? design.withImagePath(setting.iconPath)
+          : design;
+    }
+    if (setting.useSpecialDesign) {
       return CardDesign.forCurrencySpecial(walletCurrency);
     }
+    if (setting.gradientIndex != -1) {
+      final baseIcon = CardDesign.forCurrencyIcon(walletCurrency);
+      final withGradient =
+          baseIcon.withGradient(CardDesign.allGradients[setting.gradientIndex]);
+      return setting.iconPath.isNotEmpty
+          ? withGradient.withImagePath(setting.iconPath)
+          : withGradient;
+    }
+    printV("somehow, the user saved the design settings with literally no "
+        "customization?");
+    return CardDesign.forCurrencySpecial(walletCurrency);
   }
 }

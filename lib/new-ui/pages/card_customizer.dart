@@ -5,6 +5,8 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -161,6 +163,80 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                     ),
                                   ],
                                 )),
+                            if (state.availableDesigns[state.selectedDesignIndex]
+                                        .backgroundType ==
+                                    CardDesignBackgroundTypes.svgIcon &&
+                                state.availableIconPaths.isNotEmpty) ...[
+                              SizedBox(height: 8),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0),
+                                child: Column(
+                                  spacing: 8.0,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(S.of(context).icon_style),
+                                    SizedBox(
+                                      height: 48,
+                                      child: ListView.separated(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount:
+                                            state.availableIconPaths.length,
+                                        separatorBuilder: (context, _) =>
+                                            SizedBox(width: 8.0),
+                                        itemBuilder: (context, index) {
+                                          final path =
+                                              state.availableIconPaths[index];
+                                          final isSelected = path ==
+                                              state.selectedIconPath;
+                                          return GestureDetector(
+                                            onTap: () {
+                                              context
+                                                  .read<CardCustomizerBloc>()
+                                                  .add(IconStyleSelected(path));
+                                            },
+                                            child: AnimatedContainer(
+                                              duration: Duration(
+                                                  milliseconds: 200),
+                                              width: 48,
+                                              height: 48,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(18),
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .surfaceContainerHigh,
+                                                border: Border.all(
+                                                  color: isSelected
+                                                      ? Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurface
+                                                      : Colors.transparent,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10.0),
+                                                child: CakeImageWidget(
+                                                  imageUrl: path,
+                                                  colorFilter: ColorFilter.mode(
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                    BlendMode.srcIn,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                             SizedBox(height: 8),
                             Container(
                               decoration: BoxDecoration(
