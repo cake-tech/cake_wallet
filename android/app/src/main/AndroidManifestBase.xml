@@ -117,6 +117,8 @@
                 <data android:scheme="bsc_wallet" />
                 <data android:scheme="zcash" />
                 <data android:scheme="zcash-wallet" />
+                <data android:scheme="lightning" />
+                <data android:scheme="lightning-wallet" />
             </intent-filter>
             <!-- nano-gpt link scheme -->
             <intent-filter android:autoVerify="true">

@@ -382,6 +382,26 @@
                 <string>zcash-wallet</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>lightning</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>lightning</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>lightning-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>lightning-wallet</string>
+            </array>
+        </dict>
     </array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>

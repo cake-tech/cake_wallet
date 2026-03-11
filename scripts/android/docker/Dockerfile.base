@@ -1,0 +1,3 @@
+FROM --platform=linux/amd64 ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
+
+WORKDIR /w

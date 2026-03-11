@@ -11,6 +11,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
@@ -30,6 +31,7 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -90,6 +92,7 @@ abstract class SettingsStoreBase with Store {
       required this.deviceName,
       required Map<WalletType, Node> nodes,
       required Map<WalletType, Node> powNodes,
+      required this.displayAmountsInSatoshi,
       required this.shouldShowYatPopup,
       required this.shouldShowDEuroDisclaimer,
       required this.shouldShowRepWarning,
@@ -107,6 +110,8 @@ abstract class SettingsStoreBase with Store {
       required bool initialShouldRequireTOTP2FAForAddingContacts,
       required bool initialShouldRequireTOTP2FAForCreatingNewWallets,
       required bool initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+      required this.forceDecentralizedExchanges,
+      required this.decentralizedExchangesPromptDismissed,
       required this.sortBalanceBy,
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
@@ -137,6 +142,7 @@ abstract class SettingsStoreBase with Store {
       required this.mwebEnabled,
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
+      required this.mwebAdDismissed,
       required bool initialEnableAutomaticNodeSwitching,
       required String initialBackgroundImage,
       TransactionPriority? initialBitcoinTransactionPriority,
@@ -152,6 +158,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialBitcoinCashTransactionPriority,
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
+      TransactionPriority? initialZcashTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
@@ -255,6 +262,9 @@ abstract class SettingsStoreBase with Store {
     if (initialDecredTransactionPriority != null) {
       priority[WalletType.decred] = initialDecredTransactionPriority;
     }
+    if (initialZcashTransactionPriority != null) {
+      priority[WalletType.zcash] = initialZcashTransactionPriority;
+    }
 
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
@@ -283,6 +293,8 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => shouldShowRepWarning,
         (bool val) => sharedPreferences.setBool(PreferencesKey.shouldShowRepWarning, val));
+
+    reaction((_)=>mwebAdDismissed, (val)=>sharedPreferences.setBool(PreferencesKey.mwebAdDismissed, val));
 
     priority.observe((change) {
       final String? key;
@@ -320,6 +332,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.decred:
           key = PreferencesKey.decredTransactionPriority;
+          break;
+        case WalletType.zcash:
+          key = PreferencesKey.zcashTransactionPriority;
           break;
         default:
           key = null;
@@ -442,6 +457,11 @@ abstract class SettingsStoreBase with Store {
         (_) => balanceDisplayMode,
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
+
+    reaction(
+        (_) => displayAmountsInSatoshi,
+        (BitcoinAmountDisplayMode displayAmountsInSatoshi) => sharedPreferences.setInt(
+            PreferencesKey.displayAmountsInSatoshi, displayAmountsInSatoshi.raw));
 
     reaction((_) => currentSyncMode, (SyncMode syncMode) {
       sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
@@ -689,6 +709,17 @@ abstract class SettingsStoreBase with Store {
         (String backgroundImage) =>
             _sharedPreferences.setString(PreferencesKey.backgroundImage, backgroundImage));
 
+    reaction(
+        (_) => forceDecentralizedExchanges,
+        (bool forceDecentralizedExchanges) => _sharedPreferences.setBool(
+            PreferencesKey.forceDecentralizedExchanges, forceDecentralizedExchanges));
+
+    reaction(
+        (_) => decentralizedExchangesPromptDismissed,
+        (bool forceDecentralizedExchanges) => _sharedPreferences.setBool(
+            PreferencesKey.decentralizedExchangesPromptDismissed,
+            decentralizedExchangesPromptDismissed));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -741,6 +772,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   BalanceDisplayMode balanceDisplayMode;
+
+  @observable
+  BitcoinAmountDisplayMode displayAmountsInSatoshi;
 
   @observable
   FiatApiMode fiatApiMode;
@@ -962,6 +996,15 @@ abstract class SettingsStoreBase with Store {
   @observable
   String backgroundImage;
 
+  @observable
+  bool forceDecentralizedExchanges;
+
+  @observable
+  bool decentralizedExchangesPromptDismissed;
+
+  @observable
+  bool mwebAdDismissed;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
 
@@ -1074,6 +1117,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? wowneroTransactionPriority;
     TransactionPriority? zanoTransactionPriority;
     TransactionPriority? decredTransactionPriority;
+    TransactionPriority? zcashTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -1117,6 +1161,10 @@ abstract class SettingsStoreBase with Store {
       decredTransactionPriority = decred?.deserializeDecredTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority) != null) {
+      zcashTransactionPriority = zcash?.deserializeZcashTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -1131,9 +1179,12 @@ abstract class SettingsStoreBase with Store {
     baseTransactionPriority ??= evm?.getDefaultTransactionPriority();
     bscTransactionPriority ??= evm?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
+    zcashTransactionPriority ??= zcash?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
+    final displayAmountsInSatoshi = BitcoinAmountDisplayMode.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.displayAmountsInSatoshi) ?? 0);
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
@@ -1159,6 +1210,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
+    final forceDecentralizedExchanges = await sharedPreferences.getBool(PreferencesKey.forceDecentralizedExchanges) ?? false;
+    final decentralizedExchangesPromptDismissed = await sharedPreferences.getBool(PreferencesKey.decentralizedExchangesPromptDismissed) ?? false;
     final syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
         sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.blocksRemaining.name);
     final exchangeStatus = ExchangeApiMode.deserialize(
@@ -1497,6 +1550,9 @@ abstract class SettingsStoreBase with Store {
         ) ??
         '';
 
+    final mwebAdDismissed =
+        await sharedPreferences.getBool(PreferencesKey.mwebAdDismissed) ?? false;
+
     return SettingsStore(
       secureStorage: secureStorage,
       sharedPreferences: sharedPreferences,
@@ -1507,6 +1563,7 @@ abstract class SettingsStoreBase with Store {
       powNodes: powNodes,
       appVersion: packageInfo.version,
       deviceName: deviceName,
+      displayAmountsInSatoshi: displayAmountsInSatoshi,
       isBitcoinBuyEnabled: isBitcoinBuyEnabled,
       initialFiatCurrency: currentFiatCurrency,
       initialCakePayCountry: currentCakePayCountry,
@@ -1568,6 +1625,8 @@ abstract class SettingsStoreBase with Store {
       mwebEnabled: mwebEnabled,
       mwebNodeUri: mwebNodeUri,
       hasEnabledMwebBefore: hasEnabledMwebBefore,
+      forceDecentralizedExchanges: forceDecentralizedExchanges,
+      decentralizedExchangesPromptDismissed: decentralizedExchangesPromptDismissed,
       initialEnableAutomaticNodeSwitching: enableAutomaticNodeSwitching,
       initialBackgroundImage: backgroundImage,
       initialMoneroTransactionPriority: moneroTransactionPriority,
@@ -1578,6 +1637,7 @@ abstract class SettingsStoreBase with Store {
       initialLitecoinTransactionPriority: litecoinTransactionPriority,
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
       initialDecredTransactionPriority: decredTransactionPriority,
+      initialZcashTransactionPriority: zcashTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -1602,6 +1662,7 @@ abstract class SettingsStoreBase with Store {
       shouldShowDEuroDisclaimer: shouldShowDEuroDisclaimer,
       shouldShowRepWarning: shouldShowRepWarning,
       initialBuiltinTor: builtinTor,
+      mwebAdDismissed: mwebAdDismissed,
     );
   }
 
@@ -1668,6 +1729,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.decredTransactionPriority) != null) {
       priority[WalletType.decred] = decred!.deserializeDecredTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
+    }
+    if (zcash != null &&
+        sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority) != null) {
+      priority[WalletType.zcash] = zcash!.deserializeZcashTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority)!);
     }
 
     final generateSubaddresses =

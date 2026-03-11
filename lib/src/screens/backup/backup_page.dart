@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -12,6 +13,7 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -116,7 +118,9 @@ class BackupPage extends BasePage {
           leftButtonText: S.of(context).seed_alert_back,
           actionRightButton: () async {
             Navigator.of(dialogContext).pop();
-            final backup = await backupViewModelBase.exportBackup();
+            final backupFuture = backupViewModelBase.exportBackup();
+            showPersistentActionOverlay(context, backupFuture, text: S.of(context).creating_backup);
+            final backup = await backupFuture;
 
             if (backup == null) {
               return;
@@ -176,5 +180,55 @@ class BackupPage extends BasePage {
         library: "Export Backup",
       ));
     }
+  }
+}
+
+void showPersistentActionOverlay(BuildContext context, Future action, {String text = ""}) async {
+  final navigator = Navigator.of(context, rootNavigator: true);
+  showPopUp(
+      useRootNavigator: true,
+      context: context,
+      builder: (_) => PersistentActionOverlay(text: text),
+      barrierDismissible: false);
+  try {
+    await action;
+  } finally {
+    // this way even if action throws, it'll still pop and not softlock the app
+    navigator.pop();
+  }
+}
+
+class PersistentActionOverlay extends StatelessWidget {
+  const PersistentActionOverlay({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Theme.of(context).colorScheme.surfaceContainer.withAlpha(80)),
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(width: 36, height: 36, child: CupertinoActivityIndicator()),
+                        if (text.isNotEmpty)
+                          Text(text, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500))
+                      ],
+                    ),
+                  ),
+                ))),
+      ),
+    );
   }
 }

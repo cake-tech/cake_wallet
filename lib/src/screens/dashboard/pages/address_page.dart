@@ -177,7 +177,7 @@ class AddressPage extends BasePage {
                 decoration: BoxDecoration(
                   border: Border.all(color: Theme.of(context).colorScheme.surfaceContainer),
                   color: Theme.of(context).colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 child: Column(
                   children: [
@@ -315,8 +315,7 @@ class AddressPage extends BasePage {
           }
           break;
         default:
-          if (addressListViewModel.type == WalletType.bitcoin ||
-              addressListViewModel.type == WalletType.litecoin) {
+          if ([WalletType.bitcoin, WalletType.litecoin].contains(addressListViewModel.type)) {
             addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
           }
           if (addressListViewModel.type == WalletType.zcash) {

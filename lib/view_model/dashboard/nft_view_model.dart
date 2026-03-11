@@ -52,7 +52,7 @@ abstract class NFTViewModelBase with Store {
   Future<void> getNFTAssetByWallet() async {
     final wallet = appStore.wallet!;
 
-    if (!isNFTACtivatedChain(wallet.type, wallet.chainId)) return;
+    if (!isNFTACtivatedChain(wallet.type, chainId: wallet.chainId)) return;
 
     final walletAddress = wallet.walletInfo.address;
     log('Fetching wallet NFTs for $walletAddress');

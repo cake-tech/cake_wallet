@@ -1,30 +1,35 @@
 import 'dart:convert';
 import 'dart:io' show Directory, File, Platform;
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
+import 'package:cake_wallet/entities/node_list.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/secret_store_key.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_core/db/sqlite.dart';
+import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:hive/hive.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/node.dart';
-import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/node_list.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/entities/contact.dart';
-import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -570,7 +575,6 @@ Future<void> defaultSettingsMigration(
             type: WalletType.zcash,
             currentNodePreferenceKey: PreferencesKey.currentZcashNodeIdKey,
           );
-          break;
         case 56:
           await sharedPreferences.setString(
               PreferencesKey.syncStatusDisplayMode, SyncStatusDisplayMode.blocksRemaining.name);
@@ -585,6 +589,12 @@ Future<void> defaultSettingsMigration(
             type: WalletType.bsc,
             currentNodePreferenceKey: PreferencesKey.currentBscNodeIdKey,
           );
+          break;
+        case 58: // BalanceCardStyleSettings no-op (handled in sqlite.dart)
+        case 59: // WalletInfo.receiveInfoboxDismissed no-op (handled in sqlite.dart)
+        case 60: // BalanceCardStyleSettings.cardOrder no-op (handled in sqlite.dart)
+        // Do not migrate SQLite here, do that in sqlite.dart in order to prevent runtime
+        // errors, missing row and missing tables.
           break;
         default:
           break;

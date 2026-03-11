@@ -11,7 +11,6 @@ class CurrencyPicker extends StatefulWidget {
       required this.onItemSelected,
       this.title,
       this.hintText,
-      this.isMoneroWallet = false,
       this.isConvertFrom = false,
       super.key});
 
@@ -19,7 +18,6 @@ class CurrencyPicker extends StatefulWidget {
   final List<Currency> items;
   final String? title;
   final Function(Currency) onItemSelected;
-  final bool isMoneroWallet;
   final bool isConvertFrom;
   final String? hintText;
 

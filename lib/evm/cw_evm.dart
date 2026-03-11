@@ -239,6 +239,13 @@ class CWEVM extends EVM {
       (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
 
   @override
+  Future<BigInt?> getAllowance(
+      WalletBase wallet,
+      String tokenContract,
+      String spender) =>
+      (wallet as EVMChainWallet).getAllowance(tokenContract, spender);
+
+  @override
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
     BigInt amount,
@@ -265,14 +272,18 @@ class CWEVM extends EVM {
     String to,
     String dataHex,
     BigInt valueWei,
-    TransactionPriority? priority, {
+    TransactionPriority? priority,{
     bool useBlinkProtection = true,
+    String? sourceTokenAddress,
+    BigInt? sourceTokenAmount,
   }) =>
       (wallet as EVMChainWallet).createCallDataTransaction(
         to,
         dataHex,
         valueWei,
         priority as EVMChainTransactionPriority?,
+        sourceTokenAddress,
+        sourceTokenAmount,
         useBlinkProtection: useBlinkProtection,
       );
 
@@ -466,6 +477,14 @@ class CWEVM extends EVM {
   @override
   WalletType? getWalletTypeByChainId(int chainId) {
     return _registry.getWalletTypeByChainId(chainId);
+  }
+
+  @override
+  BigInt? getERC20AvailableBalance(Object balance) {
+    if(balance is EVMChainERC20Balance) {
+      return balance.balance;
+    }
+    return null;
   }
 
   @override

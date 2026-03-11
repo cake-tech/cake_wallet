@@ -1,5 +1,5 @@
 import 'package:cake_wallet/core/wallet_name_validator.dart';
-import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
@@ -171,7 +171,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                   icon: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6.0),
+                      borderRadius: BorderRadius.circular(12.0),
                       color: Theme.of(context).colorScheme.surface,
                     ),
                     width: 34,
