@@ -121,6 +121,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.baseEth,
     CryptoCurrency.usde,
     CryptoCurrency.arbEth,
+    CryptoCurrency.usdcArb,
+    CryptoCurrency.usdtArb,
   ];
 
   static const havenCurrencies = [
@@ -256,6 +258,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const arbEth = CryptoCurrency(title: 'ETH', tag: 'ARB', fullName: 'Ethereum (Arbitrum One)', raw: 106, name: 'arbeth', iconPath: 'assets/images/crypto/ethereum.webp', decimals: 18);
   static const zec = CryptoCurrency(title: 'ZEC', fullName: 'Zcash', raw: 107, name: 'zec', iconPath: 'assets/images/zec_icon.png', decimals: 8);
   static const usdcArb = CryptoCurrency(title: 'USDC', tag: 'ARB', fullName: 'USDC Coin', raw: 108, name: 'usdcarb', iconPath: 'assets/images/crypto/usdc.webp', decimals: 6);
+  static const usdtArb = CryptoCurrency(title: 'USDT', tag: 'ARB', fullName: 'USDT Tether', raw: 109, name: 'usdtarb', iconPath: 'assets/images/crypto/tether.webp', decimals: 6);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies, ...zcashCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
