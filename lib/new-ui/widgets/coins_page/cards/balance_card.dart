@@ -299,7 +299,7 @@ class BalanceCard extends StatelessWidget {
                   style: TextStyle(color: design.colors.textColor, fontSize: 16),
                 ),
               ),
-              Icon(action.icon, color: design.colors.textColorSecondary),
+              Icon(Icons.arrow_forward_ios_rounded, color: design.colors.textColorSecondary, size: 12,),
             ],
           ),
         ),
