@@ -388,7 +388,7 @@ class TokenUtilities {
   }
 
   static Future<List<CryptoCurrency>> _getUserTokensForNetwork(CryptoCurrency baseCurrency) async {
-    final walletType = cryptoCurrencyToWalletType(baseCurrency);
+    final walletType = cryptoCurrencyOrTokenToWalletType(baseCurrency);
     if (walletType == null) return [];
 
     if (isEVMCompatibleChain(walletType)) {

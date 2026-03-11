@@ -12,7 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:archive/archive_io.dart';
+import 'package:archive/archive_io.dart' hide Mac;
 import 'package:cw_core/cake_hive.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/encrypt.dart';

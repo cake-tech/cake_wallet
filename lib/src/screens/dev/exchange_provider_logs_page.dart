@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class DevExchangeProviderLogsPage extends BasePage {
   final ExchangeProviderLogsViewModel viewModel;
@@ -266,6 +267,7 @@ class _LogsList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) => ListView.builder(
+        controller: ModalScrollController.of(context),
         itemCount: viewModel.filteredLogs.length,
         itemBuilder: (context, index) {
           final log = viewModel.filteredLogs[index];

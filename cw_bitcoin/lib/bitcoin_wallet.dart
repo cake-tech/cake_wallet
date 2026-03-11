@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -10,9 +11,11 @@ import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
+import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
@@ -24,9 +27,12 @@ import 'package:cw_bitcoin/psbt/v0_finalizer.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/output_info.dart';
+import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -57,12 +63,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     BasedUtxoNetwork? networkParam,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
+    ElectrumBalance? initialLightningBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     String? passphrase,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     int initialSilentAddressIndex = 0,
     bool? alwaysScan,
+    bool? useLightning,
+    String? cachedLightningAddress,
   }) : super(
           mnemonic: mnemonic,
           passphrase: passphrase,
@@ -80,10 +89,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           initialBalance: initialBalance,
           seedBytes: seedBytes,
           encryptionFileUtils: encryptionFileUtils,
-          currency: networkParam == BitcoinNetwork.testnet
-              ? CryptoCurrency.tbtc
-              : CryptoCurrency.btc,
+          currency:
+              networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
+          useLightning: useLightning ?? true,
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
@@ -91,25 +100,67 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     // String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
     // final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
 
-    payjoinManager = PayjoinManager(PayjoinStorage(payjoinBox), this);
-    walletAddresses = BitcoinWalletAddresses(walletInfo,
-        initialAddresses: initialAddresses,
-        initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex,
-        initialSilentAddresses: initialSilentAddresses,
-        initialSilentAddressIndex: initialSilentAddressIndex,
-        mainHd: hd,
-        sideHd: accountHD.childKey(Bip32KeyIndex(1)),
-        network: networkParam ?? network,
-        masterHd:
-            seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
-        isHardwareWallet: walletInfo.isHardwareWallet,
-        payjoinManager: payjoinManager);
+    if (mnemonic != null && this.useLightning) {
+      try {
+        lightningWallet = LightningWallet(
+          mnemonic: mnemonic,
+          passphrase: passphrase,
+          seedBytes: seedBytes,
+          apiKey: secrets.breezApiKey,
+          lnurlDomain: "cake.cash",
+          cachedAddress: cachedLightningAddress,
+        );
+      } catch (e) {
+        printV(e);
+        lightningWallet = null;
+      }
+    } else {
+      lightningWallet = null;
+    }
 
+    payjoinManager = PayjoinManager(PayjoinStorage(payjoinBox), this);
+    walletAddresses = BitcoinWalletAddresses(
+      walletInfo,
+      initialAddresses: initialAddresses,
+      initialRegularAddressIndex: initialRegularAddressIndex,
+      initialChangeAddressIndex: initialChangeAddressIndex,
+      initialSilentAddresses: initialSilentAddresses,
+      initialSilentAddressIndex: initialSilentAddressIndex,
+      mainHd: hd,
+      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
+      network: networkParam ?? network,
+      masterHd: seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
+      isHardwareWallet: walletInfo.isHardwareWallet,
+      payjoinManager: payjoinManager,
+      lightningWallet: lightningWallet,
+    );
+
+    if (lightningWallet != null) {
+      walletAddresses.setLightningAddress(walletInfo.name);
+    }
     autorun((_) {
-      this.walletAddresses.isEnabledAutoGenerateSubaddress =
-          this.isEnabledAutoGenerateSubaddress;
+      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
+    
+    reaction((_) => this.useLightning, (bool useLightning) {
+      if (useLightning) {
+        if (mnemonic != null) {
+          lightningWallet = LightningWallet(
+            mnemonic: mnemonic,
+            passphrase: passphrase,
+            seedBytes: seedBytes,
+            apiKey: secrets.breezApiKey,
+            lnurlDomain: "cake.cash",
+          );
+        }
+      } else {
+        lightningWallet = null;
+      }
+    });
+
+    if (initialLightningBalance != null) {
+      balance[CryptoCurrency.btcln] = initialLightningBalance;
+    }
   }
 
   @override
@@ -145,8 +196,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         break;
       case DerivationType.electrum:
       default:
-        seedBytes =
-            await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
         break;
     }
 
@@ -168,6 +218,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       addressPageType: addressPageType,
       networkParam: network,
       payjoinBox: payjoinBox,
+      useLightning: true,
     );
   }
 
@@ -219,10 +270,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final derivationInfo = await walletInfo.getDerivationInfo();
 
     // set the default if not present:
-    derivationInfo.derivationPath ??=
-        snp?.derivationPath ?? electrum_path;
-    derivationInfo.derivationType ??=
-        snp?.derivationType ?? DerivationType.electrum;
+    derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
+    derivationInfo.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
     if (derivationInfo.derivationType == DerivationType.unknown) {
       if (snp?.derivationPath == electrum_path || snp?.derivationType == DerivationType.electrum) {
         derivationInfo.derivationPath = electrum_path;
@@ -241,8 +290,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     if (mnemonic != null) {
       switch (derivationInfo.derivationType) {
         case DerivationType.electrum:
-          seedBytes =
-              await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+          seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
           break;
         case DerivationType.bip39:
         default:
@@ -266,6 +314,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         initialSilentAddresses: snp?.silentAddresses,
         initialSilentAddressIndex: snp?.silentAddressIndex ?? 0,
         initialBalance: snp?.balance,
+        initialLightningBalance: snp?.lightningBalance,
         encryptionFileUtils: encryptionFileUtils,
         seedBytes: seedBytes,
         initialRegularAddressIndex: snp?.regularAddressIndex,
@@ -273,20 +322,79 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         addressPageType: snp?.addressPageType,
         networkParam: network,
         alwaysScan: snp?.alwaysScan,
-        payjoinBox: payjoinBox);
+        useLightning: snp?.useLightning,
+        cachedLightningAddress: snp?.cachedLightningAddress,
+        payjoinBox: payjoinBox,
+    );
   }
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
     payjoinManager.cleanupSessions();
+    await lightningWallet?.close();
     super.close(shouldCleanup: shouldCleanup);
   }
+
+  @override
+  Future<ElectrumBalance> fetchBalances() async {
+    final balance = await super.fetchBalances();
+    if (lightningWallet == null) {
+      return balance;
+    }
+
+    final lBalance = await lightningWallet!.getBalance();
+
+    this.balance[CryptoCurrency.btcln] =
+        ElectrumBalance(confirmed: lBalance.toInt(), unconfirmed: 0, frozen: 0);
+
+    return ElectrumBalance(
+      confirmed: balance.confirmed,
+      unconfirmed: balance.unconfirmed,
+      frozen: balance.frozen.toInt(),
+    );
+  }
+
+  @override
+  @action
+  Future<void> subscribeForUpdates() async {
+    if (lightningWallet != null) {
+      lightningWallet!.setEventListener(
+        onTransactionEvent: (tx) async {
+          if (transactionHistory.transactions[tx.id]?.isPending != tx.isPending) {
+            transactionHistory.addOne(tx);
+            await transactionHistory.save();
+            await fetchBalances();
+          }
+        },
+        onBalanceChangedEvent: fetchBalances,
+      );
+    }
+
+    return super.subscribeForUpdates();
+  }
+
+  @override
+  Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
+    if (lightningWallet != null) {
+      final existingTx = transactionHistory.transactions.values
+          .where((e) => (e.additionalInfo["isLightning"] as bool?) == true)
+          .lastOrNull;
+
+      lightningWallet!.getTransactionHistory(fromDate: existingTx?.date).then((lnHistory) async {
+        transactionHistory.addMany(lnHistory);
+        await transactionHistory.save();
+      }).onError((_, __) {});
+    }
+
+    return super.fetchTransactions();
+  }
+
+  late LightningWallet? lightningWallet;
 
   late final PayjoinManager payjoinManager;
 
   bool get isPayjoinAvailable => unspentCoinsInfo.values
-      .where((element) =>
-          element.walletId == id && element.isSending && !element.isFrozen)
+      .where((element) => element.walletId == id && element.isSending && !element.isFrozen)
       .isNotEmpty;
 
   Future<PsbtV2> buildPsbt({
@@ -304,10 +412,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }) async {
     final psbtReadyInputs = <PSBTReadyUtxoWithAddress>[];
     for (final utxo in utxos) {
-      final rawTx =
-          await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
-      final publicKeyAndDerivationPath =
-          publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
+      final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
       psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
         utxo: utxo.utxo,
@@ -367,9 +473,28 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     credentials = credentials as BitcoinTransactionCredentials;
+    final lnAddr = credentials.outputs.first.isParsedAddress ? credentials.outputs.first.extractedAddress! : credentials.outputs.first.address;
 
-    final tx = (await super.createTransaction(credentials))
-        as PendingBitcoinTransaction;
+    final isLNCompatible = await lightningWallet?.isCompatible(lnAddr);
+    if ((credentials.coinTypeToSpendFrom == UnspentCoinType.lightning && lightningWallet != null) ||
+        isLNCompatible == true) {
+
+      BigInt amount;
+      if (credentials.outputs.first.sendAll) {
+        amount = (await lightningWallet!.getBalance()) - BigInt.from(10);
+      } else {
+        amount = parseFixed(
+            credentials.outputs.first.cryptoAmount?.isNotEmpty == true
+                ? credentials.outputs.first.cryptoAmount!
+                : "0",
+            8);
+      }
+
+      return lightningWallet!.createTransaction(lnAddr,
+          amount > BigInt.zero ? amount : null, credentials.priority);
+    }
+
+    final tx = (await super.createTransaction(credentials)) as PendingBitcoinTransaction;
 
     final payjoinUri = credentials.payjoinUri;
     if (payjoinUri == null && !tx.shouldCommitUR()) return tx;
@@ -394,8 +519,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         masterFingerprint: Uint8List.fromList([0, 0, 0, 0]));
 
     if (tx.shouldCommitUR()) {
-     tx.unsignedPsbt = transaction.asPsbtV0();
-     return tx;
+      tx.unsignedPsbt = transaction.asPsbtV0();
+      return tx;
     }
 
     final originalPsbt =
@@ -419,8 +544,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<void> commitPsbt(String finalizedPsbt) {
     final psbt = PsbtV2()..deserializeV0(base64.decode(finalizedPsbt));
 
-    final btcTx =
-        BtcTransaction.fromRaw(BytesUtils.toHexString(psbt.extract()));
+    final btcTx = BtcTransaction.fromRaw(BytesUtils.toHexString(psbt.extract()));
 
     return PendingBitcoinTransaction(
       btcTx,
@@ -435,8 +559,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     ).commit();
   }
 
-  Future<String> signPsbt(
-      String preProcessedPsbt, List<UtxoWithPrivateKey> utxos) async {
+  Future<String> signPsbt(String preProcessedPsbt, List<UtxoWithPrivateKey> utxos) async {
     final psbt = PsbtV2()..deserializeV0(base64Decode(preProcessedPsbt));
 
     await psbt.signWithUTXO(utxos, (txDigest, utxo, key, sighash) {
@@ -499,15 +622,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<String> signMessage(String message, {String? address = null}) async {
     if (walletInfo.isHardwareWallet) {
       final addressEntry = address != null
-          ? walletAddresses.allAddresses
-              .firstWhere((element) => element.address == address)
+          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address)
           : null;
       final index = addressEntry?.index ?? 0;
       final isChange = addressEntry?.isHidden == true ? 1 : 0;
       final derivationInfo = await walletInfo.getDerivationInfo();
       final accountPath = derivationInfo.derivationPath;
-      final derivationPath =
-          accountPath != null ? "$accountPath/$isChange/$index" : null;
+      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
 
       final signature = await hardwareWalletService!
           .signMessage(message: ascii.encode(message), derivationPath: derivationPath);

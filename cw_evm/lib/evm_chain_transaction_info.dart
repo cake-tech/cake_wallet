@@ -1,5 +1,4 @@
 // ignore_for_file: overridden_fields, annotate_overrides
-
 import 'dart:math';
 
 import 'package:cw_core/format_amount.dart';
@@ -69,10 +68,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() {
-    final amount = formatFixed(ethFee, 18);
-    return '$amount $feeCurrency';
-  }
+  String feeFormatted() => '${formatFixed(ethFee, 18)} $feeCurrency';
 
   factory EVMChainTransactionInfo.fromJson(Map<String, dynamic> data, int chainId) {
     return EVMChainTransactionInfo(

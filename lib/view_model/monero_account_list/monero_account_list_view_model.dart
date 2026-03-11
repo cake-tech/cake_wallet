@@ -56,6 +56,12 @@ abstract class MoneroAccountListViewModelBase with Store {
     throw Exception('Unexpected wallet type: ${_wallet.type} for monero');
   }
 
+  @computed
+  AccountListItem get selected {
+    final currentId = monero!.getCurrentAccount(_wallet).id;
+    return accounts.firstWhere((item) => item.id == currentId);
+  }
+
   final WalletBase _wallet;
 
   void select(AccountListItem item) {

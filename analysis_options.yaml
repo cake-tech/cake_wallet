@@ -38,6 +38,10 @@ linter:
     - prefer_final_fields
 
 
+formatter:
+  page_width: 100
+
+
 # analyzer:
 #   strong-mode:
 #     implicit-casts: false

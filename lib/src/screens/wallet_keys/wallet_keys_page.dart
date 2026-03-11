@@ -14,6 +14,7 @@ import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class WalletKeysPage extends BasePage {
@@ -214,6 +215,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
       children: [
         Expanded(
           child: ListView.separated(
+            controller: ModalScrollController.of(context),
             shrinkWrap: true,
             itemCount: items.length,
             itemBuilder: (context, index) {
@@ -237,7 +239,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(18),
         color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: Row(
@@ -294,7 +296,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(18),
         color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: Row(

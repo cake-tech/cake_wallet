@@ -1,6 +1,8 @@
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -17,7 +19,6 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_expandable_list_item.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
@@ -35,18 +36,19 @@ class TransactionDetailsViewModel = TransactionDetailsViewModelBase
     with _$TransactionDetailsViewModel;
 
 abstract class TransactionDetailsViewModelBase with Store {
-  TransactionDetailsViewModelBase(
-      {required this.transactionInfo,
-      required this.transactionDescriptionBox,
-      required this.wallet,
-      required this.settingsStore,
-      required this.sendViewModel,
-      this.canReplaceByFee = false})
-      : items = [],
+  TransactionDetailsViewModelBase({
+    required this.transactionInfo,
+    required this.transactionDescriptionBox,
+    required this.wallet,
+    required AppStore appStore,
+    required this.sendViewModel,
+    this.canReplaceByFee = false,
+  })  : items = [],
         RBFListItems = [],
         newFee = 0,
         isRecipientAddressShown = false,
-        showRecipientAddress = settingsStore.shouldSaveRecipientAddress {
+        _appStore = appStore,
+        showRecipientAddress = appStore.settingsStore.shouldSaveRecipientAddress {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
@@ -56,13 +58,13 @@ abstract class TransactionDetailsViewModelBase with Store {
         _addMoneroListItems(tx, dateFormat);
         break;
       case WalletType.bitcoin:
-        _addElectrumListItems(tx, dateFormat);
+        _addElectrumListItems(tx, dateFormat, CryptoCurrency.btc);
         if (!canReplaceByFee) _checkForRBF(tx);
         break;
       case WalletType.litecoin:
         _addLitecoinListItems(tx, dateFormat);
       case WalletType.bitcoinCash:
-        _addElectrumListItems(tx, dateFormat);
+        _addElectrumListItems(tx, dateFormat, CryptoCurrency.bch);
         break;
       case WalletType.haven:
         _addHavenListItems(tx, dateFormat);
@@ -123,19 +125,24 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     final type = wallet.type;
 
-    items.add(
-      BlockExplorerListItem(
-        title: S.current.view_in_block_explorer,
-        value: _explorerDescription(type, wallet.chainId),
-        onTap: () async {
-          try {
-            final uri = Uri.parse(_explorerUrl(type, tx.txHash, wallet.chainId));
-            if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
-          } catch (e) {}
-        },
-        key: ValueKey('block_explorer_list_item_${type.name}_wallet_type_key'),
-      ),
-    );
+    final isLightning = tx.additionalInfo["isLightning"] as bool? ?? false;
+
+    if (!isLightning) {
+      items.add(
+        BlockExplorerListItem(
+          title: S.current.view_in_block_explorer,
+          value: _explorerDescription(type, wallet.chainId),
+          onTap: () async {
+            try {
+              final uri = Uri.parse(_explorerUrl(type, tx.txHash, wallet.chainId));
+              if (await canLaunchUrl(uri)) await launchUrl(
+                  uri, mode: LaunchMode.externalApplication);
+            } catch (e) {}
+          },
+          key: ValueKey('block_explorer_list_item_${type.name}_wallet_type_key'),
+        ),
+      );
+    }
 
     items.add(
       TextFieldListItem(
@@ -157,9 +164,9 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   final TransactionInfo transactionInfo;
   final Box<TransactionDescription> transactionDescriptionBox;
-  final SettingsStore settingsStore;
   final WalletBase wallet;
   final SendViewModel sendViewModel;
+  final AppStore _appStore;
 
   final List<TransactionDetailsListItem> items;
   final List<TransactionDetailsListItem> RBFListItems;
@@ -347,7 +354,18 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.addAll(_items);
   }
 
-  void _addElectrumListItems(TransactionInfo tx, DateFormat dateFormat) {
+  void _addElectrumListItems(
+      TransactionInfo tx, DateFormat dateFormat, CryptoCurrency cryptoCurrency) {
+    final isLightning = (tx.additionalInfo["isLightning"] as bool?) ?? false;
+
+    final currency = isLightning ? CryptoCurrency.btcln : cryptoCurrency;
+    final symbol = _appStore.amountParsingProxy.getCryptoSymbol(currency);
+    final amountFormatted = _appStore.amountParsingProxy.getDisplayCryptoString(
+        tx.amount, currency);
+    final feeFormatted = (tx.fee != null)
+        ? _appStore.amountParsingProxy.getDisplayCryptoString(tx.fee!, currency)
+        : "";
+
     final _items = [
       StandartListItem(
         title: S.current.transaction_details_transaction_id,
@@ -359,25 +377,27 @@ abstract class TransactionDetailsViewModelBase with Store {
         value: dateFormat.format(tx.date),
         key: ValueKey('standard_list_item_transaction_details_date_key'),
       ),
-      StandartListItem(
-        title: S.current.confirmations,
-        value: tx.confirmations.toString(),
-        key: ValueKey('standard_list_item_transaction_confirmations_key'),
-      ),
-      StandartListItem(
-        title: S.current.transaction_details_height,
-        value: '${tx.height}',
-        key: ValueKey('standard_list_item_transaction_details_height_key'),
-      ),
+      if (!isLightning) ...[
+        StandartListItem(
+          title: S.current.confirmations,
+          value: tx.confirmations.toString(),
+          key: ValueKey('standard_list_item_transaction_confirmations_key'),
+        ),
+        StandartListItem(
+          title: S.current.transaction_details_height,
+          value: '${tx.height}',
+          key: ValueKey('standard_list_item_transaction_details_height_key'),
+        ),
+      ],
       StandartListItem(
         title: S.current.transaction_details_amount,
-        value: tx.amountFormatted(),
+        value: '$amountFormatted $symbol',
         key: ValueKey('standard_list_item_transaction_details_amount_key'),
       ),
       if (tx.feeFormatted()?.isNotEmpty ?? false)
         StandartListItem(
           title: S.current.transaction_details_fee,
-          value: tx.feeFormatted()!,
+          value: '$feeFormatted $symbol',
           key: ValueKey('standard_list_item_transaction_details_fee_key'),
         ),
     ];
@@ -407,7 +427,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addLitecoinListItems(TransactionInfo tx, DateFormat dateFormat) {
-    _addElectrumListItems(tx, dateFormat);
+    _addElectrumListItems(tx, dateFormat, CryptoCurrency.ltc);
 
     bool isMweb = bitcoin!.txIsMweb(tx);
 
@@ -636,7 +656,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         title: S.current.estimated_new_fee,
         value: bitcoin!.formatterBitcoinAmountToString(amount: newFee) + ' ${wallet.currency}',
         items: priorityForWalletType(wallet.type),
-        customValue: settingsStore.customBitcoinFeeRate.toDouble(),
+        customValue: _appStore.settingsStore.customBitcoinFeeRate.toDouble(),
         maxValue: maxCustomFeeRate,
         selectedIdx: selectedItem,
         customItemIndex: customItemIndex ?? 0,

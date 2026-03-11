@@ -139,7 +139,7 @@ class _ImportNFTPage extends BasePage {
               textColor: Theme.of(context).colorScheme.onPrimary,
               onPressed: () async {
                 await nftViewModel.importNFT(tokenAddressController.text, tokenIDController.text);
-                Navigator.pop(context);
+                if (context.mounted && Navigator.of(context).canPop()) Navigator.pop(context);
               },
             );
           }),

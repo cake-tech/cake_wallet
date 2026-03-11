@@ -8,7 +8,6 @@ import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -17,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OnRamperBuyProvider extends BuyProvider {
-  OnRamperBuyProvider(this._themeStore,
+  OnRamperBuyProvider(
       {required WalletBase wallet, bool isTestEnvironment = false})
       : super(wallet: wallet,
       isTestEnvironment: isTestEnvironment,
@@ -38,8 +37,6 @@ class OnRamperBuyProvider extends BuyProvider {
   static const List<CryptoCurrency> _notSupportedCrypto = [];
   static const List<FiatCurrency> _notSupportedFiat = [];
   static Map<String, dynamic> _onrampMetadata = {};
-
-  final ThemeStore _themeStore;
 
   String? recommendedPaymentType;
 
