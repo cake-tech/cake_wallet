@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../../routes.dart';
 
@@ -25,6 +26,7 @@ class Modify2FAPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return SingleChildScrollView(
+      controller: ModalScrollController.of(context),
       child: _2FAControlsWidget(setup2FAViewModel: setup2FAViewModel),
     );
   }

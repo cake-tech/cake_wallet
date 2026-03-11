@@ -1,0 +1,13 @@
+ARG BASE_IMAGE
+FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
+
+RUN mkdir -p /w/scripts/android
+COPY pubspec_base.yaml /w/pubspec.yaml
+COPY cw_mweb/pubspec.yaml /w/cw_mweb/pubspec.yaml
+COPY cw_mweb/ffigen_config.yaml /w/cw_mweb/ffigen_config.yaml
+COPY cw_mweb/go /w/cw_mweb/go
+COPY scripts/android/build_mwebd.sh /w/scripts/android/build_mwebd.sh
+RUN /w/scripts/android/build_mwebd.sh
+
+FROM --platform=linux/amd64 alpine
+COPY --from=build /w /w

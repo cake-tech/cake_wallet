@@ -25,7 +25,7 @@ bool canSupportBlinkProtection(int? chainId) {
   return chainId == 1 || chainId == 8453;
 }
 
-bool isNFTACtivatedChain(WalletType walletType, int? chainId) {
+bool isNFTACtivatedChain(WalletType walletType, {int? chainId}) {
   if (chainId != null) {
     switch (chainId) {
       case 1:

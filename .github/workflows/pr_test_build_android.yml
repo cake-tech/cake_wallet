@@ -3,6 +3,10 @@ name: Cake Wallet Android
 on:
   pull_request:
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   # -----------------------------------------
   # PATH A: Internal PRs

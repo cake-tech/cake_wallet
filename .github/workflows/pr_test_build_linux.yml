@@ -44,6 +44,7 @@ jobs:
 
       - name: Add secrets
         run: |
+          touch cw_bitcoin/lib/.secrets.g.dart
           touch cw_evm/lib/.secrets.g.dart
           touch cw_solana/lib/.secrets.g.dart
           touch cw_core/lib/.secrets.g.dart
@@ -64,6 +65,8 @@ jobs:
 
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
 
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 

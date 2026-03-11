@@ -86,6 +86,7 @@ class _BuySellOptionButtonsState extends State<BuySellOptionButtons> {
           Expanded(
             flex: 5,
             child: SelectButton(
+              center:true,
               height: 44,
               text: S.of(context).buy,
               isSelected: isBuySelected,
@@ -107,6 +108,7 @@ class _BuySellOptionButtonsState extends State<BuySellOptionButtons> {
           Expanded(
             flex: 5,
             child: SelectButton(
+              center:true,
               height: 44,
               text: S.of(context).sell,
               isSelected: !isBuySelected,

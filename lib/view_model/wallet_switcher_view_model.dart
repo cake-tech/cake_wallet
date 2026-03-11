@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';

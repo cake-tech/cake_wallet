@@ -69,6 +69,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isHardwareWallet => walletInfo.isHardwareWallet;
 
+  bool get isSoftwareWallet => walletInfo.hardwareWalletType == null;
+
   HardwareWalletType? get hardwareWalletType => walletInfo.hardwareWalletType;
 
   bool get hasRescan => false;

@@ -13,7 +13,7 @@ class TextInfoBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(18),
         color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: Column(

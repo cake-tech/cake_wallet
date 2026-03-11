@@ -91,6 +91,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       if (amount == 0) return 0.0;
+      if(from == CryptoCurrency.btcln || to == CryptoCurrency.btcln) return 0;
 
       final params = <String, dynamic>{};
       final body = <String, String>{

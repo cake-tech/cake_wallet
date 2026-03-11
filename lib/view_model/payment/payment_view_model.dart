@@ -76,6 +76,12 @@ abstract class PaymentViewModelBase with Store {
 
       final currentWallet = appStore.wallet;
 
+      if (currentWallet != null &&
+          currentWallet.type == detectedWalletType &&
+          !isEVMCompatibleChain(detectedWalletType!)) {
+        return PaymentFlowResult.currentWalletCompatible();
+      }
+
       if (detectedWalletType == WalletType.solana) {
         final compatibleWallets = await getWalletsByType(WalletType.solana);
         return PaymentFlowResult.solanaTokenSelection(
@@ -96,10 +102,6 @@ abstract class PaymentViewModelBase with Store {
 
       if (isEVMCompatibleChain(detectedWalletType!)) {
         return PaymentFlowResult.evmNetworkSelection(detectionResult);
-      }
-
-      if (currentWallet != null && currentWallet.type == detectedWalletType) {
-        return PaymentFlowResult.currentWalletCompatible();
       }
 
       final compatibleWallets = await getWalletsByType(detectedWalletType!);

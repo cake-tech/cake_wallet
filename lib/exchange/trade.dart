@@ -1,9 +1,9 @@
-import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/format_amount.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 

@@ -136,6 +136,8 @@ class SectionStandardList extends StatelessWidget {
     this.dividerPadding = const EdgeInsets.only(left: 24),
     this.sectionTitleBuilder,
     this.hasTopSeparator = false,
+    this.scrollController,
+    this.physics,
   }) : totalRows = [];
 
   final int sectionCount;
@@ -146,6 +148,8 @@ class SectionStandardList extends StatelessWidget {
   final Widget Function(int sectionIndex)? sectionTitleBuilder;
   final List<Widget> totalRows;
   final EdgeInsets dividerPadding;
+  final ScrollController? scrollController;
+  final ScrollPhysics? physics;
 
   List<Widget> transform(
       bool hasTopSeparator,
@@ -202,6 +206,8 @@ class SectionStandardList extends StatelessWidget {
         transform(hasTopSeparator, sectionCount, itemCounter, itemBuilder, sectionTitleBuilder));
 
     return ListView.separated(
+      controller: scrollController,
+      physics: physics,
       separatorBuilder: (_, index) {
         final row = totalRows[index];
 

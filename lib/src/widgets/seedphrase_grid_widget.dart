@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SeedPhraseGridWidget extends StatelessWidget {
   const SeedPhraseGridWidget({
@@ -28,6 +29,7 @@ class SeedPhraseGridWidget extends StatelessWidget {
 
     return GridView.builder(
       itemCount: list.length,
+      controller: ModalScrollController.of(context),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         childAspectRatio: 2.6,
@@ -43,7 +45,7 @@ class SeedPhraseGridWidget extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
