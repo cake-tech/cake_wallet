@@ -20,13 +20,11 @@ final List<String> triplets = [
   "x86_64-w64-mingw32",
   // "x86_64-apple-darwin11", // Intel macbooks (contrib) - not used by cake 
   // "aarch64-apple-darwin11", // apple silicon macbooks (contrib) - not used by cake
-  // "host-apple-darwin", // not available on CI (yet)
   // "x86_64-host-apple-darwin", // not available on CI (yet)
   "aarch64-apple-darwin", // apple silicon macbooks
   "x86_64-apple-darwin", // intel macbooks
-  "aarch64-host-apple-darwin", // apple silicon macbooks (local builds)
   "aarch64-apple-ios",
-  "aarch64-apple-iossimulator",
+  "aarch64-apple-ios-simulator",
 ];
 
 Future<void> main() async {
