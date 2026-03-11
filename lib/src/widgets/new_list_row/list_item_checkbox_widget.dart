@@ -11,7 +11,6 @@ class ListItemCheckboxWidget extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.onTap,
-    this.hasImage,
     this.isFirstInSection = false,
     this.isLastInSection = false, this.subtitle, this.iconPath, this.showArrow = false,
   });
@@ -20,7 +19,6 @@ class ListItemCheckboxWidget extends StatefulWidget {
   final String label;
   final String? subtitle;
   final String? iconPath;
-  final bool? hasImage;
   final bool showArrow;
   final bool value;
   final VoidCallback? onTap;
@@ -38,10 +36,10 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
+      iconPath: widget.iconPath,
       onTap: widget.onTap ?? () {
         widget.onChanged(!widget.value);
       },
-      hasImage: widget.iconPath != null ? true : false,
       isFirstInSection: widget.isFirstInSection,
       height: widget.subtitle != null ? 64 : 50,
       isLastInSection: widget.isLastInSection,
@@ -55,7 +53,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
                 children: [
                   if (widget.iconPath != null)
                     widget.iconPath!.toLowerCase().endsWith("svg")
-                        ? SvgPicture.asset(widget.iconPath!, height: 26, width: 24)
+                        ? SvgPicture.asset(widget.iconPath!, height: 26, width: 26)
                         : Image.asset(
                             widget.iconPath!,
                             width: 26,
