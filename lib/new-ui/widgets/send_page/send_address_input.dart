@@ -21,7 +21,8 @@ class NewSendAddressInput extends StatefulWidget {
     required this.onEditingComplete,
     this.bottomPadding = false,
     this.validator,
-    this.focusNode, this.displayName,
+    this.focusNode,
+    this.displayName,
   });
 
   final TextEditingController addressController;
@@ -49,11 +50,14 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
     super.initState();
     node = widget.focusNode ?? FocusNode();
     node!.addListener(_onFocusChange);
-    widget.addressController.addListener(()=>formFieldKey.currentState?.didChange(widget.addressController.text));
+    widget.addressController
+        .addListener(() => formFieldKey.currentState?.didChange(widget.addressController.text));
   }
 
   void _onFocusChange() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -67,7 +71,7 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
       child: FormField<String>(
         key: formFieldKey,
         validator: widget.validator,
-        builder: (state)=>Column(
+        builder: (state) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -81,9 +85,11 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                       children: [
                         TextField(
                           focusNode: widget.focusNode,
-                          onSubmitted: (val)=> FocusScope.of(context).unfocus(),
+                          onSubmitted: (val) => FocusScope.of(context).unfocus(),
                           onChanged: state.didChange,
-                          onEditingComplete: (){widget.onEditingComplete();},
+                          onEditingComplete: () {
+                            widget.onEditingComplete();
+                          },
                           onTapOutside: (_) {
                             widget.onEditingComplete();
                           },
@@ -97,12 +103,15 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                           child: IgnorePointer(
                             child: AnimatedOpacity(
                                 duration: Duration(milliseconds: 150),
-                                opacity: (widget.focusNode == null || widget.focusNode!.hasFocus || widget.addressController.text.isEmpty) ? 0 : 1,
+                                opacity: (widget.focusNode == null ||
+                                        widget.focusNode!.hasFocus ||
+                                        widget.addressController.text.isEmpty)
+                                    ? 0
+                                    : 1,
                                 child: SendAddressOverlay(
                                   address: widget.addressController.text,
                                   displayName: widget.displayName,
-                                )
-                              ),
+                                )),
                           ),
                         ),
                       ],
@@ -133,8 +142,14 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                 ],
               ),
             ),
-            if(state.hasError)
-              Padding(padding: EdgeInsets.only(top:6,left: 8),child: Text(state.errorText!, style: TextStyle(fontSize:12,color: Theme.of(context).colorScheme.error),),)
+            if (state.hasError)
+              Padding(
+                padding: EdgeInsets.only(top: 6, left: 8),
+                child: Text(
+                  state.errorText!,
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
+                ),
+              )
           ],
         ),
       ),
@@ -143,7 +158,7 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
 
   Future<void> _presentQRScanner(BuildContext context) async {
     bool isCameraPermissionGranted =
-    await PermissionHandler.checkPermission(Permission.camera, context);
+        await PermissionHandler.checkPermission(Permission.camera, context);
     if (!isCameraPermissionGranted) return;
     final code = await presentQRScanner(context);
     if (code == null) return;
@@ -221,7 +236,8 @@ class SendAddressOverlay extends StatelessWidget {
           children: [
             if (showDisplayName)
               Text(
-                displayName!,maxLines: 1,
+                displayName!,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: primaryTextStyle,
               ),
