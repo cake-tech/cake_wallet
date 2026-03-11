@@ -36,7 +36,6 @@ class SwapConfirmSheet extends StatefulWidget {
 }
 
 class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
-
   void beginSend() async {
     final sendVM = widget.exchangeTradeViewModel.sendViewModel;
 
@@ -79,52 +78,54 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvokedWithResult: (didPop, result) {
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-        ),
-        child: SafeArea(
-          child: Observer(
-            builder: (_) {
-              final commited = widget.exchangeTradeViewModel.sendViewModel.state is TransactionCommitted;
-              return Stack(
-                fit: StackFit.loose,
-                children: [
-                  Positioned.fill(
-                      child: AnimatedSlide(
-                        offset: commited ? Offset.zero : const Offset(1, 0),
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOutCubic,
-                        child: const TransactionCommitedScreen(),
-                      )),
-                  AnimatedSlide(
-                    offset: commited ? const Offset(-1, 0) : Offset.zero,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOutCubic,
-                    child: SwapTransactionDetails(
-                    exchangeViewModel: widget.exchangeViewModel,
-                    exchangeTradeViewModel: widget.exchangeTradeViewModel,
-                    receiveAmount: widget.receiveAmount,
-                    ),
-                  ),
-                ],
-              );
-            },
+        onPopInvokedWithResult: (didPop, result) {
+          Navigator.of(context, rootNavigator: true).pop();
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
           ),
-        ),
-    ));
+          child: SafeArea(
+            child: Observer(
+              builder: (_) {
+                final commited =
+                    widget.exchangeTradeViewModel.sendViewModel.state is TransactionCommitted;
+                return Stack(
+                  fit: StackFit.loose,
+                  children: [
+                    Positioned.fill(
+                        child: AnimatedSlide(
+                      offset: commited ? Offset.zero : const Offset(1, 0),
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      child: const TransactionCommitedScreen(),
+                    )),
+                    AnimatedSlide(
+                      offset: commited ? const Offset(-1, 0) : Offset.zero,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      child: SwapTransactionDetails(
+                        exchangeViewModel: widget.exchangeViewModel,
+                        exchangeTradeViewModel: widget.exchangeTradeViewModel,
+                        receiveAmount: widget.receiveAmount,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ));
   }
-
-
 }
 
-
 class SwapTransactionDetails extends StatelessWidget {
-  const SwapTransactionDetails({super.key, required this.exchangeViewModel, required this.exchangeTradeViewModel, required this.receiveAmount});
+  const SwapTransactionDetails(
+      {super.key,
+      required this.exchangeViewModel,
+      required this.exchangeTradeViewModel,
+      required this.receiveAmount});
 
   final ExchangeViewModel exchangeViewModel;
   final ExchangeTradeViewModel exchangeTradeViewModel;
@@ -144,7 +145,7 @@ class SwapTransactionDetails extends StatelessWidget {
           onTrailingPressed: Navigator.of(context).maybePop,
         ),
         SafeArea(
-          top:false,
+          top: false,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
@@ -161,13 +162,13 @@ class SwapTransactionDetails extends StatelessWidget {
                           trailingText: exchangeTradeViewModel.trade.amountFormatted() +
                               " " +
                               (exchangeViewModel.depositCurrency.title)),
-                      if(exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
+                      if (exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
                         ListItemRegularRow(
                             showArrow: false,
                             keyValue: "fee",
                             label: S.of(context).fee,
                             trailingText:
-                            "${exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})"),
+                                "${exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})"),
                       ListItemRegularRow(
                           keyValue: "sender",
                           label: S.of(context).from,
@@ -182,14 +183,15 @@ class SwapTransactionDetails extends StatelessWidget {
                           keyValue: "receive value",
                           label: exchangeViewModel.receiveCurrency.fullName ?? "",
                           iconPath: exchangeViewModel.receiveCurrency.iconPath ?? "",
-                          trailingText: (receiveAmount) +
-                              " " +
-                              (exchangeViewModel.receiveCurrency.title)),
+                          trailingText:
+                              (receiveAmount) + " " + (exchangeViewModel.receiveCurrency.title)),
                       ListItemRegularRow(
                           keyValue: "receiver",
                           label: S.of(context).to,
                           showArrow: false,
-                          trailingText: exchangeViewModel.receiveAddressDisplayName ?? middleTruncate(exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8))
+                          trailingText: exchangeViewModel.receiveAddressDisplayName ??
+                              middleTruncate(
+                                  exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8))
                     ],
                     "${S.of(context).swap_id} (${S.of(context).tap_to_copy})": [
                       ListItemRegularRow(
@@ -201,14 +203,15 @@ class SwapTransactionDetails extends StatelessWidget {
                           iconPath: exchangeTradeViewModel.trade.provider.image,
                           trailingIconPath: "assets/new-ui/copy.svg",
                           trailingText: exchangeTradeViewModel.trade.id,
-                          truncateTrailingText: !exchangeTradeViewModel.trade.provider.isCentralized),
-                      if(exchangeTradeViewModel.trade.provider == ExchangeProviderDescription.trocador)
+                          truncateTrailingText:
+                              !exchangeTradeViewModel.trade.provider.isCentralized),
+                      if (exchangeTradeViewModel.trade.provider ==
+                          ExchangeProviderDescription.trocador)
                         ListItemRegularRow(
                             showArrow: false,
                             keyValue: "trocador provider name",
                             label: "Trocador ${S.of(context).provider}",
-                            trailingText: exchangeTradeViewModel.trade.providerName??""
-                        )
+                            trailingText: exchangeTradeViewModel.trade.providerName ?? "")
                     ]
                   }),
                 ),
@@ -216,12 +219,12 @@ class SwapTransactionDetails extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: exchangeViewModel.isSendFromExternal
                       ? NewPrimaryButton(
-                      onPressed: ()=>_showExternalSendModal(context),
-                      text: S.of(context).continue_text,
-                      color: Theme.of(context).colorScheme.primary,
-                      textColor: Theme.of(context).colorScheme.onPrimary)
+                          onPressed: () => _showExternalSendModal(context),
+                          text: S.of(context).continue_text,
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary)
                       : SendConfirmBottomWidget(
-                      sendViewModel: exchangeTradeViewModel.sendViewModel),
+                          sendViewModel: exchangeTradeViewModel.sendViewModel),
                 ),
               ],
             ),
@@ -232,16 +235,17 @@ class SwapTransactionDetails extends StatelessWidget {
   }
 
   void _showExternalSendModal(BuildContext context) {
-    showMaterialModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return SwapSendExternalModal(
-              amount: exchangeTradeViewModel.trade.amount,
-              exchangeTradeViewModel: exchangeTradeViewModel,
-              from: exchangeTradeViewModel.trade.from ?? exchangeViewModel.depositCurrency,
-              to: exchangeTradeViewModel.trade.to ?? exchangeViewModel.receiveCurrency,
-              address: exchangeTradeViewModel.trade.inputAddress ?? "");
-        });
+    if (context.mounted) {
+      showMaterialModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return SwapSendExternalModal(
+                amount: exchangeTradeViewModel.trade.amount,
+                exchangeTradeViewModel: exchangeTradeViewModel,
+                from: exchangeTradeViewModel.trade.from ?? exchangeViewModel.depositCurrency,
+                to: exchangeTradeViewModel.trade.to ?? exchangeViewModel.receiveCurrency,
+                address: exchangeTradeViewModel.trade.inputAddress ?? "");
+          });
+    }
   }
-
 }

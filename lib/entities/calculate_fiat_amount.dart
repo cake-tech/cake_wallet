@@ -14,7 +14,7 @@ String calculateFiatAmount({double? price, String? cryptoAmount, bool raw = fals
     return '0.00';
   }
 
-  if (raw) {
+  if(raw) {
     return result.toStringAsFixed(2);
   }
 
@@ -46,7 +46,7 @@ String formatWithCommas(String? number) {
     (Match match) => ',',
   );
 
-  if (decimalPart.length == 1) {
+  if(decimalPart.length == 1) {
     decimalPart = "${decimalPart}0";
   }
 
