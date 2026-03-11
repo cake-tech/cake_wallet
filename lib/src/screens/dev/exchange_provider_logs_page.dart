@@ -130,7 +130,7 @@ class _StatsCardState extends State<_StatsCard> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(entry.key.title),
+                            Text(entry.key?.title ?? 'Unknown'),
                             Text(entry.value.toString()),
                           ],
                         ),

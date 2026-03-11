@@ -77,6 +77,8 @@ class LightningWallet {
       _eventStream ??= sdk.addEventListener().asBroadcastStream();
       _logStream ??= initLogging().asBroadcastStream();
 
+      await sdk.syncWallet(request: SyncWalletRequest());
+
       try {
         final logFile = File("$appPath/lightning.log")
           ..createSync();
@@ -120,8 +122,14 @@ class LightningWallet {
           request: ReceivePaymentRequest(paymentMethod: ReceivePaymentMethod.bitcoinAddress())))
       .paymentRequest;
 
-  Future<BigInt> getBalance() async =>
-      (await sdk.getInfo(request: GetInfoRequest(ensureSynced: true))).balanceSats;
+  Future<BigInt> getBalance() async {
+    try {
+      return (await sdk.getInfo(request: GetInfoRequest(ensureSynced: true))).balanceSats;
+    } on SdkError_Generic catch (_) {
+    } on SdkError_NetworkError catch (_) {}
+
+    return BigInt.zero;
+  }
 
   Future<String> registerAddress(String username) async {
     return (await sdk.registerLightningAddress(
@@ -173,9 +181,16 @@ class LightningWallet {
               ((paymentMethod.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
           fee: lightningFeeSats.toInt() + (sparkTransferFeeSats?.toInt() ?? 0),
           commitOverride: () async {
-            final res = await sdk.sendPayment(
-                request: SendPaymentRequest(prepareResponse: prepareResponse));
-            printV(res.payment.status.name);
+            try {
+              final res = await sdk.sendPayment(
+                  request: SendPaymentRequest(prepareResponse: prepareResponse));
+              printV(res.payment.status.name);
+            } on SdkError_SparkError catch (e) {
+              if (e.field0.contains("AlreadyExists")) {
+                throw Exception("Invoice already paid");
+              }
+              rethrow;
+            }
           },
         );
       }
