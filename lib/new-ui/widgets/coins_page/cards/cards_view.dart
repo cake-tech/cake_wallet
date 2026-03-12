@@ -170,7 +170,8 @@ class _CardsViewState extends State<CardsView> {
                     ? [
                         BalanceCardAction(
                           label: S.current.buy,
-                          icon: Icons.arrow_forward,
+                          icon: Icons.arrow_forward_ios_rounded,
+                          iconSize: 12,
                           onTap: () => Navigator.of(context).pushNamed(Routes.buySellPage),
                         )
                       ]
