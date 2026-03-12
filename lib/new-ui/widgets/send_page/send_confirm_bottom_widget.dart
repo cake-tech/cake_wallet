@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 class SendConfirmBottomWidget extends StatelessWidget {
   const SendConfirmBottomWidget({super.key, required this.sendViewModel});
@@ -120,7 +122,7 @@ class TransactionErrorActions extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 8,
                   children: [
-                    SvgPicture.asset(
+                    CakeImageWidget(imageUrl:
                       "assets/new-ui/warning.svg",
                       height: 24,
                       width: 24,
@@ -191,7 +193,7 @@ class HardwareWalletConfirmationMessage extends StatelessWidget {
         padding: const EdgeInsets.all(12.0),
         child: Column(spacing: 8, children: [
           if (hardwareWalletIcon != null)
-            SvgPicture.asset(
+            CakeImageWidget(imageUrl:
               hardwareWalletIcon!,
               width: 36,
               height: 36,

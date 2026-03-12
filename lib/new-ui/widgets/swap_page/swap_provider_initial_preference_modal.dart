@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -23,7 +24,7 @@ class SwapProviderInitialPreferenceModal extends StatelessWidget {
               child: Column(
                 spacing: 12,
                 children: [
-                  SvgPicture.asset("assets/new-ui/exchange_providers.svg"),
+                  CakeImageWidget(imageUrl:"assets/new-ui/exchange_providers.svg"),
                   Text(
                     "${S.of(context).swap_provider_initial_desc} Cake Wallet.",
                     textAlign: TextAlign.center,
