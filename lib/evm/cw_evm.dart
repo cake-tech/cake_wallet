@@ -255,13 +255,6 @@ class CWEVM extends EVM {
       (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
 
   @override
-  Future<BigInt?> getAllowance(
-      WalletBase wallet,
-      String tokenContract,
-      String spender) =>
-      (wallet as EVMChainWallet).getAllowance(tokenContract, spender);
-
-  @override
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
     BigInt amount,
@@ -333,10 +326,6 @@ class CWEVM extends EVM {
   @override
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect) =>
       EVMChainTrezorService(connect);
-
-  @override
-  List<Erc20Token> getDefaultTokensByChainId(int chainId) =>
-      EVMChainDefaultTokens.getDefaultTokensByChainId(chainId);
 
   @override
   List<String> getDefaultTokenContractAddresses(WalletBase wallet) {
@@ -493,14 +482,6 @@ class CWEVM extends EVM {
   @override
   WalletType? getWalletTypeByChainId(int chainId) {
     return _registry.getWalletTypeByChainId(chainId);
-  }
-
-  @override
-  BigInt? getERC20AvailableBalance(Object balance) {
-    if(balance is EVMChainERC20Balance) {
-      return balance.balance;
-    }
-    return null;
   }
 
   @override

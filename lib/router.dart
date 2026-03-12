@@ -2,12 +2,6 @@ import 'dart:io';
 
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
-import 'package:cake_wallet/new-ui/new_dashboard.dart';
-import 'package:cake_wallet/new-ui/pages/about_page.dart';
-import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
-import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
-import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
-import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -46,7 +40,6 @@ import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
-import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
@@ -154,11 +147,11 @@ import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -183,8 +176,6 @@ Route<T> handleRouteWithPlatformAwareness<T>(
 
 Route<dynamic> createRoute(RouteSettings settings) {
   currentRouteSettings = settings;
-
-  printV(settings.name);
 
   switch (settings.name) {
     case Routes.welcome:
@@ -261,7 +252,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.chooseHardwareWalletAccount:
       final arguments = settings.arguments as List<dynamic>;
       final type = arguments[0] as WalletType;
-      final hardwareWallet = arguments[1] as HardwareWalletType;
+      final hardwareWallet = arguments [1] as HardwareWalletType;
 
       final walletVM = getIt.get<WalletHardwareRestoreViewModel>(
           param1: type, param2: getIt<HardwareWalletViewModel>(param1: hardwareWallet));
@@ -336,7 +327,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreWalletFromHardwareWallet:
       final arguments = settings.arguments as Map<String, dynamic>?;
-      final showUnavailable = (arguments?['showUnavailable'] as bool?) ?? false;
+      final showUnavailable = (arguments?['showUnavailable'] as bool?) ?? true;
       final onSelect = arguments?['onSelect'] as void Function(BuildContext, HardwareWalletType)?;
       final availableHardwareWalletTypes =
           arguments?['availableHardwareWalletTypes'] as List<HardwareWalletType>?;
@@ -404,14 +395,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
-    case Routes.lightningUsernamePage:
-      return handleRouteWithPlatformAwareness(
-          (context) => getIt.get<LightningUsernamePage>(param1: settings.arguments as bool?));
-
-    case Routes.receiveAddresses:
-      return handleRouteWithPlatformAwareness(
-          (context) => getIt.get<NewAddressesPage>(param1: settings.arguments as bool));
-
     case Routes.seed:
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<WalletSeedPage>(param1: settings.arguments as bool),
@@ -433,9 +416,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.dashboard:
       return CupertinoPageRoute<void>(
-          settings: settings,
-          builder: (_) =>
-              FeatureFlag.hasNewUi ? getIt.get<NewDashboard>() : getIt.get<DashboardPage>());
+          settings: settings, builder: (_) => getIt.get<DashboardPage>());
 
     case Routes.send:
       final args = settings.arguments as Map<String, dynamic>?;
@@ -443,12 +424,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final coinTypeToSpendFrom = args?['coinTypeToSpendFrom'] as UnspentCoinType?;
 
       return handleRouteWithPlatformAwareness(
-        (context) => Material(
-          child: getIt.get<NewSendPage>(
-            param1: SendPageParams(initialPaymentRequest: initialPaymentRequest,unspentCoinType: coinTypeToSpendFrom ?? UnspentCoinType.any),
-          ),
+        (context) => getIt.get<SendPage>(
+          param1: initialPaymentRequest,
+          param2: coinTypeToSpendFrom,
         ),
-        settings: settings,
+        settings: settings
       );
 
     case Routes.sendTemplate:
@@ -614,10 +594,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.newNode:
       final args = settings.arguments as Map<String, dynamic>?;
-      final page = getIt.get<NodeCreateOrEditPage>(
-        param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
       return CupertinoPageRoute<void>(
-          builder: (_) => page);
+          builder: (_) => getIt.get<NodeCreateOrEditPage>(
+              param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
 
     case Routes.login:
       return CupertinoPageRoute<void>(
@@ -653,9 +632,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.pickerAddressBook:
-      final args = settings.arguments as List<dynamic>;
+      final selectedCurrency = settings.arguments as CryptoCurrency?;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: args[0], param2: args[1]));
+          builder: (_) => getIt.get<ContactListPage>(param1: selectedCurrency));
 
     case Routes.pickerWalletAddress:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());
@@ -686,7 +665,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
     case Routes.buySellPage:
-      final args = settings.arguments as bool?;
+      final args = settings.arguments as bool;
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<BuySellPage>(param1: args),
       );
@@ -715,8 +694,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTemplatePage>());
 
     case Routes.rescan:
-      final page = getIt.get<RescanPage>();
-      return MaterialPageRoute<void>(builder: (_) => page);
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<RescanPage>());
 
     case Routes.faq:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
@@ -759,9 +737,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.unspentCoinsList:
       final coinTypeToSpendFrom = settings.arguments as UnspentCoinType?;
       return handleRouteWithPlatformAwareness(
-        (context) => FeatureFlag.hasNewUi
-            ? getIt.get<NewCoinControlPage>(param1: coinTypeToSpendFrom)
-            : getIt.get<UnspentCoinsListPage>(param1: coinTypeToSpendFrom),
+        (context) => getIt.get<UnspentCoinsListPage>(param1: coinTypeToSpendFrom),
       );
 
     case Routes.unspentCoinsDetails:
@@ -781,10 +757,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (context) => getIt.get<CakePayCardsPage>(),
       );
 
-    case Routes.aboutPage:
-      final page = getIt.get<AboutPage>();
-      return handleRouteWithPlatformAwareness((context) => page);
-
     case Routes.cakePayBuyCardPage:
       final args = settings.arguments as List;
       return handleRouteWithPlatformAwareness(
@@ -801,6 +773,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayVerifyOtpPage>(param1: args),
       );
+
 
     case Routes.cakePayAccountPage:
       return handleRouteWithPlatformAwareness<bool>(
@@ -823,8 +796,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
       final restoredWallet = args['restoredWallet'] as RestoredWallet?;
 
-      final viewModelParam = {'type' : type, 'isPow' : false};
-
       return handleRouteWithPlatformAwareness(
         (context) => AdvancedPrivacySettingsPage(
           isFromRestore: isFromRestore,
@@ -833,7 +804,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           toggleUseTestnet: toggleTestnet,
           advancedPrivacySettingsViewModel:
               getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-          nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: viewModelParam),
+          nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
           seedSettingsViewModel: getIt.get<SeedSettingsViewModel>(),
         ),
       );
@@ -942,9 +913,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.signPage:
-      final vm = getIt.get<SignViewModel>();
       return MaterialPageRoute<void>(
-        builder: (_) => SignPage(vm),
+        builder: (_) => SignPage(
+          getIt.get<SignViewModel>(),
+        ),
       );
 
     case Routes.connectDevices:
@@ -992,12 +964,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevBackgroundSyncLogsPage>(),
       );
-
+    
     case Routes.devSocketHealthLogs:
       return CupertinoPageRoute<void>(
         builder: (_) => getIt.get<DevSocketHealthLogsPage>(),
       );
-
+    
     case Routes.devQRTools:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevQRToolsPage>(),
@@ -1007,12 +979,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevNetworkRequests>(),
       );
-
+    
     case Routes.devExchangeProviderLogs:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevExchangeProviderLogsPage>(),
       );
-
+    
     case Routes.devMoneroCallProfiler:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevMoneroCallProfilerPage>(),
@@ -1027,7 +999,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevSecurePreferencesPage>(),
       );
-
+    
     case Routes.startTor:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<StartTorPage>(),
