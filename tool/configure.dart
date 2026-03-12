@@ -147,6 +147,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
@@ -154,6 +155,7 @@ import 'package:cw_bitcoin/hardware/litecoin_ledger_service.dart';
 import 'package:cw_bitcoin/hardware/bitbox_service.dart';
 import 'package:cw_bitcoin/hardware/trezor_service.dart';
 import 'package:mobx/mobx.dart';
+import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
@@ -231,9 +233,10 @@ abstract class Bitcoin {
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
-  List<ReceivePageOption> getBitcoinReceivePageOptions(Object wallet);
-  List<ReceivePageOption> getLitecoinReceivePageOptions(Object wallet);
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
+  ReceivePageOption getBitcoinLightningReceivePageOption();
+  ReceivePageOption getBitcoinSegwitPageOption();
+  ReceivePageOption getLitecoinMwebReceivePageOption();
   bool isPayjoinAvailable(Object wallet);
   bool hasSelectedSilentPayments(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);
@@ -272,6 +275,7 @@ abstract class Bitcoin {
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
+  Future<String?> getUnusedSpakDepositAddress(Object wallet);
   Future<void> commitPsbtUR(Object wallet, List<String> urCodes);
 
   void updatePayjoinState(Object wallet, bool state);
@@ -280,6 +284,13 @@ abstract class Bitcoin {
   void stopPayjoinSessions(Object wallet);
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
+  String getNetworkName(Object wallet);
+  bool useLightning(Object wallet);
+  void updateUseLightning(Object wallet, bool value);
+  Future<void> setLightningUsername(Object wallet, String username);
+  Future<String?> getLightningUsername(Object wallet);
+  Future<String?> getLightningInvoice(Object wallet, BigInt amount);
+  String? getBreezSdkError(Object exception);
 }
   """;
 
@@ -372,14 +383,14 @@ class MoneroBalance extends Balance {
       : formattedFullBalance = monero!.formatterMoneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
             monero!.formatterMoneroAmountToString(amount: unlockedBalance),
-        super(unlockedBalance, fullBalance);
+        super.fromInt(unlockedBalance, fullBalance);
 
   MoneroBalance.fromString(
       {required this.formattedFullBalance,
       required this.formattedUnlockedBalance})
       : fullBalance = monero!.formatterMoneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-        super(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
+        super.fromInt(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
             monero!.formatterMoneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
@@ -579,14 +590,14 @@ class WowneroBalance extends Balance {
       : formattedFullBalance = wownero!.formatterWowneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
             wownero!.formatterWowneroAmountToString(amount: unlockedBalance),
-        super(unlockedBalance, fullBalance);
+        super.fromInt(unlockedBalance, fullBalance);
 
   WowneroBalance.fromString(
       {required this.formattedFullBalance,
       required this.formattedUnlockedBalance})
       : fullBalance = wownero!.formatterWowneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
-        super(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
+        super.fromInt(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
             wownero!.formatterWowneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
@@ -1365,6 +1376,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
+import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -1466,6 +1478,7 @@ abstract class EVM {
   void updateScanProviderUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
+  BigInt? getERC20AvailableBalance(Object balance);
   
   Future<bool> isApprovalRequired(
     WalletBase wallet,
@@ -1473,6 +1486,11 @@ abstract class EVM {
     String spender,
     BigInt requiredAmount,
   );
+  
+  Future<BigInt?> getAllowance(
+      WalletBase wallet,
+      String tokenContract,
+      String spender);
   
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
@@ -1489,7 +1507,9 @@ abstract class EVM {
     String dataHex,
     BigInt valueWei,
     TransactionPriority? priority,
-    {bool useBlinkProtection = true}
+    {bool useBlinkProtection = true,
+    String? sourceTokenAddress,
+    BigInt? sourceTokenAmount}
   );
   
   // Hardware wallet methods
@@ -1649,9 +1669,9 @@ abstract class Zcash {
   TransactionPriority getZcashTransactionPriorityAutomatic();
   TransactionPriority deserializeZcashTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
-  List<ReceivePageOption> getZcashReceivePageOptions(Object wallet);
   ReceivePageOption getSelectedAddressType(Object wallet);
   dynamic getZcashAddressType(ReceivePageOption option);
+  bool hasSelectedTransparentAddress(Object wallet);
   Future<void> setAddressType(Object wallet, dynamic option);
   dynamic getOptionToType(ReceivePageOption option);
   void unlockDatabase(String password);

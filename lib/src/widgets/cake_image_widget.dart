@@ -12,6 +12,7 @@ class CakeImageWidget extends StatelessWidget {
     this.errorWidget,
     this.color,
     this.borderRadius = 24.0,
+    this.colorFilter,
   });
 
   final String? imageUrl;
@@ -22,6 +23,7 @@ class CakeImageWidget extends StatelessWidget {
   final Widget? errorWidget;
   final Color? color;
   final double borderRadius;
+  final ColorFilter? colorFilter;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,8 @@ class CakeImageWidget extends StatelessWidget {
 
     final isSvg = imageUrl!.toLowerCase().endsWith('.svg');
     final isAsset = imageUrl!.startsWith('assets/');
+    final effectiveColorFilter = colorFilter ??
+        (color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null);
 
     Widget imageWidget;
     if (isAsset) {
@@ -39,7 +43,7 @@ class CakeImageWidget extends StatelessWidget {
               imageUrl!,
               height: height,
               width: width,
-              color: color,
+              colorFilter: effectiveColorFilter,
               fit: fit ?? BoxFit.contain,
             )
           : Image.asset(
@@ -55,7 +59,7 @@ class CakeImageWidget extends StatelessWidget {
               imageUrl!,
               height: height,
               width: width,
-              color: color,
+              colorFilter: effectiveColorFilter,
               fit: fit ?? BoxFit.contain,
               placeholderBuilder: (_) {
                 return loadingWidget ?? const Center(child: CircularProgressIndicator());
