@@ -38,7 +38,7 @@ class ConnectionSyncPage extends BasePage {
       header: ModalHeader(
           iconPath: "assets/new-ui/settings_row_icons/connections.svg",
           message: S.of(context).connections_desc,
-          title: S.of(context).connection_sync),
+          title: S.of(context).connections),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
