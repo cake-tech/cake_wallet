@@ -1,10 +1,10 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AssetTile extends StatelessWidget {
   const AssetTile(
@@ -15,8 +15,7 @@ class AssetTile extends StatelessWidget {
       this.title,
       this.trailingText,
       this.modalMode = AssetDetailsModalModes.normal,
-      required this.wallet,
-      required this.showSwap});
+      required this.wallet, required this.showSwap});
 
   final BalanceRecord balance;
   final bool showSecondary;
@@ -32,7 +31,7 @@ class AssetTile extends StatelessWidget {
     final iconPath = _getIconPath();
 
     return GestureDetector(
-      onTap: () {
+      onTap: (){
         showModalBottomSheet(
             context: context,
             isScrollControlled: true,
@@ -90,8 +89,8 @@ class AssetTile extends StatelessWidget {
                           height: 45,
                           child: Stack(
                             children: [
-                              if ((iconPath).isNotEmpty)
-                                CakeImageWidget(imageUrl: iconPath)
+                              if((iconPath).isNotEmpty)
+                              Image.asset(iconPath)
                               else
                                 Container(
                                   width: 45,
@@ -103,8 +102,7 @@ class AssetTile extends StatelessWidget {
                                       child: Text(
                                     balance.asset.name.substring(0, 2),
                                     style: TextStyle(
-                                        fontSize: 20,
-                                        color: Theme.of(context).colorScheme.onPrimary),
+                                        fontSize: 20, color: Theme.of(context).colorScheme.onPrimary),
                                   )),
                                 ),
                               if (chainIconPath.isNotEmpty)
@@ -113,13 +111,12 @@ class AssetTile extends StatelessWidget {
                                     child: Container(
                                         decoration: ShapeDecoration(
                                             shape: RoundedSuperellipseBorder(
-                                                borderRadius: BorderRadius.circular(5),
-                                                side: BorderSide(color: Colors.black)),
+                                                borderRadius: BorderRadius.circular(5),side: BorderSide(color: Colors.black)),
                                             color: Colors.white),
                                         child: Padding(
                                           padding: const EdgeInsets.all(2.0),
-                                          child: CakeImageWidget(
-                                            imageUrl: chainIconPath,
+                                          child: SvgPicture.asset(
+                                            chainIconPath,
                                             width: 12,
                                             height: 12,
                                             colorFilter:
@@ -142,12 +139,11 @@ class AssetTile extends StatelessWidget {
                                   title ?? balance.asset.fullName ?? balance.asset.name,
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                                if (trailingText != null)
-                                  Text(
-                                    trailingText!,
-                                    style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                  ),
+                                if(trailingText != null)
+                                Text(
+                                  trailingText!,
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                ),
                               ],
                             ),
                             Padding(
@@ -156,8 +152,8 @@ class AssetTile extends StatelessWidget {
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  "${showSecondary ? balance.secondAvailableBalance : balance.availableBalance} ${balance.formattedAssetTitle.safeSubString(0, 6)}",
-                                  maxLines: 1,
+                                   "${showSecondary ?balance.secondAvailableBalance: balance.availableBalance} ${balance.formattedAssetTitle.safeSubString(0, 6)}",
+                                  maxLines:1,
                                   style: TextStyle(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
@@ -186,14 +182,15 @@ class AssetTile extends StatelessWidget {
 
   String _getChainTitle() {
     try {
-      return CryptoCurrency.fromString(wallet.currency.tag ?? wallet.currency.title).title;
-    } catch (e) {
+      return CryptoCurrency.fromString(wallet.currency.tag ??wallet.currency.title).title;
+    } catch(e) {
       return wallet.currency.title;
     }
   }
 
   String _getIconPath() {
-    if (balance.asset == CryptoCurrency.baseEth) return "assets/images/crypto/ethereum.webp";
+    if(balance.asset == CryptoCurrency.baseEth)
+      return "assets/images/crypto/ethereum.webp";
 
     return balance.asset.iconPath ?? "";
   }

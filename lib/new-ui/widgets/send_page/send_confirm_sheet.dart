@@ -164,12 +164,15 @@ class SendTransactionDetails extends StatelessWidget {
 
     final amount = (transaction == null)
         ? sendViewModel.amountParsingProxy.getDisplayCryptoStringFromBigInt(
-            sumByBigInt(
-              sendViewModel.outputs.where((e) => !e.sendAll).toList(),
-              (o) =>
-                  sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ??
-                  BigInt.zero,
-            ),
+            sumByBigInt(sendViewModel.outputs, (o) {
+              if (o.sendAll)
+                return sendViewModel.amountParsingProxy.tryParseCryptoString(
+                        sendViewModel.balance, sendViewModel.selectedCryptoCurrency) ??
+                    BigInt.zero;
+
+              return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ??
+                  BigInt.zero;
+            }),
             sendViewModel.selectedCryptoCurrency)
         : sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
             formatAmount(transaction.amountFormatted), sendViewModel.selectedCryptoCurrency);
@@ -177,9 +180,16 @@ class SendTransactionDetails extends StatelessWidget {
     final fee =
         "${(transaction == null) ? sendViewModel.amountParsingProxy.getDisplayCryptoStringFromBigInt(sumByBigInt(
               sendViewModel.outputs.where((e) => !e.sendAll).toList(),
-              (o) =>
-                  sendViewModel.currency.tryParseAmount(o.estimatedFee.replaceAll(",", "")) ??
-                  BigInt.zero,
+              (o) {
+                if (sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln) {
+                  return sendViewModel.amountParsingProxy.tryParseCryptoString(
+                          o.estimatedFee.replaceAll(",", ""),
+                          sendViewModel.selectedCryptoCurrency) ??
+                      BigInt.zero;
+                }
+                return sendViewModel.currency.tryParseAmount(o.estimatedFee.replaceAll(",", "")) ??
+                    BigInt.zero;
+              },
             ), sendViewModel.currency) : sendViewModel.amountParsingProxy.getDisplayCryptoAmount(transaction.feeFormattedValue, sendViewModel.currency)} ${sendViewModel.currencySymbol}";
 
     final fiatAmount = (transaction == null)

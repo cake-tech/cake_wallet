@@ -7,12 +7,12 @@ import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 enum AssetDetailsModalModes { normal, ltcTransparent, ltcPrivate }
@@ -73,7 +73,7 @@ class AssetDetailsModal extends StatelessWidget {
                       child: Stack(
                         children: [
                           if (iconPath.isNotEmpty)
-                            CakeImageWidget(imageUrl: iconPath, width: 75, height: 75)
+                            Image.asset(iconPath, width: 75, height: 75)
                           else
                             Container(
                               width: 75,
@@ -99,8 +99,8 @@ class AssetDetailsModal extends StatelessWidget {
                                         color: Colors.white),
                                     child: Padding(
                                       padding: const EdgeInsets.all(4.0),
-                                      child: CakeImageWidget(
-                                        imageUrl: chainIconPath,
+                                      child: SvgPicture.asset(
+                                        chainIconPath,
                                         width: 18,
                                         height: 18,
                                         colorFilter:
@@ -186,42 +186,52 @@ class AssetDetailsModal extends StatelessWidget {
                   children: [
                     if (mode == AssetDetailsModalModes.ltcTransparent)
                       AssetDetailsModalBottomButton(
-                          iconPath: "assets/new-ui/mask.svg",
-                          title: S.of(context).mask,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            depositToL2(context);
-                          }),
+                        iconPath: "assets/new-ui/mask.svg",
+                        title: S.of(context).mask,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          depositToL2(context);
+                        },
+                      ),
                     if (mode == AssetDetailsModalModes.ltcPrivate)
                       AssetDetailsModalBottomButton(
-                          iconPath: "assets/new-ui/unmask.svg",
-                          title: S.of(context).unmask,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            withdrawFromL2(context);
-                          }),
+                        iconPath: "assets/new-ui/unmask.svg",
+                        title: S.of(context).unmask,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          withdrawFromL2(context);
+                        },
+                      ),
                     AssetDetailsModalBottomButton(
-                        iconPath: "assets/new-ui/send.svg",
-                        title: S.of(context).send,
-                        onPressed: () => openPage<NewSendPage>(context,
-                            param1: SendPageParams(initialCurrency: asset))),
+                      iconPath: "assets/new-ui/send.svg",
+                      title: S.of(context).send,
+                      onPressed: () => openPage<NewSendPage>(
+                        context,
+                        param1: SendPageParams(
+                          initialCurrency: asset,
+                          unspentCoinType: unspentCoinType,
+                        ),
+                      ),
+                    ),
                     AssetDetailsModalBottomButton(
-                        iconPath: "assets/new-ui/receive.svg",
-                        title: S.of(context).receive,
-                        onPressed: () async {
-                          if (mode == AssetDetailsModalModes.ltcPrivate) {
-                            await bitcoin!.setAddressType(
-                                wallet,
-                                bitcoin!
-                                    .getOptionToType(bitcoin!.getLitecoinMwebReceivePageOption()));
-                          }
-                          openPage<NewReceivePage>(context, param2: asset);
-                        }),
-                    if (showSwap)
+                      iconPath: "assets/new-ui/receive.svg",
+                      title: S.of(context).receive,
+                      onPressed: () async {
+                        if (mode == AssetDetailsModalModes.ltcPrivate) {
+                          await bitcoin!.setAddressType(
+                              wallet,
+                              bitcoin!
+                                  .getOptionToType(bitcoin!.getLitecoinMwebReceivePageOption()));
+                        }
+                        openPage<NewReceivePage>(context, param2: asset);
+                      },
+                    ),
+                    if (showSwap && mode != AssetDetailsModalModes.ltcPrivate)
                       AssetDetailsModalBottomButton(
-                          iconPath: "assets/new-ui/exchange.svg",
-                          title: S.of(context).swap,
-                          onPressed: () => openPage<NewSwapPage>(context, param2: asset)),
+                        iconPath: "assets/new-ui/exchange.svg",
+                        title: S.of(context).swap,
+                        onPressed: () => openPage<NewSwapPage>(context, param2: asset),
+                      ),
                   ],
                 ),
                 SizedBox()
@@ -231,6 +241,17 @@ class AssetDetailsModal extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  UnspentCoinType get unspentCoinType {
+    switch (mode) {
+      case AssetDetailsModalModes.ltcTransparent:
+        return UnspentCoinType.nonMweb;
+      case AssetDetailsModalModes.ltcPrivate:
+        return UnspentCoinType.mweb;
+      case AssetDetailsModalModes.normal:
+        return UnspentCoinType.any;
+    }
   }
 
   void openPage<T extends Object>(BuildContext context, {dynamic param1, dynamic param2}) {

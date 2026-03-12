@@ -497,8 +497,7 @@ abstract class SolanaWalletBase
       if (!hasKeysFile) rethrow;
     }
 
-    final balance =
-        SolanaBalance.fromJSON(data?['balance'] as String?, false) ?? SolanaBalance(0.0, false);
+    final balance = SolanaBalance.fromJSON(data?['balance'] as String?, false) ?? SolanaBalance(0.0, false);
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme

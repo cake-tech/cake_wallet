@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
@@ -81,6 +82,8 @@ class _CardCustomizerState extends State<CardCustomizer> {
                         children: [
                           Text(S.of(context).account_name),
                           TextField(
+                            maxLength: 32,
+                            decoration: InputDecoration(counterText: ""),
                             onChanged: (value) {
                               context.read<CardCustomizerBloc>().add(AccountNameChanged(value));
                             },
@@ -90,7 +93,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                       ),
                     ),
                   BalanceCard(
-                    width: MediaQuery.of(context).size.width * 0.87,
+                    width: min(MediaQuery.of(context).size.width * 0.87, 768),
                     selected: true,
                     designSwitchDuration: Duration(milliseconds: 300),
                     accountName:
@@ -231,5 +234,4 @@ class _CardCustomizerState extends State<CardCustomizer> {
     ),
 );
   }
-
 }

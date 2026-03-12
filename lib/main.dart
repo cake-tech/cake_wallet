@@ -440,6 +440,9 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               navigatorObservers: [routeObserver, appRouteObserver],
               navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
+              builder: (context, child) => MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+                  child: child!),
               theme: theme,
               darkTheme: darkTheme,
               themeMode: themeMode,

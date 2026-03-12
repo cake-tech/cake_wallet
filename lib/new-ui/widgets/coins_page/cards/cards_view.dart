@@ -31,11 +31,12 @@ class CardsView extends StatefulWidget {
       required this.dashboardViewModel,
       required this.accountListViewModel,
       required this.lightningMode,
-      required this.onCompactModeBackgroundCardsTapped});
+      required this.onCompactModeBackgroundCardsTapped, required this.onCustomizeTapped});
 
   final DashboardViewModel dashboardViewModel;
   final MoneroAccountListViewModel? accountListViewModel;
   final VoidCallback onCompactModeBackgroundCardsTapped;
+  final VoidCallback onCustomizeTapped;
   final bool lightningMode;
 
   @override
@@ -44,6 +45,7 @@ class CardsView extends StatefulWidget {
 
 class _CardsViewState extends State<CardsView> {
   late int _selectedIndex;
+  bool isFirstBuild = true;
 
   @override
   void initState() {
@@ -60,6 +62,7 @@ class _CardsViewState extends State<CardsView> {
   static const int compactModeTreshold = 4;
   static const int maxCards = 5;
   late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
+  late final double effectiveCardWidth = min(cardWidth, 768);
 
   Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
       Map<int, int> order, bool compactMode, double overlapAmount) {
@@ -71,7 +74,7 @@ class _CardsViewState extends State<CardsView> {
 
     final top = baseTop - (howFarBehind * overlapAmount);
 
-    final left = (parentWidth - cardWidth) / 2.0;
+    final left = (parentWidth - effectiveCardWidth) / 2.0;
 
     return AnimatedPositioned(
       key: ValueKey("$visualIndex $realIndex"),
@@ -85,6 +88,7 @@ class _CardsViewState extends State<CardsView> {
         scale: scale,
         child: GestureDetector(
           onTap: () {
+            // printV(visualIndex);
             if (compactMode && visualIndex != 0) {
               widget.onCompactModeBackgroundCardsTapped();
             } else if(!compactMode) {
@@ -109,6 +113,7 @@ class _CardsViewState extends State<CardsView> {
             final account = widget.accountListViewModel?.accounts[realIndex];
 
             // The second balance should always be the lightning balance
+            // printV(widget.dashboardViewModel.balanceViewModel.formattedBalances.first.availableBalance);
             final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel.formattedBalances
                 .elementAtOrNull(widget.lightningMode ? 1 : 0);
 
@@ -172,7 +177,7 @@ class _CardsViewState extends State<CardsView> {
                     : [];
 
             return BalanceCard(
-              width: cardWidth,
+              width: effectiveCardWidth,
               accountName: accountName,
               accountBalance: accountBalance,
               designSwitchDuration: Duration(milliseconds: 150),
@@ -181,6 +186,7 @@ class _CardsViewState extends State<CardsView> {
               balance: walletBalance,
               fiatBalance: walletFiatBalance,
               selected: _selectedIndex == visualIndex,
+              onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
               design: cardDesign,
               actions: actions,
             );
@@ -215,14 +221,14 @@ class _CardsViewState extends State<CardsView> {
   double _getBoxHeight(int numCards, double overlapAmount) {
     return
         /* height of initial card */
-        (2 / 3.2) * (cardWidth) +
+        (2 / 3.2) * (effectiveCardWidth) +
             /* height of bg card * amount of bg cards */
             overlapAmount * ((numCards) - 1);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (_) {
+    return Observer(builder: (context) {
       final parentWidth = MediaQuery.of(context).size.width;
       final children = <Widget>[];
 
@@ -257,6 +263,14 @@ class _CardsViewState extends State<CardsView> {
         int visualIndex = (_selectedIndex - i + numCards) % numCards;
 
         int realIndex = order[visualIndex]!;
+
+        if (visualIndex == _selectedIndex &&
+            widget.accountListViewModel != null &&
+            widget.accountListViewModel?.selected.label !=
+                widget.accountListViewModel?.accounts[realIndex].label) {
+          widget.accountListViewModel!
+              .select(widget.accountListViewModel!.accounts[realIndex]);
+        }
 
         children.add(_buildCard(
             visualIndex, realIndex, numCards, parentWidth, order, compactMode, overlapAmount));

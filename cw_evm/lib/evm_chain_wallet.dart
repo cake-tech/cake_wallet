@@ -53,9 +53,18 @@ import 'evm_erc20_balance.dart';
 part 'evm_chain_wallet.g.dart';
 
 const Map<String, String> methodSignatureToType = {
+  // ERC20
   '0x095ea7b3': 'approval',
   '0xa9059cbb': 'transfer',
   '0x23b872dd': 'transferFrom',
+
+  // Aggregator / Router (Swaps.xyz paths)
+  '0x9be111d1': 'smartSwap',
+  '0x5327a3d2': 'crossChainSwap',
+  '0x205030b2': 'routerExecution',
+  '0x5ad29efa': 'relayedExecution',
+
+  // Misc contracts
   '0x574da717': 'transferOut',
   '0x2e1a7d4d': 'withdraw',
   '0x7ff36ab5': 'swapExactETHForTokens',
@@ -320,7 +329,7 @@ abstract class EVMChainWalletBase
     if (prefs.getBool(migrationKey) ?? false) return;
 
     final box = evmChainErc20TokensBox;
-    final keys = box.keys.cast<String>().toList(growable: false);
+    final keys = box.keys.toList();
 
     if (keys.isEmpty) {
       await prefs.setBool(migrationKey, true);
@@ -338,7 +347,8 @@ abstract class EVMChainWalletBase
         continue;
       }
 
-      final lowerKey = key.toLowerCase();
+      final lowerKey = key is String ? key.toLowerCase() : token.contractAddress.toLowerCase();
+      if (key is int) needsRewrite = true;
 
       final Erc20Token normalizedToken =
           token.contractAddress == token.contractAddress.toLowerCase()
@@ -1038,21 +1048,16 @@ abstract class EVMChainWalletBase
   }
 
   Future<PendingTransaction> createCallDataTransaction(
-    String to,
-    String dataHex,
-    BigInt valueWei,
-    EVMChainTransactionPriority? priority, {
-    bool useBlinkProtection = true,
-  }) async {
-    // Estimate gas with the SAME call (sender, to, value, data)
-    final gas = await calculateActualEstimatedFeeForCreateTransaction(
-      amount: valueWei, // native value (usually 0 for ERC20 transfer)
-      receivingAddressHex: to,
-      priority: priority,
-      contractAddress: null,
-      data: _client.hexToBytes(dataHex),
-    );
+      String to,
+      String dataHex,
+      BigInt valueWei,
+      EVMChainTransactionPriority? priority,
+      String? sourceTokenAddress,
+      BigInt? sourceTokenAmount, {
+        bool useBlinkProtection = true,
+      }) async {
 
+    // Define Native Currency
     final nativeCurrency = switch (selectedChainId) {
       137 => CryptoCurrency.maticpoly,
       56 => CryptoCurrency.bnb,
@@ -1061,26 +1066,83 @@ abstract class EVMChainWalletBase
       _ => CryptoCurrency.eth,
     };
 
-    // Fallback for nodes that fail estimate (non-zero)
-    final gasUnits = gas.estimatedGasUnits == 0 ? 65000 : gas.estimatedGasUnits;
+    // Gas Estimation
+    GasParamsHandler gas;
+    try {
+      gas = await calculateActualEstimatedFeeForCreateTransaction(
+        amount: valueWei,
+        receivingAddressHex: to,
+        priority: priority,
+        contractAddress: null,
+        data: _client.hexToBytes(dataHex),
+      );
+    } catch (_) {
+      // If estimation fails, we proceed but will use a safe gas limit below.
+      // This is common for complex swaps that depend on block state.
+      gas = GasParamsHandler.zero();
+    }
 
-    // Sign raw (native) tx with callData
-    return _client.signTransaction(
-      privateKey: _evmChainPrivateKey,
-      toAddress: to,
-      amount: valueWei,
-      gasFee: BigInt.from(gas.estimatedGasFee),
-      estimatedGasUnits: gasUnits,
-      maxFeePerGas: gas.maxFeePerGas,
-      priority: priority,
-      currency: nativeCurrency,
-      feeCurrency: nativeCurrency.title,
-      exponent: 18,
-      contractAddress: null,
-      data: dataHex,
-      gasPrice: gas.gasPrice,
-      useBlinkProtection: useBlinkProtection,
-    );
+    // Validate NATIVE Balance (for Gas + Value)
+    final nativeBal = balance[nativeCurrency]?.balance ?? BigInt.zero;
+    final requiredNative = valueWei + BigInt.from(gas.estimatedGasFee);
+
+    if (requiredNative > nativeBal) {
+      throw Exception('Not enough ${nativeCurrency.title} to cover value and fees.');
+    }
+
+    // Validate ERC20 Balance (Only if source is NOT native)
+    final cleanAddress = sourceTokenAddress?.toLowerCase() ?? '';
+
+    // Check for both 0xeeee... AND 0x0000... (Zero Address)
+    bool isNativeSource = sourceTokenAddress == null ||
+        cleanAddress == '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' ||
+        cleanAddress == '0x0000000000000000000000000000000000000000';
+
+    if (!isNativeSource && sourceTokenAmount != null && sourceTokenAmount > BigInt.zero) {
+
+      // Filter list to find match.
+      final matchingTokens = balance.keys.where((k) =>
+      k is Erc20Token &&
+          k.contractAddress.toLowerCase() == cleanAddress
+      );
+
+      if (matchingTokens.isEmpty) {
+        // Token is not in the wallet balance map -> Balance is 0
+        throw Exception('Insufficient token balance (Token not found in wallet).');
+      }
+
+      final tokenKey = matchingTokens.first;
+      final tokenBalance = balance[tokenKey]?.balance ?? BigInt.zero;
+
+      if (tokenBalance < sourceTokenAmount) {
+        throw Exception('Insufficient ${tokenKey.title} balance to cover the transaction amount.');
+      }
+    }
+
+    // Final Safe Gas Limit
+    // If estimation failed (0), use 300,000 as a safe default for swaps.
+    final gasUnits = gas.estimatedGasUnits == 0 ? 300000 : gas.estimatedGasUnits;
+
+    try {
+      return _client.signTransaction(
+        privateKey: _evmChainPrivateKey,
+        toAddress: to,
+        amount: valueWei,
+        gasFee: BigInt.from(gas.estimatedGasFee),
+        estimatedGasUnits: gasUnits,
+        maxFeePerGas: gas.maxFeePerGas,
+        priority: priority,
+        currency: nativeCurrency,
+        feeCurrency: nativeCurrency.title,
+        exponent: 18,
+        contractAddress: null,
+        data: dataHex,
+        gasPrice: gas.gasPrice,
+        useBlinkProtection: useBlinkProtection,
+      );
+    } catch (_) {
+      throw Exception('Failed to create the transaction.');
+    }
   }
 
   Future<PendingTransaction> createApprovalTransaction(BigInt amount, String spender,
@@ -1096,13 +1158,19 @@ abstract class EVMChainWalletBase
       toAddress: EthereumAddress.fromHex(spender),
     );
 
+    final tokenContract = (transactionCurrency as Erc20Token).contractAddress;
+
     final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
-      amount: amount,
-      receivingAddressHex: spender,
+      amount: BigInt.zero,
+      receivingAddressHex: tokenContract,
       priority: priority,
-      contractAddress: transactionCurrency.contractAddress,
+      contractAddress: tokenContract,
       data: data,
     );
+
+    final int safeGasUnits = gasFeesModel.estimatedGasUnits == 0
+        ? 65000
+        : (gasFeesModel.estimatedGasUnits < 65000 ? 65000 : gasFeesModel.estimatedGasUnits);
 
     return _client.signApprovalTransaction(
       privateKey: _evmChainPrivateKey,
@@ -1112,9 +1180,9 @@ abstract class EVMChainWalletBase
       gasFee: BigInt.from(gasFeesModel.estimatedGasFee),
       maxFeePerGas: gasFeesModel.maxFeePerGas,
       feeCurrency: feeCurrency,
-      estimatedGasUnits: gasFeesModel.estimatedGasUnits,
+      estimatedGasUnits: safeGasUnits,
       exponent: transactionCurrency.decimal,
-      contractAddress: transactionCurrency.contractAddress,
+      contractAddress: tokenContract,
       gasPrice: gasFeesModel.gasPrice,
       useBlinkProtection: useBlinkProtection,
     );
@@ -1180,7 +1248,26 @@ abstract class EVMChainWalletBase
         continue;
       }
 
-      result[transactionModel.hash] = getTransactionInfo(transactionModel, address);
+      final newTxInfo = getTransactionInfo(transactionModel, address);
+      final existingTxInfo = result[transactionModel.hash];
+      final savedTxInfo = transactionHistory.transactions[transactionModel.hash];
+
+      // Prioritize saved incoming transactions
+      if (savedTxInfo != null &&
+          savedTxInfo.direction == TransactionDirection.incoming &&
+          newTxInfo.direction == TransactionDirection.outgoing) {
+        result[transactionModel.hash] = savedTxInfo;
+        continue;
+      }
+
+      if (existingTxInfo == null) {
+        result[transactionModel.hash] = newTxInfo;
+      }
+
+      else if (newTxInfo.direction == TransactionDirection.incoming &&
+          existingTxInfo.direction == TransactionDirection.outgoing) {
+        result[transactionModel.hash] = newTxInfo;
+      }
     }
 
     return result;
@@ -1188,7 +1275,7 @@ abstract class EVMChainWalletBase
 
   String? analyzeTransaction(String? transactionInput) {
     if (transactionInput == '0x' || transactionInput == null || transactionInput.isEmpty) {
-      return 'simpleTransfer';
+      return '';
     }
 
     final methodSignature =
@@ -1330,7 +1417,20 @@ abstract class EVMChainWalletBase
     final token = tokenContract.toLowerCase();
     if (token == zero || token == evmNative.toLowerCase()) return false;
     if (requiredAmount <= BigInt.zero) return false;
+    try {
+      final allowance = await getAllowance(tokenContract, spender);
+      if (allowance == null) {
+        printV('Could not fetch allowance for $tokenContract, assuming approval is required');
+        return true;
+      }
+      return allowance < requiredAmount;
+    } catch (e) {
+      printV('approval-check error: $e');
+      return true;
+    }
+  }
 
+  Future<BigInt?> getAllowance(String tokenContract, String spender) async {
     try {
       final owner = _evmChainPrivateKey.address;
       final erc20 = ERC20(
@@ -1340,11 +1440,10 @@ abstract class EVMChainWalletBase
       );
 
       final allowance = await erc20.allowance(owner, EthereumAddress.fromHex(spender));
-
-      return allowance < requiredAmount;
+      return allowance;
     } catch (e) {
-      printV('approval-check error: $e');
-      return true;
+      printV('getAllowance error: $e');
+      return null;
     }
   }
 

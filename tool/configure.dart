@@ -285,6 +285,8 @@ abstract class Bitcoin {
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
   String getNetworkName(Object wallet);
+  bool useLightning(Object wallet);
+  void updateUseLightning(Object wallet, bool value);
   Future<void> setLightningUsername(Object wallet, String username);
   Future<String?> getLightningUsername(Object wallet);
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
@@ -381,14 +383,14 @@ class MoneroBalance extends Balance {
       : formattedFullBalance = monero!.formatterMoneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
             monero!.formatterMoneroAmountToString(amount: unlockedBalance),
-        super(unlockedBalance, fullBalance);
+        super.fromInt(unlockedBalance, fullBalance);
 
   MoneroBalance.fromString(
       {required this.formattedFullBalance,
       required this.formattedUnlockedBalance})
       : fullBalance = monero!.formatterMoneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-        super(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
+        super.fromInt(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
             monero!.formatterMoneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
@@ -588,14 +590,14 @@ class WowneroBalance extends Balance {
       : formattedFullBalance = wownero!.formatterWowneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
             wownero!.formatterWowneroAmountToString(amount: unlockedBalance),
-        super(unlockedBalance, fullBalance);
+        super.fromInt(unlockedBalance, fullBalance);
 
   WowneroBalance.fromString(
       {required this.formattedFullBalance,
       required this.formattedUnlockedBalance})
       : fullBalance = wownero!.formatterWowneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
-        super(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
+        super.fromInt(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
             wownero!.formatterWowneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
@@ -1485,6 +1487,11 @@ abstract class EVM {
     BigInt requiredAmount,
   );
   
+  Future<BigInt?> getAllowance(
+      WalletBase wallet,
+      String tokenContract,
+      String spender);
+  
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
     BigInt amount,
@@ -1500,7 +1507,9 @@ abstract class EVM {
     String dataHex,
     BigInt valueWei,
     TransactionPriority? priority,
-    {bool useBlinkProtection = true}
+    {bool useBlinkProtection = true,
+    String? sourceTokenAddress,
+    BigInt? sourceTokenAmount}
   );
   
   // Hardware wallet methods

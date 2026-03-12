@@ -101,6 +101,7 @@ class NewListSections extends StatelessWidget {
         isFirstInSection: isFirst,
         isLastInSection: isLast,
         showArrow: item.showArrow,
+        truncateTrailingText: item.truncateTrailingText,
         foregroundColor: item.foregroundColor,
         trailingIconSize: item.trailingIconSize,
       );

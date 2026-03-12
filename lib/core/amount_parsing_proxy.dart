@@ -61,6 +61,15 @@ class AmountParsingProxy {
     return cryptoCurrency.parseAmount(amount);
   }
 
+  /// [tryParseCryptoString] tries to turn the display representation [string] into a `BigInt` presentation of the [cryptoCurrency]
+  BigInt? tryParseCryptoString(String amount, CryptoCurrency cryptoCurrency) {
+    if (useSatoshi(cryptoCurrency)) {
+      return BigInt.tryParse(amount);
+    }
+
+    return cryptoCurrency.tryParseAmount(amount);
+  }
+
   /// [getCryptoSymbol] returns the correct Symbol related to the presentation
   String getCryptoSymbol(CryptoCurrency cryptoCurrency) =>
       useSatoshi(cryptoCurrency) ? "sats" : cryptoCurrency.title.safeSubString(0, 8);

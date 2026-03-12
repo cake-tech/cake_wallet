@@ -45,6 +45,8 @@ RUN apt-get update \
 RUN set -o xtrace \
     && cd /opt \
     && apt-get install -y --no-install-recommends --no-install-suggests \
+    # protobuf
+    protobuf-compiler libprotobuf-dev \
     # Core dependencies
     bc build-essential curl default-jdk git jq lcov libglu1-mesa libpulse0 libsqlite3-dev libstdc++6 locales openssh-client ruby-bundler ruby-full sudo unzip wget zip \
     # for x86 emulators
@@ -67,6 +69,8 @@ RUN set -o xtrace \
     g++-x86-64-linux-gnu gcc-x86-64-linux-gnu \
     # flatpak dependencies
     flatpak flatpak-builder binutils elfutils patch unzip xz-utils zstd \
+    # docker dependencies
+    docker-cli rsync \
     && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && sh -c 'echo "en_US.UTF-8 UTF-8" > /etc/locale.gen' \
     && locale-gen \
@@ -78,7 +82,7 @@ RUN flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.
     && flatpak install -y flathub org.freedesktop.Sdk//${FLATPAK_RUNTIME_VERSION}
 
 # Install nodejs for Github Actions
-RUN curl -fsSL https://deb.nodesource.com/setup_23.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -88,11 +92,11 @@ ENV GOROOT=/usr/local/go
 ENV GOPATH=${HOME}/go
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then \
-      wget https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz -O go.tar.gz; \
+    wget https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz -O go.tar.gz; \
     elif [ "$ARCH" = "aarch64" ]; then \
-      wget https://go.dev/dl/go${GOLANG_VERSION}.linux-arm64.tar.gz -O go.tar.gz; \
+    wget https://go.dev/dl/go${GOLANG_VERSION}.linux-arm64.tar.gz -O go.tar.gz; \
     else \
-      echo "Unsupported architecture: $ARCH"; exit 1; \
+    echo "Unsupported architecture: $ARCH"; exit 1; \
     fi && \
     rm -rf /usr/local/go && \
     tar -C /usr/local -xzf go.tar.gz && \
@@ -101,8 +105,8 @@ RUN ARCH=$(uname -m) && \
     gomobile init
 
 RUN git config --global user.email "czarek@cakewallet.com" \
-    && git config --global user.name "CakeWallet CI"
-
+    && git config --global user.name "CakeWallet CI" \
+    && git config --global --add safe.directory '*'
 
 # Install Android SDK commandline tools and emulator
 RUN ARCH=$(uname -m) && \
@@ -140,10 +144,15 @@ RUN ARCH=$(uname -m) && \
     "build-tools;33.0.2" \
     "build-tools;33.0.1" \
     "build-tools;33.0.0" \
-    "build-tools;35.0.0"
+    "build-tools;35.0.0" \
+    "cmake;3.22.1"
 
 # Install extra NDK dependency for sp_scanner
 ENV ANDROID_NDK_VERSION=28.2.13676358
+
+ENV ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION
+ENV ANDROID_NDK=$ANDROID_NDK_HOME
+
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" != "x86_64" ]; then exit 0; fi \
     && yes | sdkmanager "ndk;$ANDROID_NDK_VERSION"
@@ -172,7 +181,7 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
     do \
     for target in aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu aarch64-unknown-linux-gnu; \
     do \
-        rustup target add --toolchain $toolchain $target; \
+    rustup target add --toolchain $toolchain $target; \
     done \
     done
 

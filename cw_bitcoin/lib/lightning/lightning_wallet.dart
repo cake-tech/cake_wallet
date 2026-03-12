@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
@@ -10,6 +11,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 
 bool _breezSdkSparkLibUninitialized = true;
+Stream<LogEntry>? _logStream;
 
 class LightningWallet {
   final String mnemonic;
@@ -20,6 +22,8 @@ class LightningWallet {
   final Network network;
   late BreezSdk sdk;
 
+  String? cachedAddress;
+
   static int MAX_RETRIES = 10;
 
   LightningWallet({
@@ -29,7 +33,21 @@ class LightningWallet {
     required this.apiKey,
     required this.lnurlDomain,
     this.network = Network.mainnet,
+    this.cachedAddress
   });
+
+  StreamSubscription<SdkEvent>? _eventSubscription;
+  Stream<SdkEvent>? _eventStream;
+
+  StreamSubscription<LogEntry>? _logSubscription;
+
+  void _subscribeToLogStream(File logFile) {
+    _logSubscription = _logStream?.listen((logEntry) {
+      logFile.writeAsString("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
+    }, onError: (e) {
+      logFile.writeAsString("[ERROR] $e\n", mode: FileMode.append);
+    });
+  }
 
   Future<bool> init(String appPath) async {
     try {
@@ -57,6 +75,17 @@ class LightningWallet {
       sdk = await connect(request: connectRequest);
 
       _eventStream ??= sdk.addEventListener().asBroadcastStream();
+      _logStream ??= initLogging().asBroadcastStream();
+
+      await sdk.syncWallet(request: SyncWalletRequest());
+
+      try {
+        final logFile = File("$appPath/lightning.log")
+          ..createSync();
+        _subscribeToLogStream(logFile);
+      } catch (e) {
+        printV(e);
+      }
 
       return true;
     } catch (e) {
@@ -68,26 +97,39 @@ class LightningWallet {
   Future<void> close() async {
     _eventSubscription?.cancel();
     await sdk.disconnect();
+    _logSubscription?.cancel();
   }
 
   Future<String?> getAddress() async {
     var retries = 0;
     while (retries < MAX_RETRIES) {
-      final address = (await sdk.getLightningAddress())?.lightningAddress;
+      try {
+        final address = (await sdk.getLightningAddress())?.lightningAddress;
 
-      if (address != null) return address;
+        if (address != null) {
+          cachedAddress = address;
+          return address;
+        }
+      } catch (_) {} // No need to log here since it should be in the lightning log
       retries++;
       await Future.delayed(Duration(milliseconds: 500));
     }
-    return null;
+
+    return cachedAddress;
   }
 
   Future<String> getDepositAddress() async => (await sdk.receivePayment(
           request: ReceivePaymentRequest(paymentMethod: ReceivePaymentMethod.bitcoinAddress())))
       .paymentRequest;
 
-  Future<BigInt> getBalance() async =>
-      (await sdk.getInfo(request: GetInfoRequest(ensureSynced: true))).balanceSats;
+  Future<BigInt> getBalance() async {
+    try {
+      return (await sdk.getInfo(request: GetInfoRequest(ensureSynced: true))).balanceSats;
+    } on SdkError_Generic catch (_) {
+    } on SdkError_NetworkError catch (_) {}
+
+    return BigInt.zero;
+  }
 
   Future<String> registerAddress(String username) async {
     return (await sdk.registerLightningAddress(
@@ -139,9 +181,16 @@ class LightningWallet {
               ((paymentMethod.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
           fee: lightningFeeSats.toInt() + (sparkTransferFeeSats?.toInt() ?? 0),
           commitOverride: () async {
-            final res = await sdk.sendPayment(
-                request: SendPaymentRequest(prepareResponse: prepareResponse));
-            printV(res.payment.status.name);
+            try {
+              final res = await sdk.sendPayment(
+                  request: SendPaymentRequest(prepareResponse: prepareResponse));
+              printV(res.payment.status.name);
+            } on SdkError_SparkError catch (e) {
+              if (e.field0.contains("AlreadyExists")) {
+                throw Exception("Invoice already paid");
+              }
+              rethrow;
+            }
           },
         );
       }
@@ -305,9 +354,6 @@ class LightningWallet {
 
     return response.txHex;
   }
-
-  StreamSubscription<SdkEvent>? _eventSubscription;
-  Stream<SdkEvent>? _eventStream;
 
   void setEventListener(
       {required Function(ElectrumTransactionInfo) onTransactionEvent, required Function onBalanceChangedEvent}) {

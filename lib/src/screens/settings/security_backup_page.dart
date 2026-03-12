@@ -148,18 +148,18 @@ class SecurityBackupPage extends BasePage {
                   //               .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
                   //         );
                   //       }),
-                  if (!SettingsStoreBase.walletPasswordDirectInput)
-                    ListItemRegularRow(
-                        keyValue: "security_backup_page_change_password_button_key",
-                        label: S.current.create_backup,
-                        onTap: () {
-                          _authService.authenticateAction(
-                            context,
-                            route: Routes.backup,
-                            conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                                .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-                          );
-                        }),
+                  // if (!SettingsStoreBase.walletPasswordDirectInput)
+                  //   ListItemRegularRow(
+                  //       keyValue: "security_backup_page_change_password_button_key",
+                  //       label: S.current.create_backup,
+                  //       onTap: () {
+                  //         _authService.authenticateAction(
+                  //           context,
+                  //           route: Routes.backup,
+                  //           conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                  //               .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+                  //         );
+                  //       }),
                   ListItemRegularRow(
                       keyValue: "security_backup_page_change_pin_button_key",
                       label: S.current.settings_change_pin,

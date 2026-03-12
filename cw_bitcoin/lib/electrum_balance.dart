@@ -6,10 +6,10 @@ class ElectrumBalance extends Balance {
   ElectrumBalance({
     required this.confirmed,
     required this.unconfirmed,
-    required this.frozen,
+    required int frozen,
     this.secondConfirmed = 0,
     this.secondUnconfirmed = 0,
-  }) : super(confirmed, unconfirmed,
+  }) : this._frozen = frozen, super.fromInt(confirmed, unconfirmed,
             secondAvailable: secondConfirmed, secondAdditional: secondUnconfirmed, frozen: frozen);
 
   static ElectrumBalance? fromJSON(String? jsonSource) {
@@ -28,19 +28,21 @@ class ElectrumBalance extends Balance {
 
   int confirmed;
   int unconfirmed;
+  final int _frozen;
+
   @override
-  final int frozen;
+  BigInt get frozen => BigInt.from(_frozen);
 
   int secondConfirmed = 0;
   int secondUnconfirmed = 0;
 
   @override
-  int get fullAvailableBalance => (confirmed + unconfirmed) + secondConfirmed - frozen;
+  BigInt get fullAvailableBalance => BigInt.from((confirmed + unconfirmed) + secondConfirmed - _frozen);
 
   String toJSON() => json.encode({
         'confirmed': confirmed,
         'unconfirmed': unconfirmed,
-        'frozen': frozen,
+        'frozen': _frozen,
         'secondConfirmed': secondConfirmed,
         'secondUnconfirmed': secondUnconfirmed,
       });

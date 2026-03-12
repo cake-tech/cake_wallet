@@ -43,10 +43,11 @@ class ChainIcon extends StatelessWidget {
                   width: 36,
                   height: 36,
                   colorFilter: ColorFilter.mode(
-                      done
-                          ? Theme.of(context).colorScheme.surfaceContainerHigh
-                          : Theme.of(context).colorScheme.surfaceContainerHigh,
-                      BlendMode.srcIn),
+                    done
+                        ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                        : Theme.of(context).colorScheme.primary,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ),

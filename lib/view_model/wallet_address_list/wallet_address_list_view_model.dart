@@ -169,6 +169,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
 
   @computed
+  bool get isFiatDisabled => _appStore.settingsStore.fiatApiMode == FiatApiMode.disabled;
+
+  @computed
   WalletType get type => wallet.type;
 
   @computed
@@ -589,7 +592,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   Future<void> rotateAddress() async {
     await createNewAddress(wallet, "");
     if (isElectrumWallet) {
-      wallet.walletAddresses.address = (addressList.last as WalletAddressListItem).address;
+      wallet.walletAddresses.address = addressList.whereType<WalletAddressListItem>().last.address;
     }
   }
 

@@ -202,6 +202,11 @@ abstract class OutputBase with Store {
           estimatedFee = walletTypeToCryptoCurrency(_wallet.type).formatAmount(BigInt.from(fee));
           break;
         case WalletType.bitcoin:
+          if (cryptoCurrencyHandler() == CryptoCurrency.btcln) {
+            estimatedFee =
+                _appStore.amountParsingProxy.getDisplayCryptoString(10, cryptoCurrencyHandler());
+            break;
+          }
           if (_settingsStore.getPriority(_wallet.type) ==
               bitcoin!.getBitcoinTransactionPriorityCustom()) {
             fee = bitcoin!.getEstimatedFeeWithFeeRate(

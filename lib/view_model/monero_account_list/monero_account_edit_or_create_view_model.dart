@@ -1,6 +1,11 @@
+import 'dart:math';
+
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/balance_card_style_settings.dart';
+import 'package:cw_core/card_design.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -33,7 +38,30 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   final AccountListItem? _accountListItem;
   final WalletBase _wallet;
 
+  Future<List<Gradient>> _getUsableCardGradients() async {
+    final List<Gradient> ret = List<Gradient>.from(CardDesign.allGradients);
+    final designs = (await BalanceCardStyleSettings.getAll(_wallet.walletInfo.internalId))
+        .map((item) => CardDesign.fromStyleSettings(item, _wallet.currency));
+    for (final design in designs) {
+      ret.remove(design.gradient);
+    }
+    return ret.isNotEmpty ? ret : CardDesign.allGradients;
+  }
+
+  Future<void> _saveRandomCardDesign() async {
+    final gradients = await _getUsableCardGradients();
+
+    await BalanceCardStyleSettings.fromCardDesign(
+            _wallet.walletInfo.internalId,
+            _moneroAccountList.accounts.length,
+            _moneroAccountList.accounts.length,
+            CardDesign.specialDesignsForCurrencies[_wallet.currency]!
+                .withGradient(gradients[Random().nextInt(gradients.length)]))
+        .insert();
+  }
+
   Future<void> save() async {
+    await _saveRandomCardDesign();
     if (_wallet.type == WalletType.monero) {
       await saveMonero();
     }

@@ -5,6 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_send_external_modal.dart';
 import 'package:cake_wallet/routes.dart';
@@ -35,7 +36,6 @@ class SwapConfirmSheet extends StatefulWidget {
 }
 
 class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
-
   void beginSend() async {
     final sendVM = widget.exchangeTradeViewModel.sendViewModel;
 
@@ -78,125 +78,174 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvokedWithResult: (didPop, result) {
-        Navigator.of(context, rootNavigator: true).pop();
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ModalTopBar(
-              title: "",
-              leadingWidget: SwapModalHeader(
-                  fromIconPath: widget.exchangeViewModel.depositCurrency.iconPath ?? "",
-                  toIconPath: widget.exchangeViewModel.receiveCurrency.iconPath ?? ""),
-              trailingIcon: Icon(Icons.close),
-              onTrailingPressed: Navigator.of(context).maybePop,
-            ),
-            SafeArea(
-              top:false,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
-                  spacing: 24,
+        onPopInvokedWithResult: (didPop, result) {
+          Navigator.of(context, rootNavigator: true).pop();
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+          ),
+          child: SafeArea(
+            child: Observer(
+              builder: (_) {
+                final commited =
+                    widget.exchangeTradeViewModel.sendViewModel.state is TransactionCommitted;
+                return Stack(
+                  fit: StackFit.loose,
                   children: [
-                    Observer(
-                      builder: (_) => NewListSections(showHeader: true, sections: {
-                        S.of(context).send: [
-                          ListItemRegularRow(
-                              showArrow: false,
-                              keyValue: "send value",
-                              label: widget.exchangeViewModel.depositCurrency.fullName ?? "",
-                              iconPath: widget.exchangeViewModel.depositCurrency.iconPath ?? "",
-                              trailingText: widget.exchangeTradeViewModel.trade.amountFormatted() +
-                                  " " +
-                                  (widget.exchangeViewModel.depositCurrency.title)),
-                          if(widget.exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
-                          ListItemRegularRow(
-                              showArrow: false,
-                              keyValue: "fee",
-                              label: S.of(context).fee,
-                              trailingText:
-                                  "${widget.exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${widget.exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})"),
-                          ListItemRegularRow(
-                              keyValue: "sender",
-                              label: S.of(context).from,
-                              trailingText: widget.exchangeViewModel.isSendFromExternal
-                                  ? S.of(context).external_wallet
-                                  : widget.exchangeViewModel.wallet.name,
-                              showArrow: false)
-                        ],
-                        S.of(context).receive: [
-                          ListItemRegularRow(
-                              showArrow: false,
-                              keyValue: "receive value",
-                              label: widget.exchangeViewModel.receiveCurrency.fullName ?? "",
-                              iconPath: widget.exchangeViewModel.receiveCurrency.iconPath ?? "",
-                              trailingText: (widget.receiveAmount) +
-                                  " " +
-                                  (widget.exchangeViewModel.receiveCurrency.title)),
-                          ListItemRegularRow(
-                              keyValue: "receiver",
-                              label: S.of(context).to,
-                              showArrow: false,
-                              trailingText: widget.exchangeViewModel.receiveAddressDisplayName ?? middleTruncate(widget.exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8))
-                        ],
-                        "${S.of(context).swap_id} (${S.of(context).tap_to_copy})": [
-                          ListItemRegularRow(
-                              showArrow: false,
-                              keyValue: "provider",
-                              onTap: () => Clipboard.setData(
-                                  ClipboardData(text: widget.exchangeTradeViewModel.trade.id)),
-                              label: widget.exchangeTradeViewModel.trade.provider.title,
-                              iconPath: widget.exchangeTradeViewModel.trade.provider.image,
-                              trailingIconPath: "assets/new-ui/copy.svg",
-                              trailingText: widget.exchangeTradeViewModel.trade.id),
-                          if(widget.exchangeTradeViewModel.trade.provider == ExchangeProviderDescription.trocador)
-                            ListItemRegularRow(
-                              showArrow: false,
-                              keyValue: "trocador provider name",
-                              label: "Trocador ${S.of(context).provider}",
-                              trailingText: widget.exchangeTradeViewModel.trade.providerName??""
-                            )
-                        ]
-                      }),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: widget.exchangeViewModel.isSendFromExternal
-                          ? NewPrimaryButton(
-                              onPressed: _showExternalSendModal,
-                              text: S.of(context).continue_text,
-                              color: Theme.of(context).colorScheme.primary,
-                              textColor: Theme.of(context).colorScheme.onPrimary)
-                          : SendConfirmBottomWidget(
-                              sendViewModel: widget.exchangeTradeViewModel.sendViewModel),
+                    Positioned.fill(
+                        child: AnimatedSlide(
+                      offset: commited ? Offset.zero : const Offset(1, 0),
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      child: const TransactionCommitedScreen(),
+                    )),
+                    AnimatedSlide(
+                      offset: commited ? const Offset(-1, 0) : Offset.zero,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      child: SwapTransactionDetails(
+                        exchangeViewModel: widget.exchangeViewModel,
+                        exchangeTradeViewModel: widget.exchangeTradeViewModel,
+                        receiveAmount: widget.receiveAmount,
+                      ),
                     ),
                   ],
-                ),
-              ),
-            )
-          ],
+                );
+              },
+            ),
+          ),
+        ));
+  }
+}
+
+class SwapTransactionDetails extends StatelessWidget {
+  const SwapTransactionDetails(
+      {super.key,
+      required this.exchangeViewModel,
+      required this.exchangeTradeViewModel,
+      required this.receiveAmount});
+
+  final ExchangeViewModel exchangeViewModel;
+  final ExchangeTradeViewModel exchangeTradeViewModel;
+  final String receiveAmount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ModalTopBar(
+          title: "",
+          leadingWidget: SwapModalHeader(
+              fromIconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
+              toIconPath: exchangeViewModel.receiveCurrency.iconPath ?? ""),
+          trailingIcon: Icon(Icons.close),
+          onTrailingPressed: Navigator.of(context).maybePop,
         ),
-      ),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              spacing: 24,
+              children: [
+                Observer(
+                  builder: (_) => NewListSections(showHeader: true, sections: {
+                    S.of(context).send: [
+                      ListItemRegularRow(
+                          showArrow: false,
+                          keyValue: "send value",
+                          label: exchangeViewModel.depositCurrency.fullName ?? "",
+                          iconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
+                          trailingText: exchangeTradeViewModel.trade.amountFormatted() +
+                              " " +
+                              (exchangeViewModel.depositCurrency.title)),
+                      if (exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
+                        ListItemRegularRow(
+                            showArrow: false,
+                            keyValue: "fee",
+                            label: S.of(context).fee,
+                            trailingText:
+                                "${exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})"),
+                      ListItemRegularRow(
+                          keyValue: "sender",
+                          label: S.of(context).from,
+                          trailingText: exchangeViewModel.isSendFromExternal
+                              ? S.of(context).external_wallet
+                              : exchangeViewModel.wallet.name,
+                          showArrow: false)
+                    ],
+                    S.of(context).receive: [
+                      ListItemRegularRow(
+                          showArrow: false,
+                          keyValue: "receive value",
+                          label: exchangeViewModel.receiveCurrency.fullName ?? "",
+                          iconPath: exchangeViewModel.receiveCurrency.iconPath ?? "",
+                          trailingText:
+                              (receiveAmount) + " " + (exchangeViewModel.receiveCurrency.title)),
+                      ListItemRegularRow(
+                          keyValue: "receiver",
+                          label: S.of(context).to,
+                          showArrow: false,
+                          trailingText: exchangeViewModel.receiveAddressDisplayName ??
+                              middleTruncate(
+                                  exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8))
+                    ],
+                    "${S.of(context).swap_id} (${S.of(context).tap_to_copy})": [
+                      ListItemRegularRow(
+                          showArrow: false,
+                          keyValue: "provider",
+                          onTap: () => Clipboard.setData(
+                              ClipboardData(text: exchangeTradeViewModel.trade.id)),
+                          label: exchangeTradeViewModel.trade.provider.title,
+                          iconPath: exchangeTradeViewModel.trade.provider.image,
+                          trailingIconPath: "assets/new-ui/copy.svg",
+                          trailingText: exchangeTradeViewModel.trade.id,
+                          truncateTrailingText:
+                              !exchangeTradeViewModel.trade.provider.isCentralized),
+                      if (exchangeTradeViewModel.trade.provider ==
+                          ExchangeProviderDescription.trocador)
+                        ListItemRegularRow(
+                            showArrow: false,
+                            keyValue: "trocador provider name",
+                            label: "Trocador ${S.of(context).provider}",
+                            trailingText: exchangeTradeViewModel.trade.providerName ?? "")
+                    ]
+                  }),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: exchangeViewModel.isSendFromExternal
+                      ? NewPrimaryButton(
+                          onPressed: () => _showExternalSendModal(context),
+                          text: S.of(context).continue_text,
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary)
+                      : SendConfirmBottomWidget(
+                          sendViewModel: exchangeTradeViewModel.sendViewModel),
+                ),
+              ],
+            ),
+          ),
+        )
+      ],
     );
   }
 
-  void _showExternalSendModal() {
-    showMaterialModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return SwapSendExternalModal(
-              amount: widget.exchangeTradeViewModel.trade.amount,
-              exchangeTradeViewModel: widget.exchangeTradeViewModel,
-              from: widget.exchangeTradeViewModel.trade.from!,
-              to: widget.exchangeTradeViewModel.trade.to!,
-              address: widget.exchangeTradeViewModel.trade.inputAddress ?? "");
-        });
+  void _showExternalSendModal(BuildContext context) {
+    if (context.mounted) {
+      showMaterialModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return SwapSendExternalModal(
+                amount: exchangeTradeViewModel.trade.amount,
+                exchangeTradeViewModel: exchangeTradeViewModel,
+                from: exchangeTradeViewModel.trade.from ?? exchangeViewModel.depositCurrency,
+                to: exchangeTradeViewModel.trade.to ?? exchangeViewModel.receiveCurrency,
+                address: exchangeTradeViewModel.trade.inputAddress ?? "");
+          });
+    }
   }
-
 }

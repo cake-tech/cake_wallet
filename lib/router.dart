@@ -938,10 +938,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.signPage:
+      final vm = getIt.get<SignViewModel>();
       return MaterialPageRoute<void>(
-        builder: (_) => SignPage(
-          getIt.get<SignViewModel>(),
-        ),
+        builder: (_) => SignPage(vm),
       );
 
     case Routes.connectDevices:

@@ -26,66 +26,82 @@ class _ConfirmSwiperState extends State<ConfirmSwiper> {
     });
   }
 
+  static const double _triggerThreshold = 20;
+
   @override
   Widget build(BuildContext context) {
-    final areaWidth = MediaQuery.of(context).size.width * 0.77;
-
     final radius = (pillSize + pillHorizontalPadding * 2) / 2;
 
-    return GestureDetector(
-      onHorizontalDragUpdate: (d) {
-        setState(() {
-          drag = max(pillHorizontalPadding,
-              min(areaWidth - pillSize - pillHorizontalPadding, drag + d.delta.dx));
-        });
-      },
-      onHorizontalDragEnd: (_) {
-        if (drag > areaWidth - 80) {
-          widget.onConfirmed();
-          setState(() => drag = pillHorizontalPadding);
-        } else {
-          setState(() => drag = pillHorizontalPadding);
-        }
-      },
-      child: SizedBox(
-        height: pillSize + pillHorizontalPadding * 2,
-        width: areaWidth,
-        child: Stack(
-          alignment: Alignment.centerLeft,
-          children: [
-            ClipPath(
-              clipper: TrackClipper(
-                cut: drag - pillHorizontalPadding,
-                radius: radius,
-              ),
-              child: Container(
-                height: pillSize + pillHorizontalPadding * 2,
-                width: areaWidth,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
-                  borderRadius: BorderRadius.circular(99999),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final areaWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : MediaQuery.of(context).size.width * 0.77;
+
+        final maxDrag = areaWidth - pillSize - pillHorizontalPadding;
+        final triggerAt = maxDrag - _triggerThreshold;
+
+        return GestureDetector(
+          onHorizontalDragUpdate: (d) {
+            setState(() {
+              drag = max(pillHorizontalPadding,
+                  min(maxDrag, drag + d.delta.dx));
+            });
+          },
+          onHorizontalDragEnd: (_) {
+            if (drag >= triggerAt) {
+              widget.onConfirmed();
+            }
+            setState(() => drag = pillHorizontalPadding);
+          },
+          child: SizedBox(
+            height: pillSize + pillHorizontalPadding * 2,
+            width: areaWidth,
+            child: Stack(
+              alignment: Alignment.centerLeft,
+              children: [
+                ClipPath(
+                  clipper: TrackClipper(
+                    cut: drag - pillHorizontalPadding,
+                    radius: radius,
+                  ),
+                  child: Container(
+                    height: pillSize + pillHorizontalPadding * 2,
+                    width: areaWidth,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(99999),
+                    ),
+                    child: Center(
+                      child: FlowingText(
+                        text: widget.swiperText,
+                        opacity: 1 - (drag / maxDrag),
+                      ),
+                    ),
+                  ),
                 ),
-                child: Padding(
-                  padding: EdgeInsets.only(left: (((areaWidth / 2) - (widget.swiperText.length / 2) + 0.4 * (pillSize / 2))) - MediaQuery.of(context).size.width * 0.23 - pillSize),
-                  child: Center(child: FlowingText(text: widget.swiperText, opacity: 1 - (drag / (areaWidth - pillSize)))),
+                Positioned(
+                  left: drag,
+                  child: Container(
+                    height: pillSize,
+                    width: pillSize,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.arrow_forward,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-            Positioned(
-              left: drag,
-              child: Container(
-                height: pillSize,
-                width: pillSize,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.arrow_forward, color: Theme.of(context).colorScheme.onPrimary),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -37,7 +37,7 @@ class NewPrimaryButton extends StatelessWidget {
           ),
           shape: WidgetStateProperty.all<RoundedSuperellipseBorder>(
             RoundedSuperellipseBorder(
-              borderRadius: BorderRadius.circular(16.0),
+              borderRadius: BorderRadius.circular(18.0),
             ),
           ),
         ),

@@ -153,16 +153,17 @@ class CWBitcoin extends Bitcoin {
     return BitcoinTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount,
-                memo: out.memo,
-                extra: out.extra))
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmount,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                  formattedCryptoAmount: out.formattedCryptoAmount,
+                  memo: out.memo.isNotEmpty ? out.memo : null,
+                  extra: out.extra,
+                ))
             .toList(),
         priority: priority as BitcoinTransactionPriority,
         feeRate: bitcoinFeeRate,
@@ -796,6 +797,22 @@ class CWBitcoin extends Bitcoin {
       (_wallet.walletAddresses as BitcoinWalletAddresses).initPayjoin();
     } else {
       stopPayjoinSessions(wallet);
+    }
+  }
+
+  @override
+  bool useLightning(Object wallet) {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is BitcoinWallet) return _wallet.useLightning;
+
+    return false;
+  }
+
+  @override
+  void updateUseLightning(Object wallet, bool value) {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is BitcoinWallet) {
+      _wallet.useLightning = value;
     }
   }
 

@@ -59,7 +59,7 @@ class OpenCryptoPayService {
 
       lnUrl = params["lightning"] as String;
     }
-    final url = decodeLNURL(lnUrl);
+    final url = LNURL.decode(lnUrl);
     final params = await _getOpenCryptoPayParams(url);
 
     return OpenCryptoPayRequest(

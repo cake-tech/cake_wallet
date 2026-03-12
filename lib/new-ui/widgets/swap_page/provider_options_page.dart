@@ -206,6 +206,8 @@ class ProviderOptionsPage extends StatelessWidget {
     } else {
       exchangeViewModel.removeExchangeProvider(provider);
     }
+
+    exchangeViewModel.saveSelectedProviders();
   }
 
   void _openTrocadorProvidersPage(BuildContext context) {

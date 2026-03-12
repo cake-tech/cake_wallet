@@ -15,7 +15,7 @@ class AddressFormatter {
     final cleanAddress = address.replaceAll('bitcoincash:', '');
     final isMWEB = address.startsWith('ltcmweb');
     final chunkSize = walletType != null ? _getChunkSize(walletType) : 4;
-    final isHumanReadable = address.contains("@");
+    final isHumanReadable = address.contains("@") || address.startsWith("Error:");
 
     if (isHumanReadable) {
       return Text(address, style: evenTextStyle, textAlign: textAlign ?? TextAlign.start);

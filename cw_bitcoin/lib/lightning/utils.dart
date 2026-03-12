@@ -5,5 +5,5 @@ String getLnurlOfLightningAddress(String lightningAddress) {
 
   final name = parts.first;
   final domain = parts.last;
-  return encodeLNURL("https://$domain/.well-known/lnurlp/$name");
+  return LNURL.encode("https://$domain/.well-known/lnurlp/$name");
 }

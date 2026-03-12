@@ -29,6 +29,7 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
@@ -231,7 +232,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         final balance = wallet.balance[depositCurrency];
         if (balance != null) {
           depositAvailableAmount = _appStore.amountParsingProxy
-              .getDisplayCryptoString(balance.fullAvailableBalance, depositCurrency);
+              .getDisplayCryptoStringFromBigInt(balance.fullAvailableBalance, depositCurrency);
           return false;
         }
         return true;
@@ -259,17 +260,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         },
       ),
     );
-    reaction((_) => wallet.currency, (_) async {
-      // When currency changes (e.g., EVM chain switch), update currencies
-      await Future.delayed(const Duration(milliseconds: 100));
-      receiveCurrency = wallet.currency;
-      depositCurrency = wallet.currency;
-
-      // Only refresh ETH tokens for EVM wallets
-      if (isEVMCompatibleChain(wallet.type)) {
-        _injectUserEthTokensIntoCurrencyLists();
-      }
-    });
   }
 
   bool useSameWalletAddress(CryptoCurrency currency) =>
@@ -303,8 +293,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         LetsExchangeExchangeProvider(),
         StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
+        SwapsXyzExchangeProvider(),
         JupiterExchangeProvider(),
-        // SwapsXyzExchangeProvider(),
         NearIntentsExchangeProvider(),
         TrocadorExchangeProvider(
             useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
@@ -354,7 +344,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get depositAmount =>
-      amountParsingProxy.getDisplayCryptoAmount(_depositAmount, depositCurrency);
+      _depositAmount == "..."? _depositAmount:amountParsingProxy.getDisplayCryptoAmount(_depositAmount, depositCurrency);
 
   @computed
   String get depositAmountCanonical => _depositAmount;
@@ -364,7 +354,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get receiveAmount =>
-      amountParsingProxy.getDisplayCryptoAmount(_receiveAmount, receiveCurrency);
+      _receiveAmount == "..." ? _receiveAmount:amountParsingProxy.getDisplayCryptoAmount(_receiveAmount, receiveCurrency);
 
   @action
   // only set canonical formated amounts here;
@@ -445,10 +435,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     WalletType? type;
     type = cryptoCurrencyOrTokenToWalletType(depositCurrency);
     if (type == null) {
-      type = cryptoCurrencyOrTokenToWalletType(CryptoCurrency.fromString(depositCurrency.tag ?? ""));
+      try {
+        type = cryptoCurrencyOrTokenToWalletType(CryptoCurrency.fromString(depositCurrency.tag ?? ""));
+      } catch (_) {}
     }
 
-    return await WalletInfo.selectList("type = ?", [type!.index]);
+    if (type != null) {
+      return await WalletInfo.selectList("type = ?", [type.index]);
+    }
+
+    return await WalletInfo.getAll();
   }
 
   @action
@@ -471,7 +467,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String? get balanceDisplay {
     final bal = wallet.balance[depositCurrency]?.fullAvailableBalance;
     if(bal == null) return null;
-    return amountParsingProxy.getDisplayCryptoString(bal, depositCurrency);
+    return amountParsingProxy.getDisplayCryptoStringFromBigInt(bal, depositCurrency);
   }
 
   //* Still open to further optimize these checks
@@ -731,7 +727,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final _enteredAmount = double.tryParse(_receiveAmount.replaceAll(',', '.')) ?? 0;
 
     if (bestRate == 0) {
-      _depositAmount = S.current.fetching;
+      _depositAmount = "...";
 
       await calculateBestRate();
     }
@@ -785,7 +781,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     /// in case the best rate was not calculated yet
     if (bestRate == 0) {
-      _receiveAmount = S.current.fetching;
+      _receiveAmount = "...";
 
       await calculateBestRate();
     }
@@ -1058,11 +1054,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
               final canCreateTrade = await isCanCreateTrade(trade);
               if (!canCreateTrade.result) {
-                tradeState = TradeIsCreatedFailure(
-                  title: S.current.trade_not_created,
-                  error: canCreateTrade.errorMessage ?? '',
-                );
-                return;
+                continue;
               }
 
               tradesStore.setTrade(trade);
@@ -1398,6 +1390,53 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   int get receiveMaxDigits => receiveCurrency.decimals;
 
   Future<CreateTradeResult> isCanCreateTrade(Trade trade) async {
+
+    if (trade.provider == ExchangeProviderDescription.swapsXyz) {
+
+      final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+
+      if (tradeFrom == null) {
+        return CreateTradeResult(
+          result: false,
+          errorMessage: 'From currency is null',
+        );
+      }
+
+      final isNativeSupportedToken = walletTypes.contains(cryptoCurrencyOrTokenToWalletType(tradeFrom));
+
+      if (!isNativeSupportedToken) {
+        bool _isEthToken() =>
+            wallet.currency == CryptoCurrency.eth && tradeFrom.tag == CryptoCurrency.eth.title;
+
+        bool _isPolygonToken() =>
+            wallet.currency == CryptoCurrency.maticpoly &&
+                tradeFrom.tag == CryptoCurrency.maticpoly.tag;
+
+        bool _isBaseToken() =>
+            wallet.currency == CryptoCurrency.baseEth && tradeFrom.tag == CryptoCurrency.baseEth.tag;
+
+        bool _isTronToken() =>
+            wallet.currency == CryptoCurrency.trx && tradeFrom.tag == CryptoCurrency.trx.title;
+
+        bool _isSplToken() =>
+            wallet.currency == CryptoCurrency.sol && tradeFrom.tag == CryptoCurrency.sol.title;
+
+        bool isArbitrumToken() =>
+            wallet.currency == CryptoCurrency.arbEth && tradeFrom.tag == CryptoCurrency.arbEth.tag;
+
+        bool isBscToken() =>
+            wallet.currency == CryptoCurrency.bnb && tradeFrom.tag == CryptoCurrency.bnb.tag;
+
+        if(!(_isEthToken() || _isPolygonToken() || _isBaseToken() || _isTronToken() || _isSplToken() || isArbitrumToken() || isBscToken())) {
+          return CreateTradeResult(
+            result: false,
+            errorMessage: 'This token isn’t supported on the current wallet/network for Swaps.xyz. Switch to a supported wallet or asset',
+          );
+        }
+      }
+
+    }
+
     if (trade.provider == ExchangeProviderDescription.thorChain) {
       final payoutAddress = trade.payoutAddress ?? '';
       final fromWalletAddress = trade.fromWalletAddress ?? '';

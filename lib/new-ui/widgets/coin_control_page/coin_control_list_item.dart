@@ -58,7 +58,28 @@ class CoinControlListItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 4,
                   children: [
-                    Text(amount, style: TextStyle(fontSize:14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurface),),
+                    Row(
+                      spacing:4,
+                      children: [
+                        Text(amount, style: TextStyle(fontSize:14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurface),),
+                        if(address.toLowerCase().contains("mweb")) // hack carried over from old ui, we really should just have a boolean in the object
+                            SvgPicture.asset(
+                              "assets/new-ui/address-type-picker-icons/mweb.svg",
+                              width: 18,
+                              height: 18,
+                              colorFilter: ColorFilter.mode(
+                                  Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                            ),
+                        if(isSilentPayment)
+                          SvgPicture.asset(
+                            "assets/new-ui/address-type-picker-icons/silent.svg",
+                            width: 18,
+                            height: 18,
+                            colorFilter: ColorFilter.mode(
+                                Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                          ),
+                        ],
+                    ),
                     AutoSizeText(
                       '${address.substring(0, 5)}...${address.substring(address.length - 5)}',
                       style: TextStyle(fontSize:12,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurfaceVariant),

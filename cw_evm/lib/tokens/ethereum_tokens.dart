@@ -88,7 +88,7 @@ class EthereumTokens {
         contractAddress: "0x68749665ff8d2d112fa859aa293f07a622782f38",
         decimal: 6,
         enabled: false,
-        iconPath: "assets/images/xaut_icon.png",
+        iconPath: "assets/images/xaut.webp",
       ),
     ];
 

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
@@ -10,6 +11,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_shee
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -176,8 +178,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 textColor: widget.exchangeTradeViewModel.isSendable
                     ? Theme.of(context).colorScheme.onSecondaryContainer
                     : Theme.of(context).colorScheme.onPrimary,
-                isDisabled: widget.exchangeTradeViewModel.isSwapsXyzSendingEVMTokenSwap,
               ),
+
             SizedBox(height: 16),
             Observer(
               builder: (_) {
@@ -293,12 +295,17 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         if (state is ExecutedSuccessfullyState) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             final trade = widget.exchangeTradeViewModel.trade;
+
             final isSwapsXyz = trade.provider == ExchangeProviderDescription.swapsXyz;
             final isEVMWallet = widget.exchangeTradeViewModel.sendViewModel.isEVMWallet;
 
-            final amountValue = isSwapsXyz && isEVMWallet
+            final amountValue = isSwapsXyz && isEVMWallet && !widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal
                 ? trade.amount
                 : widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted;
+
+            final fiatAmountValue = isSwapsXyz && isEVMWallet && !widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal
+                ? widget.exchangeTradeViewModel.sendViewModel.calculateTransactionFiatAmount(amountValue)
+                : widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted;
 
             if (context.mounted) {
               final result = await showModalBottomSheet<bool>(
@@ -319,7 +326,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     amount: S.of(bottomSheetContext).send_amount,
                     amountValue: sendVM.amountParsingProxy
                         .getDisplayCryptoAmount(amountValue, sendVM.selectedCryptoCurrency),
-                    fiatAmountValue: sendVM.pendingTransactionFiatAmountFormatted,
+                    fiatAmountValue: fiatAmountValue,
                     fee: isEVMCompatibleChain(sendVM.walletType)
                         ? S.of(bottomSheetContext).send_estimated_fee
                         : S.of(bottomSheetContext).send_fee,

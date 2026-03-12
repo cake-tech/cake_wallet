@@ -256,7 +256,7 @@ String walletTypeToDisplayName(WalletType type) {
     case WalletType.dogecoin:
       return 'Dogecoin (DOGE)';
     case WalletType.base:
-      return 'Base (BASE)';
+      return 'Base';
     case WalletType.arbitrum:
       return 'Arbitrum (ARB)';
     case WalletType.zcash:
@@ -315,6 +315,10 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
 }
 
 WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
+  if(type.tag == CryptoCurrency.bnb.tag) {
+    return _cryptoCurrencyToWalletType(CryptoCurrency.bnb);
+  }
+
   if(type.tag != null && ![CryptoCurrency.btcln.tag, CryptoCurrency.bnb.tag].contains(type.tag)) {
     return _cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
   } else {

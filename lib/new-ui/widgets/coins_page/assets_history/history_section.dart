@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart';
@@ -13,6 +14,8 @@ import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.d
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
@@ -27,8 +30,17 @@ class HistorySection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Observer(
-        builder: (_) => ListView.builder(
-          physics: const NeverScrollableScrollPhysics(),
+        builder: (_) => (dashboardViewModel.items.isEmpty &&
+                dashboardViewModel.status is! SyncingSyncStatus)
+            ? Padding(
+                padding: EdgeInsets.only(top: 24),
+                child: Text(S.of(context).transactions_will_appear_here,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant)))
+            : ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
           padding: EdgeInsets.zero,
           shrinkWrap: true,
           itemCount: dashboardViewModel.items.length,
@@ -50,27 +62,28 @@ class HistorySection extends StatelessWidget {
                 return Container();
               }
 
-              CryptoCurrency? asset;
-              if (transaction.additionalInfo["isLightning"] == true) asset = CryptoCurrency.btcln;
+                    CryptoCurrency? asset;
+                    if (transaction.additionalInfo["isLightning"] == true)
+                      asset = CryptoCurrency.btcln;
 
-              return GestureDetector(
-                onTap: () => Navigator.of(context)
-                    .pushNamed(Routes.transactionDetails, arguments: transaction),
-                child: HistoryTile(
-                    title: item.formattedTitle + item.formattedStatus + transactionType,
-                    date: DateFormat('HH:mm').format(transaction.date),
-                    amount: item.formattedCryptoAmount,
-                    amountFiat: item.formattedFiatAmount,
-                    roundedBottom: roundedBottom,
-                    roundedTop: roundedTop,
-                    bottomSeparator: !roundedBottom,
-                    direction: item.transaction.direction,
-                    pending: item.transaction.isPending,
-                    asset: asset,
-                ),
-              );
-            } else if (item is TradeListItem) {
-              final trade = item.trade;
+                    return GestureDetector(
+                      onTap: () => Navigator.of(context)
+                          .pushNamed(Routes.transactionDetails, arguments: transaction),
+                      child: HistoryTile(
+                        title: item.formattedTitle + transactionType,
+                        date: DateFormat('HH:mm').format(transaction.date),
+                        amount: item.formattedCryptoAmount,
+                        amountFiat: item.formattedFiatAmount,
+                        roundedBottom: roundedBottom,
+                        roundedTop: roundedTop,
+                        bottomSeparator: !roundedBottom,
+                        direction: item.transaction.direction,
+                        pending: item.transaction.isPending,
+                        asset: asset,
+                      ),
+                    );
+                  } else if (item is TradeListItem) {
+                    final trade = item.trade;
 
               final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
 

@@ -150,7 +150,7 @@ class _SignPageState extends State<SignPage> {
                   alertContent: state.error,
                   buttonText: S.of(context).ok,
                   buttonAction: () {
-                    if (Navigator.canPop(context)) Navigator.of(context).pop();
+                    if (context.mounted && Navigator.canPop(context)) Navigator.of(context).pop();
                   },
                 );
               });

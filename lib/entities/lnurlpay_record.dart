@@ -37,7 +37,7 @@ class LNUrlPayRecord {
       );
 
       if (response.statusCode == 200) {
-        return encodeLNURL(expectedUrl);
+        return LNURL.encode(expectedUrl);
       }
     } catch (e) {
       printV("error checking well-known username: $e");

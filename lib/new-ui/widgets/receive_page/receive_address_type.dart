@@ -52,8 +52,8 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
             children: [
               if (iconPath != null)
                 SvgPicture.asset(
-                  width: 32,
-                  height: 32,
+                  width: 24,
+                  height: 24,
                   iconPath!,
                   colorFilter: ColorFilter.mode(
                     Theme.of(context).colorScheme.primary,

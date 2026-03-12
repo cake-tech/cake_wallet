@@ -76,6 +76,7 @@ abstract class ElectrumWalletBase
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
     bool? alwaysScan,
+    this.useLightning = true,
   })  : _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
         accountHD = getAccountHDWallet(
             currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType),
@@ -182,6 +183,9 @@ abstract class ElectrumWalletBase
 
   @observable
   bool? alwaysScan;
+
+  @observable
+  bool useLightning;
 
   final Bip32Slip10Secp256k1? _masterHD;
   final Bip32Slip10Secp256k1 accountHD;
@@ -1475,6 +1479,8 @@ abstract class ElectrumWalletBase
         'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
         'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
         'alwaysScan': alwaysScan,
+        'useLightning': useLightning,
+        'cachedLightningAddress': walletAddresses.lightningAddress
       });
 
   int feeRate(TransactionPriority priority) {
@@ -3185,8 +3191,9 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               final addToWallet = <String, dynamic>{};
 
               receivers.forEach((receiver) {
+                final preparedList = outputPubkeys.keys.toList().map((e) => [e]).toList();
                 // NOTE: scanOutputs, from sp_scanner package, called from rust here
-                final scanResult = scanOutputs([outputPubkeys.keys.toList()], tweak, receiver);
+                final scanResult = scanOutputs(preparedList, tweak, receiver);
 
                 if (scanResult.isEmpty) return;
 

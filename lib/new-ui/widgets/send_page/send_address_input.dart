@@ -21,7 +21,8 @@ class NewSendAddressInput extends StatefulWidget {
     required this.onEditingComplete,
     this.bottomPadding = false,
     this.validator,
-    this.focusNode, this.displayName,
+    this.focusNode,
+    this.displayName,
   });
 
   final TextEditingController addressController;
@@ -42,16 +43,21 @@ class NewSendAddressInput extends StatefulWidget {
 
 class _NewSendAddressInputState extends State<NewSendAddressInput> {
   FocusNode? node;
+  GlobalKey<FormFieldState<String>> formFieldKey = GlobalKey<FormFieldState<String>>();
 
   @override
   void initState() {
     super.initState();
     node = widget.focusNode ?? FocusNode();
     node!.addListener(_onFocusChange);
+    widget.addressController
+        .addListener(() => formFieldKey.currentState?.didChange(widget.addressController.text));
   }
 
   void _onFocusChange() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -62,64 +68,88 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
               bottom: MediaQuery.of(context).viewInsets.bottom,
             )
           : EdgeInsets.zero,
-      child: Container(
-        decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(18)),
-        child: Row(
+      child: FormField<String>(
+        key: formFieldKey,
+        validator: widget.validator,
+        builder: (state) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Stack(
+            Container(
+              decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(18)),
+              child: Row(
                 children: [
-                  TextFormField(
-                    focusNode: widget.focusNode,
-                    // onSubmitted: (val)=> FocusScope.of(context).unfocus(),
-                    validator: widget.validator,
-                    onEditingComplete: widget.onEditingComplete,
-                    onTapOutside: (_) => widget.onEditingComplete.call(),
-                    controller: widget.addressController,
-                    decoration: InputDecoration(
-                      hintText: S.of(context).search_or_enter,
-                      errorMaxLines: 3,
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: AnimatedOpacity(
-                          duration: Duration(milliseconds: 150),
-                          opacity: (widget.focusNode == null || widget.focusNode!.hasFocus || widget.addressController.text.isEmpty) ? 0 : 1,
-                          child: SendAddressOverlay(
-                            address: widget.addressController.text,
-                            displayName: widget.displayName,
-                          )
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        TextField(
+                          focusNode: widget.focusNode,
+                          onSubmitted: (val) => FocusScope.of(context).unfocus(),
+                          onChanged: state.didChange,
+                          onEditingComplete: () {
+                            widget.onEditingComplete();
+                          },
+                          onTapOutside: (_) {
+                            widget.onEditingComplete();
+                          },
+                          controller: widget.addressController,
+                          decoration: InputDecoration(
+                            hintText: S.of(context).search_or_enter,
+                            errorMaxLines: 3,
+                          ),
                         ),
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedOpacity(
+                                duration: Duration(milliseconds: 150),
+                                opacity: (widget.focusNode == null ||
+                                        widget.focusNode!.hasFocus ||
+                                        widget.addressController.text.isEmpty)
+                                    ? 0
+                                    : 1,
+                                child: SendAddressOverlay(
+                                  address: widget.addressController.text,
+                                  displayName: widget.displayName,
+                                )),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                  Row(
+                    spacing: 12,
+                    children: [
+                      SizedBox.shrink(),
+                      FloatingIconButton(
+                          iconPath: "assets/new-ui/paste.svg",
+                          onPressed: () async {
+                            _pasteAddress(context);
+                          }),
+                      FloatingIconButton(
+                          iconPath: "assets/new-ui/scan.svg",
+                          onPressed: () {
+                            _presentQRScanner(context);
+                          }),
+                      FloatingIconButton(
+                          iconPath: "assets/new-ui/contacts_outlined.svg",
+                          onPressed: () {
+                            _presetAddressBookPicker(context);
+                          }),
+                      SizedBox.shrink()
+                    ],
+                  )
                 ],
               ),
             ),
-            Row(
-              spacing: 12,
-              children: [
-                SizedBox.shrink(),
-                FloatingIconButton(
-                    iconPath: "assets/new-ui/paste.svg",
-                    onPressed: () async {
-                      _pasteAddress(context);
-                    }),
-                FloatingIconButton(
-                    iconPath: "assets/new-ui/scan.svg",
-                    onPressed: () {
-                      _presentQRScanner(context);
-                    }),
-                FloatingIconButton(
-                    iconPath: "assets/new-ui/contacts_outlined.svg",
-                    onPressed: () {
-                      _presetAddressBookPicker(context);
-                    }),
-                SizedBox.shrink()
-              ],
-            )
+            if (state.hasError)
+              Padding(
+                padding: EdgeInsets.only(top: 6, left: 8),
+                child: Text(
+                  state.errorText!,
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
+                ),
+              )
           ],
         ),
       ),
@@ -128,7 +158,7 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
 
   Future<void> _presentQRScanner(BuildContext context) async {
     bool isCameraPermissionGranted =
-    await PermissionHandler.checkPermission(Permission.camera, context);
+        await PermissionHandler.checkPermission(Permission.camera, context);
     if (!isCameraPermissionGranted) return;
     final code = await presentQRScanner(context);
     if (code == null) return;
@@ -206,7 +236,8 @@ class SendAddressOverlay extends StatelessWidget {
           children: [
             if (showDisplayName)
               Text(
-                displayName!,maxLines: 1,
+                displayName!,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: primaryTextStyle,
               ),

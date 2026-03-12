@@ -72,7 +72,7 @@ class EVMChainUtils {
   static String getFeeCurrency(int chainId) {
     return switch (chainId) {
       1 => 'ETH',
-      137 => 'MATIC',
+      137 => 'POL',
       8453 => 'ETH',
       42161 => 'ETH',
       56 => 'BNB',
@@ -83,7 +83,7 @@ class EVMChainUtils {
   static String getDefaultTokenSymbol(int chainId) {
     return switch (chainId) {
       1 => 'ETH',
-      137 => 'MATIC',
+      137 => 'POL',
       8453 => 'BASE',
       42161 => 'ARBITRUM',
       56 => 'BSC',

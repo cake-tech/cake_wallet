@@ -51,6 +51,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     required this.fiatConversionStore,
   })  : trade = tradesStore.trade!,
         isSendable = _checkIfCanSend(tradesStore, wallet),
+        isSwapsXYZCanSendFromExternal = _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
         items = ObservableList<ExchangeTradeItem>() {
     setUpOutput();
     switch (trade.provider) {
@@ -120,10 +121,8 @@ abstract class ExchangeTradeViewModelBase with Store {
   @observable
   bool isSendable;
 
-  bool get isSwapsXyzSendingEVMTokenSwap =>
-      (_provider is SwapsXyzExchangeProvider) &&
-      isEVMCompatibleChain(wallet.type) &&
-      wallet.currency != trade.from;
+
+  bool isSwapsXYZCanSendFromExternal;
 
   /// Providers that should hide the "send from external" button
   static const List<Type> _providersThatHideExternalSend = [
@@ -133,6 +132,9 @@ abstract class ExchangeTradeViewModelBase with Store {
   /// Returns true if the current provider should hide the external send button
   bool get shouldHideExternalSendButton {
     if (_provider == null) return false;
+
+    if (!isSwapsXYZCanSendFromExternal) return true;
+
     return _providersThatHideExternalSend.any(
       (providerType) => _provider.runtimeType == providerType,
     );
@@ -313,6 +315,23 @@ abstract class ExchangeTradeViewModelBase with Store {
           isExternalSendDetail: true,
         ),
       ]);
+
+      items.add(
+        isSwapsXYZCanSendFromExternal
+            ? ExchangeTradeItem(
+            title: S.current.send_to_this_address('${tradeFrom}', tagFrom) +
+                ':',
+            data: trade.inputAddress ?? '',
+            isCopied: false,
+            isReceiveDetail: false,
+            isExternalSendDetail: true)
+            : ExchangeTradeItem(
+            title: 'Smart contract call (no address required)',
+            data: 'Wallet will execute a contract call. On-chain transaction',
+            isCopied: false,
+            isReceiveDetail: false,
+            isExternalSendDetail: true),
+      );
     }
 
     final isExtraIdExist = trade.extraId != null && trade.extraId!.isNotEmpty;
@@ -384,6 +403,20 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isBaseToken() ||
         _isArbitrumToken() ||
         _isBscToken();
+  }
+
+  static bool _checkIfSwapsXYZCanSendFromExternal(Trade trade, WalletBase wallet) {
+    final provider = trade.provider;
+
+    if (provider == ExchangeProviderDescription.swapsXyz &&
+        isEVMCompatibleChain(wallet.type)) {
+
+      if(trade.routerData != null &&  trade.routerData != '0x') {
+        return false;
+      }
+
+    }
+    return true;
   }
 
   Future<void> registerSwapsXyzTransaction() async {

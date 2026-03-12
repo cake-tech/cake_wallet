@@ -196,7 +196,6 @@ class CoinControlListSection extends StatelessWidget {
         return Observer(builder: (_) {
           final item = items[index];
           final fiatAmount = unspentCoinsListViewModel.fiatAmounts[item.amount] ?? '';
-          printV(unspentCoinsListViewModel.fiatAmounts);
           return GestureDetector(
             onTap: () => Navigator.of(context).pushNamed(
               Routes.unspentCoinsDetails,

@@ -74,12 +74,40 @@ class EVMChainClient {
           });
         }
 
+        // Merge split transfers (same hash + same token)
+        final Map<String, Map<String, dynamic>> mergedMap = {};
+        for (var tx in res) {
+          final hash = tx['hash'];
+          final key = '${hash}_${tx['contractAddress'] ?? ''}';
+
+          if (mergedMap.containsKey(key)) {
+            try {
+              final currentNet = getNetFlow(mergedMap[key]!, address);
+              final newNet = getNetFlow(tx, address);
+              final totalNet = currentNet + newNet;
+
+              mergedMap[key]!['value'] = totalNet.abs().toString();
+              if (totalNet < BigInt.zero) {
+                mergedMap[key]!['from'] = address;
+              } else {
+
+                mergedMap[key]!['to'] = address;
+                mergedMap[key]!['from'] = '';
+              }
+            } catch (e) {
+              printV('Error merging transaction values: $e');
+            }
+          } else {
+            mergedMap[key] = Map<String, dynamic>.from(tx);
+          }
+        }
+
+        final mergedList = mergedMap.values.toList();
+
         final symbol = EVMChainUtils.getFeeCurrency(chainId);
 
-        return res
-            .map(
-              (e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, symbol, chainId),
-            )
+        return mergedList
+            .map((e) => EVMChainTransactionModel.fromJson(e, symbol, chainId))
             .toList();
       }
 
@@ -89,6 +117,18 @@ class EVMChainClient {
       return [];
     }
   }
+
+
+  BigInt getNetFlow(Map<String, dynamic> txData, String address) {
+    final val = BigInt.parse(txData['value'] ?? '0');
+    final isIncoming = txData['to']?.toLowerCase() == address.toLowerCase();
+    final isOutgoing = txData['from']?.toLowerCase() == address.toLowerCase();
+
+    if (isIncoming && !isOutgoing) return val;
+    if (isOutgoing && !isIncoming) return -val;
+    return BigInt.zero;
+  }
+
 
   Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
     try {

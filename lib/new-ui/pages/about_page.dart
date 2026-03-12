@@ -133,7 +133,7 @@ class _AboutPageState extends State<AboutPage> {
                     ListItemRegularRow(
                         keyValue: "twitter",
                         label: "X (Twitter)",
-                        onTap: () => launchUrl(Uri.https("twitter.com", "cake")),
+                        onTap: () => launchUrl(Uri.https("twitter.com", "cakewallet")),
                         trailingIconPath: "assets/new-ui/link_arrow.svg",
                         foregroundColor: Theme.of(context).colorScheme.primary,
                         trailingIconSize: 10),
