@@ -14,7 +14,7 @@ class ArbitrumTokens {
       ),
       Erc20Token(
         name: "Tether USD (Omnichain)",
-        symbol: "USDT0",
+        symbol: "USDT",
         contractAddress: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
         decimal: 6,
         enabled: true,
