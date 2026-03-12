@@ -7,7 +7,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.da
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/view_model/usdt0_bridge/usdt0_bridge_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';

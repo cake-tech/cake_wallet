@@ -118,6 +118,8 @@ class USDT0Service {
       encoded.dataHex,
       encoded.valueWei,
       priority,
+      token.contractAddress,
+      amount,
       useBlinkProtection: useBlinkProtection,
     );
   }
