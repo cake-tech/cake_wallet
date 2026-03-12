@@ -11,6 +11,7 @@ import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TransactionDetailsModal extends StatefulWidget {
   const TransactionDetailsModal({super.key, required this.transactionDetailsViewModel});
@@ -144,31 +145,33 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                           ),
                                         ),
                                       ),
-                                      NewListSections(sections: {
-                                        "view tx": [
-                                          ListItemRegularRow(
-                                              keyValue: "view tx on",
-                                              label: widget.transactionDetailsViewModel
-                                                  .explorerDescription,
-                                              onTap: widget
-                                                  .transactionDetailsViewModel.launchExplorer, foregroundColor: Theme.of(context).colorScheme.primary,trailingIconPath: "assets/new-ui/link_arrow.svg", trailingIconSize: 8)
-                                        ],
-                                        if (widget.transactionDetailsViewModel.canReplaceByFee)
-                                          "rbf": [
+                                      Observer(
+                                        builder: (_)=>NewListSections(sections: {
+                                          "view tx": [
                                             ListItemRegularRow(
-                                                keyValue: "replace by fee",
-                                                label: S.of(context).bump_fee,
-                                                onTap: () {
-                                                  Navigator.of(context)
-                                                      .pushNamed(Routes.bumpFeePage, arguments: [
-                                                    widget.transactionDetailsViewModel
-                                                        .transactionInfo,
-                                                    widget
-                                                        .transactionDetailsViewModel.rawTransaction
-                                                  ]);
-                                                })
-                                          ]
-                                      })
+                                                keyValue: "view tx on",
+                                                label: widget.transactionDetailsViewModel
+                                                    .explorerDescription,
+                                                onTap: widget
+                                                    .transactionDetailsViewModel.launchExplorer, foregroundColor: Theme.of(context).colorScheme.primary,trailingIconPath: "assets/new-ui/link_arrow.svg", trailingIconSize: 8)
+                                          ],
+                                          if (widget.transactionDetailsViewModel.canReplaceByFee)
+                                            "rbf": [
+                                              ListItemRegularRow(
+                                                  keyValue: "replace by fee",
+                                                  label: S.of(context).bump_fee,
+                                                  onTap: () {
+                                                    Navigator.of(context)
+                                                        .pushNamed(Routes.bumpFeePage, arguments: [
+                                                      widget.transactionDetailsViewModel
+                                                          .transactionInfo,
+                                                      widget
+                                                          .transactionDetailsViewModel.rawTransaction
+                                                    ]);
+                                                  })
+                                            ]
+                                        }),
+                                      )
                                     ],
                                   ),
                                 ),
