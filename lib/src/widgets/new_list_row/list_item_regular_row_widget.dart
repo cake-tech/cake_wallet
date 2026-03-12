@@ -54,6 +54,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
         isLastInSection: isLastInSection,
         builder: (context, textStyle, labelStyle) {
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Row(
