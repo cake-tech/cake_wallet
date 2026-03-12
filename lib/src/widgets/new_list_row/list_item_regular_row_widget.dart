@@ -54,6 +54,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
         isLastInSection: isLastInSection,
         builder: (context, textStyle, labelStyle) {
           return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -98,11 +99,11 @@ class ListItemRegularRowWidget extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      if (trailingText != null)
+                      if (trailingTextToShow != null)
                         Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: Text(
-                            trailingText!,
+                            trailingTextToShow,
                             style: labelStyle,
                           ),
                         ),

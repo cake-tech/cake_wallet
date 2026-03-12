@@ -41,10 +41,11 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
         expand: false,
         initialChildSize: 0.6,
         minChildSize: 0.25,
-        maxChildSize: 1.0,
+        maxChildSize: 0.9,
         snap: true,
-        snapSizes: const [0.6, 1.0],
+        snapSizes: const [0.6, 0.9],
         builder: (context, controller) => SafeArea(
+          bottom: false,
               child: Padding(
                 padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: GestureDetector(
@@ -65,96 +66,93 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                             controller: controller,
                             child: Column(
                               children: [
-                                Column(
-                                  children: [
-                                    Image.asset(
-                                        widget.transactionDetailsViewModel.transactionAsset
-                                                .iconPath ??
-                                            "",
-                                        width: 64,
-                                        height: 64),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      widget.transactionDetailsViewModel.formattedTitle +
-                                          widget.transactionDetailsViewModel.formattedStatus,
-                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                                    ),
-                                    Text(
-                                      widget.transactionDetailsViewModel.transactionInfo
-                                          .amountFormatted(),
-                                      style: TextStyle(fontSize: 28),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        spacing: 12,
-                                        children: [
-                                          NewListSections(sections: {
-                                            "": widget.transactionDetailsViewModel.items
-                                                .map((item) {
-                                                  if (item.value.isEmpty) return null;
+                                Image.asset(
+                                    widget.transactionDetailsViewModel.transactionAsset
+                                            .iconPath ??
+                                        "",
+                                    width: 64,
+                                    height: 64),
+                                SizedBox(height: 10),
+                                Text(
+                                  widget.transactionDetailsViewModel.formattedTitle +
+                                      widget.transactionDetailsViewModel.formattedStatus,
+                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  widget.transactionDetailsViewModel.transactionInfo
+                                      .amountFormatted(),
+                                  style: TextStyle(fontSize: 28),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    spacing: 12,
+                                    children: [
+                                      NewListSections(sections: {
+                                        "": widget.transactionDetailsViewModel.items
+                                            .map((item) {
+                                              if (item.value.isEmpty) return null;
 
-                                                  final shouldBuildBottomWidget =
-                                                      item.value.length > 25;
+                                              final shouldBuildBottomWidget =
+                                                  item.value.length > 25;
 
-                                                  return ListItemRegularRow(
-                                                      showArrow: false,
-                                                      keyValue: ((item.key as ValueKey?)?.value
-                                                              as String?) ??
-                                                          item.title,
-                                                      label: item.title,
-                                                      trailingWidget: shouldBuildBottomWidget
-                                                          ? null
-                                                          : _buildTrailingWIdget(item),
-                                                      bottomWidget: shouldBuildBottomWidget
-                                                          ?  _buildBottomWidget(item)
-                                                          : null);
-                                                })
-                                                .whereType<ListItem>()
-                                                .toList(),
-                                          }),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(20),
-                                                color:
-                                                    Theme.of(context).colorScheme.surfaceContainer),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(12.0),
-                                              child: Column(
-                                                spacing: 8,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(S.of(context).note),
-                                                  TextField(
-                                                    focusNode: noteFocusNode,
-                                                    controller: noteController,
-                                                    decoration: InputDecoration(
-                                                        hintText: S.of(context).add_a_note,
-                                                        border: InputBorder.none,
-                                                        focusedBorder: InputBorder.none,
-                                                        enabledBorder: InputBorder.none,
-                                                        contentPadding: EdgeInsets.zero,
-                                                        isDense: true),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
+                                              return ListItemRegularRow(
+                                                  showArrow: false,
+                                                  keyValue: ((item.key as ValueKey?)?.value
+                                                          as String?) ??
+                                                      item.title,
+                                                  label: item.title,
+                                                  trailingWidget: shouldBuildBottomWidget
+                                                      ? null
+                                                      : _buildTrailingWIdget(item),
+                                                  bottomWidget: shouldBuildBottomWidget
+                                                      ?  _buildBottomWidget(item)
+                                                      : null);
+                                            })
+                                            .whereType<ListItem>()
+                                            .toList(),
+                                      }),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(20),
+                                            color:
+                                                Theme.of(context).colorScheme.surfaceContainer),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: Column(
+                                            spacing: 8,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(S.of(context).note),
+                                              TextField(
+                                                focusNode: noteFocusNode,
+                                                controller: noteController,
+                                                decoration: InputDecoration(
+                                                    hintText: S.of(context).add_a_note,
+                                                    border: InputBorder.none,
+                                                    focusedBorder: InputBorder.none,
+                                                    enabledBorder: InputBorder.none,
+                                                    contentPadding: EdgeInsets.zero,
+                                                    isDense: true),
+                                              )
+                                            ],
                                           ),
-                                          NewListSections(sections: {
-                                            "view tx": [
-                                              ListItemRegularRow(
-                                                  keyValue: "view tx on",
-                                                  label: widget.transactionDetailsViewModel
-                                                      .explorerDescription,
-                                                  onTap: widget
-                                                      .transactionDetailsViewModel.launchExplorer)
-                                            ]
-                                          })
-                                        ],
+                                        ),
                                       ),
-                                    )
-                                  ],
-                                )
+                                      NewListSections(sections: {
+                                        "view tx": [
+                                          ListItemRegularRow(
+                                              keyValue: "view tx on",
+                                              label: widget.transactionDetailsViewModel
+                                                  .explorerDescription,
+                                              onTap: widget
+                                                  .transactionDetailsViewModel.launchExplorer)
+                                        ]
+                                      })
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height:MediaQuery.of(context).viewPadding.bottom)
                               ],
                             ),
                           ),
