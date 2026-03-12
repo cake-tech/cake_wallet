@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class TransactionDetailsModal extends StatefulWidget {
   const TransactionDetailsModal({super.key, required this.transactionDetailsViewModel});
@@ -97,6 +98,9 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                                   item.value.length > 25;
 
                                               return ListItemRegularRow(
+                                                onTap: (){
+                                                  Clipboard.setData(ClipboardData(text: item.value));
+                                                },
                                                   showArrow: false,
                                                   keyValue: ((item.key as ValueKey?)?.value
                                                           as String?) ??
