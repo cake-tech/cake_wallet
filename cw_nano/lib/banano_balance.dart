@@ -9,19 +9,19 @@ class BananoBalance extends Balance {
   final BigInt currentBalance;
   final BigInt receivableBalance;
 
-  BananoBalance({required this.currentBalance, required this.receivableBalance}) : super(0, 0);
+  BananoBalance({required this.currentBalance, required this.receivableBalance}) : super(BigInt.zero, BigInt.zero);
 
   BananoBalance.fromFormattedString(
       {required String formattedCurrentBalance, required String formattedReceivableBalance})
       : currentBalance = stringAmountToBigIntBanano(formattedCurrentBalance),
         receivableBalance = stringAmountToBigIntBanano(formattedReceivableBalance),
-        super(0, 0);
+        super(BigInt.zero, BigInt.zero);
 
   BananoBalance.fromRawString(
       {required String currentBalance, required String receivableBalance})
       : currentBalance = BigInt.parse(currentBalance),
         receivableBalance = BigInt.parse(receivableBalance),
-        super(0, 0);
+        super(BigInt.zero, BigInt.zero);
 
   @override
   String get formattedAvailableBalance {

@@ -1,4 +1,5 @@
 import 'package:cw_core/transaction_priority.dart';
+import 'package:flutter/foundation.dart';
 
 class MoneroTransactionPriority extends TransactionPriority {
   const MoneroTransactionPriority({required String title, required int raw})
@@ -30,7 +31,10 @@ class MoneroTransactionPriority extends TransactionPriority {
       case 4:
         return fastest;
       default:
-        throw Exception('Unexpected token: $raw for MoneroTransactionPriority deserialize');
+        if (kDebugMode) {
+          throw Exception('Unexpected token: $raw for MoneroTransactionPriority deserialize');
+        }
+        return medium;
     }
   }
 

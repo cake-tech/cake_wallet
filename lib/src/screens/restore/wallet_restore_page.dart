@@ -146,7 +146,7 @@ class WalletRestorePage extends BasePage {
                                       bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom,
                                     ),
                                     child: AddPassphraseBottomSheet(
-                                      titleText: S.of(context).add_passphrase,
+                                      titleText: S.of(bottomSheetContext).add_passphrase,
                                       onRestoreButtonPressed: (passphrase) async {
                                         await _onPassphraseBottomSheetRestoreButtonPressed(
                                           passphrase,
@@ -490,12 +490,10 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
               controller: _tabController,
               children: [
                 SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: _buildWalletRestoreFromSeedTab(),
                 ),
                 if (_hasKeysTab)
                   SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: _buildWalletRestoreFromKeysTab(),
                   ),
               ],

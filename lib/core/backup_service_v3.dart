@@ -8,6 +8,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_backup/backup.dart' as cake_backup;
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:crypto/crypto.dart';
+import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -246,80 +247,82 @@ class BackupServiceV3 extends $BackupService {
     if (decryptedData.existsSync()) decryptedData.deleteSync();
 
     try {
-    decryptedData.createSync(recursive: true);
-    decryptedData.writeAsBytesSync(Uint8List(0), mode: FileMode.write, flush: true);
-    
-    int chunkIndex = 0;
-    for (var chunk in metadata.chunks) {
-      chunkIndex++;
-      final chunkBytes = dataStream.readBytes(chunk.length.encrypted).toUint8List();
-      final chunkChecksum = (await sha512.bind(Stream.fromIterable([chunkBytes])).first).toString();
+      decryptedData.createSync(recursive: true);
+      decryptedData.writeAsBytesSync(Uint8List(0), mode: FileMode.write, flush: true);
 
-      // readBytes stores position internally, so we don't need to think about it.
-      if (chunk.sha512sum.encrypted != chunkChecksum) {
-        throw Exception('Invalid v3 backup: chunk (${chunk.length.encrypted} bytes) checksum mismatch at index $chunkIndex\n'
-            'expected: ${chunk.sha512sum.encrypted}\n'
-            'got: $chunkChecksum');
-      }
-      final decryptedChunk = await cake_backup.decrypt(password, chunkBytes);
-      decryptedData.writeAsBytesSync(decryptedChunk, mode: FileMode.append, flush: true);
-    }
+      int chunkIndex = 0;
+      for (var chunk in metadata.chunks) {
+        chunkIndex++;
+        final chunkBytes = dataStream.readBytes(chunk.length.encrypted).toUint8List();
+        final chunkChecksum = (await sha512.bind(Stream.fromIterable([chunkBytes])).first).toString();
 
-
-    final sha512sum = (await sha512.bind(decryptedData.openRead()).first).toString();
-    if (sha512sum.toString() != metadata.sha512sum) {
-      throw Exception('Invalid v3 backup: SHA512 checksum mismatch\n'
-          'expected: ${metadata.sha512sum}\n'
-          'got: $sha512sum');
-    }
-
-    // Decryption done, now we can import the backup (that is, unzip app data)
-
-    // archive is **NOT** backup, it is just a zip file that contains data.bin inside.
-    // We need to unzip it to get the backup.
-    // data.bin after decryption is available in decryptedData.
-
-    final zip = ZipDecoder();
-    final decryptedDataStream = InputFileStream(decryptedData.path);
-    final backupArchive = zip.decodeStream(decryptedDataStream);
-
-
-    final appDir = await getAppDir();
-
-    outer:
-    for (var file in backupArchive.files) {
-      final filename = file.name;
-      for (var ignore in $BackupService.ignoreFiles) {
-        if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
-          printV("ignoring backup file: $filename");
-          continue outer;
+        // readBytes stores position internally, so we don't need to think about it.
+        if (chunk.sha512sum.encrypted != chunkChecksum) {
+          throw Exception('Invalid v3 backup: chunk (${chunk.length.encrypted} bytes) checksum mismatch at index $chunkIndex\n'
+              'expected: ${chunk.sha512sum.encrypted}\n'
+              'got: $chunkChecksum');
         }
+        final decryptedChunk = await cake_backup.decrypt(password, chunkBytes);
+        decryptedData.writeAsBytesSync(decryptedChunk, mode: FileMode.append, flush: true);
       }
-      printV("restoring: $filename");
-      if (file.isFile) {
-        final output = File('${appDir.path}/' + filename)
-          ..createSync(recursive: true);
-        final outputStream = OutputFileStream(output.path);
-        file.writeContent(outputStream);
-        outputStream.flush();
-      } else {
-        final dir = Directory('${appDir.path}/' + filename);
-        if (!dir.existsSync()) {
-          dir.createSync(recursive: true);
+
+
+      final sha512sum = (await sha512.bind(decryptedData.openRead()).first).toString();
+      if (sha512sum.toString() != metadata.sha512sum) {
+        throw Exception('Invalid v3 backup: SHA512 checksum mismatch\n'
+            'expected: ${metadata.sha512sum}\n'
+            'got: $sha512sum');
+      }
+
+      // Decryption done, now we can import the backup (that is, unzip app data)
+
+      // archive is **NOT** backup, it is just a zip file that contains data.bin inside.
+      // We need to unzip it to get the backup.
+      // data.bin after decryption is available in decryptedData.
+
+      final zip = ZipDecoder();
+      final decryptedDataStream = InputFileStream(decryptedData.path);
+      final backupArchive = zip.decodeStream(decryptedDataStream);
+
+
+      final appDir = await getAppDir();
+
+      outer:
+      for (var file in backupArchive.files) {
+        final filename = file.name;
+        for (var ignore in $BackupService.ignoreFiles) {
+          if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
+            printV("ignoring backup file: $filename");
+            continue outer;
+          }
         }
-      }
-    };
+        printV("restoring: $filename");
+        if (file.isFile) {
+          final output = File('${appDir.path}/' + filename)
+            ..createSync(recursive: true);
+          final outputStream = OutputFileStream(output.path);
+          file.writeContent(outputStream);
+          outputStream.flush();
+        } else {
+          final dir = Directory('${appDir.path}/' + filename);
+          if (!dir.existsSync()) {
+            dir.createSync(recursive: true);
+          }
+        }
+      };
 
-    // Continue importing the backup the old way
-    await super.verifyWallets();
-    await verifyHardwareWallets(password);
-    await super.importKeychainDumpV2(password);
-    await super.importPreferencesDump();
-    await super.importTransactionDescriptionDump();
+      // Continue importing the backup the old way
+      await super.verifyWallets();
+      await verifyHardwareWallets(password);
+      await super.importKeychainDumpV2(password);
+      await super.importPreferencesDump();
+      await super.importTransactionDescriptionDump();
+          
+      await initDb();
 
-    // Delete decrypted data file
-    decryptedData.deleteSync();
-  } finally {
+      // Delete decrypted data file
+      decryptedData.deleteSync();
+    } finally {
       // always clean, even on exception
       if (decryptedData.existsSync()) {
         decryptedData.deleteSync();

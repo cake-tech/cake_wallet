@@ -2,6 +2,8 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -23,6 +25,18 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   @computed
   bool get disableBulletin => _settingsStore.disableBulletin;
 
+  @computed
+  bool get useBlinkProtection => _settingsStore.useBlinkProtection;
+
+  bool get canUseBlinkProtection {
+    if (!isEVMCompatibleChain(type)) return false;
+
+    // Get the chainId from the wallet type
+    final chainId = evm!.getChainIdByWalletType(type);
+
+    return canSupportBlinkProtection(chainId);
+  }
+
   @observable
   bool _addCustomNode = false;
 
@@ -41,8 +55,10 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.zcash:
         return true;
 
       case WalletType.bitcoin:
@@ -83,12 +99,14 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.polygon,
         WalletType.base,
         WalletType.arbitrum,
+        WalletType.bsc,
         WalletType.tron,
         WalletType.solana,
         WalletType.monero,
         WalletType.wownero,
         WalletType.zano,
         WalletType.dogecoin,
+        WalletType.zcash,
       ].contains(type);
 
   @computed
@@ -108,6 +126,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   @action
   void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
+
+  @action
+  void setUseBlinkProtection(bool value) => _settingsStore.useBlinkProtection = value;
 
   @action
   void toggleAddCustomNode() => _addCustomNode = !_addCustomNode;

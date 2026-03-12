@@ -1,6 +1,6 @@
 import "dart:typed_data";
 
-import "package:cw_evm/evm_chain_formatter.dart";
+import "package:cw_evm/utils/evm_chain_formatter.dart";
 import "package:cw_evm/utils/rlp_decode.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:web3dart/crypto.dart";

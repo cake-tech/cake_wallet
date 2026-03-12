@@ -25,6 +25,7 @@ class BitcoinUnspent extends Unspent {
   }
 
   final BaseBitcoinAddressRecord bitcoinAddressRecord;
+  bool? isPegOut;
 }
 
 class BitcoinSilentPaymentsUnspent extends BitcoinUnspent {

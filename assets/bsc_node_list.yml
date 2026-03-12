@@ -1,0 +1,28 @@
+-
+  uri: bsc-dataseed.bnbchain.org
+  useSSL: true
+  isDefault: true
+  isEnabledForAutoSwitching: true
+-
+  uri: bsc-dataseed2.bnbchain.org
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: bsc-dataseed.nariox.org
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: bsc-dataseed.defibit.io
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: bsc-dataseed.ninicoin.io
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: bsc.nodereal.io
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: bsc-dataseed-public.bnbchain.org
+  useSSL: true

@@ -67,8 +67,8 @@ class GroupedWalletExpansionTile extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6),
       child: ExpansionTile(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
+        collapsedShape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
         collapsedBackgroundColor: backgroundColor,
         backgroundColor: backgroundColor,
         onExpansionChanged: onExpansionChanged,
@@ -80,7 +80,13 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             EdgeInsets.symmetric(vertical: 1, horizontal: !isCurrentlySelectedWallet ? 16 : 0),
         iconColor: effectiveArrowColor,
         collapsedIconColor: effectiveArrowColor,
-        leading: leadingWidget,
+        leading: (childWallets.isEmpty && onTitleTapped != null && leadingWidget != null)
+            ? GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onTitleTapped,
+                child: leadingWidget,
+              )
+            : leadingWidget,
         trailing: trailingWidget ?? (childWallets.isEmpty ? SizedBox.shrink() : null),
         title: GestureDetector(
           onTap: onTitleTapped,
@@ -123,7 +129,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                         : SizedBox(width: 7),
                     SizedBox(width: 24),
                     Image.asset(
-                      walletTypeToCryptoCurrency(item.type).iconPath!,
+                      getCryptoCurrencyIconForWalletListItem(item.type),
                       width: 32,
                       height: 32,
                     ),

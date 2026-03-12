@@ -6,9 +6,12 @@ import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -44,7 +47,10 @@ abstract class ContactListViewModelBase with Store {
             walletContacts.add(WalletContact(
               address.address,
               name,
-              walletTypeToCryptoCurrency(info.type),
+              getCryptoCurrencyForWalletListItem(
+                info.type,
+              ),
+              walletType: info.type,
             ));
           }
         }
@@ -56,7 +62,10 @@ abstract class ContactListViewModelBase with Store {
           walletContacts.add(WalletContact(
             address,
             name,
-            walletTypeToCryptoCurrency(info.type),
+            getCryptoCurrencyForWalletListItem(
+              info.type,
+            ),
+            walletType: info.type,
           ));
         } else {
           addresses.forEach((address, label) {
@@ -67,10 +76,12 @@ abstract class ContactListViewModelBase with Store {
             walletContacts.add(WalletContact(
               address,
               name,
-              walletTypeToCryptoCurrency(info.type,
-                  isTestnet: info.network == null
-                      ? false
-                      : info.network!.toLowerCase().contains("testnet")),
+              getCryptoCurrencyForWalletListItem(
+                info.type,
+                isTestnet:
+                    info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
+              ),
+              walletType: info.type,
             ));
           });
         }
@@ -81,7 +92,10 @@ abstract class ContactListViewModelBase with Store {
               key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
                   ? 0
                   : null),
-          walletTypeToCryptoCurrency(info.type),
+          getCryptoCurrencyForWalletListItem(
+            info.type,
+          ),
+          walletType: info.type,
         ));
       }
     }
@@ -136,10 +150,29 @@ abstract class ContactListViewModelBase with Store {
         isWalletContact &&
         (element.type == CryptoCurrency.btc || element.type == CryptoCurrency.ltc)) return false;
 
-    return element.type == _currency ||
-        (element.type.tag != null && _currency.tag != null && element.type.tag == _currency.tag) ||
-        _currency.toString() == element.type.tag ||
-        _currency.tag == element.type.toString();
+    final currencyMatches = element.type == _currency;
+
+    final tagsMatch =
+        element.type.tag != null && _currency.tag != null && element.type.tag == _currency.tag;
+
+    final tagMatchesTitle = _currency.tag != null && _currency.tag == element.type.title;
+
+    final titleMatchesTag = _currency.title == element.type.tag;
+
+    var matches = currencyMatches || tagsMatch || tagMatchesTitle || titleMatchesTag;
+
+    if (matches && isWalletContact && element is WalletContact && element.walletType != null) {
+      final walletType = element.walletType!;
+
+      if (isEVMCompatibleChain(walletType)) {
+        final currencyChainId = TokenUtilities.getChainId(_currency);
+        final walletChainId = evm!.getChainIdByWalletType(walletType);
+
+        if (currencyChainId != walletChainId) matches = false;
+      }
+    }
+
+    return matches;
   }
 
   void dispose() => _subscription?.cancel();
@@ -203,7 +236,6 @@ abstract class ContactListViewModelBase with Store {
         await sortGroupByType();
         break;
       case FilterListOrderType.Custom:
-      default:
         reorderAccordingToContactList();
         break;
     }

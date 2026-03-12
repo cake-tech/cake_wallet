@@ -47,6 +47,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
     this.onPushPasteButton,
     this.onPushAddressBookButton,
     this.onDispose,
+    this.useSatoshis = false,
     required this.cardInstanceName,
   }) : super(key: key);
 
@@ -82,6 +83,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
   final Function()? onDispose;
   final String cardInstanceName;
   final Color fillColor;
+  final bool useSatoshis;
 
   @override
   ExchangeCardState<T> createState() => ExchangeCardState<T>();
@@ -224,8 +226,8 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
             currencyAmountTextFieldWidgetKey:
                 ValueKey('${_cardInstanceName}_currency_amount_textfield_widget_key'),
             imageArrow: widget.imageArrow,
-            selectedCurrency: _selectedCurrency.toString(),
-            selectedCurrencyDecimals: _selectedCurrency.decimals,
+            selectedCurrency: widget.useSatoshis ? "SATS" : "$_selectedCurrency",
+            selectedCurrencyDecimals: widget.useSatoshis ? 0 : _selectedCurrency.decimals,
             amountFocusNode: widget.amountFocusNode,
             amountController: amountController,
             onTapPicker: () => _presentPicker(context),
@@ -383,7 +385,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                                           onTap: () async {
                                             final contact = await Navigator.of(context).pushNamed(
                                               Routes.pickerAddressBook,
-                                              arguments: widget.initialCurrency,
+                                              arguments: [widget.initialCurrency, true],
                                             );
 
                                             if (contact is ContactBase) {
@@ -452,7 +454,6 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
         selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
         items: widget.currencies,
         hintText: S.of(context).search_currency,
-        isMoneroWallet: _isMoneroWallet,
         isConvertFrom: widget.hasRefundAddress,
         onItemSelected: (Currency item) => widget.onCurrencySelected(item as T),
       ),

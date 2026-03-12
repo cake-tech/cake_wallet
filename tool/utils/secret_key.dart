@@ -57,6 +57,7 @@ class SecretKey {
     SecretKey('polygonTestWalletSeeds', () => ''),
     SecretKey('baseTestWalletSeeds', () => ''),
     SecretKey('arbitrumTestWalletSeeds', () => ''),
+    SecretKey('bscTestWalletSeeds', () => ''),
     SecretKey('solanaTestWalletSeeds', () => ''),
     SecretKey('tronTestWalletSeeds', () => ''),
     SecretKey('nanoTestWalletSeeds', () => ''),
@@ -69,6 +70,7 @@ class SecretKey {
     SecretKey('polygonTestWalletReceiveAddress', () => ''),
     SecretKey('baseTestWalletReceiveAddress', () => ''),
     SecretKey('arbitrumTestWalletReceiveAddress', () => ''),
+    SecretKey('bscTestWalletReceiveAddress', () => ''),
     SecretKey('solanaTestWalletReceiveAddress', () => ''),
     SecretKey('tronTestWalletReceiveAddress', () => ''),
     SecretKey('nanoTestWalletReceiveAddress', () => ''),
@@ -85,6 +87,12 @@ class SecretKey {
     SecretKey('kryptonimApiKey', () => ''),
     SecretKey('walletGroupSalt', () => hex.encode(encrypt.Key.fromSecureRandom(16).bytes)),
     SecretKey('swapsXyzApiKey', () => ''),
+    SecretKey('jupiterApiKey', () => ''),
+    SecretKey('jupiterReferralFeeBps', () => ''),
+    SecretKey('jupiterReferralAccount', () => ''),
+    SecretKey('nearIntentsBearerToken', () => ''),
+    SecretKey('nearIntentsAppFee', () => ''),
+    SecretKey('nearIntentsAppFeeRecipient', () => ''),
   ];
 
   static final evmChainsSecrets = [
@@ -92,6 +100,7 @@ class SecretKey {
     SecretKey('polygonScanApiKey', () => ''),
     SecretKey('moralisApiKey', () => ''),
     SecretKey('nowNodesApiKey ', () => ''),
+    SecretKey('blinkApiKey', () => ''),
   ];
 
   static final solanaSecrets = [
@@ -109,6 +118,10 @@ class SecretKey {
   static final tronSecrets = [
     SecretKey('tronGridApiKey', () => ''),
     SecretKey('tronNowNodesApiKey', () => ''),
+  ];
+
+  static final bitcoinSecrets = [
+    SecretKey('breezApiKey', () => ''),
   ];
 
   final String name;

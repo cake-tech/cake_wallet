@@ -1,11 +1,16 @@
+import 'dart:io';
+
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import "package:file_picker/file_picker.dart";
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -16,7 +21,7 @@ class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
 
   @override
-  String get title => '${walletSeedViewModel.walletType} ${S.current.seed_title}';
+  String get title => '${walletTypeToString(walletSeedViewModel.walletType)} ${S.current.seed_title}';
 
   final bool isNewWalletCreated;
   final WalletSeedViewModel walletSeedViewModel;
@@ -53,7 +58,8 @@ class WalletSeedPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return PopScope(
-      canPop: false,
+      //FIXME i can't figure out why this was here? it caused back gesture to break
+      canPop: true,
       child: Container(
         alignment: Alignment.center,
         child: Column(
@@ -104,10 +110,7 @@ class WalletSeedPage extends BasePage {
                           child: PrimaryButton(
                             key: ValueKey('wallet_seed_page_save_seeds_button_key'),
                             onPressed: () {
-                              ShareUtil.share(
-                                text: walletSeedViewModel.seed,
-                                context: context,
-                              );
+                              _shareSeed(context);
                             },
                             text: S.of(context).save,
                             color: Theme.of(context).colorScheme.surfaceContainer,
@@ -138,5 +141,30 @@ class WalletSeedPage extends BasePage {
         ),
       ),
     );
+  }
+
+  void _shareSeed(BuildContext context) async {
+    switch(defaultTargetPlatform) {
+      case TargetPlatform.android:
+      case TargetPlatform.iOS:
+      ShareUtil.share(
+        text: walletSeedViewModel.seed,
+        context: context,
+      );
+      break;
+      case TargetPlatform.macOS:
+      case TargetPlatform.windows:
+      case TargetPlatform.linux:
+        final path = await FilePicker.platform.saveFile(
+          dialogTitle: "Save seed as",
+          fileName: "${walletSeedViewModel.name}-seed.txt",
+        );
+        if(path != null) {
+          final file = File(path);
+          await file.writeAsString(walletSeedViewModel.seed);
+        }
+      default:
+break;
+    }
   }
 }

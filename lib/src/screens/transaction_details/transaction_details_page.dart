@@ -55,7 +55,11 @@ class TransactionDetailsPage extends BasePage {
                 return GestureDetector(
                   key: item.key,
                   onTap: () {
-                    Clipboard.setData(ClipboardData(text: item.value));
+                    final textToCopy = item.title.toLowerCase() ==
+                            S.of(context).transaction_details_transaction_id.toLowerCase()
+                        ? item.value.replaceAll(RegExp(r'_(incoming|outgoing)$'), '')
+                        : item.value;
+                    Clipboard.setData(ClipboardData(text: textToCopy));
                     showBar<void>(context, S.of(context).transaction_details_copied(item.title));
                   },
                   child: ListRow(

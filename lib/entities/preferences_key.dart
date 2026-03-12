@@ -10,6 +10,7 @@ class PreferencesKey {
   static const currentPolygonNodeIdKey = 'current_node_id_matic';
   static const currentBaseNodeIdKey = 'current_node_id_base';
   static const currentArbitrumNodeIdKey = 'current_node_id_arbitrum';
+  static const currentBscNodeIdKey = 'current_node_id_bsc';
   static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
   static const currentDecredNodeIdKey = 'current_node_id_decred';
@@ -22,8 +23,10 @@ class PreferencesKey {
   static const currentSolanaNodeIdKey = 'current_node_id_sol';
   static const currentTronNodeIdKey = 'current_node_id_trx';
   static const currentWowneroNodeIdKey = 'current_node_id_wow';
+  static const currentZcashNodeIdKey = 'current_node_id_zec';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
+  static const displayAmountsInSatoshi = 'display_amounts_in_satoshi';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const isAppSecureKey = 'is_app_secure';
   static const disableTradeOption = 'disable_buy';
@@ -55,13 +58,16 @@ class PreferencesKey {
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const baseTransactionPriority = 'current_fee_priority_base';
+  static const bscTransactionPriority = 'current_fee_priority_bsc';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const zanoTransactionPriority = 'current_fee_priority_zano';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
   static const decredTransactionPriority = 'current_fee_priority_decred';
+  static const zcashTransactionPriority = 'current_fee_priority_decred';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const mwebCardDisplay = 'mwebCardDisplay';
+  static const showZcashMissingFundsCard = 'showZcashMissingFundsCard';
   static const mwebEnabled = 'mwebEnabled';
   static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';
   static const mwebAlwaysScan = 'mwebAlwaysScan';
@@ -82,8 +88,10 @@ class PreferencesKey {
   static const usePolygonScan = 'use_polygonscan';
   static const useBaseScan = 'use_base_scan';
   static const useArbiScan = 'use_arbitrum_scan';
+  static const useBscScan = 'use_bscscan';
   static const useTronGrid = 'use_trongrid';
   static const useMempoolFeeAPI = 'use_mempool_fee_api';
+  static const evmHiddenChainIds = 'evm_hidden_chain_ids';
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';
@@ -94,10 +102,13 @@ class PreferencesKey {
   static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
   static const lookupsWellKnown = 'looks_up_well_known';
+  static const useBlinkProtection = 'use_blink_protection';
   static const usePayjoin = 'use_payjoin';
   static const showPayjoinCard = 'show_payjoin_card';
   static const showCameraConsent = 'show_camera_consent';
   static const showDecredInfoCard = 'show_decred_info_card';
+  static const forceDecentralizedExchanges = 'force_decentralized_exchanges';
+  static const decentralizedExchangesPromptDismissed = 'decentralized_exchanges_prompt_dismissed';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
@@ -124,4 +135,5 @@ class PreferencesKey {
   static const enableAutomaticNodeSwitching = 'enable_automatic_node_switching';
   static const syncStatusDisplayMode = 'sync_status_display_mode';
   static const backgroundImage = 'background_image';
+  static const mwebAdDismissed = "mweb_ad_dismissed";
 }

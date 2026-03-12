@@ -5,11 +5,13 @@ import 'package:cake_wallet/src/screens/nodes/widgets/node_list_row.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ManageNodesPage extends BasePage {
   ManageNodesPage(this.isPow, {this.nodeListViewModel, this.powNodeListViewModel})
@@ -35,29 +37,31 @@ class ManageNodesPage extends BasePage {
               onTap: (_) async => await Navigator.of(context).pushNamed(Routes.newNode),
             ),
           ),
-          Observer(
-            builder: (_) => SettingsSwitcherCell(
-              key: ValueKey('manage_nodes_page_enable_auto_node_switching_button_key'),
-              title: S.current.enable_auto_node_switching,
-              value: isPow
-                  ? powNodeListViewModel!.enableAutomaticNodeSwitching
-                  : nodeListViewModel!.enableAutomaticNodeSwitching,
-              onValueChange: (BuildContext context, bool value) {
-                if (isPow) {
-                  powNodeListViewModel!.setEnableAutomaticNodeSwitching(value);
-                } else {
-                  nodeListViewModel!.setEnableAutomaticNodeSwitching(value);
-                }
-              },
+          if (FeatureFlag.isAutomaticNodeSwitchingEnabled)
+            Observer(
+              builder: (_) => SettingsSwitcherCell(
+                key: ValueKey('manage_nodes_page_enable_auto_node_switching_button_key'),
+                title: S.current.enable_auto_node_switching,
+                value: isPow
+                    ? powNodeListViewModel!.enableAutomaticNodeSwitching
+                    : nodeListViewModel!.enableAutomaticNodeSwitching,
+                onValueChange: (BuildContext context, bool value) {
+                  if (isPow) {
+                    powNodeListViewModel!.setEnableAutomaticNodeSwitching(value);
+                  } else {
+                    nodeListViewModel!.setEnableAutomaticNodeSwitching(value);
+                  }
+                },
+              ),
             ),
-          ),
-          SizedBox(height: 8),
+          if (FeatureFlag.isAutomaticNodeSwitchingEnabled) SizedBox(height: 8),
           Observer(
             builder: (BuildContext context) {
               int itemsCount =
                   nodeListViewModel?.nodes.length ?? powNodeListViewModel!.nodes.length;
               return Flexible(
                 child: SectionStandardList(
+                  scrollController: ModalScrollController.of(context),
                   sectionCount: 1,
                   dividerPadding: EdgeInsets.symmetric(horizontal: 24),
                   itemCounter: (int sectionIndex) => itemsCount,

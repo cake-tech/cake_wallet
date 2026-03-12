@@ -4,13 +4,16 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/page_indicator.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_listener_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/widgets/evm_switcher.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/haven_wallet_removal_popup.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
 import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -23,7 +26,6 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/navigation_dock.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -31,7 +33,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
@@ -144,6 +145,36 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget leading(BuildContext context) {
+    if (FeatureFlag.isEVMChainSwitcherEnabled &&
+        dashboardViewModel.isEVMWallet &&
+        dashboardViewModel.availableChains.isNotEmpty) {
+      return TextButton(
+        style: TextButton.styleFrom(
+          minimumSize: Size(50, 30),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          alignment: Alignment.centerLeft,
+        ),
+        onPressed: () => showDialog(
+          context: context,
+          builder: (context) => EvmSwitcher(
+            chains: dashboardViewModel.availableChains,
+            currentChain: dashboardViewModel.currentChain,
+            onChainSelected: (chainId) => dashboardViewModel.selectChain(chainId),
+            hiddenChainIds: dashboardViewModel.settingsStore.evmHiddenChainIds,
+            onHiddenChanged: (hidden) =>
+                dashboardViewModel.settingsStore.setEvmHiddenChainIds(hidden),
+          ),
+        ),
+        child: Container(
+          child: SvgPicture.asset(
+            'assets/images/evm_switcher.svg',
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            height: 30,
+          ),
+        ),
+      );
+    }
+
     return Observer(
       builder: (context) {
         return ServicesUpdatesWidget(
@@ -273,9 +304,11 @@ class _DashboardPageView extends BasePage {
                       ),
                     ),
                   ),
-                  NavigationDock(
+                  NewMainNavBar(
                     dashboardViewModel: dashboardViewModel,
-                  )
+                    selectedIndex: 0,
+                    onItemTap: (index) {}
+                  ),
                 ],
               ),
             ],

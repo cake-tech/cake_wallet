@@ -1,12 +1,10 @@
-import 'package:cake_wallet/arbitrum/arbitrum.dart';
-import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -50,6 +48,18 @@ abstract class PrivacySettingsViewModelBase with Store {
         WalletType.decred
       ].contains(_wallet.type);
 
+  @computed
+  bool get hasCoinControl =>
+      [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.monero,
+        WalletType.wownero,
+        WalletType.decred,
+        WalletType.bitcoinCash,
+        WalletType.dogecoin
+      ].contains(_wallet.type);
+
   bool get isMoneroWallet => _wallet.type == WalletType.monero;
 
   @computed
@@ -84,10 +94,18 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get useArbiScan => _settingsStore.useArbiScan;
 
   @computed
+  bool get useBscScan => _settingsStore.useBscScan;
+
+  @computed
   bool get useTronGrid => _settingsStore.useTronGrid;
 
   @computed
   bool get useMempoolFeeAPI => _settingsStore.useMempoolFeeAPI;
+
+  @computed
+  bool get useBlinkProtection => _settingsStore.useBlinkProtection;
+
+  bool get canUseBlinkProtection => canSupportBlinkProtection(_wallet.chainId);
 
   @computed
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
@@ -116,19 +134,26 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get usePayjoin => _settingsStore.usePayjoin;
 
-  bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
+  @computed
+  bool get useLightning => _wallet.type == WalletType.bitcoin && bitcoin!.useLightning(_wallet);
 
-  bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
+  bool get canUseEtherscan => _wallet.chainId == 1;
 
-  bool get canUseBaseScan => _wallet.type == WalletType.base;
+  bool get canUsePolygonScan => _wallet.chainId == 137;
 
-  bool get canUseArbiScan => _wallet.type == WalletType.arbitrum;
+  bool get canUseBaseScan => _wallet.chainId == 8453;
+
+  bool get canUseArbiScan => _wallet.chainId == 42161;
+
+  bool get canUseBscScan => _wallet.chainId == 56;
 
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
   bool get canUseMempoolFeeAPI => _wallet.type == WalletType.bitcoin;
 
   bool get canUsePayjoin => _wallet.type == WalletType.bitcoin && DeviceInfo.instance.isMobile;
+
+  bool get canUseLightning => _wallet.type == WalletType.bitcoin;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>
@@ -180,19 +205,19 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setUseEtherscan(bool value) {
     _settingsStore.useEtherscan = value;
-    ethereum!.updateEtherscanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
   void setUsePolygonScan(bool value) {
     _settingsStore.usePolygonScan = value;
-    polygon!.updatePolygonScanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
   void setUseBaseScan(bool value) {
     _settingsStore.useBaseScan = value;
-    base!.updateBaseScanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
@@ -204,15 +229,27 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setUseArbiScan(bool value) {
     _settingsStore.useArbiScan = value;
-    arbitrum!.updateArbitrumScanUsageState(_wallet, value);
+    evm!.updateScanProviderUsageState(_wallet, value);
+  }
+
+  @action
+  void setUseBscScan(bool value) {
+    _settingsStore.useBscScan = value;
+    evm!.updateScanProviderUsageState(_wallet, value);
   }
 
   @action
   void setUseMempoolFeeAPI(bool value) => _settingsStore.useMempoolFeeAPI = value;
 
   @action
+  void setUseBlinkProtection(bool value) => _settingsStore.useBlinkProtection = value;
+
+  @action
   void setUsePayjoin(bool value) {
     _settingsStore.usePayjoin = value;
     bitcoin!.updatePayjoinState(_wallet, value);
   }
+
+  @action
+  void setUseLightning(bool value) => bitcoin!.updateUseLightning(_wallet, value);
 }

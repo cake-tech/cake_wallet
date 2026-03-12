@@ -6,9 +6,9 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'choose_yat_address_alert.dart';
 
 Future<String> extractAddressFromParsed(
-    BuildContext context,
+    BuildContext? context,
     ParsedAddress parsedAddress) async {
-  if (!context.mounted) return parsedAddress.addresses.first;
+  if (context == null || !context.mounted) return parsedAddress.addresses.first;
 
   var title = '';
   var content = '';
@@ -73,9 +73,19 @@ Future<String> extractAddressFromParsed(
       content = S.of(context).extracted_address_content('${parsedAddress.name} (Zano Alias)');
       address = parsedAddress.addresses.first;
       break;
+    case ParseFrom.zcashAddress:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Zcash.me)');
+      address = parsedAddress.addresses.first;
+      break;
     case ParseFrom.bip353:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (BIP-353)');
+      address = parsedAddress.addresses.first;
+      break;
+    case ParseFrom.lnurlpay:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Lightning)');
       address = parsedAddress.addresses.first;
       break;
     case ParseFrom.yatRecord:

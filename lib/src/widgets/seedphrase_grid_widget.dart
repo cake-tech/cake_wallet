@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SeedPhraseGridWidget extends StatelessWidget {
   const SeedPhraseGridWidget({
@@ -12,20 +13,23 @@ class SeedPhraseGridWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    int minTiles = 1;
+    int maxTiles = 4;
     double desiredTileWidth = 120;
     double spacing = 4;
     double padding = 4;
     double screenWidth = MediaQuery.of(context).size.width;
 
     int crossAxisCount =
-    ((screenWidth + spacing - (2 * padding)) / (desiredTileWidth + spacing))
-        .floor();
+        ((screenWidth + spacing - (2 * padding)) / (desiredTileWidth + spacing)).floor();
 
-    if (crossAxisCount < 1) crossAxisCount = 1;
+
+    if (crossAxisCount > maxTiles) crossAxisCount = maxTiles;
+    if (crossAxisCount < minTiles) crossAxisCount = minTiles;
 
     return GridView.builder(
       itemCount: list.length,
+      controller: ModalScrollController.of(context),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         childAspectRatio: 2.6,
@@ -41,7 +45,7 @@ class SeedPhraseGridWidget extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,

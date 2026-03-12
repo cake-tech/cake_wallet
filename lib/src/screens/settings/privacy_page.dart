@@ -49,6 +49,12 @@ class PrivacyPage extends BasePage {
                       _privacySettingsViewModel.setExchangeApiMode(mode),
                 ),
               ),
+              if (_privacySettingsViewModel.canUseLightning)
+                SettingsSwitcherCell(
+                  title: S.of(context).enable_lightning,
+                  value: _privacySettingsViewModel.useLightning,
+                  onValueChange: (_, value) => _privacySettingsViewModel.setUseLightning(value),
+                ),
               if (_privacySettingsViewModel.canUsePayjoin)
                 SettingsSwitcherCell(
                   title: S.of(context).use_payjoin,
@@ -95,13 +101,21 @@ class PrivacyPage extends BasePage {
                   _privacySettingsViewModel.setDisableAutomaticExchangeStatusUpdates(value);
                 },
               ),
-              SettingsSwitcherCell(
-                title: S.current.disable_bulletin,
-                value: _privacySettingsViewModel.disableBulletin,
-                onValueChange: (BuildContext _, bool value) {
-                  _privacySettingsViewModel.setDisableBulletin(value);
-                },
-              ),
+              // SettingsSwitcherCell(
+              //   title: S.current.disable_bulletin,
+              //   value: _privacySettingsViewModel.disableBulletin,
+              //   onValueChange: (BuildContext _, bool value) {
+              //     _privacySettingsViewModel.setDisableBulletin(value);
+              //   },
+              // ),
+              if (_privacySettingsViewModel.canUseBlinkProtection)
+                SettingsSwitcherCell(
+                  title: S.current.use_blink_protection,
+                  value: _privacySettingsViewModel.useBlinkProtection,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseBlinkProtection(value);
+                  },
+                ),
               if (_privacySettingsViewModel.canUseEtherscan)
                 SettingsSwitcherCell(
                   title: S.current.etherscan_history,
@@ -132,6 +146,14 @@ class PrivacyPage extends BasePage {
                   value: _privacySettingsViewModel.useArbiScan,
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setUseArbiScan(value);
+                  },
+                ),
+              if (_privacySettingsViewModel.canUseBscScan)
+                SettingsSwitcherCell(
+                  title: S.current.bscscan_history,
+                  value: _privacySettingsViewModel.useBscScan,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseBscScan(value);
                   },
                 ),
               if (_privacySettingsViewModel.canUseTronGrid)
@@ -173,10 +195,15 @@ class PrivacyPage extends BasePage {
                 title: S.current.domain_looks_up,
                 handler: (context) => Navigator.of(context).pushNamed(Routes.domainLookupsPage),
               ),
-              SettingsCellWithArrow(
-                title: 'Trocador providers',
-                handler: (context) => Navigator.of(context).pushNamed(Routes.trocadorProvidersPage),
-              ),
+              if(_privacySettingsViewModel.hasCoinControl)
+                SettingsCellWithArrow(
+                  title: "Coin Control",
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.unspentCoinsList),
+                ),
+              // SettingsCellWithArrow(
+              //   title: 'Trocador providers',
+              //   handler: (context) => Navigator.of(context).pushNamed(Routes.trocadorProvidersPage),
+              // ),
             ],
           );
         }),

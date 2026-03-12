@@ -1,37 +1,78 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:collection/collection.dart';
-import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
 
-class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase with _$NodeCreateOrEditViewModel;
+class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
+    with _$NodeCreateOrEditViewModel;
 
 abstract class NodeCreateOrEditViewModelBase with Store {
-  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore)
+  NodeCreateOrEditViewModelBase(
+      this._nodeSource, this.walletType, this.editingNode, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
-        useSSL = false,
-        address = '',
-        path = '',
-        port = '',
-        login = '',
-        password = '',
-        trusted = false,
-        isEnabledForAutoSwitching = false,
-        useSocksProxy = false,
-        socksProxyAddress = '';
+        label = editingNode?.label ?? '',
+        address = editingNode?.uri.host.toString() ?? '',
+        path = editingNode?.path.toString() ?? '',
+        port = (editingNode != null && editingNode.uri.hasPort)
+            ? editingNode.uri.port.toString()
+            : '',
+        login = editingNode?.login ?? '',
+        password = editingNode?.password ?? '',
+        socksProxyAddress = editingNode?.socksProxyAddress ?? '',
+        trusted = editingNode?.trusted ?? false,
+        isEnabledForAutoSwitching =
+            editingNode?.isEnabledForAutoSwitching ?? false,
+        useSocksProxy = editingNode?.socksProxyAddress != null &&
+            editingNode!.socksProxyAddress!.isNotEmpty,
+        useSSL = editingNode?.useSSL ?? false {
+  }
+
+  final nodeLabelUIKey = 'node_label_row_key';
+  final nodeAddressUIKey = 'node_address_row_key';
+  final nodePathUIKey = 'node_path_row_key';
+  final nodeUsernameUIKey = 'node_username_row_key';
+  final nodePasswordUIKey = 'node_password_row_key';
+  final nodePortUIKey = 'node_port_row_key';
+  final useSSLUIKey = 'node_use_ssl_row_key';
+  final nodeTrustedUIKey = 'node_trusted_daemon_row_key';
+  final nodeEmbeddedTorProxyUIKey = 'node_embedded_tor_proxy_row_key';
+  final autoSwitchingUIKey = 'node_auto_switching_row_key';
+  final useSocksProxyUIKey = 'node_use_socks_proxy_row_key';
+  final socksProxyAddressUIKey = 'node_socks_proxy_address_row_key';
+
+  late final textFieldKeys = [
+    nodeLabelUIKey,
+    nodeAddressUIKey,
+    nodePathUIKey,
+    nodePortUIKey,
+    nodeUsernameUIKey,
+    nodePasswordUIKey,
+    socksProxyAddressUIKey,
+  ];
+
+  Map<String, List<ListItem>> nodeFormItems = {};
+
+  //TODO: Remove example values when done testing
+  bool toggleExampleValue = false;
+  bool checkboxExampleValue = false;
 
   @observable
   ExecutionState state;
+
+  @observable
+  String label;
 
   @observable
   String address;
@@ -71,17 +112,21 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @computed
   bool get isReady =>
-      (address.isNotEmpty) || _walletType == WalletType.decred; // Allow an empty address.
+      (address.isNotEmpty) ||
+      walletType == WalletType.decred; // Allow an empty address.
 
   bool get hasAuthCredentials =>
-      _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
+      walletType == WalletType.monero ||
+      walletType == WalletType.wownero ||
+      walletType == WalletType.haven;
 
   bool get hasPathSupport {
-    switch (_walletType) {
+    switch (walletType) {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
       case WalletType.solana:
       case WalletType.banano:
       case WalletType.nano:
@@ -97,6 +142,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.dogecoin:
       case WalletType.zano:
       case WalletType.decred:
+      case WalletType.zcash:
         return false;
     }
   }
@@ -111,9 +157,47 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     return uri;
   }
 
-  final WalletType _walletType;
+  final WalletType walletType;
+  final Node? editingNode;
   final Box<Node> _nodeSource;
   final SettingsStore _settingsStore;
+
+  void updateViewModelFromText(String key, String value) {
+    if (key == nodeLabelUIKey) setLabel(value);
+    if (key == nodeAddressUIKey) setAddress(value);
+    if (key == nodePortUIKey) setPort(value);
+    if (key == nodePathUIKey) setPath(value);
+    if (key == nodeUsernameUIKey) setLogin(value);
+    if (key == nodePasswordUIKey) setPassword(value);
+    if (key == socksProxyAddressUIKey) setSocksProxyAddress(value);
+  }
+
+  void updateCheckboxValue(String key, bool value) {
+    if (key == useSSLUIKey) setSSL(value);
+    if (key == nodeTrustedUIKey) setTrusted(value);
+    if (key == useSocksProxyUIKey) setSocksProxy(value);
+    if (key == autoSwitchingUIKey) setIsEnabledForAutoSwitching(value);
+  }
+
+  bool getCheckboxValue(String key) {
+    if (key == useSSLUIKey) return useSSL;
+    if (key == nodeTrustedUIKey) return trusted;
+    if (key == nodeEmbeddedTorProxyUIKey) return usesEmbeddedProxy;
+    if (key == useSocksProxyUIKey) return useSocksProxy;
+    if (key == autoSwitchingUIKey) return isEnabledForAutoSwitching;
+    return false;
+  }
+
+  String getTextValue(String key) {
+    if (key == nodeLabelUIKey) return label;
+    if (key == nodeAddressUIKey) return address;
+    if (key == nodePortUIKey) return port;
+    if (key == nodePathUIKey) return path;
+    if (key == nodeUsernameUIKey) return login;
+    if (key == nodePasswordUIKey) return password;
+    if (key == socksProxyAddressUIKey) return socksProxyAddress;
+    return '';
+  }
 
   @action
   void reset() {
@@ -128,6 +212,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     useSocksProxy = false;
     socksProxyAddress = '';
   }
+
+  @action
+  void setLabel(String val) => label = val;
 
   @action
   void setPort(String val) => port = val;
@@ -151,7 +238,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setTrusted(bool val) => trusted = val;
 
   @action
-  void setIsEnabledForAutoSwitching(bool val) => isEnabledForAutoSwitching = val;
+  void setIsEnabledForAutoSwitching(bool val) =>
+      isEnabledForAutoSwitching = val;
 
   @action
   void setSocksProxy(bool val) => useSocksProxy = val;
@@ -162,9 +250,10 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @action
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
     final node = Node(
+        label: label,
         uri: uri,
         path: path,
-        type: _walletType,
+        type: walletType,
         login: login,
         password: password,
         useSSL: useSSL,
@@ -196,7 +285,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     final node = Node(
         uri: uri,
         path: path,
-        type: _walletType,
+        type: walletType,
         login: login,
         password: password,
         useSSL: useSSL,
@@ -223,7 +312,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   }
 
   @action
-  void setAsCurrent(Node node) => _settingsStore.nodes[_walletType] = node;
+  void setAsCurrent(Node node) => _settingsStore.nodes[walletType] = node;
 
   @action
   Future<void> scanQRCodeForNewNode(BuildContext context) async {
@@ -238,7 +327,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Unexpected scan QR code value: value is empty');
       }
 
-      if (code.startsWith("monero_node:")) code = code.replaceFirst("monero_node:", "tcp://");
+      if (code.startsWith("monero_node:"))
+        code = code.replaceFirst("monero_node:", "tcp://");
       if (!code.contains('://')) code = 'tcp://$code';
 
       final uri = Uri.tryParse(code);

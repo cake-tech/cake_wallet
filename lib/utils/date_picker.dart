@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cake_wallet/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -35,7 +36,7 @@ Future<DateTime?> _buildCupertinoDataPicker(
   DateTime lastDate) async {
   DateTime? date;
   await showModalBottomSheet<void>(
-      context: context,
+      context: navigatorKey.currentState!.context,
       builder: (_) {
         return Container(
           height: MediaQuery.of(context).size.height / 3,

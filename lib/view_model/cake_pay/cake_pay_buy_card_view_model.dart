@@ -107,7 +107,10 @@ abstract class CakePayBuyCardViewModelBase with Store {
   List<CakePayPaymentMethod> get availableMethods {
     switch (walletType) {
       case WalletType.bitcoin:
-        return [CakePayPaymentMethod.BTC];
+        return [
+          CakePayPaymentMethod.BTC,
+          if (sendViewModel.wallet.isSoftwareWallet) CakePayPaymentMethod.BTC_LN
+        ];
       case WalletType.litecoin:
         return [
           CakePayPaymentMethod.LTC,
@@ -115,6 +118,8 @@ abstract class CakePayBuyCardViewModelBase with Store {
         ];
       case WalletType.monero:
         return [CakePayPaymentMethod.XMR];
+      case WalletType.zcash:
+        return [CakePayPaymentMethod.ZEC];
       default:
         return const [];
     }
@@ -139,11 +144,14 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
   @action
   Future<void> createOrder() async {
-    if (walletType != WalletType.bitcoin &&
-        walletType != WalletType.monero &&
-        walletType != WalletType.litecoin) {
+    if (![
+      WalletType.bitcoin,
+      WalletType.monero,
+      WalletType.litecoin,
+      WalletType.zcash,
+    ].contains(walletType)) {
       sendViewModel.state =
-          FailureState('Unsupported wallet type, please use Bitcoin, Monero, or Litecoin.');
+          FailureState('Unsupported wallet type, please use Bitcoin, Monero, Litecoin or Zcash.');
     }
     try {
       order = await _cakePayService.createOrder(

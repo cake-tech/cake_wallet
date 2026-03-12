@@ -36,23 +36,24 @@ class NFTDetailsPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    final menuButton = Image.asset(
-      'assets/images/menu.png',
-      color: Theme.of(context).colorScheme.onSurface,
-    );
-
-    return Container(
-      alignment: Alignment.centerRight,
-      width: 40,
-      child: TextButton(
-        // FIX-ME: Style
-        //highlightColor: Colors.transparent,
-        //splashColor: Colors.transparent,
-        //padding: EdgeInsets.all(0),
-        onPressed: () => onOpenEndDrawer(),
-        child: Semantics(label: S.of(context).wallet_menu, child: menuButton),
-      ),
-    );
+    return SizedBox.shrink();
+    // final menuButton = Image.asset(
+    //   'assets/images/menu.png',
+    //   color: Theme.of(context).colorScheme.onSurface,
+    // );
+    //
+    // return Container(
+    //   alignment: Alignment.centerRight,
+    //   width: 40,
+    //   child: TextButton(
+    //     // FIX-ME: Style
+    //     //highlightColor: Colors.transparent,
+    //     //splashColor: Colors.transparent,
+    //     //padding: EdgeInsets.all(0),
+    //     onPressed: () => onOpenEndDrawer(),
+    //     child: Semantics(label: S.of(context).wallet_menu, child: menuButton),
+    //   ),
+    // );
   }
 
   @override

@@ -1,6 +1,8 @@
 PODS:
   - bitbox_flutter (0.0.1):
     - FlutterMacOS
+  - breez_sdk_spark_flutter (0.9.1):
+    - FlutterMacOS
   - connectivity_plus (0.0.1):
     - FlutterMacOS
   - cw_mweb (0.0.1):
@@ -79,6 +81,7 @@ PODS:
 
 DEPENDENCIES:
   - bitbox_flutter (from `Flutter/ephemeral/.symlinks/plugins/bitbox_flutter/macos`)
+  - breez_sdk_spark_flutter (from `Flutter/ephemeral/.symlinks/plugins/breez_sdk_spark_flutter/macos`)
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
   - cw_mweb (from `Flutter/ephemeral/.symlinks/plugins/cw_mweb/macos`)
   - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
@@ -112,6 +115,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   bitbox_flutter:
     :path: Flutter/ephemeral/.symlinks/plugins/bitbox_flutter/macos
+  breez_sdk_spark_flutter:
+    :path: Flutter/ephemeral/.symlinks/plugins/breez_sdk_spark_flutter/macos
   connectivity_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
   cw_mweb:
@@ -163,6 +168,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   bitbox_flutter: 16088f5c7febacf894f4d07bbdfb441c9f0757fe
+  breez_sdk_spark_flutter: 395f5c3f35d0f128ed504588de212ff601f6dbeb
   connectivity_plus: 0a976dfd033b59192912fa3c6c7b54aab5093802
   cw_mweb: 7440b12ead811dda972a9918442ea2a458e8742c
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f

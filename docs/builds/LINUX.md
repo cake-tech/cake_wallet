@@ -23,14 +23,24 @@ cd cake_wallet
 # docker build -t ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly . # Uncomment to build the docker image yourself instead of pulling it from the registry
 docker run --privileged -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly bash -x << EOF
 set -x -e
+git config --global --add safe.directory '*'
 pushd scripts
     ./gen_android_manifest.sh
+    ./prepare_moneroc.sh
+    ./prepare_torch.sh
+    ./prepare_zcash.sh
+    ./prepare_reown.sh
+    ./build_bitbox_flutter.sh
+    pushd android
+      ./build_mwebd.sh
+    popd
 popd
 pushd scripts/linux
+    ./build_monero_all.sh
+    ./build_zcash.sh
     source ./app_env.sh cakewallet
     # source ./app_env.sh monero.com # Uncomment this line to build monero.com
     ./app_config.sh
-    ./build_monero_all.sh
 popd
 flutter clean
 ./model_generator.sh

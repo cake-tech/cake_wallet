@@ -4,6 +4,13 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_bitcoin/litecoin_wallet.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
@@ -11,7 +18,6 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart' as electrum;
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -20,26 +26,22 @@ import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
-import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/get_height_by_date.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/socket_health_logger.dart';
+import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -49,7 +51,6 @@ import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 
 part 'electrum_wallet.g.dart';
@@ -75,6 +76,7 @@ abstract class ElectrumWalletBase
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
     bool? alwaysScan,
+    this.useLightning = true,
   })  : _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
         accountHD = getAccountHDWallet(
             currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType),
@@ -181,6 +183,9 @@ abstract class ElectrumWalletBase
 
   @observable
   bool? alwaysScan;
+
+  @observable
+  bool useLightning;
 
   final Bip32Slip10Secp256k1? _masterHD;
   final Bip32Slip10Secp256k1 accountHD;
@@ -632,7 +637,9 @@ abstract class ElectrumWalletBase
 
       if (server.toLowerCase().contains('electrs')) {
         node!.isElectrs = true;
-        node!.save();
+        if (node!.isInBox) {
+          node!.save();
+        }
         return node!.isElectrs!;
       }
     }
@@ -724,6 +731,7 @@ abstract class ElectrumWalletBase
         case UnspentCoinType.nonMweb:
           return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
         case UnspentCoinType.any:
+        case UnspentCoinType.lightning:
           return true;
       }
     }).toList();
@@ -1464,12 +1472,15 @@ abstract class ElectrumWalletBase
             ? SegwitAddresType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
+        'lightningBalance': balance[CryptoCurrency.btcln]?.toJSON(),
         'derivationTypeIndex': derivationInfo.derivationType?.index,
         'derivationPath': derivationInfo.derivationPath,
         'silent_addresses': walletAddresses.silentAddresses.map((addr) => addr.toJSON()).toList(),
         'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
         'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
         'alwaysScan': alwaysScan,
+        'useLightning': useLightning,
+        'cachedLightningAddress': walletAddresses.lightningAddress
       });
 
   int feeRate(TransactionPriority priority) {
@@ -1739,6 +1750,7 @@ abstract class ElectrumWalletBase
         final tx = await fetchTransactionInfo(hash: coin.hash);
         coin.isChange = address.isHidden;
         coin.confirmations = tx?.confirmations;
+        coin.isPegOut = tx?.isHogEx;
 
         updatedUnspentCoins.add(coin);
       } catch (_) {}
@@ -3009,8 +3021,9 @@ class SyncResponse {
 Future<void> _handleScanSilentPayments(ScanData scanData) async {
   final shouldUpdateSyncStatus = scanData.rescanHeights == null || scanData.rescanHeights!.isEmpty;
   final hasForcedRescanHeights = !shouldUpdateSyncStatus;
+  CakeTor.instance = await CakeTorInstance.getInstance();
 
-  var node = Uri.parse("tcp://electrs.cakewallet.com:50001");
+  var node = scanData.node?.uri ?? Uri.parse("tcp://electrs.cakewallet.com:50001");
 
   void log(String message, LogLevel level) {
     printV("[Scanning] $message", file: scanData.debugLogPath, level: level);
@@ -3178,8 +3191,9 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               final addToWallet = <String, dynamic>{};
 
               receivers.forEach((receiver) {
+                final preparedList = outputPubkeys.keys.toList().map((e) => [e]).toList();
                 // NOTE: scanOutputs, from sp_scanner package, called from rust here
-                final scanResult = scanOutputs([outputPubkeys.keys.toList()], tweak, receiver);
+                final scanResult = scanOutputs(preparedList, tweak, receiver);
 
                 if (scanResult.isEmpty) return;
 
@@ -3204,19 +3218,12 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               // So, if blockDate exists, reuse
               if (isDateNow) {
                 try {
+                  final rootURL = "https://cake.mempool.space";
                   final tweakBlockHash = await ProxyWrapper()
-                      .get(
-                        clearnetUri: Uri.parse(
-                          "https://mempool.cakewallet.com/api/v1/block-height/$tweakHeight",
-                        ),
-                      )
+                      .get(clearnetUri: Uri.parse("$rootURL/api/block-height/$tweakHeight"))
                       .timeout(Duration(seconds: 15));
                   final blockResponse = await ProxyWrapper()
-                      .get(
-                        clearnetUri: Uri.parse(
-                          "https://mempool.cakewallet.com/api/v1/block/${tweakBlockHash.body}",
-                        ),
-                      )
+                      .get(clearnetUri: Uri.parse("$rootURL/api/block/${tweakBlockHash.body}"))
                       .timeout(Duration(seconds: 15));
 
                   if (blockResponse.statusCode == 200 &&
@@ -3242,7 +3249,6 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
                 fee: 0,
                 direction: TransactionDirection.incoming,
                 isReplaced: false,
-                // TODO: fetch block data and get the date from it
                 date: scanData.network == BitcoinNetwork.mainnet
                     ? (isDateNow ? getDateByBitcoinHeight(tweakHeight) : blockDate)
                     : DateTime.now(),

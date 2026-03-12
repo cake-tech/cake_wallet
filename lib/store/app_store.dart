@@ -1,4 +1,4 @@
-
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -22,17 +22,26 @@ part 'app_store.g.dart';
 class AppStore = AppStoreBase with _$AppStore;
 
 abstract class AppStoreBase with Store {
-  AppStoreBase(
-      {required this.authenticationStore,
-      required this.walletList,
-      required this.settingsStore,
-      required this.nodeListStore,
-      required this.themeStore});
+  AppStoreBase({
+    required this.authenticationStore,
+    required this.walletList,
+    required this.settingsStore,
+    required this.nodeListStore,
+    required this.themeStore,
+  }) : _amountParsingProxy = AmountParsingProxy(settingsStore.displayAmountsInSatoshi) {
+    reaction(
+      (_) => settingsStore.displayAmountsInSatoshi,
+      (value) => _amountParsingProxy = AmountParsingProxy(value),
+    );
+  }
 
   AuthenticationStore authenticationStore;
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet;
+
+  @observable
+  String? currentRouteName;
 
   WalletListStore walletList;
 
@@ -41,6 +50,12 @@ abstract class AppStoreBase with Store {
   NodeListStore nodeListStore;
 
   ThemeStore themeStore;
+
+  @observable
+  AmountParsingProxy _amountParsingProxy;
+
+  @computed
+  AmountParsingProxy get amountParsingProxy => _amountParsingProxy;
 
   @action
   Future<void> changeCurrentWallet(
