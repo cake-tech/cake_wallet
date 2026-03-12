@@ -7,12 +7,12 @@ import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 enum AssetDetailsModalModes { normal, ltcTransparent, ltcPrivate }
@@ -99,8 +99,8 @@ class AssetDetailsModal extends StatelessWidget {
                                         color: Colors.white),
                                     child: Padding(
                                       padding: const EdgeInsets.all(4.0),
-                                      child: SvgPicture.asset(
-                                        chainIconPath,
+                                      child: CakeImageWidget(
+                                        imageUrl: chainIconPath,
                                         width: 18,
                                         height: 18,
                                         colorFilter:

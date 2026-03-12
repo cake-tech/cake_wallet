@@ -1,10 +1,10 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class AssetTile extends StatelessWidget {
   const AssetTile(
@@ -90,7 +90,7 @@ class AssetTile extends StatelessWidget {
                           child: Stack(
                             children: [
                               if((iconPath).isNotEmpty)
-                              Image.asset(iconPath)
+                              CakeImageWidget(imageUrl: iconPath)
                               else
                                 Container(
                                   width: 45,
@@ -115,8 +115,8 @@ class AssetTile extends StatelessWidget {
                                             color: Colors.white),
                                         child: Padding(
                                           padding: const EdgeInsets.all(2.0),
-                                          child: SvgPicture.asset(
-                                            chainIconPath,
+                                          child: CakeImageWidget(
+                                            imageUrl: chainIconPath,
                                             width: 12,
                                             height: 12,
                                             colorFilter:
