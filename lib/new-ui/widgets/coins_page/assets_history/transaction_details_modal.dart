@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/address_list_item.dart';
@@ -150,8 +151,23 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                               label: widget.transactionDetailsViewModel
                                                   .explorerDescription,
                                               onTap: widget
-                                                  .transactionDetailsViewModel.launchExplorer)
-                                        ]
+                                                  .transactionDetailsViewModel.launchExplorer, foregroundColor: Theme.of(context).colorScheme.primary,trailingIconPath: "assets/new-ui/link_arrow.svg", trailingIconSize: 8)
+                                        ],
+                                        if (widget.transactionDetailsViewModel.canReplaceByFee)
+                                          "rbf": [
+                                            ListItemRegularRow(
+                                                keyValue: "replace by fee",
+                                                label: S.of(context).bump_fee,
+                                                onTap: () {
+                                                  Navigator.of(context)
+                                                      .pushNamed(Routes.bumpFeePage, arguments: [
+                                                    widget.transactionDetailsViewModel
+                                                        .transactionInfo,
+                                                    widget
+                                                        .transactionDetailsViewModel.rawTransaction
+                                                  ]);
+                                                })
+                                          ]
                                       })
                                     ],
                                   ),
