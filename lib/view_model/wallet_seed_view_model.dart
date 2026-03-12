@@ -6,8 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 part 'wallet_seed_view_model.g.dart';
 
@@ -17,20 +15,12 @@ abstract class WalletSeedViewModelBase with Store {
   WalletSeedViewModelBase(WalletBase wallet)
       : name = wallet.name,
         seed = wallet.seed!,
-        walletType = _getWalletTypeName(wallet),
+        walletType = wallet.type,
         currentOptions = ObservableList<String>(),
         verificationIndices = ObservableList<int>() {
     setupSeedVerification();
   }
-  
-  static String _getWalletTypeName(WalletBase wallet) {
-    if (isEVMCompatibleChain(wallet.type)) {
-      final currentChain = evm!.getCurrentChain(wallet);
-      return currentChain?.name ?? walletTypeToString(wallet.type);
-    } else {
-      return walletTypeToString(wallet.type);
-    }
-  }
+
 
   @observable
   String name;
@@ -39,7 +29,7 @@ abstract class WalletSeedViewModelBase with Store {
   String seed;
 
   @observable
-  String walletType;
+  WalletType walletType;
 
   /// The Regex split the words based on any whitespace character.
   ///

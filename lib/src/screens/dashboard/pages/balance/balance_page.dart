@@ -22,7 +22,7 @@ class BalancePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Observer(
       builder: (context) {
-        final isNFTActivated = isNFTACtivatedChain(dashboardViewModel.type, dashboardViewModel.wallet.chainId);
+        final isNFTActivated = isNFTACtivatedChain(dashboardViewModel.type, chainId: dashboardViewModel.wallet.chainId);
         return DefaultTabController(
           key: ValueKey<bool>(isNFTActivated),
           length: isNFTActivated ? 2 : 1,

@@ -116,6 +116,7 @@ class Routes {
   static const importNFTPage = '/import_nft_page';
   static const backgroundSync = '/background_sync';
   static const startTor = '/start_tor';
+  static const receiveAddresses = "/receive_addresses";
 
   static const devMoneroBackgroundSync = '/dev/monero_background_sync';
   static const devMoneroCallProfiler = '/dev/monero_call_profiler';
@@ -143,4 +144,7 @@ class Routes {
   static const usdt0Bridge = '/usdt0_bridge';
   static const usdt0BridgeHistory = '/usdt0_bridge_history';
   static const usdt0BridgeDetail = '/usdt0_bridge_detail';
+
+  static const lightningUsernamePage = "/lightning_username_page";
+  static const aboutPage = "/about_page";
 }

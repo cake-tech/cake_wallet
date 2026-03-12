@@ -44,6 +44,7 @@ jobs:
 
       - name: Add secrets
         run: |
+          touch cw_bitcoin/lib/.secrets.g.dart
           touch cw_evm/lib/.secrets.g.dart
           touch cw_solana/lib/.secrets.g.dart
           touch cw_core/lib/.secrets.g.dart
@@ -64,6 +65,8 @@ jobs:
 
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
 
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 
@@ -101,11 +104,11 @@ jobs:
             ./build_zcash.sh
           popd
 
-      - name: Execute Build and Setup Commands
+      - name: Build Bitbox Flutter
         run: |
-          pushd scripts/linux
-            source ./app_env.sh cakewallet
-            ./app_config.sh
+          set -x -e
+          pushd scripts
+            ./build_bitbox_flutter.sh
           popd
 
       - name: Build monero_c
@@ -118,11 +121,11 @@ jobs:
             unxz -fv release/*/*.xz
           popd
 
-      - name: Build Bitbox Flutter
+      - name: Execute Build and Setup Commands
         run: |
-          set -x -e
-          pushd scripts
-            ./build_bitbox_flutter.sh
+          pushd scripts/linux
+            source ./app_env.sh cakewallet
+            ./app_config.sh
           popd
 
       - name: Install Flutter dependencies

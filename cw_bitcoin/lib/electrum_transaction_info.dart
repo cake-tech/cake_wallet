@@ -209,7 +209,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     return ElectrumTransactionInfo(
       type,
       id: data['id'] as String,
-      height: data['height'] as int,
+      height: data['height'] as int?,
       amount: data['amount'] as int,
       fee: data['fee'] as int,
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
@@ -237,11 +237,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   @override
   String amountFormatted() =>
-      '${formatAmount(bitcoinAmountToString(amount: amount))} ${walletTypeToCryptoCurrency(type).title}';
+      '${walletTypeToCryptoCurrency(type).formatAmount(BigInt.from(amount))} ${walletTypeToCryptoCurrency(type).title}';
 
   @override
   String? feeFormatted() => fee != null
-      ? '${formatAmount(bitcoinAmountToString(amount: fee!))} ${walletTypeToCryptoCurrency(type).title}'
+      ? '${walletTypeToCryptoCurrency(type).formatAmount(BigInt.from(fee!))} ${walletTypeToCryptoCurrency(type).title}'
       : '';
 
   @override

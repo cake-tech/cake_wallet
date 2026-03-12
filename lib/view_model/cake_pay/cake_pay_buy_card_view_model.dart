@@ -107,7 +107,10 @@ abstract class CakePayBuyCardViewModelBase with Store {
   List<CakePayPaymentMethod> get availableMethods {
     switch (walletType) {
       case WalletType.bitcoin:
-        return [CakePayPaymentMethod.BTC];
+        return [
+          CakePayPaymentMethod.BTC,
+          if (sendViewModel.wallet.isSoftwareWallet) CakePayPaymentMethod.BTC_LN
+        ];
       case WalletType.litecoin:
         return [
           CakePayPaymentMethod.LTC,

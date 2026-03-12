@@ -8,6 +8,7 @@ const evmChainsConfigPath = 'tool/.evm-secrets-config.json';
 const solanaConfigPath = 'tool/.solana-secrets-config.json';
 const nanoConfigPath = 'tool/.nano-secrets-config.json';
 const tronConfigPath = 'tool/.tron-secrets-config.json';
+const bitcoinConfigPath = 'tool/.bitcoin-secrets-config.json';
 
 Future<void> main(List<String> args) async => generateSecretsConfig(args);
 
@@ -41,6 +42,7 @@ Future<void> generateSecretsConfig(List<String> args) async {
   final solanaConfigFile = File(solanaConfigPath);
   final nanoConfigFile = File(nanoConfigPath);
   final tronConfigFile = File(tronConfigPath);
+  final bitcoinConfigFile = File(bitcoinConfigPath);
 
   final secrets = <String, dynamic>{};
 
@@ -66,4 +68,5 @@ Future<void> generateSecretsConfig(List<String> args) async {
   await writeConfig(solanaConfigFile, SecretKey.solanaSecrets);
   await writeConfig(nanoConfigFile, SecretKey.nanoSecrets);
   await writeConfig(tronConfigFile, SecretKey.tronSecrets);
+  await writeConfig(bitcoinConfigFile, SecretKey.bitcoinSecrets);
 }

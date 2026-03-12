@@ -1,3 +1,5 @@
+import 'package:cw_core/payment_uris.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -124,6 +126,10 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   String get addressForExchange => transparentAddressRotated ?? transparentAddress;
 
   @override
+  @computed
+  String get addressForBuy => transparentAddressRotated ?? transparentAddress;
+
+  @override
   bool containsAddress(final String address) {
     return this.address == address || addressesMap.values.contains(address);
   }
@@ -227,4 +233,15 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     }
     return allInfos;
   }
+
+  @override
+  List<ReceivePageOption> get receivePageOptions {
+    return [
+      ...ZcashReceivePageOption.all,
+      ...ReceivePageOptions.where((final element) => element != ReceivePageOption.mainnet),
+    ];
+  }
+
+  @override
+  PaymentURI getPaymentUri(final String amount) => ZcashURI(amount: amount, address: address);
 }

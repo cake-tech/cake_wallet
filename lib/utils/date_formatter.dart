@@ -5,10 +5,10 @@ import 'package:cake_wallet/store/settings_store.dart';
 
 class DateFormatter {
   static String currentLocalFormat({bool hasTime = true, bool reverse = false}) {
-    final isUSA = getIt.get<SettingsStore>().languageCode.toLowerCase() == 'en';
-    final format = isUSA ? usaStyleFormat(hasTime, reverse) : regularStyleFormat(hasTime, reverse);
+    // final isUSA = getIt.get<SettingsStore>().languageCode.toLowerCase() == 'en';
+    // final format = isUSA ? usaStyleFormat(hasTime, reverse) : regularStyleFormat(hasTime, reverse);
 
-    return format;
+    return hasTime ? (reverse ? "HH:mm  MMMM d, yyyy" : "MMMM d, yyyy, HH:mm") : "MMMM d, yyyy";
   }
 
   static DateFormat withCurrentLocal({bool hasTime = true, bool reverse = false}) => DateFormat(

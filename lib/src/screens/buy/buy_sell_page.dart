@@ -1,7 +1,6 @@
 import 'package:cake_wallet/buy/sell_buy_states.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -12,7 +11,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_s
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -56,7 +55,7 @@ class BuySellPage extends BasePage {
   bool get extendBodyBehindAppBar => true;
 
   @override
-  AppBarStyle get appBarStyle => AppBarStyle.transparent;
+  AppBarStyle get appBarStyle => AppBarStyle.completelyTransparent;
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
@@ -256,9 +255,7 @@ class BuySellPage extends BasePage {
   }
 
   void _setReactions(BuildContext context, BuySellViewModel buySellViewModel) {
-    if (_isReactionsSet) {
-      return;
-    }
+    if (_isReactionsSet) return;
 
     final fiatAmountController = fiatCurrencyKey.currentState!.amountController;
     final cryptoAmountController = cryptoCurrencyKey.currentState!.amountController;
@@ -269,28 +266,27 @@ class BuySellPage extends BasePage {
 
     reaction(
         (_) => buySellViewModel.wallet.name,
-        (String _) => _onWalletNameChange(
+        (_) => _onWalletNameChange(
             buySellViewModel, buySellViewModel.cryptoCurrency, cryptoCurrencyKey));
 
     reaction(
         (_) => buySellViewModel.cryptoCurrency,
-        (CryptoCurrency currency) =>
-            _onCurrencyChange(currency, buySellViewModel, cryptoCurrencyKey));
+        (currency) => _onCurrencyChange(currency, buySellViewModel, cryptoCurrencyKey));
 
     reaction((_) => buySellViewModel.fiatCurrency,
-        (FiatCurrency currency) => _onCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
+        (currency) => _onCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
 
-    reaction((_) => buySellViewModel.fiatAmount, (String amount) {
+    reaction((_) => buySellViewModel.fiatAmount, (amount) {
       if (fiatCurrencyKey.currentState!.amountController.text != amount) {
         fiatCurrencyKey.currentState!.amountController.text = amount;
       }
     });
 
-    reaction((_) => buySellViewModel.isCryptoCurrencyAddressEnabled, (bool isEnabled) {
+    reaction((_) => buySellViewModel.isCryptoCurrencyAddressEnabled, (isEnabled) {
       cryptoCurrencyKey.currentState!.isAddressEditable(isEditable: isEnabled);
     });
 
-    reaction((_) => buySellViewModel.cryptoAmount, (String amount) {
+    reaction((_) => buySellViewModel.cryptoAmount, (amount) {
       if (cryptoCurrencyKey.currentState!.amountController.text != amount) {
         cryptoCurrencyKey.currentState!.amountController.text = amount;
       }
@@ -453,6 +449,7 @@ class BuySellPage extends BasePage {
         fillColor: buySellViewModel.isBuyAction
             ? Theme.of(context).colorScheme.surfaceContainerLow
             : Theme.of(context).colorScheme.surfaceContainer,
+        useSatoshis: buySellViewModel.useSatoshi,
       ),
     );
 

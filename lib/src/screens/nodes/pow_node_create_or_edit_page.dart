@@ -11,13 +11,12 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 
 class PowNodeCreateOrEditPage extends BasePage {
   PowNodeCreateOrEditPage(
       {required this.nodeCreateOrEditViewModel, this.editingNode, this.isSelected})
-      : _formKey = GlobalKey<FormState>(),
-        _addressController = TextEditingController(),
+      : _addressController = TextEditingController(),
         _portController = TextEditingController(),
         _loginController = TextEditingController(),
         _passwordController = TextEditingController() {
@@ -55,7 +54,6 @@ class PowNodeCreateOrEditPage extends BasePage {
         .addListener(() => nodeCreateOrEditViewModel.password = _passwordController.text);
   }
 
-  final GlobalKey<FormState> _formKey;
   final TextEditingController _addressController;
   final TextEditingController _portController;
   final TextEditingController _loginController;
@@ -80,6 +78,7 @@ class PowNodeCreateOrEditPage extends BasePage {
   final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
   final Node? editingNode;
   final bool? isSelected;
+  final _formKey = GlobalKey<NodeFormState>();
 
   @override
   Widget body(BuildContext context) {
@@ -118,9 +117,8 @@ class PowNodeCreateOrEditPage extends BasePage {
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24.0, top: 8),
           content: NodeForm(
-            formKey: _formKey,
+            key: _formKey,
             nodeViewModel: nodeCreateOrEditViewModel,
-            editingNode: editingNode,
           ),
           bottomSectionPadding: EdgeInsets.only(bottom: 24),
           bottomSection: Observer(

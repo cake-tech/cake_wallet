@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:another_flushbar/flushbar.dart';
@@ -141,7 +142,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
       },
       child: Container(
         color: Theme.of(context).colorScheme.surface,
-        padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 60.0),
+        padding: EdgeInsets.only(left: 44.0, right: 44.0, bottom: 60.0),
         child: Column(
           children: <Widget>[
             Spacer(flex: 2),
@@ -153,7 +154,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
             ),
-            Spacer(flex: 3),
+            Spacer(flex: 2),
             Container(
               width: 180,
               child: Row(
@@ -206,11 +207,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                             child: GridView.count(
                               shrinkWrap: true,
                               crossAxisCount: 3,
-                              childAspectRatio: _aspectRatio,
+                              childAspectRatio: DeviceInfo.instance.isDesktop ? _aspectRatio : 1.1,
                               physics: const NeverScrollableScrollPhysics(),
                               children: List.generate(12, (index) {
-                                const double marginRight = 8;
-                                const double marginLeft = 8;
+                                const double marginRight = 10;
+                                const double marginLeft = 10;
 
                                 if (index == 9) {
                                   // Empty container
@@ -228,7 +229,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                         button: true,
                                         onTap: () => _pop(),
                                         child: TextButton(
-                                          onPressed: () => _pop(),
+                                          onPressed: () => {_pop(), HapticFeedback.mediumImpact()},
                                           style: TextButton.styleFrom(
                                             backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                                             shape: CircleBorder(),
@@ -246,7 +247,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                   margin: EdgeInsets.only(left: marginLeft, right: marginRight),
                                   child: TextButton(
                                     key: ValueKey('pin_code_button_${index}_key'),
-                                    onPressed: () => _push(index),
+                                    onPressed: () => {_push(index), HapticFeedback.mediumImpact()},
                                     style: TextButton.styleFrom(
                                       backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                                       shape: CircleBorder(),

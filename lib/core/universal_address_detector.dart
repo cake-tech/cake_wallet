@@ -1,6 +1,7 @@
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 
@@ -73,7 +74,7 @@ class UniversalAddressDetector {
 
       // Determine currency from scheme
       final currency = CryptoCurrency.fromString(uri.scheme.toLowerCase());
-      final walletType = cryptoCurrencyToWalletType(currency);
+      final walletType = cryptoCurrencyOrTokenToWalletType(currency);
       final chainId = getChainIdByCryptoCurrency(currency);
 
       return AddressDetectionResult(
@@ -105,21 +106,27 @@ class UniversalAddressDetector {
 
     // Detection patterns ordered by specificity (most specific first)
     final detectionPatterns = [
-      // Lightning Network
+      // Lightning Network (Bolt11 Invoice format)
       _DetectionPattern(
-        pattern: RegExp(r'^(lnbc|LNBC)[a-km-zA-HJ-NP-Z1-9]{1,}[a-zA-Z0-9]+$'),
+        pattern: RegExp(r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt)[a-z0-9]+$', caseSensitive: false),
         currency: CryptoCurrency.btcln,
       ),
-      
+
+      // Lightning Network (Bolt12 Offer format)
+      _DetectionPattern(
+        pattern: RegExp(r'^(lightning:)?(lno1)[a-z0-9]+$', caseSensitive: false),
+        currency: CryptoCurrency.btcln,
+      ),
+
       // Lightning Address (email format)
       _DetectionPattern(
         pattern: RegExp(r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'),
         currency: CryptoCurrency.btcln,
       ),
       
-      // LNURL format
+      // Lightning Address (LNURL format)
       _DetectionPattern(
-        pattern: RegExp(r'^(LNURL|lnurl)[a-zA-Z0-9]+$', caseSensitive: false),
+        pattern: RegExp(r'^(lightning:)?(lnurl)[a-z0-9]+$', caseSensitive: false),
         currency: CryptoCurrency.btcln,
       ),
 
@@ -152,7 +159,7 @@ class UniversalAddressDetector {
 
       // Bitcoin Cash
       _DetectionPattern(
-        pattern: RegExp(r'^(q|p)[a-z0-9]{41}$'),
+        pattern: RegExp(r'^([qp])[a-z0-9]{41}$'),
         currency: CryptoCurrency.bch,
       ),
 
@@ -212,7 +219,7 @@ class UniversalAddressDetector {
 
       // Decred
       _DetectionPattern(
-        pattern: RegExp(r'^(D|T|S)[ksecS][a-km-zA-HJ-NP-Z1-9]+$'),
+        pattern: RegExp(r'^([DTS])[ksecS][a-km-zA-HJ-NP-Z1-9]+$'),
         currency: CryptoCurrency.dcr,
       ),
 
@@ -232,8 +239,9 @@ class UniversalAddressDetector {
     // Test each pattern in order of specificity
     for (final pattern in detectionPatterns) {
       if (pattern.pattern.hasMatch(cleanInput)) {
-        final walletType = cryptoCurrencyToWalletType(pattern.currency);
+        final walletType = cryptoCurrencyOrTokenToWalletType(pattern.currency);
         final chainId = getChainIdByCryptoCurrency(pattern.currency);
+        final amount = _getAmountFromInvoice(cleanInput, pattern.currency);
 
         return AddressDetectionResult(
           address: cleanInput,
@@ -241,6 +249,7 @@ class UniversalAddressDetector {
           detectedWalletType: walletType,
           isValid: true,
           chainId: chainId,
+          amount: amount,
         );
       }
     }
@@ -250,6 +259,15 @@ class UniversalAddressDetector {
       detectedCurrency: null,
       isValid: false,
     );
+  }
+
+  static String? _getAmountFromInvoice(String input, CryptoCurrency currency) {
+    if (currency != CryptoCurrency.btcln) return null;
+    try {
+      return getBolt11Amount(input).toString();
+    } catch (e) {
+      return null;
+    }
   }
 }
 

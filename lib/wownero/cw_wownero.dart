@@ -48,6 +48,10 @@ class CWWowneroAccountList extends WowneroAccountList {
     final wowneroWallet = wallet as WowneroWallet;
     await wowneroWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
+    if (accountIndex == wowneroWallet.walletAddresses.account?.id) {
+      wowneroWallet.walletAddresses.account = wownero_account.Account(
+          id: accountIndex, label: label, balance: wowneroWallet.walletAddresses.account!.balance);
+    }
   }
 }
 

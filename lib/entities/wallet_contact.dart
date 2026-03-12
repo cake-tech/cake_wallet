@@ -17,4 +17,8 @@ class WalletContact implements ContactBase {
   /// Wallet type of the wallet this contact belongs to
   /// Used for EVM chain filtering
   final WalletType? walletType;
+
+  String get displayName => "";
+
+  set displayName(String _) {}
 }
