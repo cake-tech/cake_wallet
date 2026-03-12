@@ -24,6 +24,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     on<CardDesignSelected>(_onDesignSelected);
     on<ColorSelected>(_onColorSelected);
     on<DesignSaved>(_onDesignSaved);
+    on<AccountHidden>(_onAccountHidden);
     on<AccountNameChanged>(_onAccountNameChanged);
 
 
@@ -138,6 +139,24 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
           state.availableDesigns, state.availableColors, state.accountName, state.accountIndex, state.displaySats, state.cardOrder));
     });
     saveAccountName();
+  }
+
+  void _onAccountHidden(AccountHidden event, Emitter<CardCustomizerState> emit) {
+    BalanceCardStyleSettings.fromCardDesign(_wallet.walletInfo.internalId, state.accountIndex,
+            state.cardOrder, state.selectedDesign,
+            hidden: true)
+        .insert()
+        .then((value) {
+      emit(CardCustomizerSaved(
+          state.selectedDesignIndex,
+          state.selectedColorIndex,
+          state.availableDesigns,
+          state.availableColors,
+          state.accountName,
+          state.accountIndex,
+          state.displaySats,
+          state.cardOrder));
+    });
   }
 
   Future<void> saveAccountName() async {

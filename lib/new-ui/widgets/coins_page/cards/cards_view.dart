@@ -64,7 +64,7 @@ class _CardsViewState extends State<CardsView> {
   late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
   late final double effectiveCardWidth = min(cardWidth, 768);
 
-  Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
+  Widget _buildCard(int visualIndex, int realIndex, int designIndex, int numCards, double parentWidth,
       Map<int, int> order, bool compactMode, double overlapAmount) {
     final baseTop = overlapAmount * (numCards - 1);
     final scaleFactor = compactMode ? 1 : 0.96;
@@ -136,12 +136,12 @@ class _CardsViewState extends State<CardsView> {
             // should get populated before user sees anything
             final CardDesign cardDesign;
             if (widget.dashboardViewModel.cardDesigns.isEmpty ||
-                realIndex >= widget.dashboardViewModel.cardDesigns.length)
+                designIndex >= widget.dashboardViewModel.cardDesigns.length)
               cardDesign = CardDesign.genericDefault;
             else if(widget.lightningMode)
-              cardDesign = widget.dashboardViewModel.cardDesigns[realIndex + 1];
+              cardDesign = widget.dashboardViewModel.cardDesigns[designIndex + 1];
             else
-              cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
+              cardDesign = widget.dashboardViewModel.cardDesigns[designIndex];
 
             final String accountName;
             final String accountBalance;
@@ -248,22 +248,26 @@ class _CardsViewState extends State<CardsView> {
             )
           : widget.dashboardViewModel.cardOrder;
 
-      for (int i = min(numCards - 1, maxCards); i >= 0; i--) {
-        int visualIndex = (_selectedIndex - i + numCards) % numCards;
-        if (order[visualIndex] == null) {
-          order = Map<int, int>.fromEntries(
-            List.generate(numCards, (i) => MapEntry(i, i)),
-          );
-        }
-      }
+      // for (int i = min(numCards - 1, maxCards); i >= 0; i--) {
+      //   int visualIndex = (_selectedIndex - i + numCards) % numCards;
+      //   if (order[visualIndex] == null) {
+      //     order = Map<int, int>.fromEntries(
+      //       List.generate(numCards, (i) => MapEntry(i, i)),
+      //     );
+      //   }
+      // }
 
 
+      final activeRealIndices = order.values.toList()..sort();
       final bool compactMode = numCards >= compactModeTreshold;
       final double overlapAmount = compactMode ? 5.0 : 46.0;
       for (int i = min(numCards - 1, maxCards); i >= 0; i--) {
         int visualIndex = (_selectedIndex - i + numCards) % numCards;
-
-        int realIndex = order[visualIndex]!;
+        final orderKeysList = order.keys.toList();
+        orderKeysList.sort();
+        int orderIndex = orderKeysList.elementAt(visualIndex);
+        int realIndex = order[orderIndex]!;
+        int designIndex = activeRealIndices.indexOf(realIndex);
 
         if (visualIndex == _selectedIndex &&
             widget.accountListViewModel != null &&
@@ -274,7 +278,7 @@ class _CardsViewState extends State<CardsView> {
         }
 
         children.add(_buildCard(
-            visualIndex, realIndex, numCards, parentWidth, order, compactMode, overlapAmount));
+            visualIndex, realIndex, designIndex, numCards, parentWidth, order, compactMode, overlapAmount));
       }
 
       return AnimatedContainer(

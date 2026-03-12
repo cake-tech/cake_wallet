@@ -404,6 +404,7 @@ abstract class DashboardViewModelBase with Store {
       }
     cardDesigns.clear();
       Map<int, int> newOrder = {};
+      List<int> hidden = [];
 
     for (int i = 0; i < numAccounts; i++) {
       late final int index;
@@ -420,6 +421,10 @@ abstract class DashboardViewModelBase with Store {
           .where((e) => e.accountIndex == index)
           .firstOrNull;
 
+      if(setting?.hidden ?? false) {
+        hidden.add(index);
+        continue;
+      }
 
       late final CryptoCurrency curr;
       if(wallet.type == WalletType.bitcoin && i == 1) {
@@ -437,7 +442,7 @@ abstract class DashboardViewModelBase with Store {
 
     // making sure ALL accounts have numbers, even the ones that existed before this feature was a thing
     for (int i = 0; i < numAccounts; i++) {
-      if (!newOrder.containsKey(i) && !(wallet.type != WalletType.bitcoin && i == 1)) {
+      if (!hidden.contains(i) && !newOrder.containsValue(i) && !(wallet.type != WalletType.bitcoin && i == 1)) {
         int free = 0;
         while (newOrder.containsValue(free)) {
           free++;

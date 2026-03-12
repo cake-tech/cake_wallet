@@ -39,7 +39,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 3,
+  db = await openDatabase(dbFile.path, version: 4,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -81,6 +81,11 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           definition: 'INTEGER DEFAULT 0',
         );
       }
+      if(oldVersion <= 3) {
+      _addColumnIfNotExists(db,
+          table: "BalanceCardStyleSettings", column: "hidden", definition: "BOOLEAN DEFAULT FALSE");
+      }
+
     },
     onCreate: (Database db, int version) async {
       await db.execute(

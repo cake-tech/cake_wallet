@@ -7,6 +7,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CardCustomizer extends StatefulWidget {
   const CardCustomizer({super.key, required this.cryptoTitle, required this.cryptoName});
@@ -69,9 +70,9 @@ class _CardCustomizerState extends State<CardCustomizer> {
                   ModalTopBar(
                     title: editEnabled ? S.of(context).edit_account : S.of(context).edit_card,
                     leadingIcon: Icon(Icons.close),
-                    // trailingIcon: editEnabled ? Icon(Icons.delete_forever) : null,
+                    trailingIcon: editEnabled ? SvgPicture.asset("assets/new-ui/hide.svg",colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn),) : null,
                     onLeadingPressed: () => Navigator.of(context).maybePop(),
-                    // onTrailingPressed: () {},
+                    onTrailingPressed: () => Navigator.of(context).maybePop(true),
                   ),
                   if (editEnabled)
                     Padding(

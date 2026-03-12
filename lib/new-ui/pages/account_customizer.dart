@@ -3,9 +3,11 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
+import 'package:cake_wallet/new-ui/pages/hidden_accounts.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_grab_handle.dart';
+import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -16,6 +18,7 @@ import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dar
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
+import 'package:cw_core/card_design.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -59,23 +62,21 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      loadCards();
-      final activeId = monero!.getCurrentAccount(widget.dashboardViewModel.wallet).id;
-      for (int i = 0; i < _items.length-1; i++) {
-        if(_items[i].accountListItem.id == activeId) {
-          final lastIndex = _items.length - 1;
-          final temp = _items[i];
-          _items[i] = _items[lastIndex];
-          _items[lastIndex] = temp;
-          saveCardOrder();
-          widget.dashboardViewModel.loadCardDesigns();
-          break;
+      loadCards().then((_){
+        final activeId = monero!.getCurrentAccount(widget.dashboardViewModel.wallet).id;
+        for (int i = 0; i < _items.length-1; i++) {
+          if(_items[i].accountListItem.id == activeId) {
+            final lastIndex = _items.length - 1;
+            final temp = _items[i];
+            _items[i] = _items[lastIndex];
+            _items[lastIndex] = temp;
+            saveCardOrder();
+            widget.dashboardViewModel.loadCardDesigns();
+            break;
+          }
         }
-      }
-
+      });
     });
-
-
   }
 
   @override
@@ -84,35 +85,51 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     super.dispose();
   }
 
-  void loadCards() {
-    _items.clear();
+  Future<void> loadCards() async {
+    final List<AccountCustomizerListItem> newItems = [];
 
     final accounts = widget.accountListViewModel.accounts;
-    for (int i = 0; i < accounts.length; i++) {
-      final index = widget.dashboardViewModel.cardOrder[i];
+    final styleSettings = await BalanceCardStyleSettings.getAll(widget.dashboardViewModel.wallet.walletInfo.internalId);
+    final sortedOrderKeys = widget.dashboardViewModel.cardOrder.keys.toList()..sort();
+    for (final key in sortedOrderKeys) {
+      final index = widget.dashboardViewModel.cardOrder[key];
 
-      if(index == null || index >= accounts.length) {
+      if(index == null) {
+        continue;
+      }
+
+      if(index >= accounts.length) {
         // db order broken.
         reset();
         break;
       }
 
-      _items.add(AccountCustomizerListItem(
+      final account = accounts.firstWhere((item)=>item.id==index);
+      final setting = styleSettings.firstWhere((item)=>item.accountIndex == index);
+
+      if(setting.hidden) {
+        continue;
+      }
+
+      newItems.add(AccountCustomizerListItem(
           card: BalanceCard(
-            accountName: accounts[index].label,
-            accountIndex: accounts[index].id,
-            balance: accounts[index].balance ?? "0.00",
-            accountBalance: accounts[index].balance ?? "0.00",
+            accountName: account.label,
+            accountIndex: account.id,
+            balance: account.balance ?? "0.00",
+            accountBalance: account.balance ?? "0.00",
             designSwitchDuration: Duration.zero,
             assetName: widget.accountListViewModel.currency.title,
-            onCustomizeTapped: (i == accounts.length - 1) ? _openCardCustomizer : null,
-            selected: i == accounts.length - 1,
+            onCustomizeTapped: (key == accounts.length - 1) ? _openCardCustomizer : null,
+            selected: key == accounts.length - 1,
             width: cardWidth,
-            design: widget.dashboardViewModel.cardDesigns[index],
+            design: CardDesign.fromStyleSettings(setting, widget.dashboardViewModel.wallet.currency),
           ),
           order: index,
-          accountListItem: accounts[index]));
+          accountListItem: account));
+
     }
+    _items.clear();
+    _items.addAll(newItems);
     setState(() {});
   }
 
@@ -130,8 +147,20 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             title: S.of(context).wallet_accounts,
             leadingIcon: Icon(Icons.close),
             onLeadingPressed: Navigator.of(context).maybePop,
-            trailingIcon: Icon(Icons.refresh),
-            onTrailingPressed: showResetDialog,
+            // trailingIcon: Icon(Icons.refresh),
+            // onTrailingPressed: showResetDialog,
+            trailingWidget: Row(spacing:8,children: [
+              ModernButton(icon: Icon(Icons.refresh), onPressed: showResetDialog, size: 36),
+              ModernButton.svg(svgPath: "assets/new-ui/archived.svg", size: 36, onPressed: ()async{
+                await Navigator.of(context).push(CupertinoPageRoute(
+                        builder: (context) => Material(
+                          child: HiddenAccountsPage(
+                              accountListViewModel: widget.accountListViewModel,
+                              dashboardViewModel: widget.dashboardViewModel),
+                        )));
+                await loadCards();
+                  }, iconSize: 18,)
+              ],),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24.0),
@@ -265,7 +294,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
         });
     if (res != null && res is bool && res == true) {
       await widget.dashboardViewModel.loadCardDesigns();
-      loadCards();
+      await loadCards();
       await saveCardOrder();
     }
   }
@@ -274,8 +303,11 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     if (!_checkReadyToManage()) {
       return;
     }
+    
+    widget.accountListViewModel.select(_items[_items.length-1].accountListItem);
 
     final bloc = getIt.get<CardCustomizerBloc>(param1: false);
+    
 
     Navigator.of(context).push(CupertinoPageRoute(
       builder: (context) {
@@ -290,11 +322,13 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
           ),
         );
       },
-    )).then((_) async {
-      bloc.add(DesignSaved());
+    )).then((result) async {
+      final hideRequested = result != null && result is bool && result;
+      bloc.add(hideRequested ? AccountHidden() : DesignSaved());
       await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
+      if(hideRequested) await reset(unhide: false);
       await widget.dashboardViewModel.loadCardDesigns();
-      loadCards();
+      await loadCards();
     });
   }
 
@@ -332,15 +366,16 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
   }
 
   Future<void> saveCardOrder() async {
-    for (int i = 0; i < _items.length; i++) {
-      final idx = _items.indexWhere((element) => element.accountListItem.id == i);
-      printV("$i: $idx");
+    final visualOrder = _items.reversed.toList();
+
+    for (int i = 0; i < visualOrder.length; i++) {
+      final item = visualOrder[i];
 
       await BalanceCardStyleSettings.fromCardDesign(
               widget.dashboardViewModel.wallet.walletInfo.internalId,
+              item.accountListItem.id,
               i,
-              idx,
-              _items[idx].card.design)
+              item.card.design)
           .insert();
     }
   }
@@ -360,15 +395,20 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
               actionRightButton: Navigator.of(context).pop);
         });
     if(res != null && res is bool && res) {
-      reset();
+      reset(close: true);
     }
   }
 
-  Future<void> reset() async {
+  Future<void> reset({bool close = false, bool unhide = true}) async {
     _items.clear();
 
     final accounts = widget.accountListViewModel.accounts;
     for (int i = 0; i < widget.accountListViewModel.accounts.length; i++) {
+      final styleSettings = await BalanceCardStyleSettings.get(
+          widget.dashboardViewModel.wallet.walletInfo.internalId, accounts[i].id);
+      if(!unhide && (styleSettings?.hidden??false)) {
+        continue;
+      }
 
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
@@ -380,14 +420,17 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             selected: true,
             designSwitchDuration: Duration(milliseconds: 200),
             width: cardWidth,
-            design: widget.dashboardViewModel.cardDesigns[i],
+            design: CardDesign.fromStyleSettings(
+                styleSettings,
+                widget.dashboardViewModel.wallet.currency),
           ),
           order: i,
           accountListItem: accounts[i]));
     }
 
     saveCardOrder();
-    setState(() {});
+    if(close)Navigator.of(context).maybePop();
+    else setState(() {});
   }
 }
 

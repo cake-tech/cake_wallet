@@ -26,3 +26,5 @@ class AccountNameChanged extends CardCustomizerEvent {
 
 
 class DesignSaved extends CardCustomizerEvent {}
+
+class AccountHidden extends CardCustomizerEvent {}
