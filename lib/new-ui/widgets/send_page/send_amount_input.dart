@@ -1,4 +1,5 @@
 import 'package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -111,7 +112,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                         Image.asset(widget.currencyIconPath, width: 24, height: 24),
                                       Text(widget.currency),
                                       if (widget.hasPicker)
-                                        SvgPicture.asset(
+                                        CakeImageWidget(imageUrl:
                                           "assets/new-ui/chooser.svg",
                                           width: 12,
                                           height: 12,

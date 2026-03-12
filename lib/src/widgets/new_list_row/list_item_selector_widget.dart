@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -41,7 +42,7 @@ class ListItemSelectorWidget extends StatelessWidget {
                       options[selectedIndex],
                       style: labelStyle,
                     ),
-                    SvgPicture.asset(
+                    CakeImageWidget(imageUrl:
                       "assets/new-ui/chooser.svg",
                       colorFilter:
                           ColorFilter.mode(theme.colorScheme.onSurfaceVariant, BlendMode.srcIn),

@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -63,7 +64,7 @@ class CoinControlListItem extends StatelessWidget {
                       children: [
                         Text(amount, style: TextStyle(fontSize:14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurface),),
                         if(address.toLowerCase().contains("mweb")) // hack carried over from old ui, we really should just have a boolean in the object
-                            SvgPicture.asset(
+                          CakeImageWidget(imageUrl:
                               "assets/new-ui/address-type-picker-icons/mweb.svg",
                               width: 18,
                               height: 18,
@@ -71,7 +72,7 @@ class CoinControlListItem extends StatelessWidget {
                                   Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
                             ),
                         if(isSilentPayment)
-                          SvgPicture.asset(
+                          CakeImageWidget(imageUrl:
                             "assets/new-ui/address-type-picker-icons/silent.svg",
                             width: 18,
                             height: 18,
@@ -100,7 +101,7 @@ class CoinControlListItem extends StatelessWidget {
                         fontWeight: FontWeight.w400,
                         color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
-                  SvgPicture.asset(
+                  CakeImageWidget(imageUrl:
                     "assets/new-ui/arrow_right.svg",
                     colorFilter: ColorFilter.mode(
                         Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
@@ -119,7 +120,7 @@ class CoinControlListItem extends StatelessWidget {
     }
 
     if(isFrozen) {
-      return SvgPicture.asset("assets/new-ui/frozen.svg");
+      return CakeImageWidget(imageUrl:"assets/new-ui/frozen.svg");
     }
 
     return NewSimpleCheckbox(value: isSending, onChanged: (value){onCheckBoxTap?.call();});

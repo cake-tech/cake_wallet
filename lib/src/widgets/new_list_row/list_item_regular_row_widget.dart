@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -59,17 +60,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                     if(iconPath != null)
                       Padding(
                         padding: const EdgeInsets.only(right: 12.0),
-                        child: iconPath!.split(".").last.toLowerCase() == "svg"
-                            ? SvgPicture.asset(
-                                iconPath!,
-                                width: 24,
-                                height: 24,
-                              )
-                            : Image.asset(
-                                iconPath!,
-                                width: 24,
-                                height: 24,
-                              ),
+                        child: CakeImageWidget(imageUrl: iconPath!, width: 24,height: 24,)
                       ),
                     Flexible(
                       child: Column(
@@ -100,14 +91,14 @@ class ListItemRegularRowWidget extends StatelessWidget {
                       ),
                     ),
                   if(trailingIconPath != null)
-                    SvgPicture.asset(
+                    CakeImageWidget(imageUrl:
                       trailingIconPath!,
                       height: trailingIconSize ?? 18,
                       width:trailingIconSize ?? 18,
                       colorFilter: ColorFilter.mode(foregroundColor ?? Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),
                     )
                   else if(showArrow)
-                  SvgPicture.asset(
+                    CakeImageWidget(imageUrl:
                     "assets/new-ui/arrow_forward.svg",
                     height: 14,
                     color: theme.colorScheme.onSurfaceVariant

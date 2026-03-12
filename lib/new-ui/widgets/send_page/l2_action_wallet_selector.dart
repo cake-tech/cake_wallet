@@ -7,6 +7,7 @@ import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/l2_send_external_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -251,7 +252,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   spacing: 10,
                                   children: [
-                                    SvgPicture.asset(
+                                  CakeImageWidget(imageUrl:
                                       "assets/new-ui/send_from_external.svg",
                                       colorFilter: ColorFilter.mode(
                                           Theme.of(context).colorScheme.primary, BlendMode.srcIn),

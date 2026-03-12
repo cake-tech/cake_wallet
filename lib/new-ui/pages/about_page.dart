@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -67,8 +68,8 @@ class _AboutPageState extends State<AboutPage> {
                   SizedBox(),
                   GestureDetector(
                     onTap: _easterEgg,
-                    child: SvgPicture.asset(
-                      "assets/new-ui/cake_squircle_icon.svg",
+                    child: CakeImageWidget(
+                      imageUrl: "assets/new-ui/cake_squircle_icon.svg",
                       width: 128,
                       height: 128,
                     ),
