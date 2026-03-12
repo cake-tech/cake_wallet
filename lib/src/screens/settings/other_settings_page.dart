@@ -147,12 +147,12 @@ class OtherSettingsPage extends BasePage {
               ListItemRegularRow(
                   keyValue: "export_lightning_logs",
                   label: S.of(context).export_lightning_logs,
-                  onTap: () => onExportLNLog
+                  onTap: () => onExportLNLog(context)
               ),
               ListItemRegularRow(
                   keyValue: "export_payjoin_logs",
                   label: S.of(context).export_payjoin_logs,
-                  onTap: () => onExportPJLog
+                  onTap: () => onExportPJLog(context)
               ),
             ],
             if (FeatureFlag.hasDevOptions &&
