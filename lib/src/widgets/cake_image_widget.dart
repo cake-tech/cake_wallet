@@ -29,7 +29,6 @@ class CakeImageWidget extends StatelessWidget {
   final AlignmentGeometry? alignment;
   final bool? allowDrawingOutsideViewBox;
   final double borderRadius;
-  final ColorFilter? colorFilter;
 
   @override
   Widget build(BuildContext context) {
