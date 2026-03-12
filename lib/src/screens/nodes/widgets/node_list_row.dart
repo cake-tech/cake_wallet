@@ -7,11 +7,12 @@ import 'package:flutter/material.dart';
 class NodeListRow extends StandardListRow {
   NodeListRow(
       {required String title,
+        String? subtitle,
       required this.node,
       required void Function(BuildContext context) onTap,
       required bool isSelected,
       required this.isPow})
-      : super(title: title, onTap: onTap, isSelected: isSelected);
+      : super(title: title, onTap: onTap, isSelected: isSelected, subtitle: subtitle);
 
   final Node node;
   final bool isPow;
