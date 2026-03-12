@@ -11,6 +11,8 @@ class ListItemRegularRow extends ListItem {
     this.onTap,
     this.trailingIconPath,
     this.showArrow = true,
+    this.bottomWidget,
+    this.trailingWidget,
     this.truncateTrailingText = false,
     this.foregroundColor,
     this.trailingIconSize
@@ -22,6 +24,8 @@ class ListItemRegularRow extends ListItem {
   final String? trailingIconPath;
   final VoidCallback? onTap;
   final bool showArrow;
+  final Widget? bottomWidget;
+  final Widget? trailingWidget;
   final bool truncateTrailingText;
   final Color? foregroundColor;
   final double? trailingIconSize;
