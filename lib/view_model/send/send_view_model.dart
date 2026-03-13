@@ -204,9 +204,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (pendingTransaction == null) return '0.00';
 
     try {
+      final selectedCurrency = selectedCryptoCurrency == CryptoCurrency.btcln
+          ? CryptoCurrency.btc
+          : selectedCryptoCurrency;
       var currency = _fiatConversationStore.prices.keys
-          .firstWhere((k) => k.titleAndTagEqual(selectedCryptoCurrency));
-      if (currency == CryptoCurrency.btcln) currency = CryptoCurrency.btc;
+          .firstWhere((k) => k.titleAndTagEqual(selectedCurrency));
 
       final fiat = calculateFiatAmount(
           price: _fiatConversationStore.prices[currency],
