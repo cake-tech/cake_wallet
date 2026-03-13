@@ -252,18 +252,18 @@ abstract class DisplaySettingsViewModelBase with Store {
   String getImageForTheme(MaterialThemeBase theme) {
     switch (theme.title) {
       case 'Dark Theme':
-        return 'assets/images/dark.svg';
+        return 'assets/new-ui/dark.svg';
       case 'Light Theme':
-        return 'assets/images/light.svg';
+        return 'assets/new-ui/light.svg';
       case 'Black Theme (Cake Primary)':
       case 'Black Theme (BCH Green)':
       case 'Black Theme (Bitcoin Yellow)':
       case 'Black Theme (Monero Orange)':
       case 'Black Theme (Tron Red)':
       case 'Black Theme (Frosting Purple)':
-        return 'assets/images/black_accent.svg';
+        return 'assets/new-ui/black_accent.svg';
       default:
-        return 'assets/images/dark.svg';
+        return 'assets/new-ui/dark.svg';
     }
   }
 }

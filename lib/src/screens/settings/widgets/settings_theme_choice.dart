@@ -176,14 +176,14 @@ class SettingsThemeChoicesCell extends StatelessWidget {
   double getHeight(BuildContext context, MaterialThemeBase theme, bool hasAccentColors) {
     final screenHeight = MediaQuery.of(context).size.height;
 
-    double baseHeight = (screenHeight * 0.251).clamp(150.0, screenHeight * 0.5);
+    double baseHeight = (screenHeight * 0.253).clamp(150.0, screenHeight * 0.5);
 
     if (hasAccentColors) {
-      baseHeight += (screenHeight * 0.6).clamp(35.0, 60.0);
+      baseHeight += (screenHeight * 0.60).clamp(35.0, 60.0);
     }
 
     if (theme is BlackTheme) {
-      baseHeight += (screenHeight * 0.057).clamp(48.0, 96.0);
+      baseHeight += (screenHeight * 0.059).clamp(48.0, 96.0);
     }
 
     return baseHeight;
