@@ -50,14 +50,14 @@ class ConnectionSyncPage extends BasePage {
                           if (FeatureFlag.isInAppTorEnabled)
                             ListItemToggle(
                                 keyValue: "enable_builtin_tor",
-                                label: S.current.enable_builtin_tor,
+                                label: S.of(context).enable_builtin_tor,
                                 value: _connectionSyncViewModel.builtinTor,
                                 onChanged: (val) {
                                   _connectionSyncViewModel.setBuiltinTor(val, context);
                                 }),
                           ListItemToggle(
                               keyValue: "disable_automatic_exchange_status_updates",
-                              label: S.current.disable_automatic_exchange_status_updates,
+                              label: S.of(context).disable_automatic_exchange_status_updates,
                               value: _connectionSyncViewModel.disableAutomaticExchangeStatusUpdates,
                               onChanged: (val) {
                                 _connectionSyncViewModel.setDisableAutomaticExchangeStatusUpdates(val);
@@ -65,7 +65,7 @@ class ConnectionSyncPage extends BasePage {
                           if (_connectionSyncViewModel.canUseBlinkProtection)
                             ListItemToggle(
                                 keyValue: "can_use_blink_protection",
-                                label: S.current.use_blink_protection,
+                                label: S.of(context).use_blink_protection,
                                 value: _connectionSyncViewModel.useBlinkProtection,
                                 onChanged: (val) {
                                   _connectionSyncViewModel.setUseBlinkProtection(val);
@@ -73,7 +73,7 @@ class ConnectionSyncPage extends BasePage {
                           if (_connectionSyncViewModel.canUseEtherscan)
                             ListItemToggle(
                                 keyValue: "can_use_etherscan",
-                                label: S.current.etherscan_history,
+                                label: S.of(context).etherscan_history,
                                 value: _connectionSyncViewModel.useEtherscan,
                                 onChanged: (val) {
                                   _connectionSyncViewModel.setUseEtherscan(val);
@@ -81,7 +81,7 @@ class ConnectionSyncPage extends BasePage {
                           if (_connectionSyncViewModel.canUsePolygonScan)
                             ListItemToggle(
                                 keyValue: "can_use_polygonscan",
-                                label: S.current.polygonscan_history,
+                                label: S.of(context).polygonscan_history,
                                 value: _connectionSyncViewModel.usePolygonScan,
                                 onChanged: (val) {
                                   _connectionSyncViewModel.setUsePolygonScan(val);
@@ -89,7 +89,7 @@ class ConnectionSyncPage extends BasePage {
                           if (_connectionSyncViewModel.canUseBaseScan)
                             ListItemToggle(
                                 keyValue: "can_use_basescan",
-                                label: S.current.basescan_history,
+                                label: S.of(context).basescan_history,
                                 value: _connectionSyncViewModel.canUseBaseScan,
                                 onChanged: (val) {
                                   _connectionSyncViewModel.setUseBaseScan(val);
@@ -97,7 +97,7 @@ class ConnectionSyncPage extends BasePage {
                           if (_connectionSyncViewModel.canUseArbiScan)
                             ListItemToggle(
                                 keyValue: "can_use_arbiscan",
-                                label: S.current.arbiscan_history,
+                                label: S.of(context).arbiscan_history,
                                 value: _connectionSyncViewModel.useArbiScan,
                                 onChanged: (val) {
                                   _connectionSyncViewModel.setUsePolygonScan(val);
@@ -105,7 +105,7 @@ class ConnectionSyncPage extends BasePage {
                           if (_connectionSyncViewModel.canUseBscScan)
                             ListItemToggle(
                                 keyValue: "can_use_bscscan",
-                                label: S.current.bscscan_history,
+                                label: S.of(context).bscscan_history,
                                 value: _connectionSyncViewModel.useBscScan,
                                 onChanged: (val) {
                                   _connectionSyncViewModel.setUseBscScan(val);
@@ -113,7 +113,7 @@ class ConnectionSyncPage extends BasePage {
                           if (_connectionSyncViewModel.canUseTronGrid)
                             ListItemToggle(
                                 keyValue: "can_use_trongrid",
-                                label: S.current.trongrid_history,
+                                label: S.of(context).trongrid_history,
                                 value: _connectionSyncViewModel.useTronGrid,
                                 onChanged: (val) {
                                   _connectionSyncViewModel.setUsePolygonScan(val);
@@ -121,7 +121,7 @@ class ConnectionSyncPage extends BasePage {
                           if (_connectionSyncViewModel.canUseMempoolFeeAPI)
                             ListItemToggle(
                                 keyValue: "enable_mempool_api",
-                                label: S.current.enable_mempool_api,
+                                label: S.of(context).enable_mempool_api,
                                 value: _connectionSyncViewModel.useMempoolFeeAPI,
                                 onChanged: (bool isEnabled) async {
                                   if (!isEnabled) {
@@ -148,18 +148,18 @@ class ConnectionSyncPage extends BasePage {
                           if (Platform.isAndroid && FeatureFlag.isBackgroundSyncEnabled)
                             ListItemRegularRow(
                                 keyValue: "background_sync",
-                                label: S.current.background_sync,
+                                label: S.of(context).background_sync,
                                 onTap: () => Navigator.of(context).pushNamed(Routes.backgroundSync)
                             ),
                           if (_connectionSyncViewModel.hasPowNodes)
                             ListItemRegularRow(
                                 keyValue: "manage_pow_nodes",
-                                label: S.current.manage_pow_nodes,
+                                label: S.of(context).manage_pow_nodes,
                                 onTap: () => Navigator.of(context).pushNamed(Routes.managePowNodes),
                             ),
                           ListItemSelector(
                               keyValue: "fiat_api",
-                              label: S.current.fiat_api,
+                              label: S.of(context).fiat_api,
                               options: [_connectionSyncViewModel.fiatApiMode.title],
                               onTap: () async {
                                 final items = FiatApiMode.all;
@@ -182,7 +182,7 @@ class ConnectionSyncPage extends BasePage {
                               }),
                           ListItemSelector(
                               keyValue: "swap",
-                              label: S.current.swap,
+                              label: S.of(context).swap,
                               options: [_connectionSyncViewModel.exchangeStatus.title],
                               onTap: () async {
                                 final items = ExchangeApiMode.all;
@@ -205,7 +205,7 @@ class ConnectionSyncPage extends BasePage {
                               }),
                           ListItemRegularRow(
                               keyValue: "domain_lookups",
-                              label: S.current.domain_looks_up,
+                              label: S.of(context).domain_looks_up,
                               onTap: () => Navigator.of(context).pushNamed(Routes.domainLookupsPage)
                           ),
                         ],

@@ -37,7 +37,7 @@ class OtherSettingsPage extends BasePage {
   Widget body(BuildContext context) {
     return ModalPageWrapper(
       topBar: ModalTopBar(
-        title: S.current.other,
+        title: S.of(context).other,
         leadingIcon: Icon(Icons.arrow_back_ios_new),
         onLeadingPressed: () => Navigator.of(context).pop(),
       ),
@@ -52,7 +52,7 @@ class OtherSettingsPage extends BasePage {
             _otherSettingsViewModel.walletType == WalletType.bitcoin
                 ? ListItemSelector(
                     keyValue: "fee_priority",
-                    label: S.current.settings_fee_priority,
+                    label: S.of(context).settings_fee_priority,
                     options: [_otherSettingsViewModel.transactionPriority.title],
                 onTap: () async {
 
@@ -92,7 +92,7 @@ class OtherSettingsPage extends BasePage {
                   )
                 : ListItemSelector(
                     keyValue: "fee_priority",
-                    label: S.current.settings_fee_priority,
+                    label: S.of(context).settings_fee_priority,
                     options: [_otherSettingsViewModel.transactionPriority.title],
               onTap: () async {
                 final selectedAtIndex = priorityForWalletType(_otherSettingsViewModel.walletType).indexOf(_otherSettingsViewModel.transactionPriority,);
@@ -113,7 +113,7 @@ class OtherSettingsPage extends BasePage {
           if(_otherSettingsViewModel.changeRepresentativeEnabled)
           ListItemRegularRow(
               keyValue: "change_rep",
-              label: S.current.change_rep,
+              label: S.of(context).change_rep,
               onTap: () => Navigator.of(context).pushNamed(Routes.changeRep)
           ),
           if (_otherSettingsViewModel.changeHardwareWalletTypeEnabled)
@@ -136,7 +136,7 @@ class OtherSettingsPage extends BasePage {
           ),
           ListItemRegularRow(
               keyValue: "security_backup_page_sign_and_verify",
-              label: S.current.sign_verify_title,
+              label: S.of(context).sign_verify_title,
               onTap: () {
                 Navigator.of(context).pushNamed(Routes.signPage);
               }),

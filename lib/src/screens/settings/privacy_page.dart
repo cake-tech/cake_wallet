@@ -44,15 +44,15 @@ class PrivacyPage extends BasePage {
                         ListItemToggle(
                             keyValue: "auto_generate_subaddresses",
                             label: _privacySettingsViewModel.isMoneroWallet
-                                ? S.current.auto_generate_subaddresses
-                                : S.current.auto_generate_addresses,
+                                ? S.of(context).auto_generate_subaddresses
+                                : S.of(context).auto_generate_addresses,
                             value: _privacySettingsViewModel.isAutoGenerateSubaddressesEnabled,
                             onChanged: (val) {
                               _privacySettingsViewModel.setAutoGenerateSubaddresses(val);
                             }),
                       ListItemToggle(
                           keyValue: "save_recipient_address",
-                          label: S.current.settings_save_recipient_address,
+                          label: S.of(context).settings_save_recipient_address,
                           value: _privacySettingsViewModel.shouldSaveRecipientAddress,
                           onChanged: (val) {
                             _privacySettingsViewModel.setShouldSaveRecipientAddress(val);
@@ -60,7 +60,7 @@ class PrivacyPage extends BasePage {
                       if (_privacySettingsViewModel.canUsePayjoin)
                         ListItemToggle(
                             keyValue: "use_payjoin",
-                            label: S.current.use_payjoin,
+                            label: S.of(context).use_payjoin,
                             value: _privacySettingsViewModel.usePayjoin,
                             onChanged: (val) {
                               _privacySettingsViewModel.setUsePayjoin(val);
@@ -68,7 +68,7 @@ class PrivacyPage extends BasePage {
                       if (_privacySettingsViewModel.canUseLightning)
                         ListItemToggle(
                             keyValue: "enable_lightning",
-                            label: S.current.enable_lightning,
+                            label: S.of(context).enable_lightning,
                             value: _privacySettingsViewModel.useLightning,
                             onChanged: (val) {
                               _privacySettingsViewModel.setUseLightning(val);
@@ -79,7 +79,7 @@ class PrivacyPage extends BasePage {
                       ListItemRegularRow(
                           iconPath: "assets/new-ui/settings_row_icons/silent-payments.svg",
                           keyValue: "silent_payments",
-                          label: S.current.silent_payments,
+                          label: S.of(context).silent_payments,
                           onTap: () =>
                               Navigator.of(context).pushNamed(Routes.silentPaymentsSettings)),
                       if (_privacySettingsViewModel.isLitecoin)

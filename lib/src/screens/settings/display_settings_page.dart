@@ -47,7 +47,7 @@ class DisplaySettingsPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 14, top: 14),
                   child: Text(
-                    S.current.appearance,
+                    S.of(context).appearance,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       height: 0.2,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -129,7 +129,7 @@ class DisplaySettingsPage extends StatelessWidget {
                             }),
                       ListItemSelector(
                           keyValue: "display_settings_sync_status_display",
-                          label: S.current.sync_status_display_mode,
+                          label: S.of(context).sync_status_display_mode,
                           options: [_displaySettingsViewModel.syncStatusDisplayMode.title],
                           onTap: () async {
                             final items = SyncStatusDisplayMode.values.toList();
