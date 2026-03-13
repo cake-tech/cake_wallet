@@ -289,4 +289,12 @@ class TransactionListItem extends ActionListItem with Keyable {
 
   @override
   DateTime get date => transaction.date;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is TransactionListItem) {
+      return other.transaction.txHash == transaction.txHash;
+    }
+    return false;
+  }
 }
