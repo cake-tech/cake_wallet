@@ -534,7 +534,7 @@ abstract class DashboardViewModelBase with Store {
   String get address => wallet.walletAddresses.address;
 
   @computed
-  bool get isTorEnabled => CakeTor.instance!.enabled;
+  bool get isTorEnabled => settingsStore.currentBuiltinTor;
 
   @computed
   SyncStatus get status => wallet.syncStatus;

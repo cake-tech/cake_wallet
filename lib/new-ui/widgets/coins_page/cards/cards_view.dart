@@ -61,8 +61,6 @@ class _CardsViewState extends State<CardsView> {
   static const Duration animDuration = Duration(milliseconds: 200);
   static const int compactModeTreshold = 4;
   static const int maxCards = 5;
-  late final double cardWidth = MediaQuery.of(context).size.width * 0.878;
-  late final double effectiveCardWidth = min(cardWidth, 768);
 
   Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
       Map<int, int> order, bool compactMode, double overlapAmount) {
@@ -73,6 +71,9 @@ class _CardsViewState extends State<CardsView> {
     final scale = pow(scaleFactor, howFarBehind).toDouble();
 
     final top = baseTop - (howFarBehind * overlapAmount);
+
+    final double cardWidth = MediaQuery.of(context).size.width * 0.878;
+    final double effectiveCardWidth = min(cardWidth, 768);
 
     final left = (parentWidth - effectiveCardWidth) / 2.0;
 
@@ -220,6 +221,8 @@ class _CardsViewState extends State<CardsView> {
   }
 
   double _getBoxHeight(int numCards, double overlapAmount) {
+    final double cardWidth = MediaQuery.of(context).size.width * 0.878;
+    final double effectiveCardWidth = min(cardWidth, 768);
     return
         /* height of initial card */
         (2 / 3.2) * (effectiveCardWidth) +
@@ -267,6 +270,7 @@ class _CardsViewState extends State<CardsView> {
 
         if (visualIndex == _selectedIndex &&
             widget.accountListViewModel != null &&
+            realIndex < widget.accountListViewModel!.accounts.length &&
             widget.accountListViewModel?.selected.label !=
                 widget.accountListViewModel?.accounts[realIndex].label) {
           widget.accountListViewModel!
@@ -282,15 +286,11 @@ class _CardsViewState extends State<CardsView> {
         curve: Curves.easeOut,
         width: double.infinity,
         height: _getBoxHeight(numCards, overlapAmount),
-        child: AnimatedSwitcher(
-          duration: Duration(milliseconds: 200),
-          transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-          child: SizedBox(
-            key: ValueKey(_getBoxHeight(numCards, overlapAmount)),
-            width: double.infinity,
-            height: _getBoxHeight(numCards, overlapAmount),
-            child: Stack(alignment: Alignment.center, children: children),
-          ),
+        child: SizedBox(
+          key: ValueKey(_getBoxHeight(numCards, overlapAmount)),
+          width: double.infinity,
+          height: _getBoxHeight(numCards, overlapAmount),
+          child: Stack(alignment: Alignment.center, children: children),
         ),
       );
     });

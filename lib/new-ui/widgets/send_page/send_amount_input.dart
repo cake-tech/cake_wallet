@@ -39,6 +39,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
   Widget build(BuildContext context) {
     return FormField<String>(
       key: formFieldKey,
+      initialValue: widget.amountController.text,
       validator: widget.validator,
       builder: (state) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
