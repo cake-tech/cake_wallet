@@ -37,12 +37,12 @@ class ListItemSelectorWidget extends StatelessWidget {
             children: [
               Flexible(child: Text(label, style: textStyle)),
               Row(
+                spacing: 8,
                 children: [
                   Text(
                     options[selectedIndex],
                     style: labelStyle,
                   ),
-                  SizedBox(width: 8),
                   CakeImageWidget(imageUrl:
                   "assets/new-ui/chooser.svg",
                     colorFilter:
