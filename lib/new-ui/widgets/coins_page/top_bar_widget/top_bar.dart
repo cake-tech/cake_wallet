@@ -25,37 +25,35 @@ class TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 10, left: 18, right:18, top: 10+_additionalTopPadding(context)),
-        child: Observer(
-          builder: (_) => Row(
-            spacing: 12,
-            children: [
-              (dashboardViewModel.hasLightning)
-                  ? LightningSwitcher(
-                      lightningMode: lightningMode,
-                      onLightningSwitchPress: onLightningSwitchPress,
-                    )
-                  : ChainIcon(
-                      iconPath: dashboardViewModel.wallet.currency.flatIconPath ?? "",
-                      dashboardViewModel: dashboardViewModel,
-                      isSyncHeavy: dashboardViewModel.isSyncHeavy),
-              SyncBar(
-                dashboardViewModel: dashboardViewModel,
-                isSyncHeavy: dashboardViewModel.isSyncHeavy,
-              ),
-              ModernButton.svg(
-                iconColor: Theme.of(context).colorScheme.primary,
-                size: 36,
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  onSettingsButtonPress();
-                },
-                svgPath: "assets/new-ui/top-settings.svg",
-              ),
-            ],
-          ),
+    return Padding(
+      padding: EdgeInsets.only(bottom: 10, left: 18, right:18, top: 10+_additionalTopPadding(context)),
+      child: Observer(
+        builder: (_) => Row(
+          spacing: 12,
+          children: [
+            (dashboardViewModel.hasLightning)
+                ? LightningSwitcher(
+                    lightningMode: lightningMode,
+                    onLightningSwitchPress: onLightningSwitchPress,
+                  )
+                : ChainIcon(
+                    iconPath: dashboardViewModel.wallet.currency.flatIconPath ?? "",
+                    dashboardViewModel: dashboardViewModel,
+                    isSyncHeavy: dashboardViewModel.isSyncHeavy),
+            SyncBar(
+              dashboardViewModel: dashboardViewModel,
+              isSyncHeavy: dashboardViewModel.isSyncHeavy,
+            ),
+            ModernButton.svg(
+              iconColor: Theme.of(context).colorScheme.primary,
+              size: 36,
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                onSettingsButtonPress();
+              },
+              svgPath: "assets/new-ui/top-settings.svg",
+            ),
+          ],
         ),
       ),
     );

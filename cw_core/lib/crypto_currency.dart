@@ -303,6 +303,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     'lightning': btcln,
     'base': baseEth,
     'arbitrum': arbEth,
+    'bsc': bnb,
   };
 
   static CryptoCurrency deserialize({required int raw}) {
