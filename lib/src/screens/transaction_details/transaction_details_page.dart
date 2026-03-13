@@ -74,7 +74,11 @@ class TransactionDetailsPage extends BasePage {
                 return GestureDetector(
                   key: item.key,
                   onTap: item.onTap,
-                  child: ListRow(title: '${item.title}:', value: item.value),
+                  child: ListRow(
+                    title: '${item.title}:',
+                    value: item.value,
+                    mainTextColor: Theme.of(context).colorScheme.primary,
+                  ),
                 );
               }
 
