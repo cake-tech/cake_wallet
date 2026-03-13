@@ -814,29 +814,46 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       // Regular flow
 
+
+      final isSendAll = outputs.any((output) => output.sendAll);
+      
+      if (!isSendAll) {
+        final estimateTxAmountDouble = outputs.fold<double>(0, (acc, output) =>
+        acc + (double.tryParse(output.cryptoAmount) ?? 0));
+        if (estimateTxAmountDouble <= 0) throw Exception(
+            'Amount must be greater than 0');
+      }
+
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
 
-      if (trade?.isSendAll == true) {
-        if (provider is NearIntentsExchangeProvider) {
-          final txAmountDouble = double.tryParse(pendingTransaction?.amountFormatted ?? '0') ?? 0.0;
-          final tradeAmountDouble = double.tryParse(trade?.amount ?? '0') ?? 0.0;
-          if (txAmountDouble != tradeAmountDouble) {
-            throw Exception(
-                'Transaction amount $txAmountDouble does not match expected trade amount $tradeAmountDouble');
+      final txAmountDouble = double.tryParse(pendingTransaction?.amountFormatted ?? '0') ?? 0.0;
+      final bool isTradeTx = trade != null && provider != null;
+
+      if (isTradeTx) {
+        final tradeAmountDouble = double.tryParse(trade.amount) ?? 0.0;
+        if (tradeAmountDouble <= 0) throw Exception('Trade amount must be greater than 0');
+
+        if (trade.isSendAll == true) {
+          if (provider is NearIntentsExchangeProvider) {
+            if (txAmountDouble != tradeAmountDouble) {
+              throw Exception(
+                  'Transaction amount $txAmountDouble does not match expected trade amount $tradeAmountDouble');
+            }
+          }
+        }
+
+        if (provider is ThorChainExchangeProvider) {
+          final outputCount = pendingTransaction?.outputCount ?? 0;
+          if (outputCount > 10) {
+            throw Exception("THORChain does not support more than 10 outputs");
+          }
+
+          if (_hasTaprootInput(pendingTransaction)) {
+            throw Exception("THORChain does not support Taproot addresses");
           }
         }
       }
 
-      if (provider is ThorChainExchangeProvider) {
-        final outputCount = pendingTransaction?.outputCount ?? 0;
-        if (outputCount > 10) {
-          throw Exception("THORChain does not support more than 10 outputs");
-        }
-
-        if (_hasTaprootInput(pendingTransaction)) {
-          throw Exception("THORChain does not support Taproot addresses");
-        }
-      }
 
       if (wallet.type == WalletType.bitcoin) {
         final updatedOutputs = bitcoin!.updateOutputs(pendingTransaction!, outputs);
