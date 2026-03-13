@@ -1,7 +1,6 @@
 import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 void nothing(){}
@@ -26,6 +25,8 @@ class ModalPageWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const gradientSize = 84;
+
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: Scaffold(
@@ -58,7 +59,7 @@ class ModalPageWrapper extends StatelessWidget {
                 child: SafeArea(child: bottomContent!),
               ),
             Container(
-              height: (MediaQuery.of(context).padding.top + 84),
+              height: (MediaQuery.of(context).padding.top + gradientSize),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
