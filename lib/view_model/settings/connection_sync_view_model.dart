@@ -71,10 +71,6 @@ abstract class ConnectionSyncViewModelBase with Store {
   bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(_wallet.type);
 
   @computed
-  bool get isWalletConnectCompatible =>
-      isWalletConnectCompatibleChain(_wallet.type) && !_wallet.isHardwareWallet;
-
-  @computed
   bool get useMempoolFeeAPI => _settingsStore.useMempoolFeeAPI;
 
   @computed

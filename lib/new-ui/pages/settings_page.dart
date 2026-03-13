@@ -19,7 +19,11 @@ bool _falseFunc(DashboardViewModel _) => false;
 
 bool _isBtc(DashboardViewModel vm) => vm.wallet.type == WalletType.bitcoin;
 
+bool _hasLightning(DashboardViewModel vm) => vm.hasLightning;
+
 bool _hasMweb(DashboardViewModel vm) => vm.hasMweb;
+
+bool _hasWalletConnect(DashboardViewModel vm) => vm.hasWalletConnect;
 
 bool _isCupcake(DashboardViewModel vm) => vm.wallet.hardwareWalletType == HardwareWalletType.cupcake;
 
@@ -48,8 +52,8 @@ class SettingsSectionData {
     SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy, Routes.privacyPage),
     SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.showKeys,
         routeArgs: true, requireAuth: true, use2fa: (vm)=>vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
-    SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
-        "Lightning ${S.current.username}", Routes.lightningUsernamePage, condition: _isBtc),
+    SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg", "Lightning ${S.current.username}", Routes.lightningUsernamePage, condition: _hasLightning),
+        SettingsListItem("assets/images/walletconnect_logo.png", S.current.walletConnect, Routes.walletConnectConnectionsListing, condition: _hasWalletConnect),
     //SettingsListItem("assets/new-ui/settings_row_icons/silent-payments.svg", S.current.silent_payments_settings, Routes.silentPaymentsSettings, condition: _isBtc),
     //SettingsListItem("assets/new-ui/settings_row_icons/mweb.svg", S.current.litecoin_mweb_settings, Routes.mwebSettings, condition: _hasMweb),
     SettingsListItem("assets/new-ui/settings_row_icons/cupcake.svg", S.current.export_outputs, Routes.urqrAnimatedPage, routeArgs: {'export-outputs': 'export-outputs'}, condition: _isCupcake),

@@ -209,15 +209,6 @@ class ConnectionSyncPage extends BasePage {
                               onTap: () => Navigator.of(context).pushNamed(Routes.domainLookupsPage)
                           ),
                         ],
-                        "1": [
-                          if (_connectionSyncViewModel.isWalletConnectCompatible)
-                            ListItemRegularRow(
-                                keyValue: "wallet_connect",
-                                iconPath: 'assets/images/walletconnect_logo.png',
-                                label: S.current.walletConnect,
-                                onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing)
-                            ),
-                        ],
                       }
                   )
           ),
