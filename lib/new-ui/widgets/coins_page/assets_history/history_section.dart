@@ -32,14 +32,17 @@ class HistorySection extends StatelessWidget {
         sliver: Observer(
           builder: (_) => (dashboardViewModel.items.isEmpty &&
                   dashboardViewModel.status is! SyncingSyncStatus)
-              ? SliverToBoxAdapter(
-                  child: Padding(
-                      padding: EdgeInsets.only(top: 24),
+              ? SliverPadding(
+                  padding: EdgeInsets.only(top: 24),
+                  sliver: SliverToBoxAdapter(
+                    child: Center(
                       child: Text(S.of(context).transactions_will_appear_here,
                           style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant))),
+                              color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    ),
+                  ),
                 )
               : SliverList(
                   delegate: SliverChildBuilderDelegate(
