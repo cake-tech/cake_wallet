@@ -125,6 +125,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           return;
         }
         widget.exchangeViewModel.isFixedRateMode = false;
+        widget.exchangeViewModel.isSendAllEnabled = false;
         Future.delayed(Duration(milliseconds: 200)).then((_) {
           if (double.tryParse(depositFiatAmountController.text) != null) {
             widget.exchangeViewModel
@@ -138,6 +139,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           return;
         }
         widget.exchangeViewModel.enableFixedRateMode();
+        widget.exchangeViewModel.isSendAllEnabled = false;
         Future.delayed(Duration(milliseconds: 200)).then((_) {
           if (double.tryParse(receiveFiatAmountController.text) != null) {
             String text = receiveFiatAmountController.text;
@@ -508,7 +510,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           value != S.of(context).all
                                       ? AmountValidator(
                                           isAutovalidate: true,
-                                          currency: widget.exchangeViewModel.depositCurrency,
+                                    currency: widget.exchangeViewModel.isFixedRateMode
+                                              ? widget.exchangeViewModel.receiveCurrency
+                                              : widget.exchangeViewModel.depositCurrency,
                                           minValue: widget.exchangeViewModel.limits.min.toString(),
                                           maxValue: widget.exchangeViewModel.limits.max.toString(),
                                           amountParsingProxy:
