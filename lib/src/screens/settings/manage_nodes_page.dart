@@ -15,7 +15,8 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ManageNodesPage extends BasePage {
   ManageNodesPage(this.isPow, {this.nodeListViewModel, this.powNodeListViewModel})
-      : assert((isPow && powNodeListViewModel != null) || (!isPow && nodeListViewModel != null));
+      : assert((isPow && powNodeListViewModel != null) || (!isPow && nodeListViewModel != null)),
+        assert(powNodeListViewModel == null || nodeListViewModel == null);
 
   final NodeListViewModel? nodeListViewModel;
   final PowNodeListViewModel? powNodeListViewModel;
@@ -34,7 +35,7 @@ class ManageNodesPage extends BasePage {
             button: true,
             child: NodeHeaderListRow(
               title: S.of(context).add_new_node,
-              onTap: (_) async => await Navigator.of(context).pushNamed(Routes.newNode),
+              onTap: (_) async => await Navigator.of(context).pushNamed(isPow ? Routes.newPowNode : Routes.newNode),
             ),
           ),
           if (FeatureFlag.isAutomaticNodeSwitchingEnabled)
@@ -80,7 +81,7 @@ class ManageNodesPage extends BasePage {
                           title: node.uriRaw,
                           node: node,
                           isSelected: isSelected,
-                          isPow: false,
+                          isPow: isPow,
                           onTap: (_) async {
                             if (isSelected) {
                               return;
