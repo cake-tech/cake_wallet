@@ -43,7 +43,9 @@ class PrivacyPage extends BasePage {
                       if (_privacySettingsViewModel.isAutoGenerateSubaddressesVisible)
                         ListItemToggle(
                             keyValue: "auto_generate_subaddresses",
-                            label: S.current.auto_generate_subaddresses,
+                            label: _privacySettingsViewModel.isMoneroWallet
+                                ? S.current.auto_generate_subaddresses
+                                : S.current.auto_generate_addresses,
                             value: _privacySettingsViewModel.isAutoGenerateSubaddressesEnabled,
                             onChanged: (val) {
                               _privacySettingsViewModel.setAutoGenerateSubaddresses(val);
