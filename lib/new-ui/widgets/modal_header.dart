@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -22,7 +23,8 @@ class ModalHeader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SvgPicture.asset(iconPath, width: 36, height: 36),
+            CakeImageWidget(
+                imageUrl: iconPath, width: 36, height: 36),
             Text(
               title,
               style: TextStyle(

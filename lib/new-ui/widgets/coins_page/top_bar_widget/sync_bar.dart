@@ -147,14 +147,14 @@ class SyncBar extends StatelessWidget {
 
   Widget? _getIcon(BuildContext context, Type status) {
     if (status == LostConnectionSyncStatus || status == FailedSyncStatus) {
-      return SvgPicture.asset(
+      return CakeImageWidget(imageUrl:
         "assets/new-ui/offline.svg",
         colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
       );
     }
 
     if (failStatuses.contains(status)) {
-      return SvgPicture.asset(
+      return CakeImageWidget(imageUrl:
         "assets/new-ui/warning.svg",
         colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
       );
@@ -163,18 +163,18 @@ class SyncBar extends StatelessWidget {
     final List<Widget> children = [];
 
     if (dashboardViewModel.isTorEnabled) {
-      children.add(SvgPicture.asset("assets/new-ui/tor_sync.svg",
+      children.add(CakeImageWidget(imageUrl:"assets/new-ui/tor_sync.svg",
           colorFilter: ColorFilter.mode(Color(0xFF8A38F5), BlendMode.srcIn)));
     }
     if (dashboardViewModel.hasMweb) {
-      children.add(SvgPicture.asset(
+      children.add(CakeImageWidget(imageUrl:
         "assets/new-ui/mweb_sync.svg",
         colorFilter:
         ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
       ));
     }
     if (dashboardViewModel.hasSilentPayments) {
-      children.add(SvgPicture.asset(
+      children.add(CakeImageWidget(imageUrl:
         "assets/new-ui/silent_sync.svg",
         colorFilter: ColorFilter.mode(Color(0xFFEFBA5E), BlendMode.srcIn),
       ));

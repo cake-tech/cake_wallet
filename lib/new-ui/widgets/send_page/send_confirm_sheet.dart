@@ -6,6 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -118,7 +119,7 @@ class SendTransactionDetails extends StatelessWidget {
                   spacing: 8,
                   children: [
                     if (resolvedIconPath.toLowerCase().endsWith(".svg"))
-                      SvgPicture.asset(
+                      CakeImageWidget(imageUrl:
                         resolvedIconPath,
                         width: 28,
                         height: 28,

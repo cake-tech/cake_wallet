@@ -4,9 +4,9 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // written by people who happened to read my slack message in 2025
@@ -25,7 +25,6 @@ const List<String> aboutPageEasterEggs = [
   "IOU a hug <3",
   "Warning: up to 4.8% programmed by cats",
   "We love collecting your data <3\nWe're just really incompetent at it"
-  ""
 ];
 
 class AboutPage extends StatefulWidget {
@@ -70,8 +69,8 @@ class _AboutPageState extends State<AboutPage> {
                     SizedBox(),
                     GestureDetector(
                       onTap: _easterEgg,
-                      child: SvgPicture.asset(
-                        "assets/new-ui/cake_squircle_icon.svg",
+                      child: CakeImageWidget(
+                        imageUrl: "assets/new-ui/cake_squircle_icon.svg",
                         width: 128,
                         height: 128,
                       ),

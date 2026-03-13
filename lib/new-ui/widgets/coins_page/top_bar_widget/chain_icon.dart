@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -37,9 +38,9 @@ class ChainIcon extends StatelessWidget {
               scale: done ? 1 : 0.8,
               child: AnimatedSwitcher(
                 duration: Duration(milliseconds: 150),
-                child: SvgPicture.asset(
+                child: CakeImageWidget(
+                  imageUrl: iconPath,
                   key: ValueKey(progress >= 1),
-                  iconPath,
                   width: 36,
                   height: 36,
                   colorFilter: ColorFilter.mode(

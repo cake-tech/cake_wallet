@@ -1,4 +1,5 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +62,7 @@ class HistoryTile extends StatelessWidget {
     if (asset == CryptoCurrency.btcln) {
       return Stack(
         children: [
-          SvgPicture.asset(
+          CakeImageWidget(imageUrl:
             "assets/images/lightning-icon.svg",
             width: 34,
             height: 34,
@@ -73,7 +74,7 @@ class HistoryTile extends StatelessWidget {
               width: 16,
               height: 16,
               decoration: BoxDecoration(color: Theme.of(context).colorScheme.onInverseSurface, shape: BoxShape.circle),
-              child: SvgPicture.asset(
+              child: CakeImageWidget(imageUrl:
                   _getDirectionIconToken(),
                 colorFilter: ColorFilter.mode(
                     direction == TransactionDirection.outgoing
@@ -92,7 +93,7 @@ class HistoryTile extends StatelessWidget {
       );
     }
 
-    return SvgPicture.asset(_getDirectionIcon(),
+    return CakeImageWidget(imageUrl:_getDirectionIcon(),
         colorFilter: ColorFilter.mode(
             direction == TransactionDirection.outgoing
                 ? Theme.of(context).colorScheme.inverseSurface.withAlpha(175)
