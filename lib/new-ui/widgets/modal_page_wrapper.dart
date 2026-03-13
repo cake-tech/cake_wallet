@@ -12,11 +12,13 @@ class ModalPageWrapper extends StatelessWidget {
       required this.content,
       required this.topBar,
         this.header,
+        this.bottomContent,
       this.horizontalPadding = 18.0,
       this.verticalPadding = 72.0}) {
   }
 
   final Widget content;
+  final Widget? bottomContent;
   final ModalTopBar topBar;
   final ModalHeader? header;
   final double horizontalPadding;
@@ -26,49 +28,59 @@ class ModalPageWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.surface,
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          Positioned.fill(
-            child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                  child: CustomScrollView(
-                    controller: ModalScrollController.of(context),
-                    physics: ClampingScrollPhysics(),
-                    slivers: [
-                      SliverToBoxAdapter(child: SizedBox(height: verticalPadding)),
-                      if (header != null) ...[
-                        SliverToBoxAdapter(child: header),
-                        SliverToBoxAdapter(child: SizedBox(height: 20)),
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            Positioned.fill(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                    child: CustomScrollView(
+                      controller: ModalScrollController.of(context),
+                      physics: ClampingScrollPhysics(),
+                      slivers: [
+                        SliverToBoxAdapter(child: SizedBox(height: verticalPadding)),
+                        if (header != null) ...[
+                          SliverToBoxAdapter(child: header),
+                          SliverToBoxAdapter(child: SizedBox(height: 20)),
+                        ],
+                        SliverSafeArea(sliver: SliverToBoxAdapter(child: content)),
+                        SliverToBoxAdapter(child: SizedBox(height: verticalPadding)),
                       ],
-                      SliverSafeArea(sliver: SliverToBoxAdapter(child: content)),
-                      SliverToBoxAdapter(child: SizedBox(height: verticalPadding)),
-                    ],
-                  )
-                )),
-          Container(
-            height: (MediaQuery.of(context).padding.top + 84),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: <Color>[
-                  Theme.of(context).colorScheme.surface.withAlpha(5),
-                  Theme.of(context).colorScheme.surface.withAlpha(25),
-                  Theme.of(context).colorScheme.surface.withAlpha(50),
-                  Theme.of(context).colorScheme.surface.withAlpha(100),
-                  Theme.of(context).colorScheme.surface.withAlpha(150),
-                  Theme.of(context).colorScheme.surface.withAlpha(200),
-                  Theme.of(context).colorScheme.surface.withAlpha(235),
-                  Theme.of(context).colorScheme.surface.withAlpha(255),
-                  Theme.of(context).colorScheme.surface.withAlpha(255),
-                  Theme.of(context).colorScheme.surface.withAlpha(255),
-                ],
+                    )
+                  )),
+            if (bottomContent != null)
+              Positioned(
+                bottom: 12,
+                left: horizontalPadding,
+                right: horizontalPadding,
+                child: SafeArea(child: bottomContent!),
+              ),
+            Container(
+              height: (MediaQuery.of(context).padding.top + 84),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: <Color>[
+                    Theme.of(context).colorScheme.surface.withAlpha(5),
+                    Theme.of(context).colorScheme.surface.withAlpha(25),
+                    Theme.of(context).colorScheme.surface.withAlpha(50),
+                    Theme.of(context).colorScheme.surface.withAlpha(100),
+                    Theme.of(context).colorScheme.surface.withAlpha(150),
+                    Theme.of(context).colorScheme.surface.withAlpha(200),
+                    Theme.of(context).colorScheme.surface.withAlpha(235),
+                    Theme.of(context).colorScheme.surface.withAlpha(255),
+                    Theme.of(context).colorScheme.surface.withAlpha(255),
+                    Theme.of(context).colorScheme.surface.withAlpha(255),
+                  ],
+                ),
               ),
             ),
-          ),
-          topBar,
-        ],
+            topBar,
+          ],
+        ),
       ),
     );
   }
