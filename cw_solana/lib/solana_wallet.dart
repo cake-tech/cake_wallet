@@ -588,7 +588,8 @@ abstract class SolanaWalletBase
       for (final entry in results) {
         final token = entry.key;
         final fetchedBalance = entry.value;
-        final currentBalance = balance[token] ?? SolanaBalance(0.0, true);
+        final currentBalance = balance[token] ??
+            SolanaBalance.forToken(BigInt.zero, 0.0);
         balance[token] = fetchedBalance ?? currentBalance;
       }
     }
@@ -636,7 +637,7 @@ abstract class SolanaWalletBase
     if (token.enabled) {
       final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, solanaAddress) ??
           balance[token] ??
-          SolanaBalance(0.0, true);
+          SolanaBalance.forToken(BigInt.zero, 0.0);
 
       balance[token] = tokenBalance;
     } else {

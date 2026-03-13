@@ -111,22 +111,24 @@ class SolanaWalletClient {
         return null;
       }
 
-      // Sum the balances of all accounts with the specified mint address
-      double totalBalance = 0.0;
+      // Sum raw amounts and ui amounts across all token accounts
+      BigInt totalRaw = BigInt.zero;
+      double totalUi = 0.0;
 
       for (var tokenAccount in tokenAccounts) {
         final tokenAmountResult = await _provider!.request(
           SolanaRPCGetTokenAccountBalance(account: tokenAccount.pubkey),
         );
 
-        final balance = tokenAmountResult.uiAmountString;
+        final raw = BigInt.tryParse(tokenAmountResult.amount) ?? BigInt.zero;
+        totalRaw += raw;
 
-        final balanceAsDouble = double.tryParse(balance ?? '0.0') ?? 0.0;
-
-        totalBalance += balanceAsDouble;
+        final ui = tokenAmountResult.uiAmount ??
+            (double.tryParse(tokenAmountResult.uiAmountString ?? '0') ?? 0.0);
+        totalUi += ui;
       }
 
-      return SolanaBalance(totalBalance, true);
+      return SolanaBalance.forToken(totalRaw, totalUi);
     } catch (_) {
       if (throwOnError) {
         rethrow;
