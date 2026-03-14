@@ -98,20 +98,20 @@ class _NewSwapPageState extends State<NewSwapPage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!widget.exchangeViewModel.decentralizedExchangesPromptDismissed) {
-        showMaterialModalBottomSheet(
-            context: context,
-            backgroundColor: Colors.transparent,
-            isDismissible: false,
-            builder: (context) {
-              return SwapProviderInitialPreferenceModal();
-            }).then((val) {
-          widget.exchangeViewModel.dismissDecentralizedExchangesPrompt();
-          if (val is bool && val == true && !widget.exchangeViewModel.forceDecentralizedExchanges) {
-            widget.exchangeViewModel.toggleForceDecentralizedExchanges();
-          }
-        });
-      }
+      // if (!widget.exchangeViewModel.decentralizedExchangesPromptDismissed) {
+      //   showMaterialModalBottomSheet(
+      //       context: context,
+      //       backgroundColor: Colors.transparent,
+      //       isDismissible: false,
+      //       builder: (context) {
+      //         return SwapProviderInitialPreferenceModal();
+      //       }).then((val) {
+      //     widget.exchangeViewModel.dismissDecentralizedExchangesPrompt();
+      //     if (val is bool && val == true && !widget.exchangeViewModel.forceDecentralizedExchanges) {
+      //       widget.exchangeViewModel.toggleForceDecentralizedExchanges();
+      //     }
+      //   });
+      // }
 
       final depositAddressController = depositKey.currentState!.addressController;
       final depositAmountController = depositKey.currentState!.amountController;
