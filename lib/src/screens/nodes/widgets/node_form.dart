@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbo
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -140,6 +141,7 @@ class NodeFormState extends State<NodeForm> {
                   initialValue: vm.socksProxyAddress,
                   validator: SocksProxyNodeAddressValidator(),
                 ),
+              if(FeatureFlag.isAutomaticNodeSwitchingEnabled)
               ListItemCheckbox(
                   keyValue: vm.autoSwitchingUIKey,
                   label: S.current.enable_for_auto_switching,
