@@ -26,10 +26,10 @@ class AssetsTopBar extends StatelessWidget {
     final settingsButtonText = _getSettingsButtonText();
     final hasTokenSettingsButton = settingsButtonText != null;
 
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 12.0, bottom: 12.0, left: 12.0, right: 18.0),
-      child: Row(
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 12.0, bottom: 12.0, left: 12.0, right: 18.0),
+        child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -82,9 +82,9 @@ class AssetsTopBar extends StatelessWidget {
                     ),
                   ),
                 ),
-      ),
-
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
