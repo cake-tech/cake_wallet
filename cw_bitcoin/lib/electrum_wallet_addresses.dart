@@ -490,6 +490,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         addressesMap[address] = 'Active - Silent Payments';
       }
     }
+
+    if (lightningAddress != null) {
+      if (lightningAddress != address) {
+        addressesMap[lightningAddress!] = 'LN';
+      } else {
+        addressesMap[address] = 'Active - LN';
+      }
+    }
   }
 
   void addLitecoinAddressTypes() {
