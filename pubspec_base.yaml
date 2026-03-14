@@ -20,7 +20,11 @@ dependencies:
       ref: 69b3276b090fa6ac01b4483ca3adca93a8e615be
   http: ^1.1.0
   path_provider: ^2.0.11
-  modal_bottom_sheet: ^3.0.0
+  modal_bottom_sheet:
+    git:
+      url: https://github.com/cake-tech/modal_bottom_sheet
+      ref: b1cca111c53d41b9f07123a8c67cfe06fb1b69bf
+      path: modal_bottom_sheet
   mobx: ^2.1.4
   flutter_mobx: 2.0.6+5
   flutter_slidable: ^3.0.1
