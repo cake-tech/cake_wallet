@@ -449,6 +449,11 @@ class _NewSendPageState extends State<NewSendPage> {
                                         fiatInputMode: _fiatInputMode,
                                         onSwitchButtonPressed: () {
                                           setState(() {
+                                            if(!_fiatInputMode) {
+                                              widget.sendViewModel.outputs[_selectedOutput]
+                                                      .cryptoAmount =
+                                                  _amountControllers[_selectedOutput].text;
+                                            }
                                             _fiatInputMode = !_fiatInputMode;
                                             _amountControllers[_selectedOutput].text =
                                                 _fiatInputMode
@@ -689,7 +694,11 @@ class _NewSendPageState extends State<NewSendPage> {
 
     for(int i=0; i<widget.sendViewModel.outputs.length; i++) {
       if(i < _amountControllers.length) {
-        widget.sendViewModel.outputs[i].cryptoAmount = _amountControllers[i].text;
+        if(_fiatInputMode) {
+          widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
+        } else {
+          widget.sendViewModel.outputs[i].cryptoAmount = _amountControllers[i].text;
+        }
       }
     }
 

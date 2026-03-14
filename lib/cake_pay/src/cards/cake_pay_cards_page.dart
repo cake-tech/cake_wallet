@@ -4,6 +4,7 @@ import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_search_bar_widget.dart
 import 'package:cake_wallet/cake_pay/src/widgets/user_card_item.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/card_item.dart';
@@ -91,7 +92,7 @@ class CakePayCardsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return CakePayCardsPageBody(cardsListViewModel: _cardsListViewModel, titleColor: titleColor);
+    return KeyboardHideOverlay(child:CakePayCardsPageBody(cardsListViewModel: _cardsListViewModel, titleColor: titleColor));
   }
 }
 

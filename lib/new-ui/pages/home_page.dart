@@ -144,18 +144,21 @@ class _NewHomePageState extends State<NewHomePage> {
                     );
                   },
                 ),
+
+                ],
+            ),
+          ),
                 Observer(
                   builder: (_) => AssetsHistorySection(
                     nftViewModel: widget.nftViewModel,
                     dashboardViewModel: widget.dashboardViewModel,
                   ),
                 ),
-                SizedBox(height: 80.0)
-                ],
-            ),
-          ),]
-        ),
-        Container(
+                SliverToBoxAdapter(
+                  child: SizedBox(height: 80.0),
+                )
+              ]),
+          Container(
           height: (MediaQuery.of(context).padding.top),
           decoration: BoxDecoration(
             gradient: LinearGradient(
