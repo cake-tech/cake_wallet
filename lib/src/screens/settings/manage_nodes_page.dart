@@ -20,7 +20,8 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ManageNodesPage extends BasePage {
   ManageNodesPage(this.isPow, {this.nodeListViewModel, this.powNodeListViewModel, this.dashboardViewModel})
-      : assert((isPow && powNodeListViewModel != null) || (!isPow && nodeListViewModel != null));
+      : assert((isPow && powNodeListViewModel != null) || (!isPow && nodeListViewModel != null)),
+        assert(powNodeListViewModel == null || nodeListViewModel == null);
 
   final DashboardViewModel? dashboardViewModel;
   final NodeListViewModel? nodeListViewModel;
@@ -52,7 +53,7 @@ class ManageNodesPage extends BasePage {
             ModernButton(
                 size: 36,
                 icon: Icon(Icons.add),
-                onPressed: () => Navigator.of(context).pushNamed(Routes.newNode))
+                onPressed: () => Navigator.of(context).pushNamed(isPow ? Routes.newPowNode : Routes.newNode))
           ],
         ),
       ),
@@ -81,6 +82,7 @@ class ManageNodesPage extends BasePage {
               int itemsCount =
                   nodeListViewModel?.nodes.length ?? powNodeListViewModel!.nodes.length;
               return SectionStandardList(
+                scrollController: ModalScrollController.of(context),
                 sectionCount: 1,
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
@@ -102,39 +104,40 @@ class ManageNodesPage extends BasePage {
                         subtitle: node.label!,
                         node: node,
                         isSelected: isSelected,
-                        isPow: false,
+                        isPow: isPow,
                         onTap: (_) async {
                           if (isSelected) {
                             return;
                           }
 
-                          await showPopUp<void>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertWithTwoActions(
-                                alertTitle: S.of(context).change_current_node_title,
-                                alertContent: nodeListViewModel?.getAlertContent(node.uriRaw) ??
-                                    powNodeListViewModel!.getAlertContent(node.uriRaw),
-                                leftButtonText: S.of(context).cancel,
-                                rightButtonText: S.of(context).change,
-                                actionLeftButton: () => Navigator.of(context).pop(),
-                                actionRightButton: () async {
-                                  if (isPow) {
-                                    await powNodeListViewModel!.setAsCurrent(node);
-                                  } else {
-                                    await nodeListViewModel!.setAsCurrent(node);
-                                  }
-                                  Navigator.of(context).pop();
-                                },
-                              );
-                            },
-                          );
-                        },
-                      );
-                      return nodeListRow;
-                    },
-                  );
-                },
+                            await showPopUp<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertWithTwoActions(
+                                  alertTitle: S.of(context).change_current_node_title,
+                                  alertContent: nodeListViewModel?.getAlertContent(node.uriRaw) ??
+                                      powNodeListViewModel!.getAlertContent(node.uriRaw),
+                                  leftButtonText: S.of(context).cancel,
+                                  rightButtonText: S.of(context).change,
+                                  actionLeftButton: () => Navigator.of(context).pop(),
+                                  actionRightButton: () async {
+                                    if (isPow) {
+                                      await powNodeListViewModel!.setAsCurrent(node);
+                                    } else {
+                                      await nodeListViewModel!.setAsCurrent(node);
+                                    }
+                                    Navigator.of(context).pop();
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        );
+                        return nodeListRow;
+                      },
+                    );
+                  },
+                ),
               );
             },
           ),

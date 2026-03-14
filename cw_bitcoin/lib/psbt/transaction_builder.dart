@@ -25,7 +25,7 @@ class PSBTTransactionBuild {
 
       psbt.setInputPreviousTxId(i, Uint8List.fromList(hex.decode(input.utxo.txHash).reversed.toList()));
       psbt.setInputOutputIndex(i, input.utxo.vout);
-      psbt.setInputSequence(i, enableRBF ? 0x1 : 0xffffffff);
+      psbt.setInputSequence(i, enableRBF ? 0xfffffffd : 0xffffffff);
       
 
       if (input.utxo.isSegwit()) {
