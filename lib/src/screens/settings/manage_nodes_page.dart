@@ -133,11 +133,10 @@ class ManageNodesPage extends BasePage {
                             );
                           },
                         );
-                        return nodeListRow;
-                      },
-                    );
-                  },
-                ),
+                      return nodeListRow;
+                    },
+                  );
+                },
               );
             },
           ),
