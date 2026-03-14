@@ -31,38 +31,40 @@ class _NFTListingPageState extends State<NFTListingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (context) {
-        return Column(
-          children: [
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-              child: PrimaryButton(
-                text: S.current.import,
-                color: Theme.of(context).colorScheme.surfaceContainer,
-                textColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                onPressed: () => Navigator.pushNamed(
-                  context,
-                  Routes.importNFTPage,
-                  arguments: widget.nftViewModel,
-                ),
-              ),
-            ),
-            if (widget.nftViewModel.isLoading)
-              Center(
-                child: CircularProgressIndicator(
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary,
+    return SliverToBoxAdapter(
+      child: Observer(
+        builder: (context) {
+          return Column(
+            children: [
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                child: PrimaryButton(
+                  text: S.current.import,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    Routes.importNFTPage,
+                    arguments: widget.nftViewModel,
                   ),
                 ),
-              )
-            else
-              NFTListWidget(nftViewModel: widget.nftViewModel)
-          ],
-        );
-      },
+              ),
+              if (widget.nftViewModel.isLoading)
+                Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                )
+              else
+                NFTListWidget(nftViewModel: widget.nftViewModel)
+            ],
+          );
+        },
+      ),
     );
   }
 }

@@ -449,6 +449,11 @@ class _NewSendPageState extends State<NewSendPage> {
                                         fiatInputMode: _fiatInputMode,
                                         onSwitchButtonPressed: () {
                                           setState(() {
+                                            if(!_fiatInputMode) {
+                                              widget.sendViewModel.outputs[_selectedOutput]
+                                                      .cryptoAmount =
+                                                  _amountControllers[_selectedOutput].text;
+                                            }
                                             _fiatInputMode = !_fiatInputMode;
                                             _amountControllers[_selectedOutput].text =
                                                 _fiatInputMode
