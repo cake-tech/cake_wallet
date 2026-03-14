@@ -150,6 +150,12 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   @override
+  String get addressForPrivateBuy {
+    if (silentAddress != null) return silentAddress.toString();
+    return addressForBuy;
+  }
+
+  @override
   String get addressForExchange {
     if (addressPageType == LightningAddressType.p2l) {
       final addresses = receiveAddresses

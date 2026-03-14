@@ -41,6 +41,8 @@ abstract class WalletAddresses {
 
   String get addressForBuy => address;
 
+  String get addressForPrivateBuy => addressForBuy;
+
   Map<String, String> addressesMap;
   Map<String, String> allAddressesMap;
 

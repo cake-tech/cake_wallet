@@ -2587,14 +2587,26 @@ abstract class ElectrumWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
+    // Silent Payment: sign with b_spend key
+    if (address != null && address.startsWith('sp1')) {
+      final spOwner = (walletAddresses as ElectrumWalletAddressesBase).silentAddress;
+      if (spOwner != null) {
+        return _signWithPrivateKey(spOwner.b_spend, message);
+      }
+    }
+
     final index = address != null
         ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
         : null;
     final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
     final priv = ECPrivate.fromHex(HD.privateKey.privKey.toHex());
 
-    String messagePrefix = '\x18Bitcoin Signed Message:\n';
-    final hexEncoded = priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
+    return _signWithPrivateKey(priv, message);
+  }
+
+  String _signWithPrivateKey(ECPrivate key, String message) {
+    const messagePrefix = '\x18Bitcoin Signed Message:\n';
+    final hexEncoded = key.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
     final decodedSig = hex.decode(hexEncoded);
     return base64Encode(decodedSig);
   }
@@ -2618,7 +2630,7 @@ abstract class ElectrumWalletBase
           "signature must be 64 bytes without recover-id or 65 bytes with recover-id");
     }
 
-    String messagePrefix = '\x18Bitcoin Signed Message:\n';
+    const messagePrefix = '\x18Bitcoin Signed Message:\n';
     final messageHash = QuickCrypto.sha256Hash(
         BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix));
 

@@ -353,7 +353,12 @@ class DFXBuyProvider extends BuyProvider {
     try {
       final actionType = isBuyAction ? '/buy' : '/sell';
 
-      final accessToken = await auth(cryptoCurrencyAddress);
+      // For Bitcoin buy: use Silent Payment address for privacy (BIP-352)
+      final effectiveAddress = (isBuyAction && wallet.type == WalletType.bitcoin)
+          ? wallet.walletAddresses.addressForPrivateBuy
+          : cryptoCurrencyAddress;
+
+      final accessToken = await auth(effectiveAddress);
 
       final uri = Uri.https('app.dfx.swiss', actionType, {
         'session': accessToken,
