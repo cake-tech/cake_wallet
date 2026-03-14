@@ -1,10 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
-import 'package:cake_wallet/entities/exchange_api_mode.dart';
-import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -12,7 +8,6 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/fiat_api_mode.dart';
 
 part 'privacy_settings_view_model.g.dart';
 
@@ -25,7 +20,10 @@ abstract class PrivacySettingsViewModelBase with Store {
   final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
 
   @computed
-  ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
+  bool get isBitcoin => _wallet.type == WalletType.bitcoin;
+
+  @computed
+  bool get isLitecoin => _wallet.type == WalletType.litecoin;
 
   @computed
   bool get isAutoGenerateSubaddressesEnabled =>
@@ -66,9 +64,6 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
   @computed
-  FiatApiMode get fiatApiMode => _settingsStore.fiatApiMode;
-
-  @computed
   bool get isAppSecure => _settingsStore.isAppSecure;
 
   @computed
@@ -80,32 +75,6 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @computed
   bool get disableBulletin => _settingsStore.disableBulletin;
-
-  @computed
-  bool get useEtherscan => _settingsStore.useEtherscan;
-
-  @computed
-  bool get usePolygonScan => _settingsStore.usePolygonScan;
-
-  @computed
-  bool get useBaseScan => _settingsStore.useBaseScan;
-
-  @computed
-  bool get useArbiScan => _settingsStore.useArbiScan;
-
-  @computed
-  bool get useBscScan => _settingsStore.useBscScan;
-
-  @computed
-  bool get useTronGrid => _settingsStore.useTronGrid;
-
-  @computed
-  bool get useMempoolFeeAPI => _settingsStore.useMempoolFeeAPI;
-
-  @computed
-  bool get useBlinkProtection => _settingsStore.useBlinkProtection;
-
-  bool get canUseBlinkProtection => canSupportBlinkProtection(_wallet.chainId);
 
   @computed
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
@@ -135,35 +104,17 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get usePayjoin => _settingsStore.usePayjoin;
 
   @computed
-  bool get useLightning => _wallet.type == WalletType.bitcoin && bitcoin!.useLightning(_wallet);
-
-  bool get canUseEtherscan => _wallet.chainId == 1;
-
-  bool get canUsePolygonScan => _wallet.chainId == 137;
-
-  bool get canUseBaseScan => _wallet.chainId == 8453;
-
-  bool get canUseArbiScan => _wallet.chainId == 42161;
-
-  bool get canUseBscScan => _wallet.chainId == 56;
-
-  bool get canUseTronGrid => _wallet.type == WalletType.tron;
-
-  bool get canUseMempoolFeeAPI => _wallet.type == WalletType.bitcoin;
-
   bool get canUsePayjoin => _wallet.type == WalletType.bitcoin && DeviceInfo.instance.isMobile;
 
+  @computed
   bool get canUseLightning => _wallet.type == WalletType.bitcoin;
+
+  @computed
+  bool get useLightning => _wallet.type == WalletType.bitcoin && bitcoin!.useLightning(_wallet);
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
-
-  @action
-  void setExchangeApiMode(ExchangeApiMode value) => _settingsStore.exchangeStatus = value;
-
-  @action
-  void setFiatMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;
 
   @action
   void setIsAppSecure(bool value) => _settingsStore.isAppSecure = value;
@@ -177,66 +128,6 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
-
-  @action
-  void setLookupsTwitter(bool value) => _settingsStore.lookupsTwitter = value;
-
-  @action
-  void setLookupsZanoAlias(bool value) => _settingsStore.lookupsZanoAlias = value;
-
-  @action
-  void setLookupsMastodon(bool value) => _settingsStore.lookupsMastodon = value;
-
-  @action
-  void setLookupsENS(bool value) => _settingsStore.lookupsENS = value;
-
-  @action
-  void setLookupsWellKnown(bool value) => _settingsStore.lookupsWellKnown = value;
-
-  @action
-  void setLookupsYatService(bool value) => _settingsStore.lookupsYatService = value;
-
-  @action
-  void setLookupsUnstoppableDomains(bool value) => _settingsStore.lookupsUnstoppableDomains = value;
-
-  @action
-  void setLookupsOpenAlias(bool value) => _settingsStore.lookupsOpenAlias = value;
-
-  @action
-  void setUseEtherscan(bool value) {
-    _settingsStore.useEtherscan = value;
-    evm!.updateScanProviderUsageState(_wallet, value);
-  }
-
-  @action
-  void setUsePolygonScan(bool value) {
-    _settingsStore.usePolygonScan = value;
-    evm!.updateScanProviderUsageState(_wallet, value);
-  }
-
-  @action
-  void setUseBaseScan(bool value) {
-    _settingsStore.useBaseScan = value;
-    evm!.updateScanProviderUsageState(_wallet, value);
-  }
-
-  @action
-  void setUseTronGrid(bool value) {
-    _settingsStore.useTronGrid = value;
-    tron!.updateTronGridUsageState(_wallet, value);
-  }
-
-  @action
-  void setUseArbiScan(bool value) {
-    _settingsStore.useArbiScan = value;
-    evm!.updateScanProviderUsageState(_wallet, value);
-  }
-
-  @action
-  void setUseBscScan(bool value) {
-    _settingsStore.useBscScan = value;
-    evm!.updateScanProviderUsageState(_wallet, value);
-  }
 
   @action
   void setUseMempoolFeeAPI(bool value) => _settingsStore.useMempoolFeeAPI = value;

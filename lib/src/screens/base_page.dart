@@ -47,6 +47,8 @@ abstract class BasePage extends StatelessWidget {
 
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
+  bool get hideAppBar => false;
+
   Widget Function(BuildContext, Widget)? get rootWrapper => null;
 
   MaterialThemeBase get currentTheme => getIt.get<ThemeStore>().currentTheme;
@@ -191,24 +193,21 @@ abstract class BasePage extends StatelessWidget {
                   : null,
               // color: Colors.grey[200],
             ),
-            child: Padding(
-              padding: const EdgeInsets.only(top:6.0),
-              child: Scaffold(
-                key: _scaffoldKey,
-                backgroundColor: pageBackgroundColor(context),
-                resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-                extendBodyBehindAppBar: extendBodyBehindAppBar,
-                endDrawer: endDrawer,
-                appBar: appBar(context),
-                body: SafeArea(
-                  left: false,
-                  right: false,
-                  top: false,
-                  bottom: Platform.isAndroid,
-                  child: body(context),
-                ),
-                floatingActionButton: floatingActionButton(context),
+            child: Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: pageBackgroundColor(context),
+              resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+              extendBodyBehindAppBar: extendBodyBehindAppBar,
+              endDrawer: endDrawer,
+              appBar: hideAppBar ? null : appBar(context),
+              body: SafeArea(
+                left: false,
+                right: false,
+                top: false,
+                bottom: Platform.isAndroid,
+                child: body(context),
               ),
+              floatingActionButton: floatingActionButton(context),
             ),
           );
         },

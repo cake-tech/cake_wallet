@@ -327,7 +327,7 @@ abstract class DashboardViewModelBase with Store {
         } catch (_) {}
       }
       return length * confirmations;
-    }, _transactionDisposerCallback);
+    }, _transactionDisposerCallback, delay: 300);
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -481,13 +481,23 @@ abstract class DashboardViewModelBase with Store {
       }
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
-      transactions.clear();
-      transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
-            transaction: tx,
-            balanceViewModel: balanceViewModel,
-            appStore: appStore,
-            key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-          )));
+      final newTransactions = relevantTxs
+          .map((tx) => TransactionListItem(
+                transaction: tx,
+                balanceViewModel: balanceViewModel,
+                appStore: appStore,
+                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+              ))
+          .where((item) => !transactions.contains(item));
+
+      transactions.addAll(newTransactions);
+      // transactions.clear();
+      // transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
+      //       transaction: tx,
+      //       balanceViewModel: balanceViewModel,
+      //       appStore: appStore,
+      //       key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+      //     )));
     } finally {
       _isTransactionDisposerCallbackRunning = false;
     }
@@ -670,6 +680,10 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasLightning =>
       wallet.type == WalletType.bitcoin && wallet.isSoftwareWallet && bitcoin!.useLightning(wallet);
+
+  @computed
+  bool get hasWalletConnect =>
+      isWalletConnectCompatibleChain(wallet.type) && !wallet.isHardwareWallet;
 
   @computed
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
@@ -1248,7 +1262,7 @@ abstract class DashboardViewModelBase with Store {
         } catch (_) {}
       }
       return length * confirmations;
-    }, _transactionDisposerCallback);
+    }, _transactionDisposerCallback, delay: 300);
   }
 
   @action

@@ -37,6 +37,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
+      iconPath: widget.iconPath,
       onTap: widget.onTap ?? () {
         widget.onChanged(!widget.value);
       },
@@ -53,11 +54,11 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
                 children: [
                   if (widget.iconPath != null)
                     widget.iconPath!.toLowerCase().endsWith("svg")
-                        ? CakeImageWidget(imageUrl:widget.iconPath!, height: 24, width: 24)
+                        ? CakeImageWidget(imageUrl:widget.iconPath!, height: 26, width: 26)
                         : Image.asset(
                             widget.iconPath!,
-                            width: 24,
-                            height: 24,
+                            width: 26,
+                            height: 26,
                           ),
                   Expanded(
                     child: Column(

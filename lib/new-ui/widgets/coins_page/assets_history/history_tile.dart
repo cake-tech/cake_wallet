@@ -63,7 +63,7 @@ class HistoryTile extends StatelessWidget {
       return Stack(
         children: [
           CakeImageWidget(imageUrl:
-            "assets/images/lightning-icon.svg",
+            "assets/new-ui/lightning-icon.svg",
             width: 34,
             height: 34,
           ),
