@@ -475,6 +475,7 @@
   "file_saved": "Archivo guardado",
   "fill_code": "Por favor, introduce el código de verificación enviado a tu correo electrónico",
   "filter_by": "Filtrar por",
+  "filters": "Filtros",
   "finding_provider": "Buscando proveedor",
   "first_wallet_text": "Billetera increíble para Monero, Bitcoin, Ethereum, Litecoin y Haven",
   "fixed_pair_not_supported": "Este par fijo no es compatible con los servicios de swap seleccionados",

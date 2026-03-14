@@ -475,6 +475,7 @@
   "file_saved": "تم حفظ الملف",
   "fill_code": "يرجى إدخال رمز التحقق المُرسل إلى بريدك الإلكتروني",
   "filter_by": "تصفية حسب",
+  "filters": "المرشحات",
   "finding_provider": "جارٍ البحث عن مزوّد",
   "first_wallet_text": "محفظة رائعة لـ Monero وBitcoin وEthereum وLitecoin وHaven",
   "fixed_pair_not_supported": "هذا الزوج الثابت غير مدعوم مع خدمات المبادلة المحددة",

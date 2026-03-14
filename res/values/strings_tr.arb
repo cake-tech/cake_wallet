@@ -475,6 +475,7 @@
   "file_saved": "Dosya kaydedildi",
   "fill_code": "Lütfen e-postanıza gönderilen doğrulama kodunu girin",
   "filter_by": "Filtrele:",
+  "filters": "Filtreler",
   "finding_provider": "Sağlayıcı aranıyor",
   "first_wallet_text": "Monero, Bitcoin, Ethereum, Litecoin ve Haven için harika bir cüzdan",
   "fixed_pair_not_supported": "Bu sabit parite, seçilen takas hizmetleriyle desteklenmiyor",

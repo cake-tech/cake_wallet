@@ -475,6 +475,7 @@
   "file_saved": "ファイルを保存しました",
   "fill_code": "メールに記載されている認証コードを入力してください",
   "filter_by": "絞り込み",
+  "filters": "フィルター",
   "finding_provider": "プロバイダーを検索中",
   "first_wallet_text": "Monero、Bitcoin、Ethereum、Litecoin、Havenに対応した素晴らしいウォレット",
   "fixed_pair_not_supported": "この固定ペアは、選択したスワップサービスではサポートされていません",
