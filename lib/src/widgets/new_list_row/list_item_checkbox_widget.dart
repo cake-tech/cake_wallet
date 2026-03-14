@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +53,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
                 children: [
                   if (widget.iconPath != null)
                     widget.iconPath!.toLowerCase().endsWith("svg")
-                        ? SvgPicture.asset(widget.iconPath!, height: 24, width: 24)
+                        ? CakeImageWidget(imageUrl:widget.iconPath!, height: 24, width: 24)
                         : Image.asset(
                             widget.iconPath!,
                             width: 24,

@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -100,7 +101,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                     ),
                                     RotatedBox(
                                         quarterTurns: 2,
-                                        child: SvgPicture.asset("assets/new-ui/dropdown_arrow.svg"))
+                                        child: CakeImageWidget(imageUrl:"assets/new-ui/dropdown_arrow.svg"))
                                   ],
                                 ),
                               ),

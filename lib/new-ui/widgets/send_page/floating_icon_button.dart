@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -17,9 +18,8 @@ class FloatingIconButton extends StatelessWidget {
           onTap: onPressed,
           child: Padding(
             padding: const EdgeInsets.all(4.0),
-            child: SvgPicture.asset(
+            child: CakeImageWidget(imageUrl:iconPath,
               width: 22, height: 22,
-              iconPath,
               colorFilter: ColorFilter.mode(Theme
                   .of(context)
                   .colorScheme

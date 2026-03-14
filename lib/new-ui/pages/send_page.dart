@@ -19,6 +19,7 @@ import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/token_selection_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -290,7 +291,7 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.sendViewModel.outputs.length > 1)
                             ModernButton(
                                 size: 36,
-                                icon: SvgPicture.asset(
+                                icon: CakeImageWidget(imageUrl:
                                   "assets/new-ui/remove_recipient.svg",
                                   colorFilter: ColorFilter.mode(
                                     Theme.of(context).colorScheme.primary,
@@ -321,7 +322,7 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.mode.helpContent != null)
                             ModernButton(
                                 size: 36,
-                                icon: SvgPicture.asset(
+                                icon: CakeImageWidget(imageUrl:
                                   "assets/new-ui/help.svg",
                                   colorFilter: ColorFilter.mode(
                                       Theme.of(context).colorScheme.primary, BlendMode.srcIn),
@@ -685,6 +686,16 @@ class _NewSendPageState extends State<NewSendPage> {
 
   void _handleSend() async {
     //TODO refactor this action. code was copied over from old ui. i don't like it.
+
+    for(int i=0; i<widget.sendViewModel.outputs.length; i++) {
+      if(i < _amountControllers.length) {
+        if(_fiatInputMode) {
+          widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
+        } else {
+          widget.sendViewModel.outputs[i].cryptoAmount = _amountControllers[i].text;
+        }
+      }
+    }
 
     if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
       if (widget.sendViewModel.outputs.length > 1) {
@@ -1336,7 +1347,7 @@ class SendHelpPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SvgPicture.asset(content.imagePath),
+                CakeImageWidget(imageUrl:content.imagePath),
                 Text(
                   content.description,
                   textAlign: TextAlign.center,

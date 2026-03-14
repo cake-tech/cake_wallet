@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/chain_icon.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/sync_bar.dart';
@@ -24,7 +26,7 @@ class TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      padding: EdgeInsets.only(bottom: 10, left: 18, right:18, top: 10+_additionalTopPadding(context)),
       child: Observer(
         builder: (_) => Row(
           spacing: 12,
@@ -55,5 +57,13 @@ class TopBar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+
+  //FIXME remove after this gets fixed flutter-side
+  double _additionalTopPadding(BuildContext context) {
+    if(Platform.isIOS && MediaQuery.of(context).viewPadding.top < 12) return 24;
+
+    return 0;
   }
 }
