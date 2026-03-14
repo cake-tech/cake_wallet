@@ -16,6 +16,9 @@ abstract class SecuritySettingsViewModelBase with Store {
   final AuthService _authService;
 
   @computed
+  bool get isAppSecure => _settingsStore.isAppSecure;
+
+  @computed
   bool get allowBiometricalAuthentication => _settingsStore.allowBiometricalAuthentication;
 
   @computed
@@ -35,6 +38,9 @@ abstract class SecuritySettingsViewModelBase with Store {
   Future<bool> biometricAuthenticated() async {
     return await _biometricAuth.canCheckBiometrics() && await _biometricAuth.isAuthenticated();
   }
+
+  @action
+  void setIsAppSecure(bool value) => _settingsStore.isAppSecure = value;
 
   @action
   void setAllowBiometricalAuthentication(bool value) =>

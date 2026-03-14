@@ -70,7 +70,7 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
   Widget build(BuildContext context) {
     return SliverMainAxisGroup(
       slivers: [
-        if(tabs.length>1)
+        // if(tabs.length>1)
         AssetsTopBar(
           dashboardViewModel: widget.dashboardViewModel,
           tabs: tabs.map((item) => item.title).toList(),
