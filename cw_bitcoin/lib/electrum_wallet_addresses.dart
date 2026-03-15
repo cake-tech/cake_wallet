@@ -81,6 +81,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         mwebAddresses =
             ObservableList<BitcoinAddressRecord>.of((initialMwebAddresses ?? []).toSet()),
         lockedReceiveAddressByType = ObservableMap<BitcoinAddressType, String>(),
+        lightningAddress = lightningWallet?.cachedAddress,
         super(walletInfo) {
     if (masterHd != null) {
       silentAddress = SilentPaymentOwner.fromPrivateKeys(

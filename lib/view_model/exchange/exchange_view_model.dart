@@ -420,7 +420,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     return await WalletInfo.selectList("type = ?", [type!.index]);
   }
 
-  Future<List<WalletInfoAddressInfo>> addressesForWallet(WalletInfo wallet) async {
+  Future<List<WalletInfoAddressInfo>> addressesForAccountsWallet(WalletInfo wallet) async {
     final List<WalletInfoAddressInfo> ret = [];
     final addresses = await wallet.getAddressInfos();
     for (var list in addresses.values) {
@@ -428,6 +428,19 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       ret.addAll(list.where((item) => item.label.split(" ").length > 1));
     }
     return ret;
+  }
+
+  Future<List<WalletInfoAddressInfo>> addressesForWallet(WalletInfo wallet) async {
+    final addresses = await wallet.getAddresses();
+    return addresses.entries
+        .map((e) => WalletInfoAddressInfo(
+              walletInfoId: wallet.internalId,
+              mapKey: 0,
+              accountIndex: 0,
+              address: e.key,
+              label: e.value,
+            ))
+        .toList();
   }
 
   @computed
@@ -964,16 +977,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     }
 
-    if (depositCurrency == CryptoCurrency.btcln &&
-        depositAddress == wallet.walletAddresses.addressForExchange) {
+    if (depositCurrency == CryptoCurrency.btcln && wallet.type == WalletType.bitcoin) {
       final invoice = await bitcoin!.getLightningInvoice(wallet, BigInt.zero);
       if (invoice != null) {
         depositAddress = invoice;
       }
     }
 
-    if (receiveCurrency == CryptoCurrency.btcln &&
-        receiveAddress == wallet.walletAddresses.addressForExchange) {
+    if (receiveCurrency == CryptoCurrency.btcln && wallet.type == WalletType.bitcoin) {
       final invoice = await bitcoin!.getLightningInvoice(wallet, BigInt.zero);
       if (invoice != null) {
         receiveAddress = invoice;
