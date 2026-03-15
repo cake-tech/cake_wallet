@@ -12,10 +12,10 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SwapAddressSelectionResult {
   String? address;
-  String? walletName;
+  WalletInfo? walletInfo;
   String? accountName;
 
-  SwapAddressSelectionResult({this.address, this.walletName, this.accountName});
+  SwapAddressSelectionResult({this.address, this.walletInfo, this.accountName});
 }
 
 class SwapAddressSelectionModal extends StatefulWidget {
@@ -54,9 +54,6 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
       for (final item in items) {
         if (item.type == WalletType.monero) {
           accounts[item.id] = await widget.exchangeViewModel.addressesForAccountsWallet(item);
-        }
-        if (item.type == WalletType.bitcoin) {
-          accounts[item.id] = await widget.exchangeViewModel.addressesForWallet(item);
         }
       }
       setState(() {
@@ -111,8 +108,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                       final String currencyIconPath = walletTypeToCryptoCurrency(item.type).iconPath ?? "";
 
                             final bool hasAccounts =
-                                [WalletType.monero, WalletType.bitcoin].contains(item.type) &&
-                                    widget.isSelectingReceiver;
+                                item.type == WalletType.monero && widget.isSelectingReceiver;
 
                             List<WalletInfoAddressInfo>? accounts =
                           hasAccounts ? this.accounts[item.id] : null;
@@ -127,7 +123,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                           onAddressChosen: (address, accountName) {
                                   Navigator.of(context).pop(SwapAddressSelectionResult(
                                       address: address,
-                                      walletName: item.name,
+                                      walletInfo: item,
                                       accountName: accountName));
                                 },
                         ),

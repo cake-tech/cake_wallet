@@ -9,6 +9,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -430,20 +431,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     return ret;
   }
 
-  Future<List<WalletInfoAddressInfo>> addressesForWallet(WalletInfo wallet) async {
-    final addresses = await wallet.getAddresses();
-    return addresses.entries
-        .where((e) => !e.value.contains("Silent Payments"))
-        .map((e) => WalletInfoAddressInfo(
-              walletInfoId: wallet.internalId,
-              mapKey: 0,
-              accountIndex: 0,
-              address: e.key,
-              label: e.value,
-            ))
-        .toList();
-  }
-
   @computed
   Future<List<WalletInfo>> get depositWallets async {
     WalletType? type;
@@ -567,6 +554,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     forcedProviderRate = 0.0;
     calculateForcedProviderRate();
   }
+
+  WalletInfo? selectedAddressBookWallet;
 
   @observable
   double forcedProviderRate = 0.0;
@@ -998,6 +987,26 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     try {
+      if (selectedAddressBookWallet?.type == WalletType.bitcoin) {
+        final _walletAddresses = await selectedAddressBookWallet!.getAddresses();
+
+        // if receive currency is lightning pick the lightning address
+        // if normal bitcoin, then pick the segwit address
+        if (receiveCurrency == CryptoCurrency.btcln) {
+          final lightningAddressOfWallet =
+              _walletAddresses.entries.firstWhereOrNull((e) => e.value.contains("LN"))?.key;
+          if (lightningAddressOfWallet != null) {
+            receiveAddress = lightningAddressOfWallet;
+          }
+        }
+        if (receiveCurrency == CryptoCurrency.btc) {
+          final segwitAddressOfWallet =
+              _walletAddresses.entries.firstWhereOrNull((e) => e.value.contains("P2WPKH"))?.key;
+          if (segwitAddressOfWallet != null) {
+            receiveAddress = segwitAddressOfWallet;
+          }
+        }
+      }
       // snapshot of providers to avoid concurrent modification issues
       final providersSnapshot = providers.values.toList();
       final ratesSnapshot = providers.keys.toList();
