@@ -433,6 +433,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   Future<List<WalletInfoAddressInfo>> addressesForWallet(WalletInfo wallet) async {
     final addresses = await wallet.getAddresses();
     return addresses.entries
+        .where((e) => !e.value.contains("Silent Payments"))
         .map((e) => WalletInfoAddressInfo(
               walletInfoId: wallet.internalId,
               mapKey: 0,
@@ -974,20 +975,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             title: S.current.trade_not_created,
             error: S.current.amount_is_below_minimum_limit(limits.min!.toString()));
         return;
-      }
-    }
-
-    if (depositCurrency == CryptoCurrency.btcln && wallet.type == WalletType.bitcoin) {
-      final invoice = await bitcoin!.getLightningInvoice(wallet, BigInt.zero);
-      if (invoice != null) {
-        depositAddress = invoice;
-      }
-    }
-
-    if (receiveCurrency == CryptoCurrency.btcln && wallet.type == WalletType.bitcoin) {
-      final invoice = await bitcoin!.getLightningInvoice(wallet, BigInt.zero);
-      if (invoice != null) {
-        receiveAddress = invoice;
       }
     }
 
