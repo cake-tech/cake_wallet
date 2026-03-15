@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/payment_uris.dart';
@@ -65,7 +66,7 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
               spacing: 12,
               children: [
                 if(widget.sendViewModel.walletType == WalletType.bitcoin)
-                SvgPicture.asset("assets/new-ui/lightning_deposit_help.svg", height: 36),
+                  CakeImageWidget(imageUrl:"assets/new-ui/lightning_deposit_help.svg", height: 36),
                 Text(
                   S.of(context).bitcoin_lightning_deposit,
                   style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,8 +7,9 @@ class BalanceCardAction {
   final String label;
   final IconData icon;
   final VoidCallback onTap;
+  final double? iconSize;
 
-  const BalanceCardAction({required this.label, required this.icon, required this.onTap});
+  const BalanceCardAction({required this.label, required this.icon, required this.onTap, this.iconSize = 16});
 }
 
 class BalanceCard extends StatelessWidget {
@@ -80,8 +82,8 @@ class BalanceCard extends StatelessWidget {
                 ? ClipRSuperellipse(
                   borderRadius: BorderRadius.circular(borderRadius),
                   key: ValueKey(design.imagePath),
-                  child: SvgPicture.asset(
-                      design.imagePath,
+                    child: CakeImageWidget(
+                      imageUrl: design.imagePath,
                       width: width,
                       height: height,
                       fit: BoxFit.fill,
@@ -233,8 +235,8 @@ class BalanceCard extends StatelessWidget {
                       switchInCurve: Curves.easeInOut,
                       switchOutCurve: Curves.easeInOut,
                       child: design.backgroundType == CardDesignBackgroundTypes.svgIcon
-                          ? SvgPicture.asset(
-                              design.imagePath,
+                          ? CakeImageWidget(
+                              imageUrl: design.imagePath,
                               key: const ValueKey('svgIcon'),
                               height: iconWidth,
                               width: iconWidth,
@@ -261,12 +263,13 @@ class BalanceCard extends StatelessWidget {
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: onCustomizeTapped,
-                child: SizedBox(
+                child: Container(
                   height: 40,
                   width: 40,
                   child: Center(
-                    child: SvgPicture.asset(
-                      "assets/new-ui/3dots_vertical.svg",
+                    child: CakeImageWidget(
+                      imageUrl: "assets/new-ui/3dots_vertical.svg",
+                      alignment: Alignment.topRight,
                       colorFilter:
                           ColorFilter.mode(design.colors.textColorSecondary, BlendMode.srcIn),
                     ),
@@ -299,7 +302,7 @@ class BalanceCard extends StatelessWidget {
                   style: TextStyle(color: design.colors.textColor, fontSize: 16),
                 ),
               ),
-              Icon(action.icon, color: design.colors.textColorSecondary),
+              Icon(action.icon, color: design.colors.textColorSecondary, size: action.iconSize),
             ],
           ),
         ),

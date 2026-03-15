@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -216,7 +217,7 @@ class PickerSliderButton<Item> extends StatelessWidget {
                                 fontSize: 14,
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w400)),
-                      if(isSelected)  SvgPicture.asset(
+                      if(isSelected)  CakeImageWidget(imageUrl:
                         "assets/new-ui/arrow_right.svg",
                         colorFilter:
                         ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),)
@@ -229,7 +230,7 @@ class PickerSliderButton<Item> extends StatelessWidget {
                 ],
               ),
               isSelected? NewSimpleCheckbox(value: true, onChanged: (val){}):
-              SvgPicture.asset(
+              CakeImageWidget(imageUrl:
                 "assets/new-ui/arrow_right.svg",
                 colorFilter:
                     ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
