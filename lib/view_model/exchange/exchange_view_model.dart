@@ -9,6 +9,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/core/lightning_invoice_service.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
@@ -1007,6 +1008,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           }
         }
       }
+
+      // parse Lightning address to bolt11 invoice
+      if (receiveAddress.contains("@")) {
+        receiveAddress = await getBolt11FromLightingAddress(receiveAddress) ?? receiveAddress;
+      }
+
       // snapshot of providers to avoid concurrent modification issues
       final providersSnapshot = providers.values.toList();
       final ratesSnapshot = providers.keys.toList();
