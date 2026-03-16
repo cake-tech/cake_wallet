@@ -2,6 +2,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/lnurl.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 
@@ -72,10 +73,18 @@ class UniversalAddressDetector {
 
       final paymentRequest = PaymentRequest.fromUri(uri);
 
-      // Determine currency from scheme
-      final currency = CryptoCurrency.fromString(uri.scheme.toLowerCase());
+      CryptoCurrency currency;
+      int? chainId;
+      if (uri.scheme.toLowerCase() == 'ethereum') {
+        final erc681 = ERC681URI.fromUri(uri);
+        chainId = erc681.chainId;
+        currency = getCryptoCurrencyByChainId(chainId);
+      } else {
+        currency = CryptoCurrency.fromString(uri.scheme.toLowerCase());
+        chainId = getChainIdByCryptoCurrency(currency);
+      }
+
       final walletType = cryptoCurrencyOrTokenToWalletType(currency);
-      final chainId = getChainIdByCryptoCurrency(currency);
 
       return AddressDetectionResult(
         address: paymentRequest.address,

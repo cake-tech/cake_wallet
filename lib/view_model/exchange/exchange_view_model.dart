@@ -1008,6 +1008,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         final provider = providersSnapshot[i];
         final providerRate = ratesSnapshot[i];
 
+        // Skip Swaps.xyz when sending from external
+        if (isSendFromExternal &&
+            provider.description == ExchangeProviderDescription.swapsXyz) {
+          printV('Skipping Swaps.xyz for external send');
+          continue;
+        }
+
         if (!(await provider.checkIsAvailable())) continue;
 
         bestRate = providerRate;
