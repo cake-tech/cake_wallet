@@ -131,6 +131,7 @@ abstract class WalletCreationVMBase with Store {
       credentials.walletInfo!.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
       credentials.walletInfo!.address = wallet.walletAddresses.address;
       await credentials.walletInfo!.save();
+      await wallet.save();
       await _appStore.changeCurrentWallet(wallet);
       _appStore.authenticationStore.allowedCreate();
       state = ExecutedSuccessfullyState();
