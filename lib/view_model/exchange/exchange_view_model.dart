@@ -56,7 +56,6 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_mod
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
-import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -240,6 +239,20 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         }
         return true;
       });
+    } else if (isEVMCompatibleChain(wallet.type)) {
+      final currency = depositCurrency;
+      final balanceCurrency = wallet.balance.keys.firstWhereOrNull(
+        (c) =>
+            c.title == depositCurrency.title &&
+            (c.tag == depositCurrency.tag || c.tag == depositCurrency.title),
+      );
+      final balanceForCurrency =
+          balanceCurrency != null ? wallet.balance[balanceCurrency] : null;
+      if (depositCurrency == currency && balanceForCurrency != null) {
+        depositAvailableAmount = _appStore.amountParsingProxy
+            .getDisplayCryptoStringFromBigInt(
+                balanceForCurrency.fullAvailableBalance, balanceCurrency!);
+      }
     } else {
       final currency = depositCurrency;
       final amount = _appStore.amountParsingProxy.getDisplayCryptoString(
@@ -468,9 +481,20 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String? get balanceDisplay {
-    final bal = wallet.balance[depositCurrency]?.fullAvailableBalance;
-    if(bal == null) return null;
-    return amountParsingProxy.getDisplayCryptoStringFromBigInt(bal, depositCurrency);
+    CryptoCurrency? balanceCurrency;
+    if (isEVMCompatibleChain(wallet.type)) {
+      balanceCurrency = wallet.balance.keys.firstWhereOrNull(
+        (c) =>
+            c.title == depositCurrency.title &&
+            (c.tag == depositCurrency.tag || c.tag == depositCurrency.title),
+      );
+    } else {
+      balanceCurrency = depositCurrency;
+    }
+    final bal = balanceCurrency != null ? wallet.balance[balanceCurrency]?.fullAvailableBalance : null;
+    if (bal == null) return null;
+    return amountParsingProxy.getDisplayCryptoStringFromBigInt(
+        bal, balanceCurrency ?? depositCurrency);
   }
 
   //* Still open to further optimize these checks
@@ -514,7 +538,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       WalletType.dogecoin,
     ].contains(wallet.type)) return (depositCurrency == wallet.currency);
 
-    return isEVMCompatibleChain(wallet.type);
+    if (!isEVMCompatibleChain(wallet.type)) return false;
+
+    if (depositCurrency == wallet.currency) return true;
+
+    return wallet.balance.keys.any((c) =>
+        c.title == depositCurrency.title &&
+        (c.tag == depositCurrency.tag || c.tag == depositCurrency.title));
   }
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
@@ -696,7 +726,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void changeDepositCurrency({required CryptoCurrency currency}) {
     final previousCurrency = depositCurrency;
     final hadAmount = depositAmount.isNotEmpty && depositAmount != S.current.fetching;
-    final previousAmount = hadAmount ? depositAmount : '';
     final wasSendAllEnabled = isSendAllEnabled;
 
     depositCurrency = currency;
@@ -716,11 +745,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         } else {
           isSendAllEnabled = false;
         }
+      } else if (hadAmount) {
+        bestRate = 0.0;
+        bestRateProvider = null;
+        loadLimits();
+        _setAvailableProviders();
       } else {
-        _onPairChangeWithAmountPreservation(
-          preserveDepositAmount: hadAmount,
-          previousDepositAmount: previousAmount,
-        );
+        _onPairChange();
       }
     }
     fetchFiatPrice(currency);
@@ -731,7 +762,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void changeReceiveCurrency({required CryptoCurrency currency}) {
     final previousCurrency = receiveCurrency;
     final hadAmount = receiveAmount.isNotEmpty && receiveAmount != S.current.fetching;
-    final previousAmount = hadAmount ? receiveAmount : '';
 
     if (!(currency.tag == receiveCurrency.tag ||
         currency.tag == receiveCurrency.title ||
@@ -748,10 +778,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (isSendAllEnabled && hasAllAmount) {
         calculateDepositAllAmount();
       }
-      _onPairChangeWithAmountPreservation(
-        preserveReceiveAmount: hadAmount,
-        previousReceiveAmount: previousAmount,
-      );
+      if (hadAmount || (isSendAllEnabled && hasAllAmount)) {
+        bestRate = 0.0;
+        bestRateProvider = null;
+        loadLimits();
+        _setAvailableProviders();
+      } else {
+        _onPairChange();
+      }
     }
     fetchFiatPrice(currency);
   }
@@ -1213,16 +1247,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
       final isNative = depositCurrency == wallet.currency;
 
-      if (!isNative) changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.from(balanceDouble)), isCanonical: true);
+      if (!isNative) {
+        changeDepositAmount(amount: balanceAmount, isCanonical: true);
+        return;
+      }
 
       try {
         final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
-
-        if (priority == null) {
-          changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.from(balanceDouble)), isCanonical: true);
-          return;
-        }
-
         await wallet.updateEstimatedFeesParams(priority);
 
         String? feeString;
@@ -1230,20 +1261,19 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           feeString = evm!.getEVMNativeEstimatedFee(wallet);
         }
 
-        if (feeString == null) {
-          changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.from(balanceDouble)), isCanonical: true);
+        if (feeString == null || feeString.isEmpty) {
+          changeDepositAmount(amount: balanceAmount, isCanonical: true);
           return;
         }
 
-        final feeFormatted = formatFixed(BigInt.parse(feeString), 18, fractionalDigits: 12);
-        final feeDouble = double.tryParse(feeFormatted.replaceAll(',', '.')) ?? 0.0;
-
-        final amountAfterFee = balanceDouble - feeDouble;
+        final balanceWei = balanceForCurrency.fullAvailableBalance;
+        final feeWei = BigInt.parse(feeString);
+        final amountAfterFeeWei = balanceWei > feeWei ? balanceWei - feeWei : BigInt.zero;
         changeDepositAmount(
-          amount: wallet.currency.formatAmount(BigInt.from(amountAfterFee > 0 ? amountAfterFee : 0)), isCanonical: true);
+          amount: wallet.currency.formatAmount(amountAfterFeeWei), isCanonical: true);
       } catch (e) {
         printV('Error calculating send all for EVM: $e');
-        changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.from(balanceDouble)), isCanonical: true);
+        changeDepositAmount(amount: balanceAmount, isCanonical: true);
       }
     }
   }
@@ -1291,54 +1321,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     bestRateProvider = null;
     loadLimits();
     _setAvailableProviders();
-  }
-
-  @action
-  Future<void> _onPairChangeWithAmountPreservation({
-    bool preserveDepositAmount = false,
-    bool preserveReceiveAmount = false,
-    String previousDepositAmount = '',
-    String previousReceiveAmount = '',
-  }) async {
-    bestRate = 0.0;
-
-    if (preserveDepositAmount && previousDepositAmount.isNotEmpty) {
-      _receiveAmount = S.current.fetching;
-    } else if (preserveReceiveAmount && previousReceiveAmount.isNotEmpty) {
-      _depositAmount = S.current.fetching;
-    } else {
-      _depositAmount = '';
-      _receiveAmount = '';
-    }
-
-    loadLimits();
-    _setAvailableProviders();
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    // Calculate best rate with preserved amount
-    if (preserveDepositAmount && previousDepositAmount.isNotEmpty) {
-      await calculateBestRate();
-
-      if (bestRate <= 0) _receiveAmount = '';
-
-      final enteredAmount = double.tryParse(previousDepositAmount.replaceAll(',', '.')) ?? 0;
-
-      if (enteredAmount <= 0) _receiveAmount = '';
-
-      _receiveAmount = _appStore.amountParsingProxy.getDisplayCryptoString(
-          (bestRate * enteredAmount).toInt(), receiveCurrency);
-    } else if (preserveReceiveAmount && previousReceiveAmount.isNotEmpty) {
-      await calculateBestRate();
-
-      if (bestRate <= 0) _depositAmount = '';
-
-      final enteredAmount = double.tryParse(previousReceiveAmount.replaceAll(',', '.')) ?? 0;
-
-      if (enteredAmount <= 0) _depositAmount = '';
-
-      _depositAmount = _appStore.amountParsingProxy.getDisplayCryptoString(
-          (enteredAmount / bestRate).toInt(), depositCurrency);
-    }
   }
 
   void _initialPairBasedOnWallet() {

@@ -397,8 +397,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
           address: isCurrentTypeWallet
               ? exchangeViewModel.wallet.walletAddresses.addressForExchange
               : '');
-
-    key.currentState!.changeAmount(amount: '');
   }
 
   void _onWalletNameChange(ExchangeViewModel exchangeViewModel, CryptoCurrency currency,
