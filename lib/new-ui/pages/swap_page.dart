@@ -1205,6 +1205,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     if (walletType == null) return;
     final wallet = await WalletInfo.get(walletName, walletType);
     if (wallet == null) return;
+    widget.exchangeViewModel.depositAddress = wallet.address;
+    addressController.text = _normalizeAddressFormat(wallet.address);
     widget.walletSwitcherViewModel.selectWallet(wallet);
     await widget.walletSwitcherViewModel.switchToSelectedWallet();
   }
