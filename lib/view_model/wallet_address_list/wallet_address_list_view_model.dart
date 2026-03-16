@@ -288,7 +288,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
               txCount: subaddress.txCount,
               balance: _appStore.amountParsingProxy
                   .getDisplayCryptoString(subaddress.balance, walletTypeToCryptoCurrency(type)),
-              isChange: subaddress.isChange);
+              isChange: subaddress.isChange,
+              isLegacyDerivation: subaddress.isLegacyDerivation);
         });
 
         // don't show all 1000+ mweb addresses:
@@ -350,8 +351,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     for (var i = 0; i < addressList.length; i++) {
       if (!(addressList[i] is WalletAddressListItem)) continue;
-      (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses
-          .contains((addressList[i] as WalletAddressListItem).address);
+      final item = addressList[i] as WalletAddressListItem;
+      item.isHidden = wallet.walletAddresses.hiddenAddresses.contains(item.address) ||
+          (isElectrumWallet && item.isLegacyDerivation);
     }
 
     for (var i = 0; i < addressList.length; i++) {

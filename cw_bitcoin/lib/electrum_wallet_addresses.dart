@@ -844,8 +844,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (hd == null) throw Exception("HD not found for type $type");
     return hd;
   }
-  }
-
+  
   @action
   Future<void> setLightningAddress(String walletName, {String newAddress = ""}) async {
     if (lightningWallet == null) return;
