@@ -9,6 +9,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/core/lightning_invoice_service.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
@@ -436,7 +437,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     return await WalletInfo.selectList("type = ?", [type!.index]);
   }
 
-  Future<List<WalletInfoAddressInfo>> addressesForWallet(WalletInfo wallet) async {
+  Future<List<WalletInfoAddressInfo>> addressesForAccountsWallet(WalletInfo wallet) async {
     final List<WalletInfoAddressInfo> ret = [];
     final addresses = await wallet.getAddressInfos();
     for (var list in addresses.values) {
@@ -588,6 +589,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     forcedProviderRate = 0.0;
     calculateForcedProviderRate();
   }
+
+  WalletInfo? selectedAddressBookWallet;
 
   @observable
   double forcedProviderRate = 0.0;
@@ -1041,22 +1044,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     }
 
-    if (depositCurrency == CryptoCurrency.btcln &&
-        depositAddress == wallet.walletAddresses.addressForExchange) {
-      final invoice = await bitcoin!.getLightningInvoice(wallet, BigInt.zero);
-      if (invoice != null) {
-        depositAddress = invoice;
-      }
-    }
-
-    if (receiveCurrency == CryptoCurrency.btcln &&
-        receiveAddress == wallet.walletAddresses.addressForExchange) {
-      final invoice = await bitcoin!.getLightningInvoice(wallet, BigInt.zero);
-      if (invoice != null) {
-        receiveAddress = invoice;
-      }
-    }
-
     late final Map<double, ExchangeProvider> providers;
     if (forcedProvider != null) {
       providers = {forcedProviderRate: forcedProvider!};
@@ -1077,6 +1064,32 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     try {
+      if (selectedAddressBookWallet?.type == WalletType.bitcoin) {
+        final _walletAddresses = await selectedAddressBookWallet!.getAddresses();
+
+        // if receive currency is lightning pick the lightning address
+        // if normal bitcoin, then pick the segwit address
+        if (receiveCurrency == CryptoCurrency.btcln) {
+          final lightningAddressOfWallet =
+              _walletAddresses.entries.firstWhereOrNull((e) => e.value.contains("LN"))?.key;
+          if (lightningAddressOfWallet != null) {
+            receiveAddress = lightningAddressOfWallet;
+          }
+        }
+        if (receiveCurrency == CryptoCurrency.btc) {
+          final segwitAddressOfWallet =
+              _walletAddresses.entries.firstWhereOrNull((e) => e.value.contains("P2WPKH"))?.key;
+          if (segwitAddressOfWallet != null) {
+            receiveAddress = segwitAddressOfWallet;
+          }
+        }
+      }
+
+      // parse Lightning address to bolt11 invoice
+      if (receiveAddress.contains("@")) {
+        receiveAddress = await getBolt11FromLightingAddress(receiveAddress) ?? receiveAddress;
+      }
+
       // snapshot of providers to avoid concurrent modification issues
       final providersSnapshot = providers.values.toList();
       final ratesSnapshot = providers.keys.toList();

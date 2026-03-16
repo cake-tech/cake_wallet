@@ -35,6 +35,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const all = [
     CryptoCurrency.xmr,
     CryptoCurrency.btc,
+    CryptoCurrency.btcln,
     CryptoCurrency.eth,
     CryptoCurrency.ltc,
     CryptoCurrency.doge,
@@ -83,7 +84,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.scrt,
     CryptoCurrency.uni,
     CryptoCurrency.stx,
-    CryptoCurrency.btcln,
     CryptoCurrency.shib,
     CryptoCurrency.aave,
     CryptoCurrency.arb,

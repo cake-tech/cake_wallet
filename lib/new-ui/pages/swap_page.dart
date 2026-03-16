@@ -19,7 +19,6 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_moda
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart';
-import 'package:cake_wallet/new-ui/widgets/swap_page/swap_provider_initial_preference_modal.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
@@ -45,7 +44,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -98,20 +96,20 @@ class _NewSwapPageState extends State<NewSwapPage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!widget.exchangeViewModel.decentralizedExchangesPromptDismissed) {
-        showMaterialModalBottomSheet(
-            context: context,
-            backgroundColor: Colors.transparent,
-            isDismissible: false,
-            builder: (context) {
-              return SwapProviderInitialPreferenceModal();
-            }).then((val) {
-          widget.exchangeViewModel.dismissDecentralizedExchangesPrompt();
-          if (val is bool && val == true && !widget.exchangeViewModel.forceDecentralizedExchanges) {
-            widget.exchangeViewModel.toggleForceDecentralizedExchanges();
-          }
-        });
-      }
+      // if (!widget.exchangeViewModel.decentralizedExchangesPromptDismissed) {
+      //   showMaterialModalBottomSheet(
+      //       context: context,
+      //       backgroundColor: Colors.transparent,
+      //       isDismissible: false,
+      //       builder: (context) {
+      //         return SwapProviderInitialPreferenceModal();
+      //       }).then((val) {
+      //     widget.exchangeViewModel.dismissDecentralizedExchangesPrompt();
+      //     if (val is bool && val == true && !widget.exchangeViewModel.forceDecentralizedExchanges) {
+      //       widget.exchangeViewModel.toggleForceDecentralizedExchanges();
+      //     }
+      //   });
+      // }
 
       final depositAddressController = depositKey.currentState!.addressController;
       final depositAmountController = depositKey.currentState!.amountController;
@@ -1180,13 +1178,14 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         });
     if (res != null && res is SwapAddressSelectionResult) {
       if (widget.isReceiverCard) {
+        widget.exchangeViewModel.selectedAddressBookWallet = res.walletInfo;
         widget.exchangeViewModel.receiveAddress = res.address!;
-        if (res.walletName != null) {
+        if (res.walletInfo?.name != null) {
           if (res.accountName != null) {
             widget.exchangeViewModel.receiveAddressDisplayName =
-                "${res.walletName} → ${res.accountName}";
+                "${res.walletInfo!.name} → ${res.accountName}";
           } else {
-            widget.exchangeViewModel.receiveAddressDisplayName = res.walletName!;
+            widget.exchangeViewModel.receiveAddressDisplayName = res.walletInfo!.name;
           }
         }
       } else if (res.address == null || res.address!.isEmpty) {
@@ -1194,7 +1193,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         askForRefundAddress();
       } else {
         widget.exchangeViewModel.isSendFromExternal = false;
-        switchToDepositWallet(res.walletName!);
+        switchToDepositWallet(res.walletInfo!.name);
       }
     }
   }

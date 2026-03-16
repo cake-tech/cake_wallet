@@ -77,8 +77,6 @@ class LightningWallet {
       _eventStream ??= sdk.addEventListener().asBroadcastStream();
       _logStream ??= initLogging().asBroadcastStream();
 
-      await sdk.syncWallet(request: SyncWalletRequest());
-
       try {
         final logFile = File("$appPath/lightning.log")
           ..createSync();
@@ -86,6 +84,8 @@ class LightningWallet {
       } catch (e) {
         printV(e);
       }
+
+      await sdk.syncWallet(request: SyncWalletRequest());
 
       return true;
     } catch (e) {

@@ -8,7 +8,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -20,7 +19,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   static final List<CryptoCurrency> _notSupportedAsSourceToken = [
     CryptoCurrency.sol,
     ...CryptoCurrency.all.where(
-          (c) => (c.tag ?? '').toUpperCase() == 'SOL',
+          (c) => (c.tag ?? '').toUpperCase() == 'SOL' || c.tag == CryptoCurrency.bnb.tag,
     ),
   ];
 
@@ -209,7 +208,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       required bool isReceiveAmount}) async {
     try {
 
-      if(_notSupportedAsSourceToken.contains(from)) {
+      if(_notSupportedAsSourceToken.contains(from) || _notSupportedAsSourceToken.contains(to)) {
         printV(
             'fetchRate: source token ${from.title} is not supported as source token');
         return 0.0;
