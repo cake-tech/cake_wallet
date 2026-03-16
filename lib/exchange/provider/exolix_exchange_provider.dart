@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/core/lightning_invoice_service.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -196,8 +197,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       'coinTo': _normalizeCurrency(_overrideToCryptoCurrency(request.toCurrency, request.toAddress)),
       'networkFrom': _networkFor(request.fromCurrency),
       'networkTo': _networkFor(request.toCurrency),
-      'withdrawalAddress': _normalizeAddress(request.toAddress),
-      'refundAddress': _normalizeAddress(request.refundAddress),
+      'withdrawalAddress': await _normalizeAddress(request.toAddress),
+      'refundAddress': await _normalizeAddress(request.refundAddress),
       'rateType': _getRateType(isFixedRateMode),
       'apiToken': apiKey,
     };
@@ -213,7 +214,6 @@ class ExolixExchangeProvider extends ExchangeProvider {
       headers: headers,
       body: json.encode(body),
     );
-    
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -446,8 +446,17 @@ class ExolixExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String _normalizeAddress(String address) =>
-      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
+  Future<String> _normalizeAddress(String address) async {
+    if (address.startsWith('bitcoincash:'))
+      return address.replaceFirst('bitcoincash:', '');
+
+    // Lightning addresses
+    if(address.contains("@"))
+      return await getBolt11FromLightingAddress(address) ?? address;
+
+    return address;
+  }
+
 
   static double? _toDouble(dynamic value) {
     if (value is int) {
