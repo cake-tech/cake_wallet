@@ -50,6 +50,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 part 'settings_store.g.dart';
 
+Node? _getNodeWithFallback(
+  Box<Node> source,
+  int? nodeId,
+  WalletType expectedType,
+  String defaultUri,
+) {
+  if (nodeId != null) {
+    final node = source.get(nodeId);
+    if (node != null && node.type == expectedType) return node;
+  }
+  return source.values.firstWhereOrNull((e) =>
+      e.uriRaw == defaultUri && e.type == expectedType);
+}
+
 class SettingsStore = SettingsStoreBase with _$SettingsStore;
 
 abstract class SettingsStoreBase with Store {
@@ -1020,7 +1034,13 @@ abstract class SettingsStoreBase with Store {
         final walletTypeForChain = evm!.getWalletTypeByChainId(chainId);
         if (walletTypeForChain != null) {
           final node = nodes[walletTypeForChain];
-          if (node != null) return node;
+          if (node != null) {
+            if (node.type != walletTypeForChain) {
+              throw Exception(
+                  'Node is not valid for $walletTypeForChain (found: ${node.type})');
+            }
+            return node;
+          }
         }
       }
 
@@ -1298,43 +1318,46 @@ abstract class SettingsStoreBase with Store {
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
 
-    /// get the selected node, if null, then use the default
-    final moneroNode = nodeSource.get(nodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == newCakeWalletMoneroUri);
-    final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == newCakeWalletBitcoinUri);
-    final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == cakeWalletLitecoinElectrumUri);
-    final ethereumNode = nodeSource.get(ethereumNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == ethereumDefaultNodeUri);
-    final polygonNode = nodeSource.get(polygonNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == polygonDefaultNodeUri);
-    final baseNode = nodeSource.get(baseNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == baseDefaultNodeUri);
-    final arbitrumNode = nodeSource.get(arbitrumNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == arbitrumDefaultNodeUri);
-    final bscNode = nodeSource.get(bscNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == bscDefaultNodeUri);
-    final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == cakeWalletBitcoinCashDefaultNodeUri);
-    final nanoNode = nodeSource.get(nanoNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == nanoDefaultNodeUri);
-    final decredNode = nodeSource.get(decredNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == decredDefaultUri);
-    final nanoPowNode = powNodeSource.get(nanoPowNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == nanoDefaultPowNodeUri);
-    final solanaNode = nodeSource.get(solanaNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == solanaDefaultNodeUri);
-    final tronNode = nodeSource.get(tronNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == tronDefaultNodeUri);
-    final wowneroNode = nodeSource.get(wowneroNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
-    final zanoNode = nodeSource.get(zanoNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
-    final zcashNode = nodeSource.get(zcashNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zcashDefaultNodeUri);
-    final dogecoinNode = nodeSource.get(dogecoinNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
+    /// get the selected node, if null or wrong type, then use the default
+    final moneroNode = _getNodeWithFallback(
+        nodeSource, nodeId, WalletType.monero, newCakeWalletMoneroUri);
+    final bitcoinElectrumServer = _getNodeWithFallback(
+        nodeSource, bitcoinElectrumServerId, WalletType.bitcoin,
+        newCakeWalletBitcoinUri);
+    final litecoinElectrumServer = _getNodeWithFallback(
+        nodeSource, litecoinElectrumServerId, WalletType.litecoin,
+        cakeWalletLitecoinElectrumUri);
+    final ethereumNode = _getNodeWithFallback(
+        nodeSource, ethereumNodeId, WalletType.ethereum, ethereumDefaultNodeUri);
+    final polygonNode = _getNodeWithFallback(
+        nodeSource, polygonNodeId, WalletType.polygon, polygonDefaultNodeUri);
+    final baseNode = _getNodeWithFallback(
+        nodeSource, baseNodeId, WalletType.base, baseDefaultNodeUri);
+    final arbitrumNode = _getNodeWithFallback(
+        nodeSource, arbitrumNodeId, WalletType.arbitrum, arbitrumDefaultNodeUri);
+    final bscNode = _getNodeWithFallback(
+        nodeSource, bscNodeId, WalletType.bsc, bscDefaultNodeUri);
+    final bitcoinCashElectrumServer = _getNodeWithFallback(
+        nodeSource, bitcoinCashElectrumServerId, WalletType.bitcoinCash,
+        cakeWalletBitcoinCashDefaultNodeUri);
+    final nanoNode = _getNodeWithFallback(
+        nodeSource, nanoNodeId, WalletType.nano, nanoDefaultNodeUri);
+    final decredNode = _getNodeWithFallback(
+        nodeSource, decredNodeId, WalletType.decred, decredDefaultUri);
+    final nanoPowNode = _getNodeWithFallback(
+        powNodeSource, nanoPowNodeId, WalletType.nano, nanoDefaultPowNodeUri);
+    final solanaNode = _getNodeWithFallback(
+        nodeSource, solanaNodeId, WalletType.solana, solanaDefaultNodeUri);
+    final tronNode = _getNodeWithFallback(
+        nodeSource, tronNodeId, WalletType.tron, tronDefaultNodeUri);
+    final wowneroNode = _getNodeWithFallback(
+        nodeSource, wowneroNodeId, WalletType.wownero, wowneroDefaultNodeUri);
+    final zanoNode = _getNodeWithFallback(
+        nodeSource, zanoNodeId, WalletType.zano, zanoDefaultNodeUri);
+    final zcashNode = _getNodeWithFallback(
+        nodeSource, zcashNodeId, WalletType.zcash, zcashDefaultNodeUri);
+    final dogecoinNode = _getNodeWithFallback(
+        nodeSource, dogecoinNodeId, WalletType.dogecoin, dogecoinDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
@@ -1869,24 +1892,45 @@ abstract class SettingsStoreBase with Store {
     final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
-    final moneroNode = nodeSource.get(nodeId);
-    final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
-    final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
-    final havenNode = nodeSource.get(havenNodeId);
-    final ethereumNode = nodeSource.get(ethereumNodeId);
-    final polygonNode = nodeSource.get(polygonNodeId);
-    final baseNode = nodeSource.get(baseNodeId);
-    final arbitrumNode = nodeSource.get(arbitrumNodeId);
-    final bscNode = nodeSource.get(bscNodeId);
-    final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
-    final nanoNode = nodeSource.get(nanoNodeId);
-    final solanaNode = nodeSource.get(solanaNodeId);
-    final tronNode = nodeSource.get(tronNodeId);
-    final wowneroNode = nodeSource.get(wowneroNodeId);
-    final zanoNode = nodeSource.get(zanoNodeId);
-    final zcashNode = nodeSource.get(zcashNodeId);
-    final decredNode = nodeSource.get(decredNodeId);
-    final dogecoinNode = nodeSource.get(dogecoinNodeId);
+    final moneroNode = _getNodeWithFallback(
+        nodeSource, nodeId, WalletType.monero, newCakeWalletMoneroUri);
+    final bitcoinElectrumServer = _getNodeWithFallback(
+        nodeSource, bitcoinElectrumServerId, WalletType.bitcoin,
+        newCakeWalletBitcoinUri);
+    final litecoinElectrumServer = _getNodeWithFallback(
+        nodeSource, litecoinElectrumServerId, WalletType.litecoin,
+        cakeWalletLitecoinElectrumUri);
+    final havenNode = _getNodeWithFallback(
+        nodeSource, havenNodeId, WalletType.haven, havenDefaultNodeUri);
+    final ethereumNode = _getNodeWithFallback(
+        nodeSource, ethereumNodeId, WalletType.ethereum, ethereumDefaultNodeUri);
+    final polygonNode = _getNodeWithFallback(
+        nodeSource, polygonNodeId, WalletType.polygon, polygonDefaultNodeUri);
+    final baseNode = _getNodeWithFallback(
+        nodeSource, baseNodeId, WalletType.base, baseDefaultNodeUri);
+    final arbitrumNode = _getNodeWithFallback(
+        nodeSource, arbitrumNodeId, WalletType.arbitrum, arbitrumDefaultNodeUri);
+    final bscNode = _getNodeWithFallback(
+        nodeSource, bscNodeId, WalletType.bsc, bscDefaultNodeUri);
+    final bitcoinCashNode = _getNodeWithFallback(
+        nodeSource, bitcoinCashElectrumServerId, WalletType.bitcoinCash,
+        cakeWalletBitcoinCashDefaultNodeUri);
+    final nanoNode = _getNodeWithFallback(
+        nodeSource, nanoNodeId, WalletType.nano, nanoDefaultNodeUri);
+    final solanaNode = _getNodeWithFallback(
+        nodeSource, solanaNodeId, WalletType.solana, solanaDefaultNodeUri);
+    final tronNode = _getNodeWithFallback(
+        nodeSource, tronNodeId, WalletType.tron, tronDefaultNodeUri);
+    final wowneroNode = _getNodeWithFallback(
+        nodeSource, wowneroNodeId, WalletType.wownero, wowneroDefaultNodeUri);
+    final zanoNode = _getNodeWithFallback(
+        nodeSource, zanoNodeId, WalletType.zano, zanoDefaultNodeUri);
+    final zcashNode = _getNodeWithFallback(
+        nodeSource, zcashNodeId, WalletType.zcash, zcashDefaultNodeUri);
+    final decredNode = _getNodeWithFallback(
+        nodeSource, decredNodeId, WalletType.decred, decredDefaultUri);
+    final dogecoinNode = _getNodeWithFallback(
+        nodeSource, dogecoinNodeId, WalletType.dogecoin, dogecoinDefaultNodeUri);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;

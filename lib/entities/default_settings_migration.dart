@@ -1111,6 +1111,16 @@ Future<void> updateBtcNanoWalletInfos() async {}
 //   }
 // }
 
+Node? _getNodeIfValidType(
+  Box<Node> source,
+  int? nodeId,
+  WalletType expectedType,
+) {
+  if (nodeId == null) return null;
+  final node = source.get(nodeId);
+  return (node != null && node.type == expectedType) ? node : null;
+}
+
 Future<void> checkCurrentNodes(
     Box<Node> nodeSource, Box<Node> powNodeSource, SharedPreferences sharedPreferences) async {
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
@@ -1135,44 +1145,44 @@ Future<void> checkCurrentNodes(
   final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
   final currentZanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
   final currentZcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
-  final currentMoneroNode =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
-  final currentBitcoinElectrumServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinElectrumSeverId);
-  final currentLitecoinElectrumServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentLitecoinElectrumSeverId);
-  final currentHavenNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentHavenNodeId);
-  final currentEthereumNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
-  final currentPolygonNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentPolygonNodeId);
-  final currentBaseNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentBaseNodeId);
-  final currentArbitrumNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentArbitrumNodeId);
-  final currentBscNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentBscNodeId);
-  final currentNanoNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
-  final currentDecredNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentDecredNodeId);
-  final currentNanoPowNodeServer =
-      powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
-  final currentBitcoinCashNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
-  final currentDogecoinNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentDogecoinNodeId);
-  final currentSolanaNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
-  final currentTronNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentTronNodeId);
-  final currentWowneroNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentWowneroNodeId);
-  final currentZanoNode =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
-  final currentZcashNode =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentZcashNodeId);
+  final currentMoneroNode = _getNodeIfValidType(
+      nodeSource, currentMoneroNodeId, WalletType.monero);
+  final currentBitcoinElectrumServer = _getNodeIfValidType(
+      nodeSource, currentBitcoinElectrumSeverId, WalletType.bitcoin);
+  final currentLitecoinElectrumServer = _getNodeIfValidType(
+      nodeSource, currentLitecoinElectrumSeverId, WalletType.litecoin);
+  final currentHavenNodeServer = _getNodeIfValidType(
+      nodeSource, currentHavenNodeId, WalletType.haven);
+  final currentEthereumNodeServer = _getNodeIfValidType(
+      nodeSource, currentEthereumNodeId, WalletType.ethereum);
+  final currentPolygonNodeServer = _getNodeIfValidType(
+      nodeSource, currentPolygonNodeId, WalletType.polygon);
+  final currentBaseNodeServer = _getNodeIfValidType(
+      nodeSource, currentBaseNodeId, WalletType.base);
+  final currentArbitrumNodeServer = _getNodeIfValidType(
+      nodeSource, currentArbitrumNodeId, WalletType.arbitrum);
+  final currentBscNodeServer = _getNodeIfValidType(
+      nodeSource, currentBscNodeId, WalletType.bsc);
+  final currentNanoNodeServer = _getNodeIfValidType(
+      nodeSource, currentNanoNodeId, WalletType.nano);
+  final currentDecredNodeServer = _getNodeIfValidType(
+      nodeSource, currentDecredNodeId, WalletType.decred);
+  final currentNanoPowNodeServer = _getNodeIfValidType(
+      powNodeSource, currentNanoPowNodeId, WalletType.nano);
+  final currentBitcoinCashNodeServer = _getNodeIfValidType(
+      nodeSource, currentBitcoinCashNodeId, WalletType.bitcoinCash);
+  final currentDogecoinNodeServer = _getNodeIfValidType(
+      nodeSource, currentDogecoinNodeId, WalletType.dogecoin);
+  final currentSolanaNodeServer = _getNodeIfValidType(
+      nodeSource, currentSolanaNodeId, WalletType.solana);
+  final currentTronNodeServer = _getNodeIfValidType(
+      nodeSource, currentTronNodeId, WalletType.tron);
+  final currentWowneroNodeServer = _getNodeIfValidType(
+      nodeSource, currentWowneroNodeId, WalletType.wownero);
+  final currentZanoNode = _getNodeIfValidType(
+      nodeSource, currentZanoNodeId, WalletType.zano);
+  final currentZcashNode = _getNodeIfValidType(
+      nodeSource, currentZcashNodeId, WalletType.zcash);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
