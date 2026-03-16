@@ -422,15 +422,19 @@ abstract class ElectrumWalletBase
     String? wif;
     String? privateKey;
     String? publicKey;
+
+    final hd = mainHdByType[SegwitAddresType.p2wpkh] ?? mainHd;
+
     try {
-      wif = WifEncoder.encode(mainHd.privateKey.raw, netVer: network.wifNetVer);
+      wif = WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer);
     } catch (_) {}
     try {
-      privateKey = mainHd.privateKey.toHex();
+      privateKey = hd.privateKey.toHex();
     } catch (_) {}
     try {
-      publicKey = mainHd.publicKey.toHex();
+      publicKey = hd.publicKey.toHex();
     } catch (_) {}
+
     return BitcoinWalletKeys(
       wif: wif ?? '',
       privateKey: privateKey ?? '',
@@ -3068,11 +3072,20 @@ abstract class ElectrumWalletBase
 
   Bip32Slip10Secp256k1 _hdFor({required BaseBitcoinAddressRecord record}) {
     final addrType = record.type;
-    return  record.isLegacyDerivation
-        ? (record.isHidden ? walletAddresses.legacySideHd : walletAddresses.legacyMainHd)
-        : (record.isHidden
-        ? (sideHdByType[addrType] ?? sideHd)
-        : (mainHdByType[addrType] ?? mainHd));
+
+    if (record.isLegacyDerivation) {
+      if (record.isHidden) {
+        return walletAddresses.legacySideHd;
+      } else {
+        return walletAddresses.legacyMainHd;
+      }
+    }
+
+    if (record.isHidden) {
+      return sideHdByType[addrType] ?? sideHd;
+    } else {
+      return mainHdByType[addrType] ?? mainHd;
+    }
   }
 }
 
