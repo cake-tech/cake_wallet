@@ -33,6 +33,7 @@ class WalletRestoreFromQRCode {
     'polygon-wallet': WalletType.polygon,
     'base-wallet': WalletType.base,
     'arbitrum-wallet': WalletType.arbitrum,
+    'bsc-wallet': WalletType.bsc,
     'nano-wallet': WalletType.nano,
     'nano_wallet': WalletType.nano,
     'bitcoincash': WalletType.bitcoinCash,
@@ -53,7 +54,10 @@ class WalletRestoreFromQRCode {
     'decred_wallet': WalletType.decred,
     'dogecoin': WalletType.dogecoin,
     'dogecoin-wallet': WalletType.dogecoin,
-    'dogecoin_wallet': WalletType.dogecoin
+    'dogecoin_wallet': WalletType.dogecoin,
+    'zcash': WalletType.zcash,
+    'zcash-wallet': WalletType.zcash,
+    'zcash_wallet': WalletType.zcash,
   };
 
   static WalletType? _extractWalletType(String code) {

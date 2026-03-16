@@ -7,11 +7,12 @@ import 'package:flutter/material.dart';
 class NodeListRow extends StandardListRow {
   NodeListRow(
       {required String title,
+        String? subtitle,
       required this.node,
       required void Function(BuildContext context) onTap,
       required bool isSelected,
       required this.isPow})
-      : super(title: title, onTap: onTap, isSelected: isSelected);
+      : super(title: title, onTap: onTap, isSelected: isSelected, subtitle: subtitle);
 
   final Node node;
   final bool isPow;
@@ -21,24 +22,26 @@ class NodeListRow extends StandardListRow {
     final leading = buildLeading(context);
     final trailing = buildTrailing(context);
     return Container(
-      height: 56,
-      padding: EdgeInsets.only(left: 12, right: 12, top: 2, bottom: 2),
+      padding: EdgeInsets.only(left: 18, right: 18, top: 2, bottom: 2),
       margin: EdgeInsets.only(top: 2, bottom: 2),
       child: FilledButton(
         onPressed: () => onTap?.call(context),
         style: FilledButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            leading,
-            buildCenter(context, hasLeftOffset: true),
-            trailing,
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              leading,
+              buildCenter(context, hasLeftOffset: true),
+              trailing,
+            ],
+          ),
         ),
       ),
     );

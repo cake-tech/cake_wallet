@@ -1,8 +1,8 @@
-import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -153,10 +153,10 @@ class _PaymentConfirmationContent extends StatelessWidget {
                       bottom: 0,
                       right: 0,
                       child: Image.asset(
-                        getCryptoCurrencyForWalletListItem(
+                        getCryptoCurrencyIconForWalletListItem(
                           paymentViewModel.detectedWalletType!,
                           chainId: paymentViewModel.detectedChainId,
-                        ).iconPath!,
+                        ),
                         width: 32,
                         height: 32,
                         errorBuilder: (context, error, stackTrace) => Icon(
@@ -192,10 +192,10 @@ class _PaymentConfirmationContent extends StatelessWidget {
                 ),
               ] else ...[
                 Image.asset(
-                  getCryptoCurrencyForWalletListItem(
+                  getCryptoCurrencyIconForWalletListItem(
                     paymentViewModel.detectedWalletType!,
                     chainId: paymentViewModel.detectedChainId,
-                  ).iconPath!,
+                  ),
                   width: 118,
                   height: 118,
                 ),

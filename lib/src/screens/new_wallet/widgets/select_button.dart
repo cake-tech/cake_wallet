@@ -17,7 +17,7 @@ class SelectButton extends StatelessWidget {
     this.deviceConnectionTypes,
     this.borderRadius,
     this.padding,
-    super.key,
+    super.key, this.center = false,
   });
 
   final Widget? image;
@@ -34,6 +34,7 @@ class SelectButton extends StatelessWidget {
   final Color? borderColor;
   final BorderRadius? borderRadius;
   final EdgeInsets? padding;
+  final bool center;
 
   @override
   Widget build(BuildContext context) {
@@ -64,10 +65,9 @@ class SelectButton extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: height,
-        padding: padding ?? EdgeInsets.only(left: 30, right: 30),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(15)),
+          borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(18)),
           color: backgroundColor,
           border: borderColor != null ? Border.all(color: borderColor!, width: 2) : null,
         ),
@@ -78,12 +78,13 @@ class SelectButton extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: center ? MainAxisAlignment.center : MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
+                  if(!center) SizedBox(width:16),
                   image ?? Offstage(),
                   Padding(
-                    padding: image != null ? EdgeInsets.only(left: 15) : EdgeInsets.only(left: 0),
+                    padding: image != null ? EdgeInsets.only(left: 14) : EdgeInsets.only(left: 0),
                     child: Text(
                       text,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -96,7 +97,8 @@ class SelectButton extends StatelessWidget {
                 ],
               ),
             ),
-            ...trailingIcons
+            ...trailingIcons,
+            if(!center) SizedBox(width:16),
           ],
         ),
       ),

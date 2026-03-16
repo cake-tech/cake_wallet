@@ -5,9 +5,11 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/foundation.dart';
@@ -52,16 +54,38 @@ abstract class WalletKeysViewModelBase with Store {
   }
 
   static String _getInitialTitle(WalletBase wallet) {
-    if (isEVMCompatibleChain(wallet.type)) {
-      final currentChain = evm!.getCurrentChain(wallet);
-      return '${currentChain?.name ?? walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
-    }
+    final baseName = walletTypeToString(wallet.type);
+    final keysLabel = S.current.wallet_keys;
 
-    return '${walletTypeToString(wallet.type)} ${S.current.wallet_keys}';
+    final hwSuffix =
+        wallet.isHardwareWallet ? ' (${_hardwareWalletTypeLabel(wallet.hardwareWalletType!)})' : '';
+
+    return '$baseName $keysLabel $hwSuffix';
+  }
+
+  static String _hardwareWalletTypeLabel(HardwareWalletType type) {
+    switch (type) {
+      case HardwareWalletType.ledger:
+        return 'Ledger';
+      case HardwareWalletType.bitbox:
+        return 'BitBox';
+      case HardwareWalletType.trezor:
+        return 'Trezor';
+      case HardwareWalletType.cupcake:
+        return 'Cupcake';
+      case HardwareWalletType.coldcard:
+        return 'Coldcard';
+      case HardwareWalletType.seedsigner:
+        return 'SeedSigner';
+      case HardwareWalletType.keystone:
+        return 'Keystone';
+    }
   }
 
   bool get isBitcoin => _wallet.type == WalletType.bitcoin;
 
+  // this is incomplete, needs legacy seed toggle for XMR
+  bool get shouldShowHeightBox => [WalletType.bitcoin, WalletType.zcash].contains(_wallet.type);
   final ObservableList<StandartListItem> items;
 
   @observable
@@ -139,12 +163,15 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.zano:
         keys = zano!.getKeys(_wallet);
         break;
+      case WalletType.zcash:
+        keys = zcash!.getKeys(_wallet);
+        break;
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
       case WalletType.solana:
-      case WalletType.zcash:
       case WalletType.tron:
         items.addAll([
           if (_wallet.privateKey != null)
@@ -207,34 +234,46 @@ abstract class WalletKeysViewModelBase with Store {
 
     if (keys != null) {
       items.addAll([
-        if (keys['primaryAddress'] != null)
+        if ((keys['primaryAddress'] ?? '').isNotEmpty)
           StandartListItem(
               key: ValueKey('${_walletName}_wallet_primary_address_item_key'),
               title: S.current.primary_address,
               value: keys['primaryAddress']!),
-        if (keys['publicSpendKey'] != null)
+        if ((keys['publicSpendKey'] ?? '').isNotEmpty)
           StandartListItem(
             key: ValueKey('${_walletName}_wallet_public_spend_key_item_key'),
             title: S.current.spend_key_public,
             value: keys['publicSpendKey']!,
           ),
-        if (keys['privateSpendKey'] != null)
+        if ((keys['privateSpendKey'] ?? '').isNotEmpty)
           StandartListItem(
             key: ValueKey('${_walletName}_wallet_private_spend_key_item_key'),
             title: S.current.spend_key_private,
             value: keys['privateSpendKey']!,
           ),
-        if (keys['publicViewKey'] != null)
+        if ((keys['publicViewKey'] ?? '').isNotEmpty)
           StandartListItem(
             key: ValueKey('${_walletName}_wallet_public_view_key_item_key'),
             title: S.current.view_key_public,
             value: keys['publicViewKey']!,
           ),
-        if (keys['privateViewKey'] != null)
+        if ((keys['privateViewKey'] ?? '').isNotEmpty)
           StandartListItem(
             key: ValueKey('${_walletName}_wallet_private_view_key_item_key'),
             title: S.current.view_key_private,
             value: keys['privateViewKey']!,
+          ),
+        if ((keys['tsk'] ?? '').isNotEmpty)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_transparent_secret_key_item_key'),
+            title: S.current.transparent_secret_key,
+            value: keys['tsk']!,
+          ),
+        if ((keys['uvk'] ?? '').isNotEmpty)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_unified_view_key_item_key'),
+            title: S.current.unified_view_key,
+            value: keys['uvk']!,
           ),
       ]);
     }
@@ -274,6 +313,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'base-wallet';
       case WalletType.arbitrum:
         return 'arbitrum-wallet';
+      case WalletType.bsc:
+        return 'bsc-wallet';
       case WalletType.solana:
         return 'solana-wallet';
       case WalletType.tron:
@@ -288,8 +329,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'dogecoin-wallet';
       case WalletType.zcash:
         return 'zcash-wallet';
-      default:
-        throw Exception('Unexpected wallet type: ${_wallet.type.toString()}');
+      case WalletType.none:
+        throw Exception('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
     }
   }
 
@@ -299,6 +340,9 @@ abstract class WalletKeysViewModelBase with Store {
     }
     if (_wallet.type == WalletType.wownero) {
       return wownero!.getRestoreHeight(_wallet)?.toString();
+    }
+    if (_wallet.type == WalletType.zcash) {
+      return zcash!.getKeys(_wallet)["restoreHeight"]?.toString();
     }
     if (_restoreHeightByTransactions != 0)
       return getRoundedRestoreHeight(_restoreHeightByTransactions);

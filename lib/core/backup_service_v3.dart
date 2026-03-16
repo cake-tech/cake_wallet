@@ -8,6 +8,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_backup/backup.dart' as cake_backup;
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:crypto/crypto.dart';
+import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -314,6 +315,7 @@ class BackupServiceV3 extends $BackupService {
 
     // Delete decrypted data file
     decryptedData.deleteSync();
+    await initDb();
   }
 
   Future<void> verifyHardwareWallets(String password,

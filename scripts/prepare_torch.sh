@@ -3,7 +3,7 @@ set -x -e
 cd "$(dirname "$0")"
 
 # IMPORTANT: Make sure to update action 'Build Torch` in
-# - .github/workflows/pr_test_build_android.yml 
+# - .github/workflows/pr_test_build_android.yml
 # - .github/workflows/pr_test_build_linux.yml
 # https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.17/torch_dart-v1.0.17.tar.gz
 

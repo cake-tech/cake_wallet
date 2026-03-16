@@ -1,4 +1,5 @@
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:nanoutil/nanoutil.dart';
 
 BigInt stringAmountToBigIntNano(String amount) {
@@ -9,19 +10,19 @@ class NanoBalance extends Balance {
   final BigInt currentBalance;
   final BigInt receivableBalance;
 
-  NanoBalance({required this.currentBalance, required this.receivableBalance}) : super(0, 0);
+  NanoBalance({required this.currentBalance, required this.receivableBalance}) : super(currentBalance, receivableBalance);
 
   NanoBalance.fromFormattedString(
       {required String formattedCurrentBalance, required String formattedReceivableBalance})
       : currentBalance = stringAmountToBigIntNano(formattedCurrentBalance),
         receivableBalance = stringAmountToBigIntNano(formattedReceivableBalance),
-        super(0, 0);
+        super(stringAmountToBigIntNano(formattedCurrentBalance), stringAmountToBigIntNano(formattedReceivableBalance));
 
   NanoBalance.fromRawString(
       {required String currentBalance, required String receivableBalance})
       : currentBalance = BigInt.parse(currentBalance),
         receivableBalance = BigInt.parse(receivableBalance),
-        super(0, 0);
+        super(BigInt.parse(currentBalance), BigInt.parse(receivableBalance));
 
   @override
   String get formattedAvailableBalance {

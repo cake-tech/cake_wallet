@@ -5,6 +5,7 @@ enum EVMChainId {
   polygon,
   base,
   arbitrum,
+  bsc,
 }
 
 extension EVMChainIdX on EVMChainId {
@@ -22,6 +23,7 @@ extension EVMChainIdX on EVMChainId {
       EVMChainId.polygon => 137,
       EVMChainId.base => 8453,
       EVMChainId.arbitrum => 42161,
+      EVMChainId.bsc => 56,
     };
   }
 

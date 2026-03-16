@@ -11,6 +11,7 @@ bool isEVMCompatibleChain(WalletType walletType) {
     case WalletType.ethereum:
     case WalletType.base:
     case WalletType.arbitrum:
+    case WalletType.bsc:
       return true;
     default:
       return false;
@@ -18,20 +19,20 @@ bool isEVMCompatibleChain(WalletType walletType) {
 }
 
 // Blink Protection is supported on Ethereum and Base chains
-//TODO: Add BNB Smart Chain to this list when we integrate it
 bool canSupportBlinkProtection(int? chainId) {
   if (chainId == null) return false;
 
   return chainId == 1 || chainId == 8453;
 }
 
-bool isNFTACtivatedChain(WalletType walletType, int? chainId) {
+bool isNFTACtivatedChain(WalletType walletType, {int? chainId}) {
   if (chainId != null) {
     switch (chainId) {
       case 1:
       case 8453:
       case 137:
       case 42161:
+      case 56:
         return true;
       default:
         return false;
@@ -53,6 +54,7 @@ bool isWalletConnectCompatibleChain(WalletType walletType) {
     case WalletType.ethereum:
     case WalletType.base:
     case WalletType.arbitrum:
+    case WalletType.bsc:
       return true;
     default:
       return false;
@@ -73,6 +75,8 @@ String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType, {int? chai
       return EVMChainId.base.chain();
     case WalletType.arbitrum:
       return EVMChainId.arbitrum.chain();
+    case WalletType.bsc:
+      return EVMChainId.bsc.chain();
     case WalletType.solana:
       return SolanaChainId.mainnet.chain();
     default:
@@ -86,6 +90,7 @@ List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
     case WalletType.polygon:
     case WalletType.base:
     case WalletType.arbitrum:
+    case WalletType.bsc:
       return EVMSupportedMethods.values.map((e) => e.name).toList();
     case WalletType.solana:
       return SolanaSupportedMethods.values.map((e) => e.name).toList();

@@ -1,7 +1,7 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/evm_switcher.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class EvmSwitcherRow extends StatelessWidget {
   const EvmSwitcherRow({
@@ -45,23 +45,24 @@ class EvmSwitcherRow extends StatelessWidget {
               Row(
                 spacing: 8.0,
                 children: [
-                  SvgPicture.asset(
-                    data.svgPath,
+                  CakeImageWidget(
+                    imageUrl: data.svgPath,
                     width: 16,
                     height: 16,
-                    colorFilter: ColorFilter.mode(
-                        resolvedForegroundColor, BlendMode.srcIn),
                   ),
-                  Text(data.name,
-                      style: TextStyle(
-                          color: resolvedForegroundColor, fontSize: 14)),
+                  Text(
+                    data.name,
+                    style: TextStyle(color: resolvedForegroundColor, fontSize: 14),
+                  ),
                   if (selected && !editMode)
-                    SvgPicture.asset("assets/images/evm_switcher_checkmark.svg",
-                        width: 18, height: 18),
+                    CakeImageWidget(
+                      imageUrl: "assets/images/evm_switcher_checkmark.svg",
+                      width: 18,
+                      height: 18,
+                    ),
                 ],
               ),
-              if (editMode)
-                StandardSwitch(value: editSwitchValue, onTapped: onTap)
+              if (editMode) StandardSwitch(value: editSwitchValue, onTapped: onTap)
             ],
           ),
         ),

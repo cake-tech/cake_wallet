@@ -1,17 +1,17 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
-import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/connection_sync_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class DomainLookupsPage extends BasePage {
-  DomainLookupsPage(this._privacySettingsViewModel);
+  DomainLookupsPage(this._connectionsSyncViewModel);
 
   @override
   String get title => S.current.domain_looks_up;
 
-  final PrivacySettingsViewModel _privacySettingsViewModel;
+  final ConnectionSyncViewModel _connectionsSyncViewModel;
 
   @override
   Widget body(BuildContext context) {
@@ -23,36 +23,36 @@ class DomainLookupsPage extends BasePage {
             children: [
               SettingsSwitcherCell(
                   title: 'Twitter',
-                  value: _privacySettingsViewModel.lookupTwitter,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsTwitter(value)),
+                  value: _connectionsSyncViewModel.lookupTwitter,
+                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsTwitter(value)),
               SettingsSwitcherCell(
                   title: 'Mastodon',
-                  value: _privacySettingsViewModel.looksUpMastodon,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsMastodon(value)),
+                  value: _connectionsSyncViewModel.looksUpMastodon,
+                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsMastodon(value)),
               SettingsSwitcherCell(
                   title: 'Yat service',
-                  value: _privacySettingsViewModel.looksUpYatService,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsYatService(value)),
+                  value: _connectionsSyncViewModel.looksUpYatService,
+                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsYatService(value)),
               SettingsSwitcherCell(
                   title: 'Unstoppable Domains',
-                  value: _privacySettingsViewModel.looksUpUnstoppableDomains,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsUnstoppableDomains(value)),
+                  value: _connectionsSyncViewModel.looksUpUnstoppableDomains,
+                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsUnstoppableDomains(value)),
               SettingsSwitcherCell(
                   title: 'OpenAlias',
-                  value: _privacySettingsViewModel.looksUpOpenAlias,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsOpenAlias(value)),
+                  value: _connectionsSyncViewModel.looksUpOpenAlias,
+                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsOpenAlias(value)),
               SettingsSwitcherCell(
                   title: 'Ethereum Name Service',
-                  value: _privacySettingsViewModel.looksUpENS,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsENS(value)),
+                  value: _connectionsSyncViewModel.looksUpENS,
+                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsENS(value)),
               SettingsSwitcherCell(
                   title: '.well-known',
-                  value: _privacySettingsViewModel.looksUpWellKnown,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsWellKnown(value)),
+                  value: _connectionsSyncViewModel.looksUpWellKnown,
+                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsWellKnown(value)),
               SettingsSwitcherCell(
                   title: 'Zano Aliases',
-                  value: _privacySettingsViewModel.lookupsZanoAlias,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsZanoAlias(value)),
+                  value: _connectionsSyncViewModel.lookupsZanoAlias,
+                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsZanoAlias(value)),
 
               //if (!isHaven) it does not work correctly
             ],

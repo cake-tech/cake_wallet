@@ -989,7 +989,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return ElectrumBalance(
       confirmed: confirmed,
       unconfirmed: unconfirmed,
-      frozen: balance.frozen,
+      frozen: balance.frozen.toInt(),
       secondConfirmed: confirmedMweb,
       secondUnconfirmed: unconfirmedMweb,
     );

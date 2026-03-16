@@ -1,4 +1,3 @@
-import 'package:cake_wallet/core/payment_uris.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/routes.dart';
@@ -15,6 +14,7 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -108,6 +108,7 @@ class QRWidget extends StatelessWidget {
                                     ),
                                     if (addressListViewModel.isPayjoinUnavailable &&
                                         !addressListViewModel.isSilentPayments &&
+                                        !addressListViewModel.isLightning &&
                                         !addressListViewModel.isBitcoinViewOnly) ...[
                                       GestureDetector(
                                         onTap: () => _onPayjoinInactivePressed(context),
@@ -155,8 +156,7 @@ class QRWidget extends StatelessWidget {
                                         ),
                                       ),
                                     ],
-                                    if (addressListViewModel.payjoinEndpoint.isNotEmpty &&
-                                        !addressListViewModel.isSilentPayments) ...[
+                                    if (addressListViewModel.isPayjoinAvailable) ...[
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
@@ -204,7 +204,7 @@ class QRWidget extends StatelessWidget {
                               borderWidth: 0.0,
                               selectedCurrency: _currencyName,
                               selectedCurrencyDecimals:
-                                  addressListViewModel.selectedCurrency.decimals,
+                                  addressListViewModel.selectedCurrencyDecimals,
                               amountFocusNode: amountTextFieldFocusNode,
                               amountController: amountController,
                               padding: EdgeInsets.only(top: 20, left: _width / 4),
@@ -255,8 +255,7 @@ class QRWidget extends StatelessWidget {
             ),
             Observer(
               builder: (_) => Offstage(
-                offstage: addressListViewModel.payjoinEndpoint.isEmpty ||
-                    addressListViewModel.isSilentPayments,
+                offstage: !addressListViewModel.isPayjoinAvailable,
                 child: Padding(
                   padding: EdgeInsets.only(top: 12),
                   child: PrimaryImageButton(
@@ -283,6 +282,7 @@ class QRWidget extends StatelessWidget {
 
   String get _currencyName {
     if (addressListViewModel.selectedCurrency is CryptoCurrency) {
+      if (addressListViewModel.useSatoshi) return "SATS";
       return (addressListViewModel.selectedCurrency as CryptoCurrency).title.toUpperCase();
     }
     return addressListViewModel.selectedCurrency.name.toUpperCase();

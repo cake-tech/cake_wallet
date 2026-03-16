@@ -7,3 +7,9 @@ extension EnhancedList<T> on Iterable<T> {
     }
   }
 }
+
+
+String middleTruncate(String s, int head, int tail) {
+  if (s.length <= head + tail + 3) return s;
+  return s.substring(0, head) + '...' + s.substring(s.length - tail);
+}

@@ -32,6 +32,7 @@ class SeedVerificationPage extends BasePage {
                   walletSeedViewModel.verificationIndices.isEmpty
               ? SeedVerificationSuccessView(
                   key: ValueKey('seed_verification_success_view_page'),
+                  walletType: walletSeedViewModel.walletType,
                   currentTheme: currentTheme,
                 )
               : SeedVerificationStepView(

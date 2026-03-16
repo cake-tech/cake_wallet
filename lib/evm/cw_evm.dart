@@ -239,6 +239,13 @@ class CWEVM extends EVM {
       (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
 
   @override
+  Future<BigInt?> getAllowance(
+      WalletBase wallet,
+      String tokenContract,
+      String spender) =>
+      (wallet as EVMChainWallet).getAllowance(tokenContract, spender);
+
+  @override
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
     BigInt amount,
@@ -265,14 +272,18 @@ class CWEVM extends EVM {
     String to,
     String dataHex,
     BigInt valueWei,
-    TransactionPriority? priority, {
+    TransactionPriority? priority,{
     bool useBlinkProtection = true,
+    String? sourceTokenAddress,
+    BigInt? sourceTokenAmount,
   }) =>
       (wallet as EVMChainWallet).createCallDataTransaction(
         to,
         dataHex,
         valueWei,
         priority as EVMChainTransactionPriority?,
+        sourceTokenAddress,
+        sourceTokenAmount,
         useBlinkProtection: useBlinkProtection,
       );
 
@@ -308,10 +319,21 @@ class CWEVM extends EVM {
       EVMChainTrezorService(connect);
 
   @override
+  List<Erc20Token> getDefaultTokensByChainId(int chainId) =>
+      EVMChainDefaultTokens.getDefaultTokensByChainId(chainId);
+
+  @override
   List<String> getDefaultTokenContractAddresses(WalletBase wallet) {
     final chainId = getSelectedChainId(wallet);
     if (chainId == null) return [];
     return EVMChainDefaultTokens.getDefaultTokenAddresses(chainId);
+  }
+
+  @override
+  List<String> getDefaultTokenSymbols(WalletBase wallet) {
+    final chainId = getSelectedChainId(wallet);
+    if (chainId == null) return [];
+    return EVMChainDefaultTokens.getDefaultTokenSymbols(chainId);
   }
 
   @override
@@ -458,6 +480,14 @@ class CWEVM extends EVM {
   }
 
   @override
+  BigInt? getERC20AvailableBalance(Object balance) {
+    if(balance is EVMChainERC20Balance) {
+      return balance.balance;
+    }
+    return null;
+  }
+
+  @override
   List<ChainInfo> getAllChains() {
     final allChains = _registry.getAllChains();
     return allChains
@@ -513,4 +543,66 @@ class CWEVM extends EVM {
 
   @override
   bool hasPriorityFee(int chainId) => EVMChainUtils.hasPriorityFee(chainId);
+
+  Future<({double usdValue, bool hasValidFiatPrice})> _getTokenUsdValueAndFiatCheck(
+    Erc20Token token,
+    BigInt balanceWei,
+  ) async {
+    try {
+      final settingsStore = getIt.get<SettingsStore>();
+      final torOnly = settingsStore.fiatApiMode == FiatApiMode.torOnly;
+
+      final price = await FiatConversionService.fetchPrice(
+        crypto: token,
+        fiat: FiatCurrency.usd,
+        torOnly: torOnly,
+      );
+
+      final hasValidFiatPrice = price > 0;
+
+      final decimals = token.decimal;
+      final balance = balanceWei.toDouble() / math.pow(10, decimals);
+      final usdValue = balance * price;
+
+      return (usdValue: usdValue, hasValidFiatPrice: hasValidFiatPrice);
+    } catch (e) {
+      return (usdValue: 0.0, hasValidFiatPrice: false);
+    }
+  }
+
+  static const _minTokenUsdValue = 0.1;
+  @override
+  Future<void> discoverAndAddWalletTokens(WalletBase wallet) async {
+    if (wallet is! EVMChainWallet) return;
+
+    try {
+      final result = await wallet.discoverTokensFromMoralis();
+
+      if (result.newTokens.isEmpty) return;
+
+      final List<Future<void>> tokenChecks = [];
+
+      for (final item in result.newTokens) {
+        tokenChecks.add((() async {
+          final token = item.token;
+
+          final isPropertiesSuspicious = wallet.isTokenPropertiesSuspicious(token);
+
+          final fiatResult = await _getTokenUsdValueAndFiatCheck(
+            token,
+            item.balanceWei,
+          );
+          final isSpam = isPropertiesSuspicious || !fiatResult.hasValidFiatPrice;
+
+          token.isPotentialScam = isSpam;
+
+          token.enabled = (fiatResult.usdValue >= _minTokenUsdValue) && !isSpam;
+
+          await wallet.addErc20Token(token);
+        })());
+      }
+
+      await Future.wait(tokenChecks);
+    } catch (_) {}
+  }
 }

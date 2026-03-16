@@ -1,4 +1,5 @@
 import 'package:cw_core/transaction_priority.dart';
+import 'package:flutter/foundation.dart';
 
 class DecredTransactionPriority extends TransactionPriority {
   const DecredTransactionPriority({required String title, required int raw})
@@ -19,7 +20,10 @@ class DecredTransactionPriority extends TransactionPriority {
       case 2:
         return fast;
       default:
-        throw Exception('Unexpected token: $raw for DecredTransactionPriority deserialize');
+        if (kDebugMode) {
+          throw Exception('Unexpected token: $raw for DecredTransactionPriority deserialize');
+        }
+        return medium;
     }
   }
 

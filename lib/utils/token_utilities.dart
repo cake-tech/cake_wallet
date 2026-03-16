@@ -1,5 +1,7 @@
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -75,6 +77,73 @@ class TokenUtilities {
     return unique;
   }
 
+  static List<Erc20Token> loadDefaultEvmTokensForSwap() {
+    if (evm == null) return [];
+
+    final tokens = <Erc20Token>[];
+    final seen = <String>{};
+
+    for (final chain in evm!.getAllChains()) {
+      for (final token in evm!.getDefaultTokensByChainId(chain.chainId)) {
+        final key = '${chain.chainId}|${token.contractAddress.toLowerCase()}';
+        if (seen.add(key)) tokens.add(token);
+      }
+    }
+
+    return tokens;
+  }
+
+  static List<SPLToken> loadDefaultSolTokensForSwap() =>
+      solana != null ? solana!.getDefaultSPLTokens() : [];
+
+  static List<TronToken> loadDefaultTronTokensForSwap() =>
+      tron != null ? tron!.getDefaultTronTokens() : [];
+
+  static Future<List<Erc20Token>> loadEvmTokensForSwap() async {
+    final defaultTokens = loadDefaultEvmTokensForSwap();
+    final userTokens = await loadAllUniqueEvmTokens();
+
+    final seen = <String>{};
+    final result = <Erc20Token>[];
+
+    for (final t in [...defaultTokens, ...userTokens]) {
+      final key = '${t.tag ?? 'ETH'}|${t.contractAddress.toLowerCase()}';
+      if (seen.add(key)) result.add(t);
+    }
+
+    return result;
+  }
+
+  static Future<List<SPLToken>> loadSolTokensForSwap() async {
+    final defaultTokens = loadDefaultSolTokensForSwap();
+    final userTokens = await loadAllUniqueSolTokens();
+
+    final seen = <String>{};
+    final result = <SPLToken>[];
+
+    for (final t in [...defaultTokens, ...userTokens]) {
+      final key = t.mintAddress.toLowerCase();
+      if (seen.add(key)) result.add(t);
+    }
+
+    return result;
+  }
+
+  static Future<List<TronToken>> loadTronTokensForSwap() async {
+    final defaultTokens = loadDefaultTronTokensForSwap();
+    final userTokens = await loadAllUniqueTronTokens();
+
+    final seen = <String>{};
+    final result = <TronToken>[];
+
+    for (final t in [...defaultTokens, ...userTokens]) {
+      final key = t.contractAddress.toLowerCase();
+      if (seen.add(key)) result.add(t);
+    }
+
+    return result;
+  }
+
   /// Finds a token by address across wallets depending on [walletType]
   /// - EVM chains: match by contractAddress
   /// - Solana: match by mintAddress
@@ -89,6 +158,7 @@ class TokenUtilities {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         final tokens = await loadAllUniqueEvmTokens();
         for (final t in tokens) {
           if (t.contractAddress.toLowerCase() == lower) return t;
@@ -127,6 +197,7 @@ class TokenUtilities {
       WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
       WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
       WalletType.arbitrum => '${walletKey}_${Erc20Token.arbitrumBoxName}',
+      WalletType.bsc => '${walletKey}_${Erc20Token.bscBoxName}',
       _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
     };
   }
@@ -160,6 +231,15 @@ class TokenUtilities {
     return null;
   }
 
+  static Erc20Token? findErc20TokenForSwap(CryptoCurrency currency) {
+    if (currency is Erc20Token) return currency;
+
+    for (final token in loadDefaultEvmTokensForSwap()) {
+      if (_matchesCurrency(token, currency)) return token;
+    }
+    return null;
+  }
+
   static bool isNativeToken(CryptoCurrency currency) {
     final title = currency.title.toLowerCase();
     final tag = currency.tag?.toLowerCase();
@@ -185,7 +265,8 @@ class TokenUtilities {
 
     // Only check EVM registry for currencies that might be EVM-related
     final isPotentialEVM = isNativeToken(currency) ||
-        (tag != null && (tag == 'ETH' || tag == 'POL' || tag == 'BASE' || tag == 'ARB'));
+        (tag != null &&
+            (tag == 'ETH' || tag == 'POL' || tag == 'BASE' || tag == 'ARB' || tag == 'BSC'));
 
     if (isPotentialEVM) {
       // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')
@@ -200,11 +281,6 @@ class TokenUtilities {
     }
 
     // Fallback to hardcoded values for chains not in registry yet
-    // BSC (Binance Smart Chain)
-    if (title == 'bsc' || title == 'bnb' || tag == 'BSC') {
-      return 56;
-    }
-
     // Avalanche C-Chain
     if (title == 'avalanche' || title == 'avax' || tag == 'AVALANCHE') {
       return 43114;
@@ -321,7 +397,7 @@ class TokenUtilities {
   }
 
   static Future<List<CryptoCurrency>> _getUserTokensForNetwork(CryptoCurrency baseCurrency) async {
-    final walletType = cryptoCurrencyToWalletType(baseCurrency);
+    final walletType = cryptoCurrencyOrTokenToWalletType(baseCurrency);
     if (walletType == null) return [];
 
     if (isEVMCompatibleChain(walletType)) {

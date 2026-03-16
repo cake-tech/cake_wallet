@@ -1,11 +1,14 @@
+import 'dart:io';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
-import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -54,6 +57,33 @@ abstract class OtherSettingsViewModelBase with Store {
 
     return priority;
   }
+
+  @computed
+  bool get isAutoGenerateSubaddressesEnabled =>
+      _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
+
+  @action
+  void setAutoGenerateSubaddresses(bool value) {
+    _wallet.isEnabledAutoGenerateSubaddress = value;
+    _settingsStore.autoGenerateSubaddressStatus =
+    value ? AutoGenerateSubaddressStatus.enabled : AutoGenerateSubaddressStatus.disabled;
+  }
+
+  bool get isAutoGenerateSubaddressesVisible => [
+    WalletType.monero,
+    WalletType.wownero,
+    WalletType.bitcoin,
+    WalletType.litecoin,
+    WalletType.bitcoinCash,
+    WalletType.dogecoin,
+    WalletType.decred
+  ].contains(_wallet.type);
+
+  @computed
+  bool get isMoneroWallet => _wallet.type == WalletType.monero;
+
+  @computed
+  bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
   @computed
   bool get changeRepresentativeEnabled =>
@@ -125,6 +155,10 @@ abstract class OtherSettingsViewModelBase with Store {
   @computed
   double get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate.toDouble();
 
+  @action
+  void setShouldSaveRecipientAddress(bool value) =>
+      _settingsStore.shouldSaveRecipientAddress = value;
+
   int? get customPriorityItemIndex {
     final priorities = priorityForWalletType(walletType);
     final customItem = priorities
@@ -136,6 +170,22 @@ abstract class OtherSettingsViewModelBase with Store {
     if (_wallet.type == WalletType.bitcoin) {
       return bitcoin!.getMaxCustomFeeRate(_wallet);
     }
+    return null;
+  }
+
+  Future<File?> getLightningLog() async {
+    final path = await pathForWalletDir(name: _wallet.name, type: walletType);
+    final logFile = File("$path/lightning.log");
+
+    if (await logFile.exists()) return logFile;
+    return null;
+  }
+
+  Future<File?> getPayjoinLog() async {
+    final path = await pathForWalletDir(name: _wallet.name, type: walletType);
+    final logFile = File("$path/payjoin.log");
+
+    if (await logFile.exists()) return logFile;
     return null;
   }
 }
