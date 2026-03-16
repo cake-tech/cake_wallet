@@ -1,16 +1,17 @@
 import 'package:cw_core/transaction_priority.dart';
+import 'package:flutter/foundation.dart';
 
 class BitcoinTransactionPriority extends TransactionPriority {
-  const BitcoinTransactionPriority({required String title, required int raw})
-      : super(title: title, raw: raw);
+  const BitcoinTransactionPriority({required String title, required int raw, String? description, String? hint})
+      : super(title: title, raw: raw, description: description, hint: hint);
 
   static const List<BitcoinTransactionPriority> all = [fast, medium, slow, custom];
   static const BitcoinTransactionPriority slow =
-      BitcoinTransactionPriority(title: 'Slow', raw: 0);
+      BitcoinTransactionPriority(title: 'Slow', description: "2 sat/byte", hint: "~ 24 h", raw: 0);
   static const BitcoinTransactionPriority medium =
-      BitcoinTransactionPriority(title: 'Medium', raw: 1);
+      BitcoinTransactionPriority(title: 'Medium', description: "3 sat/byte", hint: "~ 1 h", raw: 1);
   static const BitcoinTransactionPriority fast =
-      BitcoinTransactionPriority(title: 'Fast', raw: 2);
+      BitcoinTransactionPriority(title: 'Fast', description: "4 sat/byte", hint: "~ 30 min", raw: 2);
   static const BitcoinTransactionPriority custom =
   BitcoinTransactionPriority(title: 'Custom', raw: 3);
 
@@ -25,7 +26,10 @@ class BitcoinTransactionPriority extends TransactionPriority {
       case 3:
         return custom;
       default:
-        throw Exception('Unexpected token: $raw for BitcoinTransactionPriority deserialize');
+        if (kDebugMode) {
+          throw Exception('Unexpected token: $raw for BitcoinTransactionPriority deserialize');
+        }
+        return medium;
     }
   }
 
@@ -82,7 +86,10 @@ class LitecoinTransactionPriority extends BitcoinTransactionPriority {
       case 2:
         return fast;
       default:
-        throw Exception('Unexpected token: $raw for LitecoinTransactionPriority deserialize');
+        if (kDebugMode) {
+          throw Exception('Unexpected token: $raw for LitecoinTransactionPriority deserialize');
+        }
+        return medium;
     }
   }
 
@@ -132,7 +139,10 @@ class BitcoinCashTransactionPriority extends BitcoinTransactionPriority {
       case 2:
         return fast;
       default:
-        throw Exception('Unexpected token: $raw for BitcoinCashTransactionPriority deserialize');
+        if (kDebugMode) {
+          throw Exception('Unexpected token: $raw for BitcoinCashTransactionPriority deserialize');
+        }
+        return medium;
     }
   }
 

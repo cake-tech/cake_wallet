@@ -57,6 +57,7 @@ class SecretKey {
     SecretKey('polygonTestWalletSeeds', () => ''),
     SecretKey('baseTestWalletSeeds', () => ''),
     SecretKey('arbitrumTestWalletSeeds', () => ''),
+    SecretKey('bscTestWalletSeeds', () => ''),
     SecretKey('solanaTestWalletSeeds', () => ''),
     SecretKey('tronTestWalletSeeds', () => ''),
     SecretKey('nanoTestWalletSeeds', () => ''),
@@ -69,6 +70,7 @@ class SecretKey {
     SecretKey('polygonTestWalletReceiveAddress', () => ''),
     SecretKey('baseTestWalletReceiveAddress', () => ''),
     SecretKey('arbitrumTestWalletReceiveAddress', () => ''),
+    SecretKey('bscTestWalletReceiveAddress', () => ''),
     SecretKey('solanaTestWalletReceiveAddress', () => ''),
     SecretKey('tronTestWalletReceiveAddress', () => ''),
     SecretKey('nanoTestWalletReceiveAddress', () => ''),
@@ -116,6 +118,10 @@ class SecretKey {
   static final tronSecrets = [
     SecretKey('tronGridApiKey', () => ''),
     SecretKey('tronNowNodesApiKey', () => ''),
+  ];
+
+  static final bitcoinSecrets = [
+    SecretKey('breezApiKey', () => ''),
   ];
 
   final String name;

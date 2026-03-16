@@ -358,7 +358,13 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final payoutAddress = responseJSON['toAddress'] as String;
       final depositAddress = responseJSON['payInAddress'] as String;
       final refundAddress = responseJSON['fromAddress'] as String;
-      final depositAmount = _toDouble(amount['value']);
+      final depositAmountStr = amount['value'].toString();
+      final parsedAmount = double.tryParse(depositAmountStr);
+
+      if (parsedAmount == null || parsedAmount <= 0) {
+        throw Exception('Invalid deposit amount received from API');
+      }
+
       final receiveAmount = toAmount['value'] as String;
       final status = responseJSON['status'] as String;
       final createdAtString = responseJSON['createdAt'] as String;
@@ -386,7 +392,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
           'depositAddress': depositAddress,
           'payoutAddress': payoutAddress,
           'refundAddress': refundAddress,
-          'depositAmount': depositAmount,
+          'depositAmount': depositAmountStr,
           'receiveAmount': receiveAmount,
           'status': status,
           'createdAt': createdAtString,
@@ -405,7 +411,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         refundAddress: refundAddress,
         state: TradeState.deserialize(raw: status),
         createdAt: createdAt,
-        amount: depositAmount.toString(),
+        amount: depositAmountStr,
         receiveAmount: receiveAmount.toString(),
         payoutAddress: payoutAddress,
         extraId: extraId,
@@ -499,7 +505,13 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;
       final orderId = responseJSON['id'] as String;
-      final depositAmount = amount['value'] as String;
+      final depositAmountStr = amount['value'].toString();
+      final parsedAmount = double.tryParse(depositAmountStr);
+
+      if (parsedAmount == null || parsedAmount <= 0) {
+        throw Exception('Invalid deposit amount received from API');
+      }
+
       final receiveAmount = toAmount['value'] as String;
       final depositAddress = responseJSON['payInAddress'] as String;
       final payoutAddress = responseJSON['toAddress'] as String;
@@ -526,7 +538,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         refundAddress: refundAddress,
         state: TradeState.deserialize(raw: status),
         createdAt: createdAt,
-        amount: depositAmount,
+        amount: depositAmountStr,
         receiveAmount: receiveAmount,
         payoutAddress: payoutAddress,
         extraId: extraId,
@@ -553,15 +565,5 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       }
     }
     return null;
-  }
-
-  double _toDouble(dynamic value) {
-    if (value is int) {
-      return value.toDouble();
-    } else if (value is double) {
-      return value;
-    } else {
-      return 0.0;
-    }
   }
 }

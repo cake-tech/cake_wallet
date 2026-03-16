@@ -22,6 +22,7 @@ class KeyServiceImpl implements WalletConnectKeyService {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         return evm!.getPrivateKey(wallet);
       case WalletType.solana:
         return solana!.getPrivateKey(wallet);
@@ -36,6 +37,7 @@ class KeyServiceImpl implements WalletConnectKeyService {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         return evm!.getPublicKey(wallet);
       case WalletType.solana:
         return solana!.getPublicKey(wallet);
@@ -51,6 +53,7 @@ class KeyServiceImpl implements WalletConnectKeyService {
         chains: [
           'eip155:1',
           'eip155:5',
+          'eip155:56',
           'eip155:137',
           'eip155:8453',
           'eip155:42161',

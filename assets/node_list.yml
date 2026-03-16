@@ -13,6 +13,22 @@
   is_default: false
   isEnabledForAutoSwitching: true
 -
-  uri: nodes.hashvault.pro:18081
+  uri: node.monerodevs.org:18089
+  useSSL: true
   is_default: false
-  isEnabledForAutoSwitching: true
+-
+  uri: node2.monerodevs.org:18089
+  useSSL: true
+  is_default: false
+-
+  uri: node3.monerodevs.org:18089
+  useSSL: true
+  is_default: false
+-
+  uri: selsta1.featherwallet.net:18081
+  useSSL: true
+  is_default: false
+-
+  uri: xmr.stormycloud.org:18089
+  useSSL: true
+  is_default: false

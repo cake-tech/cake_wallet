@@ -1,0 +1,15 @@
+ARG BASE_IMAGE
+FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
+
+RUN mkdir -p /w/scripts/android
+COPY scripts/prepare_moneroc.sh /w/scripts/prepare_moneroc.sh
+COPY scripts/android/build_monero_all.sh /w/scripts/android/build_monero_all.sh
+RUN /w/scripts/android/build_monero_all.sh \
+    && rm -rf /w/scripts/monero_c/contrib \
+    /w/scripts/monero_c/.git \
+    /w/scripts/monero_c/monero_libwallet2_api_c/build \
+    /w/scripts/monero_c/wownero_libwallet2_api_c/build \
+    /w/scripts/monero_c/zano_libwallet2_api_c/build
+
+FROM --platform=linux/amd64 alpine
+COPY --from=build /w /w

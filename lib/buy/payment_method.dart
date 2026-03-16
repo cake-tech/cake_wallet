@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:cake_wallet/core/selectable_option.dart';
 
 enum PaymentType {

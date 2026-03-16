@@ -163,7 +163,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                   clipBehavior: Clip.none,
                   children: [
                     CakeImageWidget(
-                      imageUrl: detectedCurrency.iconPath!,
+                      imageUrl: detectedCurrency.iconPath ?? '',
                       width: 32,
                       height: 32,
                     ),
@@ -172,10 +172,10 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                         bottom: -4,
                         right: -4,
                         child: CakeImageWidget(
-                          imageUrl: getCryptoCurrencyForWalletListItem(
+                          imageUrl: getCryptoCurrencyIconForWalletListItem(
                             widget.paymentFlowResult.walletType!,
                             chainId: widget.paymentFlowResult.chainId,
-                          ).iconPath!,
+                          ),
                           width: 16,
                           height: 16,
                         ),
@@ -212,6 +212,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                 return AmountValidator(
                   isAutovalidate: true,
                   currency: widget.exchangeViewModel.receiveCurrency,
+                  amountParsingProxy: widget.exchangeViewModel.amountParsingProxy,
                   minValue: widget.exchangeViewModel.limits.min.toString(),
                   maxValue: widget.exchangeViewModel.limits.max.toString(),
                 ).call(value);
@@ -286,7 +287,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
             SwapConfirmationTextfield(
               key: ValueKey('swap_confirmation_bottomsheet_address_textfield_key'),
               isAddress: true,
-              walletType: cryptoCurrencyToWalletType(widget.exchangeViewModel.receiveCurrency),
+              walletType: cryptoCurrencyOrTokenToWalletType(widget.exchangeViewModel.receiveCurrency),
               hintText: 'Destination Address',
               focusNode: _addressFocus,
               controller: _addressController,
@@ -439,7 +440,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
     exchangeViewModel.receiveAddress = _addressController.text;
     exchangeViewModel.depositAddress = exchangeViewModel.wallet.walletAddresses.addressForExchange;
-    exchangeViewModel.receiveAmount = _amountController.text;
+    exchangeViewModel.setCanonicalReceiveAmount(_amountController.text);
     _amountFiatController.text = exchangeViewModel.receiveAmountFiatFormatted;
     exchangeViewModel.isReceiveAmountEntered = true;
     exchangeViewModel.isFixedRateMode = true;

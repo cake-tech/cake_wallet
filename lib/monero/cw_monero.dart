@@ -48,6 +48,10 @@ class CWMoneroAccountList extends MoneroAccountList {
     final moneroWallet = wallet as MoneroWallet;
     moneroWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
+    if (accountIndex == moneroWallet.walletAddresses.account?.id) {
+      moneroWallet.walletAddresses.account = monero_account.Account(
+          id: accountIndex, label: label, balance: moneroWallet.walletAddresses.account!.balance);
+    }
   }
 }
 
@@ -383,7 +387,7 @@ class CWMonero extends Monero {
   Future<int> getCurrentHeight() async {
     return monero_wallet_api.getCurrentHeight();
   }
-  
+
   @override
   bool importKeyImagesUR(Object wallet, String ur) {
     final moneroWallet = wallet as MoneroWallet;

@@ -54,6 +54,7 @@ ICON_TINTED_83_5_2x_PATH=""
 ICON_TINTED_1024_1x_PATH=""
 
 DEST_DIR_PATH=`pwd`/../../ios/Runner/Assets.xcassets/AppIcon.appiconset
+mkdir -p $DEST_DIR_PATH
 
 case $APP_IOS_TYPE in
 	"monero.com")
@@ -187,10 +188,6 @@ ln -s $ICON_76_2x_PATH $DEST_DIR_PATH/Icon-App-76x76@2x.png
 ln -s $ICON_83_5_2x_PATH $DEST_DIR_PATH/Icon-App-83.5x83.5@2x.png
 ln -s $ICON_1024_1x_PATH $DEST_DIR_PATH/Icon-App-1024x1024@1x.png
 
-
-#TODO once the new monero.com icons are out remove if statement
-if [ $APP_IOS_TYPE = "cakewallet" ]; then
-
 ln -s $ICON_DARK_20_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-20x20@2x.png
 ln -s $ICON_DARK_20_3x_PATH $DEST_DIR_PATH/Icon-App-Dark-20x20@3x.png
 ln -s $ICON_DARK_29_2x_PATH $DEST_DIR_PATH/Icon-App-Dark-29x29@2x.png
@@ -225,5 +222,4 @@ ln -s $ICON_TINTED_76_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-76x76@2x.png
 ln -s $ICON_TINTED_83_5_2x_PATH $DEST_DIR_PATH/Icon-App-Tinted-83.5x83.5@2x.png
 ln -s $ICON_TINTED_1024_1x_PATH $DEST_DIR_PATH/Icon-App-Tinted-1024x1024@1x.png
 
-fi
 

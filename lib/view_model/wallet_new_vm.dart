@@ -82,6 +82,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         return evm!.createEVMNewWalletCredentials(
           name: name,
           password: walletPassword,
