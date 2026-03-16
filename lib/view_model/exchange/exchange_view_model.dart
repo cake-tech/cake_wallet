@@ -985,7 +985,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     if (lowestMin != double.maxFinite) {
       limits = Limits(min: lowestMin, max: highestMax);
-
       limitsState = LimitsLoadedSuccessfully(limits: limits);
     } else {
       limitsState = LimitsLoadedFailure(error: 'Limits loading failed');
