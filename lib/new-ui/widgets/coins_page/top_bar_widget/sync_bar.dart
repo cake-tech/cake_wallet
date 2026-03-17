@@ -1,12 +1,14 @@
 import 'package:cake_wallet/core/sync_status_title.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/pulsing_dot.dart';
-import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SyncBar extends StatelessWidget {
   SyncBar({super.key, required this.dashboardViewModel, required this.isSyncHeavy});
@@ -62,7 +64,13 @@ class SyncBar extends StatelessWidget {
               if (_showFullBar())
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync);
+                    CupertinoScaffold.showCupertinoModalBottomSheet(
+                        context: context,
+                        barrierColor: Colors.black.withAlpha(85),
+                        builder: (context) => FractionallySizedBox(
+                            child: Material(
+                              child: getIt.get<ManageNodesPage>(param1: false),
+                            )));
                   },
                   child: AnimatedSwitcher(
                     duration: Duration(milliseconds: 100),
@@ -139,14 +147,14 @@ class SyncBar extends StatelessWidget {
 
   Widget? _getIcon(BuildContext context, Type status) {
     if (status == LostConnectionSyncStatus || status == FailedSyncStatus) {
-      return SvgPicture.asset(
+      return CakeImageWidget(imageUrl:
         "assets/new-ui/offline.svg",
         colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
       );
     }
 
     if (failStatuses.contains(status)) {
-      return SvgPicture.asset(
+      return CakeImageWidget(imageUrl:
         "assets/new-ui/warning.svg",
         colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
       );
@@ -155,18 +163,18 @@ class SyncBar extends StatelessWidget {
     final List<Widget> children = [];
 
     if (dashboardViewModel.isTorEnabled) {
-      children.add(SvgPicture.asset("assets/new-ui/tor_sync.svg",
+      children.add(CakeImageWidget(imageUrl:"assets/new-ui/tor_sync.svg",
           colorFilter: ColorFilter.mode(Color(0xFF8A38F5), BlendMode.srcIn)));
     }
     if (dashboardViewModel.hasMweb) {
-      children.add(SvgPicture.asset(
+      children.add(CakeImageWidget(imageUrl:
         "assets/new-ui/mweb_sync.svg",
         colorFilter:
-            ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+        ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
       ));
     }
     if (dashboardViewModel.hasSilentPayments) {
-      children.add(SvgPicture.asset(
+      children.add(CakeImageWidget(imageUrl:
         "assets/new-ui/silent_sync.svg",
         colorFilter: ColorFilter.mode(Color(0xFFEFBA5E), BlendMode.srcIn),
       ));

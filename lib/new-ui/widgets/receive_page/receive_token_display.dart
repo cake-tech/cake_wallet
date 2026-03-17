@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class ReceiveTokenDisplay extends StatelessWidget {
               child: Row(
                 spacing:4,
                 children: [
-                  SvgPicture.asset(
+                  CakeImageWidget(imageUrl:
                     "assets/new-ui/chain_badges/${walletTypeToString(addressListViewModel.wallet.type).toLowerCase()}.svg",
                     width: 16,
                     height: 16,

@@ -7,6 +7,7 @@ import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -38,7 +39,7 @@ class CoinActionRow extends StatelessWidget {
         spacing: MediaQuery.of(context).size.width * 0.05,
         children: [
           CoinActionButton(
-            icon: SvgPicture.asset(
+            icon: CakeImageWidget(imageUrl:
               "assets/new-ui/send.svg",
               colorFilter: ColorFilter.mode(
                 Theme.of(context).colorScheme.primary,
@@ -57,6 +58,7 @@ class CoinActionRow extends StatelessWidget {
 
                 CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
+                  isDismissible: true,
                   barrierColor: Colors.black.withAlpha(60),
                   builder: (context) {
                     return Material(
@@ -75,7 +77,7 @@ class CoinActionRow extends StatelessWidget {
             },
           ),
           CoinActionButton(
-            icon: SvgPicture.asset(
+            icon: CakeImageWidget(imageUrl:
               "assets/new-ui/receive.svg",
               colorFilter: ColorFilter.mode(
                 Theme.of(context).colorScheme.primary,
@@ -108,7 +110,7 @@ class CoinActionRow extends StatelessWidget {
           ),
           if (showSwap)
             CoinActionButton(
-              icon: SvgPicture.asset(
+              icon: CakeImageWidget(imageUrl:
                 "assets/new-ui/exchange.svg",
                 colorFilter: ColorFilter.mode(
                   Theme.of(context).colorScheme.primary,
@@ -134,7 +136,7 @@ class CoinActionRow extends StatelessWidget {
               },
             ),
           CoinActionButton(
-            icon: SvgPicture.asset(
+            icon: CakeImageWidget(imageUrl:
               "assets/new-ui/scan.svg",
               colorFilter: ColorFilter.mode(
                 Theme.of(context).colorScheme.primary,

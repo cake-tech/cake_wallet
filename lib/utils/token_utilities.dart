@@ -231,6 +231,15 @@ class TokenUtilities {
     return null;
   }
 
+  static Erc20Token? findErc20TokenForSwap(CryptoCurrency currency) {
+    if (currency is Erc20Token) return currency;
+
+    for (final token in loadDefaultEvmTokensForSwap()) {
+      if (_matchesCurrency(token, currency)) return token;
+    }
+    return null;
+  }
+
   static bool isNativeToken(CryptoCurrency currency) {
     final title = currency.title.toLowerCase();
     final tag = currency.tag?.toLowerCase();

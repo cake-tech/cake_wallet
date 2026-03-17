@@ -13,7 +13,7 @@ class CoinActionButton extends StatelessWidget {
     required this.action,
   });
 
-  final SvgPicture icon;
+  final Widget icon;
   final String label;
   final VoidCallback action;
 
