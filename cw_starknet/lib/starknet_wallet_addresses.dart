@@ -6,7 +6,8 @@ import 'package:mobx/mobx.dart';
 
 part 'starknet_wallet_addresses.g.dart';
 
-class StarknetWalletAddresses = StarknetWalletAddressesBase with _$StarknetWalletAddresses;
+class StarknetWalletAddresses = StarknetWalletAddressesBase
+    with _$StarknetWalletAddresses;
 
 abstract class StarknetWalletAddressesBase extends WalletAddresses with Store {
   StarknetWalletAddressesBase(WalletInfo walletInfo)
@@ -37,5 +38,6 @@ abstract class StarknetWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
-  PaymentURI getPaymentUri(String amount) => StarknetURI(amount: amount, address: address);
+  PaymentURI getPaymentUri(String amount) =>
+      StarknetURI(amount: amount, address: address);
 }

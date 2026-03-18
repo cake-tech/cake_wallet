@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart' as crypto_lib;
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
@@ -10,22 +11,21 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
-import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_starknet/src/rust/api/starknet.dart' as rust_api;
 import 'package:cw_starknet/starknet_balance.dart';
 import 'package:cw_starknet/starknet_client.dart';
+import 'package:cw_starknet/starknet_rust.dart';
 import 'package:cw_starknet/starknet_transaction_credentials.dart';
 import 'package:cw_starknet/starknet_transaction_history.dart';
 import 'package:cw_starknet/starknet_transaction_info.dart';
 import 'package:cw_starknet/starknet_wallet_addresses.dart';
 import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
-import 'package:bip39/bip39.dart' as bip39;
-import 'package:starknet/starknet.dart' hide SyncStatus;
-import 'package:crypto/crypto.dart' as crypto_lib;
 
 part 'starknet_wallet.g.dart';
 
@@ -60,12 +60,18 @@ abstract class StarknetWalletBase
     );
   }
 
+  static const String openZeppelinAccountClassHashHex =
+      '0x01d1777db36cdd06dd62cfde77b1b6ae06412af95d57a13dc40ac77b8a702381';
+
   final String _password;
   final String? _mnemonic;
   final String? _hexPrivateKey;
   final EncryptionFileUtils encryptionFileUtils;
 
   late final StarknetWalletClient _client;
+  late String _runtimePrivateKeyHex;
+  late String _starknetPublicKeyHex;
+  late String _accountAddressHex;
 
   StarknetWalletClient get client => _client;
 
@@ -73,7 +79,6 @@ abstract class StarknetWalletBase
   bool _isTransactionUpdating = false;
   int? _lastSyncedBlock;
 
-  /// Pre-estimated fee for a standard STRK transfer, updated periodically.
   double? estimatedFee;
 
   @override
@@ -89,14 +94,11 @@ abstract class StarknetWalletBase
       ObservableMap<CryptoCurrency, StarknetBalance>();
 
   @override
-  Object get keys => throw UnimplementedError("keys");
+  Object get keys => throw UnimplementedError('keys');
 
-  late StarkPrivateKeySigner _signer;
-  late Felt _starknetPublicKey;
-  late Felt _accountAddress;
+  String get accountAddress => _accountAddressHex;
 
-  Felt get accountAddress => _accountAddress;
-  StarkPrivateKeySigner get signer => _signer;
+  String get publicKey => _starknetPublicKeyHex;
 
   @override
   String? get seed => _mnemonic;
@@ -111,64 +113,24 @@ abstract class StarknetWalletBase
         passphrase: passphrase,
       );
 
-  /// Derives a Stark private key from a BIP39 mnemonic.
-  /// Uses the standard EIP-2645 derivation path for Starknet:
-  /// m/2645'/1195502025'/1148870696'/0'/0'/0
-  static Felt _deriveStarkPrivateKey(String mnemonic, {String? passphrase}) {
-    final seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
-
-    // Use HMAC-SHA256 to derive a key from the seed for Stark curve
-    // EIP-2645 path: m/2645'/1195502025'/1148870696'/0'/0'/0
-    final hmac = crypto_lib.Hmac(crypto_lib.sha256, seed);
-    final derivationData = utf8.encode('Starknet key derivation');
-    var derived = hmac.convert(derivationData).bytes;
-
-    // Grind to find a valid Stark key (must be < curve order N)
-    for (int i = 0; i < 10000; i++) {
-      final candidate = BigInt.parse(HEX.encode(derived), radix: 16) % starkN;
-      if (candidate > BigInt.zero) {
-        return Felt(candidate);
-      }
-      final nextHmac = crypto_lib.Hmac(crypto_lib.sha256, derived);
-      derived = nextHmac.convert([i]).bytes;
-    }
-
-    throw Exception('Failed to derive valid Stark private key');
-  }
-
-  /// Computes the Starknet account address using OpenZeppelin Account contract class hash.
-  /// This uses the standard CREATE2-style address computation.
-  static Felt get openZeppelinAccountClassHash =>
-      Felt.fromHex('0x01d1777db36cdd06dd62cfde77b1b6ae06412af95d57a13dc40ac77b8a702381');
-
-  static Felt _computeAccountAddress(Felt publicKey) {
-    final salt = publicKey;
-    final constructorCalldata = [publicKey];
-
-    return Felt(calculateContractAddress(
-      deployerAddress: BigInt.zero,
-      salt: salt.value,
-      classHash: openZeppelinAccountClassHash.value,
-      constructorCalldata: constructorCalldata.map((f) => f.value).toList(),
-    ));
-  }
-
   Future<void> init() async {
-    // Create the signer using either the mnemonic or the privateKey
-    Felt starkPrivateKey;
-    if (_mnemonic != null) {
-      starkPrivateKey = _deriveStarkPrivateKey(_mnemonic!, passphrase: passphrase);
-    } else if (_hexPrivateKey != null) {
-      starkPrivateKey = Felt.fromHex(_hexPrivateKey!);
-    } else {
-      throw Exception('Neither mnemonic nor private key provided');
-    }
+    await ensureStarknetRustInitialized();
+    final normalizedPrivateKeyHex =
+        (_hexPrivateKey?.trim().isEmpty ?? true) ? null : _hexPrivateKey!.trim();
 
-    _signer = StarkPrivateKeySigner(starkPrivateKey);
-    _starknetPublicKey = await _signer.getPublicKey();
-    _accountAddress = _computeAccountAddress(_starknetPublicKey);
+    final response = await rust_api.deriveAccount(
+      mnemonic: _mnemonic,
+      passphrase: passphrase,
+      privateKeyHex: normalizedPrivateKeyHex,
+      accountClassHashHex: openZeppelinAccountClassHashHex,
+    );
+    final accountData = unwrapDerivedAccountDataResponse(response);
 
-    walletInfo.address = _accountAddress.toHex();
+    _runtimePrivateKeyHex = accountData.privateKeyHex;
+    _starknetPublicKeyHex = accountData.publicKeyHex;
+    _accountAddressHex = accountData.accountAddressHex;
+
+    walletInfo.address = _accountAddressHex;
 
     await walletAddresses.init();
     await transactionHistory.init();
@@ -180,7 +142,7 @@ abstract class StarknetWalletBase
   int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
 
   @override
-  Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
+  Future<void> changePassword(String password) => throw UnimplementedError('changePassword');
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
@@ -195,74 +157,63 @@ abstract class StarknetWalletBase
       syncStatus = ConnectingSyncStatus();
 
       final isConnected = _client.connect(node);
-
       if (!isConnected) {
-        throw Exception("Starknet Node connection failed");
+        throw Exception('Starknet node connection failed');
       }
 
-      // Setup account on client
       _client.setupAccount(
-        signer: _signer,
-        address: _accountAddress,
-        chainId: StarknetNetwork.mainnet.chainId,
+        privateKeyHex: _runtimePrivateKeyHex,
+        addressHex: _accountAddressHex,
       );
 
       _setTransactionUpdateTimer();
-
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
+      printV('Failed to connect Starknet wallet to node: $e');
       syncStatus = FailedSyncStatus();
     }
   }
 
-  /// Parses a string amount to wei (18 decimals) using string manipulation
-  /// to avoid floating-point precision loss.
   static BigInt _parseAmountToWei(String amount) {
     final parts = amount.split('.');
     final wholePart = parts[0];
-    final fracPart = parts.length > 1
-        ? parts[1].padRight(18, '0').substring(0, 18)
-        : '0' * 18;
+    final fracPart = parts.length > 1 ? parts[1].padRight(18, '0').substring(0, 18) : '0' * 18;
     return BigInt.parse('$wholePart$fracPart');
   }
+
+  static String _messageHashHex(String message) =>
+      '0x${HEX.encode(crypto_lib.sha256.convert(utf8.encode(message)).bytes)}';
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final starkCredentials = credentials as StarknetTransactionCredentials;
-
-    final outputs = starkCredentials.outputs;
-    final output = outputs.first;
+    final output = starkCredentials.outputs.first;
 
     final destinationAddress = output.isParsedAddress ? output.extractedAddress! : output.address;
-
-    final recipientAddress = Felt.fromHex(destinationAddress);
 
     BigInt amountWei;
     double displayAmount;
     if (output.sendAll) {
-      final bal = balance[currency]?.balance ?? 0.0;
-      displayAmount = bal;
-      // Use toStringAsFixed for balance-sourced doubles
-      amountWei = _parseAmountToWei(bal.toStringAsFixed(18));
+      final balanceValue = balance[currency]?.balance ?? 0.0;
+      displayAmount = balanceValue;
+      amountWei = _parseAmountToWei(balanceValue.toStringAsFixed(18));
     } else {
       final cryptoAmount = output.cryptoAmount ?? '0.0';
       displayAmount = double.tryParse(cryptoAmount) ?? 0.0;
-      // Parse string directly to avoid floating-point precision loss
       amountWei = _parseAmountToWei(cryptoAmount);
     }
 
-    final tokenAddress =
-        starkCredentials.currency == CryptoCurrency.strk ? StarknetTokens.strk : StarknetTokens.eth;
+    final tokenAddressHex = starkCredentials.currency == CryptoCurrency.strk
+        ? StarknetTokenAddresses.strk
+        : StarknetTokenAddresses.eth;
 
-    return await _client.createTransaction(
-      recipientAddress: recipientAddress,
-      amount: amountWei,
-      tokenAddress: tokenAddress,
+    return _client.createTransaction(
+      recipientAddressHex: destinationAddress,
+      amountWei: amountWei.toString(),
+      tokenAddressHex: tokenAddressHex,
       destinationAddressHex: destinationAddress,
       inputAmount: displayAmount,
-      accountClassHash: openZeppelinAccountClassHash,
-      contractAddressSalt: _starknetPublicKey,
-      constructorCalldata: [_starknetPublicKey],
+      accountClassHashHex: openZeppelinAccountClassHashHex,
     );
   }
 
@@ -270,59 +221,36 @@ abstract class StarknetWalletBase
   Future<Map<String, StarknetTransactionInfo>> fetchTransactions() async {
     try {
       final events = await _client.fetchTransferEvents(
-        accountAddress: _accountAddress,
+        accountAddressHex: _accountAddressHex,
         fromBlock: _lastSyncedBlock,
       );
-
-      if (events.isEmpty) return {};
-
-      // Collect unique block numbers for timestamp lookup
-      final blockNumbers = <int>{};
-      for (final event in events) {
-        if (event.blockNumber != null) {
-          blockNumbers.add(event.blockNumber!);
-        }
+      if (events.isEmpty) {
+        return {};
       }
 
-      // Fetch block timestamps
-      final timestamps = <int, int>{};
-      for (final bn in blockNumbers) {
-        timestamps[bn] = await _client.getBlockTimestamp(bn);
-      }
-
-      // Fetch fees for each unique transaction (batch by tx hash)
-      final txHashes = events.map((e) => e.transactionHash).toSet();
-      final fees = <String, double>{};
-      for (final hash in txHashes) {
-        fees[hash] = await _client.getTransactionFee(Felt.fromHex(hash));
-      }
-
-      // Build transaction info map
       final result = <String, StarknetTransactionInfo>{};
       for (final event in events) {
         final key = event.transactionHash;
-        // For self-transfers (same tx hash), prefer outgoing direction
-        if (result.containsKey(key) && !event.isOutgoing) continue;
+        if (result.containsKey(key) && !event.isOutgoing) {
+          continue;
+        }
 
-        final timestamp = event.blockNumber != null
-            ? timestamps[event.blockNumber] ?? (DateTime.now().millisecondsSinceEpoch ~/ 1000)
-            : DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        final timestampSeconds =
+            event.blockTimestamp ?? (DateTime.now().millisecondsSinceEpoch ~/ 1000);
 
         result[key] = StarknetTransactionInfo(
           id: event.transactionHash,
           starknetAmount: event.amountAsDouble,
-          direction: event.isOutgoing
-              ? TransactionDirection.outgoing
-              : TransactionDirection.incoming,
-          blockTime: DateTime.fromMillisecondsSinceEpoch(timestamp * 1000),
+          direction:
+              event.isOutgoing ? TransactionDirection.outgoing : TransactionDirection.incoming,
+          blockTime: DateTime.fromMillisecondsSinceEpoch(timestampSeconds * 1000),
           isPending: false,
           tokenSymbol: event.tokenSymbol,
           to: event.to,
           from: event.from,
-          txFee: fees[event.transactionHash] ?? 0.0,
+          txFee: event.txFeeAsDouble,
         );
 
-        // Track the highest block we've seen
         if (event.blockNumber != null) {
           _lastSyncedBlock = (_lastSyncedBlock == null)
               ? event.blockNumber!
@@ -339,7 +267,9 @@ abstract class StarknetWalletBase
 
   @override
   Future<void> updateTransactionsHistory({List<String>? specificTokenMints}) async {
-    if (_isTransactionUpdating) return;
+    if (_isTransactionUpdating) {
+      return;
+    }
 
     _isTransactionUpdating = true;
     try {
@@ -356,7 +286,7 @@ abstract class StarknetWalletBase
   }
 
   @override
-  Future<void> rescan({required int height}) => throw UnimplementedError("rescan");
+  Future<void> rescan({required int height}) => throw UnimplementedError('rescan');
 
   @override
   Future<void> save() async {
@@ -367,7 +297,11 @@ abstract class StarknetWalletBase
 
     await walletAddresses.updateAddressesInBox();
     final path = await makePath();
-    await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
+    await encryptionFileUtils.write(
+      path: path,
+      password: _password,
+      data: toJSON(),
+    );
     await transactionHistory.save();
   }
 
@@ -390,12 +324,11 @@ abstract class StarknetWalletBase
 
   Future<void> _updateBalance({bool throwOnError = false}) async {
     try {
-      final strkBalance = await _client.getStrkBalance(_accountAddress);
+      final strkBalance = await _client.getStrkBalance(_accountAddressHex);
       balance[CryptoCurrency.strk] = strkBalance;
       await save();
     } catch (e) {
       printV('Preserving previous Starknet balance after refresh failure: $e');
-
       if (throwOnError) {
         rethrow;
       }
@@ -404,7 +337,7 @@ abstract class StarknetWalletBase
 
   Future<void> _getEstimatedFees() async {
     try {
-      estimatedFee = await _client.getEstimatedTransferFee(_accountAddress);
+      estimatedFee = await _client.getEstimatedTransferFee(_accountAddressHex);
     } catch (e) {
       printV('Error estimating Starknet fees: $e');
       estimatedFee = 0.0;
@@ -432,7 +365,9 @@ abstract class StarknetWalletBase
       final jsonSource = await encryptionFileUtils.read(path: path, password: password);
       data = json.decode(jsonSource) as Map<String, dynamic>;
     } catch (e) {
-      if (!hasKeysFile) rethrow;
+      if (!hasKeysFile) {
+        rethrow;
+      }
     }
 
     final balance = StarknetBalance.fromJSON(data?['balance'] as String?) ?? StarknetBalance(0.0);
@@ -443,7 +378,11 @@ abstract class StarknetWalletBase
       final privateKey = data['private_key'] as String?;
       final passphrase = data['passphrase'] as String?;
 
-      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey, passphrase: passphrase);
+      keysData = WalletKeysData(
+        mnemonic: mnemonic,
+        privateKey: privateKey,
+        passphrase: passphrase,
+      );
     } else {
       keysData = await WalletKeysFile.readKeysFile(
         name,
@@ -468,14 +407,14 @@ abstract class StarknetWalletBase
   }
 
   @override
-  Future<void>? updateBalance() async => await _updateBalance();
+  Future<void>? updateBalance() async => _updateBalance();
 
   @override
   Future<bool> checkNodeHealth() async {
     try {
       final blockNumber = await _client.getBlockNumber();
       return blockNumber != null && blockNumber > 0;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }
@@ -514,17 +453,36 @@ abstract class StarknetWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address}) async {
-    final messageHash =
-        Felt.fromHex('0x${HEX.encode(crypto_lib.sha256.convert(utf8.encode(message)).bytes)}');
-    final signature = await _signer.signHash(messageHash);
-    return '${signature[0].toHex()},${signature[1].toHex()}';
+    await ensureStarknetRustInitialized();
+
+    final response = await rust_api.signMessageHash(
+      privateKeyHex: _runtimePrivateKeyHex,
+      messageHashHex: _messageHashHex(message),
+    );
+    final signature = unwrapSignatureResponse(response);
+    return '${signature.rHex},${signature.sHex}';
   }
 
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address}) async {
-    // Starknet signature verification requires the original message hash
-    // and the public key to verify against
-    return false; // TODO: Implement full verification
+    final components = signature.split(',');
+    if (components.length != 2) {
+      return false;
+    }
+
+    try {
+      await ensureStarknetRustInitialized();
+      final response = await rust_api.verifyMessageHashSignature(
+        publicKeyHex: _starknetPublicKeyHex,
+        messageHashHex: _messageHashHex(message),
+        rHex: components[0].trim(),
+        sHex: components[1].trim(),
+      );
+      return unwrapBoolResponse(response);
+    } catch (e) {
+      printV('Error verifying Starknet signature: $e');
+      return false;
+    }
   }
 
   @override

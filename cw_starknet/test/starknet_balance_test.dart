@@ -22,8 +22,8 @@ void main() {
 
     test('formattedAdditionalBalance equals formattedAvailableBalance', () {
       final balance = StarknetBalance(2.5);
-      expect(
-          balance.formattedAdditionalBalance, balance.formattedAvailableBalance);
+      expect(balance.formattedAdditionalBalance,
+          balance.formattedAvailableBalance);
     });
 
     group('JSON serialization', () {

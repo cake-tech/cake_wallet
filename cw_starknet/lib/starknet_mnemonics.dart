@@ -1,3 +1,4 @@
+// ignore: implementation_imports
 import 'package:bip39/src/wordlists/english.dart' as english;
 
 class StarknetMnemonics {
@@ -6,6 +7,5 @@ class StarknetMnemonics {
 
 class StarknetMnemonicIsIncorrectException implements Exception {
   @override
-  String toString() =>
-      'StarknetMnemonicIsIncorrectException: The mnemonic seed is not valid.';
+  String toString() => 'StarknetMnemonicIsIncorrectException: The mnemonic seed is not valid.';
 }

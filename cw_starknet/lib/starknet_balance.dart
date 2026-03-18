@@ -5,20 +5,14 @@ import 'package:cw_core/balance.dart';
 class StarknetBalance extends Balance {
   StarknetBalance(this.balance)
       : super(
-          BigInt.from(
-              int.tryParse(balance.toStringAsFixed(18).replaceFirst(".", "")) ??
-                  0),
-          BigInt.from(
-              int.tryParse(balance.toStringAsFixed(18).replaceFirst(".", "")) ??
-                  0),
+          BigInt.from(int.tryParse(balance.toStringAsFixed(18).replaceFirst(".", "")) ?? 0),
+          BigInt.from(int.tryParse(balance.toStringAsFixed(18).replaceFirst(".", "")) ?? 0),
         );
 
   final double balance;
 
-  @override
   String get formattedAdditionalBalance => _balanceFormatted();
 
-  @override
   String get formattedAvailableBalance => _balanceFormatted();
 
   String _balanceFormatted() {

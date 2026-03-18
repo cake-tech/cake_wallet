@@ -1,3 +1,5 @@
+// ignore_for_file: overridden_fields
+
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -15,15 +17,21 @@ class StarknetTransactionInfo extends TransactionInfo {
     required this.txFee,
   }) : amount = starknetAmount.toInt();
 
+  @override
   final String id;
+  @override
   final String? to;
+  @override
   final String? from;
+  @override
   final int amount;
+  @override
   final bool isPending;
   final double starknetAmount;
   final String tokenSymbol;
   final DateTime blockTime;
   final double txFee;
+  @override
   final TransactionDirection direction;
 
   String? _fiatAmount;

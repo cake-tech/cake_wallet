@@ -28,9 +28,21 @@ void main() {
 
     test('supports multiple outputs', () {
       final outputs = [
-        OutputInfo(address: '0x1', cryptoAmount: '1.0', sendAll: false, isParsedAddress: false),
-        OutputInfo(address: '0x2', cryptoAmount: '2.0', sendAll: false, isParsedAddress: false),
-        OutputInfo(address: '0x3', cryptoAmount: '3.0', sendAll: false, isParsedAddress: false),
+        OutputInfo(
+            address: '0x1',
+            cryptoAmount: '1.0',
+            sendAll: false,
+            isParsedAddress: false),
+        OutputInfo(
+            address: '0x2',
+            cryptoAmount: '2.0',
+            sendAll: false,
+            isParsedAddress: false),
+        OutputInfo(
+            address: '0x3',
+            cryptoAmount: '3.0',
+            sendAll: false,
+            isParsedAddress: false),
       ];
 
       final credentials = StarknetTransactionCredentials(
@@ -43,7 +55,8 @@ void main() {
 
     test('supports sendAll flag', () {
       final outputs = [
-        OutputInfo(address: '0xrecipient', sendAll: true, isParsedAddress: false),
+        OutputInfo(
+            address: '0xrecipient', sendAll: true, isParsedAddress: false),
       ];
 
       final credentials = StarknetTransactionCredentials(

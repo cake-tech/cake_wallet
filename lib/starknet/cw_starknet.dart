@@ -57,7 +57,7 @@ class CWStarknet extends Starknet {
 
   @override
   String getPublicKey(WalletBase wallet) =>
-      (wallet as StarknetWallet).accountAddress.toHex();
+      (wallet as StarknetWallet).publicKey;
 
   Object createStarknetTransactionCredentials(
     List<Output> outputs, {

@@ -7,15 +7,12 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 
-
 import 'package:cw_starknet/starknet_wallet.dart';
 import 'package:cw_starknet/starknet_mnemonics.dart';
 import 'package:cw_starknet/starknet_wallet_service.dart';
 import 'package:cw_starknet/starknet_transaction_info.dart';
-import 'package:cw_starknet/pending_starknet_transaction.dart';
 import 'package:cw_starknet/starknet_transaction_credentials.dart';
 import 'package:cw_starknet/starknet_wallet_creation_credentials.dart';
-
 
 part 'cw_starknet.dart';
 
@@ -25,11 +22,20 @@ abstract class Starknet {
   List<String> getStarknetWordList(String language);
   WalletService createStarknetWalletService(bool isDirect);
   WalletCredentials createStarknetNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? passphrase});
+      {required String name,
+      WalletInfo? walletInfo,
+      String? password,
+      String? mnemonic,
+      String? passphrase});
   WalletCredentials createStarknetRestoreWalletFromSeedCredentials(
-      {required String name, required String mnemonic, required String password, String? passphrase});
+      {required String name,
+      required String mnemonic,
+      required String password,
+      String? passphrase});
   WalletCredentials createStarknetRestoreWalletFromPrivateKey(
-      {required String name, required String privateKey, required String password});
+      {required String name,
+      required String privateKey,
+      required String password});
 
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
@@ -46,7 +52,7 @@ abstract class Starknet {
   });
 
   double getTransactionAmountRaw(TransactionInfo transactionInfo);
-  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  CryptoCurrency assetOfTransaction(
+      WalletBase wallet, TransactionInfo transaction);
   double? getEstimateFees(WalletBase wallet);
 }
-  

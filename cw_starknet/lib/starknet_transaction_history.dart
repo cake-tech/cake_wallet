@@ -27,7 +27,7 @@ abstract class StarknetTransactionHistoryBase
 
   final WalletInfo walletInfo;
   final EncryptionFileUtils encryptionFileUtils;
-  String _password;
+  final String _password;
 
   Future<void> init() async {
     clear();
@@ -77,14 +77,14 @@ abstract class StarknetTransactionHistoryBase
       final content = await _read();
       final txs = content['transactions'] as Map<String, dynamic>? ?? {};
 
-      txs.entries.forEach((entry) {
+      for (var entry in txs.entries) {
         final val = entry.value;
 
         if (val is Map<String, dynamic>) {
           final tx = StarknetTransactionInfo.fromJson(val);
           _update(tx);
         }
-      });
+      }
     } catch (e) {
       printV(e);
     }
