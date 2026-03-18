@@ -82,7 +82,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final min = double.tryParse(responseJSON['minAmount']?.toString() ?? '');
     final max = double.tryParse(responseJSON['maxAmount']?.toString() ?? '');
-    return Limits(min: min, max: max == 0 ? null : max);
+    return Limits(min: min, max: max);
   }
 
   @override
@@ -114,8 +114,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
       final uri = Uri.https(apiAuthority, estimatedAmountPath, params);
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
-
-      if (response.statusCode != 200) return 0.0;
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final fromAmount = double.tryParse(responseJSON['fromAmount']?.toString() ?? '') ?? 0.0;

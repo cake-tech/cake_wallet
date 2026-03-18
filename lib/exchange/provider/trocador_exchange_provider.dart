@@ -105,7 +105,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     final min = double.tryParse(coinJson['minimum']?.toString() ?? '');
     final max = double.tryParse(coinJson['maximum']?.toString() ?? '');
-    return Limits(min: min, max: max == 0 ? null : max);
+    return Limits(min: min, max: max);
   }
 
   @override
@@ -133,8 +133,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final uri = await _getUri(newRatePath, params);
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
 
-      if (response.statusCode != 200) return 0.0;
-
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final fromAmount = double.tryParse(responseJSON['amount_from']?.toString() ?? '') ?? 0.0;
       final toAmount = double.tryParse(responseJSON['amount_to']?.toString() ?? '') ?? 0.0;
@@ -142,7 +140,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       if (fromAmount <= 0 || toAmount <= 0) return 0.0;
 
       final quotesData = responseJSON['quotes'];
-      final rateId = responseJSON['trade_id'] as String? ?? '';
+      final rateId = _safeString(responseJSON, 'trade_id');
 
       if (quotesData == null || quotesData is! Map<String, dynamic>) {
         return 0.0;
@@ -251,7 +249,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       params['id'] = _lastUsedRateId;
     }
 
-    if (_provider.isEmpty) {
+    if (_provider.isEmpty || _provider.first == null || _provider.first.toString().isEmpty) {
       ExchangeProviderLogger.logError(
         provider: description,
         function: 'createTrade',
@@ -272,15 +270,15 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       throw Exception('No available provider is enabled');
     }
 
-    params['provider'] = _provider.first as String;
+    params['provider'] = _provider.first.toString();
 
     final uri = await _getUri(createTradePath, params);
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final error = responseJSON['error'] as String;
-      final message = responseJSON['message'] as String;
+      final error = _safeString(responseJSON, 'error', 'Unknown error');
+      final message = _safeString(responseJSON, 'message');
 
       ExchangeProviderLogger.logError(
         provider: description,
@@ -327,18 +325,18 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final id = responseJSON['trade_id'] as String;
-    final inputAddress = responseJSON['address_provider'] as String;
-    final refundAddress = responseJSON['refund_address'] as String;
-    final status = responseJSON['status'] as String;
-    final payoutAddress = responseJSON['address_user'] as String;
-    final date = responseJSON['date'] as String;
-    final password = responseJSON['password'] as String;
-    final providerId = responseJSON['id_provider'] as String;
-    final providerName = responseJSON['provider'] as String;
-    final amount = responseJSON['amount_from']?.toString();
-    final receiveAmount = responseJSON['amount_to']?.toString();
-    final addressProviderMemo = responseJSON['address_provider_memo'] as String?;
+    final id = _safeString(responseJSON, 'trade_id');
+    final inputAddress = _safeString(responseJSON, 'address_provider');
+    final refundAddress = _safeString(responseJSON, 'refund_address');
+    final status = _safeString(responseJSON, 'status');
+    final payoutAddress = _safeString(responseJSON, 'address_user');
+    final date = _safeString(responseJSON, 'date');
+    final password = _safeString(responseJSON, 'password');
+    final providerId = _safeString(responseJSON, 'id_provider');
+    final providerName = _safeString(responseJSON, 'provider');
+    final amount = _safeString(responseJSON, 'amount_from');
+    final receiveAmount = _safeString(responseJSON, 'amount_to');
+    final addressProviderMemo = _safeString(responseJSON, 'address_provider_memo');
 
     ExchangeProviderLogger.logSuccess(
       provider: description,
@@ -373,6 +371,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       },
     );
 
+    final amountToTrade = amount.isEmpty ? request.fromAmount : amount;
+    final receiveAmountToTrade = receiveAmount.isEmpty ? request.toAmount : receiveAmount;
+
     return Trade(
       id: id,
       from: request.fromCurrency,
@@ -385,8 +386,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       providerId: providerId,
       providerName: providerName,
       createdAt: DateTime.tryParse(date)?.toLocal(),
-      amount: amount ?? request.fromAmount,
-      receiveAmount: receiveAmount ?? request.toAmount,
+      amount: amountToTrade,
+      receiveAmount: receiveAmountToTrade,
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,
       extraId: addressProviderMemo,
@@ -404,19 +405,21 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         throw Exception('Unexpected http status: ${response.statusCode}');
 
       final responseListJson = json.decode(response.body) as List;
-      final responseJSON = responseListJson.first;
-      final id = responseJSON['trade_id'] as String;
-      final payoutAddress = responseJSON['address_user'] as String;
-      final refundAddress = responseJSON['refund_address'] as String;
-      final inputAddress = responseJSON['address_provider'] as String;
+      final responseJSON = responseListJson.first as Map<String, dynamic>;
+      final id = _safeString(responseJSON, 'trade_id');
+      final payoutAddress = _safeString(responseJSON, 'address_user');
+      final refundAddress = _safeString(responseJSON, 'refund_address');
+      final inputAddress = _safeString(responseJSON, 'address_provider');
       final fromAmount = responseJSON['amount_from']?.toString() ?? '0';
-      final password = responseJSON['password'] as String;
-      final providerId = responseJSON['id_provider'] as String;
-      final providerName = responseJSON['provider'] as String;
-      final addressProviderMemo = responseJSON['address_provider_memo'] as String?;
+      final password = _safeString(responseJSON, 'password');
+      final providerId = _safeString(responseJSON, 'id_provider');
+      final providerName = _safeString(responseJSON, 'provider');
+      final memoVal = _safeString(responseJSON, 'address_provider_memo');
+      final addressProviderMemo = memoVal.isEmpty ? null : memoVal;
 
-      final fromCurrency = responseJSON['ticker_from'] as String;
-      final fromNetwork = responseJSON['network_from'] as String?;
+      final fromCurrency = _safeString(responseJSON, 'ticker_from');
+      final fromNetworkVal = _safeString(responseJSON, 'network_from');
+      final fromNetwork = fromNetworkVal.isEmpty ? null : fromNetworkVal;
       final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
       final fromTag = _normalizedFromNetwork.isEmpty ||
               _normalizedFromNetwork == fromCurrency.toUpperCase() ||
@@ -426,8 +429,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
       final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
 
-      final toCurrency = responseJSON['ticker_to'] as String;
-      final networkTo = responseJSON['network_to'] as String?;
+      final toCurrency = _safeString(responseJSON, 'ticker_to');
+      final networkToVal = _safeString(responseJSON, 'network_to');
+      final networkTo = networkToVal.isEmpty ? null : networkToVal;
       final _normalizedToNetwork = _normalizeNetworkType(networkTo ?? '');
       final toTag = _normalizedToNetwork.isEmpty ||
               _normalizedToNetwork == toCurrency.toUpperCase() ||
@@ -443,9 +447,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         provider: description,
         inputAddress: inputAddress,
         refundAddress: refundAddress,
-        createdAt: DateTime.parse(responseJSON['date'] as String),
+        createdAt: DateTime.tryParse(_safeString(responseJSON, 'date')),
         amount: fromAmount,
-        state: TradeState.deserialize(raw: responseJSON['status'] as String),
+        state: TradeState.deserialize(raw: _safeString(responseJSON, 'status')),
         payoutAddress: payoutAddress,
         password: password,
         providerId: providerId,
@@ -548,6 +552,14 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     } catch (e) {
       return Uri.https(clearNetAuthority, path, queryParams);
     }
+  }
+
+  /// Safe string extraction from API response. Handles different data types.
+  static String _safeString(Map<String, dynamic> m, String key, [String nullError = '']) {
+    final v = m[key];
+    if (v == null) return nullError;
+    if (v is String) return v;
+    return v.toString();
   }
 }
 

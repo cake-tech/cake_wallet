@@ -72,7 +72,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       if (coin.isEmpty) {
         // Currency not supported by SwapTrade (e.g. USDC, DOGE).
-        return Limits(min: double.maxFinite, max: 0.0);
+        return Limits(min: null, max: null);
       }
 
       final min = double.tryParse(coin['min']?.toString() ?? '') ?? 0.0;
