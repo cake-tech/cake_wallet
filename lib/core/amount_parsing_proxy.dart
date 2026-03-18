@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 class AmountParsingProxy {
   final BitcoinAmountDisplayMode displayMode;
@@ -19,11 +20,19 @@ class AmountParsingProxy {
 
   /// [getCryptoOutputAmount] turns the input [amount] into the preferred representation of [cryptoCurrency]
   String getDisplayCryptoAmount(String amount, CryptoCurrency cryptoCurrency) {
-    if (useSatoshi(cryptoCurrency) && amount.isNotEmpty) {
-      return cryptoCurrency.parseAmount(amount.withMaxDecimals(cryptoCurrency.decimals)).toString();
+
+    try {
+      if (useSatoshi(cryptoCurrency) && amount.isNotEmpty) {
+        return cryptoCurrency.parseAmount(amount.withMaxDecimals(cryptoCurrency.decimals)).toString();
+      }
+
+      return amount.withMaxDecimals(cryptoCurrency.decimals);
+
+    } catch(_) {
+      printV("failed to parse amount $amount for currency ${cryptoCurrency.title}, falling back to showing unparsed");
+      return amount;
     }
 
-    return amount.withMaxDecimals(cryptoCurrency.decimals);
   }
 
   /// [getCryptoStringRepresentation] turns the input [amount] into the preferred representation of [cryptoCurrency]
