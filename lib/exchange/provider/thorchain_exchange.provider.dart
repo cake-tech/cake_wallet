@@ -10,11 +10,10 @@ import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:hive/hive.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ThorChainExchangeProvider extends ExchangeProvider {
-  ThorChainExchangeProvider({required this.tradesStore});
+  ThorChainExchangeProvider();
 
   static final isRefundAddressSupported = [CryptoCurrency.eth];
 
@@ -25,8 +24,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static const _affiliateName = 'cakewallet';
   static const _affiliateBps = '175';
   static const _nameLookUpPath = 'v2/thorname/lookup/';
-
-  final Box<Trade> tradesStore;
 
   @override
   String get title => 'THORChain';

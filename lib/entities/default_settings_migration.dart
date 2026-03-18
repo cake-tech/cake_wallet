@@ -13,24 +13,19 @@ import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
-import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
-import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/erc20_token.dart';
 
@@ -67,11 +62,10 @@ Future<void> defaultSettingsMigration(
     required SecureStorage secureStorage,
     required Box<Node> nodes,
     required Box<Node> powNodes,
-    required Box<Trade> tradeSource,
     required Box<Contact> contactSource,
     required Box<HavenSeedStore> havenSeedStore}) async {
   if (Platform.isIOS) {
-    await ios_migrate_v1(tradeSource, contactSource);
+    await ios_migrate_v1(contactSource);
   }
 
   // check current nodes for nullability regardless of the version

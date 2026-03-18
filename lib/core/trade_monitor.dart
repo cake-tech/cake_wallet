@@ -20,7 +20,6 @@ import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:hive/hive.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,13 +29,11 @@ class TradeMonitor {
 
   TradeMonitor({
     required this.tradesStore,
-    required this.trades,
     required this.appStore,
     required this.preferences,
   });
 
   final TradesStore tradesStore;
-  final Box<Trade> trades;
   final AppStore appStore;
   final Map<String, Timer> _tradeTimers = {};
   final SharedPreferences preferences;
@@ -54,7 +51,7 @@ class TradeMonitor {
       case ExchangeProviderDescription.exolix:
         return ExolixExchangeProvider();
       case ExchangeProviderDescription.thorChain:
-        return ThorChainExchangeProvider(tradesStore: trades);
+        return ThorChainExchangeProvider();
       case ExchangeProviderDescription.swapTrade:
         return SwapTradeExchangeProvider();
       case ExchangeProviderDescription.letsExchange:
@@ -62,7 +59,7 @@ class TradeMonitor {
       case ExchangeProviderDescription.stealthEx:
         return StealthExExchangeProvider();
       case ExchangeProviderDescription.chainflip:
-        return ChainflipExchangeProvider(tradesStore: trades);
+        return ChainflipExchangeProvider();
       case ExchangeProviderDescription.xoSwap:
         return XOSwapExchangeProvider();
       case ExchangeProviderDescription.swapsXyz:

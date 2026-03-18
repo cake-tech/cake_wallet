@@ -39,7 +39,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 3,
+  db = await openDatabase(dbFile.path, version: 4,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -80,6 +80,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           column: 'cardOrder',
           definition: 'INTEGER DEFAULT 0',
         );
+      }
+      if (oldVersion <= 3) {
+        await _createTradeTable(db);
       }
     },
     onCreate: (Database db, int version) async {
@@ -176,8 +179,57 @@ CREATE TABLE BalanceCardStyleSettings (
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
         ''');
+      await _createTradeTable(db);
     }
   );
+}
+
+Future<void> _createTradeTable(Database db) async {
+  await db.execute('''
+CREATE TABLE IF NOT EXISTS Trade (
+  tradeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  id TEXT NOT NULL,
+  providerRaw INTEGER NOT NULL DEFAULT 0,
+  fromRaw INTEGER NOT NULL DEFAULT -1,
+  toRaw INTEGER NOT NULL DEFAULT -1,
+  stateRaw TEXT NOT NULL DEFAULT '',
+  createdAt INTEGER,
+  expiredAt INTEGER,
+  amount TEXT NOT NULL DEFAULT '',
+  receiveAmount TEXT,
+  inputAddress TEXT,
+  extraId TEXT,
+  outputTransaction TEXT,
+  refundAddress TEXT,
+  walletId TEXT,
+  payoutAddress TEXT,
+  password TEXT,
+  providerId TEXT,
+  providerName TEXT,
+  fromWalletAddress TEXT,
+  memo TEXT,
+  txId TEXT,
+  isRefund INTEGER DEFAULT 0,
+  isSendAll INTEGER DEFAULT 0,
+  router TEXT,
+  userCurrencyFromRaw TEXT,
+  userCurrencyToRaw TEXT,
+  needToRegisterInSwapXyz INTEGER DEFAULT 0,
+  sourceTokenAddress TEXT,
+  sourceTokenDecimals INTEGER,
+  routerData TEXT,
+  routerValue TEXT,
+  routerChainId INTEGER,
+  sourceTokenAmountRaw TEXT,
+  requiresTokenApproval INTEGER DEFAULT 0,
+  chainId INTEGER,
+  fee REAL
+);
+''');
+  await db.execute('''
+CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
+ON Trade (id);
+''');
 }
 
 Future<Map<String, dynamic>> dumpDb() async {

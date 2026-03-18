@@ -93,13 +93,17 @@ class HistorySection extends StatelessWidget {
 
               final tradeTo = trade.toRaw >= 0 ? trade.to : trade.userCurrencyTo;
 
+              if (tradeFrom == null || tradeTo == null) {
+                return const SizedBox.shrink();
+              }
+
               return GestureDetector(
                 onTap: () => Navigator.of(context)
                     .pushNamed(Routes.tradeDetails, arguments: trade),
                 child: HistoryTradeTile(
-                  from: tradeFrom!,
-                  to: tradeTo!,
-                  date: DateFormat('HH:mm').format(item.trade.createdAt!),
+                  from: tradeFrom,
+                  to: tradeTo,
+                  date: DateFormat('HH:mm').format(trade.createdAt ?? DateTime.now()),
                   amount: trade.amountFormatted(),
                   receiveAmount: trade.receiveAmountFormatted(),
                   roundedBottom: roundedBottom,

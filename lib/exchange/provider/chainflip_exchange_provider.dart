@@ -8,15 +8,13 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:hive/hive.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ChainflipExchangeProvider extends ExchangeProvider {
-  ChainflipExchangeProvider({required this.tradesStore});
+  ChainflipExchangeProvider();
 
   static final List<CryptoCurrency> _supported = [
     CryptoCurrency.btc,
@@ -40,8 +38,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   static const _txInfoPath = '/status-by-deposit-channel';
   static const _affiliateBps = secrets.chainflipAffiliateFee;
   static const _affiliateKey = secrets.chainflipApiKey;
-
-  final Box<Trade> tradesStore;
 
   @override
   String get title => 'Chainflip';
@@ -310,13 +306,11 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         userCurrencyToRaw: '${to.toUpperCase()}' + '_',
       );
 
-      // Find trade and update receiveAmount with the real value received
-      final storedTrade = _getStoredTrade(id);
-      
+      final storedTrade = await Trade.getByTradeId(id);
       if (storedTrade != null) {
-        storedTrade.$2.receiveAmount = newTrade.receiveAmount;
-        storedTrade.$2.outputTransaction = newTrade.outputTransaction;
-        tradesStore.put(storedTrade.$1, storedTrade.$2);
+        storedTrade.receiveAmount = newTrade.receiveAmount;
+        storedTrade.outputTransaction = newTrade.outputTransaction;
+        await storedTrade.save();
       }
 
       return newTrade;
@@ -366,17 +360,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     };
 
     return currency;
-  }
-
-  (dynamic, Trade)? _getStoredTrade(String id) {
-    for (var i = tradesStore.length -1; i >= 0; i--) {
-      Trade? t = tradesStore.getAt(i);
-      
-      if (t != null && t.id == id)
-        return (i, t);
-    }
-    
-    return null;
   }
 
   String _amountToNative(double amount, CryptoCurrency currency) =>

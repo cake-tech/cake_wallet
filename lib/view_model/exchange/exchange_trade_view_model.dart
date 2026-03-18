@@ -34,7 +34,6 @@ import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'exchange_trade_view_model.g.dart';
@@ -44,7 +43,6 @@ class ExchangeTradeViewModel = ExchangeTradeViewModelBase with _$ExchangeTradeVi
 abstract class ExchangeTradeViewModelBase with Store {
   ExchangeTradeViewModelBase({
     required this.wallet,
-    required this.trades,
     required this.tradesStore,
     required this.sendViewModel,
     required this.feesViewModel,
@@ -78,10 +76,10 @@ abstract class ExchangeTradeViewModelBase with Store {
         _provider = StealthExExchangeProvider();
         break;
       case ExchangeProviderDescription.thorChain:
-        _provider = ThorChainExchangeProvider(tradesStore: trades);
+        _provider = ThorChainExchangeProvider();
         break;
       case ExchangeProviderDescription.chainflip:
-        _provider = ChainflipExchangeProvider(tradesStore: trades);
+        _provider = ChainflipExchangeProvider();
         break;
       case ExchangeProviderDescription.xoSwap:
         _provider = XOSwapExchangeProvider();
@@ -106,7 +104,6 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   final WalletBase wallet;
-  final Box<Trade> trades;
   final TradesStore tradesStore;
   final SendViewModel sendViewModel;
   final FeesViewModel feesViewModel;
@@ -231,17 +228,12 @@ abstract class ExchangeTradeViewModelBase with Store {
     if (_provider is SwapsXyzExchangeProvider) {
       final hash = pendingTransaction?.evmTxHashFromRawHex ?? pendingTransaction?.id ?? '';
       trade.txId = hash;
-
-      if (trade.isInBox) {
-        await trade.save();
-      } else {
-        await trades.add(trade);
-      }
+      await trade.save();
     }
 
     if (_provider is ThorChainExchangeProvider) {
       trade.id = pendingTransaction?.id ?? '';
-      trades.add(trade);
+      await trade.save();
     }
   }
 
@@ -289,12 +281,12 @@ abstract class ExchangeTradeViewModelBase with Store {
         ),
       );
 
-    if (tradeFrom != null || tradeTo != null) {
+    if (tradeFrom != null && tradeTo != null) {
       items.addAll([
         ExchangeTradeItem(
           title: S.current.amount,
           data:
-              "${_amountParsingProxy.getDisplayCryptoAmount(trade.amount, tradeFrom!)} ${_amountParsingProxy.getCryptoSymbol(tradeFrom)}",
+              "${_amountParsingProxy.getDisplayCryptoAmount(trade.amount, tradeFrom)} ${_amountParsingProxy.getCryptoSymbol(tradeFrom)}",
           isCopied: false,
           isReceiveDetail: false,
           isExternalSendDetail: true,
@@ -302,14 +294,14 @@ abstract class ExchangeTradeViewModelBase with Store {
         ExchangeTradeItem(
           title: "${S.current.you_will_receive_estimated_amount}:",
           data:
-              "${_amountParsingProxy.getDisplayCryptoAmount(tradesStore.trade?.receiveAmount ?? "0", tradeTo!)} ${_amountParsingProxy.getCryptoSymbol(tradeTo)}",
+              "${_amountParsingProxy.getDisplayCryptoAmount(tradesStore.trade?.receiveAmount ?? "0", tradeTo)} ${_amountParsingProxy.getCryptoSymbol(tradeTo)}",
           isCopied: true,
           isReceiveDetail: true,
           isExternalSendDetail: false,
         ),
         ExchangeTradeItem(
-          title: "${S.current.send_to_this_address("${tradeFrom}", tagFrom)}:",
-          data: trade.inputAddress ?? "",
+          title: "${S.current.send_to_this_address("$tradeFrom", tagFrom)}:",
+          data: trade.inputAddress ?? '',
           isCopied: false,
           isReceiveDetail: false,
           isExternalSendDetail: true,
