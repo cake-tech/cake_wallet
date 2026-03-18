@@ -172,6 +172,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.arbitrum:
       case WalletType.bsc:
       case WalletType.solana:
+      case WalletType.starknet:
       case WalletType.tron:
         items.addAll([
           if (_wallet.privateKey != null)
@@ -317,6 +318,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'bsc-wallet';
       case WalletType.solana:
         return 'solana-wallet';
+      case WalletType.starknet:
+        return 'starknet-wallet';
       case WalletType.tron:
         return 'tron-wallet';
       case WalletType.wownero:

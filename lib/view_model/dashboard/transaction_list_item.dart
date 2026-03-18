@@ -6,6 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -177,6 +178,11 @@ class TransactionListItem extends ActionListItem with Keyable {
         return asset;
       }
 
+      if (balanceViewModel.wallet.type == WalletType.starknet) {
+        final asset = starknet!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      }
+
       if (balanceViewModel.wallet.type == WalletType.tron) {
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
         return asset;
@@ -237,6 +243,14 @@ class TransactionListItem extends ActionListItem with Keyable {
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: solana!.getTransactionAmountRaw(transaction),
+          price: price,
+        ).withLocalSeperator(_appStore.settingsStore.languageCode);
+        break;
+      case WalletType.starknet:
+        final asset = starknet!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConversionStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+          cryptoAmount: starknet!.getTransactionAmountRaw(transaction),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;

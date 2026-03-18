@@ -62,7 +62,8 @@ class Node extends HiveObject with Keyable {
         useSSL = map['useSSL'] as bool?,
         trusted = map['trusted'] as bool? ?? false,
         socksProxyAddress = map['socksProxyPort'] as String?,
-        isEnabledForAutoSwitching = map['isEnabledForAutoSwitching'] as bool? ?? false;
+        isEnabledForAutoSwitching =
+            map['isEnabledForAutoSwitching'] as bool? ?? false;
 
   static const typeId = NODE_TYPE_ID;
   static const boxName = 'Nodes';
@@ -108,7 +109,8 @@ class Node extends HiveObject with Keyable {
 
   bool get isSSL => useSSL ?? false;
 
-  bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
+  bool get useSocksProxy =>
+      socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
 
   Uri get uri {
     switch (type) {
@@ -133,6 +135,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.tron:
       case WalletType.zano:
       case WalletType.decred:
+      case WalletType.starknet:
         return Uri.parse(
             "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
       case WalletType.none:
@@ -206,6 +209,8 @@ class Node extends HiveObject with Keyable {
           return requestZanoNode();
         case WalletType.decred:
           return requestDecredNode();
+        case WalletType.starknet:
+          return requestStarknetNode();
         case WalletType.none:
           return false;
       }
@@ -214,9 +219,33 @@ class Node extends HiveObject with Keyable {
     }
   }
 
+  Future<bool> requestStarknetNode() async {
+    final body = {
+      'jsonrpc': '2.0',
+      'id': '0',
+      'method': 'starknet_blockNumber',
+      'params': <dynamic>[],
+    };
+
+    try {
+      final response = await ProxyWrapper().post(
+        clearnetUri: uri,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+      );
+
+      final resBody = json.decode(response.body) as Map<String, dynamic>;
+      return resBody['result'] != null;
+    } catch (e) {
+      printV("error: $e");
+      return false;
+    }
+  }
+
   Future<bool> requestZanoNode() async {
     final path = '/json_rpc';
-    final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
+    final rpcUri =
+        isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': "getinfo"};
 
     try {
@@ -228,7 +257,6 @@ class Node extends HiveObject with Keyable {
         body: jsonBody,
       );
 
-      
       final resBody = json.decode(response.body) as Map<String, dynamic>;
 
       return resBody['result']['height'] != null;
@@ -244,7 +272,8 @@ class Node extends HiveObject with Keyable {
     }
 
     final path = '/json_rpc';
-    final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
+    final rpcUri =
+        isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
 
     try {
@@ -270,14 +299,16 @@ class Node extends HiveObject with Keyable {
 
       final responseString = await response.body;
 
-      if ((responseString.contains("400 Bad Request") // Some other generic error
+      if ((responseString
+                  .contains("400 Bad Request") // Some other generic error
               ||
-              responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+              responseString.contains(
+                  "plain HTTP request was sent to HTTPS port") // Cloudflare
               ||
               response.headers["location"] != null // Generic reverse proxy
               ||
-              responseString
-                  .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+              responseString.contains(
+                  "301 Moved Permanently") // Poorly configured generic reverse proxy
           ) &&
           !(useSSL ?? false)) {
         final oldUseSSL = useSSL;
@@ -310,7 +341,8 @@ class Node extends HiveObject with Keyable {
     String? proxy = socksProxyAddress;
 
     if ((proxy?.isEmpty ?? true) && CakeTor.instance!.enabled) {
-      proxy = "${InternetAddress.loopbackIPv4.address}:${CakeTor.instance!.port}";
+      proxy =
+          "${InternetAddress.loopbackIPv4.address}:${CakeTor.instance!.port}";
     }
     printV("proxy: $proxy");
     if (proxy == null) {
@@ -319,7 +351,8 @@ class Node extends HiveObject with Keyable {
     final proxyAddress = proxy.split(':')[0];
     final proxyPort = int.parse(proxy.split(':')[1]);
     try {
-      final socket = await Socket.connect(proxyAddress, proxyPort, timeout: Duration(seconds: 5));
+      final socket = await Socket.connect(proxyAddress, proxyPort,
+          timeout: Duration(seconds: 5));
       socket.destroy();
       return true;
     } catch (_) {
@@ -333,8 +366,8 @@ class Node extends HiveObject with Keyable {
   Future<bool> requestElectrumServer() async {
     try {
       final ProxySocket socket;
-      socket = await ProxyWrapper().getSocksSocket(useSSL ?? false, uri.host, uri.port);
-
+      socket = await ProxyWrapper()
+          .getSocksSocket(useSSL ?? false, uri.host, uri.port);
 
       socket.destroy();
       return true;
@@ -347,15 +380,19 @@ class Node extends HiveObject with Keyable {
     try {
       final response = await ProxyWrapper().post(
         clearnetUri: uri,
-        headers: {"Content-Type": "application/json", "nano-app": "cake-wallet"},
+        headers: {
+          "Content-Type": "application/json",
+          "nano-app": "cake-wallet"
+        },
         body: jsonEncode(
           {
             "action": "account_balance",
-            "account": "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579",
+            "account":
+                "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579",
           },
         ),
       );
-      
+
       final data = jsonDecode(response.body);
       if (response.statusCode != 200 ||
           data["error"] != null ||
@@ -372,9 +409,12 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestEthereumServer() async {
     try {
-      final req = await ProxyWrapper().getHttpClient()
-        .getUrl(uri,)
-        .timeout(Duration(seconds: 15));
+      final req = await ProxyWrapper()
+          .getHttpClient()
+          .getUrl(
+            uri,
+          )
+          .timeout(Duration(seconds: 15));
       final response = await req.close();
 
       return response.statusCode >= 200 && response.statusCode < 300;
@@ -385,13 +425,14 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestDecredNode() async {
-  if (uri.host == "default-spv-nodes") {
-    // Just show default port as ok. The wallet will connect to a list of known
-    // nodes automatically.
-    return true;
-  }
-  try {
-    final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+    if (uri.host == "default-spv-nodes") {
+      // Just show default port as ok. The wallet will connect to a list of known
+      // nodes automatically.
+      return true;
+    }
+    try {
+      final socket = await Socket.connect(uri.host, uri.port,
+          timeout: Duration(seconds: 5));
       socket.destroy();
       return true;
     } catch (_) {
@@ -470,7 +511,8 @@ class DigestAuth {
   }
 
   /// Helper to format the nonce count.
-  String _formatNonceCount(int count) => count.toRadixString(16).padLeft(8, '0');
+  String _formatNonceCount(int count) =>
+      count.toRadixString(16).padLeft(8, '0');
 
   /// Compute the MD5 hash of a string.
   String md5Hash(String input) {
@@ -486,7 +528,8 @@ class DaemonRpc {
   DaemonRpc(this.rpcUrl, {required this.username, required this.password});
 
   /// Perform a JSON-RPC call with Digest Authentication.
-  Future<Map<String, dynamic>> call(String method, Map<String, dynamic> params) async {
+  Future<Map<String, dynamic>> call(
+      String method, Map<String, dynamic> params) async {
     final client = ProxyWrapper().getHttpIOClient();
     final DigestAuth digestAuth = DigestAuth(username, password);
 

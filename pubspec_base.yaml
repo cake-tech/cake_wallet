@@ -266,6 +266,7 @@ flutter:
     - assets/arbitrum_node_list.yml
     - assets/zcash_node_list.yml
     - assets/bsc_node_list.yml
+    - assets/starknet_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

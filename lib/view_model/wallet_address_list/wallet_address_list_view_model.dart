@@ -14,6 +14,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
@@ -324,6 +325,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
+    if (wallet.type == WalletType.starknet) {
+      final primaryAddress = starknet!.getAddress(wallet);
+
+      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+    }
+
     if (wallet.type == WalletType.nano) {
       addressList.add(WalletAddressListItem(
         isPrimary: true,
@@ -520,6 +527,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           'assets/images/usdt_wallet_icon.svg',
           'assets/images/more_tokens.svg',
         ];
+      case WalletType.starknet:
+        return [];
       case WalletType.tron:
         return [
           'assets/images/trx_icon.svg',

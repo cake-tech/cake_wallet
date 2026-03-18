@@ -12,6 +12,7 @@ const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
 const evmOutputPath = 'lib/evm/evm.dart';
 const zcashOutputPath = 'lib/zcash/zcash.dart';
+const starknetOutputPath = 'lib/starknet/starknet.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -36,6 +37,7 @@ Future<void> main(List<String> args) async {
   final hasArbitrum = args.contains('${prefix}arbitrum');
   final hasBsc = args.contains('${prefix}bsc');
   final hasZcash = args.contains('${prefix}zcash');
+  final hasStarknet = args.contains('${prefix}starknet');
   final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc;
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
@@ -52,6 +54,7 @@ Future<void> main(List<String> args) async {
   await generateDogecoin(hasDogecoin);
   await generateEVM(hasEVM);
   await generateZcash(hasZcash);
+  await generateStarknet(hasStarknet);
 
   await generatePubspec(
     hasMonero: hasMonero,
@@ -72,6 +75,7 @@ Future<void> main(List<String> args) async {
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
     hasZcash: hasZcash,
+    hasStarknet: hasStarknet,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -91,6 +95,7 @@ Future<void> main(List<String> args) async {
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
     hasZcash: hasZcash,
+    hasStarknet: hasStarknet,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
@@ -1057,6 +1062,78 @@ class JupiterSwapFailedException implements Exception {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateStarknet(bool hasImplementation) async {
+  final outputFile = File(starknetOutputPath);
+  const starknetCommonHeaders = """
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+
+""";
+  const starknetCWHeaders = """
+import 'package:cw_starknet/starknet_wallet.dart';
+import 'package:cw_starknet/starknet_mnemonics.dart';
+import 'package:cw_starknet/starknet_wallet_service.dart';
+import 'package:cw_starknet/starknet_transaction_info.dart';
+import 'package:cw_starknet/pending_starknet_transaction.dart';
+import 'package:cw_starknet/starknet_transaction_credentials.dart';
+import 'package:cw_starknet/starknet_wallet_creation_credentials.dart';
+
+""";
+  const starknetCwPart = "part 'cw_starknet.dart';";
+  const starknetContent = """
+abstract class Starknet {
+  List<String> getStarknetWordList(String language);
+  WalletService createStarknetWalletService(bool isDirect);
+  WalletCredentials createStarknetNewWalletCredentials(
+      {required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? passphrase});
+  WalletCredentials createStarknetRestoreWalletFromSeedCredentials(
+      {required String name, required String mnemonic, required String password, String? passphrase});
+  WalletCredentials createStarknetRestoreWalletFromPrivateKey(
+      {required String name, required String privateKey, required String password});
+
+  String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
+
+  Object createStarknetTransactionCredentials(
+    List<Output> outputs, {
+    required CryptoCurrency currency,
+  });
+
+  Object createStarknetTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
+    required CryptoCurrency currency,
+  });
+
+  double getTransactionAmountRaw(TransactionInfo transactionInfo);
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  double? getEstimateFees(WalletBase wallet);
+}
+  """;
+
+  const starknetEmptyDefinition = 'Starknet? starknet;\n';
+  const starknetCWDefinition = 'Starknet? starknet = CWStarknet();\n';
+
+  final output = '$starknetCommonHeaders\n' +
+      (hasImplementation ? '$starknetCWHeaders\n' : '\n') +
+      (hasImplementation ? '$starknetCwPart\n\n' : '\n') +
+      (hasImplementation ? starknetCWDefinition : starknetEmptyDefinition) +
+      '\n' +
+      starknetContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generateTron(bool hasImplementation) async {
   final outputFile = File(tronOutputPath);
   const tronCommonHeaders = """
@@ -1768,6 +1845,7 @@ Future<void> generatePubspec({
   required bool hasArbitrum,
   required bool hasBsc,
   required bool hasZcash,
+  required bool hasStarknet,
 }) async {
   const cwCore = """
   cw_core:
@@ -1831,6 +1909,10 @@ Future<void> generatePubspec({
   const cwZcash = """
   cw_zcash:
       path: ./cw_zcash
+  """;
+  const cwStarknet = """
+  cw_starknet:
+    path: ./cw_starknet
   """;
 
   final inputFile = File(pubspecOutputPath);
@@ -1898,6 +1980,10 @@ Future<void> generatePubspec({
     output += '\n$cwZcash';
   }
 
+  if (hasStarknet) {
+    output += '\n$cwStarknet';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -1928,6 +2014,7 @@ Future<void> generateWalletTypes({
   required bool hasArbitrum,
   required bool hasBsc,
   required bool hasZcash,
+  required bool hasStarknet,
 }) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -2005,6 +2092,10 @@ Future<void> generateWalletTypes({
 
   if (hasBanano) {
     outputContent += '\tWalletType.banano,\n';
+  }
+
+  if (hasStarknet) {
+    outputContent += '\tWalletType.starknet,\n';
   }
 
   // if (hasWownero) {

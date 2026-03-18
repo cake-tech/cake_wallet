@@ -26,6 +26,7 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -188,7 +189,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get isBatchSending => outputs.length > 1;
 
   bool get shouldDisplaySendALL {
-    if (walletType == WalletType.solana) return false;
+    if (walletType == WalletType.solana || walletType == WalletType.starknet) return false;
 
     // if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
     // return false;
@@ -258,6 +259,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bsc:
       case WalletType.tron:
       case WalletType.solana:
+      case WalletType.starknet:
       case WalletType.bitcoin:
         return wallet.currency;
       default:
@@ -1053,7 +1055,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       // Immediate transaction update for EVM chains, Tron, and Nano
-      if (isEVMWallet || [WalletType.bitcoin, WalletType.solana, WalletType.tron, WalletType.nano].contains(walletType)) {
+      if (isEVMWallet || [WalletType.bitcoin, WalletType.solana, WalletType.starknet, WalletType.tron, WalletType.nano].contains(walletType)) {
         Future.delayed(Duration(seconds: 4), () async {
           try {
             await Future.wait([
@@ -1142,6 +1144,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           WalletType.nano,
           WalletType.banano,
           WalletType.solana,
+          WalletType.starknet,
           WalletType.tron,
           WalletType.arbitrum,
           WalletType.zcash,
@@ -1195,6 +1198,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.solana:
         return solana!
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
+      case WalletType.starknet:
+        return starknet!
+            .createStarknetTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       case WalletType.tron:
         return tron!.createTronTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       case WalletType.zano:

@@ -41,6 +41,7 @@ bool isNFTACtivatedChain(WalletType walletType, {int? chainId}) {
 
   switch (walletType) {
     case WalletType.solana:
+    case WalletType.starknet:
       return true;
     default:
       return false;

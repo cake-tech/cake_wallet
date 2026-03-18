@@ -432,6 +432,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://nanexplorer.com/banano/block/${txId}';
       case WalletType.solana:
         return 'https://solscan.io/tx/${txId}';
+      case WalletType.starknet:
+        return 'https://starkscan.co/tx/${txId}';
       case WalletType.tron:
         return 'https://tronscan.org/#/transaction/${txId}';
       case WalletType.wownero:
@@ -453,6 +455,46 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void launchExplorer() {
     launchUrl(Uri.parse(_explorerUrl));
+  }
+
+  void _addStarknetListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(
+        title: S.current.transaction_details_transaction_id,
+        value: tx.txHash,
+        key: ValueKey('standard_list_item_transaction_details_id_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_date,
+        value: dateFormat.format(tx.date),
+        key: ValueKey('standard_list_item_transaction_details_date_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_amount,
+        value: tx.amountFormatted(),
+        key: ValueKey('standard_list_item_transaction_details_amount_key'),
+      ),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(
+          title: S.current.transaction_details_fee,
+          value: tx.feeFormatted()!,
+          key: ValueKey('standard_list_item_transaction_details_fee_key'),
+        ),
+      if (showRecipientAddress && tx.to != null)
+        StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: tx.to!,
+          key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+        ),
+      if (tx.from != null)
+        StandartListItem(
+          title: S.current.transaction_details_source_address,
+          value: tx.from!,
+          key: ValueKey('standard_list_item_transaction_details_source_address_key'),
+        ),
+    ];
+
+    items.addAll(_items);
   }
 
   void addBumpFeesListItems(TransactionInfo tx, String rawTransaction) {

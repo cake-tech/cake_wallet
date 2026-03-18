@@ -107,6 +107,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.solana:
+      case WalletType.starknet:
       case WalletType.tron:
       case WalletType.arbitrum:
       case WalletType.zcash:
@@ -127,6 +128,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type != WalletType.nano &&
       wallet.type != WalletType.banano &&
       wallet.type != WalletType.solana &&
+      wallet.type != WalletType.starknet &&
       wallet.type != WalletType.tron &&
       wallet.chainId !=
           42161; // Wallet type is generic for all EVM chains, so we need to check the chainId

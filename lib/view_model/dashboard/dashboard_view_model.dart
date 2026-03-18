@@ -319,7 +319,7 @@ abstract class DashboardViewModelBase with Store {
         return 0;
       }
       int confirmations = 1;
-      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
+      if (![WalletType.solana, WalletType.starknet, WalletType.tron].contains(wallet.type)) {
         try {
           confirmations =
               appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
@@ -1168,6 +1168,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.arbitrum:
       case WalletType.bsc:
       case WalletType.solana:
+      case WalletType.starknet:
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.tron:
@@ -1284,7 +1285,7 @@ abstract class DashboardViewModelBase with Store {
         return 0;
       }
       int confirmations = 1;
-      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
+      if (![WalletType.solana, WalletType.starknet, WalletType.tron].contains(wallet.type)) {
         try {
           confirmations =
               appStore.wallet!.transactionHistory.transactions.values.first.confirmations +

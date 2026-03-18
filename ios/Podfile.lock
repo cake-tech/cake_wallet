@@ -203,7 +203,7 @@ DEPENDENCIES:
   - warp_api (from `.symlinks/plugins/warp_api/ios`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  trunk:
     - CryptoSwift
     - DKImagePickerController
     - DKPhotoGallery
@@ -354,6 +354,6 @@ SPEC CHECKSUMS:
   warp_api: 997d8fb3e777669bc6260d0c12e56cd40b9db1d1
   YttriumWrapper: 31e937fe9fbe0f1314d2ca6be9ce9b379a059966
 
-PODFILE CHECKSUM: 5296465b1c6d14d506230356756826012f65d97a
+PODFILE CHECKSUM: dbf34f4e0af89cc5d6eae66277813be6492c7735
 
 COCOAPODS: 1.16.2

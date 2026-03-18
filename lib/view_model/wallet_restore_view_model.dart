@@ -9,6 +9,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -46,6 +47,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.solana:
+      case WalletType.starknet:
       case WalletType.tron:
       case WalletType.wownero:
       case WalletType.haven:
@@ -95,6 +97,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     WalletType.nano,
     WalletType.banano,
     WalletType.solana,
+    WalletType.starknet,
     WalletType.tron,
     WalletType.zcash,
   ].contains(type);
@@ -179,6 +182,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.solana:
           return solana!.createSolanaRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase,
+          );
+        case WalletType.starknet:
+          return starknet!.createStarknetRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,
@@ -284,6 +294,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.solana:
           return solana!.createSolanaRestoreWalletFromPrivateKey(
+            name: name,
+            password: password,
+            privateKey: options['private_key'] as String,
+          );
+        case WalletType.starknet:
+          return starknet!.createStarknetRestoreWalletFromPrivateKey(
             name: name,
             password: password,
             privateKey: options['private_key'] as String,

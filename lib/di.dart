@@ -71,6 +71,7 @@ import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
@@ -1359,6 +1360,8 @@ Future<void> setup({
         return HavenWalletService();
       case WalletType.zcash:
         return zcash!.createZcashWalletService(SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.starknet:
+        return starknet!.createStarknetWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.none:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }

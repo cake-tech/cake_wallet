@@ -33,6 +33,7 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.nano:
     case WalletType.banano:
     case WalletType.solana:
+    case WalletType.starknet:
     case WalletType.tron:
       return [];
     case WalletType.zano:

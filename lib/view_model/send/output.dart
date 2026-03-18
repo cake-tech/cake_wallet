@@ -12,6 +12,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -158,6 +159,7 @@ abstract class OutputBase with Store {
           case WalletType.nano:
           case WalletType.banano:
           case WalletType.solana:
+          case WalletType.starknet:
           case WalletType.tron:
             break;
         }
@@ -218,6 +220,9 @@ abstract class OutputBase with Store {
         case WalletType.solana:
           estimatedFee = solana!.getEstimateFees(_wallet).toString();
           break;
+        case WalletType.starknet:
+          estimatedFee = (starknet!.getEstimateFees(_wallet) ?? 0).toString();
+          break;
         case WalletType.zano:
           estimatedFee = zano!
               .formatterIntAmountToDouble(
@@ -275,7 +280,7 @@ abstract class OutputBase with Store {
 
     try {
       final currency = (isEVMCompatibleChain(_wallet.type) ||
-              [WalletType.solana, WalletType.tron].contains(_wallet.type))
+              [WalletType.solana, WalletType.starknet, WalletType.tron].contains(_wallet.type))
           ? _wallet.currency
           : cryptoCurrencyHandler();
 

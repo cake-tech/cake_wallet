@@ -5,6 +5,7 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
@@ -56,6 +57,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return decred!.getDecredWordList();
       case WalletType.zcash:
         return zcash!.getZcashWordList(language);
+      case WalletType.starknet:
+        return starknet!.getStarknetWordList(language);
       case WalletType.none:
       case WalletType.haven:
         return [];
