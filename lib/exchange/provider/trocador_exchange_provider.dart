@@ -82,7 +82,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
@@ -105,6 +105,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     final min = double.tryParse(coinJson['minimum']?.toString() ?? '');
     final max = double.tryParse(coinJson['maximum']?.toString() ?? '');
+    if (max == 0) return null;
     return Limits(min: min, max: max);
   }
 

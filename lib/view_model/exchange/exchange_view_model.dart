@@ -322,7 +322,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   final List<ExchangeProvider> _tradeAvailableProviders = [];
 
-  Map<ExchangeProvider, Limits> _providerLimits = {};
+  Map<ExchangeProvider, Limits?> _providerLimits = {};
 
   @observable
   ObservableList<ExchangeProvider> selectedProviders;
@@ -919,10 +919,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               to: to,
               isFixedRateMode: isFixedRateMode,
             )
-            .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
+            .onError((error, stackTrace) => null)
             .timeout(
               Duration(seconds: 7),
-              onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
+              onTimeout: () => null,
             );
         return MapEntry(provider, limits);
       }).toList();
@@ -930,7 +930,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       final entries = await Future.wait(futures);
       _providerLimits = Map.fromEntries(entries);
 
-      _providerLimits.values.forEach((tempLimits) {
+      _providerLimits.values
+          .whereType<Limits>()
+          .forEach((tempLimits) {
         if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin!) {
           lowestMin = tempLimits.min;
         }

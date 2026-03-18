@@ -46,7 +46,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits({
+  Future<Limits?> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,
@@ -54,7 +54,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     try {
       final uri = Uri.https(apiAuthority, getCoins);
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
@@ -72,15 +71,16 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       if (coin.isEmpty) {
         // Currency not supported by SwapTrade (e.g. USDC, DOGE).
-        return Limits(min: null, max: null);
+        return null;
       }
 
       final min = double.tryParse(coin['min']?.toString() ?? '') ?? 0.0;
       final max = double.tryParse(coin['max']?.toString() ?? '') ?? 0.0;
-      return Limits(min: min, max: max > 0 ? max : null);
+      if (max == 0) return null;
+      return Limits(min: min, max: max);
     } catch (e) {
       printV(e.toString());
-      throw Exception('Error fetching limits: ${e.toString()}');
+      return null;
     }
   }
 

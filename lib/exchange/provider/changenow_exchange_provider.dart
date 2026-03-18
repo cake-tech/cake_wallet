@@ -54,7 +54,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
@@ -82,6 +82,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final min = double.tryParse(responseJSON['minAmount']?.toString() ?? '');
     final max = double.tryParse(responseJSON['maxAmount']?.toString() ?? '');
+    if (max == 0) return null;
     return Limits(min: min, max: max);
   }
 
