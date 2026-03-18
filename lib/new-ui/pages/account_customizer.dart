@@ -17,6 +17,7 @@ import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dar
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
+import 'package:cw_core/card_design.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -381,7 +382,9 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             selected: true,
             designSwitchDuration: Duration(milliseconds: 200),
             width: cardWidth,
-            design: widget.dashboardViewModel.cardDesigns[i],
+            design: i >= widget.dashboardViewModel.cardDesigns.length
+                ? CardDesign.genericDefault
+                : widget.dashboardViewModel.cardDesigns[i],
           ),
           order: i,
           accountListItem: accounts[i]));
