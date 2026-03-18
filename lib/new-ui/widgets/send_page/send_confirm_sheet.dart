@@ -200,6 +200,7 @@ class SendTransactionDetails extends StatelessWidget {
             sendViewModel.outputs,
             (o) => double.tryParse(o.fiatAmount.replaceAll(",", "")) ?? 0,
             sendViewModel.fiatCurrency.title,
+      decimals:2
           )
         : sendViewModel.pendingTransactionFiatAmountFormatted;
 
@@ -208,6 +209,7 @@ class SendTransactionDetails extends StatelessWidget {
             sendViewModel.outputs,
             (o) => double.tryParse(o.estimatedFeeFiatAmount.replaceAll(",", "")) ?? 0,
             sendViewModel.fiatCurrency.title,
+        decimals:2
           )
         : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
 
