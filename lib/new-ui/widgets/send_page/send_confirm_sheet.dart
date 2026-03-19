@@ -154,8 +154,10 @@ class SendTransactionDetails extends StatelessWidget {
   String sumStr<T>(List<T> list, double Function(T) picker) =>
       sumBy(list, picker).toString();
 
-  String sumWithUnit<T>(List<T> list, double Function(T) picker, String unit) =>
-      "${sumStr(list, picker)} $unit";
+  String sumWithUnit<T>(List<T> list, double Function(T) picker, String unit, {int? decimals}) {
+    final str = sumStr(list, picker);
+    return "${decimals == null ? str : str.withDecimals(decimals)} $unit";
+  }
 
 
   Widget _buildMainContent(BuildContext context) {
@@ -198,6 +200,7 @@ class SendTransactionDetails extends StatelessWidget {
             sendViewModel.outputs,
             (o) => double.tryParse(o.fiatAmount.replaceAll(",", "")) ?? 0,
             sendViewModel.fiatCurrency.title,
+      decimals:2
           )
         : sendViewModel.pendingTransactionFiatAmountFormatted;
 
@@ -206,6 +209,7 @@ class SendTransactionDetails extends StatelessWidget {
             sendViewModel.outputs,
             (o) => double.tryParse(o.estimatedFeeFiatAmount.replaceAll(",", "")) ?? 0,
             sendViewModel.fiatCurrency.title,
+        decimals:2
           )
         : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
 

@@ -63,7 +63,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {

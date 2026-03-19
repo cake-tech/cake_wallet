@@ -292,7 +292,10 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
           _depositAmountDebounce.run(() {
             widget.exchangeViewModel.calculateBestRate();
-            widget.exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
+            if (depositAmountController.text != widget.exchangeViewModel.depositAmount &&
+                depositAmountController.text != S.of(context).all) {
+              widget.exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
+            }
             widget.exchangeViewModel.isReceiveAmountEntered = false;
             widget.exchangeViewModel.isFixedRateMode = false;
             if (!receiveKey.currentState!.amountFocusNode.hasFocus) {
