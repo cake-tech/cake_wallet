@@ -171,10 +171,26 @@ abstract class CakePayBuyCardViewModelBase with Store {
       sendViewModel.state =
           FailureState('Unsupported wallet type, please use Bitcoin, Monero, Litecoin or Zcash.');
     }
+
+    final isPrepaidRangeSelected = card.prepaidRange.isNotEmpty;
+
+    int selectedCardId = card.id;
+    String selectedPrice = amount.toString();
+
+    if (isPrepaidRangeSelected) {
+      selectedCardId = selectedDenomination.$2 ?? card.id;
+      selectedPrice = selectedDenomination.$1.isNotEmpty
+          ? selectedDenomination.$1
+          : amount.toString();
+    } else if (isDenominationSelected) {
+      selectedCardId = selectedDenomination.$2 ?? card.id;
+      selectedPrice = selectedDenomination.$1;
+    }
+
     try {
       order = await _cakePayService.createOrder(
-        cardId: isDenominationSelected ? selectedDenomination.$2 ?? card.id : card.id,
-        price: isDenominationSelected ? selectedDenomination.$1 : amount.toString(),
+        cardId: selectedCardId,
+        price: selectedPrice,
         quantity: quantity,
         confirmsNoVpn: confirmsNoVpn,
         confirmsVoidedRefund: confirmsVoidedRefund,
