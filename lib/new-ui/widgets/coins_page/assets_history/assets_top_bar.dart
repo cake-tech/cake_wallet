@@ -67,7 +67,7 @@ class AssetsTopBar extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12.0),
                     child: Row(
-                      spacing: 0,
+                      spacing: 6,
                       children: [
                     CakeImageWidget(
                         imageUrl: "assets/new-ui/options_slider.svg",
