@@ -738,21 +738,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
 
     if (previousCurrency != currency) {
-      if (wasSendAllEnabled) {
-        _depositAmount = '';
-        _receiveAmount = '';
-        bestRate = 0.0;
-        loadLimits();
-        _setAvailableProviders();
-
-        if (hasAllAmount) {
-          calculateDepositAllAmount();
-        } else {
-          isSendAllEnabled = false;
-        }
-      } else {
-        _onPairChange();
-      }
+      _onPairChange(clearBoth: wasSendAllEnabled);
     }
     fetchFiatPrice(currency);
     updateDepositAvailableAmount();
@@ -774,11 +760,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
 
     if (previousCurrency != currency) {
-      if (isSendAllEnabled && hasAllAmount) {
-        calculateDepositAllAmount();
-      } else {
-        _onPairChange();
-      }
+      _onPairChange();
     }
     fetchFiatPrice(currency);
   }
@@ -1391,16 +1373,26 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void removeTemplate({required ExchangeTemplate template}) =>
       _exchangeTemplateStore.remove(template: template);
 
-  void _onPairChange() {
-    if (isFixedRateMode) {
+  void _onPairChange({bool clearBoth = false}) {
+    if (clearBoth) {
       _depositAmount = '';
-    } else {
       _receiveAmount = '';
+      if (!hasAllAmount) isSendAllEnabled = false;
+    } else {
+      if (isFixedRateMode) {
+        _depositAmount = '';
+      } else {
+        _receiveAmount = '';
+      }
     }
     bestRate = 0.0;
     bestRateProvider = null;
     _sortedAvailableProviders.clear();
-    loadLimits();
+    loadLimits().then((_) {
+      if (clearBoth && hasAllAmount) {
+        calculateDepositAllAmount();
+      }
+    });
     _setAvailableProviders();
   }
 
