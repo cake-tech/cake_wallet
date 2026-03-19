@@ -409,7 +409,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.bitcoin:
         return 'https://mempool.cakewallet.com/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
       case WalletType.litecoin:
-        return 'https://blockchair.com/litecoin/transaction/${txId}';
+        return bitcoin!.txIsMweb(transactionInfo)
+            ? "https://www.mwebexplorer.com/blocks/block/${transactionInfo.height}"
+            : 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.bitcoinCash:
         return 'https://blockchair.com/bitcoin-cash/transaction/${txId}';
       case WalletType.haven:
