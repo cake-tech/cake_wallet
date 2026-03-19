@@ -48,7 +48,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
         snap: true,
         snapSizes: const [0.6, 0.9],
         builder: (context, controller) => SafeArea(
-          bottom: false,
+              bottom: false,
               child: Padding(
                 padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: GestureDetector(
@@ -70,8 +70,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                             child: Column(
                               children: [
                                 Image.asset(
-                                    widget.transactionDetailsViewModel.transactionAsset
-                                            .iconPath ??
+                                    widget.transactionDetailsViewModel.transactionAsset.iconPath ??
                                         "",
                                     width: 64,
                                     height: 64),
@@ -100,19 +99,20 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                                   item.value.length > 25;
 
                                               return ListItemRegularRow(
-                                                onTap: (){
-                                                  Clipboard.setData(ClipboardData(text: item.value));
-                                                },
+                                                  onTap: () {
+                                                    Clipboard.setData(
+                                                        ClipboardData(text: item.value));
+                                                  },
                                                   showArrow: false,
-                                                  keyValue: ((item.key as ValueKey?)?.value
-                                                          as String?) ??
-                                                      item.title,
+                                                  keyValue:
+                                                      ((item.key as ValueKey?)?.value as String?) ??
+                                                          item.title,
                                                   label: item.title,
                                                   trailingWidget: shouldBuildBottomWidget
                                                       ? null
                                                       : _buildTrailingWIdget(item),
                                                   bottomWidget: shouldBuildBottomWidget
-                                                      ?  _buildBottomWidget(item)
+                                                      ? _buildBottomWidget(item)
                                                       : null);
                                             })
                                             .whereType<ListItem>()
@@ -121,8 +121,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                       Container(
                                         decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(20),
-                                            color:
-                                                Theme.of(context).colorScheme.surfaceContainer),
+                                            color: Theme.of(context).colorScheme.surfaceContainer),
                                         child: Padding(
                                           padding: const EdgeInsets.all(12.0),
                                           child: Column(
@@ -146,14 +145,18 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                         ),
                                       ),
                                       Observer(
-                                        builder: (_)=>NewListSections(sections: {
+                                        builder: (_) => NewListSections(sections: {
                                           "view tx": [
                                             ListItemRegularRow(
                                                 keyValue: "view tx on",
                                                 label: widget.transactionDetailsViewModel
                                                     .explorerDescription,
                                                 onTap: widget
-                                                    .transactionDetailsViewModel.launchExplorer, foregroundColor: Theme.of(context).colorScheme.primary,trailingIconPath: "assets/new-ui/link_arrow.svg", trailingIconSize: 8)
+                                                    .transactionDetailsViewModel.launchExplorer,
+                                                foregroundColor:
+                                                    Theme.of(context).colorScheme.primary,
+                                                trailingIconPath: "assets/new-ui/link_arrow.svg",
+                                                trailingIconSize: 8)
                                           ],
                                           if (widget.transactionDetailsViewModel.canReplaceByFee)
                                             "rbf": [
@@ -165,8 +168,8 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                                         .pushNamed(Routes.bumpFeePage, arguments: [
                                                       widget.transactionDetailsViewModel
                                                           .transactionInfo,
-                                                      widget
-                                                          .transactionDetailsViewModel.rawTransaction
+                                                      widget.transactionDetailsViewModel
+                                                          .rawTransaction
                                                     ]);
                                                   })
                                             ]
@@ -175,7 +178,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                     ],
                                   ),
                                 ),
-                                SizedBox(height:MediaQuery.of(context).viewPadding.bottom)
+                                SizedBox(height: MediaQuery.of(context).viewPadding.bottom)
                               ],
                             ),
                           ),

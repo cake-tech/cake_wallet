@@ -1,3 +1,4 @@
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/transaction_details/address_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart';
@@ -43,53 +44,71 @@ bool isLightning(TransactionInfo tx) {
 class TxDetailRowDefinition {
   final String keyString;
   final String title;
-  final String Function(TransactionDetailsViewModelBase)
-      valueGetter;
+  final String Function(TransactionDetailsViewModelBase) valueGetter;
   final bool Function(TransactionDetailsViewModelBase) applicable;
   final dynamic Function({
-  required String title,
-  required String value,
-  required Key key,
+    required String title,
+    required String value,
+    required Key key,
   }) listItemBuilder;
+
   TxDetailRowDefinition(
       {required this.keyString,
       required this.title,
       required this.valueGetter,
-      this.applicable = _trueFunc, this.listItemBuilder = StandartListItem.new});
+      this.applicable = _trueFunc,
+      this.listItemBuilder = StandartListItem.new});
 
   static final List<TxDetailRowDefinition> defs = [
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_date_key",
         title: S.current.transaction_details_date,
         valueGetter: (vm) => DateFormatter.withCurrentLocal().format(vm.transactionInfo.date)),
+
+
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_height_key",
         title: S.current.transaction_details_height,
         valueGetter: (vm) => vm.transactionInfo.height.toString(),
-        applicable: (vm) =>
-            !([WalletType.solana, WalletType.tron].contains(vm.wallet.type) && !isLightning(vm.transactionInfo))),
+        applicable: (vm) => !([WalletType.solana, WalletType.tron].contains(vm.wallet.type) &&
+            !isLightning(vm.transactionInfo))),
+
+
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_fee_key",
         title: S.current.transaction_details_fee,
         valueGetter: (vm) => vm.transactionInfo.feeFormatted()!,
-        applicable: (vm) => vm.wallet.type != WalletType.nano && (vm.transactionInfo.feeFormatted() ?? "").isNotEmpty),
+        applicable: (vm) =>
+            vm.wallet.type != WalletType.nano &&
+            (vm.transactionInfo.feeFormatted() ?? "").isNotEmpty),
+
+
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_confirmations_key",
         title: S.current.confirmations,
         valueGetter: (vm) => "${vm.transactionInfo.confirmations}/${vm.neededConfirmations}",
         applicable: (vm) =>
-            [...electrumWalletTypes, ...evmWalletTypes, WalletType.zcash, WalletType.monero].contains(vm.wallet.type) &&
-            !isLightning(vm.transactionInfo), listItemBuilder: ConfirmationsListItem.new),
+            [...electrumWalletTypes, ...evmWalletTypes, WalletType.zcash, WalletType.monero]
+                .contains(vm.wallet.type) &&
+            !isLightning(vm.transactionInfo),
+        listItemBuilder: ConfirmationsListItem.new),
+
+
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_recipient_address_key",
         title: S.current.transaction_details_recipient_address,
         valueGetter: (vm) {
+          vm.isRecipientAddressShown = true;
           switch (vm.wallet.type) {
             case WalletType.monero:
-              return monero!.getTransactionAddress(vm.wallet, vm.transactionInfo.additionalInfo['accountIndex'] as int,
+              return monero!.getTransactionAddress(
+                  vm.wallet,
+                  vm.transactionInfo.additionalInfo['accountIndex'] as int,
                   vm.transactionInfo.additionalInfo['addressIndex'] as int);
             case WalletType.bitcoin:
-              return( bitcoin!.getTransactionAddresses(vm.wallet, vm.transactionInfo)??[]).firstOrNull ?? "";
+              return (bitcoin!.getTransactionAddresses(vm.wallet, vm.transactionInfo) ?? [])
+                      .firstOrNull ??
+                  "";
             case WalletType.tron:
               return tron!.getTronBase58Address(vm.transactionInfo.to!, vm.wallet);
             default:
@@ -97,9 +116,14 @@ class TxDetailRowDefinition {
           }
         },
         applicable: (vm) =>
-        vm.transactionInfo.to != null ||
-            [WalletType.monero, WalletType.tron].contains(vm.wallet.type) ||
-            vm.wallet.type == WalletType.bitcoin && vm.transactionInfo.direction == TransactionDirection.outgoing, listItemBuilder: AddressListItem.new),
+            vm.showRecipientAddress &&
+            (vm.transactionInfo.to != null ||
+                [WalletType.monero, WalletType.tron].contains(vm.wallet.type) ||
+                vm.wallet.type == WalletType.bitcoin &&
+                    vm.transactionInfo.direction == TransactionDirection.incoming),
+        listItemBuilder: AddressListItem.new),
+
+
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_source_address_key",
         title: S.current.transaction_details_source_address,
@@ -112,45 +136,66 @@ class TxDetailRowDefinition {
           }
         },
         applicable: (vm) => vm.transactionInfo.from != null),
+
+
     TxDetailRowDefinition(
         keyString: "standard_list_item_address_label_key",
         title: S.current.address_label,
-        valueGetter: (vm) => monero!.getSubaddressLabel(vm.wallet,
-            vm.transactionInfo.additionalInfo['accountIndex'] as int, vm.transactionInfo.additionalInfo['addressIndex'] as int),
+        valueGetter: (vm) => monero!.getSubaddressLabel(
+            vm.wallet,
+            vm.transactionInfo.additionalInfo['accountIndex'] as int,
+            vm.transactionInfo.additionalInfo['addressIndex'] as int),
         applicable: (vm) => vm.wallet.type == WalletType.monero),
+
+
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_key",
         title: S.current.transaction_key,
         valueGetter: (vm) {
-          final descriptionKey = '${vm.transactionInfo.txHash}_${vm.wallet.walletAddresses.primaryAddress}';
+          final descriptionKey =
+              '${vm.transactionInfo.txHash}_${vm.wallet.walletAddresses.primaryAddress}';
 
           final description = vm.transactionDescriptionBox.values.firstWhere(
               (val) => val.id == descriptionKey || val.id == vm.transactionInfo.txHash,
               orElse: () => TransactionDescription(id: descriptionKey));
-          return vm.transactionInfo.additionalInfo['key'] as String? ?? description.transactionKey ?? "";
+          return vm.transactionInfo.additionalInfo['key'] as String? ??
+              description.transactionKey ??
+              "";
         },
         applicable: (vm) => vm.wallet.type == WalletType.monero),
+
+
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_confirmed_key",
         title: S.current.confirmed_tx,
         valueGetter: (vm) => (vm.transactionInfo.confirmations > 0).toString(),
         applicable: (vm) => vm.wallet.type == WalletType.nano),
+
+
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_memo_key",
         title: S.current.memo,
         valueGetter: (vm) => vm.transactionInfo.additionalInfo['memo'] as String,
-        applicable: (vm) => vm.wallet.type == WalletType.zcash && vm.transactionInfo.additionalInfo["memo"] != null),
+        applicable: (vm) =>
+            vm.wallet.type == WalletType.zcash &&
+            vm.transactionInfo.additionalInfo["memo"] != null),
+
+
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_asset_id_key",
         title: "Asset ID",
         valueGetter: (vm) =>
-        vm.transactionInfo.additionalInfo["assetId"] as String? ?? "Unknown asset id",
+            vm.transactionInfo.additionalInfo["assetId"] as String? ?? "Unknown asset id",
         applicable: (vm) => vm.wallet.type == WalletType.zano),
+
+
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_comment_key",
         title: S.current.transaction_details_title,
         valueGetter: (vm) => vm.transactionInfo.additionalInfo['comment'] as String? ?? "",
         applicable: (vm) => vm.wallet.type == WalletType.zano),
+
+
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_id_key",
       title: S.current.transaction_details_transaction_id,
@@ -246,13 +291,11 @@ abstract class TransactionDetailsViewModelBase with Store {
   TransactionPriority? transactionPriority;
 
   CryptoCurrency get transactionAsset {
+    if (isEVMCompatibleChain(wallet.type)) {
+      return evm!.assetOfTransaction(wallet, transactionInfo);
+    }
+
     return switch (wallet.type) {
-      WalletType.ethereum ||
-      WalletType.polygon ||
-      WalletType.arbitrum ||
-      WalletType.base ||
-      WalletType.bsc =>
-        evm!.assetOfTransaction(wallet, transactionInfo),
       WalletType.solana => solana!.assetOfTransaction(wallet, transactionInfo),
       WalletType.tron => tron!.assetOfTransaction(wallet, transactionInfo),
       WalletType.zano => zano!.assetOfTransaction(wallet, transactionInfo) ?? CryptoCurrency.zano,

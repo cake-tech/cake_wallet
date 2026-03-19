@@ -15,7 +15,6 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
-import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:flutter/material.dart';
@@ -70,10 +69,8 @@ class HistorySection extends StatelessWidget {
 
                     return GestureDetector(
                       onTap: () {
-                        showModalBottomSheet(isScrollControlled:true,context: context, builder: (context) =>
-                            TransactionDetailsModal(
-                                transactionDetailsViewModel: getIt.get<TransactionDetailsViewModel>(
-                                    param1: [item.transaction, false])));
+                        final page = getIt.get<TransactionDetailsModal>(param1: transaction);
+                        showModalBottomSheet(isScrollControlled:true,context: context, builder: (context) => page);
                       },
                       child: HistoryTile(
                         title: item.formattedTitle + transactionType,
