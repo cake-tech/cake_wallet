@@ -18,7 +18,9 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   final bool displaySats;
 
   CardCustomizerBloc(this._wallet, {this.lightningMode = false, this.displaySats = false})
-      : super(CardCustomizerNotLoaded(0, 0, [CardDesign.genericDefault], [], "", -1, displaySats, 0)) {
+      : super(CardCustomizerNotLoaded(
+            0, 0, [CardDesign.genericDefault], [],
+            "", -1, displaySats, 0)) {
 
     on<_Init>(_init);
     on<CardDesignSelected>(_onDesignSelected);
@@ -69,18 +71,13 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     return 0;
   }
 
-  String _initSelectedIconPath(CardDesign currentDesign,
-      List<String> availableIconPaths, CryptoCurrency curr) {
-    if (currentDesign.backgroundType != CardDesignBackgroundTypes.svgIcon) {
-      return "";
-    }
-    if (availableIconPaths.contains(currentDesign.imagePath)) {
-      return currentDesign.imagePath;
-    }
-    if (availableIconPaths.isNotEmpty) {
-      return availableIconPaths.first;
-    }
-    return CardDesign.forCurrencyIcon(curr).imagePath;
+  int _initSelectedIconIndex(
+    BalanceCardStyleSettings? settings,
+    List<String> availableIconPaths,
+  ) {
+    if (settings == null || availableIconPaths.isEmpty) return 0;
+
+    return settings.iconStyleIndex.clamp(0, availableIconPaths.length - 1);
   }
 
   int _initSelectedColor(CardDesign currentDesign) {
@@ -115,8 +112,8 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     final selectedDesignIndex = _initSelectedDesign(currentDesign);
     final selectedColor = _initSelectedColor(currentDesign);
     final availableIconPaths = CardDesign.iconPathsForWalletType(curr);
-    final selectedIconPath = _initSelectedIconPath(
-        currentDesign, availableIconPaths, curr);
+    final selectedIconIndex = _initSelectedIconIndex(
+        currentDesignSettings, availableIconPaths);
 
     emit(CardCustomizerInitial(
         selectedDesignIndex,
@@ -128,7 +125,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
         displaySats,
         currentDesignSettings?.cardOrder ?? 0,
         availableIconPaths: availableIconPaths,
-        selectedIconPath: selectedIconPath));
+        selectedIconIndex: selectedIconIndex));
   }
 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {
@@ -152,7 +149,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
   void _onIconStyleSelected(
       IconStyleSelected event, Emitter<CardCustomizerState> emit) {
-    emit(state.copyWith(selectedIconPath: event.iconPath));
+    emit(state.copyWith(selectedIconIndex: event.iconIndex));
   }
 
   void _onAccountNameChanged(AccountNameChanged event, Emitter<CardCustomizerState> emit) {
@@ -161,11 +158,24 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
   void _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) {
     BalanceCardStyleSettings.fromCardDesign(
-            _wallet.walletInfo.internalId, state.accountIndex, state.cardOrder, state.selectedDesign)
+            _wallet.walletInfo.internalId,
+            state.accountIndex,
+            state.cardOrder,
+            state.selectedDesign,
+            iconStyleIndex: state.selectedIconIndex)
         .insert()
         .then((value) {
-      emit(CardCustomizerSaved(state.selectedDesignIndex, state.selectedColorIndex,
-          state.availableDesigns, state.availableColors, state.accountName, state.accountIndex, state.displaySats, state.cardOrder, availableIconPaths: state.availableIconPaths, selectedIconPath: state.selectedIconPath));
+      emit(CardCustomizerSaved(
+          state.selectedDesignIndex,
+          state.selectedColorIndex,
+          state.availableDesigns,
+          state.availableColors,
+          state.accountName,
+          state.accountIndex,
+          state.displaySats,
+          state.cardOrder,
+          availableIconPaths: state.availableIconPaths,
+          selectedIconIndex: state.selectedIconIndex));
     });
     saveAccountName();
   }

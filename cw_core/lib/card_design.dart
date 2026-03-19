@@ -348,93 +348,93 @@ class CardDesign {
     switch (currency) {
       case CryptoCurrency.btc:
         return [
-          "assets/images/crypto/bitcoin.webp",
           "assets/new-ui/balance_card_icons/bitcoin.svg",
+          "assets/images/crypto/bitcoin.webp",
         ];
       case CryptoCurrency.eth:
         return [
-          "assets/images/crypto/ethereum.webp",
           "assets/new-ui/balance_card_icons/ethereum.svg",
+          "assets/images/crypto/ethereum.webp",
         ];
       case CryptoCurrency.btcln:
         return [
-          "assets/images/crypto/lightning.webp",
           "assets/new-ui/balance_card_icons/lightning.svg",
+          "assets/images/crypto/lightning.webp",
         ];
       case CryptoCurrency.xmr:
         return [
-          "assets/images/crypto/monero.webp",
           "assets/new-ui/balance_card_icons/monero.svg",
+          "assets/images/crypto/monero.webp",
         ];
       case CryptoCurrency.ltc:
         return [
-          "assets/images/crypto/litecoin.webp",
           "assets/new-ui/balance_card_icons/litecoin.svg",
+          "assets/images/crypto/litecoin.webp",
         ];
       case CryptoCurrency.bch:
         return [
-          "assets/images/crypto/bitcoin-cash.webp",
           "assets/new-ui/balance_card_icons/bitcoin_cash.svg",
+          "assets/images/crypto/bitcoin-cash.webp",
         ];
       case CryptoCurrency.doge:
         return [
-          "assets/images/crypto/dogecoin.webp",
           "assets/new-ui/balance_card_icons/dogecoin.svg",
+          "assets/images/crypto/dogecoin.webp",
         ];
       case CryptoCurrency.baseEth:
         return [
-          "assets/images/crypto/base_icon.webp",
           "assets/new-ui/balance_card_icons/base.svg",
+          "assets/images/crypto/base_icon.webp",
         ];
       case CryptoCurrency.maticpoly:
         return [
-          "assets/images/crypto/polygon.webp",
           "assets/new-ui/balance_card_icons/polygon.svg",
+          "assets/images/crypto/polygon.webp",
         ];
       case CryptoCurrency.sol:
         return [
-          "assets/images/crypto/solana.webp",
           "assets/new-ui/balance_card_icons/solana.svg",
+          "assets/images/crypto/solana.webp",
         ];
       case CryptoCurrency.trx:
         return [
-          "assets/images/crypto/tron.webp",
           "assets/new-ui/balance_card_icons/tron.svg",
+          "assets/images/crypto/tron.webp",
         ];
       case CryptoCurrency.nano:
         return [
-          "assets/images/crypto/nano.webp",
           "assets/new-ui/balance_card_icons/nano.svg",
+          "assets/images/crypto/nano.webp",
         ];
       case CryptoCurrency.zano:
         return [
-          "assets/images/crypto/zano.webp",
           "assets/new-ui/balance_card_icons/zano.svg",
+          "assets/images/crypto/zano.webp",
         ];
       case CryptoCurrency.wow:
         return [
-          "assets/images/crypto/wownero.webp",
           "assets/new-ui/balance_card_icons/wownero.svg",
+          "assets/images/crypto/wownero.webp",
         ];
       case CryptoCurrency.dcr:
         return [
-          "assets/images/crypto/decred.webp",
           "assets/new-ui/balance_card_icons/decred.svg",
+          "assets/images/crypto/decred.webp",
         ];
       case CryptoCurrency.arbEth:
         return [
-          "assets/images/crypto/arbitrum.webp",
           "assets/new-ui/balance_card_icons/arbitrum.svg",
+          "assets/images/crypto/arbitrum.webp",
         ];
       case CryptoCurrency.zec:
         return [
-          "assets/images/crypto/zcash.webp",
           "assets/new-ui/balance_card_icons/zcash.svg",
+          "assets/images/crypto/zcash.webp",
         ];
       case CryptoCurrency.bnb:
         return [
-          "assets/images/crypto/bnb.webp",
           "assets/new-ui/balance_card_icons/bnb.svg",
+          "assets/images/crypto/bnb.webp",
         ];
       default:
         return [];
@@ -507,6 +507,18 @@ class CardDesign {
     CardDesign.gradientBlack: CardColorCombination.black,
   };
 
+  static CardDesign _applyIconStyleIndex(
+    CardDesign design,
+    int iconStyleIndex,
+    CryptoCurrency currency,
+  ) {
+    final paths = iconPathsForWalletType(currency);
+    if (paths.isEmpty) return design;
+
+    final clampedIndex = iconStyleIndex.clamp(0, paths.length - 1);
+    return design.withImagePath(paths[clampedIndex]);
+  }
+
   static CardDesign fromStyleSettings(
       BalanceCardStyleSettings? setting, CryptoCurrency walletCurrency) {
     if (setting == null) {
@@ -535,9 +547,11 @@ class CardDesign {
       var design = CardDesign.forCurrencyIcon(walletCurrency)
           .withGradientAndColorCombination(
               specialColors.gradient, specialColors.colors);
-      return setting.iconPath.isNotEmpty
-          ? design.withImagePath(setting.iconPath)
-          : design;
+      return _applyIconStyleIndex(
+        design,
+        setting.iconStyleIndex,
+        walletCurrency,
+      );
     }
     if (setting.useSpecialDesign) {
       return CardDesign.forCurrencySpecial(walletCurrency);
@@ -546,9 +560,11 @@ class CardDesign {
       final baseIcon = CardDesign.forCurrencyIcon(walletCurrency);
       final withGradient =
           baseIcon.withGradient(CardDesign.allGradients[setting.gradientIndex]);
-      return setting.iconPath.isNotEmpty
-          ? withGradient.withImagePath(setting.iconPath)
-          : withGradient;
+      return _applyIconStyleIndex(
+        withGradient,
+        setting.iconStyleIndex,
+        walletCurrency,
+      );
     }
     printV("somehow, the user saved the design settings with literally no "
         "customization?");

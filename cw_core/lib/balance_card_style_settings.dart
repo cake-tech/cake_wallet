@@ -8,7 +8,7 @@ class BalanceCardStyleSettings {
   final int gradientIndex;
   final bool useSpecialDesign;
   final String backgroundImagePath;
-  final String iconPath;
+  final int iconStyleIndex;
   final bool isGradientOnly;
   final int cardOrder;
 
@@ -18,7 +18,7 @@ class BalanceCardStyleSettings {
         required this.gradientIndex,
         required this.useSpecialDesign,
         required this.backgroundImagePath,
-        this.iconPath = "",
+        this.iconStyleIndex = 0,
         this.isGradientOnly = false,
         required this.cardOrder});
 
@@ -31,7 +31,7 @@ class BalanceCardStyleSettings {
       "gradientIndex": gradientIndex,
       "useSpecialDesign": useSpecialDesign ? 1 : 0,
       "backgroundImagePath": backgroundImagePath,
-      "iconPath": iconPath,
+      "iconStyleIndex": iconStyleIndex,
       "isGradientOnly": isGradientOnly ? 1 : 0,
       "cardOrder": cardOrder,
     };
@@ -45,29 +45,32 @@ class BalanceCardStyleSettings {
       gradientIndex: json["gradientIndex"] as int,
       useSpecialDesign: json["useSpecialDesign"] == 1,
       backgroundImagePath: json["backgroundImagePath"] as String? ?? "",
-      iconPath: json["iconPath"] as String? ?? "",
+      iconStyleIndex: json["iconStyleIndex"] as int? ?? 0,
       isGradientOnly: json["isGradientOnly"] == 1,
       cardOrder: json["cardOrder"] as int? ?? -1,
     );
   }
 
   static BalanceCardStyleSettings fromCardDesign(
-      int walletInfoId, int accountIndex, int cardOrder, CardDesign design) {
-    final designIsGradientOnly =
-        design.backgroundType == CardDesignBackgroundTypes.gradientOnly;
-    final isSvgIcon =
-        design.backgroundType == CardDesignBackgroundTypes.svgIcon;
+      int walletInfoId,
+      int accountIndex,
+      int cardOrder,
+      CardDesign design, {
+      int iconStyleIndex = 0,
+  }) {
     return BalanceCardStyleSettings(
       walletInfoId: walletInfoId,
       accountIndex: accountIndex,
       gradientIndex: CardDesign.allGradients.indexOf(design.gradient),
-      useSpecialDesign: design.backgroundType == CardDesignBackgroundTypes.svgFull,
+      useSpecialDesign:
+          design.backgroundType == CardDesignBackgroundTypes.svgFull,
       backgroundImagePath:
           design.backgroundType == CardDesignBackgroundTypes.image
               ? design.imagePath
               : "",
-      iconPath: isSvgIcon ? design.imagePath : "",
-      isGradientOnly: designIsGradientOnly,
+      iconStyleIndex: iconStyleIndex,
+      isGradientOnly:
+          design.backgroundType == CardDesignBackgroundTypes.gradientOnly,
       cardOrder: cardOrder,
     );
   }

@@ -28,7 +28,7 @@ class AccountNameChanged extends CardCustomizerEvent {
 class DesignSaved extends CardCustomizerEvent {}
 
 class IconStyleSelected extends CardCustomizerEvent {
-  final String iconPath;
+  final int iconIndex;
 
-  IconStyleSelected(this.iconPath);
+  IconStyleSelected(this.iconIndex);
 }

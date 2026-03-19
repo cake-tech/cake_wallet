@@ -85,8 +85,8 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         await _addColumnIfNotExists(
           db,
           table: 'BalanceCardStyleSettings',
-          column: 'iconPath',
-          definition: 'TEXT DEFAULT ""',
+          column: 'iconStyleIndex',
+          definition: 'INTEGER DEFAULT 0',
         );
         await _addColumnIfNotExists(
           db,
@@ -185,7 +185,7 @@ CREATE TABLE BalanceCardStyleSettings (
   gradientIndex INTEGER DEFAULT -1,
   useSpecialDesign BOOLEAN DEFAULT FALSE,
   backgroundImagePath TEXT DEFAULT "",
-  iconPath TEXT DEFAULT "",
+  iconStyleIndex INTEGER DEFAULT 0,
   isGradientOnly BOOLEAN DEFAULT FALSE,
   cardOrder INTEGER DEFAULT 0,
   PRIMARY KEY (walletInfoId, accountIndex),

@@ -10,7 +10,7 @@ sealed class CardCustomizerState {
   final List<CardDesign> availableDesigns;
   final List<Gradient> availableColors;
   final List<String> availableIconPaths;
-  final String selectedIconPath;
+  final int selectedIconIndex;
 
   CardCustomizerState(
     this.selectedDesignIndex,
@@ -22,14 +22,17 @@ sealed class CardCustomizerState {
     this.displaySats,
     this.cardOrder, {
     this.availableIconPaths = const [],
-    this.selectedIconPath = "",
+    this.selectedIconIndex = 0,
   });
 
   CardDesign get selectedDesign {
-    var design = availableDesigns[selectedDesignIndex].withGradient(selectedColor);
-
-    if (design.backgroundType == CardDesignBackgroundTypes.svgIcon && selectedIconPath.isNotEmpty) {
-      design = design.withImagePath(selectedIconPath);
+    var design = availableDesigns[selectedDesignIndex]
+        .withGradient(selectedColor);
+    if (design.backgroundType == CardDesignBackgroundTypes.svgIcon &&
+        availableIconPaths.isNotEmpty) {
+      final clamped = selectedIconIndex.clamp(
+          0, availableIconPaths.length - 1);
+      design = design.withImagePath(availableIconPaths[clamped]);
     }
     return design;
   }
@@ -43,7 +46,7 @@ sealed class CardCustomizerState {
     int? accountIndex,
     int? cardOrder,
     List<String>? availableIconPaths,
-    String? selectedIconPath,
+    int? selectedIconIndex,
   });
 
   Gradient get selectedColor => availableColors[selectedColorIndex];
@@ -62,7 +65,7 @@ final class CardCustomizerNotLoaded extends CardCustomizerState {
       int? accountIndex,
       int? cardOrder,
       List<String>? availableIconPaths,
-      String? selectedIconPath}) {
+      int? selectedIconIndex}) {
     // this is never gonna be copied. it's near-instantly replaced with initial
     throw UnimplementedError();
   }
@@ -79,11 +82,11 @@ final class CardCustomizerInitial extends CardCustomizerState {
     bool displaySats,
     int cardOrder, {
     List<String> availableIconPaths = const [],
-    String selectedIconPath = "",
+    int selectedIconIndex = 0,
   }) : super(selectedDesignIndex, selectedColorIndex, availableDesigns,
             availableColors, accountName, accountIndex, displaySats, cardOrder,
             availableIconPaths: availableIconPaths,
-            selectedIconPath: selectedIconPath);
+            selectedIconIndex: selectedIconIndex);
 
   CardCustomizerInitial copyWith({
     int? selectedDesignIndex,
@@ -95,7 +98,7 @@ final class CardCustomizerInitial extends CardCustomizerState {
     bool? displaySats,
     int? cardOrder,
     List<String>? availableIconPaths,
-    String? selectedIconPath,
+    int? selectedIconIndex,
   }) {
     return CardCustomizerInitial(
       selectedDesignIndex ?? this.selectedDesignIndex,
@@ -107,7 +110,7 @@ final class CardCustomizerInitial extends CardCustomizerState {
       displaySats ?? this.displaySats,
       cardOrder ?? this.cardOrder,
       availableIconPaths: availableIconPaths ?? this.availableIconPaths,
-      selectedIconPath: selectedIconPath ?? this.selectedIconPath,
+      selectedIconIndex: selectedIconIndex ?? this.selectedIconIndex,
     );
   }
 }
@@ -116,7 +119,7 @@ final class CardCustomizerSaved extends CardCustomizerState {
   CardCustomizerSaved(super.selectedDesignIndex, super.selectedColorIndex,
       super.availableDesigns, super.availableColors, super.accountName,
       super.accountIndex, super.displaySats, super.cardOrder,
-      {super.availableIconPaths, super.selectedIconPath});
+      {super.availableIconPaths, super.selectedIconIndex});
 
   @override
   CardCustomizerState copyWith(
@@ -129,7 +132,7 @@ final class CardCustomizerSaved extends CardCustomizerState {
       bool? displaySats,
       int? cardOrder,
       List<String>? availableIconPaths,
-      String? selectedIconPath}) {
+      int? selectedIconIndex}) {
     return CardCustomizerSaved(
       selectedDesignIndex ?? this.selectedDesignIndex,
       selectedColorIndex ?? this.selectedColorIndex,
@@ -140,7 +143,7 @@ final class CardCustomizerSaved extends CardCustomizerState {
       displaySats ?? this.displaySats,
       cardOrder ?? this.cardOrder,
       availableIconPaths: availableIconPaths ?? this.availableIconPaths,
-      selectedIconPath: selectedIconPath ?? this.selectedIconPath,
+      selectedIconIndex: selectedIconIndex ?? this.selectedIconIndex,
     );
   }
 }

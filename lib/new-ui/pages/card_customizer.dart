@@ -188,13 +188,13 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                         itemBuilder: (context, index) {
                                           final path =
                                               state.availableIconPaths[index];
-                                          final isSelected = path ==
-                                              state.selectedIconPath;
+                                          final isSelected = index ==
+                                              state.selectedIconIndex;
                                           return GestureDetector(
                                             onTap: () {
                                               context
                                                   .read<CardCustomizerBloc>()
-                                                  .add(IconStyleSelected(path));
+                                                  .add(IconStyleSelected(index));
                                             },
                                             child: AnimatedContainer(
                                               duration: Duration(
