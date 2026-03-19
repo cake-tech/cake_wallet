@@ -391,31 +391,3 @@ class LightningWallet {
     );
   }
 }
-
-extension _ConfigCopyWith on Config {
-  Config copyWith({
-    String? apiKey,
-    String? lnurlDomain,
-    Network? network,
-    int? syncIntervalSecs,
-    MaxFee? maxDepositClaimFee,
-    bool? preferSparkOverLightning,
-    bool? useDefaultExternalInputParsers,
-    bool? privateEnabledDefault,
-    OptimizationConfig? optimizationConfig,
-    int? maxConcurrentClaims,
-  }) =>
-      Config(
-        lnurlDomain: lnurlDomain ?? this.lnurlDomain,
-        apiKey: apiKey ?? this.apiKey,
-        network: network ?? this.network,
-        syncIntervalSecs: syncIntervalSecs ?? this.syncIntervalSecs,
-        maxDepositClaimFee: maxDepositClaimFee ?? this.maxDepositClaimFee,
-        preferSparkOverLightning: preferSparkOverLightning ?? this.preferSparkOverLightning,
-        useDefaultExternalInputParsers:
-            useDefaultExternalInputParsers ?? this.useDefaultExternalInputParsers,
-        privateEnabledDefault: privateEnabledDefault ?? this.privateEnabledDefault,
-        optimizationConfig: optimizationConfig ?? this.optimizationConfig,
-        maxConcurrentClaims: maxConcurrentClaims ?? this.maxConcurrentClaims,
-      );
-}
