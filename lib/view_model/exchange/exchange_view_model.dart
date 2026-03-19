@@ -731,7 +731,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @action
   void changeDepositCurrency({required CryptoCurrency currency}) {
     final previousCurrency = depositCurrency;
-    final hadAmount = depositAmount.isNotEmpty && depositAmount != S.current.fetching;
     final wasSendAllEnabled = isSendAllEnabled;
 
     depositCurrency = currency;
@@ -751,11 +750,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         } else {
           isSendAllEnabled = false;
         }
-      } else if (hadAmount) {
-        bestRate = 0.0;
-        bestRateProvider = null;
-        loadLimits();
-        _setAvailableProviders();
       } else {
         _onPairChange();
       }
@@ -767,7 +761,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @action
   void changeReceiveCurrency({required CryptoCurrency currency}) {
     final previousCurrency = receiveCurrency;
-    final hadAmount = receiveAmount.isNotEmpty && receiveAmount != S.current.fetching;
 
     if (!(currency.tag == receiveCurrency.tag ||
         currency.tag == receiveCurrency.title ||
@@ -783,12 +776,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (previousCurrency != currency) {
       if (isSendAllEnabled && hasAllAmount) {
         calculateDepositAllAmount();
-      }
-      if (hadAmount || (isSendAllEnabled && hasAllAmount)) {
-        bestRate = 0.0;
-        bestRateProvider = null;
-        loadLimits();
-        _setAvailableProviders();
       } else {
         _onPairChange();
       }
@@ -1405,8 +1392,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       _exchangeTemplateStore.remove(template: template);
 
   void _onPairChange() {
-    _depositAmount = '';
-    _receiveAmount = '';
+    if (isFixedRateMode) {
+      _depositAmount = '';
+    } else {
+      _receiveAmount = '';
+    }
     bestRate = 0.0;
     bestRateProvider = null;
     _sortedAvailableProviders.clear();
