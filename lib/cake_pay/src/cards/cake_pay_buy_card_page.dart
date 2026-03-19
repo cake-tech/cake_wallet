@@ -8,6 +8,7 @@ import 'package:cake_wallet/cake_pay/src/widgets/denominations_amount_widget.dar
 import 'package:cake_wallet/cake_pay/src/widgets/enter_amount_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/image_placeholder.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/prepaid_range_amount_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/rounded_overlay_cards_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/text_icon_button.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/three_checkbox_alert_content_widget.dart';
@@ -149,24 +150,38 @@ class CakePayBuyCardPage extends BasePage {
                 ),
                 bottomCardChild: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: card.denominationItems.isNotEmpty
-                        ? DenominationsAmountWidget(
-                            fiatCurrency: card.fiatCurrency.title,
-                            denominations: card.denominationItems,
-                            amountFieldFocus: _amountFieldFocus,
-                            amountController: _amountController,
-                            quantityFieldFocus: _quantityFieldFocus,
-                            quantityController: _quantityController,
-                            onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
-                            onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
-                            cakePayBuyCardViewModel: cakePayBuyCardViewModel)
-                        : EnterAmountWidget(
-                            minValue: card.minValue ?? '-',
-                            maxValue: card.maxValue ?? '-',
-                            fiatCurrency: card.fiatCurrency.title,
-                            amountFieldFocus: _amountFieldFocus,
-                            amountController: _amountController,
-                            onAmountChanged: cakePayBuyCardViewModel.onAmountChanged))),
+                    child: Column(
+                        children: [
+                          if (card.prepaidRange.isNotEmpty)
+                            PrepaidRangeAmountWidget(
+                              fiatCurrency: card.fiatCurrency.title,
+                              prepaidRanges: card.prepaidRange,
+                              amountFieldFocus: _amountFieldFocus,
+                              amountController: _amountController,
+                              cakePayBuyCardViewModel: cakePayBuyCardViewModel,
+                              onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                            )
+                          else if (card.denominationItems.isNotEmpty)
+                            DenominationsAmountWidget(
+                              fiatCurrency: card.fiatCurrency.title,
+                              denominations: card.denominationItems,
+                              amountFieldFocus: _amountFieldFocus,
+                              amountController: _amountController,
+                              quantityFieldFocus: _quantityFieldFocus,
+                              quantityController: _quantityController,
+                              onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                              onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
+                              cakePayBuyCardViewModel: cakePayBuyCardViewModel,
+                            )
+                          else
+                            EnterAmountWidget(
+                              minValue: card.minValue ?? '-',
+                              maxValue: card.maxValue ?? '-',
+                              fiatCurrency: card.fiatCurrency.title,
+                              amountFieldFocus: _amountFieldFocus,
+                              amountController: _amountController,
+                              onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                            ),]))),
             Expanded(
               flex: 2,
               child: Padding(

@@ -31,9 +31,29 @@ class CakePayVendor {
 
     if (cardsJson != null && cardsJson.isNotEmpty) {
       try {
-        cardForVendor = CakePayCard.fromJson(cardsJson.firstWhere((card) {
-          return Country.normalizeName(card['country'] as String) == country;
-        }) as Map<String, dynamic>);
+        final cards = cardsJson
+            .map((cardJson) => CakePayCard.fromJson(cardJson as Map<String, dynamic>))
+            .toList();
+        final cardsForSelectedCountry = cards
+            .where((card) => Country.normalizeName(card.country ?? '') == country)
+            .toList();
+
+        if (cardsForSelectedCountry.isNotEmpty) {
+          final isPrepaid = cardsForSelectedCountry
+              .every((card) => card.type == CakePayCardType.prepaid);
+
+          if (isPrepaid) {
+            final firstCard = cardsForSelectedCountry.first;
+            final prepaidRanges = cardsForSelectedCountry
+                .map(PrepaidRange.fromCard)
+                .toList()
+              ..sort((a, b) => a.minValue.compareTo(b.minValue));
+
+            cardForVendor = firstCard.copyWith(prepaidRange: prepaidRanges);
+          } else {
+            cardForVendor = cardsForSelectedCountry.first;
+          }
+        }
       } catch (e) {
         printV('Error parsing card for vendor: $e');
       }

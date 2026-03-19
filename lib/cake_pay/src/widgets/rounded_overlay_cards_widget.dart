@@ -16,7 +16,6 @@ class RoundedOverlayCards extends StatelessWidget {
       borderRadius:
       BorderRadius.only(bottomLeft: Radius.circular(25.0), bottomRight: Radius.circular(25.0)),
       child: Container(
-        height: screenHeight * 0.50,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(24),
@@ -25,6 +24,7 @@ class RoundedOverlayCards extends StatelessWidget {
           color: Theme.of(context).colorScheme.surfaceContainer
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             ClipRRect(
                 borderRadius: BorderRadius.only(
@@ -35,10 +35,12 @@ class RoundedOverlayCards extends StatelessWidget {
                           bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                       color: Theme.of(context).colorScheme.surfaceContainerLow,
                     ),
-                    height: screenHeight * 0.38,
+                    constraints: BoxConstraints(
+                      maxHeight: screenHeight * 0.38,
+                    ),
                     width: double.infinity,
-                    child: topCardChild)),
-            bottomCardChild,
+                    child: Flexible(child: topCardChild))),
+            Flexible(child: bottomCardChild),
           ],
         ),
       ),
