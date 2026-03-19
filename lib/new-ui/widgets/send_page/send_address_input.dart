@@ -70,6 +70,7 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
           : EdgeInsets.zero,
       child: FormField<String>(
         key: formFieldKey,
+        initialValue: widget.addressController.text,
         validator: widget.validator,
         builder: (state) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,

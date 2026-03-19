@@ -117,6 +117,10 @@ class ExceptionHandler {
     if (await onLedgerError(errorDetails)) return;
 
     if (kDebugMode || kProfileMode) {
+      if(_ignoreError(errorDetails.exception.toString()) ||
+          _ignoreError(errorDetails.stack.toString())) {
+        printV("(BELOW ERROR IS IGNORED AND WILL NOT TRIGGER POPUP IN PROD)");
+      }
       FlutterError.presentError(errorDetails);
       errorDetails.toString().split("\n").forEach(printV);
       return;
@@ -282,6 +286,7 @@ class ExceptionHandler {
     "Invalid SVG",
     "SVG format error",
     "SvgPicture",
+    "Unable to load asset",
     // Temporary ignored, More context: Flutter secure storage reads the values as null some times
     // probably when the device was locked and then opened on Cake
     // this is solved by a restart of the app

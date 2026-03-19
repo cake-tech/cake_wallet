@@ -1,5 +1,8 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 class CakeImageWidget extends StatelessWidget {
   const CakeImageWidget({
@@ -11,8 +14,8 @@ class CakeImageWidget extends StatelessWidget {
     this.loadingWidget,
     this.errorWidget,
     this.color,
-    this.borderRadius = 24.0,
     this.colorFilter,
+    this.borderRadius = 24.0, this.alignment, this.allowDrawingOutsideViewBox,
   });
 
   final String? imageUrl;
@@ -22,8 +25,10 @@ class CakeImageWidget extends StatelessWidget {
   final Widget? loadingWidget;
   final Widget? errorWidget;
   final Color? color;
-  final double borderRadius;
   final ColorFilter? colorFilter;
+  final AlignmentGeometry? alignment;
+  final bool? allowDrawingOutsideViewBox;
+  final double borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -38,21 +43,36 @@ class CakeImageWidget extends StatelessWidget {
 
     Widget imageWidget;
     if (isAsset) {
-      imageWidget = isSvg
-          ? SvgPicture.asset(
-              imageUrl!,
-              height: height,
-              width: width,
-              colorFilter: effectiveColorFilter,
-              fit: fit ?? BoxFit.contain,
-            )
-          : Image.asset(
-              imageUrl!,
-              height: height,
-              width: width,
-              fit: fit,
-              color: color,
-            );
+      if (isSvg) {
+        imageWidget = SvgPicture(AssetBytesLoader("${imageUrl}.vec"),
+            height: height,
+            width: width,
+            alignment: alignment ?? Alignment.center,
+            allowDrawingOutsideViewBox: allowDrawingOutsideViewBox ?? false,
+            colorFilter:
+                effectiveColorFilter,
+            fit: fit ?? BoxFit.contain, errorBuilder: (context, e, trace) {
+          return SvgPicture.asset(
+            imageUrl!,
+            height: height,
+            alignment: alignment ?? Alignment.center,
+            allowDrawingOutsideViewBox: allowDrawingOutsideViewBox ?? false,
+            width: width,
+            errorBuilder: (_, __, ___) => SizedBox(height: height, width: width),
+            colorFilter:
+                effectiveColorFilter,
+            fit: fit ?? BoxFit.contain,
+          );
+        });
+      } else {
+        imageWidget = Image.asset(
+          imageUrl!,
+          height: height,
+          width: width,
+          fit: fit,
+          color: color,
+        );
+      }
     } else {
       imageWidget = isSvg
           ? SvgPicture.network(
@@ -60,6 +80,8 @@ class CakeImageWidget extends StatelessWidget {
               height: height,
               width: width,
               colorFilter: effectiveColorFilter,
+              alignment: alignment ?? Alignment.center,
+              allowDrawingOutsideViewBox: allowDrawingOutsideViewBox ?? false,
               fit: fit ?? BoxFit.contain,
               placeholderBuilder: (_) {
                 return loadingWidget ?? const Center(child: CircularProgressIndicator());

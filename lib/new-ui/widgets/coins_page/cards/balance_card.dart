@@ -6,8 +6,9 @@ class BalanceCardAction {
   final String label;
   final IconData icon;
   final VoidCallback onTap;
+  final double? iconSize;
 
-  const BalanceCardAction({required this.label, required this.icon, required this.onTap});
+  const BalanceCardAction({required this.label, required this.icon, required this.onTap, this.iconSize = 16});
 }
 
 class BalanceCard extends StatelessWidget {
@@ -80,7 +81,7 @@ class BalanceCard extends StatelessWidget {
                 ? ClipRSuperellipse(
                   borderRadius: BorderRadius.circular(borderRadius),
                   key: ValueKey(design.imagePath),
-                  child: CakeImageWidget(
+                    child: CakeImageWidget(
                       imageUrl: design.imagePath,
                       width: width,
                       height: height,
@@ -261,12 +262,13 @@ class BalanceCard extends StatelessWidget {
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: onCustomizeTapped,
-                child: SizedBox(
+                child: Container(
                   height: 40,
                   width: 40,
                   child: Center(
                     child: CakeImageWidget(
                       imageUrl: "assets/new-ui/3dots_vertical.svg",
+                      alignment: Alignment.topRight,
                       colorFilter:
                           ColorFilter.mode(design.colors.textColorSecondary, BlendMode.srcIn),
                     ),
@@ -299,7 +301,7 @@ class BalanceCard extends StatelessWidget {
                   style: TextStyle(color: design.colors.textColor, fontSize: 16),
                 ),
               ),
-              Icon(action.icon, color: design.colors.textColorSecondary),
+              Icon(action.icon, color: design.colors.textColorSecondary, size: action.iconSize),
             ],
           ),
         ),

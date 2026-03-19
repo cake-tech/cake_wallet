@@ -9,6 +9,8 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/core/lightning_invoice_service.dart';
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -38,6 +40,7 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/currency.dart';
 import "package:cw_core/wallet_info.dart";
@@ -319,7 +322,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   final List<ExchangeProvider> _tradeAvailableProviders = [];
 
-  Map<ExchangeProvider, Limits> _providerLimits = {};
+  Map<ExchangeProvider, Limits?> _providerLimits = {};
 
   @observable
   ObservableList<ExchangeProvider> selectedProviders;
@@ -420,7 +423,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     return await WalletInfo.selectList("type = ?", [type!.index]);
   }
 
-  Future<List<WalletInfoAddressInfo>> addressesForWallet(WalletInfo wallet) async {
+  Future<List<WalletInfoAddressInfo>> addressesForAccountsWallet(WalletInfo wallet) async {
     final List<WalletInfoAddressInfo> ret = [];
     final addresses = await wallet.getAddressInfos();
     for (var list in addresses.values) {
@@ -554,6 +557,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     calculateForcedProviderRate();
   }
 
+  WalletInfo? selectedAddressBookWallet;
+
   @observable
   double forcedProviderRate = 0.0;
 
@@ -677,14 +682,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (receiveAmountFiat.split(".").last.length <= digits) {
       return receiveAmountFiat;
     }
-    return double.parse(receiveAmountFiat).toStringAsPrecision(digits);
+
+    return double.tryParse(receiveAmountFiat)?.toStringAsPrecision(digits) ?? '0.00';
   }
 
   String roundedDepositAmountFiat(int digits) {
     if (depositAmountFiat.split(".").last.length <= digits) {
       return depositAmountFiat;
     }
-    return double.parse(depositAmountFiat).toStringAsPrecision(digits);
+
+    return double.tryParse(depositAmountFiat)?.toStringAsPrecision(digits) ?? '0.00';
   }
 
   @action
@@ -871,6 +878,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           // will throw "Concurrent modification during iteration" error if modified at the same
           // time [createTrade] is called, as this is not a normal map, but a sorted map
         }
+      } else {
+        printV('calculateBestRate: ${_providers[i].title} returned rate=0');
       }
     }
 
@@ -910,10 +919,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               to: to,
               isFixedRateMode: isFixedRateMode,
             )
-            .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
+            .onError((error, stackTrace) => null)
             .timeout(
               Duration(seconds: 7),
-              onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
+              onTimeout: () => null,
             );
         return MapEntry(provider, limits);
       }).toList();
@@ -921,7 +930,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       final entries = await Future.wait(futures);
       _providerLimits = Map.fromEntries(entries);
 
-      _providerLimits.values.forEach((tempLimits) {
+      _providerLimits.values
+          .whereType<Limits>()
+          .forEach((tempLimits) {
         if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin!) {
           lowestMin = tempLimits.min;
         }
@@ -980,18 +991,42 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     }
 
-    late final Map<double, ExchangeProvider> providers;
+    Map<double, ExchangeProvider> providers;
     if (forcedProvider != null) {
       providers = {forcedProviderRate: forcedProvider!};
     } else {
-      providers = _sortedAvailableProviders;
+      providers = Map.fromEntries(
+        _sortedAvailableProviders.entries.where(
+          (e) => selectedProviders.contains(e.value),
+        ),
+      );
     }
 
     // Ensure we have providers available before attempting to create trade
     if (providers.isEmpty) {
       await calculateBestRate();
+      if (forcedProvider != null) {
+        providers = {forcedProviderRate: forcedProvider!};
+      } else {
+        providers = Map.fromEntries(
+          _sortedAvailableProviders.entries.where(
+            (e) => selectedProviders.contains(e.value),
+          ),
+        );
+      }
 
       if (providers.isEmpty) {
+        ExchangeProviderLogger.logError(
+          provider: null,
+          function: 'createTrade',
+          error: 'No providers available for $depositCurrency->$receiveCurrency',
+          requestData: {
+            'from': depositCurrency.title,
+            'to': receiveCurrency.title,
+            'fromAmount': _depositAmount,
+            'toAmount': _receiveAmount,
+          },
+        );
         tradeState = TradeIsCreatedFailure(
             title: S.current.trade_not_created,
             error: S.current.none_of_selected_providers_can_exchange);
@@ -1000,6 +1035,32 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     try {
+      if (selectedAddressBookWallet?.type == WalletType.bitcoin) {
+        final _walletAddresses = await selectedAddressBookWallet!.getAddresses();
+
+        // if receive currency is lightning pick the lightning address
+        // if normal bitcoin, then pick the segwit address
+        if (receiveCurrency == CryptoCurrency.btcln) {
+          final lightningAddressOfWallet =
+              _walletAddresses.entries.firstWhereOrNull((e) => e.value.contains("LN"))?.key;
+          if (lightningAddressOfWallet != null) {
+            receiveAddress = lightningAddressOfWallet;
+          }
+        }
+        if (receiveCurrency == CryptoCurrency.btc) {
+          final segwitAddressOfWallet =
+              _walletAddresses.entries.firstWhereOrNull((e) => e.value.contains("P2WPKH"))?.key;
+          if (segwitAddressOfWallet != null) {
+            receiveAddress = segwitAddressOfWallet;
+          }
+        }
+      }
+
+      // parse Lightning address to bolt11 invoice
+      if (receiveAddress.contains("@")) {
+        receiveAddress = await getBolt11FromLightingAddress(receiveAddress) ?? receiveAddress;
+      }
+
       // snapshot of providers to avoid concurrent modification issues
       final providersSnapshot = providers.values.toList();
       final ratesSnapshot = providers.keys.toList();
@@ -1007,6 +1068,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       for (var i = 0; i < providersSnapshot.length; i++) {
         final provider = providersSnapshot[i];
         final providerRate = ratesSnapshot[i];
+
+        printV('createTrade: trying provider=${provider.title}');
+
+        // Skip Swaps.xyz when sending from external
+        if (isSendFromExternal &&
+            provider.description == ExchangeProviderDescription.swapsXyz) {
+          printV('Skipping Swaps.xyz for external send');
+          continue;
+        }
 
         if (!(await provider.checkIsAvailable())) continue;
 
@@ -1034,7 +1104,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         amount = amount.replaceAll(',', '.');
 
         if (limitsState is LimitsLoadedSuccessfully) {
-          if (double.tryParse(amount) == null) continue;
+          if (double.tryParse(amount) == null) {
+            printV('createTrade: ${provider.title} amount parse failed: "$amount"');
+            continue;
+          }
 
           if (limits.min != null && double.parse(amount) < limits.min!) {
             continue;
@@ -1054,6 +1127,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
               final canCreateTrade = await isCanCreateTrade(trade);
               if (!canCreateTrade.result) {
+                ExchangeProviderLogger.logError(
+                  provider: provider.description,
+                  function: 'createTrade',
+                  error: canCreateTrade.errorMessage ?? 'isCanCreateTrade returned false',
+                  requestData: {
+                    'from': depositCurrency.title,
+                    'to': receiveCurrency.title,
+                    'fromAmount': _depositAmount,
+                    'toAmount': _receiveAmount,
+                  },
+                );
                 continue;
               }
 
@@ -1063,7 +1147,21 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
               /// return after the first successful trade
               return;
-            } catch (e) {
+            } catch (e, s) {
+              ExchangeProviderLogger.logError(
+                provider: provider.description,
+                function: 'createTrade',
+                error: e,
+                stackTrace: s,
+                requestData: {
+                  'from': depositCurrency.title,
+                  'to': receiveCurrency.title,
+                  'fromAmount': _depositAmount,
+                  'toAmount': _receiveAmount,
+                  'toAddress': receiveAddress,
+                  'refundAddress': depositAddress,
+                },
+              );
               continue;
             }
           }
@@ -1185,6 +1283,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _receiveAmount = '';
     bestRate = 0.0;
     bestRateProvider = null;
+    _sortedAvailableProviders.clear();
     loadLimits();
     _setAvailableProviders();
   }

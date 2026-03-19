@@ -7,12 +7,15 @@ class SolanaBalance extends Balance {
       BigInt.from(int.tryParse(balance.toStringAsFixed(isToken ? 6 : 9).replaceFirst(".", "")) ?? 0),
       BigInt.from(int.tryParse(balance.toStringAsFixed(isToken ? 6 : 9).replaceFirst(".", "")) ?? 0));
 
+  // Using raw amount from RPC to avoid decimals mismatch for SPL tokens.
+  SolanaBalance.forToken(BigInt rawAmount, double uiAmount)
+      : balance = uiAmount,
+        super(rawAmount, rawAmount);
+
   final double balance;
 
-  @override
   String get formattedAdditionalBalance => _balanceFormatted();
 
-  @override
   String get formattedAvailableBalance => _balanceFormatted();
 
   String _balanceFormatted() {
