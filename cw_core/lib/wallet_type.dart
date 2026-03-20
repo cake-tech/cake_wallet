@@ -286,6 +286,7 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
     case CryptoCurrency.baseEth:
       return WalletType.base;
     case CryptoCurrency.arbEth:
+    case CryptoCurrency.arb:
       return WalletType.arbitrum;
     case CryptoCurrency.bnb:
       return WalletType.bsc;
