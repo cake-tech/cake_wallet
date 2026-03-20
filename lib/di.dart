@@ -103,6 +103,8 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_s
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
+import 'package:cake_wallet/src/screens/integrations/moonpay/onboarding_moonpay_virtual_accounts_page.dart';
+import 'package:cake_wallet/src/screens/integrations/moonpay/services/moonpay_virtual_account_api.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
@@ -232,6 +234,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_mode
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
+import 'package:cake_wallet/view_model/integrations/moonpay_virtual_account/moonpay_virtual_account_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
@@ -1748,6 +1751,15 @@ Future<void> setup({
       ));
 
   getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));
+
+  getIt.registerFactory(() => MoonpayVirtualAccountApi());
+
+  getIt.registerFactory(() => MoonPayVirtualAccountViewModel(
+    moonPayVirtualAccountApi: getIt.get<MoonpayVirtualAccountApi>(),
+    appStore: getIt.get<AppStore>(),
+  ));
+
+  getIt.registerFactory(() => OnboardingMoonPayVirtualAccountPage(getIt<MoonPayVirtualAccountViewModel>()));
 
   getIt.registerLazySingleton(() => NodeSwitchingService(
     appStore: getIt.get<AppStore>(),

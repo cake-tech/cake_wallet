@@ -141,6 +141,7 @@ class Routes {
   static const exchangeTradeExternalSendPage = '/exchange_trade_external_send_page';
 
   static const dEuroSavings = '/integration/dEuro/savings';
+  static const moonPayVirtualAccountOnboarding = '/integration/moonpay/onboarding_moonpay_virtual_accounts_page';
 
   static const lightningUsernamePage = "/lightning_username_page";
   static const aboutPage = "/about_page";
