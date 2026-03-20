@@ -6,8 +6,8 @@ cd "$(dirname "$0")"
 NPROC="-j$(sysctl -n hw.logicalcpu)"
 MONERO_LIBS=""
 WOWNERO_LIBS=""
-MONEROC_RELEASE_DIR="../monero_c/release/monero"
-WOWNEROC_RELEASE_DIR="../monero_c/release/wownero"
+monero_c_tag=$(cd ../monero_c/; git describe --tags)
+MONEROC_RELEASE_DIR="../monero_c/release/${monero_c_tag}"
 
 ../prepare_moneroc.sh
 
@@ -35,8 +35,8 @@ else
 		HOST="x86_64-apple-darwin"
 	    fi
 
-            MONERO_LIBS="$MONERO_LIBS -arch ${ARCH} ${MONEROC_RELEASE_DIR}/${HOST}_libwallet2_api_c.dylib"
-            WOWNERO_LIBS="$WOWNERO_LIBS -arch ${ARCH} ${WOWNEROC_RELEASE_DIR}/${HOST}_libwallet2_api_c.dylib"
+            MONERO_LIBS="$MONERO_LIBS -arch ${ARCH} ${MONEROC_RELEASE_DIR}/${HOST}/libmonero_libwallet2_api_c.dylib"
+            WOWNERO_LIBS="$WOWNERO_LIBS -arch ${ARCH} ${MONEROC_RELEASE_DIR}/${HOST}/libwownero_libwallet2_api_c.dylib"
 
             pushd ../monero_c
                 ./build_single.sh ${COIN} ${HOST} -j$MAKE_JOB_COUNT
