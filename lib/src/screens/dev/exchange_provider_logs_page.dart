@@ -130,7 +130,7 @@ class _StatsCardState extends State<_StatsCard> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(entry.key.title),
+                            Text(entry.key?.title ?? 'Unknown'),
                             Text(entry.value.toString()),
                           ],
                         ),
@@ -310,7 +310,7 @@ class _LogEntryCard extends StatelessWidget {
             SizedBox(width: 8),
             Expanded(
               child: Text(
-                "${log.provider.title} - ${log.function}",
+                "${log.provider?.title ?? 'Unknown/Empty'} - ${log.function}",
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),

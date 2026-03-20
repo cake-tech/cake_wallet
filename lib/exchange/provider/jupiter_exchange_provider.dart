@@ -72,7 +72,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Limits> fetchLimits({
+  Future<Limits?> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,

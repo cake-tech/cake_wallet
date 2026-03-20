@@ -153,6 +153,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             seedBytes: seedBytes,
             apiKey: secrets.breezApiKey,
             lnurlDomain: "cake.cash",
+            cachedAddress: cachedLightningAddress,
           );
         }
       } else {

@@ -83,6 +83,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         mwebAddresses =
             ObservableList<BitcoinAddressRecord>.of((initialMwebAddresses ?? []).toSet()),
         lockedReceiveAddressByType = ObservableMap<BitcoinAddressType, String>(),
+        lightningAddress = lightningWallet?.cachedAddress,
         super(walletInfo) {
     if (masterHd != null) {
       silentAddress = SilentPaymentOwner.fromPrivateKeys(
@@ -525,6 +526,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         addressesMap[address] = 'Active - Silent Payments';
       }
     }
+
+    if (lightningAddress != null) {
+      if (lightningAddress != address) {
+        addressesMap[lightningAddress!] = 'LN';
+      } else {
+        addressesMap[address] = 'Active - LN';
+      }
+    }
   }
 
   void addLitecoinAddressTypes() {
@@ -849,34 +858,40 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> setLightningAddress(String walletName, {String newAddress = ""}) async {
     if (lightningWallet == null) return;
 
-    final path = await pathForWalletDir(name: walletName, type: WalletType.bitcoin);
-    final initialized = await lightningWallet!.init(path);
+    try {
+      final path = await pathForWalletDir(name: walletName, type: WalletType.bitcoin);
+      final initialized = await lightningWallet!.init(path);
 
-    if (!initialized) {
-      printV("Failed to initialize the lightning wallet");
-      return;
-    }
+      if (!initialized) {
+        printV("Failed to initialize the lightning wallet");
+        return;
+      }
 
-    lightningAddress = await lightningWallet!.getAddress();
+      lightningAddress = await lightningWallet!.getAddress();
 
-    late final String username;
+      late final String username;
 
-    if (newAddress.isEmpty) {
-      if (lightningAddress != null) return;
+      if (newAddress.isEmpty) {
+        if (lightningAddress != null) return;
 
         final randomNumber = Random.secure().nextInt(9999);
         final randomName = await generateName();
         username = "${randomName.replaceAll(" ", "")}$randomNumber".toLowerCase();
-    } else {
-      username = newAddress;
-    }
+      } else {
+        username = newAddress;
+      }
 
-    try {
-      printV(username);
-      lightningAddress = await lightningWallet!.registerAddress(username);
+      try {
+        printV(username);
+        lightningAddress = await lightningWallet!.registerAddress(username);
+      } catch (e) {
+        printV(e);
+        printV(username);
+        rethrow;
+      }
     } catch (e) {
-      printV(e);
-      printV(username);
+      // make sure lightningAddress gets initialized anyway
+      lightningAddress ??= lightningWallet!.cachedAddress;
       rethrow;
     }
   }
