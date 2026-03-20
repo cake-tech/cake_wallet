@@ -113,37 +113,14 @@ else()
   set(LIB_TRIPLET "x86_64-linux-gnu")
 endif()
 
-execute_process(
-  COMMAND git describe --tags
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c
-  OUTPUT_VARIABLE MONERO_C_TAG
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/zcash_lib/target/release/libwarp_api_ffi.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libwarp_api_ffi.so"
+  COMPONENT Runtime)
 
-set(MONERO_C_RELEASE_DIR
-  "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/${MONERO_C_TAG}/${LIB_TRIPLET}"
-)
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/${LIB_TRIPLET}_libwallet2_api_c.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "monero_libwallet2_api_c.so"
+  COMPONENT Runtime)
 
-install(
-  FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/zcash_lib/target/release/libwarp_api_ffi.so"
-  DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
-  RENAME "libwarp_api_ffi.so"
-  COMPONENT Runtime
-)
-
-install(
-  FILES "${MONERO_C_RELEASE_DIR}/libmonero_wallet2_api_c.so"
-  DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
-  RENAME "libmonero_wallet2_api_c.so"
-  COMPONENT Runtime
-)
-
-install(
-  FILES "${MONERO_C_RELEASE_DIR}/libwownero_wallet2_api_c.so"
-  DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
-  RENAME "libwownero_wallet2_api_c.so"
-  COMPONENT Runtime
-)
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/wownero/${LIB_TRIPLET}_libwallet2_api_c.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "wownero_libwallet2_api_c.so"
+  COMPONENT Runtime)
 
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT Runtime)

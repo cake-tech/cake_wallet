@@ -18,7 +18,7 @@ import 'utils/setup_monero_c.dart';
 Future<void> main() async {
   group("MoneroWalletService Tests", () {
     late MoneroWalletService walletService;
-    File? moneroCBinary;
+    late File moneroCBinary;
 
     setUpAll(() async {
       await initDb(pathOverride: './test/data/db');
@@ -34,7 +34,7 @@ Future<void> main() async {
 
     tearDownAll(() {
       Directory('./test/data').deleteSync(recursive: true);
-      moneroCBinary!.deleteSync();
+      moneroCBinary.deleteSync();
     });
 
     group("Create wallet", () {
