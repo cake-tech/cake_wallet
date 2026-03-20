@@ -222,3 +222,5 @@ scripts/zcash_lib
 scripts/android/yttrium
 scripts/bitbox_flutter
 scripts/reown_flutter
+
+*.svg.vec

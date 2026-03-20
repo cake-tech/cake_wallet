@@ -65,7 +65,7 @@ jobs:
 
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
-          
+
           echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
 
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
@@ -147,6 +147,10 @@ jobs:
       - name: Build generated code
         run: |
           ./model_generator.sh async
+
+      - name: Compile graphics
+        run: |
+          ./compile_graphics.sh
 
       - name: Generate localization
         run: |
