@@ -42,6 +42,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
@@ -145,12 +146,14 @@ class SendPageParams {
   final SendPageModes mode;
   final CryptoCurrency? initialCurrency;
   final UnspentCoinType unspentCoinType;
+  final bool autoOpenScanner;
 
   SendPageParams({
     this.initialPaymentRequest,
     SendPageModes? mode,
     this.unspentCoinType = UnspentCoinType.any,
     this.initialCurrency,
+    this.autoOpenScanner = false,
   }) : mode = mode ?? SendPageModes.normal;
 }
 
@@ -164,7 +167,8 @@ class NewSendPage extends StatefulWidget {
       required this.authService,
       required SendPageParams params})
       : initialPaymentRequest = params.initialPaymentRequest,
-        mode = params.mode {
+        mode = params.mode,
+        autoOpenScanner = params.autoOpenScanner {
     if (params.initialCurrency != null) {
       sendViewModel.selectedCryptoCurrency = params.initialCurrency!;
     }
@@ -177,6 +181,7 @@ class NewSendPage extends StatefulWidget {
   final AuthService authService;
   final PaymentRequest? initialPaymentRequest;
   final SendPageModes mode;
+  final bool autoOpenScanner;
 
   @override
   State<NewSendPage> createState() => _NewSendPageState();
@@ -259,6 +264,22 @@ class _NewSendPageState extends State<NewSendPage> {
         });
       }
     });
+
+    if (widget.autoOpenScanner) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _autoScanQR();
+      });
+    }
+  }
+
+  Future<void> _autoScanQR() async {
+    final result = await presentQRScanner(context);
+    if (result != null) {
+      final output = widget.sendViewModel.outputs[_selectedOutput];
+      output.resetParsedAddress();
+      await output.fetchParsedAddress(context);
+      await _handlePaymentFlow(result, PaymentRequest.fromString(result));
+    }
   }
 
   @override

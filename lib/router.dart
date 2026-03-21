@@ -437,11 +437,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final args = settings.arguments as Map<String, dynamic>?;
       final initialPaymentRequest = args?['paymentRequest'] as PaymentRequest?;
       final coinTypeToSpendFrom = args?['coinTypeToSpendFrom'] as UnspentCoinType?;
+      final autoOpenScanner = args?['autoOpenScanner'] as bool? ?? false;
 
       return handleRouteWithPlatformAwareness(
         (context) => Material(
           child: getIt.get<NewSendPage>(
-            param1: SendPageParams(initialPaymentRequest: initialPaymentRequest,unspentCoinType: coinTypeToSpendFrom ?? UnspentCoinType.any),
+            param1: SendPageParams(
+              initialPaymentRequest: initialPaymentRequest,
+              unspentCoinType: coinTypeToSpendFrom ?? UnspentCoinType.any,
+              autoOpenScanner: autoOpenScanner,
+            ),
           ),
         ),
         settings: settings,

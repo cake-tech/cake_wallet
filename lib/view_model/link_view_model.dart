@@ -48,6 +48,8 @@ class LinkViewModel {
           return Routes.send;
         case 'receive':
           return Routes.addressPage;
+        case 'scan':
+          return Routes.send;
         default:
           return null;
       }
@@ -81,6 +83,10 @@ class LinkViewModel {
     }
 
     if (isQuickActionLink) {
+      final action = currentLink!.pathSegments.isNotEmpty ? currentLink!.pathSegments.first : null;
+      if (action == 'scan') {
+        return {'autoOpenScanner': true};
+      }
       return null;
     }
 
