@@ -197,7 +197,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           amount: _amount,
           contractAddress: (tokenCurrency as Erc20Token).contractAddress);
     }
-    if (_lnPaymentRequest != null) return _lnPaymentRequest!;
+    if (isLightning && _lnPaymentRequest != null) return _lnPaymentRequest!;
     return wallet.walletAddresses.getPaymentUri(_amount);
   }
 
@@ -552,7 +552,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
 
   @computed
-  bool get isLightning => wallet.type == WalletType.bitcoin && (uri is LightningPaymentRequest);
+  bool get isLightning => wallet.type == WalletType.bitcoin && (wallet.walletAddresses.getPaymentUri(_amount) is LightningPaymentRequest);
 
   @computed
   bool get isZCashTransparent {
