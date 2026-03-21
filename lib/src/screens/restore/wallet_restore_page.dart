@@ -294,6 +294,8 @@ class WalletRestorePage extends BasePage {
       final scanDerivationPaths = {
         "m/84'/0'/0'",
         "m/86'/0'/0'",
+        "m/44'/0'/0'",
+        "m/49'/0'/0'",
       };
 
       final shouldSkipChooseDerivationScreen =
