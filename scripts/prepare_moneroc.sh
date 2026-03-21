@@ -9,16 +9,17 @@ then
     rm -rf monero_c
     git clone https://github.com/mrcyjanek/monero_c --branch master monero_c
     cd monero_c
+    # NOTE: Make sure to update monero_c prebuilds link in workflow files
+    # https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.0-RC9/release-bundle.zip
+    git checkout 411e8a1cdb3f4c2812d83f28c335d2a4eb18bd29
+    git reset --hard
+    git submodule update --init --force --recursive
+    ./apply_patches.sh monero
+    ./apply_patches.sh wownero
+    ./apply_patches.sh zano
 else
     cd monero_c
 fi
-
-# NOTE: Make sure to update monero_c prebuilds link in workflow files
-# https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.6-RC1/release-bundle.zip
-git fetch -a
-git checkout c157cb82973b05d1226b39b4d8de0bec4aa10000
-git reset --hard
-git submodule update --init --force --recursive
 
 for coin in monero wownero zano;
 do
