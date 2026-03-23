@@ -135,8 +135,8 @@ class TxDetailRowDefinition {
               return vm.transactionInfo.from!;
           }
         },
-        applicable: (vm) => vm.transactionInfo.from != null),
-
+        applicable: (vm) => vm.transactionInfo.from != null,
+        listItemBuilder: AddressListItem.new),
 
     TxDetailRowDefinition(
         keyString: "standard_list_item_address_label_key",
