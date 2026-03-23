@@ -530,6 +530,33 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
+  Future<PaymentRequest?> getOpenCryptoPayRequest(String uri) async {
+    try {
+      final originalOCPRequest = await _ocpService.getOpenCryptoPayInvoice(uri.toString());
+      final paymentUri = await _ocpService.getOpenCryptoPayAddress(
+        originalOCPRequest,
+        selectedCryptoCurrency,
+      );
+
+      ocpRequest = originalOCPRequest;
+
+      clearOutputs();
+      return PaymentRequest.fromUri(paymentUri);
+    } on OpenCryptoPayNotSupportedException catch (e) {
+      printV(e.message);
+      if (walletType == WalletType.bitcoin) {
+        state = InitialExecutionState();
+      } else {
+        state = FailureState(translateErrorMessage(e, walletType, currency));
+      }
+    } catch (e) {
+      printV(e);
+      state = FailureState(translateErrorMessage(e, walletType, currency));
+    }
+    return null;
+  }
+
+  @action
   Future<PendingTransaction?> createOpenCryptoPayTransaction(String uri) async {
     state = IsExecutingState();
 

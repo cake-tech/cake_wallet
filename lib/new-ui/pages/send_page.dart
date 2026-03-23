@@ -62,7 +62,6 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -838,7 +837,9 @@ class _NewSendPageState extends State<NewSendPage> {
 
     if (OpenCryptoPayService.isOpenCryptoPayQR(uri) &&
         widget.sendViewModel.selectedCryptoCurrency != CryptoCurrency.btcln) {
-      widget.sendViewModel.createOpenCryptoPayTransaction(uri);
+      final request = await widget.sendViewModel.getOpenCryptoPayRequest(uri);
+      if (request == null) return;
+      _applyPaymentRequest(request);
       return;
     }
 
