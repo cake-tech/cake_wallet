@@ -162,12 +162,14 @@ class LightningWallet {
   }
 
   Future<PendingLightningTransaction> createTransaction(
-      String address, BigInt? amountSats, BitcoinTransactionPriority? priority) async {
+      String address, BigInt? amountSats, BitcoinTransactionPriority? priority, bool feesIncluded) async {
     final inputType = await sdk.parse(input: address);
+
+    final feePolicy = feesIncluded ? FeePolicy.feesIncluded : FeePolicy.feesExcluded;
 
     if (inputType is InputType_Bolt11Invoice) {
       final request = PrepareSendPaymentRequest(
-          paymentRequest: inputType.field0.invoice.bolt11, amount: amountSats);
+          paymentRequest: inputType.field0.invoice.bolt11, amount: amountSats, feePolicy: feePolicy);
       final prepareResponse = await sdk.prepareSendPayment(request: request);
 
       final paymentMethod = prepareResponse.paymentMethod;
@@ -177,7 +179,7 @@ class LightningWallet {
 
         return PendingLightningTransaction(
           id: paymentMethod.invoiceDetails.paymentHash,
-          amount: amountSats?.toInt() ??
+          amount: request.amount?.toInt() ?? amountSats?.toInt() ??
               ((paymentMethod.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
           fee: lightningFeeSats.toInt() + (sparkTransferFeeSats?.toInt() ?? 0),
           commitOverride: () async {
@@ -203,12 +205,14 @@ class LightningWallet {
           amountSats: amountSats!,
           payRequest: inputType.field0.payRequest,
           validateSuccessActionUrl: optionalValidateSuccessActionUrl,
+          feePolicy: feePolicy,
         );
       } else {
         request = PrepareLnurlPayRequest(
           amountSats: amountSats!,
           payRequest: (inputType as InputType_LnurlPay).field0,
           validateSuccessActionUrl: optionalValidateSuccessActionUrl,
+          feePolicy: feePolicy,
         );
       }
 
@@ -218,7 +222,7 @@ class LightningWallet {
 
       return PendingLightningTransaction(
         id: prepareResponse.invoiceDetails.paymentHash,
-        amount: ((prepareResponse.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
+        amount: prepareResponse.amountSats.toInt(),
         fee: feeSats.toInt(),
         commitOverride: () async {
           final res =
@@ -227,8 +231,11 @@ class LightningWallet {
         },
       );
     } else if (inputType is InputType_BitcoinAddress) {
-      final request =
-          PrepareSendPaymentRequest(paymentRequest: inputType.field0.address, amount: amountSats);
+      final request = PrepareSendPaymentRequest(
+        paymentRequest: inputType.field0.address,
+        amount: amountSats,
+        feePolicy: feePolicy,
+      );
       final prepareResponse = await sdk.prepareSendPayment(request: request);
 
       final paymentMethod = prepareResponse.paymentMethod;

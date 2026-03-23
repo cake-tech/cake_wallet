@@ -479,10 +479,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final isLNCompatible = await lightningWallet?.isCompatible(lnAddr);
     if ((credentials.coinTypeToSpendFrom == UnspentCoinType.lightning && lightningWallet != null) ||
         isLNCompatible == true) {
-
       BigInt amount;
       if (credentials.outputs.first.sendAll) {
-        amount = (await lightningWallet!.getBalance()) - BigInt.from(10);
+        amount = await lightningWallet!.getBalance();
       } else {
         amount = parseFixed(
             credentials.outputs.first.cryptoAmount?.isNotEmpty == true
@@ -491,8 +490,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             8);
       }
 
-      return lightningWallet!.createTransaction(lnAddr,
-          amount > BigInt.zero ? amount : null, credentials.priority);
+      return lightningWallet!.createTransaction(lnAddr, amount > BigInt.zero ? amount : null,
+          credentials.priority, credentials.outputs.first.sendAll);
     }
 
     final tx = (await super.createTransaction(credentials)) as PendingBitcoinTransaction;
