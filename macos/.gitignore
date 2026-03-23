@@ -5,3 +5,4 @@
 # Xcode-related
 **/dgph
 **/xcuserdata/
+*.dylib
