@@ -491,7 +491,7 @@ abstract class DashboardViewModelBase with Store {
           .where((item) => !transactions.contains(item));
 
       transactions.removeWhere((item) =>
-          newTransactions.any((tx) => tx.transaction.txHash == item.transaction.txHash)
+          newTransactions.any((tx) => tx.transaction.txHash == item.transaction.txHash && tx.transaction.direction == item.transaction.direction)
       );
 
       transactions.addAll(newTransactions);
