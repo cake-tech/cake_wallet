@@ -362,8 +362,12 @@ class LightningWallet {
     return response.txHex;
   }
 
-  void setEventListener(
-      {required Function(ElectrumTransactionInfo) onTransactionEvent, required Function onBalanceChangedEvent}) {
+  void setEventListener({
+    required Function(ElectrumTransactionInfo) onTransactionEvent,
+    required Function onBalanceChangedEvent,
+    required Function(Map<String, ElectrumTransactionInfo>) onCreateDepositTransactionEvent,
+    required Function(List<ElectrumTransactionInfo>) onUpdateDepositTransactionEvent,
+  }) {
     _eventSubscription = _eventStream?.listen((sdkEvent) {
       if (sdkEvent is SdkEvent_PaymentSucceeded) {
         onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
@@ -371,6 +375,16 @@ class LightningWallet {
         onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
       } else if (sdkEvent is SdkEvent_ClaimedDeposits) {
         onBalanceChangedEvent();
+        onUpdateDepositTransactionEvent(
+            sdkEvent.claimedDeposits.map(_getElectrumTransactionInfoFromDepositInfo).toList());
+      } else if (sdkEvent is SdkEvent_UnclaimedDeposits) {
+        final unclaimedDeposits = <String, ElectrumTransactionInfo>{};
+
+        for (final deposit in sdkEvent.unclaimedDeposits) {
+          unclaimedDeposits[deposit.txid] = _getElectrumTransactionInfoFromDepositInfo(deposit);
+        }
+
+        onCreateDepositTransactionEvent(unclaimedDeposits);
       }
     });
   }
@@ -395,6 +409,20 @@ class LightningWallet {
       date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
       confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
       additionalInfo: {"isLightning": true},
+    );
+  }
+
+  ElectrumTransactionInfo _getElectrumTransactionInfoFromDepositInfo(DepositInfo deposit) {
+    return ElectrumTransactionInfo(
+      WalletType.bitcoin,
+      id: deposit.txid,
+      amount: deposit.amountSats.toInt(),
+      direction: TransactionDirection.incoming,
+      isPending: true,
+      fee: 0,
+      date: DateTime.now(),
+      confirmations: 0,
+      additionalInfo: {"isLightning": true, "isSparkDeposit": true},
     );
   }
 }
