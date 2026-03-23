@@ -30,6 +30,8 @@ class ReceiveInfoBox extends StatelessWidget {
           onDismissed: onDismissed,
         );
       default:
+        if(autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled)
+          return null;
         return ReceiveInfoBox(
           iconPath: "assets/new-ui/info.svg",
           message: S.current.infobox_auto_address,

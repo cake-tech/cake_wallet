@@ -30,12 +30,11 @@ class HistorySection extends StatelessWidget {
     return SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         sliver: Observer(
-          builder: (_) => (dashboardViewModel.items.isEmpty &&
-                  dashboardViewModel.status is! SyncingSyncStatus)
+          builder: (_) => (dashboardViewModel.items.isEmpty)
               ? SliverPadding(
                   padding: EdgeInsets.only(top: 24),
                   sliver: SliverToBoxAdapter(
-                    child: Center(
+                    child: (dashboardViewModel.status is SyncingSyncStatus) ? SizedBox.shrink() : Center(
                       child: Text(S.of(context).transactions_will_appear_here,
                           style: TextStyle(
                               fontSize: 14,
