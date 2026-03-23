@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -36,7 +37,8 @@ class DropdownRow extends StatelessWidget {
                     duration: Duration(milliseconds: 300),
                     turns: expanded ? 0.0 : 0.5,
                     curve: Curves.easeOut,
-                    child: SvgPicture.asset(
+                    child: CakeImageWidget(
+                      imageUrl:
                       "assets/new-ui/dropdown_arrow.svg",
                       colorFilter:
                           ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),

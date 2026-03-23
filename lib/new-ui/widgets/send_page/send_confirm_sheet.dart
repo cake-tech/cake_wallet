@@ -6,6 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -118,7 +119,7 @@ class SendTransactionDetails extends StatelessWidget {
                   spacing: 8,
                   children: [
                     if (resolvedIconPath.toLowerCase().endsWith(".svg"))
-                      SvgPicture.asset(
+                      CakeImageWidget(imageUrl:
                         resolvedIconPath,
                         width: 28,
                         height: 28,
@@ -153,8 +154,10 @@ class SendTransactionDetails extends StatelessWidget {
   String sumStr<T>(List<T> list, double Function(T) picker) =>
       sumBy(list, picker).toString();
 
-  String sumWithUnit<T>(List<T> list, double Function(T) picker, String unit) =>
-      "${sumStr(list, picker)} $unit";
+  String sumWithUnit<T>(List<T> list, double Function(T) picker, String unit, {int? decimals}) {
+    final str = sumStr(list, picker);
+    return "${decimals == null ? str : str.withDecimals(decimals)} $unit";
+  }
 
 
   Widget _buildMainContent(BuildContext context) {
@@ -197,6 +200,7 @@ class SendTransactionDetails extends StatelessWidget {
             sendViewModel.outputs,
             (o) => double.tryParse(o.fiatAmount.replaceAll(",", "")) ?? 0,
             sendViewModel.fiatCurrency.title,
+      decimals:2
           )
         : sendViewModel.pendingTransactionFiatAmountFormatted;
 
@@ -205,6 +209,7 @@ class SendTransactionDetails extends StatelessWidget {
             sendViewModel.outputs,
             (o) => double.tryParse(o.estimatedFeeFiatAmount.replaceAll(",", "")) ?? 0,
             sendViewModel.fiatCurrency.title,
+        decimals:2
           )
         : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
 

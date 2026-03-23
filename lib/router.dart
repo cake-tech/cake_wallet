@@ -633,9 +633,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.newPowNode:
       final args = settings.arguments as Map<String, dynamic>?;
+      final page = getIt.get<PowNodeCreateOrEditPage>(
+        param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<PowNodeCreateOrEditPage>(
-              param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
+          builder: (_) => page);
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(

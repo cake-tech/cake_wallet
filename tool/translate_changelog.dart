@@ -40,9 +40,9 @@ void main() async {
       }
 
       out.add({
-        "icon": itemMap["icon"]! as String,
-        "title": newTitle,
-        "description": newDescription,
+        if (itemMap["icon"] != null) "icon": itemMap["icon"] as String,
+        if (itemMap["title"] != null) "title": newTitle,
+        if (itemMap["description"] != null) "description": newDescription,
       });
 
       currentItem++;

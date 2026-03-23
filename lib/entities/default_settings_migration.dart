@@ -595,6 +595,21 @@ Future<void> defaultSettingsMigration(
         case 60: // BalanceCardStyleSettings.cardOrder no-op (handled in sqlite.dart)
         // Do not migrate SQLite here, do that in sqlite.dart in order to prevent runtime
         // errors, missing row and missing tables.
+        case 61:
+          // reset force dex option only 1 time and let users pick it from the swap settings preference
+          await sharedPreferences.setBool(PreferencesKey.forceDecentralizedExchanges, false);
+          break;
+        case 62:
+          await _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Swaps.XYZ",
+            enabled: false,
+          );
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "StealthEX",
+            enabled: false,
+          );
           break;
         default:
           break;
@@ -718,15 +733,15 @@ String _getDefaultNodeUri(WalletType type) {
   }
 }
 
-void _changeExchangeProviderAvailability(SharedPreferences sharedPreferences,
-    {required String providerName, required bool enabled}) {
+Future<void> _changeExchangeProviderAvailability(SharedPreferences sharedPreferences,
+    {required String providerName, required bool enabled}) async {
   final Map<String, dynamic> exchangeProvidersSelection =
       json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
           as Map<String, dynamic>;
 
   exchangeProvidersSelection[providerName] = enabled;
 
-  sharedPreferences.setString(
+  await sharedPreferences.setString(
     PreferencesKey.exchangeProvidersSelection,
     json.encode(exchangeProvidersSelection),
   );

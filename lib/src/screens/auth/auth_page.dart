@@ -109,7 +109,9 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
   @override
   Future<void> close({String? route, dynamic arguments}) async {
     if (_key.currentContext == null) {
-      throw Exception('Key context is null. Should be not happened');
+      // throw Exception('Key context is null. Should be not happened');
+      // flutter can happen, so safe to just return
+      return;
     }
 
     /// not the best scenario, but WidgetsBinding is not behaving correctly on Android

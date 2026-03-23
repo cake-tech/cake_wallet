@@ -127,7 +127,6 @@ class TradeMonitor {
 
   bool _shouldSkipTrade(Trade trade, String walletId, ExchangeProvider? provider) {
     if (trade.walletId != walletId) {
-      printV('Skipping trade ${trade.id} because it\'s not for this wallet');
       return true;
     }
 

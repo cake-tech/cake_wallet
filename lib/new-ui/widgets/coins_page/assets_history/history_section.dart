@@ -27,26 +27,30 @@ class HistorySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Observer(
-        builder: (_) => (dashboardViewModel.items.isEmpty &&
-                dashboardViewModel.status is! SyncingSyncStatus)
-            ? Padding(
-                padding: EdgeInsets.only(top: 24),
-                child: Text(S.of(context).transactions_will_appear_here,
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant)))
-            : ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
-          shrinkWrap: true,
-          itemCount: dashboardViewModel.items.length,
-          itemBuilder: (context, index) => Observer(builder: (_) {
-            final prevItem = index == 0 ? null : dashboardViewModel.items[index - 1];
-            final item = dashboardViewModel.items[index];
+    return SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        sliver: Observer(
+          builder: (_) => (dashboardViewModel.items.isEmpty &&
+                  dashboardViewModel.status is! SyncingSyncStatus)
+              ? SliverPadding(
+                  padding: EdgeInsets.only(top: 24),
+                  sliver: SliverToBoxAdapter(
+                    child: Center(
+                      child: Text(S.of(context).transactions_will_appear_here,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    ),
+                  ),
+                )
+              : SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    childCount: dashboardViewModel.items.length,
+                    (context, index) => Observer(builder: (_) {
+                      final prevItem = index == 0 ? null : dashboardViewModel.items[index - 1];
+                      final topPadding = index == 0 ? 0.0 : 18.0;
+                      final item = dashboardViewModel.items[index];
             final nextItem = index == dashboardViewModel.items.length - 1
                 ? null
                 : dashboardViewModel.items[index + 1];
@@ -106,7 +110,7 @@ class HistorySection extends StatelessWidget {
               );
             } else if (item is DateSectionItem) {
               return Padding(
-                  padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: 18.0),
+                  padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
                   child: Text(DateFormatter.convertDateTimeToReadableString(item.date),
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)));
             }else if(item is OrderListItem){
@@ -163,6 +167,6 @@ class HistorySection extends StatelessWidget {
           }),
         ),
       ),
-    );
+    ));
   }
 }

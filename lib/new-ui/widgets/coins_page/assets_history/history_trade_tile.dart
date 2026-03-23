@@ -70,23 +70,25 @@ class HistoryTradeTile extends StatelessWidget {
   }
 
   String _getIconPath(CryptoCurrency currency) {
-    if (currency.iconPath != null) {
-      return currency.iconPath!;
-    }
-
-    if (currency.name.isNotEmpty) {
-      final currencyFromName = CryptoCurrency.fromString(currency.name);
-      if (currencyFromName.iconPath != null) {
-        return currencyFromName.iconPath!;
+    try { // temporarily until we migrate from hive to sqlite and store the full currency object
+      if (currency.iconPath != null) {
+        return currency.iconPath!;
       }
-    }
 
-    if (currency.title.isNotEmpty) {
-      final currencyFromTitle = CryptoCurrency.fromString(currency.title);
-      if (currencyFromTitle.iconPath != null) {
-        return currencyFromTitle.iconPath!;
+      if (currency.name.isNotEmpty) {
+        final currencyFromName = CryptoCurrency.fromString(currency.name);
+        if (currencyFromName.iconPath != null) {
+          return currencyFromName.iconPath!;
+        }
       }
-    }
+
+      if (currency.title.isNotEmpty) {
+        final currencyFromTitle = CryptoCurrency.fromString(currency.title);
+        if (currencyFromTitle.iconPath != null) {
+          return currencyFromTitle.iconPath!;
+        }
+      }
+    } catch (_) {}
 
     //TODO approporiate fallback
     return "";
