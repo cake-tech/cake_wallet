@@ -144,13 +144,13 @@ class _SignPageState extends State<SignPage> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
               context: context,
-              builder: (_) {
+              builder: (_context) {
                 return AlertWithOneAction(
                   alertTitle: S.current.error,
                   alertContent: state.error,
                   buttonText: S.of(context).ok,
                   buttonAction: () {
-                    if (context.mounted && Navigator.canPop(context)) Navigator.of(context).pop();
+                    if (context.mounted && Navigator.canPop(_context)) Navigator.of(_context).pop();
                   },
                 );
               });

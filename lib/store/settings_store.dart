@@ -716,7 +716,7 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => decentralizedExchangesPromptDismissed,
-        (bool forceDecentralizedExchanges) => _sharedPreferences.setBool(
+        (bool decentralizedExchangesPromptDismissed) => _sharedPreferences.setBool(
             PreferencesKey.decentralizedExchangesPromptDismissed,
             decentralizedExchangesPromptDismissed));
 

@@ -24,11 +24,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     CryptoCurrency.usdc,
     CryptoCurrency.usdterc20,
     CryptoCurrency.flip,
+    CryptoCurrency.wbtc,
     CryptoCurrency.sol,
     CryptoCurrency.usdcsol,
+    CryptoCurrency.usdtSol,
     CryptoCurrency.arbEth,
     CryptoCurrency.usdcArb,
-    // TODO: Add CryptoCurrency.dot
+    CryptoCurrency.usdtArb,
     ];
 
   static const _baseURL = 'chainflip-broker.io';
@@ -61,7 +63,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
@@ -338,6 +340,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     final networkName = switch (name) {
       'BITCOIN' => 'Bitcoin',
       'ETHEREUM' => 'Ethereum',
+      'ARBITRUM' => 'Arbitrum',
       'SOLANA' => 'Solana',
       _ => name
     };
@@ -353,8 +356,12 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       'usdc.eth' => CryptoCurrency.usdc,
       'usdt.eth' => CryptoCurrency.usdterc20,
       'flip.eth' => CryptoCurrency.flip,
+      'wbtc.eth' => CryptoCurrency.wbtc,
       'sol.sol' => CryptoCurrency.sol,
       'usdc.sol' => CryptoCurrency.usdcsol,
+      'eth.arb' => CryptoCurrency.arbEth,
+      'usdc.arb' => CryptoCurrency.usdcArb,
+      'usdt.arb' => CryptoCurrency.usdtArb,
       _ => null
     };
 

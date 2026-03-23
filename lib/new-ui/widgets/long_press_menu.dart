@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -74,7 +75,8 @@ class _LongPressMenuState extends State<LongPressMenu> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             spacing: 8,
                             children: [
-                              SvgPicture.asset(
+                              CakeImageWidget(
+                                imageUrl:
                                 item.iconPath,
                                 height: 20,
                                 width: 20,

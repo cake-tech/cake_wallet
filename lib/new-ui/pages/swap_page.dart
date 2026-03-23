@@ -19,12 +19,12 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_moda
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart';
-import 'package:cake_wallet/new-ui/widgets/swap_page/swap_provider_initial_preference_modal.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -44,7 +44,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -97,20 +96,20 @@ class _NewSwapPageState extends State<NewSwapPage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!widget.exchangeViewModel.decentralizedExchangesPromptDismissed) {
-        showMaterialModalBottomSheet(
-            context: context,
-            backgroundColor: Colors.transparent,
-            isDismissible: false,
-            builder: (context) {
-              return SwapProviderInitialPreferenceModal();
-            }).then((val) {
-          widget.exchangeViewModel.dismissDecentralizedExchangesPrompt();
-          if (val is bool && val == true && !widget.exchangeViewModel.forceDecentralizedExchanges) {
-            widget.exchangeViewModel.toggleForceDecentralizedExchanges();
-          }
-        });
-      }
+      // if (!widget.exchangeViewModel.decentralizedExchangesPromptDismissed) {
+      //   showMaterialModalBottomSheet(
+      //       context: context,
+      //       backgroundColor: Colors.transparent,
+      //       isDismissible: false,
+      //       builder: (context) {
+      //         return SwapProviderInitialPreferenceModal();
+      //       }).then((val) {
+      //     widget.exchangeViewModel.dismissDecentralizedExchangesPrompt();
+      //     if (val is bool && val == true && !widget.exchangeViewModel.forceDecentralizedExchanges) {
+      //       widget.exchangeViewModel.toggleForceDecentralizedExchanges();
+      //     }
+      //   });
+      // }
 
       final depositAddressController = depositKey.currentState!.addressController;
       final depositAmountController = depositKey.currentState!.amountController;
@@ -124,6 +123,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           return;
         }
         widget.exchangeViewModel.isFixedRateMode = false;
+        widget.exchangeViewModel.isSendAllEnabled = false;
         Future.delayed(Duration(milliseconds: 200)).then((_) {
           if (double.tryParse(depositFiatAmountController.text) != null) {
             widget.exchangeViewModel
@@ -137,6 +137,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           return;
         }
         widget.exchangeViewModel.enableFixedRateMode();
+        widget.exchangeViewModel.isSendAllEnabled = false;
         Future.delayed(Duration(milliseconds: 200)).then((_) {
           if (double.tryParse(receiveFiatAmountController.text) != null) {
             String text = receiveFiatAmountController.text;
@@ -291,7 +292,10 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
           _depositAmountDebounce.run(() {
             widget.exchangeViewModel.calculateBestRate();
-            widget.exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
+            if (depositAmountController.text != widget.exchangeViewModel.depositAmount &&
+                depositAmountController.text != S.of(context).all) {
+              widget.exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
+            }
             widget.exchangeViewModel.isReceiveAmountEntered = false;
             widget.exchangeViewModel.isFixedRateMode = false;
             if (!receiveKey.currentState!.amountFocusNode.hasFocus) {
@@ -458,7 +462,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
               title: S.of(context).swap,
               leadingIcon: Icon(Icons.close),
               onLeadingPressed: Navigator.of(context).maybePop,
-              trailingIcon: SvgPicture.asset(
+              trailingIcon: CakeImageWidget(imageUrl:
                 "assets/new-ui/options.svg",
                 colorFilter:
                     ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
@@ -477,131 +481,135 @@ class _NewSwapPageState extends State<NewSwapPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Form(
-                        key: formKey,
-                        child: Column(
-                          children: [
-                            Observer(
-                              builder: (_) => SwapAmountBox(
-                                isReceiverCard: false,
-                                walletSwitcherViewModel: widget.walletSwitcherViewModel,
-                                exchangeViewModel: widget.exchangeViewModel,
-                                onDispose: disposeBestRateSync,
-                                hasAllAmount: widget.exchangeViewModel.hasAllAmount,
-                                allAmount: widget.exchangeViewModel.hasAllAmount
-                                    ? () => widget.exchangeViewModel.enableSendAllAmount()
-                                    : null,
-                                key: depositKey,
-                                title: S.of(context).send,
-                                initialCurrency: widget.exchangeViewModel.depositCurrency,
-                                hasRefundAddress: true,
-                                currencies: widget.exchangeViewModel.depositCurrencies,
-                                onCurrencySelected: (currency) {
-                                  if (currency is CryptoCurrency) {
-                                    widget.exchangeViewModel
-                                        .changeDepositCurrency(currency: currency);
-                                  }
-                                },
-                                currencyValueValidator: (value) {
-                                  return !widget.exchangeViewModel.isFixedRateMode &&
-                                          value != S.of(context).all
-                                      ? AmountValidator(
-                                          isAutovalidate: true,
-                                          currency: widget.exchangeViewModel.depositCurrency,
-                                          minValue: widget.exchangeViewModel.limits.min.toString(),
-                                          maxValue: widget.exchangeViewModel.limits.max.toString(),
-                                          amountParsingProxy:
-                                              widget.exchangeViewModel.amountParsingProxy,
-                                        ).call(value)
-                                      : null;
-                                },
-                                addressTextFieldValidator: AddressValidator(
-                                    type: widget.exchangeViewModel.depositCurrency),
-                                onPushPasteButton: (context) async {
-                                  final clipboard = await Clipboard.getData('text/plain');
-                                  widget.exchangeViewModel.depositAddress = clipboard?.text ?? '';
+                      RepaintBoundary(
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            children: [
+                              Observer(
+                                builder: (_) => SwapAmountBox(
+                                  isReceiverCard: false,
+                                  walletSwitcherViewModel: widget.walletSwitcherViewModel,
+                                  exchangeViewModel: widget.exchangeViewModel,
+                                  onDispose: disposeBestRateSync,
+                                  hasAllAmount: widget.exchangeViewModel.hasAllAmount,
+                                  allAmount: widget.exchangeViewModel.hasAllAmount
+                                      ? () => widget.exchangeViewModel.enableSendAllAmount()
+                                      : null,
+                                  key: depositKey,
+                                  title: S.of(context).send,
+                                  initialCurrency: widget.exchangeViewModel.depositCurrency,
+                                  hasRefundAddress: true,
+                                  currencies: widget.exchangeViewModel.depositCurrencies,
+                                  onCurrencySelected: (currency) {
+                                    if (currency is CryptoCurrency) {
+                                      widget.exchangeViewModel
+                                          .changeDepositCurrency(currency: currency);
+                                    }
+                                  },
+                                  currencyValueValidator: (value) {
+                                    return !widget.exchangeViewModel.isFixedRateMode &&
+                                            value != S.of(context).all
+                                        ? AmountValidator(
+                                            isAutovalidate: true,
+                                      currency: widget.exchangeViewModel.isFixedRateMode
+                                                ? widget.exchangeViewModel.receiveCurrency
+                                                : widget.exchangeViewModel.depositCurrency,
+                                            minValue: widget.exchangeViewModel.limits.min.toString(),
+                                            maxValue: widget.exchangeViewModel.limits.max.toString(),
+                                            amountParsingProxy:
+                                                widget.exchangeViewModel.amountParsingProxy,
+                                          ).call(value)
+                                        : null;
+                                  },
+                                  addressTextFieldValidator: AddressValidator(
+                                      type: widget.exchangeViewModel.depositCurrency),
+                                  onPushPasteButton: (context) async {
+                                    final clipboard = await Clipboard.getData('text/plain');
+                                    widget.exchangeViewModel.depositAddress = clipboard?.text ?? '';
 
-                                  final domain = widget.exchangeViewModel.depositAddress;
-                                  widget.exchangeViewModel.depositAddress =
-                                      await fetchParsedAddress(context, domain,
-                                          widget.exchangeViewModel.depositCurrency);
-                                },
-                                onPushAddressBookButton: (context) async {
-                                  final domain = widget.exchangeViewModel.depositAddress;
-                                  widget.exchangeViewModel.depositAddress =
-                                      await fetchParsedAddress(context, domain,
-                                          widget.exchangeViewModel.depositCurrency);
-                                },
+                                    final domain = widget.exchangeViewModel.depositAddress;
+                                    widget.exchangeViewModel.depositAddress =
+                                        await fetchParsedAddress(context, domain,
+                                            widget.exchangeViewModel.depositCurrency);
+                                  },
+                                  onPushAddressBookButton: (context) async {
+                                    final domain = widget.exchangeViewModel.depositAddress;
+                                    widget.exchangeViewModel.depositAddress =
+                                        await fetchParsedAddress(context, domain,
+                                            widget.exchangeViewModel.depositCurrency);
+                                  },
+                                ),
                               ),
-                            ),
-                            SwapLimitPopup(exchangeViewModel: widget.exchangeViewModel),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12.0),
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    height: 1,
-                                    width: double.infinity,
-                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                  ),
-                                  ModernButton.svg(
-                                    size: 36,
-                                    iconSize: 24,
-                                    svgPath: "assets/new-ui/swap_amounts.svg",
-                                    onPressed: widget.exchangeViewModel.reverseSwapDirection,
-                                  ),
-                                ],
+                              SwapLimitPopup(exchangeViewModel: widget.exchangeViewModel),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      height: 1,
+                                      width: double.infinity,
+                                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                    ),
+                                    ModernButton.svg(
+                                      size: 36,
+                                      iconSize: 24,
+                                      svgPath: "assets/new-ui/swap_amounts.svg",
+                                      onPressed: widget.exchangeViewModel.reverseSwapDirection,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Observer(
-                              builder: (_) => SwapAmountBox(
-                                isReceiverCard: true,
-                                walletSwitcherViewModel: widget.walletSwitcherViewModel,
-                                exchangeViewModel: widget.exchangeViewModel,
-                                onDispose: disposeBestRateSync,
-                                key: receiveKey,
-                                title: S.of(context).receive,
-                                initialCurrency: widget.exchangeViewModel.receiveCurrency,
-                                currencies: widget.exchangeViewModel.receiveCurrencies,
-                                onCurrencySelected: (currency) {
-                                  if (currency is CryptoCurrency) {
-                                    widget.exchangeViewModel
-                                        .changeReceiveCurrency(currency: currency);
-                                  }
-                                },
-                                currencyValueValidator: (value) {
-                                  return widget.exchangeViewModel.isFixedRateMode
-                                      ? AmountValidator(
-                                          isAutovalidate: true,
-                                          currency: widget.exchangeViewModel.receiveCurrency,
-                                          minValue: widget.exchangeViewModel.limits.min.toString(),
-                                          maxValue: widget.exchangeViewModel.limits.max.toString(),
-                                          amountParsingProxy:
-                                              widget.exchangeViewModel.amountParsingProxy,
-                                        ).call(value)
-                                      : null;
-                                },
-                                addressTextFieldValidator: AddressValidator(
-                                    type: widget.exchangeViewModel.receiveCurrency),
-                                onPushPasteButton: (context) async {
-                                  final clipboard = await Clipboard.getData('text/plain');
-                                  widget.exchangeViewModel.receiveAddress = clipboard?.text ?? '';
+                              Observer(
+                                builder: (_) => SwapAmountBox(
+                                  isReceiverCard: true,
+                                  walletSwitcherViewModel: widget.walletSwitcherViewModel,
+                                  exchangeViewModel: widget.exchangeViewModel,
+                                  onDispose: disposeBestRateSync,
+                                  key: receiveKey,
+                                  title: S.of(context).receive,
+                                  initialCurrency: widget.exchangeViewModel.receiveCurrency,
+                                  currencies: widget.exchangeViewModel.receiveCurrencies,
+                                  onCurrencySelected: (currency) {
+                                    if (currency is CryptoCurrency) {
+                                      widget.exchangeViewModel
+                                          .changeReceiveCurrency(currency: currency);
+                                    }
+                                  },
+                                  currencyValueValidator: (value) {
+                                    return widget.exchangeViewModel.isFixedRateMode
+                                        ? AmountValidator(
+                                            isAutovalidate: true,
+                                            currency: widget.exchangeViewModel.receiveCurrency,
+                                            minValue: widget.exchangeViewModel.limits.min.toString(),
+                                            maxValue: widget.exchangeViewModel.limits.max.toString(),
+                                            amountParsingProxy:
+                                                widget.exchangeViewModel.amountParsingProxy,
+                                          ).call(value)
+                                        : null;
+                                  },
+                                  addressTextFieldValidator: AddressValidator(
+                                      type: widget.exchangeViewModel.receiveCurrency),
+                                  onPushPasteButton: (context) async {
+                                    final clipboard = await Clipboard.getData('text/plain');
+                                    widget.exchangeViewModel.receiveAddress = clipboard?.text ?? '';
 
-                                  final domain = widget.exchangeViewModel.receiveAddress;
-                                  widget.exchangeViewModel.receiveAddress =
-                                      await fetchParsedAddress(context, domain,
-                                          widget.exchangeViewModel.receiveCurrency);
-                                },
-                                onPushAddressBookButton: (context) async {
-                                  final domain = widget.exchangeViewModel.receiveAddress;
-                                  widget.exchangeViewModel.receiveAddress =
-                                      await fetchParsedAddress(context, domain,
-                                          widget.exchangeViewModel.receiveCurrency);
-                                },
-                              ),
-                            )
-                          ],
+                                    final domain = widget.exchangeViewModel.receiveAddress;
+                                    widget.exchangeViewModel.receiveAddress =
+                                        await fetchParsedAddress(context, domain,
+                                            widget.exchangeViewModel.receiveCurrency);
+                                  },
+                                  onPushAddressBookButton: (context) async {
+                                    final domain = widget.exchangeViewModel.receiveAddress;
+                                    widget.exchangeViewModel.receiveAddress =
+                                        await fetchParsedAddress(context, domain,
+                                            widget.exchangeViewModel.receiveCurrency);
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       ),
                       Observer(
@@ -737,9 +745,7 @@ class SwapProviderPreview extends StatelessWidget {
                   spacing: 12,
                   children: [
                     if (provider != null)
-                      provider.description.image.toLowerCase().endsWith("svg")
-                          ? SvgPicture.asset(provider.description.image, width: 28, height: 28)
-                          : Image.asset(provider.description.image, width: 28, height: 28),
+                      CakeImageWidget(imageUrl:provider.description.image,width:28,height:28),
                     if (provider == null) CupertinoActivityIndicator(),
                     Text(
                       provider?.title ?? "${S.of(context).finding_provider}...",
@@ -762,7 +768,7 @@ class SwapProviderPreview extends StatelessWidget {
                             fontWeight: FontWeight.w400,
                             color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
-                      SvgPicture.asset(
+                      CakeImageWidget(imageUrl:
                         "assets/new-ui/chooser.svg",
                         colorFilter: ColorFilter.mode(
                             Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
@@ -927,17 +933,17 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                   currencyToShow,
                                   textAlign: TextAlign.center,
                                 ),
-                                SizedBox(width: 10),
-                                RotatedBox(
-                                    quarterTurns: 2,
-                                    child: SvgPicture.asset(
-                                      "assets/new-ui/dropdown_arrow.svg",
-                                      width: 4,
-                                      height: 4,
-                                      colorFilter: ColorFilter.mode(
-                                          Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                                    )),
-                                SizedBox(width: 4),
+                                SizedBox(width:10),
+                                  RotatedBox(
+                                      quarterTurns: 2,
+                                      child: CakeImageWidget(imageUrl:
+                                        "assets/new-ui/dropdown_arrow.svg",
+                                        width: 4,
+                                        height: 4,
+                                        colorFilter: ColorFilter.mode(
+                                            Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                                      )),
+                                SizedBox(width:4),
                               ],
                             ),
                           ),
@@ -1040,7 +1046,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                       ),
                                       RotatedBox(
                                         quarterTurns: 2,
-                                        child: SvgPicture.asset(
+                                        child: CakeImageWidget(imageUrl:
                                           "assets/new-ui/dropdown_arrow.svg",
                                           colorFilter: ColorFilter.mode(
                                               (addressEmpty && widget.isReceiverCard)
@@ -1177,13 +1183,14 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         });
     if (res != null && res is SwapAddressSelectionResult) {
       if (widget.isReceiverCard) {
+        widget.exchangeViewModel.selectedAddressBookWallet = res.walletInfo;
         widget.exchangeViewModel.receiveAddress = res.address!;
-        if (res.walletName != null) {
+        if (res.walletInfo?.name != null) {
           if (res.accountName != null) {
             widget.exchangeViewModel.receiveAddressDisplayName =
-                "${res.walletName} → ${res.accountName}";
+                "${res.walletInfo!.name} → ${res.accountName}";
           } else {
-            widget.exchangeViewModel.receiveAddressDisplayName = res.walletName!;
+            widget.exchangeViewModel.receiveAddressDisplayName = res.walletInfo!.name;
           }
         }
       } else if (res.address == null || res.address!.isEmpty) {
@@ -1191,7 +1198,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         askForRefundAddress();
       } else {
         widget.exchangeViewModel.isSendFromExternal = false;
-        switchToDepositWallet(res.walletName!);
+        switchToDepositWallet(res.walletInfo!.name);
       }
     }
   }
@@ -1201,6 +1208,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     if (walletType == null) return;
     final wallet = await WalletInfo.get(walletName, walletType);
     if (wallet == null) return;
+    widget.exchangeViewModel.depositAddress = wallet.address;
+    addressController.text = _normalizeAddressFormat(wallet.address);
     widget.walletSwitcherViewModel.selectWallet(wallet);
     await widget.walletSwitcherViewModel.switchToSelectedWallet();
   }

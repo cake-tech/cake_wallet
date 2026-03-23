@@ -1,7 +1,7 @@
 PODS:
   - bitbox_flutter (0.0.1):
     - FlutterMacOS
-  - breez_sdk_spark_flutter (0.9.1):
+  - breez_sdk_spark_flutter (0.11.0):
     - FlutterMacOS
   - connectivity_plus (0.0.1):
     - FlutterMacOS
@@ -168,7 +168,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   bitbox_flutter: 16088f5c7febacf894f4d07bbdfb441c9f0757fe
-  breez_sdk_spark_flutter: 395f5c3f35d0f128ed504588de212ff601f6dbeb
+  breez_sdk_spark_flutter: 2e864a52e699546aedea3d64d0e0cc88bc0ac595
   connectivity_plus: 0a976dfd033b59192912fa3c6c7b54aab5093802
   cw_mweb: 7440b12ead811dda972a9918442ea2a458e8742c
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f

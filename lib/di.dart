@@ -253,6 +253,7 @@ import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
+import 'package:cake_wallet/view_model/settings/connection_sync_view_model.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/mweb_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
@@ -1132,7 +1133,9 @@ Future<void> setup({
     return PowNodeListViewModel(_powNodeSource, appStore);
   });
 
-  getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
+  getIt.registerFactory(() => ConnectionSyncViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
+
+  getIt.registerFactory(() => ConnectionSyncPage(getIt.get<ConnectionSyncViewModel>()));
 
   getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(),
       getIt.get<AuthService>(), getIt.get<AppStore>().wallet!.isHardwareWallet));
@@ -1141,7 +1144,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => TrocadorProvidersPage(getIt.get<TrocadorProvidersViewModel>()));
 
-  getIt.registerFactory(() => DomainLookupsPage(getIt.get<PrivacySettingsViewModel>()));
+  getIt.registerFactory(() => DomainLookupsPage(getIt.get<ConnectionSyncViewModel>()));
 
   getIt.registerFactory(() => DisplaySettingsPage(getIt.get<DisplaySettingsViewModel>()));
 
@@ -1697,9 +1700,9 @@ Future<void> setup({
 
   getIt.registerFactoryParam<ManageNodesPage, bool, void>((bool isPow, _) {
     if (isPow) {
-      return ManageNodesPage(isPow, powNodeListViewModel: getIt.get<PowNodeListViewModel>());
+      return ManageNodesPage(isPow, powNodeListViewModel: getIt.get<PowNodeListViewModel>(), dashboardViewModel: getIt.get<DashboardViewModel>());
     }
-    return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>());
+    return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>(), dashboardViewModel: getIt.get<DashboardViewModel>());
   });
 
   getIt.registerFactory(

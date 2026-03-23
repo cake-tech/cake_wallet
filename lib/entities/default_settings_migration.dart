@@ -595,6 +595,9 @@ Future<void> defaultSettingsMigration(
         case 60: // BalanceCardStyleSettings.cardOrder no-op (handled in sqlite.dart)
         // Do not migrate SQLite here, do that in sqlite.dart in order to prevent runtime
         // errors, missing row and missing tables.
+        case 61:
+          // reset force dex option only 1 time and let users pick it from the swap settings preference
+          await sharedPreferences.setBool(PreferencesKey.forceDecentralizedExchanges, false);
           break;
         default:
           break;
