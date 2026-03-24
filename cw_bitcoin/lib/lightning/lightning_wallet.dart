@@ -41,6 +41,8 @@ class LightningWallet {
 
   StreamSubscription<LogEntry>? _logSubscription;
 
+  bool get isInitialized => _eventStream != null;
+
   void _subscribeToLogStream(File logFile) {
     _logSubscription = _logStream?.listen((logEntry) {
       logFile.writeAsStringSync("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);

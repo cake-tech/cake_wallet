@@ -164,6 +164,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
   }
 
+  bool get isLightningInitialized => lightningWallet?.isInitialized == true;
+
   @override
   bool get hasRescan => true;
 
@@ -339,7 +341,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<ElectrumBalance> fetchBalances() async {
     final balance = await super.fetchBalances();
-    if (lightningWallet == null) {
+    if (!isLightningInitialized || lightningWallet == null) {
       return balance;
     }
 
@@ -358,7 +360,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   @action
   Future<void> subscribeForUpdates() async {
-    if (lightningWallet != null) {
+    if (isLightningInitialized && lightningWallet != null) {
       lightningWallet!.setEventListener(
         onTransactionEvent: (tx) async {
           if (transactionHistory.transactions[tx.id]?.isPending != tx.isPending) {
