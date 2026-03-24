@@ -137,17 +137,24 @@ class LightningWallet {
         .lightningAddress;
   }
 
-  Future<String> getBolt11Invoice(BigInt? amount, String description) async {
-    final response = await sdk.receivePayment(
-      request: ReceivePaymentRequest(
-        paymentMethod: ReceivePaymentMethod.bolt11Invoice(
-          description: description,
-          amountSats: amount,
+  Future<String?> getBolt11Invoice(BigInt? amount, String description) async {
+    try {
+      final response = await sdk.receivePayment(
+        request: ReceivePaymentRequest(
+          paymentMethod: ReceivePaymentMethod.bolt11Invoice(
+            description: description,
+            amountSats: amount,
+          ),
         ),
-      ),
-    );
+      );
 
-    return response.paymentRequest;
+      return response.paymentRequest;
+    } on SdkError_NetworkError catch (_) {
+      return null;
+    } on SdkError_SparkError catch (e) {
+      if (!e.field0.contains("dns")) rethrow;
+      return null;
+    }
   }
 
   Future<bool> isCompatible(String input) async {

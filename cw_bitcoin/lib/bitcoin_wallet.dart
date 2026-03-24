@@ -112,10 +112,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         );
       } catch (e) {
         printV(e);
-        lightningWallet = null;
       }
-    } else {
-      lightningWallet = null;
     }
 
     payjoinManager = PayjoinManager(PayjoinStorage(payjoinBox), this);
@@ -136,11 +133,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
 
     if (lightningWallet != null) {
-      walletAddresses.setLightningAddress(walletInfo.name).then((_) {}, onError: (_, __) {
-        if (walletAddresses.lightningAddress == null) {
-          this.useLightning = false;
-        }
-      });
+      walletAddresses.setLightningAddress(walletInfo.name);
     }
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
@@ -157,6 +150,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             lnurlDomain: "cake.cash",
             cachedAddress: cachedLightningAddress,
           );
+          walletAddresses.setLightningAddress(walletInfo.name);
         }
       } else {
         lightningWallet = null;
@@ -406,7 +400,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return super.fetchTransactions();
   }
 
-  late LightningWallet? lightningWallet;
+  LightningWallet? lightningWallet;
 
   late final PayjoinManager payjoinManager;
 
