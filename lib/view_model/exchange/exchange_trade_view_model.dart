@@ -482,6 +482,8 @@ abstract class ExchangeTradeViewModelBase with Store {
     final uriWalletType =
         cryptoCurrencyOrTokenToWalletType(fromCurrency) ?? wallet.type;
 
+    printV(uriWalletType);
+
     switch (uriWalletType) {
       case WalletType.bitcoin:
         return BitcoinURI(address: inputAddress, amount: amount);
@@ -510,7 +512,19 @@ abstract class ExchangeTradeViewModelBase with Store {
         return MoneroURI(
             address: inputAddress,
             amount: amount);
-      default:
+      case WalletType.litecoin:
+        return LitecoinURI(amount: amount, address: inputAddress);
+      case WalletType.nano:
+        return NanoURI(amount: amount, address: inputAddress);
+      case WalletType.zano:
+        return ZanoURI(amount: amount, address: inputAddress);
+      case WalletType.decred:
+        return DecredURI(amount: amount, address: inputAddress);
+      case WalletType.zcash:
+        return ZcashURI(amount: amount, address: inputAddress);
+      case WalletType.banano:
+      case WalletType.none:
+      case WalletType.haven:
         return null;
     }
   }
