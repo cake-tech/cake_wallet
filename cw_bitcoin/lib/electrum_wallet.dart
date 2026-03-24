@@ -181,9 +181,9 @@ abstract class ElectrumWalletBase
         seedBytes, network != null ? getKeyNetVersion(network, hardwareWalletType) : null);
   }
 
-  static const int addressHistoryChunkSize = 50;
-  static const int transactionChunkSize = 50;
-  static const int inputTransactionChunkSize = 50;
+  static const int addressHistoryChunkSize = 20;
+  static const int transactionChunkSize = 20;
+  static const int inputTransactionChunkSize = 20;
   static const int discoveryHistoryChunkSize = 20;
 
   static const int transactionBatchTimeoutMs = 20000;
@@ -268,6 +268,7 @@ abstract class ElectrumWalletBase
   bool silentPaymentsScanningActive = false;
 
   bool _isTryingToConnect = false;
+  DateTime? _syncBenchmarkStartTime;
 
   Completer<SharedPreferences> sharedPrefs = Completer();
 
@@ -543,6 +544,11 @@ abstract class ElectrumWalletBase
         return;
       }
 
+      if (_syncBenchmarkStartTime == null) {
+        _syncBenchmarkStartTime = DateTime.now();
+        printV('[ELECTRUM_WALLET SYNC] Starting: ${_syncBenchmarkStartTime!}');
+      }
+
       syncStatus = SyncronizingSyncStatus();
 
       if (hasSilentPaymentsScanning) {
@@ -590,11 +596,28 @@ abstract class ElectrumWalletBase
         if (syncStatus is LostConnectionSyncStatus) {
           return;
         }
+
+        final syncEnd = DateTime.now();
+        final totalMs = _syncBenchmarkStartTime != null
+            ? syncEnd.difference(_syncBenchmarkStartTime!).inMilliseconds
+            : 0;
+
+        printV('[ELECTRUM_WALLET SYNC] Finished: $syncEnd, took ${totalMs} ms');
+
+        _syncBenchmarkStartTime = null;
         syncStatus = SyncedSyncStatus();
       }
     } catch (e, stacktrace) {
+      final syncEnd = DateTime.now();
+      final totalMs = _syncBenchmarkStartTime != null
+          ? syncEnd.difference(_syncBenchmarkStartTime!).inMilliseconds
+          : 0;
+
       printV(stacktrace);
       printV("startSync $e");
+      printV('[ELECTRUM_WALLET SYNC] Finished: $syncEnd, took ${totalMs} ms');
+
+      _syncBenchmarkStartTime = null;
       syncStatus = FailedSyncStatus();
     }
   }
@@ -2700,10 +2723,19 @@ abstract class ElectrumWalletBase
           : txIds.length;
       final chunk = txIds.sublist(i, end);
 
-      final bundlesByHash = await getTransactionExpandedBatch(
-        hashes: chunk,
-        heightsByHash: heightsByHash,
-      );
+      Map<String, ElectrumTransactionBundle?> bundlesByHash;
+      try {
+        bundlesByHash = await getTransactionExpandedBatch(
+          hashes: chunk,
+          heightsByHash: heightsByHash,
+        );
+      } on electrum.RequestFailedTimeoutException catch (e) {
+        printV('fetchTransactionInfoBatch chunk timeout for ${chunk.length} txs: ${e.method}');
+        for (final txId in chunk) {
+          result[txId] = null;
+        }
+        continue;
+      }
 
       for (final txId in chunk) {
         try {
@@ -2760,11 +2792,23 @@ abstract class ElectrumWalletBase
   Future<Map<String, Map<String, dynamic>>> _fetchTransactionVerboseBatch(
       List<String> txIds) async {
 
-    final verboseTransactionByHash = await _processChunksToMap<String, String, Map<String, dynamic>>(
-      items: txIds,
-      chunkSize: transactionChunkSize,
-      processChunk: _getTransactionVerboseBatch,
-    );
+
+    Map<String, Map<String, dynamic>> verboseTransactionByHash = {};
+
+    try {
+      verboseTransactionByHash = await _processChunksToMap<String, String, Map<String, dynamic>>(
+        items: txIds,
+        chunkSize: transactionChunkSize,
+        processChunk: _getTransactionVerboseBatch,
+      );
+
+    } on electrum.RequestFailedTimeoutException catch (e) {
+      printV('fetchTransactionVerboseBatch timeout for ${txIds.length} txs: ${e.method}');
+      return {};
+    } catch (e) {
+      printV('fetchTransactionVerboseBatch error: $e');
+      return {};
+    }
 
     final emptyHex = <String>[];
     for (final txId in txIds) {
