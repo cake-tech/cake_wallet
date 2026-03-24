@@ -146,13 +146,15 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (!fiatConversionStore.prices.containsKey(cryptoCurrency)) return "";
-    return (double.parse(_amount) * fiatConversionStore.prices[cryptoCurrency]!).toStringAsFixed(2);
+    final amount = double.tryParse(_amount) ?? 0;
+    return (amount * fiatConversionStore.prices[cryptoCurrency]!).toStringAsFixed(2);
   }
 
   @computed
   String get selectedCurrencyFiatAmount {
     if (_fiatRate == null) return "";
-    return (double.parse(_amount) * _fiatRate!).toStringAsFixed(2);
+    final amount = double.tryParse(_amount) ?? 0;
+    return (amount * _fiatRate!).toStringAsFixed(2);
   }
 
   @action
