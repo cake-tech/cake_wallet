@@ -43,9 +43,9 @@ class LightningWallet {
 
   void _subscribeToLogStream(File logFile) {
     _logSubscription = _logStream?.listen((logEntry) {
-      logFile.writeAsString("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
+      logFile.writeAsStringSync("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
     }, onError: (e) {
-      logFile.writeAsString("[ERROR] $e\n", mode: FileMode.append);
+      logFile.writeAsStringSync("[ERROR] $e\n", mode: FileMode.append);
     });
   }
 
