@@ -136,7 +136,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
 
     if (lightningWallet != null) {
-      walletAddresses.setLightningAddress(walletInfo.name);
+      walletAddresses.setLightningAddress(walletInfo.name).then((_) {}, onError: (_, __) {
+        if (walletAddresses.lightningAddress == null) {
+          this.useLightning = false;
+        }
+      });
     }
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
