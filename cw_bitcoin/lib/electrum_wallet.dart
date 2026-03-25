@@ -181,12 +181,12 @@ abstract class ElectrumWalletBase
         seedBytes, network != null ? getKeyNetVersion(network, hardwareWalletType) : null);
   }
 
-  static const int addressHistoryChunkSize = 20;
-  static const int transactionChunkSize = 20;
-  static const int inputTransactionChunkSize = 20;
+  static const int addressHistoryChunkSize = 150;
+  static const int transactionChunkSize = 150;
+  static const int inputTransactionChunkSize = 150;
   static const int discoveryHistoryChunkSize = 20;
 
-  static const int transactionBatchTimeoutMs = 20000;
+  static const int transactionBatchTimeoutMs = 15000;
 
   static const bool useBatchForHistory = true;
 
@@ -2872,6 +2872,17 @@ abstract class ElectrumWalletBase
       items: inputTxIds,
       chunkSize: inputTransactionChunkSize,
       processChunk: _getTransactionVerboseBatch,
+      onChunkError: (chunk, error) {
+        if (error is electrum.RequestFailedTimeoutException) {
+          printV(
+            'fetchInputTransactionVerboseBatch timeout for ${chunk.length} txs: ${error.method}',
+          );
+        } else {
+          printV(
+            'fetchInputTransactionVerboseBatch failed for ${chunk.length} txs: $error,',
+          );
+        }
+      },
     );
 
     final emptyHex = <String>[];
@@ -3032,6 +3043,7 @@ abstract class ElectrumWalletBase
     required List<T> items,
     required int chunkSize,
     required Future<Map<K, V>> Function(List<T> chunk) processChunk,
+    void Function(List<T> chunk, Object error)? onChunkError,
   }) async {
     final result = <K, V>{};
 
@@ -3039,8 +3051,16 @@ abstract class ElectrumWalletBase
       final end = (i + chunkSize < items.length) ? i + chunkSize : items.length;
       final chunk = items.sublist(i, end);
 
-      final chunkResult = await processChunk(chunk);
-      result.addAll(chunkResult);
+      try {
+        final chunkResult = await processChunk(chunk);
+        result.addAll(chunkResult);
+      } on electrum.RequestFailedTimeoutException catch (e) {
+        onChunkError?.call(chunk, e);
+        continue;
+      } catch (e) {
+        onChunkError?.call(chunk, e);
+        continue;
+      }
     }
 
     return result;
