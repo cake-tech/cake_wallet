@@ -129,7 +129,29 @@ class _NewHomePageState extends State<NewHomePage> {
                               lightningMode: _lightningMode,
                             ),
                           ),
-                    UnconfirmedBalanceWidget(dashboardViewModel: widget.dashboardViewModel,),
+                          Observer(builder: (_) {
+                            return AnimatedSize(
+                              duration: Duration(milliseconds: 150),
+                              curve: Curves.easeInOutCubic,
+                              child: (widget.dashboardViewModel.shouldShowBalanceHiddenMessage)
+                                  ? Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 12,
+                                          width: double.infinity,
+                                        ),
+                                        Text(
+                                          "Long press card to show balance",
+                                          style: TextStyle(
+                                              color:
+                                                  Theme.of(context).colorScheme.onSurfaceVariant),
+                                        )
+                                      ],
+                                    )
+                                  : SizedBox(width: double.infinity),
+                            );
+                          }),
+                          UnconfirmedBalanceWidget(dashboardViewModel: widget.dashboardViewModel,),
                   ],
                 ),
                 Observer(
