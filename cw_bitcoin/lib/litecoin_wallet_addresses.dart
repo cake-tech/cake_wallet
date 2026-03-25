@@ -100,7 +100,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     generating = true;
     try {
       while (mwebAddrs.length <= (index + 1)) {
-        final addresses = CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
+        final addresses = CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + ElectrumWalletAddressesBase.gap);
         printV("generated up to index ${mwebAddrs.length}");
         // sleep for a bit to avoid making the main thread unresponsive:
         await Future.delayed(Duration(milliseconds: 200));
@@ -149,6 +149,15 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       }
       return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
+    if (addressType == P2pkhAddressType.p2pkh) {
+      return generateP2PKHAddress(hd: hd, index: index, network: network);
+    }
+    if (addressType == SegwitAddresType.p2wsh) {
+      return generateP2WSHAddress(hd: hd, index: index, network: network);
+    }
+    if (addressType == P2shAddressType.p2wpkhInP2sh) {
+      return generateP2SHAddress(hd: hd, index: index, network: network);
+    }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
 
@@ -159,7 +168,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     BitcoinAddressType? addressType,
   }) async {
     if (addressType == SegwitAddresType.mweb) {
-      await ensureMwebAddressUpToIndexExists(index);
+      await ensureMwebAddressUpToIndexExists(index + 1);
     }
     return getAddress(index: index, hd: hd, addressType: addressType);
   }
@@ -233,7 +242,13 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @override
   List<ReceivePageOption> get receivePageOptions {
-    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows || isHardwareWallet) {
+    if (isHardwareWallet) {
+      return [
+        BitcoinReceivePageOption.p2wpkh,
+        ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+      ];
+    }
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       return [
         ...BitcoinReceivePageOption.allLitecoin
             .where((element) => element != BitcoinReceivePageOption.mweb),

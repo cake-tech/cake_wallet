@@ -32,6 +32,9 @@ const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
 
 const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
   SegwitAddresType.p2wpkh,
+  P2pkhAddressType.p2pkh,
+  SegwitAddresType.p2wsh,
+  P2shAddressType.p2wpkhInP2sh,
   SegwitAddresType.mweb,
 ];
 
@@ -125,8 +128,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
   }
 
-  static const defaultReceiveAddressesCount = 22;
-  static const defaultChangeAddressesCount = 17;
+  static const defaultReceiveAddressesCount = 100;
+  static const defaultChangeAddressesCount = 100;
   static const gap = 20;
 
   final ObservableList<BitcoinAddressRecord> _addresses;
@@ -308,6 +311,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.litecoin) {
       await _generateInitialAddresses(type: SegwitAddresType.p2wpkh);
+      if (!isHardwareWallet) {
+        await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
+        await _generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
+        await _generateInitialAddresses(type: SegwitAddresType.p2wsh);
+      }
       if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
         await _generateInitialAddresses(type: SegwitAddresType.mweb);
       }
@@ -503,24 +511,24 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   void addLitecoinAddressTypes() {
-    final lastP2wpkh = _addresses
-        .where((addressRecord) =>
-            _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
-        .toList()
-        .last;
-    if (lastP2wpkh.address != address) {
-      addressesMap[lastP2wpkh.address] = 'P2WPKH';
-    } else {
-      addressesMap[address] = 'Active - P2WPKH';
+    void mapLastUnused(BitcoinAddressType type, String label, String activeLabel) {
+      final matches = _addresses
+          .where((addressRecord) => _isUnusedReceiveAddressByType(addressRecord, type))
+          .toList();
+      if (matches.isEmpty) return;
+      final last = matches.last;
+      if (last.address != address) {
+        addressesMap[last.address] = label;
+      } else {
+        addressesMap[address] = activeLabel;
+      }
     }
 
-    final lastMweb = _addresses.firstWhere(
-        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
-    if (lastMweb.address != address) {
-      addressesMap[lastMweb.address] = 'MWEB';
-    } else {
-      addressesMap[address] = 'Active - MWEB';
-    }
+    mapLastUnused(SegwitAddresType.p2wpkh, 'P2WPKH', 'Active - P2WPKH');
+    mapLastUnused(P2pkhAddressType.p2pkh, 'P2PKH', 'Active - P2PKH');
+    mapLastUnused(P2shAddressType.p2wpkhInP2sh, 'P2SH', 'Active - P2SH');
+    mapLastUnused(SegwitAddresType.p2wsh, 'P2WSH', 'Active - P2WSH');
+    mapLastUnused(SegwitAddresType.mweb, 'MWEB', 'Active - MWEB');
   }
 
   void addP2PKHAddressTypes() {
@@ -628,7 +636,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         addressRecord.isHidden &&
         !addressRecord.isUsed &&
         // TODO: feature to change change address type. For now fixed to p2wpkh, the cheapest type
-        (walletInfo.type != WalletType.bitcoin || addressRecord.type == SegwitAddresType.p2wpkh));
+        ((walletInfo.type != WalletType.bitcoin && walletInfo.type != WalletType.litecoin) ||
+            addressRecord.type == SegwitAddresType.p2wpkh));
     changeAddresses.addAll(newAddresses);
   }
 

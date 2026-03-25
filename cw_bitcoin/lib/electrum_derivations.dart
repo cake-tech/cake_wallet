@@ -35,6 +35,18 @@ Map<DerivationType, List<DerivationInfo>> electrum_derivations = {
     ),
     DerivationInfo(
       derivationType: DerivationType.bip39,
+      derivationPath: "m/44'/0'/0'",
+      description: "Standard Litecoin BIP44",
+      scriptType: "p2pkh",
+    ),
+    DerivationInfo(
+      derivationType: DerivationType.bip39,
+      derivationPath: "m/49'/0'/0'",
+      description: "Standard Litecoin BIP49 compatibility segwit",
+      scriptType: "p2wpkh-p2sh",
+    ),
+    DerivationInfo(
+      derivationType: DerivationType.bip39,
       derivationPath: "m/86'/0'/0'",
       description: "Standard BIP86 Taproot",
       scriptType: "p2tr",
@@ -105,7 +117,7 @@ Map<DerivationType, List<DerivationInfo>> electrum_derivations = {
       description: "Samourai Ricochet native segwit",
       scriptType: "p2wpkh",
     ),
-    DerivationInfo(
+        DerivationInfo(
       derivationType: DerivationType.bip39,
       derivationPath: "m/84'/2'/0'",
       description: "Default Litecoin",
