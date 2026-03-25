@@ -62,6 +62,7 @@ import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/order/order.dart';
@@ -1430,6 +1431,11 @@ Future<void> setup({
           canReplaceByFee: canReplaceByFee,
         );
       }
+  );
+
+  getIt.registerFactoryParam<TransactionDetailsModal, TransactionInfo, void>(
+      (transactionInfo, _) => TransactionDetailsModal(transactionDetailsViewModel: getIt.get<TransactionDetailsViewModel>(
+          param1: [transactionInfo, false]))
   );
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
