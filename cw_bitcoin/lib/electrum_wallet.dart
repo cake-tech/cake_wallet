@@ -2723,19 +2723,10 @@ abstract class ElectrumWalletBase
           : txIds.length;
       final chunk = txIds.sublist(i, end);
 
-      Map<String, ElectrumTransactionBundle?> bundlesByHash;
-      try {
-        bundlesByHash = await getTransactionExpandedBatch(
-          hashes: chunk,
-          heightsByHash: heightsByHash,
-        );
-      } on electrum.RequestFailedTimeoutException catch (e) {
-        printV('fetchTransactionInfoBatch chunk timeout for ${chunk.length} txs: ${e.method}');
-        for (final txId in chunk) {
-          result[txId] = null;
-        }
-        continue;
-      }
+      final bundlesByHash = await getTransactionExpandedBatch(
+        hashes: chunk,
+        heightsByHash: heightsByHash,
+      );
 
       for (final txId in chunk) {
         try {
@@ -2792,23 +2783,11 @@ abstract class ElectrumWalletBase
   Future<Map<String, Map<String, dynamic>>> _fetchTransactionVerboseBatch(
       List<String> txIds) async {
 
-
-    Map<String, Map<String, dynamic>> verboseTransactionByHash = {};
-
-    try {
-      verboseTransactionByHash = await _processChunksToMap<String, String, Map<String, dynamic>>(
-        items: txIds,
-        chunkSize: transactionChunkSize,
-        processChunk: _getTransactionVerboseBatch,
-      );
-
-    } on electrum.RequestFailedTimeoutException catch (e) {
-      printV('fetchTransactionVerboseBatch timeout for ${txIds.length} txs: ${e.method}');
-      return {};
-    } catch (e) {
-      printV('fetchTransactionVerboseBatch error: $e');
-      return {};
-    }
+    final verboseTransactionByHash = await _processChunksToMap<String, String, Map<String, dynamic>>(
+      items: txIds,
+      chunkSize: transactionChunkSize,
+      processChunk: _getTransactionVerboseBatch,
+    );
 
     final emptyHex = <String>[];
     for (final txId in txIds) {
