@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
@@ -141,7 +142,7 @@ class _NewHomePageState extends State<NewHomePage> {
                                           width: double.infinity,
                                         ),
                                         Text(
-                                          "Long press card to show balance",
+                                          S.of(context).long_press_show_balance,
                                           style: TextStyle(
                                               color:
                                                   Theme.of(context).colorScheme.onSurfaceVariant),
