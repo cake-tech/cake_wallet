@@ -595,6 +595,7 @@
   "login": "Přihlásit se",
   "logout": "Odhlásit se",
   "long_press_edit_address": "Dlouhým stisknutím upravíte adresu",
+  "long_press_show_balance": "Dlouhým stisknutím karty zobrazíte zůstatek",
   "low_fee": "Nízký poplatek",
   "low_fee_alert": "Momentálně používáte nízkou prioritu síťového poplatku. To může způsobit dlouhé čekání, odlišné kurzy nebo zrušené obchody. Pro lepší zkušenost doporučujeme nastavit vyšší poplatek.",
   "made_easy": "snadno",
