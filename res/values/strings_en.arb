@@ -1272,6 +1272,7 @@
   "username_length_error": "Usernames must contain 6-32 alphanumeric characters.",
   "username_length_error_1_64": "Usernames must contain 1-64 alphanumeric characters.",
   "username_not_available": "This username is not available.",
+  "username_check_your_network": "Unable to check username. Please check your network connection.",
   "value": "Value",
   "value_type": "Value Type",
   "variable_pair_not_supported": "This variable pair is not supported with the selected exchanges",
