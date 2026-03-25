@@ -23,6 +23,7 @@ import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
@@ -481,17 +482,28 @@ abstract class DashboardViewModelBase with Store {
       }
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
+      String _txIdentityString(String txHash, TransactionDirection direction) => '${txHash}_$direction';
+
+      final existingKeys = transactions
+          .map((item) => _txIdentityString(item.transaction.txHash, item.transaction.direction))
+          .toSet();
+
       final newTransactions = relevantTxs
+          .where((tx) => !existingKeys.contains(_txIdentityString(tx.txHash, tx.direction)))
           .map((tx) => TransactionListItem(
                 transaction: tx,
                 balanceViewModel: balanceViewModel,
                 appStore: appStore,
                 key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
               ))
-          .where((item) => !transactions.contains(item));
+          .toList();
 
-      transactions.removeWhere((item) =>
-          newTransactions.any((tx) => tx.transaction.txHash == item.transaction.txHash && tx.transaction.direction == item.transaction.direction)
+      final newKeys = newTransactions
+          .map((item) => _txIdentityString(item.transaction.txHash, item.transaction.direction))
+          .toSet();
+
+      transactions.removeWhere(
+        (item) => newKeys.contains(_txIdentityString(item.transaction.txHash, item.transaction.direction)),
       );
 
       transactions.addAll(newTransactions);
