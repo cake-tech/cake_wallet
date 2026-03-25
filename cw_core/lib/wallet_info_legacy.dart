@@ -272,7 +272,7 @@ class WalletInfo extends HiveObject {
       0,
       addressPageType,
       false,
-      false,
+      true,
       null
     );
     final wiId = await walletInfo.save();

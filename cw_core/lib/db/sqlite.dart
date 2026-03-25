@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         );
       }
       if (oldVersion <= 3) {
-        await _addColumnIfNotExists(db, table: "WalletInfo", column: "showCombinedBalance", definition: "BOOLEAN DEFAULT FALSE");
+        await _addColumnIfNotExists(db, table: "WalletInfo", column: "showCombinedBalance", definition: "BOOLEAN DEFAULT TRUE");
         // null - primary token (eth, sol etc)
         // not null - address of fav token
         // if address doesn't correspond to a valid token, fallback to primary token
@@ -115,7 +115,7 @@ CREATE TABLE WalletInfo (
   isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
   sortOrder INTEGER DEFAULT (0) NOT NULL,
   receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
-  showCombinedBalance BOOLEAN DEFAULT FALSE,
+  showCombinedBalance BOOLEAN DEFAULT TRUE,
   favoriteTokenAddress TEXT DEFAULT NULL
 );
 ''');

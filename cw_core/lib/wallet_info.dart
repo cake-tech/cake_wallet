@@ -397,7 +397,7 @@ class WalletInfo {
       sortOrder ?? 0,
       null,
       receiveInfoboxDismissed ?? false,
-      showCombinedBalance ?? false,
+      showCombinedBalance ?? true,
       favoriteTokenAddress
     );
   }
