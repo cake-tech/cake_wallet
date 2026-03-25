@@ -1,5 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
@@ -11,16 +11,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-class BridgeDetailPage extends BasePage {
-  BridgeDetailPage(this.viewModel);
+class BridgeDetailPage extends StatelessWidget {
+  BridgeDetailPage({super.key, required this.viewModel});
 
   final BridgeDetailsViewModel viewModel;
 
   @override
-  String get title => "Bridge Transfer";
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
-  @override
-  Widget body(BuildContext context) => BridgeDetailPageBody(viewModel);
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        children: [
+          ModalTopBar(
+            title: "Bridge Transfer Details",
+            leadingIcon: const Icon(Icons.arrow_back_ios_new, size: 18),
+            onLeadingPressed: () => Navigator.of(context).pop(),
+          ),
+          BridgeDetailPageBody(viewModel),
+        ],
+      ),
+    );
+  }
 }
 
 class BridgeDetailPageBody extends StatefulWidget {
@@ -98,9 +114,7 @@ class BridgeDetailPageBodyState extends State<BridgeDetailPageBody> {
                 title: item.title,
                 value: item.value,
                 hintTextColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                mainTextColor: isError
-                    ? Theme.of(context).colorScheme.error
-                    : null,
+                mainTextColor: isError ? Theme.of(context).colorScheme.error : null,
               ),
             );
           },

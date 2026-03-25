@@ -53,6 +53,7 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
@@ -163,9 +164,8 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_details_
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
-import 'package:cake_wallet/src/screens/usdt0_bridge/bridge_detail_page.dart';
-import 'package:cake_wallet/src/screens/usdt0_bridge/bridge_history_page.dart';
-import 'package:cake_wallet/src/screens/usdt0_bridge/usdt0_bridge_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_detail_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
@@ -1765,8 +1765,11 @@ Future<void> setup({
   getIt.registerFactory(() => USDT0BridgeViewModel(
         appStore: getIt.get<AppStore>(),
         bridgeTransfersStore: getIt.get<BridgeTransfersStore>(),
+        walletManager: getIt.get<WalletManager>(),
+        fiatConversionStore: getIt.get<FiatConversionStore>(),
+        settingsStore: getIt.get<SettingsStore>(),
       ));
-  getIt.registerFactory(() => USDT0BridgePage(getIt<USDT0BridgeViewModel>()));
+
   getIt.registerFactory(() => BridgeHistoryViewModel(
         bridgeTransfersStore: getIt.get<BridgeTransfersStore>(),
         appStore: getIt.get<AppStore>(),
@@ -1783,7 +1786,7 @@ Future<void> setup({
   });
   getIt.registerFactoryParam<BridgeDetailPage, BridgeTransfer, void>(
       (BridgeTransfer transfer, _) => BridgeDetailPage(
-            getIt.get<BridgeDetailsViewModel>(param1: transfer),
+            viewModel: getIt.get<BridgeDetailsViewModel>(param1: transfer),
           ));
 
   getIt.registerLazySingleton(() => NodeSwitchingService(
@@ -1791,6 +1794,14 @@ Future<void> setup({
     settingsStore: getIt.get<SettingsStore>(),
     nodeSource: _nodeSource,
   ));
+
+  getIt.registerFactoryParam<BridgeAmountPage, CryptoCurrency, void>(
+    (CryptoCurrency initialToken, _) => BridgeAmountPage(
+      bridgeViewModel: getIt.get<USDT0BridgeViewModel>(),
+      bridgeHistoryViewModel: getIt.get<BridgeHistoryViewModel>(),
+      initialToken: initialToken,
+    ),
+  );
 
   _isSetupFinished = true;
 }

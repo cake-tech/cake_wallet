@@ -9,6 +9,7 @@ class ListItemStyleWrapper extends StatelessWidget {
     this.onTap,
     this.height = 50,
     this.iconPath,
+    this.contentPadding,
   });
 
   final String? iconPath;
@@ -17,7 +18,8 @@ class ListItemStyleWrapper extends StatelessWidget {
   final double height;
   final VoidCallback? onTap;
   final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
-
+  final EdgeInsets? contentPadding;
+  
   @override
   Widget build(BuildContext context) {
 
@@ -59,7 +61,7 @@ class ListItemStyleWrapper extends StatelessWidget {
                     child: InkWell(
                         onTap: onTap,
                         child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            padding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 12),
                             child: builder(context, textStyle, labelStyle))))),
             if(iconPath != null && isLastInSection == false) Container(
               color: theme.colorScheme.surfaceContainer,

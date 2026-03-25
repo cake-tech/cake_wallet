@@ -114,23 +114,6 @@ class CakeFeaturesPage extends StatelessWidget {
           subTitle: S.of(context).nanogpt_subtitle,
           image: Image.asset('assets/images/nanogpt.png', height: 80, width: 80, fit: BoxFit.cover),
         ),
-        Observer(builder: (_) {
-          if (cakeFeaturesViewModel.hasUSDT0Tokens(dashboardViewModel.wallet)) {
-            return DashBoardRoundedCardWidget(
-              shadowBlur: dashboardViewModel.getShadowBlur(),
-              shadowSpread: dashboardViewModel.getShadowSpread(),
-              onTap: () => Navigator.of(context).pushNamed(Routes.usdt0Bridge),
-              title: "USDT0 Bridge",
-              subTitle: "Cross-chain USDT transfers across 15+ blockchains",
-              icon: CakeImageWidget(
-                imageUrl: 'assets/images/crypto/usdt0.webp',
-                height: 80,
-                width: 80,
-              ),
-            );
-          }
-          return const SizedBox();
-        }),
         const Spacer(),
         const SizedBox(height: 125),
       ],
@@ -192,18 +175,6 @@ class CakeFeaturesPage extends StatelessWidget {
               title: S.of(context).deuro_savings,
               subTitle: S.of(context).deuro_savings_subtitle,
               image: 'assets/images/deuro_icon.png',
-            );
-          }
-          return const SizedBox();
-        }),
-        Observer(builder: (_) {
-          if (cakeFeaturesViewModel.hasUSDT0Tokens(dashboardViewModel.wallet)) {
-            return AppsWidget(
-              isWide: true,
-              onTap: () => Navigator.of(context).pushNamed(Routes.usdt0Bridge),
-              title: "USDT0 Bridge",
-              subTitle: "Cross-chain USDT transfers across 15+ blockchains",
-              image: 'assets/images/crypto/usdt0.webp',
             );
           }
           return const SizedBox();

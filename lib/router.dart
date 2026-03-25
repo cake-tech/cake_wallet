@@ -61,9 +61,8 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_s
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
-import 'package:cake_wallet/src/screens/usdt0_bridge/bridge_detail_page.dart';
-import 'package:cake_wallet/src/screens/usdt0_bridge/bridge_history_page.dart';
-import 'package:cake_wallet/src/screens/usdt0_bridge/usdt0_bridge_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_detail_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
 import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
@@ -1039,10 +1038,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
         builder: (_) => getIt.get<DEuroSavingsPage>(),
       );
 
-    case Routes.usdt0Bridge:
-      return MaterialPageRoute<void>(
-        builder: (_) => getIt.get<USDT0BridgePage>(),
-      );
+
 
     case Routes.usdt0BridgeHistory:
       return MaterialPageRoute<void>(

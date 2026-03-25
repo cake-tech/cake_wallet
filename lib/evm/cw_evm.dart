@@ -511,8 +511,22 @@ class CWEVM extends EVM {
               chainId: config.chainId,
               name: config.name,
               shortCode: config.shortCode,
+              currency: config.nativeCurrency,
             ))
         .toList();
+  }
+
+  @override
+  ChainInfo? getChainInfoByChainId(int chainId) {
+    final config = _registry.getChainConfig(chainId);
+    if (config == null) return null;
+    
+    return ChainInfo(
+      chainId: config.chainId,
+      name: config.name,
+      shortCode: config.shortCode,
+      currency: config.nativeCurrency,
+    );
   }
 
   @override
@@ -524,6 +538,7 @@ class CWEVM extends EVM {
         chainId: config.chainId,
         name: config.name,
         shortCode: config.shortCode,
+        currency: config.nativeCurrency,
       );
     }
     return null;
@@ -582,6 +597,7 @@ class CWEVM extends EVM {
           chainId: config.chainId,
           name: config.name,
           shortCode: config.shortCode,
+          currency: config.nativeCurrency,
         ));
       }
     }

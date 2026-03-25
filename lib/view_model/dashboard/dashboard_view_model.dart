@@ -386,6 +386,14 @@ abstract class DashboardViewModelBase with Store {
     return false;
   }
 
+  bool showBridge(CryptoCurrency currency) {
+    if(!isEVMCompatibleChain(wallet.type)) return false;
+
+    if(evm!.isUSDT0Token(wallet, currency)) return true;
+
+    return false;
+  }
+
   @action
   Future<void> loadCardDesigns() async {
     final accountStyleSettings =

@@ -1545,10 +1545,11 @@ abstract class EVM {
   WalletType? getWalletTypeByChainId(int chainId);
   String getChainNameByChainId(int chainId);
   String getTokenNameByChainId(int chainId);
-  
   // Chain selection methods
   List<ChainInfo> getAllChains();
   ChainInfo? getCurrentChain(WalletBase wallet);
+  ChainInfo? getChainInfoByChainId(int chainId);
+
 
   int? getSelectedChainId(WalletBase wallet);
   Future<void> selectChain(WalletBase wallet, int chainId, {required Node node});
