@@ -420,7 +420,6 @@ abstract class BalanceViewModelBase with Store {
     return balance;
   }
 
-  @computed
   BalanceRecord getMainBalanceRecord(bool lightningMode) {
     if (lightningMode) {
       return formattedBalances.elementAt(1);
