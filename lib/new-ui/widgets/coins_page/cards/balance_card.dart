@@ -139,7 +139,7 @@ class BalanceCard extends StatelessWidget {
                                 AnimatedDefaultTextStyle(
                                   duration: designSwitchDuration,
                                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                                      fontWeight: FontWeight.w500, color: design.colors.textColor),
+                                      fontWeight: FontWeight.w500, color: design.colors.textColor.withAlpha(leadText == accountName ? 255 : 128)),
                                   child: Text(leadText),
                                 ),
                               ],

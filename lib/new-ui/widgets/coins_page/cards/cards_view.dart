@@ -192,7 +192,7 @@ class _CardsViewState extends State<CardsView> {
               assetName: assetName,
               capitalizeAssetName: _shouldCapitalizeAssetName(),
               balance: walletBalance,
-              fiatCurrencyTitle: walletBalanceRecord.fiatCurrencyTicker,
+              fiatCurrencyTitle: walletBalanceRecord?.fiatCurrencyTicker ?? widget.dashboardViewModel.settingsStore.fiatCurrency.title,
               fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
               fiatBalance: walletFiatBalance,
               selected: _selectedIndex == visualIndex,

@@ -420,17 +420,14 @@ abstract class BalanceViewModelBase with Store {
     return balance;
   }
 
-  BalanceRecord getMainBalanceRecord(bool lightningMode) {
+  BalanceRecord? getMainBalanceRecord(bool lightningMode) {
     if (lightningMode) {
-      return formattedBalances.elementAt(1);
+      return formattedBalances.elementAtOrNull(1);
     }
 
     if (wallet.walletInfo.favoriteTokenAddress != null) {
-      return formattedBalances.firstWhereOrNull((item) {
-
-        return (getTokenAddressBasedOnWallet(item.asset) ==
-                  wallet.walletInfo.favoriteTokenAddress);
-      }) ??
+      return formattedBalances.firstWhereOrNull((item) => (getTokenAddressBasedOnWallet(item.asset) ==
+                  wallet.walletInfo.favoriteTokenAddress)) ??
           formattedBalances.elementAt(0);
     }
 
@@ -457,6 +454,7 @@ abstract class BalanceViewModelBase with Store {
     return null;
   }
 
+  @computed
   bool get showCombinedBalance {
     if(wallet.type == WalletType.bitcoin) return false;
     if(balances.values.length == 1) return false;
@@ -464,6 +462,7 @@ abstract class BalanceViewModelBase with Store {
     return wallet.walletInfo.showCombinedBalance;
   }
 
+  @computed
   String get combinedFiatBalance {
     double ret = 0.0;
     for(final record in balances.values) {

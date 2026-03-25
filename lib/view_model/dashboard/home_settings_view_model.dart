@@ -511,6 +511,7 @@ abstract class HomeSettingsViewModelBase with Store {
   void setShowCombinedBalance(bool value) {
     _balanceViewModel.wallet.walletInfo.showCombinedBalance = value;
     showCombinedBalance = value;
+    _balanceViewModel.wallet.updateBalance();
     _balanceViewModel.wallet.walletInfo.save();
   }
 
