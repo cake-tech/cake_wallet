@@ -114,7 +114,9 @@ CREATE TABLE WalletInfo (
   hashedWalletIdentifier TEXT,
   isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
   sortOrder INTEGER DEFAULT (0) NOT NULL,
-  receiveInfoboxDismissed BOOLEAN DEFAULT FALSE
+  receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
+  showCombinedBalance BOOLEAN DEFAULT FALSE,
+  favoriteTokenAddress TEXT DEFAULT NULL
 );
 ''');
 
