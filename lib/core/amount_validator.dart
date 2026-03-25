@@ -79,7 +79,7 @@ class DecimalAmountValidator extends TextValidator {
         );
 
   static String _pattern(Currency currency) =>
-      r'^([0-9]+([.\,][0-9]{1,${currency.decimals}})?|[.\,][0-9]{1,${currency.decimals}})\$';
+      '^([0-9]+([.\,][0-9]{1,${currency.decimals}})?|[.\,][0-9]{1,${currency.decimals}})\$';
 }
 
 class AllAmountValidator extends TextValidator {
