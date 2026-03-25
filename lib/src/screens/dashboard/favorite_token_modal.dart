@@ -17,36 +17,44 @@ class FavoriteTokenModal extends StatelessWidget {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(18))
       ),
-      child: Column(
-        children: [
-          ModalTopBar(
-            title: S.of(context).favorite_token,
-            leadingIcon: Icon(Icons.close),
-            onLeadingPressed: Navigator.of(context).pop,
-          ),
-          Column(
-            children: [
-              Text(
-                S.of(context).favorite_token_desc,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+      child: SafeArea(
+        child: Column(
+          children: [
+            ModalTopBar(
+              title: S.of(context).favorite_token,
+              leadingIcon: Icon(Icons.close),
+              onLeadingPressed: Navigator.of(context).pop,
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  Text(
+                    S.of(context).favorite_token_desc,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: SingleChildScrollView(
+                        child: NewListSections(
+                          sections: {
+                            "": tokens
+                                .map((item) => ListItemRegularRow(
+                                    keyValue: item.title,
+                                    label: "${item.fullName} (${item.title})",
+                                    iconPath: item.iconPath,
+                                    onTap: () => Navigator.of(context).pop(item)))
+                                .toList()
+                          },
+                        ),
+                      ),
+                    ),
+                  )
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: NewListSections(
-                  sections: {
-                    "": tokens
-                        .map((item) => ListItemRegularRow(
-                            keyValue: item.title,
-                            label: "${item.fullName} (${item.title})",
-                            iconPath: item.iconPath,
-                            onTap: () => Navigator.of(context).pop(item)))
-                        .toList()
-                  },
-                ),
-              )
-            ],
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
