@@ -697,7 +697,8 @@ class _NewSendPageState extends State<NewSendPage> {
           widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
         } else {
           final amount = widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
-              _amountControllers[i].text, widget.sendViewModel.selectedCryptoCurrency);
+              _amountControllers[i].text.replaceAll(",", "."),
+              widget.sendViewModel.selectedCryptoCurrency);
           widget.sendViewModel.outputs[i].setCryptoAmount(amount);
         }
       }
