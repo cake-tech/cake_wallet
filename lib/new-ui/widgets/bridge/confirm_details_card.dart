@@ -1,5 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/bridge/expandable_detail_Card.dart';
+import 'package:cake_wallet/new-ui/widgets/bridge/expandable_details_card.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
