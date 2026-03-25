@@ -133,7 +133,7 @@ class _CardsViewState extends State<CardsView> {
 
             }else {
               walletBalance = walletBalanceRecord?.availableBalance ?? "0";
-              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalanceRaw ?? "${widget.dashboardViewModel.appStore.settingsStore.fiatCurrency.title} 0.00";
+              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalanceRaw ?? "0.00";
             }
 
 
