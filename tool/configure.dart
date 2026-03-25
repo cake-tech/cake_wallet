@@ -1591,11 +1591,13 @@ class ChainInfo {
     required this.chainId,
     required this.name,
     required this.shortCode,
+    required this.currency,
   });
   
   final int chainId;
   final String name;
   final String shortCode;
+  final CryptoCurrency currency;
 
   @override
   bool operator ==(Object other) =>
