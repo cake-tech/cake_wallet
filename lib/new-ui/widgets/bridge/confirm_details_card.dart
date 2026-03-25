@@ -1,13 +1,13 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/bridge/expandable_detail_Card.dart';
-import 'package:cake_wallet/view_model/usdt0_bridge/usdt0_bridge_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class ConfirmDetailsCard extends StatelessWidget {
   const ConfirmDetailsCard({required this.bridgeViewModel});
 
-  final USDT0BridgeViewModel bridgeViewModel;
+  final BridgeViewModel bridgeViewModel;
 
   @override
   Widget build(BuildContext context) {

@@ -276,7 +276,7 @@ import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_details_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
-import 'package:cake_wallet/view_model/usdt0_bridge/usdt0_bridge_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -1768,7 +1768,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));
 
-  getIt.registerFactory(() => USDT0BridgeViewModel(
+  getIt.registerFactory(() => BridgeViewModel(
         appStore: getIt.get<AppStore>(),
         bridgeTransfersStore: getIt.get<BridgeTransfersStore>(),
         walletManager: getIt.get<WalletManager>(),
@@ -1803,7 +1803,7 @@ Future<void> setup({
 
   getIt.registerFactoryParam<BridgeAmountPage, CryptoCurrency, void>(
     (CryptoCurrency initialToken, _) => BridgeAmountPage(
-      bridgeViewModel: getIt.get<USDT0BridgeViewModel>(),
+      bridgeViewModel: getIt.get<BridgeViewModel>(),
       bridgeHistoryViewModel: getIt.get<BridgeHistoryViewModel>(),
       initialToken: initialToken,
     ),

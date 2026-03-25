@@ -6,7 +6,7 @@ import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/view_model/usdt0_bridge/bridge_receiving_wallet_option.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_receiving_wallet_option.dart';
 import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/evm/evm.dart';
@@ -24,12 +24,12 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 
-part 'usdt0_bridge_view_model.g.dart';
+part 'bridge_view_model.g.dart';
 
-class USDT0BridgeViewModel = USDT0BridgeViewModelBase with _$USDT0BridgeViewModel;
+class BridgeViewModel = BridgeViewModelBase with _$BridgeViewModel;
 
-abstract class USDT0BridgeViewModelBase extends WalletChangeListenerViewModel with Store {
-  USDT0BridgeViewModelBase({
+abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with Store {
+  BridgeViewModelBase({
     required AppStore appStore,
     required this.bridgeTransfersStore,
     required this.walletManager,

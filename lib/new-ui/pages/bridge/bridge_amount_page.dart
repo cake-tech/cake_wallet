@@ -9,7 +9,7 @@ import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/view_model/bridge_history_view_model.dart';
-import 'package:cake_wallet/view_model/usdt0_bridge/usdt0_bridge_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -23,7 +23,7 @@ class BridgeAmountPage extends StatefulWidget {
     required this.initialToken,
   });
 
-  final USDT0BridgeViewModel bridgeViewModel;
+  final BridgeViewModel bridgeViewModel;
   final BridgeHistoryViewModel bridgeHistoryViewModel;
 
   final CryptoCurrency initialToken;
@@ -34,7 +34,7 @@ class BridgeAmountPage extends StatefulWidget {
 
 class _BridgeAmountPageState extends State<BridgeAmountPage> {
   late final TextEditingController _amountController;
-  USDT0BridgeViewModel get bridgeViewModel => widget.bridgeViewModel;
+  BridgeViewModel get bridgeViewModel => widget.bridgeViewModel;
 
   @override
   void initState() {

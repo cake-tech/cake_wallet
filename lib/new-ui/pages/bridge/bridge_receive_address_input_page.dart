@@ -5,7 +5,7 @@ import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/view_model/usdt0_bridge/usdt0_bridge_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -13,14 +13,14 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 class BridgeReceiveAddressInputPage extends StatefulWidget {
   const BridgeReceiveAddressInputPage({super.key, required this.bridgeViewModel});
 
-  final USDT0BridgeViewModel bridgeViewModel;
+  final BridgeViewModel bridgeViewModel;
 
   @override
   State<BridgeReceiveAddressInputPage> createState() => _BridgeReceiveAddressInputPageState();
 }
 
 class _BridgeReceiveAddressInputPageState extends State<BridgeReceiveAddressInputPage> {
-  USDT0BridgeViewModel get bridgeViewModel => widget.bridgeViewModel;
+  BridgeViewModel get bridgeViewModel => widget.bridgeViewModel;
 
   late final TextEditingController _controller;
   final FocusNode _focusNode = FocusNode();

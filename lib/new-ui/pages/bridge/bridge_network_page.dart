@@ -4,7 +4,7 @@ import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/view_model/usdt0_bridge/usdt0_bridge_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -13,7 +13,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 class BridgeNetworkPage extends StatelessWidget {
   const BridgeNetworkPage({super.key, required this.bridgeViewModel});
 
-  final USDT0BridgeViewModel bridgeViewModel;
+  final BridgeViewModel bridgeViewModel;
 
   @override
   Widget build(BuildContext context) {

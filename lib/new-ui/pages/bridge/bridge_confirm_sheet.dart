@@ -5,7 +5,7 @@ import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/view_model/usdt0_bridge/usdt0_bridge_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -13,7 +13,7 @@ import 'package:mobx/mobx.dart';
 class BridgeConfirmSheet extends StatefulWidget {
   const BridgeConfirmSheet({super.key, required this.bridgeViewModel});
 
-  final USDT0BridgeViewModel bridgeViewModel;
+  final BridgeViewModel bridgeViewModel;
 
   @override
   State<BridgeConfirmSheet> createState() => _BridgeConfirmSheetState();
@@ -22,7 +22,7 @@ class BridgeConfirmSheet extends StatefulWidget {
 class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
   late final ReactionDisposer _successDisposer;
 
-  USDT0BridgeViewModel get bridgeViewModel => widget.bridgeViewModel;
+  BridgeViewModel get bridgeViewModel => widget.bridgeViewModel;
 
   @override
   void initState() {
