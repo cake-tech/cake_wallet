@@ -125,14 +125,16 @@ class AssetDetailsModal extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context).colorScheme.onSurface),
                             ),
+                            if(asset != null)
                             Container(
                               decoration: BoxDecoration(
                                   color: Theme.of(context).colorScheme.surfaceContainerHigh,
                                   borderRadius: BorderRadius.circular(999999999)),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+
                                 child: Text(
-                                  chainTitle,
+                                  asset?.title??"",
                                   style: TextStyle(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 ),

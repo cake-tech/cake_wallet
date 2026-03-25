@@ -115,8 +115,7 @@ class _CardsViewState extends State<CardsView> {
 
             // The second balance should always be the lightning balance
             // printV(widget.dashboardViewModel.balanceViewModel.formattedBalances.first.availableBalance);
-            final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel.formattedBalances
-                .elementAtOrNull(widget.lightningMode ? 1 : 0);
+            final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel.getMainBalanceRecord(widget.lightningMode);
 
             late final String walletBalance;
             late final String walletFiatBalance;
@@ -128,10 +127,15 @@ class _CardsViewState extends State<CardsView> {
                 walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
                 walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
               }
-            } else {
+            } else if(widget.dashboardViewModel.balanceViewModel.showCombinedBalance){
+              walletBalance = "";
+              walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
+
+            }else {
               walletBalance = walletBalanceRecord?.availableBalance ?? "0";
-              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "${widget.dashboardViewModel.appStore.settingsStore.fiatCurrency.title} 0.00";
+              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalanceRaw ?? "${widget.dashboardViewModel.appStore.settingsStore.fiatCurrency.title} 0.00";
             }
+
 
             // the card designs is empty if widget gets built before it loads.
             // should get populated before user sees anything
@@ -153,6 +157,8 @@ class _CardsViewState extends State<CardsView> {
               accountName = account.label;
               accountBalance = account.balance ?? "0.00";
             }
+
+            final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance ? "" : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
 
             final List<BalanceCardAction> actions = widget.lightningMode
                 ? [
@@ -183,9 +189,11 @@ class _CardsViewState extends State<CardsView> {
               accountName: accountName,
               accountBalance: accountBalance,
               designSwitchDuration: Duration(milliseconds: 150),
-              assetName: walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback,
+              assetName: assetName,
               capitalizeAssetName: _shouldCapitalizeAssetName(),
               balance: walletBalance,
+              fiatCurrencyTitle: walletBalanceRecord.fiatCurrencyTicker,
+              fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
               fiatBalance: walletFiatBalance,
               selected: _selectedIndex == visualIndex,
               onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,

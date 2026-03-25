@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
@@ -25,11 +26,13 @@ class BalanceCard extends StatelessWidget {
     this.balance = "",
     this.fiatBalance = "",
     this.assetName = "",
+    this.fiatCurrencyTitle = "",
     this.designSwitchDuration = const Duration(),
     this.actions = const [],
     this.capitalizeAssetName = true,
     this.onCustomizeTapped,
-    this.accountIndex
+    this.accountIndex,
+    this.fiatFirst = false
   });
 
   final double width;
@@ -39,6 +42,8 @@ class BalanceCard extends StatelessWidget {
   final String accountName;
   final String balance;
   final String fiatBalance;
+  final String fiatCurrencyTitle;
+  final bool fiatFirst;
   final int? accountIndex;
   final bool capitalizeAssetName;
   final String assetName;
@@ -53,13 +58,20 @@ class BalanceCard extends StatelessWidget {
     final Duration textFadeDuration = Duration(milliseconds: 80);
     final double iconWidth = width * 0.15;
 
+    final name = fiatFirst ? fiatCurrencyTitle : assetName;
+    final resolvedAssetName = capitalizeAssetName ? name.toUpperCase() : name.toLowerCase();
+
+    final leadText = fiatFirst ? S.of(context).wallet_balance : accountName;
+
     final bool showText = accountBalance.isNotEmpty ||
-        accountName.isNotEmpty ||
+        leadText.isNotEmpty ||
         balance.isNotEmpty ||
         fiatBalance.isNotEmpty ||
-        assetName.isNotEmpty;
+        resolvedAssetName.isNotEmpty;
 
     final height = width * 0.62;
+
+
 
     return AnimatedContainer(
       duration: designSwitchDuration,
@@ -105,7 +117,7 @@ class BalanceCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      if(accountName.isNotEmpty || accountBalance.isNotEmpty)
+                      if(leadText.isNotEmpty || accountBalance.isNotEmpty)
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -128,7 +140,7 @@ class BalanceCard extends StatelessWidget {
                                   duration: designSwitchDuration,
                                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
                                       fontWeight: FontWeight.w500, color: design.colors.textColor),
-                                  child: Text(accountName),
+                                  child: Text(leadText),
                                 ),
                               ],
                             ),
@@ -157,7 +169,7 @@ class BalanceCard extends StatelessWidget {
                             );
                           },
                           child: Row(
-                            key: ValueKey("$balance ${assetName.toUpperCase()}"),
+                            key: ValueKey("$balance ${resolvedAssetName.toUpperCase()}"),
                             spacing: 8.0,
                             children: [
                               AnimatedDefaultTextStyle(
@@ -165,14 +177,14 @@ class BalanceCard extends StatelessWidget {
                                 style: DefaultTextStyle.of(context)
                                     .style
                                     .copyWith(color: design.colors.textColor, fontSize: 28, fontWeight: FontWeight.w500, letterSpacing: -0.4),
-                                child: Text(balance),
+                                child: Text(fiatFirst ? fiatBalance : balance),
                               ),
                               AnimatedDefaultTextStyle(
                                 duration: designSwitchDuration,
                                 style: DefaultTextStyle.of(context)
                                     .style
                                     .copyWith(color: design.colors.textColorSecondary, fontSize: 28, fontWeight: FontWeight.w400, letterSpacing: -0.4),
-                                child: Text(capitalizeAssetName ? assetName.toUpperCase() : assetName.toLowerCase()),
+                                child: Text(resolvedAssetName),
                               ),
                             ],
                           ),
@@ -196,8 +208,8 @@ class BalanceCard extends StatelessWidget {
                             );
                           },
                           child: Text(
-                            key: ValueKey(fiatBalance),
-                            fiatBalance,
+                            key: ValueKey(fiatFirst ? balance : fiatBalance),
+                            fiatFirst ? "$assetName $balance" : "$fiatCurrencyTitle $fiatBalance",
                           ),
                         ),
                       ),
