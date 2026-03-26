@@ -7,7 +7,7 @@ class FiatApiMode extends EnumerableItem<int> with Serializable<int> {
   static const all = [FiatApiMode.enabled, FiatApiMode.torOnly, FiatApiMode.disabled];
 
   static const enabled = FiatApiMode(raw: 0, title: 'Enabled');
-  static const torOnly = FiatApiMode(raw: 1, title: 'Tor only');
+  static const torOnly = FiatApiMode(raw: 1, title: 'Anyone only');
   static const disabled = FiatApiMode(raw: 2, title: 'Disabled');
 
   static FiatApiMode deserialize({required int raw}) {
