@@ -42,6 +42,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 
 ### App-Wide Features
 
+* Robust privacy settings (eg: Anyone-only connections)
 * Completely noncustodial. *Your keys, your coins.*
 * Built-in exchange for dozens of pairs
 * Easily pay cryptocurrency invoices with fixed rate exchanges
@@ -58,7 +59,6 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Extremely simple user experience
 * Convenient exchange and sending templates for recurring payments
 * Create donation links and invoices in the receive screen
-* Robust privacy settings (eg: Anyone-only connections)
 * Robust security settings (eg: Cake 2FA)
 
 ### Monero Specific Features
@@ -87,9 +87,9 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Litecoin coin control (specify specific outputs to spend)
 * Automatically generate new addresses
 * Specify multiple recipients for batch sending
-
+<!--
 # Monero.com by Cake Wallet for Android and iOS
-
+-->
 ## Open Source Monero-Only Wallet
 
 *Exchanging to/from other assets is also supported.*
@@ -101,7 +101,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Google Play: https://play.google.com/store/apps/details?id=com.monero.app
 * F-Droid: https://fdroid.cakelabs.com
 * APK: https://github.com/cake-tech/cake_wallet/releases
--->
+
 ### APK Verification
 
 APK releases on GitHub, Accrescent, and F-Droid use the same key. They can easily be verified using [apksigner](https://developer.android.com/tools/apksigner#options-verify) or [AppVerifier](https://github.com/soupslurpr/AppVerifier).
@@ -130,7 +130,7 @@ For instructions on how to build for Android: please view file `howto-build-andr
 ## Improving translations
 
 Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull request with the changes.
-
+-->
 ## Current list of language files:
 
 - English
@@ -158,7 +158,7 @@ Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull reque
 - Indonesian
 - Hausa
 - Yoruba
-
+<!--
 ## Add a new language
 
 1. Create a new `strings_XX.arb` file in `res/values/`, replacing XX with the language's [ISO 639-1 code](https://en.wikipedia.org/wiki/ISO_639-1).
@@ -192,3 +192,4 @@ The only parts to be translated, if needed, are the values m and s after the var
 ---
 
 Copyright (C) 2018-2023 Cake Labs LLC
+-->
