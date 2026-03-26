@@ -36,11 +36,11 @@ void main() {
     });
 
     group('parseFixed, failing', () {
-      test('should fail to parse .000.0010, too many decimal points',
+      test('should fail to parse .000.0010, too many fractional digits',
           () => expect(() => parseFixed(".000.0010", 6), throwsFormatException));
 
-      test('should parse .0000010 with half-up rounding to 6 fractional digits',
-          () => expect(parseFixed(".0000010", 6), BigInt.from(1)));
+      test('should fail to parse .0000010, fractional component exceeds decimals',
+          () => expect(() => parseFixed(".0000010", 6), throwsFormatException));
 
       test('should fail to parse `.`, missing value',
           () => expect(() => parseFixed(".", 6), throwsFormatException));
@@ -85,11 +85,11 @@ void main() {
     });
 
     group('tryParseFixed, return `null`', () {
-      test('should parse .000.0010 as null, too many decimal points',
+      test('should parse .000.0010 as null, too many fractional digits',
           () => expect(tryParseFixed(".000.0010", 6), isNull));
 
-      test('should parse .0000010 with half-up rounding',
-          () => expect(tryParseFixed(".0000010", 6), BigInt.from(1)));
+      test('should parse .0000010 as null, fractional component exceeds decimals',
+          () => expect(tryParseFixed(".0000010", 6), isNull));
 
       test('should parse . as `null`, missing value', () => expect(tryParseFixed(".", 6), isNull));
     });
