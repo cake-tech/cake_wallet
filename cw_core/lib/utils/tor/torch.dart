@@ -29,7 +29,7 @@ class CakeTorTorch implements CakeTorInstance {
   bool get enabled => isTorRunning;
 
   @override
-  int get port => 52142;
+  int get port => 52143;
 
   @override
   Future<void> start() async {
@@ -67,6 +67,7 @@ SocksPort $port
 Log notice stdout
 RunAsDaemon 0
 DataDirectory ${p.join(dir.path, "tor-data")}
+AgreeToTerms 1
 """;
     final torrcPath = p.join(dir.absolute.path, "torrc");
     File(torrcPath).writeAsStringSync(torrc);
