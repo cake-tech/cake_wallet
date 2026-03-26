@@ -133,7 +133,7 @@ class AssetTile extends StatelessWidget {
                               children: [
                                 Text(
                                   title ?? balance.asset.fullName ?? balance.asset.name,
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  style: TextStyle(fontWeight: FontWeight.w500),
                                 ),
                                 if(trailingText != null)
                                 Text(
