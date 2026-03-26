@@ -6,11 +6,11 @@
 
 <div align="center">
 
-[<img height="42" src=".github/assets/app-store-badge.svg">](https://apps.apple.com/us/app/cake-wallet/id1334702542?platform=iphone)
+<!-- [<img height="42" src=".github/assets/app-store-badge.svg">](https://apps.apple.com/us/app/cake-wallet/id1334702542?platform=iphone) 
 [<img height="42" src=".github/assets/google-play-badge.png">](https://play.google.com/store/apps/details?id=com.cakewallet.cake_wallet)
 [<img height="42" src=".github/assets/f-droid-badge.png">](https://fdroid.cakelabs.com)
 [<img height="42" src=".github/assets/mac-store-badge.svg">](https://apps.apple.com/us/app/cake-wallet/id1334702542?platform=mac)
-[<img height="42" src=".github/assets/linux-badge.svg">](https://github.com/cake-tech/cake_wallet/releases)
+[<img height="42" src=".github/assets/linux-badge.svg">](https://github.com/cake-tech/cake_wallet/releases) -->
 
 </div>
 
@@ -54,7 +54,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Extremely simple user experience
 * Convenient exchange and sending templates for recurring payments
 * Create donation links and invoices in the receive screen
-* Robust privacy settings (eg: Tor-only connections)
+* Robust privacy settings (eg: Anyone-only connections)
 * Robust security settings (eg: Cake 2FA)
 
 ### Monero Specific Features
@@ -64,7 +64,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Specify restore height for faster syncing
 * Specify multiple recipients for batch sending
 * Optionally set Monero nodes as trusted for faster syncing
-* Specify a proxy for Monero nodes, compatible with Tor and i2p
+* Specify a proxy for Monero nodes, compatible with Anyone and i2p
 
 ### Bitcoin Specific Features
 
@@ -90,14 +90,14 @@ Cake Wallet includes support for several cryptocurrencies, including:
 
 *Exchanging to/from other assets is also supported.*
 
-## Links
+<!-- ## Links
 
 * Website: https://monero.com
 * App Store (iOS): https://apps.apple.com/app/id1601990386
 * Google Play: https://play.google.com/store/apps/details?id=com.monero.app
 * F-Droid: https://fdroid.cakelabs.com
 * APK: https://github.com/cake-tech/cake_wallet/releases
-
+-->
 ### APK Verification
 
 APK releases on GitHub, Accrescent, and F-Droid use the same key. They can easily be verified using [apksigner](https://developer.android.com/tools/apksigner#options-verify) or [AppVerifier](https://github.com/soupslurpr/AppVerifier).
