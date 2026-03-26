@@ -595,6 +595,7 @@
   "login": "登录",
   "logout": "退出登录",
   "long_press_edit_address": "长按以编辑地址",
+  "long_press_show_balance": "长按卡显示余额",
   "low_fee": "低手续费",
   "low_fee_alert": "您当前使用较低的网络手续费优先级，这可能导致等待时间较长、汇率变化或交易被取消。我们建议设置更高的手续费，以获得更好的体验。",
   "made_easy": "轻松上手",

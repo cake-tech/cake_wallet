@@ -192,12 +192,12 @@ abstract class DashboardViewModelBase with Store {
                 value: () => tradeFilterStore.displaySwapXyz,
                 caption: ExchangeProviderDescription.swapsXyz.title,
                 onChanged: () =>
-                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
             FilterItem(
                 value: () => tradeFilterStore.displayNearIntents,
                 caption: ExchangeProviderDescription.nearIntents.title,
-                onChanged: () =>
-                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
+                onChanged: () => tradeFilterStore
+                    .toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
           ]
         },
         subname = '',
@@ -372,7 +372,13 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get isSyncHeavy {
-    if ([WalletType.monero, WalletType.wownero, WalletType.decred, WalletType.zcash, WalletType.zano].contains(wallet.type)) {
+    if ([
+      WalletType.monero,
+      WalletType.wownero,
+      WalletType.decred,
+      WalletType.zcash,
+      WalletType.zano
+    ].contains(wallet.type)) {
       return true;
     }
 
@@ -392,47 +398,42 @@ abstract class DashboardViewModelBase with Store {
     final accountStyleSettings =
         await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
 
-      late final int numAccounts;
-      if (wallet.type == WalletType.monero) {
-        numAccounts = monero!.getAccountList(wallet).accounts.length;
-      } else if (wallet.type == WalletType.wownero) {
-        numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
-      } else  if (wallet.type == WalletType.bitcoin) {
-        // bitcoin and lightning
-        numAccounts = 2;
-      } else {
-        numAccounts = 1;
-      }
+    late final int numAccounts;
+    if (wallet.type == WalletType.monero) {
+      numAccounts = monero!.getAccountList(wallet).accounts.length;
+    } else if (wallet.type == WalletType.wownero) {
+      numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
+    } else if (wallet.type == WalletType.bitcoin) {
+      // bitcoin and lightning
+      numAccounts = 2;
+    } else {
+      numAccounts = 1;
+    }
     cardDesigns.clear();
-      Map<int, int> newOrder = {};
+    Map<int, int> newOrder = {};
 
     for (int i = 0; i < numAccounts; i++) {
       late final int index;
-      if(balanceViewModel.hasAccounts) {
+      if (balanceViewModel.hasAccounts) {
         index = i;
-      } else if(wallet.type == WalletType.bitcoin && i == 1) {
+      } else if (wallet.type == WalletType.bitcoin && i == 1) {
         index = 0;
       } else {
         index = -1;
       }
 
-
-      final setting = accountStyleSettings
-          .where((e) => e.accountIndex == index)
-          .firstOrNull;
-
+      final setting = accountStyleSettings.where((e) => e.accountIndex == index).firstOrNull;
 
       late final CryptoCurrency curr;
-      if(wallet.type == WalletType.bitcoin && i == 1) {
+      if (wallet.type == WalletType.bitcoin && i == 1) {
         curr = CryptoCurrency.btcln;
       } else {
         curr = wallet.currency;
       }
 
-
       cardDesigns.add(CardDesign.fromStyleSettings(setting, curr));
-      if(setting?.cardOrder != null) {
-          newOrder[setting!.cardOrder] = i;
+      if (setting?.cardOrder != null) {
+        newOrder[setting!.cardOrder] = i;
       }
     }
 
@@ -443,12 +444,11 @@ abstract class DashboardViewModelBase with Store {
         while (newOrder.containsValue(free)) {
           free++;
         }
-        if(wallet.type == WalletType.bitcoin) {
+        if (wallet.type == WalletType.bitcoin) {
           newOrder[free] = 0;
         } else {
           newOrder[free] = i;
         }
-
       }
     }
     cardOrder = newOrder.asObservable();
@@ -567,18 +567,18 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get shouldShowMwebAd {
-    if(wallet.type != WalletType.litecoin) return false;
+    if (wallet.type != WalletType.litecoin) return false;
 
-    if(mwebEnabled) return false;
+    if (mwebEnabled) return false;
 
-    if(settingsStore.mwebAdDismissed) return false;
+    if (settingsStore.mwebAdDismissed) return false;
 
-    return true;
+    return Platform.isAndroid || Platform.isIOS;
   }
 
   @action
   void dismissMwebAd(bool enableMweb) {
-    if(enableMweb) setMwebEnabled();
+    if (enableMweb) setMwebEnabled();
 
     settingsStore.mwebAdDismissed = true;
   }
@@ -612,7 +612,7 @@ abstract class DashboardViewModelBase with Store {
         continue;
       }
 
-      if(transaction.transaction.confirmations >= transaction.neededConfirmations) {
+      if (transaction.transaction.confirmations >= transaction.neededConfirmations) {
         continue;
       }
 
@@ -637,11 +637,15 @@ abstract class DashboardViewModelBase with Store {
   bool get showApps => appStore.settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
-  List<TradeListItem> get trades =>
-      tradesStore.trades.where((trade) {
-        final isSameChain = trade.trade.chainId != null ? trade.trade.chainId == wallet.chainId : true; // returning default as true here so it falls back to the default checks if there's no chainId
+  List<TradeListItem> get trades => tradesStore.trades.where((trade) {
+        final isSameChain = trade.trade.chainId != null
+            ? trade.trade.chainId == wallet.chainId
+            : true; // returning default as true here so it falls back to the default checks if there's no chainId
         return trade.trade.walletId == wallet.id && isSameChain;
       }).toList();
+
+  @computed
+  bool get shouldShowBalanceHiddenMessage => balanceDisplayMode == BalanceDisplayMode.hiddenBalance && appStore.settingsStore.balanceHideCounter < 10;
 
   @computed
   List<OrderListItem> get orders =>
@@ -855,7 +859,8 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void toggleSwitchStatusDisplayMode() {
-    if (status is SyncingSyncStatus && !((status as SyncingSyncStatus).shouldShowBlocksRemaining())) {
+    if (status is SyncingSyncStatus &&
+        !((status as SyncingSyncStatus).shouldShowBlocksRemaining())) {
       if (settingsStore.syncStatusDisplayMode == SyncStatusDisplayMode.eta) {
         settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.blocksRemaining;
       } else {

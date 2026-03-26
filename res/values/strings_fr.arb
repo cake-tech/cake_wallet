@@ -595,6 +595,7 @@
   "login": "Connexion",
   "logout": "Déconnexion",
   "long_press_edit_address": "Appuyez longuement pour modifier l'adresse",
+  "long_press_show_balance": "Appuyez longuement sur la carte pour afficher le solde",
   "low_fee": "Frais réduits",
   "low_fee_alert": "Vous utilisez actuellement une priorité de frais réseau faible. Cela pourrait entraîner de longues attentes, des taux différents ou des échanges annulés. Nous vous recommandons de définir des frais plus élevés pour une meilleure expérience.",
   "made_easy": "simplifié",

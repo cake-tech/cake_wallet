@@ -42,11 +42,11 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
         expand: false,
-        initialChildSize: 0.6,
+        initialChildSize: 0.9,
         minChildSize: 0.25,
         maxChildSize: 0.9,
         snap: true,
-        snapSizes: const [0.6, 0.9],
+        snapSizes: const [0.9],
         builder: (context, controller) => SafeArea(
               bottom: false,
               child: Padding(

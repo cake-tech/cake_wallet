@@ -595,6 +595,7 @@
   "login": "Masuk",
   "logout": "Keluar",
   "long_press_edit_address": "Tekan lama untuk mengedit alamat",
+  "long_press_show_balance": "Tekan lama kartu untuk menunjukkan keseimbangan",
   "low_fee": "Biaya rendah",
   "low_fee_alert": "Anda saat ini menggunakan prioritas biaya jaringan rendah. Hal ini dapat menyebabkan waktu tunggu yang lama, nilai tukar yang berbeda, atau perdagangan yang dibatalkan. Kami merekomendasikan untuk menetapkan biaya yang lebih tinggi agar pengalaman lebih baik.",
   "made_easy": "jadi mudah",

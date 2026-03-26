@@ -73,7 +73,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     return List.from(super.allAddresses)..addAll(mwebAddresses);
   }
 
-  Future<void> ensureMwebAddressUpToIndexExists(int index) async {
+  Future<void> ensureMwebAddressUpToIndexExists(int _index) async {
+    final index = _index + 1;
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       return null;
     }

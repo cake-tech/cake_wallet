@@ -595,6 +595,7 @@
   "login": "Iniciar sesión",
   "logout": "Cerrar sesión",
   "long_press_edit_address": "Mantén pulsado para editar la dirección",
+  "long_press_show_balance": "Mantenga presionada la tarjeta para mostrar el saldo",
   "low_fee": "Comisión baja",
   "low_fee_alert": "Actualmente está utilizando una prioridad baja de tarifa de red. Esto podría causar largas esperas, tipos de cambio diferentes u operaciones canceladas. Recomendamos establecer una tarifa más alta para una mejor experiencia.",
   "made_easy": "hecho fácil",

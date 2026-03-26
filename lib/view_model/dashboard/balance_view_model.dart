@@ -507,6 +507,7 @@ abstract class BalanceViewModelBase with Store {
   void switchBalanceValue() {
     if (settingsStore.balanceDisplayMode == BalanceDisplayMode.displayableBalance) {
       settingsStore.balanceDisplayMode = BalanceDisplayMode.hiddenBalance;
+      settingsStore.balanceHideCounter++;
     } else {
       settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
     }
