@@ -7,7 +7,7 @@ class ExchangeApiMode extends EnumerableItem<int> with Serializable<int> {
   static const all = [ExchangeApiMode.enabled, ExchangeApiMode.torOnly, ExchangeApiMode.disabled];
 
   static const enabled = ExchangeApiMode(raw: 0, title: 'Enabled');
-  static const torOnly = ExchangeApiMode(raw: 1, title: 'Tor only');
+  static const torOnly = ExchangeApiMode(raw: 1, title: 'Anyone only');
   static const disabled = ExchangeApiMode(raw: 2, title: 'Disabled');
 
   static ExchangeApiMode deserialize({required int raw}) {
