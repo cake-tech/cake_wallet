@@ -10,6 +10,7 @@
 .svn/
 .fvm/
 .fvmrc
+.env
 
 # IntelliJ related
 *.iml
