@@ -481,134 +481,140 @@ class _NewSwapPageState extends State<NewSwapPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      RepaintBoundary(
-                        child: Form(
-                          key: formKey,
-                          child: Column(
-                            children: [
-                              Observer(
-                                builder: (_) => SwapAmountBox(
-                                  isReceiverCard: false,
-                                  walletSwitcherViewModel: widget.walletSwitcherViewModel,
-                                  exchangeViewModel: widget.exchangeViewModel,
-                                  onDispose: disposeBestRateSync,
-                                  hasAllAmount: widget.exchangeViewModel.hasAllAmount,
-                                  allAmount: widget.exchangeViewModel.hasAllAmount
-                                      ? () => widget.exchangeViewModel.enableSendAllAmount()
-                                      : null,
-                                  key: depositKey,
-                                  title: S.of(context).send,
-                                  initialCurrency: widget.exchangeViewModel.depositCurrency,
-                                  hasRefundAddress: true,
-                                  currencies: widget.exchangeViewModel.depositCurrencies,
-                                  onCurrencySelected: (currency) {
-                                    if (currency is CryptoCurrency) {
-                                      widget.exchangeViewModel
-                                          .changeDepositCurrency(currency: currency);
-                                    }
-                                  },
-                                  currencyValueValidator: (value) {
-                                    return !widget.exchangeViewModel.isFixedRateMode &&
-                                            value != S.of(context).all
-                                        ? AmountValidator(
-                                            isAutovalidate: true,
-                                      currency: widget.exchangeViewModel.isFixedRateMode
-                                                ? widget.exchangeViewModel.receiveCurrency
-                                                : widget.exchangeViewModel.depositCurrency,
-                                            minValue: widget.exchangeViewModel.limits.min.toString(),
-                                            maxValue: widget.exchangeViewModel.limits.max.toString(),
-                                            amountParsingProxy:
-                                                widget.exchangeViewModel.amountParsingProxy,
-                                          ).call(value)
-                                        : null;
-                                  },
-                                  addressTextFieldValidator: AddressValidator(
-                                      type: widget.exchangeViewModel.depositCurrency),
-                                  onPushPasteButton: (context) async {
-                                    final clipboard = await Clipboard.getData('text/plain');
-                                    widget.exchangeViewModel.depositAddress = clipboard?.text ?? '';
+                      Expanded(
+                        child: RepaintBoundary(
+                          child: Form(
+                            key: formKey,
+                            child: SingleChildScrollView(
+                              physics: ClampingScrollPhysics(),
+                              controller: ModalScrollController.of(context),
+                              child: Column(
+                                children: [
+                                  Observer(
+                                    builder: (_) => SwapAmountBox(
+                                      isReceiverCard: false,
+                                      walletSwitcherViewModel: widget.walletSwitcherViewModel,
+                                      exchangeViewModel: widget.exchangeViewModel,
+                                      onDispose: disposeBestRateSync,
+                                      hasAllAmount: widget.exchangeViewModel.hasAllAmount,
+                                      allAmount: widget.exchangeViewModel.hasAllAmount
+                                          ? () => widget.exchangeViewModel.enableSendAllAmount()
+                                          : null,
+                                      key: depositKey,
+                                      title: S.of(context).send,
+                                      initialCurrency: widget.exchangeViewModel.depositCurrency,
+                                      hasRefundAddress: true,
+                                      currencies: widget.exchangeViewModel.depositCurrencies,
+                                      onCurrencySelected: (currency) {
+                                        if (currency is CryptoCurrency) {
+                                          widget.exchangeViewModel
+                                              .changeDepositCurrency(currency: currency);
+                                        }
+                                      },
+                                      currencyValueValidator: (value) {
+                                        return !widget.exchangeViewModel.isFixedRateMode &&
+                                                value != S.of(context).all
+                                            ? AmountValidator(
+                                                isAutovalidate: true,
+                                          currency: widget.exchangeViewModel.isFixedRateMode
+                                                    ? widget.exchangeViewModel.receiveCurrency
+                                                    : widget.exchangeViewModel.depositCurrency,
+                                                minValue: widget.exchangeViewModel.limits.min.toString(),
+                                                maxValue: widget.exchangeViewModel.limits.max.toString(),
+                                                amountParsingProxy:
+                                                    widget.exchangeViewModel.amountParsingProxy,
+                                              ).call(value)
+                                            : null;
+                                      },
+                                      addressTextFieldValidator: AddressValidator(
+                                          type: widget.exchangeViewModel.depositCurrency),
+                                      onPushPasteButton: (context) async {
+                                        final clipboard = await Clipboard.getData('text/plain');
+                                        widget.exchangeViewModel.depositAddress = clipboard?.text ?? '';
 
-                                    final domain = widget.exchangeViewModel.depositAddress;
-                                    widget.exchangeViewModel.depositAddress =
-                                        await fetchParsedAddress(context, domain,
-                                            widget.exchangeViewModel.depositCurrency);
-                                  },
-                                  onPushAddressBookButton: (context) async {
-                                    final domain = widget.exchangeViewModel.depositAddress;
-                                    widget.exchangeViewModel.depositAddress =
-                                        await fetchParsedAddress(context, domain,
-                                            widget.exchangeViewModel.depositCurrency);
-                                  },
-                                ),
-                              ),
-                              SwapLimitPopup(exchangeViewModel: widget.exchangeViewModel),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Container(
-                                      height: 1,
-                                      width: double.infinity,
-                                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                        final domain = widget.exchangeViewModel.depositAddress;
+                                        widget.exchangeViewModel.depositAddress =
+                                            await fetchParsedAddress(context, domain,
+                                                widget.exchangeViewModel.depositCurrency);
+                                      },
+                                      onPushAddressBookButton: (context) async {
+                                        final domain = widget.exchangeViewModel.depositAddress;
+                                        widget.exchangeViewModel.depositAddress =
+                                            await fetchParsedAddress(context, domain,
+                                                widget.exchangeViewModel.depositCurrency);
+                                      },
                                     ),
-                                    ModernButton.svg(
-                                      size: 36,
-                                      iconSize: 24,
-                                      svgPath: "assets/new-ui/swap_amounts.svg",
-                                      onPressed: widget.exchangeViewModel.reverseSwapDirection,
+                                  ),
+                                  SwapLimitPopup(exchangeViewModel: widget.exchangeViewModel),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          height: 1,
+                                          width: double.infinity,
+                                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                        ),
+                                        ModernButton.svg(
+                                          size: 36,
+                                          iconSize: 24,
+                                          svgPath: "assets/new-ui/swap_amounts.svg",
+                                          onPressed: widget.exchangeViewModel.reverseSwapDirection,
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              Observer(
-                                builder: (_) => SwapAmountBox(
-                                  isReceiverCard: true,
-                                  walletSwitcherViewModel: widget.walletSwitcherViewModel,
-                                  exchangeViewModel: widget.exchangeViewModel,
-                                  onDispose: disposeBestRateSync,
-                                  key: receiveKey,
-                                  title: S.of(context).receive,
-                                  initialCurrency: widget.exchangeViewModel.receiveCurrency,
-                                  currencies: widget.exchangeViewModel.receiveCurrencies,
-                                  onCurrencySelected: (currency) {
-                                    if (currency is CryptoCurrency) {
-                                      widget.exchangeViewModel
-                                          .changeReceiveCurrency(currency: currency);
-                                    }
-                                  },
-                                  currencyValueValidator: (value) {
-                                    return widget.exchangeViewModel.isFixedRateMode
-                                        ? AmountValidator(
-                                            isAutovalidate: true,
-                                            currency: widget.exchangeViewModel.receiveCurrency,
-                                            minValue: widget.exchangeViewModel.limits.min.toString(),
-                                            maxValue: widget.exchangeViewModel.limits.max.toString(),
-                                            amountParsingProxy:
-                                                widget.exchangeViewModel.amountParsingProxy,
-                                          ).call(value)
-                                        : null;
-                                  },
-                                  addressTextFieldValidator: AddressValidator(
-                                      type: widget.exchangeViewModel.receiveCurrency),
-                                  onPushPasteButton: (context) async {
-                                    final clipboard = await Clipboard.getData('text/plain');
-                                    widget.exchangeViewModel.receiveAddress = clipboard?.text ?? '';
+                                  ),
+                                  Observer(
+                                    builder: (_) => SwapAmountBox(
+                                      isReceiverCard: true,
+                                      walletSwitcherViewModel: widget.walletSwitcherViewModel,
+                                      exchangeViewModel: widget.exchangeViewModel,
+                                      onDispose: disposeBestRateSync,
+                                      key: receiveKey,
+                                      title: S.of(context).receive,
+                                      initialCurrency: widget.exchangeViewModel.receiveCurrency,
+                                      currencies: widget.exchangeViewModel.receiveCurrencies,
+                                      onCurrencySelected: (currency) {
+                                        if (currency is CryptoCurrency) {
+                                          widget.exchangeViewModel
+                                              .changeReceiveCurrency(currency: currency);
+                                        }
+                                      },
+                                      currencyValueValidator: (value) {
+                                        return widget.exchangeViewModel.isFixedRateMode
+                                            ? AmountValidator(
+                                                isAutovalidate: true,
+                                                currency: widget.exchangeViewModel.receiveCurrency,
+                                                minValue: widget.exchangeViewModel.limits.min.toString(),
+                                                maxValue: widget.exchangeViewModel.limits.max.toString(),
+                                                amountParsingProxy:
+                                                    widget.exchangeViewModel.amountParsingProxy,
+                                              ).call(value)
+                                            : null;
+                                      },
+                                      addressTextFieldValidator: AddressValidator(
+                                          type: widget.exchangeViewModel.receiveCurrency),
+                                      onPushPasteButton: (context) async {
+                                        final clipboard = await Clipboard.getData('text/plain');
+                                        widget.exchangeViewModel.receiveAddress = clipboard?.text ?? '';
 
-                                    final domain = widget.exchangeViewModel.receiveAddress;
-                                    widget.exchangeViewModel.receiveAddress =
-                                        await fetchParsedAddress(context, domain,
-                                            widget.exchangeViewModel.receiveCurrency);
-                                  },
-                                  onPushAddressBookButton: (context) async {
-                                    final domain = widget.exchangeViewModel.receiveAddress;
-                                    widget.exchangeViewModel.receiveAddress =
-                                        await fetchParsedAddress(context, domain,
-                                            widget.exchangeViewModel.receiveCurrency);
-                                  },
-                                ),
-                              )
-                            ],
+                                        final domain = widget.exchangeViewModel.receiveAddress;
+                                        widget.exchangeViewModel.receiveAddress =
+                                            await fetchParsedAddress(context, domain,
+                                                widget.exchangeViewModel.receiveCurrency);
+                                      },
+                                      onPushAddressBookButton: (context) async {
+                                        final domain = widget.exchangeViewModel.receiveAddress;
+                                        widget.exchangeViewModel.receiveAddress =
+                                            await fetchParsedAddress(context, domain,
+                                                widget.exchangeViewModel.receiveCurrency);
+                                      },
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
