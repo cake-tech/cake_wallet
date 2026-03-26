@@ -14,7 +14,11 @@
 
 </div>
 
+> [!NOTE]  
+> This fork adds Anyone by compiling `torch.cpp` against `libanon.so` which is built using [anyone-protocol/anon-android](https://github.com/anyone-protocol/anon-android)
+
 # Cake Wallet
+
 
 [Cake Wallet](https://cakewallet.com) is an open-source, non-custodial, and private multi-currency crypto wallet for Android, iOS, macOS, and Linux.
 
