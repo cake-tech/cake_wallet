@@ -121,7 +121,7 @@ class BaseTextFormField extends StatelessWidget {
       inputFormatters: inputFormatters,
       enabled: enabled,
       maxLength: maxLength,
-      onFieldSubmitted: onSubmit,
+      onFieldSubmitted: onFieldSubmitted ?? onSubmit,
       style: textStyle ??
           Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 16.0, color: textColor ?? Theme.of(context).colorScheme.onSurface),
