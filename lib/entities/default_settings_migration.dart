@@ -611,6 +611,9 @@ Future<void> defaultSettingsMigration(
             enabled: false,
           );
           break;
+        case 63:
+          await AddLabelsToDefaultNodes(nodes: nodes, powNodes: powNodes);
+          break;
         default:
           break;
       }
@@ -1449,6 +1452,104 @@ Future<void> migrateExistingNodesToUseAutoSwitching(
     if (listOfDefaultNodesWithAutoSwitching.contains(node.uriRaw)) {
       node.isEnabledForAutoSwitching = true;
       await node.save();
+    }
+  }
+}
+
+Future<void> AddLabelsToDefaultNodes(
+    {required Box<Node> nodes, required Box<Node> powNodes}) async {
+   final Map<String, String> nodeLabelMap = {
+     // Monero
+     'xmr-node.cakewallet.com:18081' : 'Cake Wallet (Default)',
+     'cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081' : 'Cake Wallet (Tor)',
+     'node.sethforprivacy.com:443' : 'Seth For Privacy',
+     'node.monerodevs.org:18089' : 'MoneroDevs 1',
+     'node2.monerodevs.org:18089' : 'MoneroDevs 2',
+     'node3.monerodevs.org:18089' : 'MoneroDevs 3',
+     'selsta1.featherwallet.net:18081' : 'Feather Wallet',
+     'xmr.stormycloud.org:18089' : 'StormyCloud',
+     // Bitcoin
+     'btc-electrum.cakewallet.com:50002' : 'Cake Wallet Electrum (Default)',
+     'electrs.cakewallet.com:50001' : 'Cake Wallet Electrs',
+     'fulcrum.sethforprivacy.com:50002' : 'Seth For Privacy',
+     'electrum.cakewallet.com:50002' : "Electrum (Legacy)",
+     // Ethereum
+     'ethereum-rpc.publicnode.com' : 'PublicNode (Default)',
+     'eth.llamarpc.com' : 'LlamaNodes',
+     'rpc.flashbots.net' : 'Flashbots',
+     'eth-mainnet.public.blastapi.io' : 'Blast',
+     'eth.nownodes.io' : "NOWNodes",
+     // BNB
+     'bsc-dataseed.bnbchain.org' : 'BNBChain (Default)',
+     'bsc-dataseed2.bnbchain.org' : 'BNBChain 2',
+     'bsc-dataseed.nariox.org' : 'Nariox',
+     'bsc-dataseed2.defibit.io' : 'DeFibit',
+     'bsc-dataseed.ninicoin.io' : 'NiniCoin',
+     'bsc.nodereal.io' : 'NodeReal',
+     'bsc-dataseed-public.bnbchain.org' : 'BNBChain Public',
+     // Solana
+     'rpc.ankr.com' : 'Ankr',
+     'api.mainnet-beta.solana.com:443' : 'Solana Beta',
+     'solana-rpc.publicnode.com:443' : 'PublicNode',
+     'solana-mainnet.core.chainstack.com' : 'Chainstack',
+     // Zcash
+     'zec.rocks:443' : 'Zec.rocks (Default)',
+     'zec-node.cakewallet.com:443' : 'Cake Wallet',
+     // Tron
+     'tron-rpc.publicnode.com:443' : 'PublicNode (Default',
+     'api.trongrid.io' : 'TronGrid',
+     'trx.nownodes.io' : 'NOWNodes',
+     // Dogecoin
+     'dogecoin.stackwallet.com:50022' : 'Stack Wallet (Default)',
+     'doge.aftrek.org:50002' : 'Aftrek',
+     'electrum1.cipig.net:20060' : 'Cipig',
+     // Bitcoin Cash
+     'bitcoincash.stackwallet.com:50002' : "Stack Wallet (Default)",
+     'bch.aftrek.org:50002' : 'Aftrek',
+     // Litecoin
+     'ltc-electrum.cakewallet.com:50002' : 'Cake Wallet (Default)',
+     'litecoin.stackwallet.com:20063' : 'Stack Wallet',
+     'electrum-ltc.bysh.me:50002' : 'Bysh',
+     'lightweight.fiatfaucet.com:50002' : 'Fiat Faucet',
+     'electrum.ltc.xurious.com:50002' : 'Xurious',
+     'backup.electrum-ltc.org:443' : 'Electrum-LTC',
+     // Base
+     'base.nownodes.io' : 'NOWNodes (Default)',
+     'base.llamarpc.com' : 'LlamaNodes',
+     'base-rpc.publicnode.com' : 'PublicNode',
+     '1rpc.io/base' : '1RPC',
+     // Arbitrum
+     'arbitrum.nownodes.io' : 'NOWNodes (Default)',
+     'arbitrum.drpc.org' : 'dRPC',
+     'arbitrum-one-rpc.publicnode.com' : 'PublicNode',
+     // Polygon
+     'polygon-bor-rpc.publicnode.com' : 'PublicNode (Default)',
+     'polygon-rpc.com' : 'Ankr',
+     'matic.nownodes.io' : 'NOWNodes',
+     // Nano
+     'rpc.nano.to' : 'Nano.to (Default)',
+     'nano.nownodes.io' : 'NOWNodes',
+     'node.nautilus.io' : 'Nautilus',
+     'app.natrium.io' : 'Natrium',
+     'rainstorm.city' : 'Rainstorm City',
+     'node.somenano.com' : 'SomeNano',
+     'nanoslo.0x.no' : '0x.no',
+     'www.bitrequest.app' : 'Bitrequest',
+     // Decred
+     'default-spv-nodes' : 'Default',
+     'dcrd.sethforprivacy.com:9108' : 'Seth For Privacy',
+     // Zano
+     '37.27.100.59:10500' : 'Default',
+     'zano.cakewallet.com:11211' : 'Cake Wallet'
+
+
+   };
+  for (var node in [...nodes.values.toList(), ...powNodes.values.toList()]) {
+    if (nodeLabelMap.containsKey(node.uriRaw)) {
+      if(node.label == null) {
+        node.label = nodeLabelMap[node.uriRaw].toString();
+        await node.save();
+      }
     }
   }
 }
