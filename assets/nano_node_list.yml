@@ -1,10 +1,10 @@
 -
-  uri: nano.nownodes.io
+  uri: rpc.nano.to
+  is_default: true
   useSSL: true
   isEnabledForAutoSwitching: true
 -
-  uri: rpc.nano.to
-  is_default: true
+  uri: nano.nownodes.io
   useSSL: true
   isEnabledForAutoSwitching: true
 -

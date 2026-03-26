@@ -16,5 +16,3 @@
   uri: eth.nownodes.io
   useSSL: true
   isEnabledForAutoSwitching: true
--
-  uri: ethereum.publicnode.com
