@@ -23,8 +23,10 @@ class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAd
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   BitcoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHd,
-    required super.sideHd,
+    required super.mainHdByType,
+    required super.sideHdByType,
+    required super.legacySideHd,
+    required super.legacyMainHd,
     required super.network,
     required super.isHardwareWallet,
     required this.payjoinManager,
