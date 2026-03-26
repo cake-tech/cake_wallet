@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class HistoryTileBase extends StatelessWidget {
   const HistoryTileBase({
     super.key,
-    required this.title,
+    this.title,
+    this.titleWidget,
     required this.date,
     required this.amount,
     required this.leadingIcon,
@@ -14,9 +15,10 @@ class HistoryTileBase extends StatelessWidget {
     required this.bottomSeparator,
     this.primaryTextColor,
     this.asset,
-  });
+  }): assert((title != null || titleWidget != null) && (title == null || titleWidget == null));
 
-  final String title;
+  final String? title;
+  final Widget? titleWidget;
   final String date;
   final String amount;
   final String amountFiat;
@@ -105,8 +107,10 @@ class HistoryTileBase extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(title,
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                            if(title != null)
+                            Text(title!,
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface))
+                            else if(titleWidget != null) titleWidget!,
                             Text(date,
                                 style: TextStyle(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant)),

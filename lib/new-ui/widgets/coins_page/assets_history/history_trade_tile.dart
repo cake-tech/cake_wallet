@@ -1,5 +1,6 @@
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 
@@ -34,7 +35,7 @@ class HistoryTradeTile extends StatelessWidget {
       width: 50,
       child: Stack(
         children: [
-          Image.asset(_getIconPath(from),
+          CakeImageWidget(imageUrl: _getIconPath(from),
               width: currencyIconSize, height: currencyIconSize),
           Positioned(
               top: currencyIconSize / 2,
@@ -45,7 +46,7 @@ class HistoryTradeTile extends StatelessWidget {
                           width: 2,
                           color: Theme.of(context).colorScheme.surfaceContainer),
                       shape: BoxShape.circle),
-                  child: Image.asset(_getIconPath(to),
+                  child: CakeImageWidget(imageUrl: _getIconPath(to),
                       width: currencyIconSize, height: currencyIconSize))),
         ],
       ),
@@ -56,9 +57,40 @@ class HistoryTradeTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    final fromChainIcon = _getChainIcon(from);
+    final toChainIcon = _getChainIcon(to);
+
     return HistoryTileBase(
-      title:
-          "${from.toString()}${from == CryptoCurrency.btcln ? "-LN" : ""} → ${to.toString()}${to == CryptoCurrency.btcln ? "-LN" : ""}",
+      // title:
+      //     "${from.toString()}${from == CryptoCurrency.btcln ? "-LN" : ""} → ${to.toString()}${to == CryptoCurrency.btcln ? "-LN" : ""}",
+      titleWidget: Row(
+        spacing: 2,
+        children: [
+          Text(from.toString()),
+          if (fromChainIcon.isNotEmpty)
+            CakeImageWidget(
+                imageUrl: fromChainIcon,
+                width: 12,
+                height: 12,
+                colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn)),
+          SizedBox(),
+          Text(
+            "→",
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          ),
+          SizedBox(),
+          Text(to.toString()),
+          if (toChainIcon.isNotEmpty)
+            CakeImageWidget(
+              imageUrl: toChainIcon,
+              width: 12,
+              height: 12,
+              colorFilter:
+                  ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+            ),
+        ],
+      ),
       date: date,
       amount: amount,
       amountFiat: receiveAmount,
@@ -91,6 +123,23 @@ class HistoryTradeTile extends StatelessWidget {
     } catch (_) {}
 
     //TODO approporiate fallback
+    return "";
+  }
+
+  String _getChainIcon(CryptoCurrency currency) {
+    try {
+      if (currency.chainIconPath != null) {
+        return currency.chainIconPath!;
+      }
+
+      if ((currency.tag ?? "").isNotEmpty) {
+        final currencyFromTag = CryptoCurrency.fromString(currency.tag!);
+        if (currencyFromTag.chainIconPath != null) {
+          return currencyFromTag.chainIconPath!;
+        }
+      }
+    } catch (_) {}
+
     return "";
   }
 }
