@@ -594,6 +594,7 @@
   "login": "Zaloguj się",
   "logout": "Wyloguj się",
   "long_press_edit_address": "Naciśnij i przytrzymaj, aby edytować adres",
+  "long_press_show_balance": "Naciśnij i przytrzymaj kartę, aby wyświetlić saldo",
   "low_fee": "Niska opłata",
   "low_fee_alert": "Obecnie używasz niskiego priorytetu opłaty sieciowej. Może to spowodować długi czas oczekiwania, inne kursy lub anulowane transakcje. Zalecamy ustawienie wyższej opłaty, aby zapewnić lepsze wrażenia.",
   "made_easy": "łatwe",

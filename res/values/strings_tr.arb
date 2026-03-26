@@ -595,6 +595,7 @@
   "login": "Giriş",
   "logout": "Çıkış yap",
   "long_press_edit_address": "Adresi düzenlemek için uzun basın",
+  "long_press_show_balance": "Bakiyeyi göstermek için karta uzun basın",
   "low_fee": "Düşük ücret",
   "low_fee_alert": "Şu anda düşük bir ağ ücreti önceliği kullanıyorsunuz. Bu durum uzun beklemelere, farklı oranlara veya iptal edilen takaslara neden olabilir. Daha iyi bir deneyim için daha yüksek bir ücret belirlemenizi öneririz.",
   "made_easy": "kolaylaştırıldı",

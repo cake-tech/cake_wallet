@@ -633,6 +633,9 @@ abstract class DashboardViewModelBase with Store {
       }).toList();
 
   @computed
+  bool get shouldShowBalanceHiddenMessage => balanceDisplayMode == BalanceDisplayMode.hiddenBalance && appStore.settingsStore.balanceHideCounter < 10;
+
+  @computed
   List<OrderListItem> get orders =>
       ordersStore.orders.where((item) => item.order.walletId == wallet.id).toList();
 

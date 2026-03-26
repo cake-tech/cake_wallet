@@ -594,6 +594,7 @@
   "login": "Đăng nhập",
   "logout": "Đăng xuất",
   "long_press_edit_address": "Nhấn và giữ để chỉnh sửa địa chỉ",
+  "long_press_show_balance": "Nhấn và giữ thẻ để hiển thị số dư",
   "low_fee": "Phí thấp",
   "low_fee_alert": "Bạn hiện đang sử dụng mức ưu tiên phí mạng thấp. Điều này có thể dẫn đến thời gian chờ lâu, tỷ giá khác nhau hoặc giao dịch bị hủy. Chúng tôi khuyến nghị bạn đặt mức phí cao hơn để có trải nghiệm tốt hơn.",
   "made_easy": "dễ dàng",

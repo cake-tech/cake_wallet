@@ -595,6 +595,7 @@
   "login": "Accedi",
   "logout": "Disconnetti",
   "long_press_edit_address": "Tieni premuto per modificare l'indirizzo",
+  "long_press_show_balance": "Premi a lungo la carta per mostrare il saldo",
   "low_fee": "Commissione bassa",
   "low_fee_alert": "Attualmente stai utilizzando una priorità bassa per la commissione di rete. Ciò potrebbe causare lunghe attese, tassi diversi o scambi annullati. Ti consigliamo di impostare una commissione più alta per un'esperienza migliore.",
   "made_easy": "reso facile",
