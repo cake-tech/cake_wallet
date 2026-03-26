@@ -42,16 +42,29 @@ BigInt parseFixed(String value, int decimals) {
   }
 
   var whole = comps.isNotEmpty ? comps[0] : "0";
-  var fraction = (comps.length == 2 ? comps[1] : "0").padRight(decimals, "0");
+  var fraction = comps.length == 2 ? comps[1] : "";
 
-  if (fraction.length > multiplier.length - 1) {
-    throw FormatException(
-        "fractional component exceeds decimals, underflow, parseFixed");
-  }
 
-  final wholeValue = BigInt.parse(whole);
-  final fractionValue = BigInt.parse(fraction);
+
+  var wholeValue = BigInt.parse(whole);
   final multiplierValue = BigInt.parse(multiplier);
+  BigInt fractionValue;
+
+  if (fraction.isEmpty) {
+    fractionValue = BigInt.zero;
+  } else if (fraction.length <= decimals) {
+    fractionValue = BigInt.parse(fraction.padRight(decimals, '0'));
+  } else {
+    final excess = fraction.length - decimals;
+    final divisor = BigInt.parse('1'.padRight(excess + 1, '0'));
+    final fracNum = BigInt.parse(fraction);
+    final half = divisor ~/ BigInt.from(2);
+    fractionValue = (fracNum + half) ~/ divisor;
+    while (fractionValue >= multiplierValue) {
+      wholeValue += BigInt.one;
+      fractionValue -= multiplierValue;
+    }
+  }
 
   var wei = (wholeValue * multiplierValue) + fractionValue;
 
