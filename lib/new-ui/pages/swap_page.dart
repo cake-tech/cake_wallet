@@ -848,6 +848,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
             .getCryptoSymbol(_selectedCurrency as CryptoCurrency)
         : _selectedCurrency.name.toUpperCase();
 
+
+    final chainIconPath = (_selectedCurrency is CryptoCurrency) ? _getCurrencyChainIconPath(_selectedCurrency as CryptoCurrency) : null;
+
     return Column(
       spacing: 12,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -933,8 +936,20 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                   currencyToShow,
                                   textAlign: TextAlign.center,
                                 ),
-                                SizedBox(width:10),
-                                  RotatedBox(
+                                if (chainIconPath != null && chainIconPath.isNotEmpty) ...[
+                                  SizedBox(width: 4),
+                                  CakeImageWidget(
+                                    imageUrl: chainIconPath,
+                                    width: 12,
+                                    height: 12,
+                                    colorFilter: ColorFilter.mode(
+                                        Theme.of(context).colorScheme.onSurfaceVariant,
+                                        BlendMode.srcIn),
+                                  ),
+                                  SizedBox(width: 4)
+                                ] else
+                                  SizedBox(width: 10),
+                                RotatedBox(
                                       quarterTurns: 2,
                                       child: CakeImageWidget(imageUrl:
                                         "assets/new-ui/dropdown_arrow.svg",
@@ -1248,5 +1263,21 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   String _middleTruncate(String s, int head, int tail) {
     if (s.length <= head + tail + 3) return s;
     return s.substring(0, head) + '...' + s.substring(s.length - tail);
+  }
+
+  String? _getCurrencyChainIconPath(CryptoCurrency curr) {
+    try{
+
+      if(curr.chainIconPath != null) return curr.chainIconPath!;
+
+
+      if(curr.tag != null) {
+        final currencyFromTag = CryptoCurrency.fromString(curr.tag!);
+        if(currencyFromTag.chainIconPath != null) {
+          return currencyFromTag.chainIconPath!;
+        }
+      }
+    }catch(_){}
+    return null;
   }
 }
