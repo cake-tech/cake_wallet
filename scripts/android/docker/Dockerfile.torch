@@ -3,8 +3,17 @@ ARG BASE_IMAGE
 FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
 
 COPY scripts/prepare_torch.sh /w/scripts/prepare_torch.sh
-COPY scripts/android/build_torch.sh /w/scripts/android/build_torch.sh
-RUN /w/scripts/android/build_torch.sh && rm -rf /w/scripts/torch_dart/simplybs
+RUN /w/scripts/prepare_torch.sh
+
+COPY anon-build/out/arm64-v8a/libtorch.so /w/scripts/torch_dart/android/src/main/jniLibs/arm64-v8a/libtorch.so
+COPY anon-build/out/armeabi-v7a/libtorch.so /w/scripts/torch_dart/android/src/main/jniLibs/armeabi-v7a/libtorch.so
+COPY anon-build/out/x86_64/libtorch.so /w/scripts/torch_dart/android/src/main/jniLibs/x86_64/libtorch.so
+COPY anon-build/out/x86/libtorch.so /w/scripts/torch_dart/android/src/main/jniLibs/x86/libtorch.so
+
+COPY anon-build/libs/arm64-v8a/libanon.so /w/scripts/torch_dart/android/src/main/jniLibs/arm64-v8a/libanon.so
+COPY anon-build/libs/armeabi-v7a/libanon.so /w/scripts/torch_dart/android/src/main/jniLibs/armeabi-v7a/libanon.so
+COPY anon-build/libs/x86_64/libanon.so /w/scripts/torch_dart/android/src/main/jniLibs/x86_64/libanon.so
+COPY anon-build/libs/x86/libanon.so /w/scripts/torch_dart/android/src/main/jniLibs/x86/libanon.so
 
 FROM --platform=linux/amd64 alpine
 COPY --from=build /w /w
