@@ -7,21 +7,29 @@ class HistoryTileBase extends StatelessWidget {
     this.title,
     this.titleWidget,
     required this.date,
-    required this.amount,
+    this.amount,
     required this.leadingIcon,
-    required this.amountFiat,
+    this.amountFiat,
     required this.roundedTop,
     required this.roundedBottom,
     required this.bottomSeparator,
     this.primaryTextColor,
     this.asset,
-  }): assert((title != null || titleWidget != null) && (title == null || titleWidget == null));
+    this.amountWidget,
+    this.amountFiatWidget,
+  })  : assert((title != null || titleWidget != null) && (title == null || titleWidget == null)),
+        assert(
+            (amountWidget != null || amount != null) && (amountWidget == null || amount == null)),
+        assert((amountFiatWidget != null || amountFiat != null) &&
+            (amountFiatWidget == null || amountFiat == null));
 
   final String? title;
   final Widget? titleWidget;
   final String date;
-  final String amount;
-  final String amountFiat;
+  final String? amount;
+  final Widget? amountWidget;
+  final String? amountFiat;
+  final Widget? amountFiatWidget;
   final Widget leadingIcon;
   final bool roundedTop;
   final bool roundedBottom;
@@ -119,12 +127,20 @@ class HistoryTileBase extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                            Text(amount,
-                                style: TextStyle(
-                                    color: primaryTextColor ??
-                                        Theme.of(context).colorScheme.onSurface)),
-                            Text(amountFiat, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                            ],
+                            if (amount != null)
+                              Text(amount!,
+                                  style: TextStyle(
+                                      color: primaryTextColor ??
+                                          Theme.of(context).colorScheme.onSurface))
+                            else if (amountWidget != null)
+                              amountWidget!,
+                            if (amountFiat != null)
+                              Text(amountFiat!,
+                                  style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant))
+                            else if (amountFiatWidget != null)
+                              amountFiatWidget!
+                          ],
                           ),
                         ],
                       ),

@@ -105,6 +105,7 @@ class HistorySection extends StatelessWidget {
                 child: HistoryTradeTile(
                   from: tradeFrom!,
                   to: tradeTo!,
+                  provider: trade.provider,
                   date: DateFormat('HH:mm').format(item.trade.createdAt!),
                   amount: trade.amountFormatted(),
                   receiveAmount: trade.receiveAmountFormatted(),

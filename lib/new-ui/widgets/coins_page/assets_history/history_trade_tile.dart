@@ -1,3 +1,4 @@
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -15,10 +16,12 @@ class HistoryTradeTile extends StatelessWidget {
       required this.bottomSeparator,
       required this.from,
       required this.to,
-      required this.swapState});
+      required this.swapState,
+      required this.provider});
 
   final CryptoCurrency from;
   final CryptoCurrency to;
+  final ExchangeProviderDescription provider;
   final String date;
   final String amount;
   final String receiveAmount;
@@ -64,36 +67,48 @@ class HistoryTradeTile extends StatelessWidget {
       // title:
       //     "${from.toString()}${from == CryptoCurrency.btcln ? "-LN" : ""} → ${to.toString()}${to == CryptoCurrency.btcln ? "-LN" : ""}",
       titleWidget: Row(
-        spacing: 2,
+        spacing: 4,
         children: [
-          Text(from.toString()),
+          Text(swapState.title),
+          CakeImageWidget(imageUrl: provider.image, width: 14, height: 14)
+        ],
+      ),
+      date: date,
+      amountFiatWidget: Row(
+        spacing: 4,
+        children: [
+          Text("-", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          Text(amount,
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500)),
+          Text(from.title, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           if (fromChainIcon.isNotEmpty)
             CakeImageWidget(
-                imageUrl: fromChainIcon,
-                width: 12,
-                height: 12,
-                colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn)),
-          SizedBox(),
-          Text(
-            "→",
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
-          ),
-          SizedBox(),
-          Text(to.toString()),
-          if (toChainIcon.isNotEmpty)
-            CakeImageWidget(
-              imageUrl: toChainIcon,
+              imageUrl: fromChainIcon,
               width: 12,
               height: 12,
               colorFilter:
                   ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
-            ),
+            )
         ],
       ),
-      date: date,
-      amount: amount,
-      amountFiat: receiveAmount,
+      amountWidget: Row(
+        spacing: 4,
+        children: [
+          Text(
+            "+",
+          ),
+          Text(
+            amount,
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+          Text(
+            to.title,
+          ),
+          if (toChainIcon.isNotEmpty) CakeImageWidget(imageUrl: toChainIcon, width: 12, height: 12)
+        ],
+      ),
       leadingIcon: _getLeadingStack(context),
       roundedTop: roundedTop,
       roundedBottom: roundedBottom,
