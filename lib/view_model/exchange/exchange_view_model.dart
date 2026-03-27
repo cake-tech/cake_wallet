@@ -763,7 +763,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (price == null || price == 0.0) return;
 
     final crypto = _enteredAmount / price;
-    final depositAmountTmp = crypto.toString().withMaxDecimals(receiveCurrency.decimals);
+    final depositAmountTmp = crypto.toString().withMaxDecimals(depositCurrency.decimals);
     if (_depositAmount != depositAmountTmp) {
       changeDepositAmount(amount: depositAmountTmp, isCanonical: true);
     }
