@@ -100,7 +100,7 @@ class ManageNodesPage extends BasePage {
                       }
                       final nodeListRow = NodeListRow(
                         title: node.uriRaw,
-                        subtitle: (node.label! + (node.isDefault! == true ? " (Default)" : "")) ?? '',
+                        subtitle: node.label == null ? null : node.label! + ((node.isDefault ?? false) ? ' (Default)' : ''),
                         node: node,
                         isSelected: isSelected,
                         isPow: isPow,

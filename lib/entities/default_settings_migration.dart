@@ -17,21 +17,17 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
-import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/erc20_token.dart';
 
@@ -616,9 +612,8 @@ Future<void> defaultSettingsMigration(
         case 63:
           await _addXaut0TokenToExistingSolanaWallets();
           break;
-        case 64:
-          await AddLabelsToDefaultNodes(nodes: nodes, powNodes: powNodes);
-          await migrateExistingNodesToDefaultValue(nodes: nodes, powNodes: powNodes);
+        case 65:
+          await updateAllDefaultNodes(nodes: nodes);
           break;
         // case 71:
         //   await _changeDefaultNode(
@@ -1489,131 +1484,19 @@ Future<void> migrateExistingNodesToUseAutoSwitching(
   }
 }
 
-Future<void>migrateExistingNodesToDefaultValue(
-    {required Box<Node> nodes, required Box<Node> powNodes}) async {
-  final listofDefaultNodes = [
-    'bitcoincash.stackwallet.com:50002',
-    'btc-electrum.cakewallet.com:50002',
-    'default-spv-nodes',
-    'ethereum-rpc.publicnode.com',
-    'ltc-electrum.cakewallet.com:50002',
-    'rpc.nano.to',
-    'xmr-node.cakewallet.com:18081',
-    'polygon-bor-rpc.publicnode.com',
-    'solana-mainnet.core.chainstack.com',
-    'api.trongrid.io',
-    'node3.monerodevs.org:34568',
-    '37.27.100.59:10500',
-    'zec-node.cakewallet.com:443',
-    'bsc-dataseed.bnbchain.org',
-    'dogecoin.stackwallet.com:50022',
-    'base.nownodes.io'
-  ];
-  for (var node in [...nodes.values.toList(), ...powNodes.values.toList()]) {
-    if (listofDefaultNodes.contains(node.uriRaw)) {
-      node.isDefault = true;
-      await node.save();
-    }
-  }
-}
+Future<void> updateAllDefaultNodes(
+    {required Box<Node> nodes}) async {
 
-Future<void> AddLabelsToDefaultNodes(
-    {required Box<Node> nodes, required Box<Node> powNodes}) async {
-   final Map<String, String> nodeLabelMap = {
-     // Monero
-     'xmr-node.cakewallet.com:18081' : 'Cake Wallet',
-     'cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081' : 'Cake Wallet (Tor)',
-     'node.sethforprivacy.com:443' : 'Seth For Privacy',
-     'node.monerodevs.org:18089' : 'MoneroDevs',
-     'node2.monerodevs.org:18089' : 'MoneroDevs #2',
-     'node3.monerodevs.org:18089' : 'MoneroDevs #3',
-     'selsta1.featherwallet.net:18081' : 'Feather Wallet',
-     'xmr.stormycloud.org:18089' : 'StormyCloud',
-     // Bitcoin
-     'btc-electrum.cakewallet.com:50002' : 'Cake Wallet Electrum',
-     'electrs.cakewallet.com:50001' : 'Cake Wallet Electrs',
-     'fulcrum.sethforprivacy.com:50002' : 'Seth For Privacy',
-     'electrum.cakewallet.com:50002' : "Electrum (Legacy)",
-     // Ethereum
-     'ethereum-rpc.publicnode.com' : 'PublicNode',
-     'eth.llamarpc.com' : 'LlamaNodes',
-     'rpc.flashbots.net' : 'Flashbots',
-     'eth-mainnet.public.blastapi.io' : 'Blast',
-     'eth.nownodes.io' : "NOWNodes",
-     // BNB
-     'bsc-dataseed.bnbchain.org' : 'BNBChain',
-     'bsc-dataseed2.bnbchain.org' : 'BNBChain #2',
-     'bsc-dataseed.nariox.org' : 'Nariox',
-     'bsc-dataseed.defibit.io' : 'DeFibit',
-     'bsc-dataseed.ninicoin.io' : 'NiniCoin',
-     'bsc.nodereal.io' : 'NodeReal',
-     'bsc-dataseed-public.bnbchain.org' : 'BNBChain Public',
-     // Solana
-     'rpc.ankr.com' : 'Ankr',
-     'api.mainnet-beta.solana.com:443' : 'Solana Beta',
-     'solana-rpc.publicnode.com:443' : 'PublicNode',
-     'solana-mainnet.core.chainstack.com' : 'Chainstack',
-     // Zcash
-     'zec.rocks:443' : 'Zec.rocks',
-     'zec-node.cakewallet.com:443' : 'Cake Wallet',
-     '2c4whzg26j6hgjh22rxynj3oig4gm22ga7x74weclujywxye23v3u5id.onion:9067' : 'Cake Wallet (Tor)',
-     'bvp2l442g5ogma7rywzahm7eqyhpp3g26n3gvvxeioqn5csio2ir6myd.onion:9067' : 'Cake Wallet (Tor #2)',
-     // Tron
-     'tron-rpc.publicnode.com:443' : 'PublicNode',
-     'api.trongrid.io' : 'TronGrid',
-     'trx.nownodes.io' : 'NOWNodes',
-     // Dogecoin
-     'dogecoin.stackwallet.com:50022' : 'Stack Wallet',
-     'doge.aftrek.org:50002' : 'Aftrek',
-     'electrum1.cipig.net:20060' : 'Cipig',
-     // Bitcoin Cash
-     'bitcoincash.stackwallet.com:50002' : "Stack Wallet",
-     'bch.aftrek.org:50002' : 'Aftrek',
-     // Litecoin
-     'ltc-electrum.cakewallet.com:50002' : 'Cake Wallet',
-     'litecoin.stackwallet.com:20063' : 'Stack Wallet',
-     'electrum-ltc.bysh.me:50002' : 'Bysh',
-     'lightweight.fiatfaucet.com:50002' : 'Fiat Faucet',
-     'electrum.ltc.xurious.com:50002' : 'Xurious',
-     'backup.electrum-ltc.org:443' : 'Electrum-LTC',
-     // Base
-     'base.nownodes.io' : 'NOWNodes',
-     'base.llamarpc.com' : 'LlamaNodes',
-     'base-rpc.publicnode.com' : 'PublicNode',
-     '1rpc.io/base' : '1RPC',
-     // Arbitrum
-     'arbitrum.nownodes.io' : 'NOWNodes',
-     'arbitrum.drpc.org' : 'dRPC',
-     'arbitrum-one-rpc.publicnode.com' : 'PublicNode',
-     // Polygon
-     'polygon-bor-rpc.publicnode.com' : 'PublicNode',
-     'polygon-rpc.com' : 'Ankr',
-     'matic.nownodes.io' : 'NOWNodes',
-     // Nano
-     'rpc.nano.to' : 'Nano.to',
-     'nano.nownodes.io' : 'NOWNodes',
-     'node.nautilus.io' : 'Nautilus',
-     'workers.perish.co' : 'Perish',
-     'worker.nanoriver.cc' : 'NanoRiver',
-     'app.natrium.io' : 'Natrium',
-     'rainstorm.city' : 'Rainstorm City',
-     'node.somenano.com' : 'SomeNano',
-     'nanoslo.0x.no' : '0x.no',
-     // Decred
-     'default-spv-nodes' : 'Default',
-     'dcrd.sethforprivacy.com:9108' : 'Seth For Privacy',
-     // Zano
-     '37.27.100.59:10500' : 'Default',
-     'zano.cakewallet.com:11211' : 'Cake Wallet'
-   };
-  for (var node in [...nodes.values.toList(), ...powNodes.values.toList()]) {
-    if (nodeLabelMap.containsKey(node.uriRaw)) {
-      if(node.label == null) {
-        node.label = nodeLabelMap[node.uriRaw].toString();
-        await node.save();
+      final defaultNodes = await loadAllDefaultNodes();
+
+      for (var node in [...nodes.values.toList()]) {
+        Node? defaultNode = defaultNodes.firstWhereOrNull((element) => element.uriRaw == node.uriRaw);
+        if (defaultNode != null) {
+          node.label = defaultNode.label;
+          node.isDefault = defaultNode.isDefault;
+          await node.save();
         }
-    }
-  }
+      }
 }
 
 Future<void> _addXautTokenToExistingEthereumWallets() async {
