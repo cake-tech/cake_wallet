@@ -65,7 +65,7 @@ class SymbolsAmountValidator extends TextValidator {
           maxLength: 0,
         );
 
-  static String _pattern() => '^([0-9]+([.\,][0-9]+)?|[.\,][0-9]+)\$';
+  static String _pattern() => r'^(?:\d+(?:[.\,]\d+)?|[.\,]\d+)$';
 }
 
 class DecimalAmountValidator extends TextValidator {
