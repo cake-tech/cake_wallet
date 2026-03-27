@@ -595,6 +595,7 @@
   "login": "Entrar",
   "logout": "Sair",
   "long_press_edit_address": "Pressione e segure para editar o endereço",
+  "long_press_show_balance": "Pressione e segure o cartão para mostrar o saldo",
   "low_fee": "Taxa baixa",
   "low_fee_alert": "No momento, você está usando uma prioridade baixa de taxa de rede. Isso pode causar longas esperas, taxas diferentes ou negociações canceladas. Recomendamos definir uma taxa mais alta para uma melhor experiência.",
   "made_easy": "feito fácil",

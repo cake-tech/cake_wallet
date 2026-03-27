@@ -95,7 +95,7 @@ class AssetTile extends StatelessWidget {
                           child: Stack(
                             children: [
                               if((iconPath).isNotEmpty)
-                              Image.asset(iconPath)
+                              CakeImageWidget(imageUrl: iconPath)
                               else
                                 Container(
                                   width: 45,

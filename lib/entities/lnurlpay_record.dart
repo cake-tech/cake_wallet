@@ -12,7 +12,8 @@ class LNUrlPayRecord {
   final String name;
   final String address;
 
-  static Future<String?> checkWellKnownUsername(String username, CryptoCurrency currency) async {
+  static Future<String?> checkWellKnownUsername(String username, CryptoCurrency currency,
+  {bool allowRethrow = false}) async {
     if (![CryptoCurrency.btc, CryptoCurrency.btcln].contains(currency)) return null;
 
     // split the string by the @ symbol:
@@ -40,6 +41,7 @@ class LNUrlPayRecord {
         return LNURL.encode(expectedUrl);
       }
     } catch (e) {
+      if (allowRethrow) rethrow;
       printV("error checking well-known username: $e");
     }
     return null;
