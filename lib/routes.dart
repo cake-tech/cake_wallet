@@ -141,8 +141,6 @@ class Routes {
   static const exchangeTradeExternalSendPage = '/exchange_trade_external_send_page';
 
   static const dEuroSavings = '/integration/dEuro/savings';
-  static const usdt0BridgeHistory = '/usdt0_bridge_history';
-  static const usdt0BridgeDetail = '/usdt0_bridge_detail';
 
   static const lightningUsernamePage = "/lightning_username_page";
   static const aboutPage = "/about_page";

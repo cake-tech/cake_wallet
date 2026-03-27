@@ -1,5 +1,6 @@
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_detail_page.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/bridge_history_view_model.dart';
 import 'package:cake_wallet/new-ui/widgets/bridge/transfer_history_row.dart';
 import 'package:flutter/material.dart';
@@ -60,10 +61,15 @@ class BridgeHistoryPage extends StatelessWidget {
                     items.add(
                       TransferHistoryRow(
                         transfer: transfer,
-                        onTap: () => Navigator.of(context).pushNamed(
-                          Routes.usdt0BridgeDetail,
-                          arguments: transfer,
-                        ),
+                        onTap: () {
+                          final page = getIt.get<BridgeDetailPage>(param1: transfer);
+                          showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) => page,
+                          );
+                        },
                       ),
                     );
                   }
@@ -83,10 +89,15 @@ class BridgeHistoryPage extends StatelessWidget {
                     items.add(
                       TransferHistoryRow(
                         transfer: transfer,
-                        onTap: () => Navigator.of(context).pushNamed(
-                          Routes.usdt0BridgeDetail,
-                          arguments: transfer,
-                        ),
+                        onTap: () {
+                          final page = getIt.get<BridgeDetailPage>(param1: transfer);
+                          showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) => page,
+                          );
+                        },
                       ),
                     );
                   }

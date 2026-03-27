@@ -56,11 +56,13 @@ class BridgeNetworkPage extends StatelessWidget {
                           sections: {
                             '': bridgeViewModel.availableDestinationChains
                                 .map(
-                                  (chain) => ListItemRegularRow(
+                                  (chain) {
+                                    final chainName = chain.name;
+                                    return ListItemRegularRow(
                                     iconPath:
-                                        'assets/images/crypto/${chain.name.toLowerCase()}.webp',
+                                        'assets/images/crypto/${chainName.toLowerCase()}.webp',
                                     keyValue: chain.chainId.toString(),
-                                    label: chain.name,
+                                    label: chainName,
                                     onTap: () {
                                       bridgeViewModel.setDestinationChain(chain.chainId);
                                       showMaterialModalBottomSheet(
@@ -71,7 +73,8 @@ class BridgeNetworkPage extends StatelessWidget {
                                         ),
                                       );
                                     },
-                                  ),
+                                  );
+                                  },
                                 )
                                 .toList(),
                           },

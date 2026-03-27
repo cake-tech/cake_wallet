@@ -61,9 +61,6 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_s
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_detail_page.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
-import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
@@ -92,7 +89,6 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
-import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
@@ -1036,20 +1032,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.dEuroSavings:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DEuroSavingsPage>(),
-      );
-
-
-
-    case Routes.usdt0BridgeHistory:
-      return MaterialPageRoute<void>(
-        builder: (_) => getIt.get<BridgeHistoryPage>(),
-      );
-
-    case Routes.usdt0BridgeDetail:
-      return MaterialPageRoute<void>(
-        builder: (_) => getIt.get<BridgeDetailPage>(
-          param1: settings.arguments as BridgeTransfer,
-        ),
       );
 
     default:

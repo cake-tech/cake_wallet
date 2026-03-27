@@ -1,7 +1,7 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
@@ -115,7 +115,11 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
               onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
               trailingIcon: const Icon(Icons.history, size: 18),
               onTrailingPressed: () {
-                Navigator.of(context).pushNamed(Routes.usdt0BridgeHistory);
+                showMaterialModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  builder: (ctx) => getIt.get<BridgeHistoryPage>(param1: widget.bridgeHistoryViewModel),
+                );
               },
             ),
             Expanded(

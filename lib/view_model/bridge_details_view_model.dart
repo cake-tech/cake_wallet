@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/transaction_details/address_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
+import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/store/bridge_transfers_store.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,11 +21,9 @@ abstract class BridgeDetailsViewModelBase with Store {
     required BridgeTransfer transferForDetails,
     required this.bridgeTransfersStore,
     required this.walletId,
-  })  : items = ObservableList<StandartListItem>(),
+  })  : items = ObservableList<TransactionDetailsListItem>(),
         transfer = _findTransferInStore(
-                bridgeTransfersStore.bridgeTransfers,
-                transferForDetails.id,
-                walletId) ??
+                bridgeTransfersStore.bridgeTransfers, transferForDetails.id, walletId) ??
             transferForDetails {
     _updateItems();
     _setupReaction();
@@ -51,7 +51,7 @@ abstract class BridgeDetailsViewModelBase with Store {
   BridgeTransfer transfer;
 
   @observable
-  ObservableList<StandartListItem> items;
+  ObservableList<TransactionDetailsListItem> items;
 
   Timer? timer;
 
@@ -96,10 +96,10 @@ abstract class BridgeDetailsViewModelBase with Store {
       ),
     );
 
-    final sourceName = evm?.getChainNameByChainId(transfer.sourceChainId) ??
-        '${transfer.sourceChainId}';
-    final destName = evm?.getChainNameByChainId(transfer.destinationChainId) ??
-        '${transfer.destinationChainId}';
+    final sourceName =
+        evm?.getChainNameByChainId(transfer.sourceChainId) ?? '${transfer.sourceChainId}';
+    final destName =
+        evm?.getChainNameByChainId(transfer.destinationChainId) ?? '${transfer.destinationChainId}';
 
     items.add(
       StandartListItem(
@@ -123,7 +123,7 @@ abstract class BridgeDetailsViewModelBase with Store {
     );
 
     items.add(
-      StandartListItem(
+      AddressListItem(
         title: "Recipient",
         value: transfer.recipientAddress,
       ),
@@ -135,10 +135,11 @@ abstract class BridgeDetailsViewModelBase with Store {
         : null;
 
     if (sourceTxUrl != null) {
+      final explorerDescription = S.current.view_transaction_on + Uri.parse(sourceTxUrl).host;
       items.add(
         TrackTradeListItem(
-          title: "View on explorer",
-          value: transfer.sourceTxHash,
+          title: explorerDescription,
+          value: sourceTxUrl,
           onTap: () => _launchUrl(sourceTxUrl),
         ),
       );

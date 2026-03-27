@@ -1,7 +1,6 @@
-import 'package:cw_core/hive_type_ids.dart';
-import 'package:hive/hive.dart';
+import 'package:cw_core/db/sqlite.dart';
 
-class BridgeTransfer extends HiveObject {
+class BridgeTransfer {
   BridgeTransfer({
     required this.id,
     required this.walletId,
@@ -21,137 +20,108 @@ class BridgeTransfer extends HiveObject {
     this.statusMessage,
   });
 
-  static const typeId = BRIDGE_TRANSFER_TYPE_ID;
-  static const boxName = 'BridgeTransfers';
-  static const boxKey = 'bridgeTransfersBoxKey';
+  static const tableName = 'BridgeTransfer';
 
-  @HiveField(0)
-  String id;
+  static Future<List<BridgeTransfer>> selectAll() async {
+    final database = db;
+    if (database == null) return [];
 
-  @HiveField(1)
-  String walletId;
+    final rows = await database.query(
+      tableName,
+      orderBy: 'created_at DESC',
+    );
+    return rows.map(fromRow).toList();
+  }
 
-  @HiveField(2)
-  int sourceChainId;
+  static Future<void> insert(BridgeTransfer transfer) async {
+    final database = db;
+    if (database == null) return;
 
-  @HiveField(3)
-  int destinationChainId;
+    await database.insert(tableName, transfer.toRow());
+  }
 
-  @HiveField(4)
-  String tokenSymbol;
+  static Future<void> update(BridgeTransfer transfer) async {
+    final database = db;
+    if (database == null) return;
 
-  @HiveField(5)
-  String tokenContract;
-
-  @HiveField(6)
-  String amount;
-
-  @HiveField(7)
-  String recipientAddress;
-
-  @HiveField(8)
-  String sourceTxHash;
-
-  @HiveField(9)
-  String status;
-
-  @HiveField(10)
-  DateTime createdAt;
-
-  @HiveField(11)
-  DateTime? updatedAt;
-
-  @HiveField(12)
-  DateTime? confirmedAt;
-
-  @HiveField(13)
-  String? amountRaw;
-
-  @HiveField(14)
-  String? errorMessage;
-
-  @HiveField(15)
-  String? statusMessage;
-
-  bool get isActive => status == 'submitted' || status == 'confirming' || status == 'initiated';
-}
-
-class BridgeTransferAdapter extends TypeAdapter<BridgeTransfer> {
-  @override
-  final int typeId = BridgeTransfer.typeId;
-
-  @override
-  BridgeTransfer read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{};
-    for (int i = 0; i < numOfFields; i++) {
-      try {
-        fields[reader.readByte()] = reader.read();
-      } catch (_) {}
-    }
-    return BridgeTransfer(
-      id: fields[0] as String? ?? '',
-      walletId: fields[1] as String? ?? '',
-      sourceChainId: fields[2] as int? ?? 0,
-      destinationChainId: fields[3] as int? ?? 0,
-      tokenSymbol: fields[4] as String? ?? '',
-      tokenContract: fields[5] as String? ?? '',
-      amount: fields[6] as String? ?? '',
-      recipientAddress: fields[7] as String? ?? '',
-      sourceTxHash: fields[8] as String? ?? '',
-      status: fields[9] as String? ?? 'submitted',
-      createdAt: fields[10] as DateTime? ?? DateTime.now(),
-      updatedAt: fields[11] as DateTime?,
-      confirmedAt: fields[12] as DateTime?,
-      amountRaw: fields[13] as String?,
-      errorMessage: fields[14] as String?,
-      statusMessage: fields[15] as String?,
+    await database.update(
+      tableName,
+      transfer.toRow(),
+      where: 'id = ?',
+      whereArgs: [transfer.id],
     );
   }
 
-  @override
-  void write(BinaryWriter writer, BridgeTransfer obj) {
-    writer
-      ..writeByte(16)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.walletId)
-      ..writeByte(2)
-      ..write(obj.sourceChainId)
-      ..writeByte(3)
-      ..write(obj.destinationChainId)
-      ..writeByte(4)
-      ..write(obj.tokenSymbol)
-      ..writeByte(5)
-      ..write(obj.tokenContract)
-      ..writeByte(6)
-      ..write(obj.amount)
-      ..writeByte(7)
-      ..write(obj.recipientAddress)
-      ..writeByte(8)
-      ..write(obj.sourceTxHash)
-      ..writeByte(9)
-      ..write(obj.status)
-      ..writeByte(10)
-      ..write(obj.createdAt)
-      ..writeByte(11)
-      ..write(obj.updatedAt)
-      ..writeByte(12)
-      ..write(obj.confirmedAt)
-      ..writeByte(13)
-      ..write(obj.amountRaw)
-      ..writeByte(14)
-      ..write(obj.errorMessage)
-      ..writeByte(15)
-      ..write(obj.statusMessage);
+  String id;
+  String walletId;
+  int sourceChainId;
+  int destinationChainId;
+  String tokenSymbol;
+  String tokenContract;
+  String amount;
+  String recipientAddress;
+  String sourceTxHash;
+  String status;
+  DateTime createdAt;
+  DateTime? updatedAt;
+  DateTime? confirmedAt;
+  String? amountRaw;
+  String? errorMessage;
+  String? statusMessage;
+
+  bool get isActive => status == 'submitted' || status == 'confirming' || status == 'initiated';
+
+  Map<String, Object?> toRow() {
+    return {
+      'id': id,
+      'wallet_id': walletId,
+      'source_chain_id': sourceChainId,
+      'destination_chain_id': destinationChainId,
+      'token_symbol': tokenSymbol,
+      'token_contract': tokenContract,
+      'amount': amount,
+      'recipient_address': recipientAddress,
+      'source_tx_hash': sourceTxHash,
+      'status': status,
+      'created_at': createdAt.millisecondsSinceEpoch,
+      'updated_at': updatedAt?.millisecondsSinceEpoch,
+      'confirmed_at': confirmedAt?.millisecondsSinceEpoch,
+      'amount_raw': amountRaw,
+      'error_message': errorMessage,
+      'status_message': statusMessage,
+    };
   }
 
-  @override
-  int get hashCode => typeId.hashCode;
+  static int? _nullableInt(Object? v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v.toString());
+  }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is BridgeTransferAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+  static int _parseInt(Object? v) => _nullableInt(v) ?? 0;
+  static DateTime _parseDateTime(Object? v) => DateTime.fromMillisecondsSinceEpoch(_parseInt(v));
+
+  static BridgeTransfer fromRow(Map<String, Object?> m) {
+    String? asStr(Object? v) => v as String?;
+
+    return BridgeTransfer(
+      id: m['id'] as String,
+      walletId: m['wallet_id'] as String,
+      sourceChainId: _parseInt(m['source_chain_id']),
+      destinationChainId: _parseInt(m['destination_chain_id']),
+      tokenSymbol: m['token_symbol'] as String,
+      tokenContract: m['token_contract'] as String,
+      amount: m['amount'] as String,
+      recipientAddress: m['recipient_address'] as String,
+      sourceTxHash: m['source_tx_hash'] as String,
+      status: m['status'] as String,
+      createdAt: _parseDateTime(m['created_at']),
+      updatedAt: _parseDateTime(m['updated_at']),
+      confirmedAt: _parseDateTime(m['confirmed_at']),
+      amountRaw: asStr(m['amount_raw']),
+      errorMessage: asStr(m['error_message']),
+      statusMessage: asStr(m['status_message']),
+    );
+  }
 }

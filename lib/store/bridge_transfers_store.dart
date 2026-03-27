@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:cake_wallet/entities/bridge_transfer.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'bridge_transfers_store.g.dart';
@@ -9,47 +6,32 @@ part 'bridge_transfers_store.g.dart';
 class BridgeTransfersStore = BridgeTransfersStoreBase with _$BridgeTransfersStore;
 
 abstract class BridgeTransfersStoreBase with Store {
-  BridgeTransfersStoreBase({required this.bridgeTransfersSource})
-      : bridgeTransfers = [] {
-    _onBridgeTransfersChanged =
-        bridgeTransfersSource.watch().listen((_) => updateList());
+  BridgeTransfersStoreBase() : bridgeTransfers = [] {
     updateList();
   }
-
-  Box<BridgeTransfer> bridgeTransfersSource;
-  StreamSubscription<BoxEvent>? _onBridgeTransfersChanged;
 
   @observable
   List<BridgeTransfer> bridgeTransfers;
 
   @action
-  void updateList() {
-    if (!bridgeTransfersSource.isOpen) return;
-    final list = bridgeTransfersSource.values.toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    bridgeTransfers = list;
+  Future<void> updateList() async {
+    bridgeTransfers = await BridgeTransfer.selectAll();
   }
 
   @action
-  void addTransfer(BridgeTransfer transfer) {
-    if (!bridgeTransfersSource.isOpen) return;
+  Future<void> addTransfer(BridgeTransfer transfer) async {
     try {
-      bridgeTransfersSource.add(transfer);
-      updateList();
+      await BridgeTransfer.insert(transfer);
+      await updateList();
     } catch (_) {}
   }
 
   @action
-  void updateTransfer(BridgeTransfer transfer) {
-    if (!bridgeTransfersSource.isOpen) return;
+  Future<void> updateTransfer(BridgeTransfer transfer) async {
     try {
-      if (bridgeTransfersSource.isOpen) {
-        transfer.save();
-      }
+      await BridgeTransfer.update(transfer);
+      await updateList();
     } catch (_) {}
-    if (bridgeTransfersSource.isOpen) {
-      updateList();
-    }
   }
 
   @computed
@@ -60,7 +42,5 @@ abstract class BridgeTransfersStoreBase with Store {
   List<BridgeTransfer> get pastTransfers =>
       bridgeTransfers.where((b) => !b.isActive).toList(growable: false);
 
-  void dispose() {
-    _onBridgeTransfersChanged?.cancel();
-  }
+  void dispose() {}
 }

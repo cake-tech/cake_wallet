@@ -22,4 +22,3 @@ const MWEB_UTXO_TYPE_ID             = 20;
 const HAVEN_SEED_STORE_TYPE_ID      = 21;
 const ZANO_ASSET_TYPE_ID            = 22;
 const PAYJOIN_SESSION_TYPE_ID       = 23;
-const BRIDGE_TRANSFER_TYPE_ID       = 24;

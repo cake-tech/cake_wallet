@@ -500,7 +500,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         createdAt: DateTime.now(),
       );
 
-      bridgeTransfersStore.addTransfer(record);
+      await bridgeTransfersStore.addTransfer(record);
       runInAction(() {
         quote = null;
         bridgeSuccess = true;
@@ -557,13 +557,13 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         !_pollingCancellers.values.any((c) => c.isCompleted);
   }
 
-  void _updateTransferStatus(
+  Future<void> _updateTransferStatus(
     BridgeTransfer record,
     String status, {
     String? errorMessage,
     String? statusMessage,
     DateTime? confirmedAt,
-  }) {
+  }) async {
     if (!_isValidWalletContext(record.walletId)) return;
 
     runInAction(() {
@@ -572,8 +572,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       if (errorMessage != null) record.errorMessage = errorMessage;
       if (statusMessage != null) record.statusMessage = statusMessage;
       if (confirmedAt != null) record.confirmedAt = confirmedAt;
-      bridgeTransfersStore.updateTransfer(record);
     });
+    await bridgeTransfersStore.updateTransfer(record);
   }
 
   Future<void> _pollForSourceConfirmation(
@@ -605,7 +605,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         if (receipt == null) continue;
 
         if (receipt == true) {
-          _updateTransferStatus(
+          await _updateTransferStatus(
             record,
             'confirming',
             confirmedAt: DateTime.now(),
@@ -614,12 +614,12 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
           await Future.delayed(const Duration(seconds: 1));
           if (canceller.isCompleted || !_isValidWalletContext(walletId)) return;
 
-          _updateTransferStatus(record, 'initiated');
+          await _updateTransferStatus(record, 'initiated');
           _pollForDestinationCompletion(record, wallet);
 
           return;
         } else if (receipt == false) {
-          _updateTransferStatus(
+          await _updateTransferStatus(
             record,
             'failed',
             errorMessage: 'Transaction reverted',
@@ -630,7 +630,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
       if (!_isValidWalletContext(walletId)) return;
 
-      _updateTransferStatus(record, 'initiated');
+      await _updateTransferStatus(record, 'initiated');
       _pollForDestinationCompletion(record, wallet);
     } finally {
       _pollingCancellers.remove(record.id);
@@ -666,7 +666,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         if (status == null) continue;
 
         if (status.isDelivered) {
-          _updateTransferStatus(
+          await _updateTransferStatus(
             record,
             'completed',
             statusMessage: status.status?.message,
@@ -675,7 +675,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         }
 
         if (status.isFailed) {
-          _updateTransferStatus(
+          await _updateTransferStatus(
             record,
             'failed',
             errorMessage: status.status?.message ?? 'Bridge message failed',
@@ -684,7 +684,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
           return;
         }
 
-        _updateTransferStatus(
+        await _updateTransferStatus(
           record,
           record.status,
           statusMessage: status.status?.message,

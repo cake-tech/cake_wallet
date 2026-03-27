@@ -53,7 +53,7 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
                     builder: (_) {
                       final chain = bridgeViewModel.destinationChainInfo;
 
-                      final chainName = chain?.name ?? 'destination';
+                      final chainName = chain?.name ?? '';
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -62,7 +62,7 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
                           Center(
                             child: CakeImageWidget(
                               borderRadius: 8,
-                              imageUrl: 'assets/images/crypto/${chain?.name.toLowerCase()}.webp',
+                              imageUrl: chainName.isNotEmpty ? 'assets/images/crypto/${chainName.toLowerCase()}.webp' : null,
                               width: 72,
                               height: 72,
                             ),

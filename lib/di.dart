@@ -334,8 +334,6 @@ late Box<Order> _ordersSource;
 late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
-late Box<BridgeTransfer> _bridgeTransfersSource;
-
 Future<void> setup({
   required Box<Node> nodeSource,
   required Box<Node> powNodeSource,
@@ -345,7 +343,6 @@ Future<void> setup({
   required Box<ExchangeTemplate> exchangeTemplates,
   required Box<TransactionDescription> transactionDescriptionBox,
   required Box<Order> ordersSource,
-  required Box<BridgeTransfer> bridgeTransfersSource,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<PayjoinSession> payjoinSessionSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
@@ -360,7 +357,6 @@ Future<void> setup({
   _exchangeTemplates = exchangeTemplates;
   _transactionDescriptionBox = transactionDescriptionBox;
   _ordersSource = ordersSource;
-  _bridgeTransfersSource = bridgeTransfersSource;
   _unspentCoinsInfoSource = unspentCoinsInfoSource;
   _payjoinSessionSource = payjoinSessionSource;
   _anonpayInvoiceInfoSource = anonpayInvoiceInfoSource;
@@ -406,8 +402,7 @@ Future<void> setup({
       TradesStore(tradesSource: _tradesSource, appStore: getIt.get<AppStore>()));
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
-  getIt.registerSingleton<BridgeTransfersStore>(
-      BridgeTransfersStore(bridgeTransfersSource: _bridgeTransfersSource));
+  getIt.registerSingleton<BridgeTransfersStore>(BridgeTransfersStore());
   getIt.registerFactory(() =>
       PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
