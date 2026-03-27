@@ -282,6 +282,11 @@ flutter:
     - assets/new-ui/navbar/
     - assets/new-ui/changelog/icons/
     - assets/new-ui/changelog/text/
+    - assets/new-ui/card_icons/
+    - assets/new-ui/card_icons/chain_icons/
+    - assets/new-ui/card_icons/og_icons/
+    - assets/new-ui/card_icons/outline_icons/
+    - assets/new-ui/card_icons/symbol_icons/
 
   fonts:
     - family: Lato

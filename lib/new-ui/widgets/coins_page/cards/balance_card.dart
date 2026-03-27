@@ -239,11 +239,17 @@ class BalanceCard extends StatelessWidget {
                               key: const ValueKey('svgIcon'),
                               height: iconWidth,
                               width: iconWidth,
-                              colorFilter: ColorFilter.mode(
-                                design.colors.backgroundImageColor.withAlpha(80),
-                                BlendMode.srcIn,
-                              ),
-                            )
+                              colorFilter: () {
+                                final shouldApplyOpacity =
+                                    ['outline', 'symbol', 'balance'].any(design.imagePath.contains);
+
+                                return shouldApplyOpacity
+                                    ? ColorFilter.mode(
+                                        design.colors.backgroundImageColor.withAlpha(80),
+                                        BlendMode.srcIn,
+                                      )
+                                    : null;
+                              }())
                           : const SizedBox.shrink(
                               key: ValueKey('svgIconOff'),
                             ),
