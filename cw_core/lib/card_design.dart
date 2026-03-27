@@ -350,6 +350,7 @@ class CardDesign {
     final ogIconPrefix = "assets/new-ui/card_icons/og_icons";
     final outlineIconPrefix = "assets/new-ui/card_icons/outline_icons";
     final symbolIconPrefix = "assets/new-ui/card_icons/symbol_icons";
+    final genericCakeIcon = "$balanceCardIconPrefix/cake-card-icon.svg";
     switch (currency) {
       case CryptoCurrency.arbEth:
         return [
@@ -358,6 +359,7 @@ class CardDesign {
           "$symbolIconPrefix/arb-symbol.svg",
           "$ogIconPrefix/arb-og.svg",
           "$chainIconPrefix/arbitrum.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.baseEth:
         return [
@@ -366,6 +368,7 @@ class CardDesign {
           "$symbolIconPrefix/base-symbol.svg",
           "$ogIconPrefix/base-og.svg",
           "$chainIconPrefix/base_icon.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.bch:
         return [
@@ -374,6 +377,7 @@ class CardDesign {
           "$symbolIconPrefix/bch-symbol.svg",
           "$ogIconPrefix/bch-og.svg",
           "$chainIconPrefix/bitcoin-cash.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.btc:
         return [
@@ -382,6 +386,7 @@ class CardDesign {
           "$symbolIconPrefix/btc-symbol.svg",
           "$ogIconPrefix/btc-og.svg",
           "$chainIconPrefix/bitcoin.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.bnb:
         return [
@@ -390,6 +395,7 @@ class CardDesign {
           "$symbolIconPrefix/bnb-symbol.svg",
           "$ogIconPrefix/bnb-og.svg",
           "$chainIconPrefix/bnb.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.dcr:
         return [
@@ -398,6 +404,7 @@ class CardDesign {
           "$symbolIconPrefix/dcr-symbol.svg",
           "$ogIconPrefix/dcr-og.svg",
           "$chainIconPrefix/decred.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.doge:
         return [
@@ -406,6 +413,7 @@ class CardDesign {
           "$symbolIconPrefix/doge-symbol.svg",
           "$ogIconPrefix/doge-og.svg",
           "$chainIconPrefix/dogecoin.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.eth:
         return [
@@ -414,6 +422,7 @@ class CardDesign {
           "$symbolIconPrefix/eth-symbol.svg",
           "$ogIconPrefix/eth-og.svg",
           "$chainIconPrefix/ethereum.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.btcln:
         return [
@@ -422,6 +431,7 @@ class CardDesign {
           "$symbolIconPrefix/ln-symbol.svg",
           "$ogIconPrefix/ln-og.svg",
           "$chainIconPrefix/lightning.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.ltc:
         return [
@@ -430,6 +440,7 @@ class CardDesign {
           "$symbolIconPrefix/ltc-symbol.svg",
           "$ogIconPrefix/ltc-og.svg",
           "$chainIconPrefix/litecoin.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.xmr:
         return [
@@ -438,6 +449,7 @@ class CardDesign {
           "$symbolIconPrefix/xmr-symbol.svg",
           "$ogIconPrefix/xmr-og.svg",
           "$chainIconPrefix/monero.svg",
+          genericCakeIcon,
         ];
 
       case CryptoCurrency.nano:
@@ -447,6 +459,7 @@ class CardDesign {
           "$symbolIconPrefix/xno-symbol.svg",
           "$ogIconPrefix/xno-og.svg",
           "$chainIconPrefix/nano.svg",
+          genericCakeIcon,
         ];
 
       case CryptoCurrency.maticpoly:
@@ -456,6 +469,7 @@ class CardDesign {
           "$symbolIconPrefix/pol-symbol.svg",
           "$ogIconPrefix/pol-og.svg",
           "$chainIconPrefix/polygon.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.sol:
         return [
@@ -464,6 +478,7 @@ class CardDesign {
           "$symbolIconPrefix/sol-symbol.svg",
           "$ogIconPrefix/sol-og.svg",
           "$chainIconPrefix/solana.svg",
+          genericCakeIcon,
         ];
       case CryptoCurrency.trx:
         return [
@@ -472,6 +487,7 @@ class CardDesign {
           "$symbolIconPrefix/trx-symbol.svg",
           "$ogIconPrefix/tron-og.svg",
           "$chainIconPrefix/tron.svg",
+          genericCakeIcon,
         ];
 
       case CryptoCurrency.zano:
@@ -481,6 +497,7 @@ class CardDesign {
           "$symbolIconPrefix/zano-symbol.svg",
           "$ogIconPrefix/zano-og.svg",
           "$chainIconPrefix/zano.svg",
+          genericCakeIcon,
         ];
 
       case CryptoCurrency.zec:
@@ -490,6 +507,7 @@ class CardDesign {
           "$symbolIconPrefix/zec-symbol.svg",
           "$ogIconPrefix/zec-og.svg",
           "$chainIconPrefix/zcash.svg",
+          genericCakeIcon,
         ];
       default:
         return [];
