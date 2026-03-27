@@ -25,8 +25,10 @@ class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalle
 abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHd,
-    required super.sideHd,
+    required super.mainHdByType,
+    required super.sideHdByType,
+    required super.legacyMainHd,
+    required super.legacySideHd,
     required super.network,
     required super.isHardwareWallet,
     required this.mwebHd,
@@ -147,7 +149,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       if (mwebAddrs.length == 0) {
         return "";
       }
-      return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+      return hd == legacySideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
