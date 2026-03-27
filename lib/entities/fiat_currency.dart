@@ -1,3 +1,4 @@
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
 
@@ -182,4 +183,10 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
 
   @override
   String get iconPath => "assets/images/flags/$countryCode.png";
+
+  @override
+  Money parseAmount(String value) => Money.parse(value, this);
+
+  @override
+  Money? tryParseAmount(String value) => Money.tryParse(value, this);
 }
