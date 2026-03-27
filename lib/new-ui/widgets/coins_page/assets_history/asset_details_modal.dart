@@ -59,6 +59,7 @@ class AssetDetailsModal extends StatelessWidget {
             title: "",
             trailingIcon: Icon(Icons.close),
             onTrailingPressed: Navigator.of(context).pop,
+            padding: EdgeInsets.only(top:12,right:18),
           ),
           SafeArea(
             child: Column(
