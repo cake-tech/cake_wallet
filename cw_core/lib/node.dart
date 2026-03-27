@@ -20,6 +20,7 @@ Uri createUriFromElectrumAddress(String address, String path) =>
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
   Node({
+    this.isDefault,
     this.label,
     this.login,
     this.password,
@@ -37,6 +38,9 @@ class Node extends HiveObject with Keyable {
     if (type != null) {
       this.type = type;
     }
+    if (label != null) {
+      label = label;
+    }
   }
 
   @override
@@ -45,6 +49,8 @@ class Node extends HiveObject with Keyable {
   uriRaw: $uriRaw,
   path: $path,
   login: $login,
+  label: $label,
+  isDefault: $isDefault,
   password: $password,
   useSSL: $useSSL,
   trusted: $trusted,
@@ -54,10 +60,11 @@ class Node extends HiveObject with Keyable {
   }
 
   Node.fromMap(Map<String, Object?> map)
-      : uriRaw = map['uri'] as String? ?? '',
+      :uriRaw = map['uri'] as String? ?? '',
         path = map['path'] as String? ?? '',
         login = map['login'] as String?,
         label = map['label'] as String?,
+        isDefault = map['isDefault'] as bool?,
         password = map['password'] as String?,
         useSSL = map['useSSL'] as bool?,
         trusted = map['trusted'] as bool? ?? false,
@@ -106,6 +113,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(12, defaultValue: '')
   String? label;
 
+  @HiveField(13, defaultValue: false)
+  bool? isDefault;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -148,6 +158,7 @@ class Node extends HiveObject with Keyable {
       (other.uriRaw == uriRaw &&
           other.login == login &&
           other.label == label &&
+          other.isDefault == isDefault &&
           other.password == password &&
           other.typeRaw == typeRaw &&
           other.useSSL == useSSL &&
@@ -160,6 +171,7 @@ class Node extends HiveObject with Keyable {
       uriRaw.hashCode ^
       login.hashCode ^
       label.hashCode ^
+      isDefault.hashCode ^
       password.hashCode ^
       typeRaw.hashCode ^
       useSSL.hashCode ^
@@ -239,6 +251,9 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode({String methodName = 'get_info'}) async {
+    print(uri);
+    print(isDefault);
+
     if (useSocksProxy) {
       return await requestNodeWithProxy();
     }
