@@ -167,13 +167,15 @@ import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
     required this.address,
     required this.txCount,
     required this.balance,
-    required this.isChange});
+    required this.isChange,
+    this.isLegacyDerivation = false});
   final int id;
   final String name;
   final String address;
   final int txCount;
   final int balance;
   final bool isChange;
+  final bool isLegacyDerivation;
 }
 
 abstract class Bitcoin {

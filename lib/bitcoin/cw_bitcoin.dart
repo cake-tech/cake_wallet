@@ -182,7 +182,8 @@ class CWBitcoin extends Bitcoin {
             address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
-            isChange: addr.isHidden))
+            isChange: addr.isHidden,
+            isLegacyDerivation: addr.isLegacyDerivation))
         .toList();
   }
 

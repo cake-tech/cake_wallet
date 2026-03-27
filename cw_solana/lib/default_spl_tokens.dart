@@ -100,6 +100,15 @@ class DefaultSPLTokens {
       enabled: false,
     ),
     SPLToken(
+      name: "Tether Gold",
+      symbol: "XAUT0",
+      mintAddress: "AymATz4TCL9sWNEEV9Kvyz45CHVhDZ6kUgjTJPzLpU9P",
+      decimal: 6,
+      mint: 'xaut0',
+      enabled: false,
+      iconPath: "assets/images/xau_sol.png",
+    ),
+    SPLToken(
       name: 'Abbott xStock',
       symbol: 'ABTx',
       mintAddress: 'XsHtf5RpxsQ7jeJ9ivNewouZKJHbPxhPoEy6yYvULr7',

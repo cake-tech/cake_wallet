@@ -23,6 +23,7 @@ import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -611,6 +612,9 @@ Future<void> defaultSettingsMigration(
             providerName: "StealthEX",
             enabled: false,
           );
+          break;
+        case 63:
+          await _addXaut0TokenToExistingSolanaWallets();
           break;
         case 64:
           await AddLabelsToDefaultNodes(nodes: nodes, powNodes: powNodes);
@@ -1646,5 +1650,41 @@ Future<void> _addXautTokenToExistingEthereumWallets() async {
     }
   } catch (e) {
     printV('Error in XAUT migration: $e');
+  }
+}
+Future<void> _addXaut0TokenToExistingSolanaWallets() async {
+  try {
+    final xaut0Token = SPLToken(
+      name: "Tether Gold",
+      symbol: "XAUT0",
+      mintAddress: "AymATz4TCL9sWNEEV9Kvyz45CHVhDZ6kUgjTJPzLpU9P",
+      decimal: 6,
+      mint: 'xaut0',
+      enabled: false,
+      iconPath: "assets/images/xau_sol.png",
+    );
+
+    final allWallets = await WalletInfo.getAll();
+
+    final solanaWallets = allWallets.where((wallet) => wallet.type == WalletType.solana).toList();
+
+    for (final walletInfo in solanaWallets) {
+      final sanitizedName = walletInfo.name.replaceAll(' ', '_');
+      final boxName = '${sanitizedName}_${SPLToken.boxName}';
+
+      Box<SPLToken> tokenBox;
+      if (CakeHive.isBoxOpen(boxName)) {
+        tokenBox = CakeHive.box<SPLToken>(boxName);
+      } else {
+        tokenBox = await CakeHive.openBox<SPLToken>(boxName);
+      }
+
+      final xaut0Address = xaut0Token.mintAddress;
+      if (!tokenBox.containsKey(xaut0Address)) {
+        await tokenBox.put(xaut0Address, xaut0Token);
+      }
+    }
+  } catch (e) {
+    printV('Error in XAUT0 migration: $e');
   }
 }
