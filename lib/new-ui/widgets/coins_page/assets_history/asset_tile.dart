@@ -101,24 +101,24 @@ class AssetTile extends StatelessWidget {
                                         fontSize: 20, color: Theme.of(context).colorScheme.onPrimary),
                                   )),
                                 ),
-                              if (chainIconPath.isNotEmpty)
-                                Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: Container(
-                                        decoration: ShapeDecoration(
-                                            shape: RoundedSuperellipseBorder(
-                                                borderRadius: BorderRadius.circular(5),side: BorderSide(color: Colors.black)),
-                                            color: Colors.white),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(2.0),
-                                          child: CakeImageWidget(
-                                            imageUrl: chainIconPath,
-                                            width: 12,
-                                            height: 12,
-                                            colorFilter:
-                                                ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                                          ),
-                                        )))
+                              // if (chainIconPath.isNotEmpty)
+                              //   Align(
+                              //       alignment: Alignment.bottomRight,
+                              //       child: Container(
+                              //           decoration: ShapeDecoration(
+                              //               shape: RoundedSuperellipseBorder(
+                              //                   borderRadius: BorderRadius.circular(5),side: BorderSide(color: Colors.black)),
+                              //               color: Colors.white),
+                              //           child: Padding(
+                              //             padding: const EdgeInsets.all(2.0),
+                              //             child: CakeImageWidget(
+                              //               imageUrl: chainIconPath,
+                              //               width: 12,
+                              //               height: 12,
+                              //               colorFilter:
+                              //                   ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                              //             ),
+                              //           )))
                             ],
                           )),
                       SizedBox(width: 8.0),
