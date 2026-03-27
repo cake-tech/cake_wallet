@@ -121,7 +121,7 @@ class AssetTile extends StatelessWidget {
                               //           )))
                             ],
                           )),
-                      SizedBox(width: 8.0),
+                      SizedBox(width: 12.0),
                       Expanded(
                         child: Column(
                           spacing: 4.0,

@@ -127,7 +127,7 @@ class AssetDetailsModal extends StatelessWidget {
                             if(asset != null)
                             Container(
                               decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                  color: Theme.of(context).colorScheme.surfaceContainer,
                                   borderRadius: BorderRadius.circular(999999999)),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
@@ -149,7 +149,7 @@ class AssetDetailsModal extends StatelessWidget {
                               if(chainIconPath.isNotEmpty)
                               CakeImageWidget(
                                 imageUrl: chainIconPath,
-                                width:12,height:12,colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),
+                                width:16,height:16,colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),
                               ),
                               Text(
                                 subtitle,

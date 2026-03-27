@@ -946,18 +946,28 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                         Theme.of(context).colorScheme.onSurfaceVariant,
                                         BlendMode.srcIn),
                                   ),
-                                  SizedBox(width: 4)
+                                  SizedBox(width: 6)
                                 ] else
                                   SizedBox(width: 10),
-                                RotatedBox(
-                                      quarterTurns: 2,
-                                      child: CakeImageWidget(imageUrl:
-                                        "assets/new-ui/dropdown_arrow.svg",
-                                        width: 4,
-                                        height: 4,
-                                        colorFilter: ColorFilter.mode(
-                                            Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                                      )),
+                                Container(
+                                  width:16,height:16,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(9999999999),
+                                    color: Theme.of(context).colorScheme.surfaceContainerHigh
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: RotatedBox(
+                                          quarterTurns: 2,
+                                          child: CakeImageWidget(imageUrl:
+                                            "assets/new-ui/dropdown_arrow.svg",
+                                            width: 4,
+                                            height: 4,
+                                            colorFilter: ColorFilter.mode(
+                                                Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                                          )),
+                                  ),
+                                ),
                                 SizedBox(width:4),
                               ],
                             ),
