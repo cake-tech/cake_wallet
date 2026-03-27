@@ -14,6 +14,8 @@ class AlertWithTwoActions extends BaseAlertDialog {
     this.isDividerExist = false,
     // this.leftActionColor,
     // this.rightActionColor,
+    this.leftAlertButtonStyle,
+    this.rightAlertButtonStyle,
     this.alertRightActionButtonKey,
     this.alertLeftActionButtonKey,
     this.alertDialogKey,
@@ -29,6 +31,10 @@ class AlertWithTwoActions extends BaseAlertDialog {
   final bool alertBarrierDismissible;
   // final Color leftActionColor;
   // final Color rightActionColor;
+  @override
+  final AlertButtonStyle? leftAlertButtonStyle;
+  @override
+  final AlertButtonStyle? rightAlertButtonStyle;
   final bool isDividerExist;
   final Key? alertRightActionButtonKey;
   final Key? alertLeftActionButtonKey;
