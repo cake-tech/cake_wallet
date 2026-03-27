@@ -141,7 +141,7 @@ Future<List<Node>> loadAllDefaultNodes() async {
 
 Future<void> resetToDefault(Box<Node> nodeSource) async {
 
-  final defaultNodes = await getAllDefaultNodes();
+  final defaultNodes = await loadAllDefaultNodes();
 
   await nodeSource.clear();
   await nodeSource.addAll(defaultNodes);

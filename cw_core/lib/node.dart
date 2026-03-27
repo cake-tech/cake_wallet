@@ -251,9 +251,6 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode({String methodName = 'get_info'}) async {
-    print(uri);
-    print(isDefault);
-
     if (useSocksProxy) {
       return await requestNodeWithProxy();
     }
