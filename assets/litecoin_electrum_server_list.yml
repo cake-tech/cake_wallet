@@ -3,19 +3,25 @@
   useSSL: true
   isDefault: true
   isEnabledForAutoSwitching: true
+  label: "Cake Wallet"
 -
   uri: litecoin.stackwallet.com:20063
   useSSL: true
   isEnabledForAutoSwitching: true
+  label: "Stack Wallet"
 -
   uri: electrum-ltc.bysh.me:50002
   useSSL: true
+  label: "Bysh"
 -
   uri: lightweight.fiatfaucet.com:50002
   useSSL: true
+  label: "Fiat Faucet"
 -
   uri: electrum.ltc.xurious.com:50002
   useSSL: true
+  label: "Xurious"
 -
   uri: backup.electrum-ltc.org:443
   useSSL: true
+  label: "Electrum-LTC"

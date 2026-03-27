@@ -3,13 +3,17 @@
   useSSL: true
   isDefault: true
   isEnabledForAutoSwitching: true
+  label: "Cake Wallet Electrum"
 -
   uri: electrs.cakewallet.com:50001
+  label: "Cake Wallet Electrs"
 -
   uri: fulcrum.sethforprivacy.com:50002
   useSSL: true
   isEnabledForAutoSwitching: true
+  label: "Seth For Privacy"
 -
   uri: electrum.cakewallet.com:50002
   useSSL: true
   isEnabledForAutoSwitching: true
+  label: "Cake Wallet (Legacy)"
