@@ -65,6 +65,7 @@ class CWTron extends Tron {
                 extractedAddress: out.extractedAddress,
                 isParsedAddress: out.isParsedAddress,
                 formattedCryptoAmount: out.formattedCryptoAmount,
+                memo: out.memo ?? out.note,
               ),
             )
             .toList(),
