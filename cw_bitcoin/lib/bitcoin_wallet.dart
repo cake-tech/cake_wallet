@@ -13,6 +13,7 @@ import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
+import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -31,9 +32,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_bitcoin/psbt.dart';
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'package:ur/cbor_lite.dart';
 import 'package:ur/ur.dart';
@@ -356,6 +355,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
 
     final psbtStr = base64Encode(psbt.serialize());
+    if (hardwareWalletService is BitcoinLedgerService && derivationInfo.derivationPath != null) {
+      (hardwareWalletService as BitcoinLedgerService)
+          .setAccountDerivationPath(derivationInfo.derivationPath!);
+    }
+
     final rawHex = await hardwareWalletService!.signTransaction(transaction: psbtStr);
     return BtcTransaction.fromRaw(BytesUtils.toHexString(rawHex));
   }

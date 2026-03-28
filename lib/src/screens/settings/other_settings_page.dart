@@ -10,11 +10,16 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.da
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
+import 'package:path/path.dart' as p;
 
 class OtherSettingsPage extends BasePage {
   OtherSettingsPage(this._otherSettingsViewModel) {
