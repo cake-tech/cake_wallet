@@ -2,6 +2,7 @@
   uri: ltc-electrum.cakewallet.com:50002
   useSSL: true
   isDefault: true
+  isOfficial: true
   isEnabledForAutoSwitching: true
   label: "Cake Wallet"
 -

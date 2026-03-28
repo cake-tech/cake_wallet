@@ -21,6 +21,8 @@ Uri createUriFromElectrumAddress(String address, String path) =>
 class Node extends HiveObject with Keyable {
   Node({
     this.isDefault,
+    this.isOfficial,
+    this.isIncluded,
     this.label,
     this.login,
     this.password,
@@ -51,6 +53,8 @@ class Node extends HiveObject with Keyable {
   login: $login,
   label: $label,
   isDefault: $isDefault,
+  isOfficial: $isOfficial,
+  isIncluded: $isIncluded,
   password: $password,
   useSSL: $useSSL,
   trusted: $trusted,
@@ -65,6 +69,8 @@ class Node extends HiveObject with Keyable {
         login = map['login'] as String?,
         label = map['label'] as String?,
         isDefault = map['isDefault'] as bool?,
+        isOfficial = map['isOfficial'] as bool?,
+        isIncluded = map['isIncluded'] as bool?,
         password = map['password'] as String?,
         useSSL = map['useSSL'] as bool?,
         trusted = map['trusted'] as bool? ?? false,
@@ -116,6 +122,12 @@ class Node extends HiveObject with Keyable {
   @HiveField(13, defaultValue: false)
   bool? isDefault;
 
+  @HiveField(14, defaultValue: false)
+  bool? isOfficial;
+
+  @HiveField(15, defaultValue: false)
+  bool? isIncluded;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -159,6 +171,8 @@ class Node extends HiveObject with Keyable {
           other.login == login &&
           other.label == label &&
           other.isDefault == isDefault &&
+          other.isOfficial == isOfficial &&
+          other.isIncluded == isIncluded &&
           other.password == password &&
           other.typeRaw == typeRaw &&
           other.useSSL == useSSL &&
@@ -172,6 +186,8 @@ class Node extends HiveObject with Keyable {
       login.hashCode ^
       label.hashCode ^
       isDefault.hashCode ^
+      isOfficial.hashCode ^
+      isIncluded.hashCode ^
       password.hashCode ^
       typeRaw.hashCode ^
       useSSL.hashCode ^

@@ -2,6 +2,7 @@
   label: "Cake Wallet"
   uri: xmr-node.cakewallet.com:18081
   isDefault: true
+  isOfficial: true
   trusted: true
   useSSL: true
   isEnabledForAutoSwitching: true

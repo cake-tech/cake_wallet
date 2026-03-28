@@ -57,7 +57,6 @@ const baseDefaultNodeUri = 'base.nownodes.io';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
 const zcashDefaultNodeUri = 'zec-node.cakewallet.com:443';
-const moneroDefaultNodeUri = 'test2.com:18089';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -611,23 +610,8 @@ Future<void> defaultSettingsMigration(
           break;
         case 63:
           await _addXaut0TokenToExistingSolanaWallets();
-          break;
-        case 65:
           await updateAllDefaultNodes(nodes: nodes);
           break;
-        // case 71:
-        //   await _changeDefaultNode(
-        //     nodes: nodes,
-        //     sharedPreferences: sharedPreferences,
-        //     type: WalletType.monero,
-        //     newDefaultUri: moneroDefaultNodeUri,
-        //     currentNodePreferenceKey: PreferencesKey.currentNodeIdKey,
-        //     useSSL: true,
-        //     oldUri: [
-        //       'test.com:18089',
-        //     ],
-        //   );
-        //   break;
         default:
           break;
       }
@@ -672,6 +656,7 @@ Future<void> _changeDefaultNode({
   String? label,
   bool useSSL = true,
   bool trusted = false,
+  bool isOfficial = false,
   String? newDefaultUri, // ignore, if you want to use the default node uri
   List<String>?
       oldUri, // ignore, if you want to force replace the node regardless of the user's current node
@@ -685,11 +670,12 @@ Future<void> _changeDefaultNode({
     shouldReplace = oldUri?.any((e) => currentNode.uriRaw.contains(e)) ?? true;
   }
 
-  Node? oldDefaultNode = nodes.values.firstWhereOrNull((element) => element.uriRaw == _getDefaultNodeUri(type));
-  Node? newDefaultNode = nodes.values.firstWhereOrNull((element) => element.uriRaw == newDefaultUri);
+  Node? oldDefaultNode = nodes.values.firstWhereOrNull(
+          (element) => element.type == type && element.isDefault == true);
 
   if (shouldReplace) {
     newDefaultUri ??= _getDefaultNodeUri(type);
+    Node? newDefaultNode = nodes.values.firstWhereOrNull((element) => element.uriRaw == newDefaultUri);
     var newNodeId = newDefaultNode?.key;
 
     // new node doesn't exist, then add it
@@ -701,6 +687,8 @@ Future<void> _changeDefaultNode({
         useSSL: useSSL,
         trusted: trusted,
         isDefault: true,
+        isIncluded: true,
+        isOfficial: isOfficial,
       );
 
       await nodes.add(newNode);
@@ -712,11 +700,11 @@ Future<void> _changeDefaultNode({
       await newDefaultNode?.save();
     }
 
+    await sharedPreferences.setInt(currentNodePreferenceKey, newNodeId as int);
+
     //set isDefault value to false for previous default node
     oldDefaultNode?.isDefault = false;
     await oldDefaultNode?.save();
-
-    await sharedPreferences.setInt(currentNodePreferenceKey, newNodeId as int);
   }
 }
 
@@ -1494,6 +1482,8 @@ Future<void> updateAllDefaultNodes(
         if (defaultNode != null) {
           node.label = defaultNode.label;
           node.isDefault = defaultNode.isDefault;
+          node.isOfficial = defaultNode.isOfficial;
+          node.isIncluded = true;
           await node.save();
         }
       }

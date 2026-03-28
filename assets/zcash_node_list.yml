@@ -1,6 +1,7 @@
 -
   uri: zec-node.cakewallet.com:443
   isDefault: true
+  isOfficial: true
   useSSL: true
   isEnabledForAutoSwitching: true
   label: "Cake Wallet"
