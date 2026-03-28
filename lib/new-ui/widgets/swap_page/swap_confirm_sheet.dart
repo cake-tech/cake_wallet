@@ -202,9 +202,19 @@ class SwapTransactionDetails extends StatelessWidget {
                           label: exchangeTradeViewModel.trade.provider.title,
                           iconPath: exchangeTradeViewModel.trade.provider.image,
                           trailingIconPath: "assets/new-ui/copy.svg",
-                          trailingText: exchangeTradeViewModel.trade.id,
-                          truncateTrailingText:
-                              !exchangeTradeViewModel.trade.provider.isCentralized),
+                          trailingText: exchangeTradeViewModel.trade.id.toString().length > 18
+                              ? null
+                              : exchangeTradeViewModel.trade.id,
+                          bottomWidget: exchangeTradeViewModel.trade.id.toString().length <= 18
+                              ? null
+                              : Padding(
+                                  padding: const EdgeInsets.only(top: 12.0),
+                                  child: Text(
+                                    exchangeTradeViewModel.trade.id,
+                                    style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  ),
+                                )),
                       if (exchangeTradeViewModel.trade.provider ==
                           ExchangeProviderDescription.trocador)
                         ListItemRegularRow(

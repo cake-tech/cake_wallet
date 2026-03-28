@@ -159,11 +159,15 @@ class _NewHomePageState extends State<NewHomePage> {
                   builder: (_) {
                     return Column(
                       children: [
-                        CoinActionRow(
-                        lightningMode: _lightningMode,
-                        showSwap: widget.dashboardViewModel.isEnabledSwapAction,),
-                        MwebAd(dashboardViewModel: widget.dashboardViewModel,),
-                      ],
+                              CoinActionRow(
+                                lightningMode: _lightningMode,
+                                showSwap: widget.dashboardViewModel.isEnabledSwapAction,
+                                walletType: widget.dashboardViewModel.wallet.type,
+                              ),
+                              MwebAd(
+                                dashboardViewModel: widget.dashboardViewModel,
+                              ),
+                            ],
                     );
                   },
                 ),
