@@ -341,3 +341,13 @@ WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
     return _cryptoCurrencyToWalletType(type);
   }
 }
+
+
+WalletType? stringToWalletType(String input) {
+  for (final type in WalletType.values) {
+    if (type.toString().replaceFirst("WalletType.", "") == input) {
+      return type;
+    }
+  }
+  return null;
+}
