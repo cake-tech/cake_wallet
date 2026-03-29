@@ -154,7 +154,7 @@ class LightningWallet {
     } on SdkError_NetworkError catch (_) {
       return null;
     } on SdkError_SparkError catch (e) {
-      if (!e.field0.contains("dns")) rethrow;
+      if (!e.field0.contains("dns") && !e.field0.contains("TimedOut")) rethrow;
       return null;
     }
   }
