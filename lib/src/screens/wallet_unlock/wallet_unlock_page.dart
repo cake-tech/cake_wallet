@@ -84,6 +84,8 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
       _passwordController.removeListener(_passwordControllerListener!);
     }
 
+    _passwordController.dispose();
+
     super.dispose();
   }
 
@@ -103,6 +105,26 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await bar?.dismiss();
     });
+  }
+
+  Future<void> _unlockWallet() async {
+    if (widget.walletUnlockViewModel.state is IsExecutingState) {
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+
+    if (widget.authPasswordHandler != null) {
+      try {
+        await widget.authPasswordHandler!(widget.walletUnlockViewModel.password);
+        widget.walletUnlockViewModel.success();
+      } catch (e) {
+        widget.walletUnlockViewModel.failure(e);
+      }
+      return;
+    }
+
+    await widget.walletUnlockViewModel.unlock();
   }
 
   @override
@@ -176,6 +198,9 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                       child: BaseTextFormField(
                         key: ValueKey('enter_wallet_password'),
                         onChanged: (value) => null,
+                        onSubmit: (_) async {
+                          await _unlockWallet();
+                        },
                         controller: _passwordController,
                         textAlign: TextAlign.center,
                         obscureText: true,
@@ -187,7 +212,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                               fontSize: 18.0,
                               fontWeight: FontWeight.w500,
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
+                            ),
                         hintText: S.of(context).enter_wallet_password,
                       ),
                     ),
@@ -199,19 +224,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                 padding: EdgeInsets.only(bottom: 24),
                 child: Observer(
                   builder: (_) => LoadingPrimaryButton(
-                    onPressed: () async {
-                      if (widget.authPasswordHandler != null) {
-                        try {
-                          await widget.authPasswordHandler!(widget.walletUnlockViewModel.password);
-                          widget.walletUnlockViewModel.success();
-                        } catch (e) {
-                          widget.walletUnlockViewModel.failure(e);
-                        }
-                        return;
-                      }
-
-                      widget.walletUnlockViewModel.unlock();
-                    },
+                    onPressed: _unlockWallet,
                     text: S.of(context).unlock,
                     color: Theme.of(context).colorScheme.primary,
                     textColor: Theme.of(context).colorScheme.onPrimary,
