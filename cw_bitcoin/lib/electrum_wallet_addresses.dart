@@ -892,7 +892,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
     } on SdkError_NetworkError catch (_) {
     } on SdkError_SparkError catch (e) {
-      if (!e.field0.contains("dns")) rethrow;
+      if (!e.field0.contains("dns") && !e.field0.contains("TimedOut")) rethrow;
     } finally {
       lightningAddress ??= lightningWallet!.cachedAddress;
     }
