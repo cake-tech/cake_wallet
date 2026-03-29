@@ -1,7 +1,17 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/dogecoin/dogecoin.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -245,9 +255,94 @@ abstract class WalletCreationVMBase with Store {
     return list;
   }
 
-  WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
+  WalletCredentials getCredentials(dynamic _options) {
+    final options = _options as List<dynamic>?;
+    final passphrase = seedSettingsViewModel.passphrase;
+    seedSettingsViewModel.setPassphrase(null);
 
-  Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
+    switch (type) {
+      case WalletType.monero:
+        return monero!.createMoneroNewWalletCredentials(
+          name: name,
+          language: options!.first as String,
+          password: walletPassword,
+          passphrase: passphrase,
+          seedType: MoneroSeedType.polyseed.raw,
+        );
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return bitcoin!.createBitcoinNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
+      case WalletType.bsc:
+        return evm!.createEVMNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
+      case WalletType.bitcoinCash:
+        return bitcoinCash!.createBitcoinCashNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
+      case WalletType.dogecoin:
+        return dogecoin!.createDogeCoinNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
+      case WalletType.nano:
+      case WalletType.banano:
+        return nano!.createNanoNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
+
+      case WalletType.solana:
+        return solana!.createSolanaNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
+      case WalletType.tron:
+        return tron!.createTronNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
+      case WalletType.wownero:
+      case WalletType.zano:
+        return zano!.createZanoNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
+      case WalletType.zcash:
+        return zcash!.createZcashNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
+      case WalletType.decred:
+        return decred!.createDecredNewWalletCredentials(name: name);
+      case WalletType.none:
+      case WalletType.haven:
+        throw Exception('Unexpected type: ${type.toString()}');
+    }
+  }
+
+  Future<WalletBase> process(WalletCredentials credentials) async {
+    walletCreationService.changeWalletType(type: type);
+    return walletCreationService.create(credentials, isTestnet: useTestnet);
+  }
 
   @action
   void toggleUseTestnet(bool? value) {

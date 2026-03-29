@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/live_demo/ui/live_demo_config_page.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
@@ -909,6 +910,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
           },
         ),
       );
+      
+    case Routes.liveDemoConfig:
+      return handleRouteWithPlatformAwareness((context)=>getIt.get<LiveDemoConfigPage>());
 
     case Routes.manageNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: false));

@@ -47,6 +47,9 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
+import 'package:cake_wallet/live_demo/client/live_demo_client.dart';
+import 'package:cake_wallet/live_demo/ui/live_demo_config_page.dart';
+import 'package:cake_wallet/live_demo/vm/live_demo_bloc.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
@@ -272,6 +275,7 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_mod
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
@@ -458,6 +462,28 @@ Future<void> setup({
       getIt.get<SeedSettingsViewModel>(),
       newWalletArguments: newWalletArgs,
     ));
+
+  getIt.registerFactory<WalletCreationVM>(()=>WalletCreationVM(
+    getIt.get<AppStore>(),
+    getIt.get<WalletCreationService>(param1:WalletType.bitcoin),
+    getIt.get<SeedSettingsViewModel>(),
+    type: WalletType.none,
+    isRecovery: false,
+  ));
+
+  getIt.registerSingleton<LiveDemoClient>(LiveDemoClient());
+
+  getIt.registerFactory<LiveDemoBloc>(()=>LiveDemoBloc(
+    appStore: getIt.get<AppStore>(),
+    sharedPreferences: getIt.get<SharedPreferences>(),
+    walletCreationVM: getIt.get<WalletCreationVM>(),
+    client: getIt.get<LiveDemoClient>(),
+    resetService: getIt.get<ResetService>(),
+    secureStorage: getIt.get<SecureStorage>()
+  ));
+
+
+  getIt.registerFactory<LiveDemoConfigPage>(()=>LiveDemoConfigPage(bloc: getIt.get<LiveDemoBloc>()));
 
 
   final walletList = await WalletInfo.getAll();

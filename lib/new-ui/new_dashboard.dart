@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/live_demo/client/live_demo_client.dart';
+import 'package:cake_wallet/live_demo/ui/live_demo_video_overlay.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/widgets/changelog_modal.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
@@ -109,7 +111,8 @@ class _NewDashboardState extends State<NewDashboard> {
                     _selectedPage = index;
                   });
                 },
-              )
+              ),
+              LiveDemoVideoOverlay(client: getIt.get<LiveDemoClient>()),
             ],
           ),
         ),

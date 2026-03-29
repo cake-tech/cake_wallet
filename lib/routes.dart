@@ -144,4 +144,6 @@ class Routes {
 
   static const lightningUsernamePage = "/lightning_username_page";
   static const aboutPage = "/about_page";
+
+  static const liveDemoConfig = "/live_demo_config";
 }

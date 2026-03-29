@@ -1,6 +1,4 @@
-
-
-
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -17,9 +15,24 @@ class SyncData {
 class LiveDemoClient {
   Socket? _client;
   final BytesBuilder _buffer = BytesBuilder();
+  final StreamController<void> _dataArrived = StreamController<void>.broadcast();
 
   Future<void> connect(String host, int port) async {
     _client = await Socket.connect(host, port);
+
+    _client!.listen(
+          (data) {
+        _buffer.add(data);
+        _dataArrived.add(null);
+      },
+      onDone: () {
+        _dataArrived.add(null);
+      },
+      onError: (e) {
+        _dataArrived.addError(e as Object);
+      },
+      cancelOnError: true,
+    );
   }
 
   Future<Map<String, dynamic>> getConfig() async {
@@ -67,7 +80,6 @@ class LiveDemoClient {
     }
     await file.rename(finalFile.path);
   }
-
 
   Future<void> ensureVideoInitialized() async {
     await _send({"type": "status"});
@@ -126,21 +138,19 @@ class LiveDemoClient {
   }
 
   Future<Uint8List> _readExact(int count) async {
-    if (_client == null) throw Exception("not connected");
-
     while (_buffer.length < count) {
-      final chunk = await _client!.first;
-      _buffer.add(chunk);
+      if (_client == null) throw Exception("Not connected");
+      await _dataArrived.stream.first;
     }
 
     final all = _buffer.toBytes();
-    final out = Uint8List.sublistView(all, 0, count);
+    final out = Uint8List.fromList(all.sublist(0, count));
     final remaining = all.sublist(count);
 
     _buffer.clear();
     _buffer.add(remaining);
 
-    return Uint8List.fromList(out);
+    return out;
   }
 
   Future<void> close() async {
@@ -148,5 +158,6 @@ class LiveDemoClient {
     await _client?.close();
     _client = null;
     _buffer.clear();
+    await _dataArrived.close();
   }
 }

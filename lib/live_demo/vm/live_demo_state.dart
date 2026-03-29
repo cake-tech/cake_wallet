@@ -16,6 +16,7 @@ final class LiveDemoReady extends LiveDemoState {}
 
 final class LiveDemoError extends LiveDemoState {
  final String error;
+ final StackTrace stackTrace;
 
- LiveDemoError(this.error);
+ LiveDemoError(this.error, this.stackTrace);
 }

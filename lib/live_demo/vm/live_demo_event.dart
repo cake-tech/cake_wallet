@@ -9,3 +9,9 @@ final class ConnectionRequested extends LiveDemoEvent {
 
   ConnectionRequested({required this.host, required this.port});
 }
+
+
+final class PageReset extends LiveDemoEvent {
+
+
+}
