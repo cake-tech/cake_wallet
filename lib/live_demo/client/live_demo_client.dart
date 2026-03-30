@@ -9,7 +9,9 @@ import 'package:path_provider/path_provider.dart';
 class SyncData {
   int serverTimeMs;
   int positionMs;
-  SyncData(this.serverTimeMs, this.positionMs);
+  int latency;
+  int clientReceiveTimeMs;
+  SyncData(this.serverTimeMs, this.positionMs, this.latency, this.clientReceiveTimeMs);
 }
 
 class LiveDemoClient {
@@ -105,8 +107,16 @@ class LiveDemoClient {
   }
 
   Future<SyncData> getSync() async {
+    final startMs = DateTime.now().millisecondsSinceEpoch;
+
     await _send({"type": "get_sync"});
     final msg = await _readFrame();
+
+    // Capture exact receive time
+    final endMs = DateTime.now().millisecondsSinceEpoch;
+
+    final rtt = endMs - startMs;
+    final latency = rtt ~/ 2;
 
     if (msg["type"] != "sync_response") {
       throw Exception("Expected sync_response");
@@ -115,6 +125,8 @@ class LiveDemoClient {
     return SyncData(
       msg["server_time_ms"] as int,
       msg["position_ms"] as int,
+      latency,
+      endMs, // <-- Pass it here
     );
   }
 
@@ -139,16 +151,17 @@ class LiveDemoClient {
 
   Future<Uint8List> _readExact(int count) async {
     while (_buffer.length < count) {
-      if (_client == null) throw Exception("Not connected");
       await _dataArrived.stream.first;
     }
 
-    final all = _buffer.toBytes();
-    final out = Uint8List.fromList(all.sublist(0, count));
-    final remaining = all.sublist(count);
+    final all = _buffer.takeBytes();
 
-    _buffer.clear();
-    _buffer.add(remaining);
+    final out = Uint8List.fromList(all.sublist(0, count));
+
+    // Only put the remaining bytes back into the buffer
+    if (all.length > count) {
+      _buffer.add(all.sublist(count));
+    }
 
     return out;
   }

@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/live_demo/client/live_demo_client.dart';
+import 'package:cake_wallet/live_demo/ui/download_ad.dart';
 import 'package:cake_wallet/live_demo/ui/live_demo_video_overlay.dart';
+import 'package:cake_wallet/live_demo/ui/live_demo_welcome_sheet.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/widgets/changelog_modal.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
@@ -16,6 +18,7 @@ import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,7 +39,7 @@ class NewDashboard extends StatefulWidget {
     getIt.get<WalletListPage>(),
     getIt.get<ContactListPage>(),
     getIt.get<CakeFeaturesPage>(),
-    Placeholder(),
+    DownloadAd()
   ];
 
   @override
@@ -49,13 +52,23 @@ class _NewDashboardState extends State<NewDashboard> {
   @override
   void initState() {
     super.initState();
+    widget.dashboardViewModel.startDemoOverlay();
     reaction((_) => widget.dashboardViewModel.appStore.wallet, (_) {
       setState(() {
         _selectedPage = 0;
       });
     });
 
-    Future.delayed(Duration(milliseconds: 300)).then((_) => _showChangelog(context));
+    reaction((_)=>widget.dashboardViewModel.shouldShowOverlay, (val) async {
+      if(!val) {
+        await Future.delayed(Duration(milliseconds: 400));
+        showMaterialModalBottomSheet(context: context, builder: (context)=>LiveDemoWelcomeSheet(), backgroundColor: Colors.transparent);
+        
+      } else {
+      }
+    });
+
+    // Future.delayed(Duration(milliseconds: 300)).then((_) => _showChangelog(context));
     _showVulnerableSeedsPopup(context);
   }
 
@@ -63,57 +76,67 @@ class _NewDashboardState extends State<NewDashboard> {
   Widget build(BuildContext context) {
     return BottomSheetListener(
       bottomSheetService: widget.bottomSheetService,
-      child: CupertinoScaffold(
-        body: Material(
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              // widget.dashboardPageWidgets[_selectedPage],
-              IndexedStack(
-                index: _selectedPage,
-                children: widget.dashboardPageWidgets,
-              ),
-              IgnorePointer(
-                child: Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: <Color>[
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(5),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(50),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(100),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
-                      ],
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: widget.dashboardViewModel.dismissDemoOverlay,
+        onPanDown: (_) => widget.dashboardViewModel.dismissDemoOverlay(),
+        child: CupertinoScaffold(
+          body: Material(
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                // widget.dashboardPageWidgets[_selectedPage],
+                IndexedStack(
+                  index: _selectedPage,
+                  children: widget.dashboardPageWidgets,
+                ),
+                IgnorePointer(
+                  child: Container(
+                    height: 150,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: <Color>[
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(5),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(50),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(100),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SafeArea(
-                bottom: !(Platform.isIOS),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
-                  child: AbsorbPointer(
-                    absorbing: true,
-                    child: Container(color: Colors.transparent),
+                SafeArea(
+                  bottom: !(Platform.isIOS),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: Container(color: Colors.transparent),
+                    ),
                   ),
                 ),
-              ),
-              NewMainNavBar(
-                dashboardViewModel: widget.dashboardViewModel,
-                selectedIndex: _selectedPage,
-                onItemTap: (index) {
-                  setState(() {
-                    _selectedPage = index;
-                  });
-                },
-              ),
-              LiveDemoVideoOverlay(client: getIt.get<LiveDemoClient>()),
-            ],
+                NewMainNavBar(
+                  dashboardViewModel: widget.dashboardViewModel,
+                  selectedIndex: _selectedPage,
+                  onItemTap: (index) {
+                    setState(() {
+                      _selectedPage = index;
+                    });
+                  },
+                ),
+                Observer(
+                  builder:(_)=> IgnorePointer(
+                    ignoring: !widget.dashboardViewModel.shouldShowOverlay,
+                    child: LiveDemoVideoOverlay(client: getIt.get<LiveDemoClient>(), showingOverlay: widget.dashboardViewModel.shouldShowOverlay,),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

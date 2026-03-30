@@ -24,6 +24,7 @@ class NewMainActions {
     walletsAction,
     contactsAction,
     appsAction,
+    downloadAction
     //chartsAction,
   ];
 
@@ -54,6 +55,13 @@ class NewMainActions {
     key: ValueKey('dashboard_page_apps_action_button_key'),
     canShow: (dashboardVM) => dashboardVM.showApps,
     onTap: () {},
+  );
+
+  static NewMainActions downloadAction = NewMainActions._(
+    name: (context) => "Download",
+    image: "assets/new-ui/navbar/download.svg",
+    key: ValueKey("dashboard_page_download_action_button_key"),
+    onTap: (){}
   );
 
   // static NewMainActions chartsAction = NewMainActions._(

@@ -14,7 +14,7 @@ class LiveDemoVideoOverlay extends StatefulWidget {
   final double playbackRateThresholdMs;
   final double minPlaybackRate;
   final double maxPlaybackRate;
-  final bool loop;
+  final bool showingOverlay;
 
   const LiveDemoVideoOverlay({
     super.key,
@@ -22,9 +22,9 @@ class LiveDemoVideoOverlay extends StatefulWidget {
     this.syncInterval = const Duration(seconds: 2),
     this.seekThresholdMs = 500,
     this.playbackRateThresholdMs = 80,
-    this.minPlaybackRate = 0.97,
-    this.maxPlaybackRate = 1.03,
-    this.loop = true,
+    this.minPlaybackRate = 0.85,
+    this.maxPlaybackRate = 1.15,
+    required this.showingOverlay
   });
 
   @override
@@ -59,7 +59,7 @@ class _LiveDemoVideoOverlayState extends State<LiveDemoVideoOverlay> {
 
       final controller = VideoPlayerController.file(file);
       await controller.initialize();
-      await controller.setLooping(widget.loop);
+      await controller.setLooping(true);
 
       _controller = controller;
 
@@ -102,16 +102,33 @@ class _LiveDemoVideoOverlayState extends State<LiveDemoVideoOverlay> {
     final durationMs = controller.value.duration.inMilliseconds;
     if (durationMs <= 0) return;
 
-    var targetMs = sync.positionMs % durationMs;
+    // 1. Calculate true target accounting for the exact time elapsed since the message arrived
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    final timeSinceReceive = nowMs - sync.clientReceiveTimeMs;
+    final estimatedTargetMs = sync.positionMs + sync.latency + timeSinceReceive;
+
+    var targetMs = estimatedTargetMs % durationMs;
     if (targetMs < 0) targetMs += durationMs;
 
     final localMs = controller.value.position.inMilliseconds;
-    final driftMs = targetMs - localMs;
+    var driftMs = targetMs - localMs;
+    final halfDuration = durationMs / 2.0;
+
+    if (driftMs > halfDuration) {
+      driftMs -= durationMs;
+    } else if (driftMs < -halfDuration) {
+      driftMs += durationMs;
+    }
+
     final absDrift = driftMs.abs().toDouble();
 
-    if (hardSeek || absDrift >= widget.seekThresholdMs) {
+    // 2. Compensated Hard Seek
+    if (hardSeek || (absDrift >= widget.seekThresholdMs && !widget.showingOverlay)) {
       printV("absdrift is $absDrift, hard-seeking");
-      await controller.seekTo(Duration(milliseconds: targetMs));
+
+      var predictedTargetMs = (targetMs) % durationMs;
+
+      await controller.seekTo(Duration(milliseconds: predictedTargetMs.toInt()));
       await controller.setPlaybackSpeed(1.0);
       if (!controller.value.isPlaying) {
         await controller.play();
@@ -119,14 +136,14 @@ class _LiveDemoVideoOverlayState extends State<LiveDemoVideoOverlay> {
       return;
     }
 
-    if (absDrift >= widget.playbackRateThresholdMs) {
-      final normalized = (driftMs / widget.seekThresholdMs).clamp(-1.0, 1.0);
-      final rate = (1.0 + (normalized * 0.03)).clamp(
-        widget.minPlaybackRate,
-        widget.maxPlaybackRate,
-      );
-      printV("absdrift is $absDrift, adjusting rate to $rate");
-      await controller.setPlaybackSpeed(rate);
+    if (absDrift >= 150) {
+      final intervalMs = widget.syncInterval.inMilliseconds;
+      final requiredRate = (intervalMs + driftMs) / intervalMs;
+
+      final clampedRate = requiredRate.clamp(widget.minPlaybackRate, widget.maxPlaybackRate);
+
+      printV("absdrift is $absDrift, adjusting rate to $clampedRate");
+      await controller.setPlaybackSpeed(clampedRate);
     } else {
       await controller.setPlaybackSpeed(1.0);
     }
@@ -147,13 +164,17 @@ class _LiveDemoVideoOverlayState extends State<LiveDemoVideoOverlay> {
       return SizedBox.expand();
     }
 
-    return SizedBox.expand(
-      child: FittedBox(
-        fit: BoxFit.cover,
-        child: SizedBox(
-          width: controller.value.size.width,
-          height: controller.value.size.height,
-          child: VideoPlayer(controller),
+    return AnimatedOpacity(
+      duration: Duration(milliseconds: 200),
+      opacity: widget.showingOverlay ? 1 : 0,
+      child: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width: controller.value.size.width,
+            height: controller.value.size.height,
+            child: VideoPlayer(controller),
+          ),
         ),
       ),
     );

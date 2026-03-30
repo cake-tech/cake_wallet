@@ -71,6 +71,8 @@ import 'package:cake_wallet/evm/evm.dart';
 
 part 'dashboard_view_model.g.dart';
 
+const demoOverlayTimeout = 60;
+
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 
 abstract class DashboardViewModelBase with Store {
@@ -208,6 +210,10 @@ abstract class DashboardViewModelBase with Store {
         wallet = appStore.wallet! {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
+
+
+demoOverlayTimer?.cancel();
+demoOverlayTimer = Timer.periodic(Duration(seconds:1), (timer)=>demoOverlayTime++);
 
     name = wallet.name;
     type = wallet.type;
@@ -1492,4 +1498,18 @@ abstract class DashboardViewModelBase with Store {
   Future<void> refreshDashboard() async {
     reconnect();
   }
+
+  Timer? demoOverlayTimer;
+
+  @observable
+  int demoOverlayTime = 0;
+
+  @action
+  void startDemoOverlay() => demoOverlayTime = demoOverlayTimeout;
+
+  @action
+  void dismissDemoOverlay() => demoOverlayTime = 0;
+
+  @computed
+  bool get shouldShowOverlay => demoOverlayTime >= demoOverlayTimeout;
 }
