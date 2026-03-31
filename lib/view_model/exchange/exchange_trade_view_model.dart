@@ -214,7 +214,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   Future<void> confirmSending() async {
     if (!isSendable) return;
 
-    final selected = trade.from ?? trade.userCurrencyFrom;
+    final selected = trade.from;
     if (selected == null) {
       printV('No selectable currency for trade ${trade.id}');
       return;
@@ -240,8 +240,8 @@ abstract class ExchangeTradeViewModelBase with Store {
   @action
   Future<void> _updateTrade() async {
     try {
-      final agreedAmount = tradesStore.trade!.amount;
-      final isSendAll = tradesStore.trade!.isSendAll;
+      final agreedAmount = trade.amount;
+      final isSendAll = trade.isSendAll;
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
       if (updatedTrade.createdAt == null && trade.createdAt != null)
@@ -249,9 +249,23 @@ abstract class ExchangeTradeViewModelBase with Store {
 
       if (updatedTrade.amount.isEmpty) updatedTrade.amount = trade.amount;
 
+      final prevFromJson = trade.fromCurrencyJson;
+      final prevToJson = trade.toCurrencyJson;
       trade = updatedTrade;
+      if (prevFromJson != null &&
+          prevFromJson.isNotEmpty &&
+          (trade.fromCurrencyJson == null ||
+              trade.fromCurrencyJson!.isEmpty)) {
+        trade.fromCurrencyJson = prevFromJson;
+      }
+      if (prevToJson != null &&
+          prevToJson.isNotEmpty &&
+          (trade.toCurrencyJson == null || trade.toCurrencyJson!.isEmpty)) {
+        trade.toCurrencyJson = prevToJson;
+      }
       trade.amount = agreedAmount;
       trade.isSendAll = isSendAll;
+      tradesStore.setTrade(trade);
 
       _updateItems();
     } catch (e) {
@@ -260,10 +274,8 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   void _updateItems() {
-    final trade = tradesStore.trade!;
-
-    final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
-    final tradeTo = trade.toRaw >= 0 ? trade.to : trade.userCurrencyTo;
+    final tradeFrom = trade.from;
+    final tradeTo = trade.to;
 
     final tagFrom = tradeFrom?.tag != null ? "${tradeFrom!.tag} " : "";
     final tagTo = tradeTo?.tag != null ? "${tradeTo!.tag} " : "";
@@ -294,7 +306,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         ExchangeTradeItem(
           title: "${S.current.you_will_receive_estimated_amount}:",
           data:
-              "${_amountParsingProxy.getDisplayCryptoAmount(tradesStore.trade?.receiveAmount ?? "0", tradeTo)} ${_amountParsingProxy.getCryptoSymbol(tradeTo)}",
+              "${_amountParsingProxy.getDisplayCryptoAmount(trade.receiveAmount ?? "0", tradeTo)} ${_amountParsingProxy.getCryptoSymbol(tradeTo)}",
           isCopied: true,
           isReceiveDetail: true,
           isExternalSendDetail: false,
@@ -359,7 +371,10 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   static bool _checkIfCanSend(TradesStore tradesStore, WalletBase wallet) {
     final trade = tradesStore.trade!;
-    final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+    final tradeFrom = trade.from;
+
+    bool _sameCurrency(CryptoCurrency? a, CryptoCurrency? b) =>
+        a != null && b != null && a.titleAndTagEqual(b);
 
     bool _isEthToken() =>
         wallet.currency == CryptoCurrency.eth && tradeFrom?.tag == CryptoCurrency.eth.title;
@@ -385,8 +400,9 @@ abstract class ExchangeTradeViewModelBase with Store {
     bool _isBscToken() =>
         wallet.currency == CryptoCurrency.bnb && tradeFrom?.tag == CryptoCurrency.bnb.tag;
 
-    return tradeFrom == wallet.currency ||
-        tradeFrom == CryptoCurrency.btcln && wallet.currency == CryptoCurrency.btc ||
+    return _sameCurrency(tradeFrom, wallet.currency) ||
+        (_sameCurrency(tradeFrom, CryptoCurrency.btcln) &&
+            wallet.currency == CryptoCurrency.btc) ||
         tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
         _isEthToken() ||
         _isPolygonToken() ||
@@ -464,7 +480,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   PaymentURI? get paymentUri {
     final inputAddress = trade.inputAddress;
     final amount = trade.amount;
-    final fromCurrency = trade.from ?? trade.userCurrencyFrom;
+    final fromCurrency = trade.from;
 
     if (inputAddress == null || inputAddress.isEmpty || fromCurrency == null) {
       return null;

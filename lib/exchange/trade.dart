@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/trade_currency_snapshot.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/db/sqlite.dart';
@@ -37,8 +38,8 @@ class Trade {
     this.isRefund,
     this.isSendAll,
     this.router,
-    this.userCurrencyFromRaw,
-    this.userCurrencyToRaw,
+    String? fromCurrencyJson,
+    String? toCurrencyJson,
     // The following fields are used for SwapXyz trades only
     this.needToRegisterInSwapXyz,
     this.sourceTokenAddress,
@@ -52,8 +53,9 @@ class Trade {
   }) {
     if (provider != null) providerRaw = provider.raw;
 
-    fromRaw = from?.raw ?? -1;
-    toRaw = to?.raw ?? -1;
+    this.fromCurrencyJson =
+        fromCurrencyJson ?? TradeCurrencySnapshot.encode(from);
+    this.toCurrencyJson = toCurrencyJson ?? TradeCurrencySnapshot.encode(to);
 
     if (state != null) stateRaw = state.raw;
   }
@@ -76,13 +78,14 @@ class Trade {
   ExchangeProviderDescription get provider =>
       ExchangeProviderDescription.deserialize(raw: providerRaw);
 
-  int fromRaw = -1;
+  String? fromCurrencyJson;
 
-  CryptoCurrency? get from => CryptoCurrency.safeDeserialize(raw: fromRaw);
+  String? toCurrencyJson;
 
-  int toRaw = -1;
+  CryptoCurrency? get from =>
+      TradeCurrencySnapshot.decode(fromCurrencyJson);
 
-  CryptoCurrency? get to => CryptoCurrency.safeDeserialize(raw: toRaw);
+  CryptoCurrency? get to => TradeCurrencySnapshot.decode(toCurrencyJson);
 
   String stateRaw = '';
 
@@ -107,8 +110,6 @@ class Trade {
   bool? isRefund;
   bool? isSendAll;
   String? router;
-  String? userCurrencyFromRaw;
-  String? userCurrencyToRaw;
 
   // The following fields are used for SwapXyz trades only
   bool? needToRegisterInSwapXyz;
@@ -122,60 +123,6 @@ class Trade {
 
   int? chainId;
   double? fee;
-
-  CryptoCurrency? get userCurrencyFrom {
-    if (userCurrencyFromRaw == null || userCurrencyFromRaw!.isEmpty) {
-      return null;
-    }
-    final underscoreIndex = userCurrencyFromRaw!.indexOf('_');
-    if (underscoreIndex < 0) {
-      return CryptoCurrency(
-        title: userCurrencyFromRaw!,
-        tag: null,
-        name: '',
-        raw: -1,
-        decimals: 1,
-      );
-    }
-    final title = userCurrencyFromRaw!.substring(0, underscoreIndex);
-    String tag = userCurrencyFromRaw!.substring(underscoreIndex + 1);
-
-    if (tag.contains('ARB')) tag = 'ARB';
-
-    return CryptoCurrency(
-      title: title,
-      tag: tag.isNotEmpty ? tag : null,
-      name: '',
-      raw: -1,
-      decimals: 1,
-    );
-  }
-
-  CryptoCurrency? get userCurrencyTo {
-    if (userCurrencyToRaw == null || userCurrencyToRaw!.isEmpty) {
-      return null;
-    }
-    final underscoreIndex = userCurrencyToRaw!.indexOf('_');
-    if (underscoreIndex < 0) {
-      return CryptoCurrency(
-        title: userCurrencyToRaw!,
-        tag: null,
-        name: '',
-        raw: -1,
-        decimals: 1,
-      );
-    }
-    final title = userCurrencyToRaw!.substring(0, underscoreIndex);
-    final tag = userCurrencyToRaw!.substring(underscoreIndex + 1);
-
-    return CryptoCurrency(
-      title: title,
-      tag: tag.isNotEmpty ? tag : null,
-      name: '',
-      raw: -1,
-      decimals: 1,
-    );
-  }
 
   String get chainName {
     if (chainId == null) return '';
@@ -238,8 +185,8 @@ class Trade {
       selfIdColumn: internalId,
       'id': id,
       'providerRaw': providerRaw,
-      'fromRaw': fromRaw,
-      'toRaw': toRaw,
+      'fromCurrencyJson': fromCurrencyJson,
+      'toCurrencyJson': toCurrencyJson,
       'stateRaw': stateRaw,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'expiredAt': expiredAt?.millisecondsSinceEpoch,
@@ -260,8 +207,6 @@ class Trade {
       'isRefund': isRefund == true ? 1 : 0,
       'isSendAll': isSendAll == true ? 1 : 0,
       'router': router,
-      'userCurrencyFromRaw': userCurrencyFromRaw,
-      'userCurrencyToRaw': userCurrencyToRaw,
       'needToRegisterInSwapXyz':
           needToRegisterInSwapXyz == true ? 1 : 0,
       'sourceTokenAddress': sourceTokenAddress,
@@ -310,10 +255,9 @@ class Trade {
       isRefund: (row['isRefund'] as int?) == 1,
       isSendAll: (row['isSendAll'] as int?) == 1,
       router: row['router'] as String?,
-      userCurrencyFromRaw:
-          row['userCurrencyFromRaw'] as String?,
-      userCurrencyToRaw:
-          row['userCurrencyToRaw'] as String?,
+      fromCurrencyJson:
+          row['fromCurrencyJson'] as String?,
+      toCurrencyJson: row['toCurrencyJson'] as String?,
       needToRegisterInSwapXyz:
           (row['needToRegisterInSwapXyz'] as int?) == 1,
       sourceTokenAddress:
@@ -332,8 +276,6 @@ class Trade {
     trade.internalId = row[selfIdColumn] as int? ?? 0;
     trade.providerRaw =
         row['providerRaw'] as int? ?? 0;
-    trade.fromRaw = row['fromRaw'] as int? ?? -1;
-    trade.toRaw = row['toRaw'] as int? ?? -1;
     trade.stateRaw =
         row['stateRaw'] as String? ?? '';
     return trade;

@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           definition: 'INTEGER DEFAULT 0',
         );
       }
-      if (oldVersion <= 3) {
+      if (oldVersion <= 4) {
         await _createTradeTable(db);
       }
     },
@@ -190,8 +190,8 @@ CREATE TABLE IF NOT EXISTS Trade (
   tradeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   id TEXT NOT NULL,
   providerRaw INTEGER NOT NULL DEFAULT 0,
-  fromRaw INTEGER NOT NULL DEFAULT -1,
-  toRaw INTEGER NOT NULL DEFAULT -1,
+  fromCurrencyJson TEXT,
+  toCurrencyJson TEXT,
   stateRaw TEXT NOT NULL DEFAULT '',
   createdAt INTEGER,
   expiredAt INTEGER,
@@ -212,8 +212,6 @@ CREATE TABLE IF NOT EXISTS Trade (
   isRefund INTEGER DEFAULT 0,
   isSendAll INTEGER DEFAULT 0,
   router TEXT,
-  userCurrencyFromRaw TEXT,
-  userCurrencyToRaw TEXT,
   needToRegisterInSwapXyz INTEGER DEFAULT 0,
   sourceTokenAddress TEXT,
   sourceTokenDecimals INTEGER,

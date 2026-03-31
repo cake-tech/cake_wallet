@@ -90,11 +90,8 @@ class HistorySection extends StatelessWidget {
                     );
                   } else if (item is TradeListItem) {
                     final trade = item.trade;
-
-              final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
-
-              final tradeTo = trade.toRaw >= 0 ? trade.to : trade.userCurrencyTo;
-
+              final tradeFrom = trade.from;
+              final tradeTo = trade.to;
               if (tradeFrom == null || tradeTo == null) {
                 return const SizedBox.shrink();
               }

@@ -290,8 +290,6 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       payoutAddress: payoutAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 
@@ -326,18 +324,31 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final status = responseJSON['status'] as String;
     final payoutAddress = responseJSON['address_to'] as String;
 
+    final fromParsed =
+        CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
+    final toParsed = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
     return Trade(
       id: id,
-      from: CryptoCurrency.safeParseCurrencyFromString(fromCurrency),
-      to: CryptoCurrency.safeParseCurrencyFromString(toCurrency),
+      from: fromParsed ??
+          CryptoCurrency(
+            title: fromCurrency,
+            name: '',
+            raw: -1,
+            decimals: 1,
+          ),
+      to: toParsed ??
+          CryptoCurrency(
+            title: toCurrency,
+            name: '',
+            raw: -1,
+            decimals: 1,
+          ),
       extraId: extraId,
       provider: description,
       inputAddress: inputAddress,
       amount: expectedSendAmount,
       state: TradeState.deserialize(raw: status),
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
     );
   }
 

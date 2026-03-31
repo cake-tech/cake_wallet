@@ -304,8 +304,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         createdAt: createdAt,
         expiredAt: expiredAt,
         extraId: extraId,
-        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
         isSendAll: isSendAll,
       );
     } catch (e, s) {
@@ -382,8 +380,22 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: id,
-      from: from,
-      to: to,
+      from: from ??
+          CryptoCurrency(
+            title: fromCurrency,
+            tag: fromTag,
+            name: '',
+            raw: -1,
+            decimals: 1,
+          ),
+      to: to ??
+          CryptoCurrency(
+            title: toCurrency,
+            tag: toTag,
+            name: '',
+            raw: -1,
+            decimals: 1,
+          ),
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: payoutAddress,
@@ -393,8 +405,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       state: TradeState.deserialize(raw: status),
       isRefund: status == 'refund',
       extraId: extraId,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade_currency_snapshot.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -131,8 +132,14 @@ class TradeLegacy extends HiveObject {
       isRefund: isRefund,
       isSendAll: isSendAll,
       router: router,
-      userCurrencyFromRaw: userCurrencyFromRaw,
-      userCurrencyToRaw: userCurrencyToRaw,
+      fromCurrencyJson: TradeCurrencySnapshot.fromLegacyHive(
+        raw: fromRaw,
+        displayTitleTag: userCurrencyFromRaw,
+      ),
+      toCurrencyJson: TradeCurrencySnapshot.fromLegacyHive(
+        raw: toRaw,
+        displayTitleTag: userCurrencyToRaw,
+      ),
       needToRegisterInSwapXyz: needToRegisterInSwapXyz,
       sourceTokenAddress: sourceTokenAddress,
       sourceTokenDecimals: sourceTokenDecimals,
@@ -144,8 +151,6 @@ class TradeLegacy extends HiveObject {
       chainId: chainId,
     );
     trade.providerRaw = providerRaw;
-    trade.fromRaw = fromRaw;
-    trade.toRaw = toRaw;
     trade.stateRaw = stateRaw;
     await trade.save();
   }
@@ -154,12 +159,11 @@ class TradeLegacy extends HiveObject {
     Box<TradeLegacy> box,
   ) async {
     printV('Migrating Trades to SQLite: start');
-    final sw = Stopwatch()..start();
     final list = box.values.toList();
     for (final trade in list) {
       await trade.migrateToSqlite();
       await trade.delete();
     }
-    printV('Migrating Trades to SQLite: end (${sw.elapsedMilliseconds}ms)');
+    printV('Migrating Trades to SQLite: end');
   }
 }

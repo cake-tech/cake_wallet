@@ -192,8 +192,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       payoutAddress: request.toAddress,
       memo: memo,
       isSendAll: isSendAll,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 
@@ -251,8 +249,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       state: currentState,
       memo: memo,
       isRefund: isRefund,
-      userCurrencyFromRaw: '${tx['chain'] as String? ?? ''}' + '_',
-      userCurrencyToRaw: '$toAsset' + '_',
     );
   }
 

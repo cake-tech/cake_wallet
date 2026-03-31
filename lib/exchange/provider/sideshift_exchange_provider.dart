@@ -337,8 +337,6 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
       extraId: depositMemo,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 
@@ -377,19 +375,39 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final expiredAt = isVariable ? null : DateTime.tryParse(expiredAtRaw)?.toLocal();
     final depositMemo = responseJSON['depositMemo'] as String?;
 
+    final fromParsed = CryptoCurrency.safeParseCurrencyFromString(
+      fromCurrency,
+      tag: fromNetwork,
+    );
+    final toParsed = CryptoCurrency.safeParseCurrencyFromString(
+      toCurrency,
+      tag: toNetwork,
+    );
     return Trade(
-        id: id,
-        from: CryptoCurrency.safeParseCurrencyFromString(fromCurrency),
-        to: CryptoCurrency.safeParseCurrencyFromString(toCurrency),
-        provider: description,
-        inputAddress: inputAddress,
-        amount: expectedSendAmount ?? '',
-        state: TradeState.deserialize(raw: status ?? 'created'),
-        expiredAt: expiredAt,
-        payoutAddress: settleAddress,
-        extraId: depositMemo,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(fromNetwork ?? ''),
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(toNetwork ?? ''),
+      id: id,
+      from: fromParsed ??
+          CryptoCurrency(
+            title: fromCurrency,
+            tag: fromNetwork,
+            name: '',
+            raw: -1,
+            decimals: 1,
+          ),
+      to: toParsed ??
+          CryptoCurrency(
+            title: toCurrency,
+            tag: toNetwork,
+            name: '',
+            raw: -1,
+            decimals: 1,
+          ),
+      provider: description,
+      inputAddress: inputAddress,
+      amount: expectedSendAmount ?? '',
+      state: TradeState.deserialize(raw: status ?? 'created'),
+      expiredAt: expiredAt,
+      payoutAddress: settleAddress,
+      extraId: depositMemo,
     );
   }
 

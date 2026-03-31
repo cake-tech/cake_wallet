@@ -407,10 +407,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         requiresTokenApproval: requiresTokenApproval,
         routerData: routerData,
         routerValue: txValue,
-        userCurrencyFromRaw:
-            '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw:
-            '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
 
       return trade;
@@ -541,10 +537,24 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
             .toLocal()
         : null;
 
+    final decFrom = srcDecimals > 0 ? srcDecimals : 1;
+    final decTo = dstDecimals > 0 ? dstDecimals : 1;
     return Trade(
       id: (data['txId'] as String?) ?? id,
-      from: fromCurrency,
-      to: toCurrency,
+      from: fromCurrency ??
+          CryptoCurrency(
+            title: fromSymbol,
+            name: '',
+            raw: -1,
+            decimals: decFrom,
+          ),
+      to: toCurrency ??
+          CryptoCurrency(
+            title: toSymbol,
+            name: '',
+            raw: -1,
+            decimals: decTo,
+          ),
       provider: description,
       inputAddress: inputAddress,
       payoutAddress: payoutAddress,
@@ -554,8 +564,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       state: state,
       createdAt: createdAt,
       refundAddress: refundAddress,
-      userCurrencyFromRaw: '${fromSymbol.toUpperCase()}' + '_',
-      userCurrencyToRaw: '${toSymbol.toUpperCase()}' + '_',
     );
   }
 

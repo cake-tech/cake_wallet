@@ -248,8 +248,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       receiveAmount: toAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       isSendAll: isSendAll,
     );
   }
@@ -305,8 +303,22 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: id,
-      from: from,
-      to: to,
+      from: from ??
+          CryptoCurrency(
+            title: fromCurrency,
+            tag: fromTag,
+            name: '',
+            raw: -1,
+            decimals: 1,
+          ),
+      to: to ??
+          CryptoCurrency(
+            title: toCurrency,
+            tag: toTag,
+            name: '',
+            raw: -1,
+            decimals: 1,
+          ),
       provider: description,
       inputAddress: inputAddress,
       amount: expectedSendAmount,
@@ -315,9 +327,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       expiredAt: expiredAt,
       outputTransaction: outputTransaction,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw:
-          '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
     );
   }
 

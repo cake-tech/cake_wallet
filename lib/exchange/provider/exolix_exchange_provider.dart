@@ -314,8 +314,6 @@ class ExolixExchangeProvider extends ExchangeProvider {
       receiveAmount: receiveAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       isSendAll: isSendAll,
     );
   }
@@ -363,18 +361,30 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final payoutAddress = responseJSON['withdrawalAddress'] as String;
 
     return Trade(
-        id: id,
-        from: from,
-        to: to,
-        provider: description,
-        inputAddress: inputAddress,
-        amount: amount,
-        state: TradeState.deserialize(raw: _prepareStatus(status)),
-        extraId: extraId,
-        outputTransaction: outputTransaction,
-        payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${coinFrom.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
-      userCurrencyToRaw: '${coinTo.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
+      id: id,
+      from: from ??
+          CryptoCurrency(
+            title: coinFrom,
+            tag: fromTag,
+            name: '',
+            raw: -1,
+            decimals: 1,
+          ),
+      to: to ??
+          CryptoCurrency(
+            title: coinTo,
+            tag: toTag,
+            name: '',
+            raw: -1,
+            decimals: 1,
+          ),
+      provider: description,
+      inputAddress: inputAddress,
+      amount: amount,
+      state: TradeState.deserialize(raw: _prepareStatus(status)),
+      extraId: extraId,
+      outputTransaction: outputTransaction,
+      payoutAddress: payoutAddress,
     );
   }
 

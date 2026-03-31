@@ -225,19 +225,18 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       );
 
       return Trade(
-          id: id,
-          from: request.fromCurrency,
-          to: request.toCurrency,
-          provider: description,
-          inputAddress: swapResponse['address'].toString(),
-          createdAt: DateTime.now(),
-          amount: request.fromAmount,
-          receiveAmount: request.toAmount,
-          state: TradeState.waiting,
-          payoutAddress: request.toAddress,
-          userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-          userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
-          isSendAll: isSendAll);
+        id: id,
+        from: request.fromCurrency,
+        to: request.toCurrency,
+        provider: description,
+        inputAddress: swapResponse['address'].toString(),
+        createdAt: DateTime.now(),
+        amount: request.fromAmount,
+        receiveAmount: request.toAmount,
+        state: TradeState.waiting,
+        payoutAddress: request.toAddress,
+        isSendAll: isSendAll,
+      );
     } catch (e, s) {
       ExchangeProviderLogger.logError(
         provider: description,
@@ -292,18 +291,17 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       final to = status['destinationAsset'].toString();
       
       final newTrade = Trade(
-          id: id,
-          from: _toCurrency(status['sourceAsset'].toString()),
-          to: _toCurrency(status['destinationAsset'].toString()),
-          provider: description,
-          amount: depositAmount,
-          receiveAmount: amount,
-          state: currentState,
-          payoutAddress: status['destinationAddress'].toString(),
-          outputTransaction: status['swapEgress']?['transactionReference']?.toString(),
-          isRefund: isRefund,
-        userCurrencyFromRaw: '${from.toUpperCase()}' + '_',
-        userCurrencyToRaw: '${to.toUpperCase()}' + '_',
+        id: id,
+        from: _toCurrency(from) ?? _fallbackChainflipAsset(from),
+        to: _toCurrency(to) ?? _fallbackChainflipAsset(to),
+        provider: description,
+        amount: depositAmount,
+        receiveAmount: amount,
+        state: currentState,
+        payoutAddress: status['destinationAddress'].toString(),
+        outputTransaction:
+            status['swapEgress']?['transactionReference']?.toString(),
+        isRefund: isRefund,
       );
 
       final storedTrade = await Trade.getByTradeId(id);
@@ -342,6 +340,19 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     return networkName;
   }
 
+
+  CryptoCurrency _fallbackChainflipAsset(String asset) {
+    final parts = asset.split('.');
+    final title = parts.isNotEmpty ? parts[0].toUpperCase() : asset;
+    final tag = parts.length > 1 ? parts[1].toUpperCase() : null;
+    return CryptoCurrency(
+      title: title,
+      tag: tag,
+      name: '',
+      raw: -1,
+      decimals: 8,
+    );
+  }
 
   CryptoCurrency? _toCurrency(String name) {
     final currency = switch (name) {

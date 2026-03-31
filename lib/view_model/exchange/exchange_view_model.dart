@@ -1489,7 +1489,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     if (trade.provider == ExchangeProviderDescription.swapsXyz) {
 
-      final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+      final tradeFrom = trade.from;
 
       if (tradeFrom == null) {
         return CreateTradeResult(

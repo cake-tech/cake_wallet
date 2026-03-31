@@ -286,10 +286,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
         receiveAmount: quoteObj['amountOutFormatted']?.toString(),
         memo: depositMemo,
         isSendAll: isSendAll,
-        userCurrencyFromRaw:
-            '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw:
-            '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
 
       ExchangeProviderLogger.logSuccess(
@@ -403,8 +399,26 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: id,
-      from: coinFrom,
-      to: coinTo,
+      from: coinFrom ??
+          (from != null
+              ? CryptoCurrency(
+                  title: from.$1,
+                  tag: from.$2,
+                  name: '',
+                  raw: -1,
+                  decimals: 1,
+                )
+              : null),
+      to: coinTo ??
+          (to != null
+              ? CryptoCurrency(
+                  title: to.$1,
+                  tag: to.$2,
+                  name: '',
+                  raw: -1,
+                  decimals: 1,
+                )
+              : null),
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: recipient,
@@ -415,8 +429,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       txId: originTxHash,
       extraId: depositMemo,
       isRefund: statusRaw == 'REFUNDED',
-      userCurrencyFromRaw: '${from?.$1.toUpperCase()}' + '_' + '${from?.$2?.toUpperCase() ?? ''}',
-      userCurrencyToRaw: '${to?.$1.toUpperCase()}' + '_' + '${to?.$2?.toUpperCase() ?? ''}',
     );
   }
 

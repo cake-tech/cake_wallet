@@ -392,8 +392,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,
       extraId: addressProviderMemo,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 
@@ -443,8 +441,22 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
       return Trade(
         id: id,
-        from: from,
-        to: to,
+        from: from ??
+            CryptoCurrency(
+              title: fromCurrency,
+              tag: fromTag,
+              name: '',
+              raw: -1,
+              decimals: 1,
+            ),
+        to: to ??
+            CryptoCurrency(
+              title: toCurrency,
+              tag: toTag,
+              name: '',
+              raw: -1,
+              decimals: 1,
+            ),
         provider: description,
         inputAddress: inputAddress,
         refundAddress: refundAddress,
@@ -456,9 +468,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         providerId: providerId,
         providerName: providerName,
         extraId: addressProviderMemo,
-        userCurrencyFromRaw:
-            '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
-        userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
       );
     });
   }
