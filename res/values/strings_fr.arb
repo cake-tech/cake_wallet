@@ -645,7 +645,7 @@
   "nano_current_rep": "Représentant actuel",
   "nano_gpt_thanks_message": "Merci d'avoir utilisé NanoGPT ! N'oubliez pas de revenir au navigateur une fois votre transaction terminée !",
   "nano_pick_new_rep": "Choisir un nouveau représentant",
-  "nanogpt_subtitle": "Tous les modèles les plus récents (GPT-4, Claude).\nPas d'abonnement, payez en crypto.",
+  "nanogpt_subtitle": "Tous les modèles les plus récents (GPT-5.3, Claude 4.6).\nPas d'abonnement, payez en crypto.",
   "narrow": "Étroit",
   "network": "Réseau",
   "new_first_wallet_text": "Garder vos cryptos en sécurité, c'est du gâteau",
