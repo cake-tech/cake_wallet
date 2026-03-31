@@ -293,7 +293,10 @@ class TransactionListItem extends ActionListItem with Keyable {
   @override
   bool operator ==(Object other) {
     if (other is TransactionListItem) {
-      return other.transaction.txHash == transaction.txHash;
+      return other.transaction.txHash == transaction.txHash &&
+          other.transaction.confirmations == transaction.confirmations &&
+          other.transaction.isPending == transaction.isPending &&
+          other.transaction.direction == transaction.direction;
     }
     return false;
   }

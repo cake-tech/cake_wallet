@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
@@ -129,18 +130,44 @@ class _NewHomePageState extends State<NewHomePage> {
                               lightningMode: _lightningMode,
                             ),
                           ),
-                    UnconfirmedBalanceWidget(dashboardViewModel: widget.dashboardViewModel,),
+                          Observer(builder: (_) {
+                            return AnimatedSize(
+                              duration: Duration(milliseconds: 150),
+                              curve: Curves.easeInOutCubic,
+                              child: (widget.dashboardViewModel.shouldShowBalanceHiddenMessage)
+                                  ? Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 12,
+                                          width: double.infinity,
+                                        ),
+                                        Text(
+                                          S.of(context).long_press_show_balance,
+                                          style: TextStyle(
+                                              color:
+                                                  Theme.of(context).colorScheme.onSurfaceVariant),
+                                        )
+                                      ],
+                                    )
+                                  : SizedBox(width: double.infinity),
+                            );
+                          }),
+                          UnconfirmedBalanceWidget(dashboardViewModel: widget.dashboardViewModel,),
                   ],
                 ),
                 Observer(
                   builder: (_) {
                     return Column(
                       children: [
-                        CoinActionRow(
-                        lightningMode: _lightningMode,
-                        showSwap: widget.dashboardViewModel.isEnabledSwapAction,),
-                        MwebAd(dashboardViewModel: widget.dashboardViewModel,),
-                      ],
+                              CoinActionRow(
+                                lightningMode: _lightningMode,
+                                showSwap: widget.dashboardViewModel.isEnabledSwapAction,
+                                walletType: widget.dashboardViewModel.wallet.type,
+                              ),
+                              MwebAd(
+                                dashboardViewModel: widget.dashboardViewModel,
+                              ),
+                            ],
                     );
                   },
                 ),

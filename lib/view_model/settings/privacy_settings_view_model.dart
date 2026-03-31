@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -23,7 +25,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get isBitcoin => _wallet.type == WalletType.bitcoin;
 
   @computed
-  bool get isLitecoin => _wallet.type == WalletType.litecoin;
+  bool get hasMWEB => _wallet.type == WalletType.litecoin && (Platform.isIOS || Platform.isAndroid);
 
   @computed
   bool get isAutoGenerateSubaddressesEnabled =>

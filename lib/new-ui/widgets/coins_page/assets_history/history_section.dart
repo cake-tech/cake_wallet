@@ -1,9 +1,11 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_trade_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
@@ -15,7 +17,6 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
@@ -30,12 +31,11 @@ class HistorySection extends StatelessWidget {
     return SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         sliver: Observer(
-          builder: (_) => (dashboardViewModel.items.isEmpty &&
-                  dashboardViewModel.status is! SyncingSyncStatus)
+          builder: (_) => (dashboardViewModel.items.isEmpty)
               ? SliverPadding(
                   padding: EdgeInsets.only(top: 24),
                   sliver: SliverToBoxAdapter(
-                    child: Center(
+                    child: (dashboardViewModel.status is SyncingSyncStatus) ? SizedBox.shrink() : Center(
                       child: Text(S.of(context).transactions_will_appear_here,
                           style: TextStyle(
                               fontSize: 14,
@@ -71,8 +71,10 @@ class HistorySection extends StatelessWidget {
                       asset = CryptoCurrency.btcln;
 
                     return GestureDetector(
-                      onTap: () => Navigator.of(context)
-                          .pushNamed(Routes.transactionDetails, arguments: transaction),
+                      onTap: () {
+                        final page = getIt.get<TransactionDetailsModal>(param1: transaction);
+                        showModalBottomSheet(isScrollControlled:true,context: context, builder: (context) => page);
+                      },
                       child: HistoryTile(
                         title: item.formattedTitle + transactionType,
                         date: DateFormat('HH:mm').format(transaction.date),
