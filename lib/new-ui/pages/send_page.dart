@@ -19,6 +19,7 @@ import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/token_selection_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -61,7 +62,6 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -290,7 +290,7 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.sendViewModel.outputs.length > 1)
                             ModernButton(
                                 size: 36,
-                                icon: SvgPicture.asset(
+                                icon: CakeImageWidget(imageUrl:
                                   "assets/new-ui/remove_recipient.svg",
                                   colorFilter: ColorFilter.mode(
                                     Theme.of(context).colorScheme.primary,
@@ -321,7 +321,7 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.mode.helpContent != null)
                             ModernButton(
                                 size: 36,
-                                icon: SvgPicture.asset(
+                                icon: CakeImageWidget(imageUrl:
                                   "assets/new-ui/help.svg",
                                   colorFilter: ColorFilter.mode(
                                       Theme.of(context).colorScheme.primary, BlendMode.srcIn),
@@ -448,6 +448,11 @@ class _NewSendPageState extends State<NewSendPage> {
                                         fiatInputMode: _fiatInputMode,
                                         onSwitchButtonPressed: () {
                                           setState(() {
+                                            if(!_fiatInputMode) {
+                                              widget.sendViewModel.outputs[_selectedOutput]
+                                                      .cryptoAmount =
+                                                  _amountControllers[_selectedOutput].text;
+                                            }
                                             _fiatInputMode = !_fiatInputMode;
                                             _amountControllers[_selectedOutput].text =
                                                 _fiatInputMode
@@ -634,7 +639,7 @@ class _NewSendPageState extends State<NewSendPage> {
           output.setFiatAmount(amount);
         }
       } else {
-        final isAll = context.mounted && amount != S.of(context).all;
+        final isAll = mounted && amount != S.of(context).all;
         if (output.sendAll && isAll) {
           output.sendAll = false;
         }
@@ -685,6 +690,19 @@ class _NewSendPageState extends State<NewSendPage> {
 
   void _handleSend() async {
     //TODO refactor this action. code was copied over from old ui. i don't like it.
+
+    for (var i = 0; i < widget.sendViewModel.outputs.length; i++) {
+      if (i < _amountControllers.length && !widget.sendViewModel.outputs[i].sendAll) {
+        if (_fiatInputMode) {
+          widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
+        } else {
+          final amount = widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
+              _amountControllers[i].text.replaceAll(",", "."),
+              widget.sendViewModel.selectedCryptoCurrency);
+          widget.sendViewModel.outputs[i].setCryptoAmount(amount);
+        }
+      }
+    }
 
     if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
       if (widget.sendViewModel.outputs.length > 1) {
@@ -822,7 +840,9 @@ class _NewSendPageState extends State<NewSendPage> {
 
     if (OpenCryptoPayService.isOpenCryptoPayQR(uri) &&
         widget.sendViewModel.selectedCryptoCurrency != CryptoCurrency.btcln) {
-      widget.sendViewModel.createOpenCryptoPayTransaction(uri);
+      final request = await widget.sendViewModel.getOpenCryptoPayRequest(uri);
+      if (request == null) return;
+      _applyPaymentRequest(request);
       return;
     }
 
@@ -1336,7 +1356,7 @@ class SendHelpPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SvgPicture.asset(content.imagePath),
+                CakeImageWidget(imageUrl:content.imagePath),
                 Text(
                   content.description,
                   textAlign: TextAlign.center,

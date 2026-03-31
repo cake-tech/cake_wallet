@@ -143,6 +143,7 @@ abstract class SettingsStoreBase with Store {
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
       required this.mwebAdDismissed,
+      required this.balanceHideCounter,
       required bool initialEnableAutomaticNodeSwitching,
       required String initialBackgroundImage,
       TransactionPriority? initialBitcoinTransactionPriority,
@@ -716,9 +717,14 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => decentralizedExchangesPromptDismissed,
-        (bool forceDecentralizedExchanges) => _sharedPreferences.setBool(
+        (bool decentralizedExchangesPromptDismissed) => _sharedPreferences.setBool(
             PreferencesKey.decentralizedExchangesPromptDismissed,
             decentralizedExchangesPromptDismissed));
+
+    reaction(
+        (_) => balanceHideCounter,
+        (int balanceHideCounter) => _sharedPreferences.setInt(PreferencesKey.balanceHideCounter, balanceHideCounter)
+    );
 
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
@@ -772,6 +778,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   BalanceDisplayMode balanceDisplayMode;
+
+  @observable
+  int balanceHideCounter;
 
   @observable
   BitcoinAmountDisplayMode displayAmountsInSatoshi;
@@ -1552,6 +1561,8 @@ abstract class SettingsStoreBase with Store {
 
     final mwebAdDismissed =
         await sharedPreferences.getBool(PreferencesKey.mwebAdDismissed) ?? false;
+    
+    final balanceHideCounter = await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
 
     return SettingsStore(
       secureStorage: secureStorage,
@@ -1663,6 +1674,7 @@ abstract class SettingsStoreBase with Store {
       shouldShowRepWarning: shouldShowRepWarning,
       initialBuiltinTor: builtinTor,
       mwebAdDismissed: mwebAdDismissed,
+      balanceHideCounter: balanceHideCounter,
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -29,7 +30,7 @@ class ReceiveLargeAmountPreview extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             spacing: 12,
             children: [
-              SvgPicture.asset("assets/new-ui/send.svg",
+              CakeImageWidget(imageUrl:"assets/new-ui/send.svg",
                   width: 24,
                   height: 24,
                   colorFilter: ColorFilter.mode(

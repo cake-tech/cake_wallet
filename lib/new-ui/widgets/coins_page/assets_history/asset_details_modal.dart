@@ -73,7 +73,7 @@ class AssetDetailsModal extends StatelessWidget {
                       child: Stack(
                         children: [
                           if (iconPath.isNotEmpty)
-                            Image.asset(iconPath, width: 75, height: 75)
+                            CakeImageWidget(imageUrl: iconPath, width: 75, height: 75)
                           else
                             Container(
                               width: 75,

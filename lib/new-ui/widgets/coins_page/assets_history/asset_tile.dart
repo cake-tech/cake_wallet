@@ -1,3 +1,5 @@
+import 'dart:math' show min;
+
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -100,7 +102,7 @@ class AssetTile extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(99999)),
                                   child: Center(
                                       child: Text(
-                                    balance.asset.name.substring(0, 2),
+                                    balance.asset.name.substring(0, min(2, balance.asset.name.length)),
                                     style: TextStyle(
                                         fontSize: 20, color: Theme.of(context).colorScheme.onPrimary),
                                   )),

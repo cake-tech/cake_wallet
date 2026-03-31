@@ -1,9 +1,11 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_trade_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
@@ -15,7 +17,6 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
@@ -27,26 +28,29 @@ class HistorySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Observer(
-        builder: (_) => (dashboardViewModel.items.isEmpty &&
-                dashboardViewModel.status is! SyncingSyncStatus)
-            ? Padding(
-                padding: EdgeInsets.only(top: 24),
-                child: Text(S.of(context).transactions_will_appear_here,
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant)))
-            : ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
-          shrinkWrap: true,
-          itemCount: dashboardViewModel.items.length,
-          itemBuilder: (context, index) => Observer(builder: (_) {
-            final prevItem = index == 0 ? null : dashboardViewModel.items[index - 1];
-            final item = dashboardViewModel.items[index];
+    return SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        sliver: Observer(
+          builder: (_) => (dashboardViewModel.items.isEmpty)
+              ? SliverPadding(
+                  padding: EdgeInsets.only(top: 24),
+                  sliver: SliverToBoxAdapter(
+                    child: (dashboardViewModel.status is SyncingSyncStatus) ? SizedBox.shrink() : Center(
+                      child: Text(S.of(context).transactions_will_appear_here,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    ),
+                  ),
+                )
+              : SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    childCount: dashboardViewModel.items.length,
+                    (context, index) => Observer(builder: (_) {
+                      final prevItem = index == 0 ? null : dashboardViewModel.items[index - 1];
+                      final topPadding = index == 0 ? 0.0 : 18.0;
+                      final item = dashboardViewModel.items[index];
             final nextItem = index == dashboardViewModel.items.length - 1
                 ? null
                 : dashboardViewModel.items[index + 1];
@@ -67,8 +71,10 @@ class HistorySection extends StatelessWidget {
                       asset = CryptoCurrency.btcln;
 
                     return GestureDetector(
-                      onTap: () => Navigator.of(context)
-                          .pushNamed(Routes.transactionDetails, arguments: transaction),
+                      onTap: () {
+                        final page = getIt.get<TransactionDetailsModal>(param1: transaction);
+                        showModalBottomSheet(isScrollControlled:true,context: context, builder: (context) => page);
+                      },
                       child: HistoryTile(
                         title: item.formattedTitle + transactionType,
                         date: DateFormat('HH:mm').format(transaction.date),
@@ -106,7 +112,7 @@ class HistorySection extends StatelessWidget {
               );
             } else if (item is DateSectionItem) {
               return Padding(
-                  padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: 18.0),
+                  padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
                   child: Text(DateFormatter.convertDateTimeToReadableString(item.date),
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)));
             }else if(item is OrderListItem){
@@ -163,6 +169,6 @@ class HistorySection extends StatelessWidget {
           }),
         ),
       ),
-    );
+    ));
   }
 }

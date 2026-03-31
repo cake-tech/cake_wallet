@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -29,6 +30,8 @@ class ReceiveInfoBox extends StatelessWidget {
           onDismissed: onDismissed,
         );
       default:
+        if(autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled)
+          return null;
         return ReceiveInfoBox(
           iconPath: "assets/new-ui/info.svg",
           message: S.current.infobox_auto_address,
@@ -55,7 +58,7 @@ class ReceiveInfoBox extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 10,
             children: [
-              SvgPicture.asset(
+              CakeImageWidget(imageUrl:
                 iconPath,
                 width: 16,
                 height: 16,

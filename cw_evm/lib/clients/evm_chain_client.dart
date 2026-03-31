@@ -473,6 +473,9 @@ class EVMChainClient {
       final blinkClient = Web3Client(_blinkUrl(secrets.blinkApiKey), client);
       try {
         return await blinkClient.sendRawTransaction(prepared);
+      } catch (e) {
+        printV('Blink failed, retrying without Blink: $e');
+        return await _client!.sendRawTransaction(prepared);
       } finally {
         await blinkClient.dispose();
       }

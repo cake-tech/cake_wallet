@@ -13,6 +13,7 @@ class SettingsSwitcherCell extends StandardListRow {
     Key? key,
     this.padding,
     this.switchBackgroundColor,
+    this.height = 56,
   }) : super(title: title, isSelected: false, decoration: decoration, onTap: onTap, key: key);
 
   final bool value;
@@ -20,6 +21,7 @@ class SettingsSwitcherCell extends StandardListRow {
   final void Function(BuildContext context, bool value)? onValueChange;
   final Widget? leading;
   final EdgeInsets? padding;
+  final double? height;
 
   @override
   Widget buildTrailing(BuildContext context) => StandardSwitch(
@@ -33,7 +35,7 @@ class SettingsSwitcherCell extends StandardListRow {
     final leading = buildLeading(context);
     final trailing = buildTrailing(context);
     return Container(
-      height: 56,
+      height: height,
       padding: padding ?? EdgeInsets.only(left: 12, right: 12),
       child: TextButton(
         onPressed: () {

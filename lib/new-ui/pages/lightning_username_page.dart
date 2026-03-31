@@ -5,6 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:flutter/material.dart';
@@ -164,7 +165,8 @@ class LightningUsernameInfo extends StatelessWidget {
     return Column(
       spacing: 24,
       children: [
-        SvgPicture.asset(isLightMode
+        CakeImageWidget(
+            imageUrl: isLightMode
             ? "assets/new-ui/lightning_username_setup_light.svg"
             : "assets/new-ui/lightning_username_setup.svg"),
         Row(
@@ -219,7 +221,8 @@ class LightningUsernameEditor extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: 12,
       children: [
-        SvgPicture.asset(isLightMode
+        CakeImageWidget(
+            imageUrl: isLightMode
             ? "assets/new-ui/lightning_username_setup_light.svg"
             : "assets/new-ui/lightning_username_setup.svg"),
         if (isSetup)
@@ -254,7 +257,8 @@ class LightningUsernameEditor extends StatelessWidget {
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: onRandomizeButtonTap,
-                          child: SvgPicture.asset("assets/new-ui/randomize.svg",
+                          child: CakeImageWidget(
+                          imageUrl: "assets/new-ui/randomize.svg",
                               colorFilter: ColorFilter.mode(
                                   Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
                         ),

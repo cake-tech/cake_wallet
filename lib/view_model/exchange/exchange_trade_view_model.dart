@@ -478,7 +478,13 @@ abstract class ExchangeTradeViewModelBase with Store {
       return null;
     }
 
-    switch (wallet.type) {
+    // Using trade currency here so the external-send QR encodes the correct scheme
+    final uriWalletType =
+        cryptoCurrencyOrTokenToWalletType(fromCurrency) ?? wallet.type;
+
+    printV(uriWalletType);
+
+    switch (uriWalletType) {
       case WalletType.bitcoin:
         return BitcoinURI(address: inputAddress, amount: amount);
       case WalletType.bitcoinCash:
@@ -506,7 +512,19 @@ abstract class ExchangeTradeViewModelBase with Store {
         return MoneroURI(
             address: inputAddress,
             amount: amount);
-      default:
+      case WalletType.litecoin:
+        return LitecoinURI(amount: amount, address: inputAddress);
+      case WalletType.nano:
+        return NanoURI(amount: amount, address: inputAddress);
+      case WalletType.zano:
+        return ZanoURI(amount: amount, address: inputAddress);
+      case WalletType.decred:
+        return DecredURI(amount: amount, address: inputAddress);
+      case WalletType.zcash:
+        return ZcashURI(amount: amount, address: inputAddress);
+      case WalletType.banano:
+      case WalletType.none:
+      case WalletType.haven:
         return null;
     }
   }
@@ -524,17 +542,16 @@ abstract class ExchangeTradeViewModelBase with Store {
         contractAddress: null,
       );
     } else {
-      if (isEVMCompatibleChain(wallet.type)) {
-        final erc20Token = TokenUtilities.findErc20Token(currency, wallet);
+      final erc20Token = TokenUtilities.findErc20Token(currency, wallet) ??
+          TokenUtilities.findErc20TokenForSwap(currency);
 
-        if (erc20Token != null) {
-          return ERC681URI(
-            chainId: chainId,
-            address: address,
-            amount: amount,
-            contractAddress: erc20Token.contractAddress,
-          );
-        }
+      if (erc20Token != null) {
+        return ERC681URI(
+          chainId: chainId,
+          address: address,
+          amount: amount,
+          contractAddress: erc20Token.contractAddress,
+        );
       }
       return null;
     }
