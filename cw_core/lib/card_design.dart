@@ -354,159 +354,159 @@ class CardDesign {
     switch (currency) {
       case CryptoCurrency.arbEth:
         return [
-          "$balanceCardIconPrefix/arbitrum.svg",
-          "$outlineIconPrefix/arb-outline.svg",
           "$symbolIconPrefix/arb-symbol.svg",
-          "$ogIconPrefix/arb-og.svg",
+          "$outlineIconPrefix/arb-outline.svg",
+          "$balanceCardIconPrefix/arbitrum.svg",
           "$chainIconPrefix/arbitrum.svg",
+          "$ogIconPrefix/arb-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.baseEth:
         return [
-          "$balanceCardIconPrefix/base.svg",
-          "$outlineIconPrefix/base-outline.svg",
           "$symbolIconPrefix/base-symbol.svg",
-          "$ogIconPrefix/base-og.svg",
+          "$outlineIconPrefix/base-outline.svg",
+          "$balanceCardIconPrefix/base.svg",
           "$chainIconPrefix/base_icon.svg",
+          "$ogIconPrefix/base-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.bch:
         return [
-          "$balanceCardIconPrefix/bitcoin_cash.svg",
-          "$outlineIconPrefix/bch-outline.svg",
           "$symbolIconPrefix/bch-symbol.svg",
-          "$ogIconPrefix/bch-og.svg",
+          "$outlineIconPrefix/bch-outline.svg",
+          "$balanceCardIconPrefix/bitcoin_cash.svg",
           "$chainIconPrefix/bitcoin-cash.svg",
+          "$ogIconPrefix/bch-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.btc:
         return [
-          "$balanceCardIconPrefix/bitcoin.svg",
-          "$outlineIconPrefix/BTC-outline.svg",
           "$symbolIconPrefix/btc-symbol.svg",
-          "$ogIconPrefix/btc-og.svg",
+          "$outlineIconPrefix/BTC-outline.svg",
+          "$balanceCardIconPrefix/bitcoin.svg",
           "$chainIconPrefix/bitcoin.svg",
+          "$ogIconPrefix/btc-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.bnb:
         return [
-          "$balanceCardIconPrefix/bnb.svg",
-          "$outlineIconPrefix/bnb-outline.svg",
           "$symbolIconPrefix/bnb-symbol.svg",
-          "$ogIconPrefix/bnb-og.svg",
+          "$outlineIconPrefix/bnb-outline.svg",
+          "$balanceCardIconPrefix/bnb.svg",
           "$chainIconPrefix/bnb.svg",
+          "$ogIconPrefix/bnb-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.dcr:
         return [
-          "$balanceCardIconPrefix/decred.svg",
-          "$outlineIconPrefix/dcr-outline.svg",
           "$symbolIconPrefix/dcr-symbol.svg",
-          "$ogIconPrefix/dcr-og.svg",
+          "$outlineIconPrefix/dcr-outline.svg",
+          "$balanceCardIconPrefix/decred.svg",
           "$chainIconPrefix/decred.svg",
+          "$ogIconPrefix/dcr-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.doge:
         return [
-          "$balanceCardIconPrefix/dogecoin.svg",
-          "$outlineIconPrefix/doge-outline.svg",
           "$symbolIconPrefix/doge-symbol.svg",
-          "$ogIconPrefix/doge-og.svg",
+          "$outlineIconPrefix/doge-outline.svg",
+          "$balanceCardIconPrefix/dogecoin.svg",
           "$chainIconPrefix/dogecoin.svg",
+          "$ogIconPrefix/doge-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.eth:
         return [
-          "$balanceCardIconPrefix/ethereum.svg",
-          "$outlineIconPrefix/eth-outline.svg",
           "$symbolIconPrefix/eth-symbol.svg",
-          "$ogIconPrefix/eth-og.svg",
+          "$outlineIconPrefix/eth-outline.svg",
+          "$balanceCardIconPrefix/ethereum.svg",
           "$chainIconPrefix/ethereum.svg",
+          "$ogIconPrefix/eth-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.btcln:
         return [
-          "$balanceCardIconPrefix/lightning.svg",
-          "$outlineIconPrefix/ln-outline.svg",
           "$symbolIconPrefix/ln-symbol.svg",
-          "$ogIconPrefix/ln-og.svg",
+          "$outlineIconPrefix/ln-outline.svg",
+          "$balanceCardIconPrefix/lightning.svg",
           "$chainIconPrefix/lightning.svg",
+          "$ogIconPrefix/ln-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.ltc:
         return [
-          "$balanceCardIconPrefix/litecoin.svg",
-          "$outlineIconPrefix/ltc-outline.svg",
           "$symbolIconPrefix/ltc-symbol.svg",
-          "$ogIconPrefix/ltc-og.svg",
+          "$outlineIconPrefix/ltc-outline.svg",
+          "$balanceCardIconPrefix/litecoin.svg",
           "$chainIconPrefix/litecoin.svg",
+          "$ogIconPrefix/ltc-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.xmr:
         return [
-          "$balanceCardIconPrefix/monero.svg",
-          "$outlineIconPrefix/xmr-outline.svg",
           "$symbolIconPrefix/xmr-symbol.svg",
-          "$ogIconPrefix/xmr-og.svg",
+          "$outlineIconPrefix/xmr-outline.svg",
+          "$balanceCardIconPrefix/monero.svg",
           "$chainIconPrefix/monero.svg",
+          "$ogIconPrefix/xmr-og.svg",
           genericCakeIcon,
         ];
 
       case CryptoCurrency.nano:
         return [
-          "$balanceCardIconPrefix/nano.svg",
-          "$outlineIconPrefix/xno-outline.svg",
           "$symbolIconPrefix/xno-symbol.svg",
-          "$ogIconPrefix/xno-og.svg",
+          "$outlineIconPrefix/xno-outline.svg",
+          "$balanceCardIconPrefix/nano.svg",
           "$chainIconPrefix/nano.svg",
+          "$ogIconPrefix/xno-og.svg",
           genericCakeIcon,
         ];
 
       case CryptoCurrency.maticpoly:
         return [
-          "$balanceCardIconPrefix/polygon.svg",
-          "$outlineIconPrefix/pol-outline.svg",
           "$symbolIconPrefix/pol-symbol.svg",
-          "$ogIconPrefix/pol-og.svg",
+          "$outlineIconPrefix/pol-outline.svg",
+          "$balanceCardIconPrefix/polygon.svg",
           "$chainIconPrefix/polygon.svg",
+          "$ogIconPrefix/pol-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.sol:
         return [
-          "$balanceCardIconPrefix/solana.svg",
-          "$outlineIconPrefix/sol-outline.svg",
           "$symbolIconPrefix/sol-symbol.svg",
-          "$ogIconPrefix/sol-og.svg",
+          "$outlineIconPrefix/sol-outline.svg",
+          "$balanceCardIconPrefix/solana.svg",
           "$chainIconPrefix/solana.svg",
+          "$ogIconPrefix/sol-og.svg",
           genericCakeIcon,
         ];
       case CryptoCurrency.trx:
         return [
-          "$balanceCardIconPrefix/tron.svg",
-          "$outlineIconPrefix/trx-outline.svg",
           "$symbolIconPrefix/trx-symbol.svg",
-          "$ogIconPrefix/tron-og.svg",
+          "$outlineIconPrefix/trx-outline.svg",
+          "$balanceCardIconPrefix/tron.svg",
           "$chainIconPrefix/tron.svg",
+          "$ogIconPrefix/tron-og.svg",
           genericCakeIcon,
         ];
 
       case CryptoCurrency.zano:
         return [
-          "$balanceCardIconPrefix/zano.svg",
-          "$outlineIconPrefix/zano-outline.svg",
           "$symbolIconPrefix/zano-symbol.svg",
-          "$ogIconPrefix/zano-og.svg",
+          "$outlineIconPrefix/zano-outline.svg",
+          "$balanceCardIconPrefix/zano.svg",
           "$chainIconPrefix/zano.svg",
+          "$ogIconPrefix/zano-og.svg",
           genericCakeIcon,
         ];
 
       case CryptoCurrency.zec:
         return [
-          "$balanceCardIconPrefix/zcash.svg",
-          "$outlineIconPrefix/zec-outline.svg",
           "$symbolIconPrefix/zec-symbol.svg",
-          "$ogIconPrefix/zec-og.svg",
+          "$outlineIconPrefix/zec-outline.svg",
+          "$balanceCardIconPrefix/zcash.svg",
           "$chainIconPrefix/zcash.svg",
+          "$ogIconPrefix/zec-og.svg",
           genericCakeIcon,
         ];
       default:
