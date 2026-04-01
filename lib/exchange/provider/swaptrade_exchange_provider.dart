@@ -359,20 +359,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       return Trade(
         id: response_id,
-        from: from ??
-            CryptoCurrency(
-              title: fromCurrency,
-              name: '',
-              raw: -1,
-              decimals: 1,
-            ),
-        to: to ??
-            CryptoCurrency(
-              title: toCurrency,
-              name: '',
-              raw: -1,
-              decimals: 1,
-            ),
+        from: from,
+        to: to,
         provider: description,
         inputAddress: inputAddress,
         amount: expectedSendAmount,

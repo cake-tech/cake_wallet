@@ -362,22 +362,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: id,
-      from: from ??
-          CryptoCurrency(
-            title: coinFrom,
-            tag: fromTag,
-            name: '',
-            raw: -1,
-            decimals: 1,
-          ),
-      to: to ??
-          CryptoCurrency(
-            title: coinTo,
-            tag: toTag,
-            name: '',
-            raw: -1,
-            decimals: 1,
-          ),
+      from: from,
+      to: to,
       provider: description,
       inputAddress: inputAddress,
       amount: amount,

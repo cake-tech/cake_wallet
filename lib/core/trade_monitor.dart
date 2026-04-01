@@ -184,10 +184,7 @@ class TradeMonitor {
 
     try {
       final updated = await provider.findTradeById(id: trade.id);
-      trade
-        ..stateRaw = updated.state.raw
-        ..receiveAmount = updated.receiveAmount ?? trade.receiveAmount
-        ..outputTransaction = updated.outputTransaction ?? trade.outputTransaction;
+      trade.mergeFindTradeByIdResult(updated);
       printV('Trade ${trade.id} updated: ${trade.state}');
       await trade.save();
 

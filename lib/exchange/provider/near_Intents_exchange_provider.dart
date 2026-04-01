@@ -9,7 +9,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -399,26 +398,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: id,
-      from: coinFrom ??
-          (from != null
-              ? CryptoCurrency(
-                  title: from.$1,
-                  tag: from.$2,
-                  name: '',
-                  raw: -1,
-                  decimals: 1,
-                )
-              : null),
-      to: coinTo ??
-          (to != null
-              ? CryptoCurrency(
-                  title: to.$1,
-                  tag: to.$2,
-                  name: '',
-                  raw: -1,
-                  decimals: 1,
-                )
-              : null),
+      from: coinFrom,
+      to: coinTo,
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: recipient,

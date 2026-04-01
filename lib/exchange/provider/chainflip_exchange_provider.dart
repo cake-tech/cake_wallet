@@ -292,8 +292,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       
       final newTrade = Trade(
         id: id,
-        from: _toCurrency(from) ?? _fallbackChainflipAsset(from),
-        to: _toCurrency(to) ?? _fallbackChainflipAsset(to),
+        from: _toCurrency(from),
+        to: _toCurrency(to),
         provider: description,
         amount: depositAmount,
         receiveAmount: amount,
@@ -340,19 +340,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     return networkName;
   }
 
-
-  CryptoCurrency _fallbackChainflipAsset(String asset) {
-    final parts = asset.split('.');
-    final title = parts.isNotEmpty ? parts[0].toUpperCase() : asset;
-    final tag = parts.length > 1 ? parts[1].toUpperCase() : null;
-    return CryptoCurrency(
-      title: title,
-      tag: tag,
-      name: '',
-      raw: -1,
-      decimals: 8,
-    );
-  }
 
   CryptoCurrency? _toCurrency(String name) {
     final currency = switch (name) {

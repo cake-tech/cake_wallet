@@ -244,25 +244,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       final isSendAll = trade.isSendAll;
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
-      if (updatedTrade.createdAt == null && trade.createdAt != null)
-        updatedTrade.createdAt = trade.createdAt;
-
-      if (updatedTrade.amount.isEmpty) updatedTrade.amount = trade.amount;
-
-      final prevFromJson = trade.fromCurrencyJson;
-      final prevToJson = trade.toCurrencyJson;
-      trade = updatedTrade;
-      if (prevFromJson != null &&
-          prevFromJson.isNotEmpty &&
-          (trade.fromCurrencyJson == null ||
-              trade.fromCurrencyJson!.isEmpty)) {
-        trade.fromCurrencyJson = prevFromJson;
-      }
-      if (prevToJson != null &&
-          prevToJson.isNotEmpty &&
-          (trade.toCurrencyJson == null || trade.toCurrencyJson!.isEmpty)) {
-        trade.toCurrencyJson = prevToJson;
-      }
+      trade.mergeFindTradeByIdResult(updatedTrade);
       trade.amount = agreedAmount;
       trade.isSendAll = isSendAll;
       tradesStore.setTrade(trade);

@@ -441,22 +441,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
       return Trade(
         id: id,
-        from: from ??
-            CryptoCurrency(
-              title: fromCurrency,
-              tag: fromTag,
-              name: '',
-              raw: -1,
-              decimals: 1,
-            ),
-        to: to ??
-            CryptoCurrency(
-              title: toCurrency,
-              tag: toTag,
-              name: '',
-              raw: -1,
-              decimals: 1,
-            ),
+        from: from,
+        to: to,
         provider: description,
         inputAddress: inputAddress,
         refundAddress: refundAddress,

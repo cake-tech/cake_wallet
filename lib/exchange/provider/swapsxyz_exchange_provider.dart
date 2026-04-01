@@ -537,24 +537,10 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
             .toLocal()
         : null;
 
-    final decFrom = srcDecimals > 0 ? srcDecimals : 1;
-    final decTo = dstDecimals > 0 ? dstDecimals : 1;
     return Trade(
       id: (data['txId'] as String?) ?? id,
-      from: fromCurrency ??
-          CryptoCurrency(
-            title: fromSymbol,
-            name: '',
-            raw: -1,
-            decimals: decFrom,
-          ),
-      to: toCurrency ??
-          CryptoCurrency(
-            title: toSymbol,
-            name: '',
-            raw: -1,
-            decimals: decTo,
-          ),
+      from: fromCurrency,
+      to: toCurrency,
       provider: description,
       inputAddress: inputAddress,
       payoutAddress: payoutAddress,

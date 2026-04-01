@@ -144,32 +144,8 @@ abstract class TradeDetailsViewModelBase with Store {
     try {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
-      if (updatedTrade.createdAt == null && trade.createdAt != null) {
-        updatedTrade.createdAt = trade.createdAt;
-      }
-
-      if ((updatedTrade.toCurrencyJson == null ||
-              updatedTrade.toCurrencyJson!.isEmpty) &&
-          trade.toCurrencyJson != null &&
-          trade.toCurrencyJson!.isNotEmpty) {
-        updatedTrade.toCurrencyJson = trade.toCurrencyJson;
-      }
-      if ((updatedTrade.fromCurrencyJson == null ||
-              updatedTrade.fromCurrencyJson!.isEmpty) &&
-          trade.fromCurrencyJson != null &&
-          trade.fromCurrencyJson!.isNotEmpty) {
-        updatedTrade.fromCurrencyJson = trade.fromCurrencyJson;
-      }
-
-      final stored = await Trade.getByTradeId(trade.id);
-      if (stored != null) {
-        stored.stateRaw = updatedTrade.stateRaw;
-        stored.fromCurrencyJson = updatedTrade.fromCurrencyJson;
-        stored.toCurrencyJson = updatedTrade.toCurrencyJson;
-        await stored.save();
-      }
-
-      trade = updatedTrade;
+      trade.mergeFindTradeByIdResult(updatedTrade);
+      await trade.save();
 
       _updateItems();
     } catch (e) {

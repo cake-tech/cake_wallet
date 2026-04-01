@@ -9,7 +9,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/distribution_info.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -303,22 +302,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: id,
-      from: from ??
-          CryptoCurrency(
-            title: fromCurrency,
-            tag: fromTag,
-            name: '',
-            raw: -1,
-            decimals: 1,
-          ),
-      to: to ??
-          CryptoCurrency(
-            title: toCurrency,
-            tag: toTag,
-            name: '',
-            raw: -1,
-            decimals: 1,
-          ),
+      from: from,
+      to: to,
       provider: description,
       inputAddress: inputAddress,
       amount: expectedSendAmount,

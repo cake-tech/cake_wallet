@@ -7,7 +7,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -521,22 +520,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       return Trade(
         id: orderId,
-        from: fromCurrency ??
-            CryptoCurrency(
-              title: fromAssetBase,
-              tag: fromAssetTag,
-              name: '',
-              raw: -1,
-              decimals: 1,
-            ),
-        to: toCurrency ??
-            CryptoCurrency(
-              title: toAssetBase,
-              tag: toAssetTag,
-              name: '',
-              raw: -1,
-              decimals: 1,
-            ),
+        from: fromCurrency,
+        to: toCurrency,
         provider: description,
         inputAddress: depositAddress,
         refundAddress: refundAddress,

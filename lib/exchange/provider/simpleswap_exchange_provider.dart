@@ -9,7 +9,6 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -329,20 +328,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final toParsed = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
     return Trade(
       id: id,
-      from: fromParsed ??
-          CryptoCurrency(
-            title: fromCurrency,
-            name: '',
-            raw: -1,
-            decimals: 1,
-          ),
-      to: toParsed ??
-          CryptoCurrency(
-            title: toCurrency,
-            name: '',
-            raw: -1,
-            decimals: 1,
-          ),
+      from: fromParsed,
+      to: toParsed,
       extraId: extraId,
       provider: description,
       inputAddress: inputAddress,

@@ -9,7 +9,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -76,13 +75,12 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount
-  }) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     final networkFrom = _getNetworkType(from);
     final networkTo = _getNetworkType(to);
     try {
@@ -191,14 +189,13 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         'Authorization': apiKey
       };
 
-      final uri = Uri.https(_baseUrl,
-          isFixedRateMode ? _createTransactionRevertPath : _createTransactionPath);
+      final uri = Uri.https(
+          _baseUrl, isFixedRateMode ? _createTransactionRevertPath : _createTransactionPath);
       final response = await ProxyWrapper().post(
         clearnetUri: uri,
         headers: headers,
         body: json.encode(tradeParams),
       );
-      
 
       if (response.statusCode != 200) {
         ExchangeProviderLogger.logError(
@@ -340,7 +337,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     final url = Uri.https(_baseUrl, '$_getTransactionPath/$id');
     final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
-    
 
     if (response.statusCode != 200) {
       throw Exception('LetsExchange fetch trade failed: ${response.body}');
@@ -361,7 +357,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final toTag = toCurrency == normalizedToNetwork ? null : normalizedToNetwork;
     final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
 
-
     final payoutAddress = responseJSON['withdrawal'] as String;
     final depositAddress = responseJSON['deposit'] as String;
     final refundAddress = responseJSON['return'] as String;
@@ -369,33 +364,12 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final receiveAmount = responseJSON['withdrawal_amount'] as String;
     final status = responseJSON['status'] as String;
 
-    // We ignore the created_at from response and use DateTime.now() instead
-    final createdAtString = responseJSON['created_at'] as String;
-    final expiredAtTimestamp = responseJSON['expired_at'] as int;
-
     final extraId = responseJSON['deposit_extra_id'] as String?;
-
-    final createdAt = DateTime.parse(createdAtString).toLocal();
-    final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000).toLocal();
 
     return Trade(
       id: id,
-      from: from ??
-          CryptoCurrency(
-            title: fromCurrency,
-            tag: fromTag,
-            name: '',
-            raw: -1,
-            decimals: 1,
-          ),
-      to: to ??
-          CryptoCurrency(
-            title: toCurrency,
-            tag: toTag,
-            name: '',
-            raw: -1,
-            decimals: 1,
-          ),
+      from: from,
+      to: to,
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: payoutAddress,
@@ -422,7 +396,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         headers: headers,
         body: json.encode(params),
       );
-      
+
       if (response.statusCode != 200) {
         throw Exception('LetsExchange fetch info failed: ${response.body}');
       }
