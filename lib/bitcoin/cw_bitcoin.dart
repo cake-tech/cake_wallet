@@ -35,6 +35,7 @@ class CWBitcoin extends Bitcoin {
     required String xpub,
     required String scanSecret,
     required String spendPubkey,
+    HardwareWalletType? hardwareWalletType,
   }) =>
       LitecoinWalletFromKeysCredentials(
         name: name,
@@ -42,6 +43,7 @@ class CWBitcoin extends Bitcoin {
         xpub: xpub,
         scanSecret: scanSecret,
         spendPubkey: spendPubkey,
+        hardwareWalletType: hardwareWalletType,
       );
 
   @override
