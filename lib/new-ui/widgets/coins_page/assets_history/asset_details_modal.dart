@@ -13,7 +13,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 enum AssetDetailsModalModes { normal, ltcTransparent, ltcPrivate }
@@ -60,6 +59,7 @@ class AssetDetailsModal extends StatelessWidget {
             title: "",
             trailingIcon: Icon(Icons.close),
             onTrailingPressed: Navigator.of(context).pop,
+            padding: EdgeInsets.only(top:12,right:18),
           ),
           SafeArea(
             child: Column(
@@ -89,25 +89,25 @@ class AssetDetailsModal extends StatelessWidget {
                                     fontSize: 28, color: Theme.of(context).colorScheme.onPrimary),
                               )),
                             ),
-                          if (chainIconPath.isNotEmpty)
-                            Align(
-                                alignment: Alignment.bottomRight,
-                                child: Container(
-                                    decoration: ShapeDecoration(
-                                        shape: RoundedSuperellipseBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            side: BorderSide(color: Colors.black)),
-                                        color: Colors.white),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: CakeImageWidget(imageUrl:
-                                        chainIconPath,
-                                        width: 18,
-                                        height: 18,
-                                        colorFilter:
-                                            ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                                      ),
-                                    )))
+                          // if (chainIconPath.isNotEmpty)
+                          //   Align(
+                          //       alignment: Alignment.bottomRight,
+                          //       child: Container(
+                          //           decoration: ShapeDecoration(
+                          //               shape: RoundedSuperellipseBorder(
+                          //                   borderRadius: BorderRadius.circular(8),
+                          //                   side: BorderSide(color: Colors.black)),
+                          //               color: Colors.white),
+                          //           child: Padding(
+                          //             padding: const EdgeInsets.all(4.0),
+                          //             child: CakeImageWidget(imageUrl:
+                          //               chainIconPath,
+                          //               width: 18,
+                          //               height: 18,
+                          //               colorFilter:
+                          //                   ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          //             ),
+                          //           )))
                         ],
                       ),
                     ),
@@ -125,14 +125,16 @@ class AssetDetailsModal extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context).colorScheme.onSurface),
                             ),
+                            if(asset != null)
                             Container(
                               decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                  color: Theme.of(context).colorScheme.surfaceContainer,
                                   borderRadius: BorderRadius.circular(999999999)),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+
                                 child: Text(
-                                  chainTitle,
+                                  asset?.title??"",
                                   style: TextStyle(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 ),
@@ -141,11 +143,22 @@ class AssetDetailsModal extends StatelessWidget {
                           ],
                         ),
                         if (subtitle.isNotEmpty)
-                          Text(
-                            subtitle,
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            spacing: 4,
+                            children: [
+                              if(chainIconPath.isNotEmpty)
+                              CakeImageWidget(
+                                imageUrl: chainIconPath,
+                                width:16,height:16,colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),
+                              ),
+                              Text(
+                                subtitle,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              ),
+                            ],
                           ),
                       ],
                     )
