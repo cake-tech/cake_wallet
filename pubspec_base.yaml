@@ -287,6 +287,7 @@ flutter:
     - assets/new-ui/card_icons/og_icons/
     - assets/new-ui/card_icons/outline_icons/
     - assets/new-ui/card_icons/symbol_icons/
+    - assets/new-ui/crypto_full_icons/
 
   fonts:
     - family: Lato
