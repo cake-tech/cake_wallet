@@ -41,7 +41,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 4,
+  db = await openDatabase(dbFile.path, version: 5,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -84,6 +84,13 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         );
       }
       if (oldVersion <= 3) {
+        await _addColumnIfNotExists(db, table: "WalletInfo", column: "showCombinedBalance", definition: "BOOLEAN DEFAULT TRUE");
+        // null - primary token (eth, sol etc)
+        // not null - address of fav token
+        // if address doesn't correspond to a valid token, fallback to primary token
+        await _addColumnIfNotExists(db, table: "WalletInfo", column: "favoriteTokenAddress", definition: "TEXT DEFAULT NULL");
+      }
+      if (oldVersion <= 4) {
         await _createBridgeTransferTable(db);
       }
     },
@@ -112,7 +119,9 @@ CREATE TABLE WalletInfo (
   hashedWalletIdentifier TEXT,
   isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
   sortOrder INTEGER DEFAULT (0) NOT NULL,
-  receiveInfoboxDismissed BOOLEAN DEFAULT FALSE
+  receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
+  showCombinedBalance BOOLEAN DEFAULT TRUE,
+  favoriteTokenAddress TEXT DEFAULT NULL
 );
 ''');
 

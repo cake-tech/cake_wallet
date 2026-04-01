@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 # - .github/workflows/pr_test_build_linux.yml
 # https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.17/torch_dart-v1.0.17.tar.gz
 
-HASH=d52b9ebcc2e3677520e51bd8a54d771c353587b8
+HASH=f48a45113ca556b73d8e80ef88012780ced82bcc
 
 if [[ ! -d "torch_dart/.git" ]];
 then
