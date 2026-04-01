@@ -62,7 +62,7 @@ class AssetDetailsModal extends StatelessWidget {
             title: "",
             trailingIcon: Icon(Icons.close),
             onTrailingPressed: Navigator.of(context).pop,
-            padding: EdgeInsets.only(top:12,right:18),
+            padding: EdgeInsets.only(top: 12, right: 18),
           ),
           SafeArea(
             child: Column(
@@ -128,21 +128,20 @@ class AssetDetailsModal extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context).colorScheme.onSurface),
                             ),
-                            if(asset != null)
-                            Container(
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surfaceContainer,
-                                  borderRadius: BorderRadius.circular(999999999)),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-
-                                child: Text(
-                                  asset?.title??"",
-                                  style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            if (asset != null)
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.surfaceContainer,
+                                    borderRadius: BorderRadius.circular(999999999)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                                  child: Text(
+                                    asset?.title ?? "",
+                                    style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  ),
                                 ),
-                              ),
-                            )
+                              )
                           ],
                         ),
                         if (subtitle.isNotEmpty)
@@ -150,11 +149,15 @@ class AssetDetailsModal extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 4,
                             children: [
-                              if(chainIconPath.isNotEmpty)
-                              CakeImageWidget(
-                                imageUrl: chainIconPath,
-                                width:16,height:16,colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),
-                              ),
+                              if (chainIconPath.isNotEmpty)
+                                CakeImageWidget(
+                                  imageUrl: chainIconPath,
+                                  width: 16,
+                                  height: 16,
+                                  colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.onSurfaceVariant,
+                                      BlendMode.srcIn),
+                                ),
                               Text(
                                 subtitle,
                                 style: TextStyle(
@@ -230,6 +233,12 @@ class AssetDetailsModal extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (showSwap && mode != AssetDetailsModalModes.ltcPrivate)
+                      AssetDetailsModalBottomButton(
+                        iconPath: "assets/new-ui/exchange.svg",
+                        title: S.of(context).swap,
+                        onPressed: () => openPage<NewSwapPage>(context, param2: asset),
+                      ),
                     if (showBridgeButton)
                       AssetDetailsModalBottomButton(
                         iconPath: "assets/new-ui/bridge.svg",
@@ -249,12 +258,6 @@ class AssetDetailsModal extends StatelessWidget {
                         openPage<NewReceivePage>(context, param2: asset);
                       },
                     ),
-                    if (showSwap && mode != AssetDetailsModalModes.ltcPrivate)
-                      AssetDetailsModalBottomButton(
-                        iconPath: "assets/new-ui/exchange.svg",
-                        title: S.of(context).swap,
-                        onPressed: () => openPage<NewSwapPage>(context, param2: asset),
-                      ),
                   ],
                 ),
                 SizedBox()
