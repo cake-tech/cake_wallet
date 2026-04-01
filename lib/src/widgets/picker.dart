@@ -499,7 +499,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
     if (item is Currency) {
       if (item.iconPath != null) {
         return CakeImageWidget(
-         imageUrl: item.iconPath!,
+          imageUrl: item.iconPath!,
           height: 20.0,
           width: 20.0,
         );

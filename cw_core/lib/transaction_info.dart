@@ -10,7 +10,6 @@ abstract class TransactionInfo extends Object with Keyable {
   late bool isPending;
   late DateTime date;
   int? height;
-
   int confirmations = 0;
   String amountFormatted();
   String fiatAmount();

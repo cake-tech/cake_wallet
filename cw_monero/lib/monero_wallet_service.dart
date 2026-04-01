@@ -79,6 +79,7 @@ class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
       required this.address,
       required this.viewKey,
       required this.spendKey,
+      super.hardwareWalletType,
       int height = 0})
       : super(name: name, password: password, height: height);
 
