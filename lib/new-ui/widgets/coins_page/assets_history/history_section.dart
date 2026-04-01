@@ -69,6 +69,8 @@ class HistorySection extends StatelessWidget {
                     CryptoCurrency? asset;
                     if (transaction.additionalInfo["isLightning"] == true)
                       asset = CryptoCurrency.btcln;
+                    else
+                      asset = item.assetOfTransaction;
 
                     return GestureDetector(
                       onTap: () {
@@ -80,6 +82,8 @@ class HistorySection extends StatelessWidget {
                         date: DateFormat('HH:mm').format(transaction.date),
                         amount: item.formattedCryptoAmount,
                         amountFiat: item.formattedFiatAmount,
+                        hasTokens: item.hasTokens,
+                        chainIconPath: _getChainIconPath(),
                         roundedBottom: roundedBottom,
                         roundedTop: roundedTop,
                         bottomSeparator: !roundedBottom,
@@ -101,6 +105,7 @@ class HistorySection extends StatelessWidget {
                 child: HistoryTradeTile(
                   from: tradeFrom!,
                   to: tradeTo!,
+                  provider: trade.provider,
                   date: DateFormat('HH:mm').format(item.trade.createdAt!),
                   amount: trade.amountFormatted(),
                   receiveAmount: trade.receiveAmountFormatted(),
@@ -170,5 +175,13 @@ class HistorySection extends StatelessWidget {
         ),
       ),
     ));
+  }
+
+  String _getChainIconPath() {
+    try {
+      return CryptoCurrency.fromString(dashboardViewModel.wallet.currency.tag ??dashboardViewModel.wallet.currency.title).chainIconPath!;
+    } catch(e) {
+      return dashboardViewModel.wallet.currency.chainIconPath ?? "";
+    }
   }
 }
