@@ -82,7 +82,7 @@ class PrivacyPage extends BasePage {
                           label: S.of(context).silent_payments,
                           onTap: () =>
                               Navigator.of(context).pushNamed(Routes.silentPaymentsSettings)),
-                      if (_privacySettingsViewModel.isLitecoin)
+                      if (_privacySettingsViewModel.hasMWEB)
                         ListItemRegularRow(
                             iconPath: "assets/new-ui/settings_row_icons/mweb.svg",
                             keyValue: "mweb",

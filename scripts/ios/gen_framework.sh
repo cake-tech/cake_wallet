@@ -2,7 +2,8 @@
 set -e
 
 IOS_DIR="$(pwd)/../../ios"
-DYLIB_PATH="$(pwd)/../../scripts/monero_c/release"
+monero_c_tag=$(cd $(pwd)/../../scripts/monero_c/; git describe --tags)
+DYLIB_PATH="$(pwd)/../../scripts/monero_c/release/${monero_c_tag}/"
 TMP_DIR="${IOS_DIR}/tmp"
 
 rm -rf "${IOS_DIR:?}/MoneroWallet.xcframework" "${IOS_DIR:?}/WowneroWallet.xcframework" "${IOS_DIR:?}/ZanoWallet.xcframework"
@@ -16,7 +17,7 @@ write_info_plist() {
     target="$3"
     plist_path="${framework_bundle}/Info.plist"
 
-    if [[ "x$target" = "xiossimulator" ]]; then
+    if [[ "x$target" = "xios-simulator" ]]; then
         platform="iPhoneSimulator"
         dtplatformname="iphonesimulator"
         dtsdkname="iphonesimulator17.4"
@@ -97,11 +98,11 @@ create_framework() {
     echo "Creating ${framework_name}.framework for target ${target} in ${out_dir}..."
 
     framework_bundle="${out_dir}/${framework_name}.framework"
-    
+
     rm -rf "$framework_bundle"
     mkdir -p "$framework_bundle"
 
-    input_dylib="${DYLIB_PATH}/${wallet}/aarch64-apple-${target}_libwallet2_api_c.dylib"
+    input_dylib="${DYLIB_PATH}/aarch64-apple-${target}/lib${wallet}_wallet2_api_c.dylib"
     if [[ ! -f "$input_dylib" ]]; then
         echo "Error: Input dylib not found: $input_dylib"
         exit 1
@@ -144,7 +145,7 @@ for i in "${!wallets[@]}"; do
     mkdir -p "$device_out" "$simulator_out"
 
     create_framework "$wallet" "$framework_name" "ios" "$device_out"
-    create_framework "$wallet" "$framework_name" "iossimulator" "$simulator_out"
+    create_framework "$wallet" "$framework_name" "ios-simulator" "$simulator_out"
 
     device_framework="${device_out}/${framework_name}.framework"
     simulator_framework="${simulator_out}/${framework_name}.framework"

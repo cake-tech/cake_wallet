@@ -10,6 +10,7 @@ abstract class BaseBitcoinAddressRecord {
     this.address, {
     required this.index,
     this.isHidden = false,
+    this.isLegacyDerivation = false,
     int txCount = 0,
     int balance = 0,
     String name = '',
@@ -26,6 +27,7 @@ abstract class BaseBitcoinAddressRecord {
 
   final String address;
   bool isHidden;
+  bool isLegacyDerivation;
   final int index;
   int _txCount;
   int _balance;
@@ -60,6 +62,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     super.address, {
     required super.index,
     super.isHidden = false,
+    super.isLegacyDerivation = false,
     super.txCount = 0,
     super.balance = 0,
     super.name = '',
@@ -76,21 +79,38 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     }
 }
 
+  static bool _legacyDefaultForType(BitcoinAddressType type) {
+
+    // Some address types (p2wpkh, p2wsh) were historically derived from the same account/path as our new standard
+    // but using legacy formats. For these, we default to legacy = false.
+    if (type == SegwitAddresType.p2wpkh || type == SegwitAddresType.p2wsh) return false;
+
+    // For other types (p2pkh, p2wpkh-in-p2sh, p2tr, etc.), old wallets used the non-standard
+    return true;
+  }
+
   factory BitcoinAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
     final decoded = json.decode(jsonSource) as Map;
+
+    final parsedType = decoded['type'] != null && decoded['type'] != ''
+        ? BitcoinAddressType.values
+            .firstWhere((type) => type.toString() == decoded['type'] as String)
+        : SegwitAddresType.p2wpkh;
+
+    final parsedIsLegacy = decoded.containsKey('isLegacyDerivation')
+        ? (decoded['isLegacyDerivation'] as bool? ?? false)
+        : _legacyDefaultForType(parsedType);
 
     return BitcoinAddressRecord(
       decoded['address'] as String,
       index: decoded['index'] as int,
       isHidden: decoded['isHidden'] as bool? ?? false,
+      isLegacyDerivation: parsedIsLegacy,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
-      type: decoded['type'] != null && decoded['type'] != ''
-          ? BitcoinAddressType.values
-              .firstWhere((type) => type.toString() == decoded['type'] as String)
-          : SegwitAddresType.p2wpkh,
+      type: parsedType,
       scriptHash: decoded['scriptHash'] as String?,
       network: network,
     );
@@ -113,6 +133,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         'address': address,
         'index': index,
         'isHidden': isHidden,
+        'isLegacyDerivation': isLegacyDerivation,
         'isUsed': isUsed,
         'txCount': txCount,
         'name': name,

@@ -16,13 +16,7 @@ do
         else
             target="x86_64-linux-gnu"
         fi
-        
-        if [[ -f "release/${COIN}/${target}_libwallet2_api_c.so" ]];
-        then
-            echo "file exist, not building monero_c for ${COIN}/$target.";
-        else
-            ./build_single.sh ${COIN} $target -j$MAKE_JOB_COUNT
-            unxz -f ../monero_c/release/${COIN}/${target}_libwallet2_api_c.so.xz
-        fi
+
+        ./build_single.sh ${COIN} $target -j$MAKE_JOB_COUNT
     popd
 done

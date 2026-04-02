@@ -146,13 +146,15 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (!fiatConversionStore.prices.containsKey(cryptoCurrency)) return "";
-    return (double.parse(_amount) * fiatConversionStore.prices[cryptoCurrency]!).toStringAsFixed(2);
+    final amount = double.tryParse(_amount) ?? 0;
+    return (amount * fiatConversionStore.prices[cryptoCurrency]!).toStringAsFixed(2);
   }
 
   @computed
   String get selectedCurrencyFiatAmount {
     if (_fiatRate == null) return "";
-    return (double.parse(_amount) * _fiatRate!).toStringAsFixed(2);
+    final amount = double.tryParse(_amount) ?? 0;
+    return (amount * _fiatRate!).toStringAsFixed(2);
   }
 
   @action
@@ -197,7 +199,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           amount: _amount,
           contractAddress: (tokenCurrency as Erc20Token).contractAddress);
     }
-    if (_lnPaymentRequest != null) return _lnPaymentRequest!;
+    if (isLightning && _lnPaymentRequest != null) return _lnPaymentRequest!;
     return wallet.walletAddresses.getPaymentUri(_amount);
   }
 
@@ -288,7 +290,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
               txCount: subaddress.txCount,
               balance: _appStore.amountParsingProxy
                   .getDisplayCryptoString(subaddress.balance, walletTypeToCryptoCurrency(type)),
-              isChange: subaddress.isChange);
+              isChange: subaddress.isChange,
+              isLegacyDerivation: subaddress.isLegacyDerivation);
         });
 
         // don't show all 1000+ mweb addresses:
@@ -350,8 +353,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     for (var i = 0; i < addressList.length; i++) {
       if (!(addressList[i] is WalletAddressListItem)) continue;
-      (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses
-          .contains((addressList[i] as WalletAddressListItem).address);
+      final item = addressList[i] as WalletAddressListItem;
+      item.isHidden = wallet.walletAddresses.hiddenAddresses.contains(item.address) ||
+          (isElectrumWallet && item.isLegacyDerivation);
     }
 
     for (var i = 0; i < addressList.length; i++) {
@@ -550,7 +554,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
 
   @computed
-  bool get isLightning => wallet.type == WalletType.bitcoin && (uri is LightningPaymentRequest);
+  bool get isLightning => wallet.type == WalletType.bitcoin && (wallet.walletAddresses.getPaymentUri(_amount) is LightningPaymentRequest);
 
   @computed
   bool get isZCashTransparent {

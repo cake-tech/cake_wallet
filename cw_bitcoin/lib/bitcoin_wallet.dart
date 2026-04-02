@@ -112,10 +112,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         );
       } catch (e) {
         printV(e);
-        lightningWallet = null;
       }
-    } else {
-      lightningWallet = null;
     }
 
     payjoinManager = PayjoinManager(PayjoinStorage(payjoinBox), this);
@@ -126,8 +123,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
-      mainHd: hd,
-      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
+      mainHdByType: mainHdByType,
+      sideHdByType: sideHdByType,
+      legacyMainHd: mainHd,
+      legacySideHd: sideHd,
       network: networkParam ?? network,
       masterHd: seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
       isHardwareWallet: walletInfo.isHardwareWallet,
@@ -153,6 +152,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             lnurlDomain: "cake.cash",
             cachedAddress: cachedLightningAddress,
           );
+          walletAddresses.setLightningAddress(walletInfo.name);
         }
       } else {
         lightningWallet = null;
@@ -163,6 +163,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       balance[CryptoCurrency.btcln] = initialLightningBalance;
     }
   }
+
+  bool get isLightningInitialized => lightningWallet?.isInitialized == true;
 
   @override
   bool get hasRescan => true;
@@ -339,7 +341,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<ElectrumBalance> fetchBalances() async {
     final balance = await super.fetchBalances();
-    if (lightningWallet == null) {
+    if (!isLightningInitialized || lightningWallet == null) {
       return balance;
     }
 
@@ -358,13 +360,25 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   @action
   Future<void> subscribeForUpdates() async {
-    if (lightningWallet != null) {
+    if (isLightningInitialized && lightningWallet != null) {
       lightningWallet!.setEventListener(
         onTransactionEvent: (tx) async {
           if (transactionHistory.transactions[tx.id]?.isPending != tx.isPending) {
             transactionHistory.addOne(tx);
             await transactionHistory.save();
             await fetchBalances();
+          }
+        },
+        onCreateDepositTransactionEvent: (txs) async {
+          if (txs.isNotEmpty) {
+            transactionHistory.addMany(txs);
+            await transactionHistory.save();
+          }
+        },
+        onUpdateDepositTransactionEvent: (txs) async {
+          if (txs.isNotEmpty) {
+            txs.forEach((tx) => transactionHistory.transactions.remove(tx.id));
+            await transactionHistory.save();
           }
         },
         onBalanceChangedEvent: fetchBalances,
@@ -390,7 +404,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return super.fetchTransactions();
   }
 
-  late LightningWallet? lightningWallet;
+  LightningWallet? lightningWallet;
 
   late final PayjoinManager payjoinManager;
 
@@ -479,10 +493,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final isLNCompatible = await lightningWallet?.isCompatible(lnAddr);
     if ((credentials.coinTypeToSpendFrom == UnspentCoinType.lightning && lightningWallet != null) ||
         isLNCompatible == true) {
-
       BigInt amount;
       if (credentials.outputs.first.sendAll) {
-        amount = (await lightningWallet!.getBalance()) - BigInt.from(10);
+        amount = await lightningWallet!.getBalance();
       } else {
         amount = parseFixed(
             credentials.outputs.first.cryptoAmount?.isNotEmpty == true
@@ -491,8 +504,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             8);
       }
 
-      return lightningWallet!.createTransaction(lnAddr,
-          amount > BigInt.zero ? amount : null, credentials.priority);
+      return lightningWallet!.createTransaction(lnAddr, amount > BigInt.zero ? amount : null,
+          credentials.priority, credentials.outputs.first.sendAll);
     }
 
     final tx = (await super.createTransaction(credentials)) as PendingBitcoinTransaction;

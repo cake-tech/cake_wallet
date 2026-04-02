@@ -639,7 +639,7 @@ class _NewSendPageState extends State<NewSendPage> {
           output.setFiatAmount(amount);
         }
       } else {
-        final isAll = context.mounted && amount != S.of(context).all;
+        final isAll = mounted && amount != S.of(context).all;
         if (output.sendAll && isAll) {
           output.sendAll = false;
         }
@@ -691,12 +691,15 @@ class _NewSendPageState extends State<NewSendPage> {
   void _handleSend() async {
     //TODO refactor this action. code was copied over from old ui. i don't like it.
 
-    for(int i=0; i<widget.sendViewModel.outputs.length; i++) {
-      if(i < _amountControllers.length) {
-        if(_fiatInputMode) {
+    for (var i = 0; i < widget.sendViewModel.outputs.length; i++) {
+      if (i < _amountControllers.length && !widget.sendViewModel.outputs[i].sendAll) {
+        if (_fiatInputMode) {
           widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
         } else {
-          widget.sendViewModel.outputs[i].cryptoAmount = _amountControllers[i].text;
+          final amount = widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
+              _amountControllers[i].text.replaceAll(",", "."),
+              widget.sendViewModel.selectedCryptoCurrency);
+          widget.sendViewModel.outputs[i].setCryptoAmount(amount);
         }
       }
     }

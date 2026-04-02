@@ -104,6 +104,8 @@ class NewListSections extends StatelessWidget {
         truncateTrailingText: item.truncateTrailingText,
         foregroundColor: item.foregroundColor,
         trailingIconSize: item.trailingIconSize,
+        trailingWidget: item.trailingWidget,
+        bottomWidget: item.bottomWidget,
       );
     }
 
