@@ -482,6 +482,7 @@
   "fixed_pair_not_supported": "Cặp tỷ giá cố định này không được hỗ trợ với các dịch vụ hoán đổi đã chọn",
   "fixed_rate": "Tỷ giá cố định",
   "fixed_rate_alert": "Bạn sẽ có thể nhập số lượng nhận khi chế độ tỷ giá cố định được bật. Bạn có muốn chuyển sang chế độ tỷ giá cố định không?",
+  "followed_assets": "Nội dung được theo dõi",
   "forgot_password": "Quên mật khẩu",
   "freeze": "Đóng băng",
   "frequently_asked_questions": "Các câu hỏi thường gặp",

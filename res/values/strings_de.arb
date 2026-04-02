@@ -483,6 +483,7 @@
   "fixed_pair_not_supported": "Dieses feste Paar wird von den ausgewählten Swap-Diensten nicht unterstützt",
   "fixed_rate": "Fester Kurs",
   "fixed_rate_alert": "Sie können den Empfangsbetrag eingeben, wenn der Festkursmodus aktiviert ist. Möchten Sie zum Festkursmodus wechseln?",
+  "followed_assets": "Gefolgte Vermögenswerte",
   "forgot_password": "Passwort vergessen",
   "freeze": "Sperren",
   "frequently_asked_questions": "Häufig gestellte Fragen",

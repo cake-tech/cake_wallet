@@ -483,6 +483,7 @@
   "fixed_pair_not_supported": "Pasangan tetap ini tidak didukung oleh layanan swap yang dipilih",
   "fixed_rate": "Kurs tetap",
   "fixed_rate_alert": "Anda akan dapat memasukkan jumlah yang akan diterima saat mode kurs tetap dicentang. Apakah Anda ingin beralih ke mode kurs tetap?",
+  "followed_assets": "Aset yang diikuti",
   "forgot_password": "Lupa Kata Sandi",
   "freeze": "Bekukan",
   "frequently_asked_questions": "Pertanyaan yang Sering Diajukan",

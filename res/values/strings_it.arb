@@ -483,6 +483,7 @@
   "fixed_pair_not_supported": "Questa coppia fissa non è supportata dai servizi di swap selezionati",
   "fixed_rate": "Tasso fisso",
   "fixed_rate_alert": "Potrai inserire l'importo da ricevere quando è selezionata la modalità a tasso fisso. Vuoi passare alla modalità a tasso fisso?",
+  "followed_assets": "Risorse seguite",
   "forgot_password": "Password dimenticata",
   "freeze": "Blocca",
   "frequently_asked_questions": "Domande frequenti",

@@ -483,6 +483,7 @@
   "fixed_pair_not_supported": "이 고정 페어는 선택한 스왑 서비스에서 지원되지 않습니다",
   "fixed_rate": "고정 환율",
   "fixed_rate_alert": "고정 환율 모드를 선택하면 수령 금액을 입력할 수 있습니다. 고정 환율 모드로 전환하시겠습니까?",
+  "followed_assets": "팔로우하는 자산",
   "forgot_password": "비밀번호를 잊으셨나요?",
   "freeze": "동결",
   "frequently_asked_questions": "자주 묻는 질문",

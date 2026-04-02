@@ -483,6 +483,7 @@
   "fixed_pair_not_supported": "Este par fixo não é compatível com os serviços de swap selecionados",
   "fixed_rate": "Taxa fixa",
   "fixed_rate_alert": "Você poderá inserir o valor a receber quando o modo de taxa fixa estiver selecionado. Deseja mudar para o modo de taxa fixa?",
+  "followed_assets": "Ativos seguidos",
   "forgot_password": "Esqueci minha senha",
   "freeze": "Congelar",
   "frequently_asked_questions": "Perguntas frequentes",

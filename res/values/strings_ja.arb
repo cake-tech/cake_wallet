@@ -483,6 +483,7 @@
   "fixed_pair_not_supported": "この固定ペアは、選択したスワップサービスではサポートされていません",
   "fixed_rate": "固定レート",
   "fixed_rate_alert": "固定レートモードにチェックを入れると、受取額を入力できるようになります。固定レートモードに切り替えますか？",
+  "followed_assets": "フォローされているアセット",
   "forgot_password": "パスワードをお忘れですか？",
   "freeze": "凍結",
   "frequently_asked_questions": "よくある質問",

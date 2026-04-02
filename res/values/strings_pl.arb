@@ -482,6 +482,7 @@
   "fixed_pair_not_supported": "Ta stała para nie jest obsługiwana przez wybrane usługi swap.",
   "fixed_rate": "Stały kurs",
   "fixed_rate_alert": "Będziesz mógł wprowadzić kwotę do otrzymania, gdy tryb stałego kursu jest zaznaczony. Czy chcesz przełączyć się na tryb stałego kursu?",
+  "followed_assets": "Obserwowane aktywa",
   "forgot_password": "Nie pamiętasz hasła",
   "freeze": "Zamroź",
   "frequently_asked_questions": "Najczęściej zadawane pytania",

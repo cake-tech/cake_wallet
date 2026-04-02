@@ -483,6 +483,7 @@
   "fixed_pair_not_supported": "Este par fijo no es compatible con los servicios de swap seleccionados",
   "fixed_rate": "Tipo de cambio fijo",
   "fixed_rate_alert": "Podrás ingresar la cantidad a recibir cuando el modo de tipo de cambio fijo esté activado. ¿Quieres cambiar al modo de tipo de cambio fijo?",
+  "followed_assets": "Activos seguidos",
   "forgot_password": "Olvidé mi contraseña",
   "freeze": "Congelar",
   "frequently_asked_questions": "Preguntas frecuentes",

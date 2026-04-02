@@ -483,6 +483,7 @@
   "fixed_pair_not_supported": "Tento pevný pár není podporován u vybraných swapovacích služeb",
   "fixed_rate": "Fixní kurz",
   "fixed_rate_alert": "Když je zaškrtnutý režim pevného kurzu, budete moci zadat částku k přijetí. Chcete přepnout do režimu pevného kurzu?",
+  "followed_assets": "Sledovaná aktiva",
   "forgot_password": "Zapomenuté heslo",
   "freeze": "Zmrazit",
   "frequently_asked_questions": "Často kladené otázky",
