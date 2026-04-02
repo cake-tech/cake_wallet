@@ -31,7 +31,7 @@ class ChartsPage extends StatelessWidget {
         child: Column(spacing:24, children: [
         ChartHeader(),
           ChartsAssetGridHeader(onAddButtonPressed: (){},onSortButtonPressed: (){},),
-          ChartsAssetGrid()
+          Expanded(child: ChartsAssetGrid())
         ],),
       ),
     ),
