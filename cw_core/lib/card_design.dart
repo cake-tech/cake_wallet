@@ -448,7 +448,7 @@ class CardDesign {
           "$outlineIconPrefix/xmr-outline.svg",
           "$balanceCardIconPrefix/monero.svg",
           "$chainIconPrefix/monero.svg",
-          "$ogIconPrefix/xmr-og.svg",
+          "assets/images/crypto/xmr-og.webp",
           genericCakeIcon,
         ];
 
