@@ -239,10 +239,7 @@ class CWEVM extends EVM {
       (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
 
   @override
-  Future<BigInt?> getAllowance(
-      WalletBase wallet,
-      String tokenContract,
-      String spender) =>
+  Future<BigInt?> getAllowance(WalletBase wallet, String tokenContract, String spender) =>
       (wallet as EVMChainWallet).getAllowance(tokenContract, spender);
 
   @override
@@ -272,7 +269,7 @@ class CWEVM extends EVM {
     String to,
     String dataHex,
     BigInt valueWei,
-    TransactionPriority? priority,{
+    TransactionPriority? priority, {
     bool useBlinkProtection = true,
     String? sourceTokenAddress,
     BigInt? sourceTokenAmount,
@@ -481,7 +478,7 @@ class CWEVM extends EVM {
 
   @override
   BigInt? getERC20AvailableBalance(Object balance) {
-    if(balance is EVMChainERC20Balance) {
+    if (balance is EVMChainERC20Balance) {
       return balance.balance;
     }
     return null;
@@ -543,6 +540,23 @@ class CWEVM extends EVM {
 
   @override
   bool hasPriorityFee(int chainId) => EVMChainUtils.hasPriorityFee(chainId);
+
+  @override
+  Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
+    WalletBase wallet,
+    TransactionPriority priority,
+  ) async {
+    if (wallet is! EVMChainWallet) return null;
+
+    final data = await wallet.getWCBufferedFeeQuote(priority);
+    if (data == null) return null;
+
+    return EvmWalletConnectFeeQuote(
+      maxFeePerGasWei: data.maxFeePerGasWei,
+      maxPriorityFeePerGasWei: data.maxPriorityFeePerGasWei,
+      latestBaseFeeWei: data.latestBaseFeeWei,
+    );
+  }
 
   Future<({double usdValue, bool hasValidFiatPrice})> _getTokenUsdValueAndFiatCheck(
     Erc20Token token,

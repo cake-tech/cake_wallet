@@ -1554,6 +1554,12 @@ abstract class EVM {
   
   bool hasPriorityFee(int chainId);
 
+
+  Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
+    WalletBase wallet,
+    TransactionPriority priority,
+  );
+
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
 
