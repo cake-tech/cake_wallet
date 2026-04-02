@@ -152,6 +152,7 @@ class TokenUtilities {
     required WalletType walletType,
     required String address,
   }) async {
+    if(address.isEmpty) return null;
     final lower = address.toLowerCase();
     switch (walletType) {
       case WalletType.ethereum:
