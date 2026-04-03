@@ -79,4 +79,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
 
   @override
   int get hashCode => contractAddress.hashCode;
+
+  @override
+  String get apiString => "crypto.$contractAddress";
 }

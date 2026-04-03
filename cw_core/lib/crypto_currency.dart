@@ -31,6 +31,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   final int decimals;
   final bool enabled;
   final bool isPotentialScam;
+  @override
+  String get apiString => "crypto.$title";
 
   set enabled(bool value) => this.enabled = value;
 

@@ -4,4 +4,5 @@ abstract class Currency {
   String? get fullName;
   String? get iconPath;
   int get decimals;
+  String get apiString;
 }
