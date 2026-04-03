@@ -1,25 +1,41 @@
 import 'package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart';
+import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/charts_page/change_pill.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChartsAssetGrid extends StatelessWidget {
   const ChartsAssetGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      physics: BouncingScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, crossAxisSpacing: 10, mainAxisSpacing: 10, mainAxisExtent: 100),
-        itemBuilder: (context, index) => ChartsAssetCard(
-            currency: CryptoCurrency.btc,
-            price: "355.87",
-            ticker: "USD",
-            changePercentage: "4.56",
-            direction: PriceChangeDirection.up));
+    return BlocBuilder<ChartsBloc, ChartsState>(
+  builder: (context, state) {
+    if(state is ChartsStateWithData) {
+      final currencies = state.currencies;
+      return GridView.builder(
+          physics: BouncingScrollPhysics(),
+          itemCount: currencies.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, crossAxisSpacing: 10, mainAxisSpacing: 10, mainAxisExtent: 105),
+          itemBuilder: (context, index) {
+            final curr = currencies[index];
+            return ChartsAssetCard(
+              currency: curr,
+              price: state.priceDisplayStringFor(curr),
+              ticker: "USD",
+              changePercentage: "4.56",
+              direction: PriceChangeDirection.up);
+          });
+    } else {
+      return SizedBox.shrink();
+    }
+  },
+);
   }
 }
 
@@ -39,11 +55,16 @@ class ChartsAssetCard extends StatelessWidget {
   final PriceChangeDirection direction;
 
   String get displayPrice {
-    final priceDouble = double.parse(price);
-    if (priceDouble > 10000)
-      return priceDouble.toStringAsFixed(0);
-    else
-      return priceDouble.toStringAsFixed(2);
+    try {
+      final priceDouble = double.parse(price);
+      if (priceDouble > 10000)
+        return priceDouble.toStringAsFixed(0);
+      else
+        return priceDouble.toStringAsFixed(2);
+    } catch(_) {
+      return price;
+    }
+
   }
 
   @override

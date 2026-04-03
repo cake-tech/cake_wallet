@@ -42,7 +42,7 @@ class PriceStore {
     const ApiPriceSource()
   ];
 
-  static Future<List<PriceData>> getPrices(Currency from, Currency to, ChartRange range) async {
+  Future<List<PriceData>> getPrices(Currency from, Currency to, ChartRange range) async {
     final Set<PriceData> data = {};
 
     final end = DateTime.now();

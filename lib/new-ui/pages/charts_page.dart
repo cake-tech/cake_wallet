@@ -1,8 +1,9 @@
-import 'package:cake_wallet/new-ui/viewmodels/charts_bloc.dart';
+import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/charts_page/asset_grid.dart';
 import 'package:cake_wallet/new-ui/widgets/charts_page/asset_grid_header.dart';
 import 'package:cake_wallet/new-ui/widgets/charts_page/chart_header.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChartsPage extends StatelessWidget {
   const ChartsPage({super.key, required this.chartsBloc});
@@ -11,6 +12,10 @@ class ChartsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+  create: (context) => chartsBloc,
+  child: BlocBuilder<ChartsBloc, ChartsState>(
+  builder: (context, state) {
     return Container(
       height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
@@ -40,5 +45,8 @@ class ChartsPage extends StatelessWidget {
         ),
       ),
     );
+  },
+),
+);
   }
 }

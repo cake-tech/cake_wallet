@@ -22,8 +22,8 @@ class PriceRequest {
         "time": (beginTime?.secondsSinceEpoch ?? 0).toString(),
         "interval": "${interval.inSeconds}s",
         if (count != null) "count": count.toString(),
-        "base": from.apiString,
-        "quote": to.apiString
+        "quote": from.apiString,
+        "base": to.apiString
       });
 }
 
@@ -31,6 +31,10 @@ class PriceApiClient {
   static Future<Map<String, dynamic>?> _getJson(Uri uri) async {
     final resp =
         await ProxyWrapper().get(headers: {"x-api-key": secrets.fiatApiKey}, clearnetUri: uri);
+    if(!(resp.statusCode >= 200 && resp.statusCode < 300)) {
+      printV("server returned code: ${resp.statusCode}\nuri: ${uri}\nresp body: ${resp.body}");
+      return null;
+    }
     try {
       return jsonDecode(resp.body);
     } catch (e) {
@@ -41,14 +45,19 @@ class PriceApiClient {
 
   static Future<List<PriceData>> getPrices(PriceRequest request) async {
     final List<PriceData> ret = [];
-    final data = await _getJson(request.uri);
+    final data = (await _getJson(request.uri));
     if (data == null) return [];
-    for (final time in data.keys) {
+    final results = data["results"] as Map<String, dynamic>?;
+    if (results == null) {
+     printV(data.toString());
+     return [];
+    }
+    for (final time in results.keys) {
       ret.add(PriceData(
           time: DateTimeX.fromSecondsSinceEpoch(int.parse(time)),
           from: request.from,
           to: request.to,
-          price: (data[time] as int).toString()));
+          price: (results[time] as num).toStringAsFixed(2)));
     }
     return ret;
   }
