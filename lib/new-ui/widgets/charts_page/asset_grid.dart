@@ -1,4 +1,4 @@
-import 'package:cake_wallet/new-ui/viewmodels/charts/util/price_change_direction.dart';
+import 'package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart';
 import 'package:cake_wallet/new-ui/widgets/charts_page/change_pill.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';

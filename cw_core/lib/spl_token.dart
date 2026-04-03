@@ -115,5 +115,5 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
   int get hashCode => mintAddress.hashCode;
 
   @override
-  String get apiString => "crypto.$mintAddress";
+  String get apiString => "sol.$mintAddress";
 }

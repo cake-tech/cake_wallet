@@ -1,4 +1,4 @@
-import 'package:cake_wallet/new-ui/viewmodels/charts/util/price_change_direction.dart';
+import 'package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 

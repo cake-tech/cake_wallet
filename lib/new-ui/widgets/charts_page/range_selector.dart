@@ -1,4 +1,4 @@
-import 'package:cake_wallet/new-ui/viewmodels/charts/util/chart_range.dart';
+import 'package:cake_wallet/new-ui/model/charts/util/chart_range.dart';
 import 'package:flutter/material.dart';
 
 class ChartRangeSelector extends StatelessWidget {

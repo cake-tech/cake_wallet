@@ -5,7 +5,6 @@ import 'package:cw_core/currency.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:sqflite/sqflite.dart';
 
-
 Currency currencyFromApiString(String key) {
   final parts = key.split('.');
   final type = parts[0];
@@ -33,11 +32,11 @@ class PriceData {
   static const tableName = "PriceData";
 
   Map<String, dynamic> toJson() => {
-    "timestamp": time.secondsSinceEpoch.toString(),
-    "price": price,
-    "from_currency": from.apiString,
-    "to_currency": to.apiString,
-  };
+        "timestamp": time.secondsSinceEpoch.toString(),
+        "price": price,
+        "from_currency": from.apiString,
+        "to_currency": to.apiString,
+      };
 
   static PriceData fromJson(Map<String, dynamic> json) => PriceData(
       time: DateTimeX.fromSecondsSinceEpoch(json["timestamp"] as int),
@@ -45,7 +44,8 @@ class PriceData {
       to: currencyFromApiString(json["to_currency"] as String),
       price: json["price"] as String);
 
-  static Future<List<PriceData>> get(Currency from, Currency to, DateTime? start, DateTime? end) async {
+  static Future<List<PriceData>> get(
+      Currency from, Currency to, DateTime? start, DateTime? end) async {
     final json = await db!.query(tableName,
         where: "from_currency = ? AND to_currency = ? AND timestamp >= ? AND timestamp <= ?",
         whereArgs: [
@@ -59,8 +59,31 @@ class PriceData {
   }
 
   Future<void> insert() async {
-    db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+    db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.ignore);
   }
+
+  static Future<void> insertMany(Iterable<PriceData> data) async {
+    if (data.isEmpty) return;
+
+    final batch = db!.batch();
+
+    for (final datum in data) {
+      batch.insert(
+        tableName,
+        datum.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
+
+    await batch.commit(noResult: true);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is PriceData && time == other.time && from == other.from && to == other.to;
+
+  @override
+  int get hashCode => Object.hash(time, from, to);
 
   const PriceData({required this.time, required this.from, required this.to, required this.price});
 }

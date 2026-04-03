@@ -1,5 +1,5 @@
-import 'package:cake_wallet/new-ui/viewmodels/charts/util/chart_range.dart';
-import 'package:cake_wallet/new-ui/viewmodels/charts/util/price_change_direction.dart';
+import 'package:cake_wallet/new-ui/model/charts/util/chart_range.dart';
+import 'package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart';
 import 'package:cake_wallet/new-ui/widgets/charts_page/change_display.dart';
 import 'package:cake_wallet/new-ui/widgets/charts_page/chart_view.dart';
 import 'package:cake_wallet/new-ui/widgets/charts_page/coin_header.dart';
