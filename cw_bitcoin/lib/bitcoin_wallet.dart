@@ -123,8 +123,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
-      mainHd: hd,
-      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
+      mainHdByType: mainHdByType,
+      sideHdByType: sideHdByType,
+      legacyMainHd: mainHd,
+      legacySideHd: sideHd,
       network: networkParam ?? network,
       masterHd: seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
       isHardwareWallet: walletInfo.isHardwareWallet,
@@ -161,6 +163,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       balance[CryptoCurrency.btcln] = initialLightningBalance;
     }
   }
+
+  bool get isLightningInitialized => lightningWallet?.isInitialized == true;
 
   @override
   bool get hasRescan => true;
@@ -337,7 +341,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<ElectrumBalance> fetchBalances() async {
     final balance = await super.fetchBalances();
-    if (lightningWallet == null) {
+    if (!isLightningInitialized || lightningWallet == null) {
       return balance;
     }
 
@@ -356,7 +360,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   @action
   Future<void> subscribeForUpdates() async {
-    if (lightningWallet != null) {
+    if (isLightningInitialized && lightningWallet != null) {
       lightningWallet!.setEventListener(
         onTransactionEvent: (tx) async {
           if (transactionHistory.transactions[tx.id]?.isPending != tx.isPending) {

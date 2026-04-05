@@ -271,7 +271,9 @@ class WalletInfo extends HiveObject {
       isNonSeedWallet,
       0,
       addressPageType,
-      false
+      false,
+      true,
+      null
     );
     final wiId = await walletInfo.save();
     for (final address in usedAddresses ?? <String>[]) {

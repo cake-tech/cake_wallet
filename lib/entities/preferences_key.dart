@@ -136,4 +136,5 @@ class PreferencesKey {
   static const syncStatusDisplayMode = 'sync_status_display_mode';
   static const backgroundImage = 'background_image';
   static const mwebAdDismissed = "mweb_ad_dismissed";
+  static const balanceHideCounter = "balance_hide_counter";
 }

@@ -12,6 +12,7 @@ import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'widgets/wc_pairing_item_widget.dart';
 import 'wc_pairing_detail_page.dart';
@@ -26,6 +27,11 @@ class WalletConnectConnectionsView extends StatelessWidget {
 
   void _triggerPairingFromDeeplink(Uri? launchUri) async {
     if (launchUri == null) return;
+
+    if(launchUri.scheme == "wc") {
+      await walletKitService.pairWithUri(launchUri);
+      return;
+    }
 
     final actualLinkList = launchUri.query.split("uri=");
 
