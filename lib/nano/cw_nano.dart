@@ -176,11 +176,6 @@ class CWNano extends Nano {
   }
 
   @override
-  BigInt getTransactionAmountRaw(TransactionInfo transactionInfo) {
-    return (transactionInfo as NanoTransactionInfo).amountRaw;
-  }
-
-  @override
   String getRepresentative(Object wallet) {
     return (wallet as NanoWallet).representative;
   }

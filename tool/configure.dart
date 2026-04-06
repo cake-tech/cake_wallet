@@ -317,6 +317,8 @@ abstract class Bitcoin {
 Future<void> generateMonero(bool hasImplementation) async {
   final outputFile = File(moneroOutputPath);
   const moneroCommonHeaders = """
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:mobx/mobx.dart';
@@ -382,30 +384,17 @@ class Subaddress {
 }
 
 class MoneroBalance extends Balance {
-  MoneroBalance({required this.fullBalance, required this.unlockedBalance})
-      : formattedFullBalance = monero!.formatterMoneroAmountToString(amount: fullBalance),
-        formattedUnlockedBalance =
-            monero!.formatterMoneroAmountToString(amount: unlockedBalance),
-        super.fromInt(unlockedBalance, fullBalance);
+  MoneroBalance({
+    required this.fullBalance,
+    required Money unlockedBalance,
+    Money? frozen,
+  }) : super(
+          unlockedBalance,
+          fullBalance - unlockedBalance,
+          frozen: frozen ?? Money.fromInt(0, CryptoCurrency.xmr),
+        );
 
-  MoneroBalance.fromString(
-      {required this.formattedFullBalance,
-      required this.formattedUnlockedBalance})
-      : fullBalance = monero!.formatterMoneroParseAmount(amount: formattedFullBalance),
-        unlockedBalance = monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-        super.fromInt(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-            monero!.formatterMoneroParseAmount(amount: formattedFullBalance));
-
-  final int fullBalance;
-  final int unlockedBalance;
-  final String formattedFullBalance;
-  final String formattedUnlockedBalance;
-
-  @override
-  String get formattedAvailableBalance => formattedUnlockedBalance;
-
-  @override
-  String get formattedAdditionalBalance => formattedFullBalance;
+  final Money fullBalance;
 }
 
 abstract class MoneroWalletDetails {
@@ -525,6 +514,8 @@ abstract class MoneroAccountList {
 Future<void> generateWownero(bool hasImplementation) async {
   final outputFile = File(wowneroOutputPath);
   const wowneroCommonHeaders = """
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:mobx/mobx.dart';
@@ -850,7 +841,6 @@ abstract class Nano {
   Object createNanoTransactionCredentials(List<Output> outputs);
   Future<void> changeRep(Object wallet, String address);
   Future<bool> updateTransactions(Object wallet);
-  BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
   String getRepresentative(Object wallet);
   Future<List<N2Node>> getN2Reps(Object wallet);
   bool isRepOk(Object wallet);

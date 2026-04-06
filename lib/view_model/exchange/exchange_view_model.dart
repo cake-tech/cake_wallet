@@ -235,7 +235,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         final balance = wallet.balance[depositCurrency];
         if (balance != null) {
           depositAvailableAmount = _appStore.amountParsingProxy
-              .getDisplayCryptoStringFromBigInt(balance.fullAvailableBalance, depositCurrency);
+              .getDisplayCryptoStringFromBigInt(balance.fullAvailableBalance.amount, depositCurrency);
           return false;
         }
         return true;
@@ -470,7 +470,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String? get balanceDisplay {
     final bal = wallet.balance[depositCurrency]?.fullAvailableBalance;
     if(bal == null) return null;
-    return amountParsingProxy.getDisplayCryptoStringFromBigInt(bal, depositCurrency);
+    return amountParsingProxy.getDisplayCryptoStringFromBigInt(bal.amount, depositCurrency);
   }
 
   //* Still open to further optimize these checks

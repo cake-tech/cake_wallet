@@ -90,7 +90,7 @@ class CWZcash extends Zcash {
 
   @override
   int formatterZcashParseAmount(String amount) {
-    return CryptoCurrency.zec.parseAmount(amount).toInt();
+    return CryptoCurrency.zec.parseAmount(amount).amount.toInt();
   }
 
   @override

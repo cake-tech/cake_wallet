@@ -131,7 +131,7 @@ abstract class OutputBase with Store {
           case WalletType.litecoin:
           case WalletType.bitcoinCash:
           case WalletType.dogecoin:
-            _amount = cryptoCurrencyHandler().parseAmount(_cryptoAmount).toInt();
+            _amount = cryptoCurrencyHandler().parseAmount(_cryptoAmount).amount.toInt();
             break;
           case WalletType.decred:
             _amount = decred!.formatterStringDoubleToDecredAmount(_cryptoAmount);

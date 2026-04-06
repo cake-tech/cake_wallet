@@ -67,7 +67,7 @@ class AmountParsingProxy {
       return BigInt.parse(amount);
     }
 
-    return cryptoCurrency.parseAmount(amount);
+    return cryptoCurrency.parseAmount(amount).amount;
   }
 
   /// [tryParseCryptoString] tries to turn the display representation [string] into a `BigInt` presentation of the [cryptoCurrency]
@@ -76,7 +76,7 @@ class AmountParsingProxy {
       return BigInt.tryParse(amount);
     }
 
-    return cryptoCurrency.tryParseAmount(amount);
+    return cryptoCurrency.tryParseAmount(amount)?.amount;
   }
 
   /// [getCryptoSymbol] returns the correct Symbol related to the presentation

@@ -156,7 +156,7 @@ class CWEVM extends EVM {
 
     if (transaction != null) {
       transaction as EVMChainTransactionInfo;
-      return transaction.ethAmount / BigInt.from(10).pow(transaction.exponent);
+      return transaction.amount.amount / BigInt.from(10).pow(transaction.exponent);
     } else {
       return (amount!) / BigInt.from(10).pow(exponent);
     }
@@ -482,7 +482,7 @@ class CWEVM extends EVM {
   @override
   BigInt? getERC20AvailableBalance(Object balance) {
     if(balance is EVMChainERC20Balance) {
-      return balance.balance;
+      return balance.balance.amount;
     }
     return null;
   }

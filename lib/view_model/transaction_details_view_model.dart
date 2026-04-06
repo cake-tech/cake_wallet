@@ -77,10 +77,10 @@ class TxDetailRowDefinition {
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_fee_key",
         title: S.current.transaction_details_fee,
-        valueGetter: (vm) => vm.transactionInfo.feeFormatted()!,
+        valueGetter: (vm) => vm.transactionInfo.fee!.toStringWithSymbol(),
         applicable: (vm) =>
             vm.wallet.type != WalletType.nano &&
-            (vm.transactionInfo.feeFormatted() ?? "").isNotEmpty),
+            (vm.transactionInfo.fee?.toStringWithSymbol() ?? "").isNotEmpty),
 
 
     TxDetailRowDefinition(
@@ -470,14 +470,15 @@ abstract class TransactionDetailsViewModelBase with Store {
     RBFListItems.add(
       StandartListItem(
         title: S.current.old_fee,
-        value: tx.feeFormatted() ?? '0.0',
+        value: tx.fee?.toStringWithSymbol() ?? '0.0',
         key: ValueKey('standard_list_item_rbf_old_fee_key'),
       ),
     );
 
     if (transactionInfo.fee != null && rawTransaction.isNotEmpty) {
       final size = bitcoin!.getTransactionVSize(wallet, rawTransaction);
-      final recommendedRate = (transactionInfo.fee! / size).round() + 1;
+      final recommendedRate = (transactionInfo.fee! / BigInt.from(size)) +
+          transactionInfo.fee!.copyWith(amount: BigInt.one);
 
       RBFListItems.add(
           StandartListItem(title: 'New recommended fee rate', value: '$recommendedRate sat/byte'));

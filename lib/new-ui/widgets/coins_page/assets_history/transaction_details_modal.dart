@@ -81,8 +81,8 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  widget.transactionDetailsViewModel.transactionInfo
-                                      .amountFormatted(),
+                                  widget.transactionDetailsViewModel.transactionInfo.amount
+                                      .toStringWithSymbol(),
                                   style: TextStyle(fontSize: 28),
                                 ),
                                 Padding(

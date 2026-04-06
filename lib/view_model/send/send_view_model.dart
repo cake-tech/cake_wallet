@@ -310,7 +310,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return _appStore.amountParsingProxy.getDisplayCryptoString(0, selectedCryptoCurrency);
     }
     return _appStore.amountParsingProxy.getDisplayCryptoStringFromBigInt(
-        wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance, selectedCryptoCurrency);
+        wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance.amount, selectedCryptoCurrency);
   }
 
   @action

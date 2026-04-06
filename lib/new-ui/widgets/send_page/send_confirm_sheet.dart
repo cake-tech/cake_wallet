@@ -173,7 +173,7 @@ class SendTransactionDetails extends StatelessWidget {
                         sendViewModel.balance, sendViewModel.selectedCryptoCurrency) ??
                     BigInt.zero;
 
-              return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ??
+              return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount)?.amount ??
                   BigInt.zero;
             }),
             sendViewModel.selectedCryptoCurrency)
@@ -190,7 +190,7 @@ class SendTransactionDetails extends StatelessWidget {
                           sendViewModel.selectedCryptoCurrency) ??
                       BigInt.zero;
                 }
-                return sendViewModel.currency.tryParseAmount(o.estimatedFee.replaceAll(",", "")) ??
+                return sendViewModel.currency.tryParseAmount(o.estimatedFee.replaceAll(",", ""))?.amount ??
                     BigInt.zero;
               },
             ), sendViewModel.currency) : sendViewModel.amountParsingProxy.getDisplayCryptoAmount(transaction.feeFormattedValue, sendViewModel.currency)} ${sendViewModel.currencySymbol}";
