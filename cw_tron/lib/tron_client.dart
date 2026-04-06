@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_tron/pending_tron_transaction.dart';
@@ -479,7 +481,8 @@ class TronClient {
     }
   }
 
-  Future<TronBalance> fetchTronTokenBalances(String userAddress, String contractAddress, {bool throwOnError = false}) async {
+  Future<TronBalance> fetchTronTokenBalances(String userAddress, String contractAddress,
+      {bool throwOnError = false, required Currency currency}) async {
     try {
       final ownerAddress = TronAddress(userAddress);
 
@@ -500,12 +503,12 @@ class TronClient {
 
       final outputResult = request.outputResult?.first ?? BigInt.zero;
 
-      return TronBalance(outputResult);
+      return TronBalance(Money(outputResult, currency));
     } catch (_) {
       if (throwOnError) {
         rethrow;
       }
-      return TronBalance(BigInt.zero);
+      return TronBalance(Money.zero(currency));
     }
   }
 
