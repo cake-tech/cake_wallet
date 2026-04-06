@@ -24,6 +24,7 @@ import 'package:cw_bitcoin/psbt/signer.dart';
 import 'package:cw_bitcoin/psbt/transaction_builder.dart';
 import 'package:cw_bitcoin/psbt/v0_deserialize.dart';
 import 'package:cw_bitcoin/psbt/v0_finalizer.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/output_info.dart';
@@ -347,13 +348,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     final lBalance = await lightningWallet!.getBalance();
 
-    this.balance[CryptoCurrency.btcln] =
-        ElectrumBalance(confirmed: lBalance.toInt(), unconfirmed: 0, frozen: 0);
+    this.balance[CryptoCurrency.btcln] = ElectrumBalance(
+        confirmed: Money(lBalance, CryptoCurrency.btcln),
+        unconfirmed: Money.zero(CryptoCurrency.btcln),
+        frozen: Money.zero(CryptoCurrency.btcln));
 
     return ElectrumBalance(
       confirmed: balance.confirmed,
       unconfirmed: balance.unconfirmed,
-      frozen: balance.frozen.toInt(),
+      frozen: balance.frozen ?? Money.zero(currency),
     );
   }
 

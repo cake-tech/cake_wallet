@@ -6,6 +6,8 @@ import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -411,10 +413,10 @@ class LightningWallet {
     return ElectrumTransactionInfo(
       WalletType.bitcoin,
       id: payment.id,
-      amount: payment.amount.toInt(),
+      amount: Money(payment.amount, CryptoCurrency.btcln),
       direction: direction,
       isPending: payment.status == PaymentStatus.pending,
-      fee: payment.fees.toInt(),
+      fee: Money(payment.fees, CryptoCurrency.btcln),
       date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
       confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
       additionalInfo: {"isLightning": true},
@@ -425,10 +427,10 @@ class LightningWallet {
     return ElectrumTransactionInfo(
       WalletType.bitcoin,
       id: deposit.txid,
-      amount: deposit.amountSats.toInt(),
+      amount: Money(deposit.amountSats, CryptoCurrency.btcln),
       direction: TransactionDirection.incoming,
       isPending: true,
-      fee: 0,
+      fee: Money.zero(CryptoCurrency.btcln),
       date: DateTime.now(),
       confirmations: 0,
       additionalInfo: {"isLightning": true, "isSparkDeposit": true},

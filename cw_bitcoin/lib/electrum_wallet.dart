@@ -4,13 +4,6 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:cw_core/root_dir.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
-import 'package:cw_bitcoin/litecoin_wallet.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
@@ -18,6 +11,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart' as electrum;
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -26,20 +20,26 @@ import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
+import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/socket_health_logger.dart';
 import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -51,6 +51,7 @@ import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 
 part 'electrum_wallet.g.dart';
@@ -93,9 +94,9 @@ abstract class ElectrumWalletBase
             ? {
                 currency: initialBalance ??
                     ElectrumBalance(
-                      confirmed: 0,
-                      unconfirmed: 0,
-                      frozen: 0,
+                      confirmed: Money.zero(currency),
+                      unconfirmed: Money.zero(currency),
+                      frozen: Money.zero(currency),
                     )
               }
             : {}),
@@ -563,13 +564,13 @@ abstract class ElectrumWalletBase
                     : newUnspents[0].value;
 
                 if (existingTxInfo.direction == TransactionDirection.incoming) {
-                  existingTxInfo.amount += newAmount;
+                  existingTxInfo.amount += Money.fromInt(newAmount, currency);
                 }
 
                 // Updates existing TX
                 transactionHistory.addOne(existingTxInfo);
                 // Update balance record
-                balance[currency]!.confirmed += newAmount;
+                balance[currency]!.confirmed += Money.fromInt(newAmount, currency);
               }
             } else {
               // else: First time seeing this TX after scanning
@@ -1444,7 +1445,8 @@ abstract class ElectrumWalletBase
           network: network,
           hasChange: estimatedTx.hasChange,
           isSendAll: estimatedTx.isSendAll,
-          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot,
+          hasTaprootInputs: false,
+          // ToDo: (Konsti) Support Taproot,
           isViewOnly: false,
         )..addListener((transaction) async {
             transactionHistory.addOne(transaction);
@@ -2435,16 +2437,15 @@ abstract class ElectrumWalletBase
 
       final history = await electrumClient.getHistory(addressRecord.getScriptHash(network));
 
-
       if (history.isNotEmpty) {
         addressRecord.setAsUsed();
         walletAddresses.clearLockIfMatches(addressRecord.type, addressRecord.address);
 
-        if(this is BitcoinWallet) {
+        if (this is BitcoinWallet) {
           //removes transactions no longer returned by the api, presumed replaced/invalid.
           transactionHistory.transactions.removeWhere(
-                (hash, tx) =>
-            tx.outputAddresses != null &&
+            (hash, tx) =>
+                tx.outputAddresses != null &&
                 tx.outputAddresses!.contains(addressRecord.address) &&
                 !history.any((newTransaction) => newTransaction['tx_hash'] == hash),
           );
@@ -2642,7 +2643,12 @@ abstract class ElectrumWalletBase
       // if we got null balance responses from the server, set our connection status to lost and return our last known balance:
       printV("got null balance responses from the server, setting connection status to lost");
       syncStatus = LostConnectionSyncStatus();
-      return balance[currency] ?? ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
+      return balance[currency] ??
+          ElectrumBalance(
+            confirmed: Money.zero(currency),
+            unconfirmed: Money.zero(currency),
+            frozen: Money.zero(currency),
+          );
     }
 
     for (var i = 0; i < balances.length; i++) {
@@ -2661,9 +2667,9 @@ abstract class ElectrumWalletBase
     }
 
     return ElectrumBalance(
-      confirmed: totalConfirmed,
-      unconfirmed: totalUnconfirmed,
-      frozen: totalFrozen,
+      confirmed: Money.fromInt(totalConfirmed, currency),
+      unconfirmed: Money.fromInt(totalUnconfirmed, currency),
+      frozen: Money.fromInt(totalFrozen, currency),
     );
   }
 
@@ -2915,12 +2921,6 @@ abstract class ElectrumWalletBase
 
       transactionHistory.addOne(tx);
     }
-  }
-
-  @override
-  String formatCryptoAmount(String amount) {
-    final amountBigInt = BigInt.parse(amount);
-    return currency.formatAmount(amountBigInt);
   }
 
   /// Checks the health of the socket connection
@@ -3383,8 +3383,8 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
                 WalletType.bitcoin,
                 id: txid,
                 height: tweakHeight,
-                amount: 0,
-                fee: 0,
+                amount: Money.zero(CryptoCurrency.btc),
+                fee: Money.zero(CryptoCurrency.btc),
                 direction: TransactionDirection.incoming,
                 isReplaced: false,
                 date: scanData.network == BitcoinNetwork.mainnet
@@ -3450,7 +3450,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
                       txInfo.unspents!.add(unspent);
                     }
 
-                    txInfo.amount += unspent.value;
+                    txInfo.amount += Money.fromInt(unspent.value, txInfo.amount.currency);
                   });
                 });
               });

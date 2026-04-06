@@ -1,5 +1,7 @@
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitbox/bitbox.dart' as bitbox;
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
@@ -80,16 +82,15 @@ class PendingBitcoinCashTransaction with PendingTransaction {
   ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(type,
       id: id,
       height: 0,
-      amount: amount,
+      amount: Money.fromInt(amount, CryptoCurrency.bch),
       direction: TransactionDirection.outgoing,
       date: DateTime.now(),
       isPending: true,
       confirmations: 0,
-      fee: fee, 
+      fee: Money.fromInt(fee, CryptoCurrency.bch),
       isReplaced: false,
       );
+
   @override
-  Future<Map<String, String>> commitUR() {
-    throw UnimplementedError();
-  }
+  Future<Map<String, String>> commitUR() => throw UnimplementedError();
 }

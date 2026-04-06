@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -92,9 +94,15 @@ class ElectrumWalletSnapshot {
     final useLightning = data['useLightning'] as bool? ?? true;
     final cachedLightningAddress = data['cachedLightningAddress'] as String?;
 
-    final balance = ElectrumBalance.fromJSON(data['balance'] as String?) ??
-        ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
-    final lightningBalance = ElectrumBalance.fromJSON(data['lightningBalance'] as String?);
+    final currency = walletTypeToCryptoCurrency(type);
+    final balance = ElectrumBalance.fromJSON(data['balance'] as String?, currency) ??
+        ElectrumBalance(
+          confirmed: Money.fromInt(0, currency),
+          unconfirmed: Money.fromInt(0, currency),
+          frozen: Money.fromInt(0, currency),
+        );
+    final lightningBalance =
+        ElectrumBalance.fromJSON(data['lightningBalance'] as String?, currency);
 
     var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};

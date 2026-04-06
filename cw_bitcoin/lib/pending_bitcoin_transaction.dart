@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:bbqrdart/bbqrdart.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
@@ -185,18 +187,20 @@ class PendingBitcoinTransaction with PendingTransaction {
           void Function(ElectrumTransactionInfo transaction) listener) =>
       _listeners.add(listener);
 
-  ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(type,
-      id: id,
-      height: 0,
-      amount: amount,
-      direction: TransactionDirection.outgoing,
-      date: DateTime.now(),
-      isPending: true,
-      isReplaced: false,
-      confirmations: 0,
-      inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
-      outputAddresses: outputAddresses,
-      fee: fee);
+  ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(
+        type,
+        id: id,
+        height: 0,
+        amount: Money.fromInt(amount, walletTypeToCryptoCurrency(type)),
+        direction: TransactionDirection.outgoing,
+        date: DateTime.now(),
+        isPending: true,
+        isReplaced: false,
+        confirmations: 0,
+        inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
+        outputAddresses: outputAddresses,
+        fee: Money.fromInt(fee, walletTypeToCryptoCurrency(type)),
+      );
 
   @override
   bool shouldCommitUR() => isViewOnly;
