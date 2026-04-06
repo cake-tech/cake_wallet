@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
@@ -10,6 +11,7 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
+import 'package:cw_evm/evm_erc20_currency.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/.secrets.g.dart' as secrets;
 import 'package:cw_evm/utils/evm_chain_utils.dart';
@@ -524,14 +526,16 @@ class EVMChainClient {
   }
 
   Future<EVMChainERC20Balance> fetchERC20Balances(
-      EthereumAddress userAddress, String contractAddress) async {
+      EthereumAddress userAddress, String contractAddress, {String? erc20Symbol, int? decimals}) async {
     try {
       final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
       final balance = await erc20.balanceOf(userAddress);
 
-      int exponent = (await erc20.decimals()).toInt();
+      final exponent = decimals ?? (await erc20.decimals()).toInt();
+      final symbol = erc20Symbol ?? await erc20.symbol();
+      final currency = ERC20Currency(decimals: exponent, symbol: symbol);
 
-      return EVMChainERC20Balance(balance, exponent: exponent);
+      return EVMChainERC20Balance(Money(balance, currency));
     } on RangeError catch (_) {
       throw Exception('Invalid token contract for this network.');
     } catch (e) {

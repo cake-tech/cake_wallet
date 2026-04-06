@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -28,6 +29,7 @@ import 'package:cw_evm/evm_chain_default_tokens.dart';
 import 'package:cw_evm/evm_chain_exceptions.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
+import 'package:cw_evm/evm_erc20_currency.dart';
 import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
@@ -102,7 +104,7 @@ abstract class EVMChainWalletBase
         walletAddresses = EVMChainWalletAddresses(walletInfo, initialChainId ?? _getInitialChainId(walletInfo.type)),
         balance = ObservableMap<CryptoCurrency, EVMChainERC20Balance>.of(
           {
-            nativeCurrency: initialBalance ?? EVMChainERC20Balance(BigInt.zero),
+            nativeCurrency: initialBalance ?? EVMChainERC20Balance(Money.zero(nativeCurrency)),
           },
         ),
         super(walletInfo, derivationInfo) {
@@ -410,20 +412,24 @@ abstract class EVMChainWalletBase
     EVMChainTransactionModel transactionModel,
     String address,
   ) {
+    final decimals = transactionModel.tokenDecimal ?? 18;
+    final tokenSymbol = transactionModel.tokenSymbol ??
+        EVMChainUtils.getDefaultTokenSymbol(transactionModel.chainId);
+
+    final amountCurrency = ERC20Currency(decimals: decimals, symbol: tokenSymbol);
     return EVMChainTransactionInfo(
       id: transactionModel.hash,
       height: transactionModel.blockNumber,
-      ethAmount: transactionModel.amount,
+      amount: Money(transactionModel.amount, amountCurrency),
       direction: transactionModel.from == address
           ? TransactionDirection.outgoing
           : TransactionDirection.incoming,
       isPending: false,
       date: transactionModel.date,
       confirmations: transactionModel.confirmations,
-      ethFee: BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
+      fee: Money(BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice, currency),
       exponent: transactionModel.tokenDecimal ?? 18,
-      tokenSymbol: transactionModel.tokenSymbol ??
-          EVMChainUtils.getDefaultTokenSymbol(transactionModel.chainId),
+      tokenSymbol: tokenSymbol,
       to: transactionModel.to,
       from: transactionModel.from,
       evmSignatureName: transactionModel.evmSignatureName,
@@ -478,7 +484,8 @@ abstract class EVMChainWalletBase
       // Check USDC token balance
       String usdcContractAddress = _getUSDCContractAddress();
 
-      await _client.fetchERC20Balances(_evmChainPrivateKey.address, usdcContractAddress);
+      await _client.fetchERC20Balances(_evmChainPrivateKey.address, usdcContractAddress,
+          erc20Symbol: '', decimals: 0);
 
       return true;
     } catch (e) {
@@ -530,7 +537,7 @@ abstract class EVMChainWalletBase
 
     // Ensure balance is initialized for current currency (in case currency changed)
     if (!balance.containsKey(currency)) {
-      balance[currency] = EVMChainERC20Balance(BigInt.zero);
+      balance[currency] = EVMChainERC20Balance(Money.zero(currency));
     }
 
     await save();
@@ -912,8 +919,8 @@ abstract class EVMChainWalletBase
             'Currency ${_credentials.currency.title} ${_credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
 
     final currencyBalance = balance[transactionCurrency]!;
-    BigInt totalAmount = BigInt.zero;
-    BigInt estimatedFeesForTransaction = BigInt.zero;
+    var totalAmount = Money.zero(transactionCurrency);
+    var estimatedFeesForTransaction = Money.zero(currency);
     int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
     String? contractAddress;
     int estimatedGasUnitsForTransaction = 0;
@@ -932,15 +939,11 @@ abstract class EVMChainWalletBase
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
 
-      totalAmount = outputs.fold<BigInt>(
-        BigInt.zero,
+      totalAmount = outputs.fold<Money>(
+        Money.zero(transactionCurrency),
         (acc, output) {
           if (output.cryptoAmount != null && output.cryptoAmount!.isNotEmpty) {
-            return acc +
-                EVMChainFormatter.parseEVMChainAmountToBigInt(
-                  output.cryptoAmount!,
-                  decimals: exponent,
-                );
+            return acc + Money.parse(output.cryptoAmount!, acc.currency);
           }
           return acc;
         },
@@ -953,7 +956,8 @@ abstract class EVMChainWalletBase
         contractAddress: contractAddress,
       );
 
-      estimatedFeesForTransaction = BigInt.from(gasFeesModel.estimatedGasFee);
+      estimatedFeesForTransaction =
+          estimatedFeesForTransaction.copyWith(amount: BigInt.from(gasFeesModel.estimatedGasFee));
       estimatedGasUnitsForTransaction = gasFeesModel.estimatedGasUnits;
       maxFeePerGasForTransaction = gasFeesModel.maxFeePerGas;
 
@@ -964,12 +968,9 @@ abstract class EVMChainWalletBase
       final output = outputs.first;
       if (!output.sendAll) {
         if (output.cryptoAmount != null && output.cryptoAmount!.isNotEmpty) {
-          totalAmount = EVMChainFormatter.parseEVMChainAmountToBigInt(
-            output.cryptoAmount!,
-            decimals: exponent,
-          );
+          totalAmount = Money.parse(output.cryptoAmount!, totalAmount.currency);
         } else {
-          totalAmount = BigInt.zero;
+          totalAmount = totalAmount.copyWith(amount: BigInt.zero);
         }
       }
 
@@ -984,7 +985,8 @@ abstract class EVMChainWalletBase
         contractAddress: contractAddress,
       );
 
-      estimatedFeesForTransaction = BigInt.from(gasFeesModel.estimatedGasFee);
+      estimatedFeesForTransaction =
+          estimatedFeesForTransaction.copyWith(amount: BigInt.from(gasFeesModel.estimatedGasFee));
       estimatedGasUnitsForTransaction = gasFeesModel.estimatedGasUnits;
       maxFeePerGasForTransaction = gasFeesModel.maxFeePerGas;
 
@@ -992,17 +994,17 @@ abstract class EVMChainWalletBase
         if (selectedChainId == 8453) {
           // Applying a small buffer to account for gas price fluctuations
           // 10% or minimum 10,000 wei, whichever is higher
-          final refinedGasFee = estimatedFeesForTransaction;
+          final refinedGasFee = estimatedFeesForTransaction.amount;
           final gasBufferPercent = refinedGasFee * BigInt.from(110) ~/ BigInt.from(100);
           final gasBufferMin = refinedGasFee + BigInt.from(10000);
           final gasBuffer = gasBufferPercent > gasBufferMin ? gasBufferPercent : gasBufferMin;
 
           // Using the buffered fee for the final amount
-          totalAmount = (currencyBalance.balance - gasBuffer);
-          estimatedFeesForTransaction = gasBuffer;
+          totalAmount = totalAmount.copyWith(amount: currencyBalance.balance.amount - gasBuffer);
+          estimatedFeesForTransaction = estimatedFeesForTransaction.copyWith(amount: gasBuffer);
         } else {
           // Calculating the final amount with the estimated gas fee
-          totalAmount = (currencyBalance.balance - estimatedFeesForTransaction);
+          totalAmount = currencyBalance.balance - estimatedFeesForTransaction;
         }
       }
 
@@ -1030,8 +1032,8 @@ abstract class EVMChainWalletBase
       estimatedGasUnits: estimatedGasUnitsForTransaction,
       privateKey: _evmChainPrivateKey,
       toAddress: toAddress,
-      amount: totalAmount,
-      gasFee: estimatedFeesForTransaction,
+      amount: totalAmount.amount,
+      gasFee: estimatedFeesForTransaction.amount,
       priority: _credentials.priority,
       currency: transactionCurrency,
       feeCurrency: EVMChainUtils.getFeeCurrency(selectedChainId),
@@ -1083,8 +1085,8 @@ abstract class EVMChainWalletBase
     }
 
     // Validate NATIVE Balance (for Gas + Value)
-    final nativeBal = balance[nativeCurrency]?.balance ?? BigInt.zero;
-    final requiredNative = valueWei + BigInt.from(gas.estimatedGasFee);
+    final nativeBal = balance[nativeCurrency]?.balance ?? Money.zero(nativeCurrency);
+    final requiredNative = Money(valueWei + BigInt.from(gas.estimatedGasFee), nativeCurrency);
 
     if (requiredNative > nativeBal) {
       throw Exception('Not enough ${nativeCurrency.title} to cover value and fees.');
@@ -1112,9 +1114,9 @@ abstract class EVMChainWalletBase
       }
 
       final tokenKey = matchingTokens.first;
-      final tokenBalance = balance[tokenKey]?.balance ?? BigInt.zero;
+      final tokenBalance = balance[tokenKey]?.balance ?? Money.zero(tokenKey);
 
-      if (tokenBalance < sourceTokenAmount) {
+      if (tokenBalance < Money(sourceTokenAmount, tokenKey)) {
         throw Exception('Insufficient ${tokenKey.title} balance to cover the transaction amount.');
       }
     }
@@ -1158,7 +1160,7 @@ abstract class EVMChainWalletBase
       toAddress: EthereumAddress.fromHex(spender),
     );
 
-    final tokenContract = (transactionCurrency as Erc20Token).contractAddress;
+    final tokenContract = transactionCurrency.contractAddress;
 
     final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
       amount: BigInt.zero,
@@ -1323,7 +1325,8 @@ abstract class EVMChainWalletBase
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
         'private_key': privateKey,
-        'balance': balance[currency]?.toJSON() ?? EVMChainERC20Balance(BigInt.zero).toJSON(),
+        'balance':
+            balance[currency]?.toJSON() ?? EVMChainERC20Balance(Money.zero(currency)).toJSON(),
         'passphrase': passphrase,
         'selected_chain_id': selectedChainId,
       });
@@ -1339,9 +1342,9 @@ abstract class EVMChainWalletBase
     try {
       final balance = await _client.getBalance(_evmChainPrivateKey.address);
 
-      return EVMChainERC20Balance(balance.getInWei);
+      return EVMChainERC20Balance(Money(balance.getInWei, currency));
     } catch (_) {
-      return balance[currency] ?? EVMChainERC20Balance(BigInt.zero);
+      return balance[currency] ?? EVMChainERC20Balance(Money.zero(currency));
     }
   }
 
@@ -1401,6 +1404,8 @@ abstract class EVMChainWalletBase
           balance[token] = await _client.fetchERC20Balances(
             _evmChainPrivateKey.address,
             token.contractAddress,
+            erc20Symbol: token.symbol,
+            decimals: token.decimals,
           );
         } else {
           balance.remove(token);
@@ -1508,6 +1513,8 @@ abstract class EVMChainWalletBase
         final erc20Balance = await _client.fetchERC20Balances(
           _evmChainPrivateKey.address,
           newToken.contractAddress,
+          erc20Symbol: newToken.symbol,
+          decimals: newToken.decimals,
         );
 
         balance[newToken] = erc20Balance;
@@ -1580,9 +1587,6 @@ abstract class EVMChainWalletBase
       if (!hasKeysFile) rethrow;
     }
 
-    final balance = EVMChainERC20Balance.fromJSON(data?['balance'] as String?) ??
-        EVMChainERC20Balance(BigInt.zero);
-
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to the new .keys file scheme
     if (!hasKeysFile) {
@@ -1626,6 +1630,10 @@ abstract class EVMChainWalletBase
 
     // Use saved chainId if available, otherwise use the computed chainId
     final initialChainIdForWallet = savedChainId ?? chainId;
+
+    final balance =
+        EVMChainERC20Balance.fromJSON(data?['balance'] as String?, chainConfig.nativeCurrency) ??
+            EVMChainERC20Balance(Money.zero(chainConfig.nativeCurrency));
 
     return EVMChainWallet(
       walletInfo: walletInfo,
