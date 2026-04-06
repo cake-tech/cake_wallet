@@ -19,17 +19,27 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     this.isPotentialScam = false,
   }) : super(title: title, raw: raw);
 
-  final String name;
-  final String? tag;
-  final String? fullName;
-  final String? iconPath;
-  final String? iconSvgPath;
   final String? flatIconPath;
   final String? chainIconPath;
-  @override
-  final int decimals;
+  final String? tag;
   final bool enabled;
   final bool isPotentialScam;
+
+  @override
+  final String name;
+
+  @override
+  final String? fullName;
+
+  @override
+  final String? iconPath;
+  final String? iconSvgPath;
+
+  @override
+  final int decimals;
+
+  @override
+  String get symbol => title;
 
   set enabled(bool value) => this.enabled = value;
 

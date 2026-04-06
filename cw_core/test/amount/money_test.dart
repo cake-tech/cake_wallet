@@ -1,10 +1,10 @@
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:flutter_test/flutter_test.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:flutter_test/flutter_test.dart";
 
 void main() {
-  group('Money', () {
-    test('parse', () {
+  group("Money", () {
+    test("parse", () {
       var money = Money.parse("1", CryptoCurrency.btc);
       expect(money.amount, BigInt.from(100000000));
 
@@ -30,7 +30,7 @@ void main() {
       expect(() => Money.parse("-1.000000000000000", CryptoCurrency.btc), throwsFormatException);
     });
 
-    test('tryParse', () {
+    test("tryParse", () {
       var money = Money.tryParse("1", CryptoCurrency.btc);
       expect(money?.amount, BigInt.from(100000000));
 
@@ -86,24 +86,24 @@ void main() {
       expect(Money(BigInt.from(-1), CryptoCurrency.btc).isNegative, isTrue);
     });
 
-    group('Comparison', () {
+    group("Comparison", () {
       final fourBitcoin = Money(BigInt.from(400000000), CryptoCurrency.btc);
       final fiveBitcoin = Money(BigInt.from(500000000), CryptoCurrency.btc);
       final sixBitcoin = Money(BigInt.from(600000000), CryptoCurrency.btc);
 
-      final fiveMonero = Money.parse('5', CryptoCurrency.xmr);
+      final fiveMonero = Money.parse("5", CryptoCurrency.xmr);
 
-      test('==', () {
+      test("==", () {
         expect(fiveBitcoin, equals(Money(BigInt.from(500000000), CryptoCurrency.btc)));
         expect(fiveBitcoin, isNot(equals(fourBitcoin)));
         expect(fiveBitcoin, isNot(equals(sixBitcoin)));
         expect(fiveBitcoin, isNot(equals(fiveMonero)));
         // intentional check of incompatible types.
         // ignore: unrelated_type_equality_checks
-        expect(fiveBitcoin == 'Not money', equals(false));
+        expect(fiveBitcoin == "Not money", equals(false));
       });
 
-      test('<', () {
+      test("<", () {
         expect(fiveBitcoin < sixBitcoin, isTrue);
         expect(fiveBitcoin < fiveBitcoin, isFalse);
         expect(fiveBitcoin < fourBitcoin, isFalse);
@@ -112,7 +112,7 @@ void main() {
         expect(() => fiveBitcoin < fiveMonero, throwsArgumentError);
       });
 
-      test('<=', () {
+      test("<=", () {
         expect(fiveBitcoin <= sixBitcoin, isTrue);
         expect(fiveBitcoin <= fiveBitcoin, isTrue);
         expect(fiveBitcoin <= fourBitcoin, isFalse);
@@ -121,7 +121,7 @@ void main() {
         expect(() => fiveBitcoin <= fiveMonero, throwsArgumentError);
       });
 
-      test('>', () {
+      test(">", () {
         expect(fiveBitcoin > fourBitcoin, isTrue);
         expect(fiveBitcoin > fiveBitcoin, isFalse);
         expect(fiveBitcoin > sixBitcoin, isFalse);
@@ -130,7 +130,7 @@ void main() {
         expect(() => fiveBitcoin > fiveMonero, throwsArgumentError);
       });
 
-      test('>=', () {
+      test(">=", () {
         expect(fiveBitcoin >= fourBitcoin, isTrue);
         expect(fiveBitcoin >= fiveBitcoin, isTrue);
         expect(fiveBitcoin >= sixBitcoin, isFalse);
@@ -139,7 +139,7 @@ void main() {
         expect(() => fiveBitcoin >= fiveMonero, throwsArgumentError);
       });
 
-      test('conformance to Comparable', () {
+      test("conformance to Comparable", () {
         expect(fiveBitcoin, isA<Comparable<Money>>());
 
         expect(fiveBitcoin.compareTo(fiveBitcoin), isZero);
@@ -149,23 +149,23 @@ void main() {
       });
     });
 
-    group('Math', () {
-      test('+', () {
-        final oneBitcoin = Money.parse('1', CryptoCurrency.btc);
-        final twoBitcoin = Money.parse('2', CryptoCurrency.btc);
-        final threeBitcoin = Money.parse('3', CryptoCurrency.btc);
+    group("Math", () {
+      test("+", () {
+        final oneBitcoin = Money.parse("1", CryptoCurrency.btc);
+        final twoBitcoin = Money.parse("2", CryptoCurrency.btc);
+        final threeBitcoin = Money.parse("3", CryptoCurrency.btc);
 
         expect(oneBitcoin + twoBitcoin, equals(threeBitcoin));
       });
 
-      test('cannot add different currencies', () {
+      test("cannot add different currencies", () {
         final oneBitcoin = Money(BigInt.one, CryptoCurrency.btc);
         final oneMonero = Money(BigInt.one, CryptoCurrency.xmr);
 
         expect(() => oneBitcoin + oneMonero, throwsArgumentError);
       });
 
-      test('invert money', () {
+      test("invert money", () {
         final oneSatoshi = Money(BigInt.one, CryptoCurrency.btc);
         final negativeOneSatoshi = Money(BigInt.from(-1), CryptoCurrency.btc);
 
@@ -173,7 +173,7 @@ void main() {
         expect(-negativeOneSatoshi, equals(oneSatoshi));
       });
 
-      test('-', () {
+      test("-", () {
         final oneSatoshi = Money(BigInt.one, CryptoCurrency.btc);
         final twoSatoshi = Money(BigInt.two, CryptoCurrency.btc);
         final threeSatoshi = Money(BigInt.from(3), CryptoCurrency.btc);
@@ -181,14 +181,14 @@ void main() {
         expect(threeSatoshi - oneSatoshi, equals(twoSatoshi));
       });
 
-      test('cannot subtract different currencies', () {
+      test("cannot subtract different currencies", () {
         final oneSatoshi = Money(BigInt.one, CryptoCurrency.btc);
         final oneMonero = Money(BigInt.one, CryptoCurrency.xmr);
 
         expect(() => oneSatoshi - oneMonero, throwsArgumentError);
       });
 
-      test('*', () {
+      test("*", () {
         final zeroSatoshi = Money(BigInt.zero, CryptoCurrency.btc);
         final oneSatoshi = Money(BigInt.one, CryptoCurrency.btc);
         final twoSatoshi = Money(BigInt.two, CryptoCurrency.btc);
@@ -198,28 +198,28 @@ void main() {
         expect(oneSatoshi * BigInt.from(-2), equals(-twoSatoshi));
       });
 
-      group('/', () {
+      group("/", () {
         final threeBI = BigInt.from(3);
         final fourBI = BigInt.from(4);
 
         final negThreeBI = BigInt.from(-3);
         final negFourBI = BigInt.from(-4);
 
-        test('rounds down when fractional part is < 0.5', () {
+        test("rounds down when fractional part is < 0.5", () {
           expect((Money(BigInt.from(10), CryptoCurrency.btc) / threeBI).amount, threeBI);
           expect((Money(BigInt.from(-10), CryptoCurrency.btc) / threeBI).amount, negThreeBI);
           expect((Money(BigInt.from(10), CryptoCurrency.btc) / negThreeBI).amount, negThreeBI);
           expect((Money(BigInt.from(-10), CryptoCurrency.btc) / negThreeBI).amount, threeBI);
         });
 
-        test('rounds up when fractional part is > 0.5', () {
+        test("rounds up when fractional part is > 0.5", () {
           expect((Money(BigInt.from(11), CryptoCurrency.btc) / threeBI).amount, fourBI); // 3.66...
           expect((Money(BigInt.from(-11), CryptoCurrency.btc) / threeBI).amount, negFourBI);
           expect((Money(BigInt.from(11), CryptoCurrency.btc) / negThreeBI).amount, negFourBI);
           expect((Money(BigInt.from(-11), CryptoCurrency.btc) / negThreeBI).amount, fourBI);
         });
 
-        test('rounds AWAY from zero when fractional part is exactly 0.5 (Ties)', () {
+        test("rounds AWAY from zero when fractional part is exactly 0.5 (Ties)", () {
           // 5 / 2 = 2.5 -> 3
           expect((Money(BigInt.from(5), CryptoCurrency.btc) / BigInt.two).amount, threeBI);
           // -5 / 2 = -2.5 -> -3
@@ -230,52 +230,59 @@ void main() {
           expect((Money(BigInt.from(-5), CryptoCurrency.btc) / -BigInt.two).amount, threeBI);
         });
 
-        test('handles zero numerator correctly', () {
+        test("handles zero numerator correctly", () {
           expect((Money(BigInt.zero, CryptoCurrency.btc) / BigInt.from(5)).amount, BigInt.zero);
           expect((Money(BigInt.zero, CryptoCurrency.btc) / BigInt.from(-5)).amount, BigInt.zero);
         });
 
-        test('throws Exception on division by zero', () {
+        test("throws Exception on division by zero", () {
           expect(
             () => Money(BigInt.from(5), CryptoCurrency.btc) / BigInt.zero,
             throwsA(isA<Exception>()),
           );
         });
 
-        test('handles very large BigInts without precision loss', () {
+        test("handles very large BigInts without precision loss", () {
           // A number that would lose precision if converted to a standard double
-          final hugeA = BigInt.parse('10000000000000000000000000000000000005');
-          final hugeB = BigInt.parse('10');
+          final hugeA = BigInt.parse("10000000000000000000000000000000000005");
+          final hugeB = BigInt.parse("10");
           // 1000...005 / 10 = 1000...000.5 -> Should round up to 1000...001
-          final expected = BigInt.parse('1000000000000000000000000000000000001');
+          final expected = BigInt.parse("1000000000000000000000000000000000001");
 
           expect((Money(hugeA, CryptoCurrency.btc) / hugeB).amount, expected);
         });
 
-        test('handles exact division perfectly', () {
+        test("handles exact division perfectly", () {
           expect((Money(BigInt.from(100), CryptoCurrency.btc) / BigInt.from(20)).amount, BigInt.from(5));
           expect((Money(BigInt.from(-100), CryptoCurrency.btc) / BigInt.from(20)).amount, BigInt.from(-5));
         });
       });
     });
 
-    group('copyWith', () {
+    group("copyWith", () {
       final money = Money.parse("1", CryptoCurrency.btc);
 
-      test('currency', () {
+      test("currency", () {
         final copy = money.copyWith(currency: CryptoCurrency.eth);
         expect(copy.amount, equals(BigInt.parse("1000000000000000000")));
         expect(copy.currency.decimals, equals(18));
         expect(copy.toString(), "1");
       });
 
-      test('amount', () {
+      test("currency nano", () {
+        final copy = money.copyWith(currency: CryptoCurrency.nano);
+        expect(copy.amount, equals(BigInt.parse("1000000000000000000000000000000")));
+        expect(copy.currency.decimals, equals(30));
+        expect(copy.toString(), "1");
+      });
+
+      test("amount", () {
         final copy = money.copyWith(amount: BigInt.one);
         expect(copy.amount, BigInt.one);
         expect(copy.currency.decimals, 8);
       });
 
-      test('amount and currency', () {
+      test("amount and currency", () {
         final copy = money.copyWith(amount: BigInt.one);
         expect(copy.amount, BigInt.one);
         expect(copy.currency.decimals, 8);

@@ -1,8 +1,8 @@
 import 'package:cw_core/amount/money.dart';
 
 abstract class Currency {
+  String get symbol;
   String get name;
-  String? get tag;
   String? get fullName;
   String? get iconPath;
   int get decimals;

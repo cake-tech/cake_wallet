@@ -9,6 +9,10 @@ class Money implements Comparable<Money> {
 
   const Money(this.amount, this.currency);
 
+  factory Money.zero(Currency currency) => Money(BigInt.zero, currency);
+
+  factory Money.fromInt(int amount, Currency currency) => Money(BigInt.from(amount), currency);
+
   /// Parse the [source] and turn it into [Money]
   ///
   /// Throws a [FormatException] if the [source] is not a valid decimal or
@@ -64,7 +68,7 @@ class Money implements Comparable<Money> {
   /// otherwise.
   bool operator <(Money other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
-    
+
     return amount < other.amount;
   }
 
@@ -98,7 +102,6 @@ class Money implements Comparable<Money> {
     return amount >= other.amount;
   }
 
-
   /// Adds the amount of [other] to this amount.
   ///
   /// Both operands must be in same currency, [ArgumentError] will be thrown
@@ -127,6 +130,9 @@ class Money implements Comparable<Money> {
   /// The result is again [Money].
   Money operator *(BigInt other) => _withAmount(amount * other);
 
+  /// Returns [Money] divided by [other].
+  ///
+  /// The result is again [Money].
   Money operator /(BigInt other) {
     if (other == BigInt.zero) throw Exception('Division by zero.');
 
@@ -166,9 +172,6 @@ class Money implements Comparable<Money> {
       throw ArgumentError(message ?? "Cannot operate with money values in different currencies.");
   }
 
-  @override
-  String toString() => formatFixed(amount, currency.decimals);
-
   BigInt _transformAmount(BigInt source, int sourceDecimals, int targetDecimals) {
     if (sourceDecimals == targetDecimals) return source;
 
@@ -181,4 +184,14 @@ class Money implements Comparable<Money> {
           targetDecimals);
     }
   }
+
+  @override
+  String toString() => formatFixed(amount, currency.decimals);
+
+  String toStringWithSymbol({int? fractionalDigits, bool trimZeros = true}) =>
+      "${toStringWithPrecision(fractionalDigits: fractionalDigits, trimZeros: trimZeros)} ${currency.symbol}";
+
+  String toStringWithPrecision({int? fractionalDigits, bool trimZeros = true}) =>
+      formatFixed(amount, currency.decimals,
+          fractionalDigits: fractionalDigits, trimZeros: trimZeros);
 }
