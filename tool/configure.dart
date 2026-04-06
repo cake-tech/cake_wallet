@@ -128,6 +128,7 @@ import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:collection/collection.dart';
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
@@ -167,13 +168,15 @@ import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
     required this.address,
     required this.txCount,
     required this.balance,
-    required this.isChange});
+    required this.isChange,
+    this.isLegacyDerivation = false});
   final int id;
   final String name;
   final String address;
   final int txCount;
   final int balance;
   final bool isChange;
+  final bool isLegacyDerivation;
 }
 
 abstract class Bitcoin {
@@ -189,7 +192,7 @@ abstract class Bitcoin {
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
   WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub, HardwareWalletType? hardwareWalletType});
-  WalletCredentials createLitecoinWalletFromKeys({required String name, required String password, required String xpub, required String scanSecret, required String spendPubkey});
+  WalletCredentials createLitecoinWalletFromKeys({required String name, required String password, required String xpub, required String scanSecret, required String spendPubkey, HardwareWalletType? hardwareWalletType});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
@@ -454,6 +457,7 @@ abstract class Monero {
     required String address,
     required String password,
     required String language,
+    HardwareWalletType? hardwareWalletType,
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
   WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});

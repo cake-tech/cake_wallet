@@ -6,15 +6,19 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -24,10 +28,11 @@ import '../../../pages/scan_page.dart';
 import 'coin_action_button.dart';
 
 class CoinActionRow extends StatelessWidget {
-  const CoinActionRow({super.key, this.lightningMode = false, this.showSwap = true});
+  const CoinActionRow({super.key, this.lightningMode = false, this.showSwap = true, required this.walletType});
 
   final bool lightningMode;
   final bool showSwap;
+  final WalletType walletType;
 
   @override
   Widget build(BuildContext context) {
@@ -178,6 +183,21 @@ class CoinActionRow extends StatelessWidget {
         req = PaymentRequest(code, amount, "", "", "");
       } else if (OpenCryptoPayService.isOpenCryptoPayQR(code)) {
         req = PaymentRequest(code, "", "", "", "");
+      } else if (Uri.tryParse(code)?.scheme == "wc") {
+        if (!isEVMCompatibleChain(walletType)) {
+          showPopUp<void>(
+              context: context,
+              builder: (context) => AlertWithOneAction(
+                  alertTitle: "WalletConnect",
+                  alertContent: S.of(context).switchToEVMCompatibleWallet,
+                  buttonText: "OK",
+                  buttonAction: Navigator.of(context).pop));
+          return;
+        }
+
+        Navigator.of(context)
+            .pushNamed(Routes.walletConnectConnectionsListing, arguments: Uri.parse(code));
+        return;
       } else {
         final uri = Uri.tryParse(code);
         if (uri == null) return;

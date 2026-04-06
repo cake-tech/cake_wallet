@@ -12,6 +12,7 @@ class ModalTopBar extends StatelessWidget {
         this.onTrailingPressed=nothing,
         this.leadingIcon,
         this.trailingIcon,
+        this.padding,
         this.leadingWidget,
         this.trailingWidget}) {
     if(leadingIcon != null && leadingWidget != null) {
@@ -27,6 +28,7 @@ class ModalTopBar extends StatelessWidget {
   final VoidCallback onLeadingPressed;
   final VoidCallback onTrailingPressed;
   final Widget? leadingIcon;
+  final EdgeInsets? padding;
   final Widget? trailingIcon;
   final Widget? leadingWidget;
   final Widget? trailingWidget;
@@ -36,7 +38,7 @@ class ModalTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(18),
+      padding: padding??EdgeInsets.all(18),
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
