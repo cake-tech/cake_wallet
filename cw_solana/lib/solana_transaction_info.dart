@@ -1,3 +1,5 @@
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -13,17 +15,24 @@ class SolanaTransactionInfo extends TransactionInfo {
     this.tokenSymbol = "SOL",
     required this.isPending,
     required this.txFee,
-  }) : amount = solAmount.toInt();
+  }) : amount = Money.fromInt(solAmount.toInt(), CryptoCurrency.sol);
 
+  @override
   final String id;
+  @override
   final String? to;
+  @override
   final String? from;
-  final int amount;
+  @override
+  final Money amount;
+  @override
   final bool isPending;
+
   final double solAmount;
   final String tokenSymbol;
   final DateTime blockTime;
   final double txFee;
+  @override
   final TransactionDirection direction;
 
   String? _fiatAmount;
@@ -32,22 +41,10 @@ class SolanaTransactionInfo extends TransactionInfo {
   DateTime get date => blockTime;
 
   @override
-  String amountFormatted() {
-    String stringBalance = solAmount.toString();
-    if (stringBalance.toString().length >= 12) {
-      stringBalance = stringBalance.substring(0, 12);
-    }
-    return '$stringBalance $tokenSymbol';
-  }
-
-  @override
   String fiatAmount() => _fiatAmount ?? '';
 
   @override
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
-
-  @override
-  String feeFormatted() => '${txFee.toString()} SOL';
 
   factory SolanaTransactionInfo.fromJson(Map<String, dynamic> data) {
     return SolanaTransactionInfo(

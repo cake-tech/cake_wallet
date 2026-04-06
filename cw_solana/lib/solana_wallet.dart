@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -57,7 +58,7 @@ abstract class SolanaWalletBase
         _client = SolanaWalletClient(),
         walletAddresses = SolanaWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, SolanaBalance>.of(
-            {CryptoCurrency.sol: initialBalance ?? SolanaBalance(BigInt.zero.toDouble(), false)}),
+            {CryptoCurrency.sol: initialBalance ?? SolanaBalance.zero(CryptoCurrency.sol)}),
         super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = SolanaTransactionHistory(
@@ -213,7 +214,8 @@ abstract class SolanaWalletBase
 
   Future<void> _getEstimatedFees() async {
     try {
-      estimatedFee = await _client.getEstimatedFee(_solanaPublicKey, Commitment.confirmed);
+      estimatedFee = double.parse(
+          (await _client.getEstimatedFee(_solanaPublicKey, Commitment.confirmed)).toString());
       printV(estimatedFee.toString());
     } catch (e) {
       estimatedFee = 0.0;
@@ -237,27 +239,17 @@ abstract class SolanaWalletBase
         orElse: () => throw Exception(
             'Currency ${credentials.currency.title} ${credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
 
-    final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
+    final walletBalanceForCurrency = balance[transactionCurrency]!.available;
 
-    final solBalance = balance[CryptoCurrency.sol]!.balance;
+    final solBalance = balance[CryptoCurrency.sol]!.available;
 
-    double totalAmount = 0.0;
+    var totalAmount = Money.zero(transactionCurrency);
 
     bool isSendAll = false;
 
     if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw SolanaTransactionWrongBalanceException(transactionCurrency);
-      }
-
-      final totalAmountFromCredentials =
-          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
-
-      totalAmount = totalAmountFromCredentials.toDouble();
-
-      if (walletBalanceForCurrency < totalAmount) {
-        throw SolanaTransactionWrongBalanceException(transactionCurrency);
-      }
+      // Solana doesn't have multi destination right now
+      throw SolanaTransactionCreationException(transactionCurrency);
     } else {
       final output = outputs.first;
 
@@ -266,9 +258,7 @@ abstract class SolanaWalletBase
       if (isSendAll) {
         totalAmount = walletBalanceForCurrency;
       } else {
-        final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
-
-        totalAmount = totalOriginalAmount;
+        totalAmount = Money.parse(output.cryptoAmount ?? "0.0", transactionCurrency);
       }
 
       if (walletBalanceForCurrency < totalAmount) {
@@ -282,20 +272,17 @@ abstract class SolanaWalletBase
       tokenMint = (transactionCurrency as SPLToken).mintAddress;
     }
 
-    final pendingSolanaTransaction = await _client.signSolanaTransaction(
+    return _client.signSolanaTransaction(
       tokenMint: tokenMint,
-      tokenTitle: transactionCurrency.title,
+      currency: transactionCurrency,
       inputAmount: totalAmount,
       ownerPrivateKey: _solanaPrivateKey,
-      tokenDecimals: transactionCurrency.decimals,
       destinationAddress: solCredentials.outputs.first.isParsedAddress
           ? solCredentials.outputs.first.extractedAddress!
           : solCredentials.outputs.first.address,
       isSendAll: isSendAll,
       solBalance: solBalance,
     );
-
-    return pendingSolanaTransaction;
   }
 
   @override
@@ -497,7 +484,8 @@ abstract class SolanaWalletBase
       if (!hasKeysFile) rethrow;
     }
 
-    final balance = SolanaBalance.fromJSON(data?['balance'] as String?, false) ?? SolanaBalance(0.0, false);
+    final balance = SolanaBalance.fromJSON(data?['balance'] as String?, CryptoCurrency.sol) ??
+        SolanaBalance.zero(CryptoCurrency.sol);
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
@@ -545,7 +533,7 @@ abstract class SolanaWalletBase
   Future<SolanaBalance> _fetchSOLBalance() async {
     final balance = await _client.getBalance(solanaAddress);
 
-    return SolanaBalance(balance, false);
+    return SolanaBalance(balance);
   }
 
   /// Internal helper to update SPL token balances.
@@ -577,7 +565,7 @@ abstract class SolanaWalletBase
 
       final results = await Future.wait(batch.map((token) async {
         try {
-          final fetched = await _client.getSplTokenBalance(token.mintAddress, solanaAddress);
+          final fetched = await _client.getSplTokenBalance(token, solanaAddress);
           return MapEntry(token, fetched);
         } catch (e) {
           printV('Error fetching spl token (${token.symbol}) balance ${e.toString()}');
@@ -588,8 +576,7 @@ abstract class SolanaWalletBase
       for (final entry in results) {
         final token = entry.key;
         final fetchedBalance = entry.value;
-        final currentBalance = balance[token] ??
-            SolanaBalance.forToken(BigInt.zero, 0.0);
+        final currentBalance = balance[token] ?? SolanaBalance.zero(token);
         balance[token] = fetchedBalance ?? currentBalance;
       }
     }
@@ -605,7 +592,7 @@ abstract class SolanaWalletBase
       await _client.getBalance(solanaAddress, throwOnError: true);
 
       // Check USDC token balance
-      const usdcMintAddress = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+      final usdcMintAddress = DefaultSPLTokens().usdc;
       await _client.getSplTokenBalance(usdcMintAddress, solanaAddress, throwOnError: true);
 
       return true;
@@ -635,9 +622,8 @@ abstract class SolanaWalletBase
     await splTokensBox.put(token.mintAddress, token);
 
     if (token.enabled) {
-      final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, solanaAddress) ??
-          balance[token] ??
-          SolanaBalance.forToken(BigInt.zero, 0.0);
+      final tokenBalance = await _client.getSplTokenBalance(token, solanaAddress) ??
+          balance[token] ?? SolanaBalance.zero(token);
 
       balance[token] = tokenBalance;
     } else {
