@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:cw_core/account.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/monero_wallet_keys.dart';
@@ -20,7 +21,6 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
-import 'package:cw_core/wownero_balance.dart';
 import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/coins_info.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
@@ -31,6 +31,7 @@ import 'package:cw_wownero/api/wownero_output.dart';
 import 'package:cw_wownero/exceptions/wownero_transaction_creation_exception.dart';
 import 'package:cw_wownero/exceptions/wownero_transaction_no_inputs_exception.dart';
 import 'package:cw_wownero/pending_wownero_transaction.dart';
+import 'package:cw_wownero/wownero_balance.dart';
 import 'package:cw_wownero/wownero_transaction_creation_credentials.dart';
 import 'package:cw_wownero/wownero_transaction_history.dart';
 import 'package:cw_wownero/wownero_transaction_info.dart';
@@ -56,8 +57,11 @@ abstract class WowneroWalletBase
       {required WalletInfo walletInfo, required DerivationInfo derivationInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
           CryptoCurrency.wow: WowneroBalance(
-              fullBalance: wownero_wallet.getFullBalance(accountIndex: 0),
-              unlockedBalance: wownero_wallet.getFullBalance(accountIndex: 0))
+            fullBalance:
+                Money.fromInt(wownero_wallet.getFullBalance(accountIndex: 0), CryptoCurrency.wow),
+            unlockedBalance:
+                Money.fromInt(wownero_wallet.getFullBalance(accountIndex: 0), CryptoCurrency.wow),
+          )
         }),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
@@ -75,8 +79,11 @@ abstract class WowneroWalletBase
 
       balance = ObservableMap<CryptoCurrency, WowneroBalance>.of(<CryptoCurrency, WowneroBalance>{
         currency: WowneroBalance(
-            fullBalance: wownero_wallet.getFullBalance(accountIndex: account.id),
-            unlockedBalance: wownero_wallet.getUnlockedBalance(accountIndex: account.id))
+          fullBalance: Money.fromInt(
+              wownero_wallet.getFullBalance(accountIndex: account.id), CryptoCurrency.wow),
+          unlockedBalance: Money.fromInt(
+              wownero_wallet.getUnlockedBalance(accountIndex: account.id), CryptoCurrency.wow),
+        )
       });
       _updateSubAddress(isEnabledAutoGenerateSubaddress, account: account);
       _askForUpdateTransactionHistory();
@@ -152,9 +159,13 @@ abstract class WowneroWalletBase
     await walletAddresses.init();
     balance = ObservableMap<CryptoCurrency, WowneroBalance>.of(<CryptoCurrency, WowneroBalance>{
       currency: WowneroBalance(
-          fullBalance: wownero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id),
-          unlockedBalance:
-              wownero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id))
+        fullBalance: Money.fromInt(
+            wownero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id),
+            CryptoCurrency.wow),
+        unlockedBalance: Money.fromInt(
+            wownero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id),
+            CryptoCurrency.wow),
+      )
     });
     _setListeners();
     await updateTransactions();
@@ -635,10 +646,10 @@ abstract class WowneroWalletBase
               row.isSpend ? TransactionDirection.outgoing : TransactionDirection.incoming,
               row.timeStamp,
               row.isPending,
-              row.amount,
+              Money.fromInt(row.amount, CryptoCurrency.wow),
               row.accountIndex,
               0,
-              row.fee,
+              Money.fromInt(row.fee, CryptoCurrency.wow),
               row.confirmations,
             )..additionalInfo = <String, dynamic>{
                 'key': row.key,
@@ -706,29 +717,31 @@ abstract class WowneroWalletBase
     final frozenBalance = _getFrozenBalance();
 
     if (balance[currency]!.fullBalance != fullBalance ||
-        balance[currency]!.unlockedBalance != unlockedBalance ||
-        balance[currency]!.frozenBalance != frozenBalance) {
+        balance[currency]!.available != unlockedBalance ||
+        balance[currency]!.frozen != frozenBalance) {
       balance[currency] = WowneroBalance(
-          fullBalance: fullBalance, unlockedBalance: unlockedBalance, frozenBalance: frozenBalance);
+          fullBalance: fullBalance, unlockedBalance: unlockedBalance, frozen: frozenBalance);
     }
   }
 
   Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();
 
-  int _getFullBalance() => wownero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id);
+  Money _getFullBalance() => Money.fromInt(
+      wownero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id), CryptoCurrency.wow);
 
-  int _getUnlockedBalance() =>
-      wownero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
+  Money _getUnlockedBalance() => Money.fromInt(
+      wownero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id),
+      CryptoCurrency.wow);
 
-  int _getFrozenBalance() {
+  Money _getFrozenBalance() {
     var frozenBalance = 0;
 
-    for (var coin in unspentCoinsInfo.values.where((element) =>
+    for (final coin in unspentCoinsInfo.values.where((element) =>
         element.walletId == id && element.accountIndex == walletAddresses.account!.id)) {
       if (coin.isFrozen) frozenBalance += coin.value;
     }
 
-    return frozenBalance;
+    return Money.fromInt(frozenBalance, CryptoCurrency.wow);
   }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {

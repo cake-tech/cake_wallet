@@ -3,13 +3,11 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:cw_core/format_fixed.dart';
-import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/monero_balance.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/monero_wallet_keys.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
@@ -31,6 +29,7 @@ import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/ledger.dart';
+import 'package:cw_monero/monero_balance.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
@@ -412,22 +411,17 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
 
     if (hasMultiDestination) {
-      if (outputs.any(
-          (item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw MoneroTransactionCreationException(
-            'You do not have enough XMR to send this amount.');
+      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+        throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
       }
 
-      final int totalAmount = outputs.fold(
-          0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
+      final totalAmount = outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
-      if (unlockedBalance < totalAmount) {
-        throw MoneroTransactionCreationException(
-            'You do not have enough XMR to send this amount.');
+      if (unlockedBalance < Money.fromInt(totalAmount, CryptoCurrency.xmr)) {
+        throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
       }
 
-      if (inputs.isEmpty) MoneroTransactionCreationException(
-        'No inputs selected');
+      if (inputs.isEmpty) MoneroTransactionCreationException('No inputs selected');
 
       final moneroOutputs = outputs.map((output) {
         final outputAddress =
@@ -803,10 +797,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
                   : TransactionDirection.incoming,
               row.timeStamp,
               row.isPending,
-              row.amount,
+              Money.fromInt(row.amount, currency),
               row.accountIndex,
               0,
-              row.fee,
+              Money.fromInt(row.fee,currency),
               row.confirmations,
             )..additionalInfo = <String, dynamic>{
                 'key': row.key,
@@ -861,8 +855,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   int _getHeightDistance(DateTime date) {
-    final distance =
-        DateTime.now().difference(date).inSeconds;
+    final distance = DateTime.now().difference(date).inSeconds;
     final daysTmp = (distance / 86400).round();
     final days = daysTmp < 1 ? 1 : daysTmp;
 
@@ -883,31 +876,28 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   void _askForUpdateBalance() {
     final unlockedBalance = _getUnlockedBalance();
-    final fullBalance = monero_wallet.getFullBalance(
-      accountIndex: walletAddresses.account!.id);
+    final fullBalance = monero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id);
     final frozenBalance = _getFrozenBalance();
     if (balance[currency]!.fullBalance != fullBalance ||
-        balance[currency]!.unlockedBalance != unlockedBalance ||
-        balance[currency]!.frozenBalance != frozenBalance) {
+        balance[currency]!.available != unlockedBalance ||
+        balance[currency]!.frozen != frozenBalance) {
       balance[currency] = MoneroBalance(
-          fullBalance: fullBalance,
-          unlockedBalance: unlockedBalance,
-          frozenBalance: frozenBalance);
+          fullBalance: fullBalance, unlockedBalance: unlockedBalance, frozen: frozenBalance);
     }
   }
 
-  int _getUnlockedBalance() => monero_wallet.getUnlockedBalance(
-      accountIndex: walletAddresses.account!.id);
+  Money _getUnlockedBalance() =>
+      monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
 
-  int _getFrozenBalance() {
+  Money _getFrozenBalance() {
     var frozenBalance = 0;
 
-    for (var coin in unspentCoinsInfo.values.where((element) =>
+    for (final coin in unspentCoinsInfo.values.where((element) =>
         element.walletId == id && element.accountIndex == walletAddresses.account!.id)) {
       if (coin.isFrozen && !coin.isSending) frozenBalance += coin.value;
     }
 
-    return frozenBalance;
+    return Money.fromInt(frozenBalance, CryptoCurrency.xmr);
   }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
@@ -980,10 +970,5 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   Future<void> setLedgerConnection(LedgerConnection connection) async {
     await enableLedgerExchange(connection);
-  }
-
-  @override
-  String formatCryptoAmount(String amount) {
-    return moneroAmountToString(amount: int.parse(amount));
   }
 }

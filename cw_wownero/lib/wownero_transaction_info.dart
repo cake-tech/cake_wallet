@@ -1,3 +1,5 @@
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
 import 'package:cw_core/parseBoolFromString.dart';
@@ -21,18 +23,18 @@ class WowneroTransactionInfo extends TransactionInfo {
         date = DateTime.fromMillisecondsSinceEpoch(
             (int.tryParse(map['timestamp'] as String? ?? '') ?? 0) * 1000),
         isPending = parseBoolFromString(map['isPending'] as String),
-        amount = map['amount'] as int,
+        amount = Money.fromInt(map['amount'] as int, CryptoCurrency.wow),
         accountIndex = int.parse(map['accountIndex'] as String),
         addressIndex = map['addressIndex'] as int,
         confirmations = map['confirmations'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int? ?? 0 {
-          additionalInfo = <String, dynamic>{
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
+        fee = Money.fromInt(map['fee'] as int? ?? 0, CryptoCurrency.wow) {
+    additionalInfo = <String, dynamic>{
+      'key': key,
+      'accountIndex': accountIndex,
+      'addressIndex': addressIndex
+    };
+  }
 
   final String id;
   final String txHash;
@@ -41,8 +43,8 @@ class WowneroTransactionInfo extends TransactionInfo {
   final DateTime date;
   final int accountIndex;
   final bool isPending;
-  final int amount;
-  final int fee;
+  final Money amount;
+  final Money fee;
   final int addressIndex;
   final int confirmations;
   String? recipientAddress;
@@ -50,14 +52,8 @@ class WowneroTransactionInfo extends TransactionInfo {
   String? _fiatAmount;
 
   @override
-  String amountFormatted() => '${formatAmount(wowneroAmountToString(amount: amount))} WOW';
-
-  @override
   String fiatAmount() => _fiatAmount ?? '';
 
   @override
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
-
-  @override
-  String feeFormatted() => '${formatAmount(wowneroAmountToString(amount: fee))} WOW';
 }
