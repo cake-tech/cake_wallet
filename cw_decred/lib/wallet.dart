@@ -121,9 +121,7 @@ abstract class DecredWalletBase
   @override
   bool isTestnet;
 
-  String get pubkey {
-    return _pubkey;
-  }
+  String get pubkey => _pubkey;
 
   Future<void> init() async {
     final getSeed = () async {
@@ -351,13 +349,12 @@ abstract class DecredWalletBase
   Future<PendingTransaction> createTransaction(Object credentials) async {
     if (watchingOnly) {
       return DecredPendingTransaction(
-          txid: "",
-          amount: 0,
-          fee: 0,
-          rawHex: "",
-          send: () async {
-            throw "unable to send with watching only wallet";
-          });
+        txId: "",
+        amount: Money.zero(currency),
+        fee: Money.zero(currency),
+        rawHex: "",
+        send: () async => throw "unable to send with watching only wallet",
+      );
     }
     var totalIn = 0;
     final ignoreInputs = [];
@@ -377,9 +374,8 @@ abstract class DecredWalletBase
     for (final out in creds.outputs) {
       var amt = 0;
       if (out.sendAll) {
-        if (creds.outputs.length != 1) {
-          throw "can only send all to one output";
-        }
+        if (creds.outputs.length != 1) throw "can only send all to one output";
+
         sendAll = true;
         totalAmt = totalIn;
       } else if (out.cryptoAmount != null) {
@@ -413,6 +409,7 @@ abstract class DecredWalletBase
     final res = await _libwallet.createSignedTransaction(walletInfo.name, jsonEncode(signReq));
     final decoded = json.decode(res);
     final signedHex = decoded["signedhex"];
+
     final send = () async {
       await _libwallet.sendRawTransaction(walletInfo.name, signedHex);
       await updateBalance();
@@ -421,8 +418,14 @@ abstract class DecredWalletBase
     if (sendAll) {
       totalAmt = (totalAmt - fee).round();
     }
+
     return DecredPendingTransaction(
-        txid: decoded["txid"] ?? "", amount: totalAmt, fee: fee, rawHex: signedHex, send: send);
+      txId: decoded["txid"] ?? "",
+      amount: Money.fromInt(totalAmt, currency),
+      fee: Money.fromInt(fee, currency),
+      rawHex: signedHex,
+      send: send,
+    );
   }
 
   int feeRate(TransactionPriority priority) {
@@ -474,15 +477,14 @@ abstract class DecredWalletBase
   }
 
   @override
-  Future<Map<String, DecredTransactionInfo>> fetchTransactions() async {
-    return this.fetchFiveTransactions(0);
-  }
+  Future<Map<String, DecredTransactionInfo>> fetchTransactions() => fetchFiveTransactions(0);
 
   Future<Map<String, DecredTransactionInfo>> fetchFiveTransactions(int from) async {
     try {
       final res = await _libwallet.listTransactions(walletInfo.name, from.toString(), "5");
       final decoded = json.decode(res);
-      var txs = <String, DecredTransactionInfo>{};
+      final txs = <String, DecredTransactionInfo>{};
+
       for (final d in decoded) {
         final txid = uniqueTxID(d["txid"] ?? "", d["vout"] ?? 0);
         var direction = TransactionDirection.outgoing;
@@ -495,19 +497,18 @@ abstract class DecredWalletBase
         final fee = (feeDouble * 1e8).round().abs();
         final confs = d["confirmations"] ?? 0;
         final sendTime = d["time"] ?? 0;
-        final height = d["height"] ?? 0;
-        final txInfo = DecredTransactionInfo(
+
+        txs[txid] = DecredTransactionInfo(
           id: txid,
           amount: Money.fromInt(amount, currency),
           fee: Money.fromInt(fee, currency),
           direction: direction,
           isPending: confs == 0,
           date: DateTime.fromMillisecondsSinceEpoch(sendTime * 1000, isUtc: false),
-          height: height,
+          height: d["height"] ?? 0,
           confirmations: confs,
           to: d["address"] ?? "",
         );
-        txs[txid] = txInfo;
       }
       return txs;
     } catch (e) {
@@ -517,9 +518,7 @@ abstract class DecredWalletBase
   }
 
   // uniqueTxID combines the tx id and vout to create a unique id.
-  String uniqueTxID(String id, int vout) {
-    return id + ":" + vout.toString();
-  }
+  String uniqueTxID(String id, int vout) => "$id:$vout";
 
   @override
   Future<void> save() async {}
@@ -645,7 +644,7 @@ abstract class DecredWalletBase
     try {
       final res = await _libwallet.listUnspents(walletInfo.name);
       final decoded = json.decode(res);
-      var unspents = <Unspent>[];
+      final unspents = <Unspent>[];
       for (final d in decoded) {
         final spendable = d["spendable"] ?? false;
         if (!spendable) {

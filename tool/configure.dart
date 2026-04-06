@@ -1244,10 +1244,6 @@ abstract class Decred {
   Future<void> updateAddress(Object wallet, String address, String label);
   Future<void> generateNewAddress(Object wallet, String label);
 
-  String formatterDecredAmountToString({required int amount});
-  double formatterDecredAmountToDouble({required int amount});
-  int formatterStringDoubleToDecredAmount(String amount);
-
   List<Unspent> getUnspents(Object wallet);
   void updateUnspents(Object wallet);
 

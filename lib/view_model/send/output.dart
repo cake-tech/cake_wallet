@@ -1,6 +1,5 @@
 import 'dart:math' show min;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
@@ -131,10 +130,8 @@ abstract class OutputBase with Store {
           case WalletType.litecoin:
           case WalletType.bitcoinCash:
           case WalletType.dogecoin:
-            _amount = cryptoCurrencyHandler().parseAmount(_cryptoAmount).amount.toInt();
-            break;
           case WalletType.decred:
-            _amount = decred!.formatterStringDoubleToDecredAmount(_cryptoAmount);
+            _amount = cryptoCurrencyHandler().parseAmount(_cryptoAmount).amount.toInt();
             break;
           case WalletType.ethereum:
           case WalletType.polygon:

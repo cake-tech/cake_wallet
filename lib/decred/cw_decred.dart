@@ -70,17 +70,6 @@ class CWDecred extends Decred {
   }
 
   @override
-  String formatterDecredAmountToString({required int amount}) =>
-      decredAmountToString(amount: amount);
-
-  @override
-  double formatterDecredAmountToDouble({required int amount}) =>
-      decredAmountToDouble(amount: amount);
-
-  @override
-  int formatterStringDoubleToDecredAmount(String amount) => stringDoubleToDecredAmount(amount);
-
-  @override
   List<Unspent> getUnspents(Object wallet) {
     final decredWallet = wallet as DecredWallet;
     return decredWallet.unspents();
