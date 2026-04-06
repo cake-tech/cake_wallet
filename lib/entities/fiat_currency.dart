@@ -4,15 +4,22 @@ import 'package:cw_core/enumerable_item.dart';
 
 class FiatCurrency extends EnumerableItem<String> with Serializable<String> implements Currency {
   const FiatCurrency({
-    required String symbol,
+    required this.symbol,
     required this.countryCode,
     required this.fullName,
     this.decimals = 2,
   }) : super(title: symbol, raw: symbol);
 
   final String countryCode;
+
+  @override
   final String fullName;
+
+  @override
   final int decimals;
+
+  @override
+  final String symbol;
 
   static List<FiatCurrency> get all => _all.values.toList();
 

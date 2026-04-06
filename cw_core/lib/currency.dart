@@ -6,6 +6,7 @@ abstract class Currency {
   String? get fullName;
   String? get iconPath;
   int get decimals;
+  String? get tag;
 
   /// Parse the [value] and turn it into [Money]
   Money parseAmount(String value);

@@ -2,6 +2,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/format_fixed.dart';
 
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implements Currency {
   const CryptoCurrency({
@@ -21,7 +22,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   final String? flatIconPath;
   final String? chainIconPath;
-  final String? tag;
   final bool enabled;
   final bool isPotentialScam;
 
@@ -30,6 +30,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   @override
   final String? fullName;
+
+  @override
+  final String? tag;
 
   @override
   final String? iconPath;
@@ -443,4 +446,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   @override
   Money? tryParseAmount(String value) => Money.tryParse(value, this);
+
+  /// Format the raw amount into its decimal representation eg. turn Sats into Bitcoin
+  String formatAmount(BigInt amount, {int? fractionalDigits, bool trimZeros = true}) =>
+      formatFixed(amount, decimals, fractionalDigits: fractionalDigits, trimZeros: trimZeros);
 }
