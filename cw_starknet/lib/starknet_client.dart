@@ -37,11 +37,10 @@ class StarknetTransferEvent {
 
   BigInt get amount => BigInt.parse(amountWei);
 
-  double get amountAsDouble =>
-      amount / BigInt.from(10).pow(18);
+  double get amountAsDouble => StarknetWalletClient.weiToDouble(amountWei);
 
   double get txFeeAsDouble =>
-      txFeeWei == null ? 0.0 : BigInt.parse(txFeeWei!) / BigInt.from(10).pow(18);
+      txFeeWei == null ? 0.0 : StarknetWalletClient.weiToDouble(txFeeWei!);
 }
 
 class StarknetWalletClient {
@@ -88,7 +87,7 @@ class StarknetWalletClient {
         tokenAddressHex: tokenAddressHex,
       );
 
-      return StarknetBalance(_weiToDouble(unwrapStringResponse(response)));
+      return StarknetBalance(weiToDouble(unwrapStringResponse(response)));
     } catch (e) {
       printV('Error fetching Starknet token balance: $e');
       rethrow;
@@ -116,7 +115,7 @@ class StarknetWalletClient {
         chainIdHex: mainnetChainIdHex,
       );
 
-      return _weiToDouble(unwrapStringResponse(response));
+      return weiToDouble(unwrapStringResponse(response));
     } catch (e) {
       printV('Error estimating Starknet transfer fee: $e');
       return 0.0;
@@ -167,7 +166,6 @@ class StarknetWalletClient {
     required String recipientAddressHex,
     required String amountWei,
     required String tokenAddressHex,
-    required String destinationAddressHex,
     required double inputAmount,
     required String accountClassHashHex,
   }) async {
@@ -179,7 +177,7 @@ class StarknetWalletClient {
       fee: 0.0,
       amount: inputAmount,
       transactionHash: '',
-      destinationAddress: destinationAddressHex,
+      destinationAddress: recipientAddressHex,
       sendTransaction: () async {
         await ensureStarknetRustInitialized();
         final response = await rust_api.sendTransfer(
@@ -240,6 +238,6 @@ class StarknetWalletClient {
     return accountAddressHex;
   }
 
-  static double _weiToDouble(String amountWei) =>
+  static double weiToDouble(String amountWei) =>
       BigInt.parse(amountWei) / BigInt.from(10).pow(18);
 }

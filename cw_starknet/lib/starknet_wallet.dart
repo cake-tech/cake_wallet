@@ -211,7 +211,6 @@ abstract class StarknetWalletBase
       recipientAddressHex: destinationAddress,
       amountWei: amountWei.toString(),
       tokenAddressHex: tokenAddressHex,
-      destinationAddressHex: destinationAddress,
       inputAmount: displayAmount,
       accountClassHashHex: openZeppelinAccountClassHashHex,
     );
@@ -292,7 +291,7 @@ abstract class StarknetWalletBase
   Future<void> save() async {
     if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
       await saveKeysFile(_password, encryptionFileUtils);
-      saveKeysFile(_password, encryptionFileUtils, true);
+      await saveKeysFile(_password, encryptionFileUtils, true);
     }
 
     await walletAddresses.updateAddressesInBox();

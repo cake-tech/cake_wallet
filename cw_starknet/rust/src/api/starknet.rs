@@ -302,13 +302,13 @@ pub fn send_transfer(
         let signing_key = SigningKey::from_secret_scalar(private_key);
         let public_key = signing_key.verifying_key().scalar();
 
-        let deployment_provider = make_provider(&node_url)?;
-        if !is_account_deployed_with_provider(&deployment_provider, account_address).await? {
+        let provider = make_provider(&node_url)?;
+        if !is_account_deployed_with_provider(&provider, account_address).await? {
             let factory = OpenZeppelinAccountFactory::new(
                 account_class_hash,
                 chain_id,
                 LocalWallet::from(signing_key.clone()),
-                deployment_provider,
+                provider,
             )
             .await
             .map_err(|_| "failed to derive Starknet public key".to_string())?;
@@ -317,15 +317,15 @@ pub fn send_transfer(
                 .gas_estimate_multiplier(1.5)
                 .gas_price_estimate_multiplier(1.5);
 
-            let deployment_result = deployment.send().await.map_err(format_account_factory_error)?;
+            let deployment_result = deployment.send().await.map_err(format_account_error)?;
             wait_for_transaction(&node_url, deployment_result.transaction_hash).await?;
         }
 
-        let provider = make_provider(&node_url)?;
+        let transfer_provider = make_provider(&node_url)?;
         let calldata = transfer_calldata(recipient_address, &amount_wei)?;
         let call = transfer_call(token_address, calldata)?;
         let account = SingleOwnerAccount::new(
-            provider,
+            transfer_provider,
             LocalWallet::from(signing_key),
             account_address,
             chain_id,
@@ -839,17 +839,7 @@ fn format_starknet_error(error: StarknetError) -> String {
     }
 }
 
-fn format_account_error<E>(error: E) -> String
-where
-    E: std::fmt::Display,
-{
-    error.to_string()
-}
-
-fn format_account_factory_error<E>(error: E) -> String
-where
-    E: std::fmt::Display,
-{
+fn format_account_error<E: std::fmt::Display>(error: E) -> String {
     error.to_string()
 }
 

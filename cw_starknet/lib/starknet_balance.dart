@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:cw_core/balance.dart';
 
+String truncateDecimalString(String value, {int maxLength = 12}) =>
+    value.length >= maxLength ? value.substring(0, maxLength) : value;
+
 class StarknetBalance extends Balance {
   StarknetBalance(this.balance)
       : super(
@@ -15,13 +18,7 @@ class StarknetBalance extends Balance {
 
   String get formattedAvailableBalance => _balanceFormatted();
 
-  String _balanceFormatted() {
-    String stringBalance = balance.toString();
-    if (stringBalance.length >= 12) {
-      stringBalance = stringBalance.substring(0, 12);
-    }
-    return stringBalance;
-  }
+  String _balanceFormatted() => truncateDecimalString(balance.toString());
 
   static StarknetBalance? fromJSON(String? jsonSource) {
     if (jsonSource == null) {

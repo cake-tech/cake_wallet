@@ -3,6 +3,7 @@
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_starknet/starknet_balance.dart' show truncateDecimalString;
 
 class StarknetTransactionInfo extends TransactionInfo {
   StarknetTransactionInfo({
@@ -12,10 +13,10 @@ class StarknetTransactionInfo extends TransactionInfo {
     required this.from,
     required this.direction,
     required this.starknetAmount,
-    this.tokenSymbol = "STRK",
+    this.tokenSymbol = 'STRK',
     required this.isPending,
     required this.txFee,
-  }) : amount = starknetAmount.toInt();
+  }) : amount = (starknetAmount * 1e8).round();
 
   @override
   final String id;
@@ -40,13 +41,8 @@ class StarknetTransactionInfo extends TransactionInfo {
   DateTime get date => blockTime;
 
   @override
-  String amountFormatted() {
-    String stringBalance = starknetAmount.toString();
-    if (stringBalance.length >= 12) {
-      stringBalance = stringBalance.substring(0, 12);
-    }
-    return '$stringBalance $tokenSymbol';
-  }
+  String amountFormatted() =>
+      '${truncateDecimalString(starknetAmount.toString())} $tokenSymbol';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -64,7 +60,7 @@ class StarknetTransactionInfo extends TransactionInfo {
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       blockTime: DateTime.fromMillisecondsSinceEpoch(data['blockTime'] as int),
       isPending: data['isPending'] as bool,
-      tokenSymbol: data['tokenSymbol'] as String? ?? "STRK",
+      tokenSymbol: data['tokenSymbol'] as String? ?? 'STRK',
       to: data['to'] as String?,
       from: data['from'] as String?,
       txFee: (data['txFee'] as num).toDouble(),

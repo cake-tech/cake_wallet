@@ -60,31 +60,26 @@ class StarknetWalletService extends WalletService<
     }
 
     try {
-      final wallet = await StarknetWalletBase.open(
-        name: name,
-        password: password,
-        walletInfo: walletInfo,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      );
-
-      await wallet.init();
-      await wallet.save();
+      final wallet = await _openAndInit(name, password, walletInfo);
       saveBackup(name);
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
-
-      final wallet = await StarknetWalletBase.open(
-        name: name,
-        password: password,
-        walletInfo: walletInfo,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      );
-
-      await wallet.init();
-      await wallet.save();
-      return wallet;
+      return _openAndInit(name, password, walletInfo);
     }
+  }
+
+  Future<StarknetWallet> _openAndInit(
+      String name, String password, WalletInfo walletInfo) async {
+    final wallet = await StarknetWalletBase.open(
+      name: name,
+      password: password,
+      walletInfo: walletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
+    await wallet.init();
+    await wallet.save();
+    return wallet;
   }
 
   @override

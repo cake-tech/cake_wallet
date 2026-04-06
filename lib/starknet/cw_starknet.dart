@@ -94,10 +94,6 @@ class CWStarknet extends Starknet {
   @override
   CryptoCurrency assetOfTransaction(
       WalletBase wallet, TransactionInfo transaction) {
-    transaction as StarknetTransactionInfo;
-    if (transaction.tokenSymbol == CryptoCurrency.strk.title) {
-      return CryptoCurrency.strk;
-    }
     return CryptoCurrency.strk;
   }
 
