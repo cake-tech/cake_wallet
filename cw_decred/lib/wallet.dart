@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:cw_core/amount/money.dart';
 import 'package:path/path.dart' as p;
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_decred/amount_format.dart';
 import 'package:cw_decred/pending_transaction.dart';
 import 'package:cw_decred/transaction_credentials.dart';
 import 'package:flutter/foundation.dart';
@@ -124,9 +124,6 @@ abstract class DecredWalletBase
   String get pubkey {
     return _pubkey;
   }
-
-  @override
-  String formatCryptoAmount(String amount) => decredAmountToString(amount: int.parse(amount));
 
   Future<void> init() async {
     final getSeed = () async {
@@ -501,8 +498,8 @@ abstract class DecredWalletBase
         final height = d["height"] ?? 0;
         final txInfo = DecredTransactionInfo(
           id: txid,
-          amount: amount,
-          fee: fee,
+          amount: Money.fromInt(amount, currency),
+          fee: Money.fromInt(fee, currency),
           direction: direction,
           isPending: confs == 0,
           date: DateTime.fromMillisecondsSinceEpoch(sendTime * 1000, isUtc: false),
@@ -587,9 +584,9 @@ abstract class DecredWalletBase
     });
 
     balance[CryptoCurrency.dcr] = DecredBalance(
-      confirmed: balanceMap["confirmed"] ?? 0,
-      unconfirmed: balanceMap["unconfirmed"] ?? 0,
-      frozen: totalFrozen,
+      confirmed: Money.fromInt(balanceMap["confirmed"] ?? 0, currency),
+      unconfirmed: Money.fromInt(balanceMap["unconfirmed"] ?? 0, currency),
+      frozen: Money.fromInt(totalFrozen, currency),
     );
   }
 
