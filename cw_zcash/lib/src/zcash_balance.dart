@@ -1,32 +1,17 @@
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 class ZcashBalance extends Balance {
-  ZcashBalance({required this.confirmed, required this.unconfirmed, required final int frozen})
-    : _frozen = frozen,
-      super.fromInt(confirmed, unconfirmed);
+  ZcashBalance({required this.confirmed, required this.unconfirmed, required final Money frozen})
+    : super(confirmed, unconfirmed, frozen: frozen);
 
-  factory ZcashBalance.zero() => ZcashBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
+  factory ZcashBalance.zero() => ZcashBalance(
+    confirmed: Money.zero(CryptoCurrency.zec),
+    unconfirmed: Money.zero(CryptoCurrency.zec),
+    frozen: Money.zero(CryptoCurrency.zec),
+  );
 
-  final int confirmed;
-  final int unconfirmed;
-  final int _frozen;
-  BigInt get frozen => BigInt.from(_frozen);
-
-  @override
-  String get formattedAvailableBalance {
-    return CryptoCurrency.zec.formatAmount(BigInt.from(confirmed));
-  }
-
-  @override
-  String get formattedAdditionalBalance {
-    if (unconfirmed == 0) return '0.0';
-    return CryptoCurrency.zec.formatAmount(BigInt.from(unconfirmed));
-  }
-
-  @override
-  String get formattedUnAvailableBalance {
-    if (frozen == 0) return '';
-    return CryptoCurrency.zec.formatAmount(BigInt.from(_frozen));
-  }
+  final Money confirmed;
+  final Money unconfirmed;
 }

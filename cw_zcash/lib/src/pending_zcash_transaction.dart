@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_zcash/cw_zcash.dart';
@@ -32,9 +34,7 @@ class PendingZcashTransaction with PendingTransaction {
   String get hex => '';
 
   @override
-  String get amountFormatted {
-    return walletTypeToCryptoCurrency(WalletType.zcash).formatAmount(BigInt.from(totalAmount));
-  }
+  String get amountFormatted => formatFixed(BigInt.from(totalAmount), CryptoCurrency.zec.decimals);
 
   int get totalAmount {
     final isAll = credentials.outputs.fold<bool>(false, (final a, final b) => a || (b.sendAll));
@@ -52,9 +52,7 @@ class PendingZcashTransaction with PendingTransaction {
       '$feeFormattedValue ${walletTypeToCryptoCurrency(WalletType.zcash).title}';
 
   @override
-  late String feeFormattedValue = walletTypeToCryptoCurrency(
-    WalletType.zcash,
-  ).formatAmount(BigInt.from(fee));
+  late String feeFormattedValue = formatFixed(BigInt.from(fee), CryptoCurrency.zec.decimals);
 
   int fee;
 

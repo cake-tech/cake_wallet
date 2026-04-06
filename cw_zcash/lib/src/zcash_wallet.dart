@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/node.dart';
@@ -56,7 +57,7 @@ abstract class ZcashWalletBase
 
   @override
   ObservableMap<CryptoCurrency, ZcashBalance> balance = ObservableMap.of({
-    CryptoCurrency.zec: ZcashBalance(confirmed: 0, unconfirmed: 0, frozen: 0),
+    CryptoCurrency.zec: ZcashBalance.zero(),
   });
 
   static int internalCalculateEstimatedFee(final TransactionPriority priority, final int? amount) {
@@ -135,7 +136,7 @@ abstract class ZcashWalletBase
     await updateBalance();
 
     final zcashBalance = balance[CryptoCurrency.zec];
-    final availableBalance = zcashBalance?.confirmed ?? 0;
+    final availableBalance = zcashBalance?.confirmed.amount.toInt() ?? 0;
 
     final recipients = <Recipient>[];
     int totalAmount = 0;
@@ -152,7 +153,7 @@ abstract class ZcashWalletBase
             final parsedAmount = CryptoCurrency.zec.parseAmount(
               output.cryptoAmount!.replaceAll(',', '.'),
             );
-            amount = parsedAmount.toInt();
+            amount = parsedAmount.amount.toInt();
             printV("Parsed amount from cryptoAmount '${output.cryptoAmount}': $amount");
           } catch (e) {
             printV("Failed to parse cryptoAmount '${output.cryptoAmount}': $e");
@@ -307,8 +308,8 @@ abstract class ZcashWalletBase
 
       final txInfo = ZcashTransactionInfo(
         id: txId.trim().replaceAll('"', ''),
-        amount: tx.value.abs(),
-        fee: 0,
+        amount: Money.fromInt(tx.value.abs(), currency),
+        fee: Money.zero(currency),
         direction: direction,
         isPending: tx.height == 0,
         date: DateTime.fromMillisecondsSinceEpoch(tx.timestamp * 1000),
@@ -807,9 +808,9 @@ abstract class ZcashWalletBase
       unawaited(_autoShield());
 
       balance[CryptoCurrency.zec] = ZcashBalance(
-        confirmed: confirmedSpendable,
-        unconfirmed: spendable - confirmedSpendable,
-        frozen: 0,
+        confirmed: Money.fromInt(confirmedSpendable, currency),
+        unconfirmed: Money.fromInt(spendable - confirmedSpendable, currency),
+        frozen: Money.zero(currency),
       );
     } catch (e, stackTrace) {
       printV("Balance update error: $e");
@@ -1160,11 +1161,11 @@ abstract class ZcashWalletBase
     final bal =
         balance[CryptoCurrency.zec]!.confirmed +
         balance[CryptoCurrency.zec]!.unconfirmed +
-        balance[CryptoCurrency.zec]!.frozen.toInt();
+        (balance[CryptoCurrency.zec]!.frozen ?? Money.zero(CryptoCurrency.zec));
     final osCacheDir = await getApplicationCacheDirectory();
     final cacheDir = osCacheDir.createTempSync("zkool-import");
     zkoolSweep = ZkoolSweep(
-      currentBalance: bal,
+      currentBalance: bal.amount.toInt(),
       cacheDir: cacheDir.path,
       seed: seed ?? '',
       passphrase: password,
