@@ -324,7 +324,7 @@ abstract class TronWalletBase
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
     var totalAmount = Money.zero(transactionCurrency);
-    bool shouldSendAll = false;
+    var shouldSendAll = false;
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
         throw TronTransactionCreationException(transactionCurrency);
@@ -346,9 +346,7 @@ abstract class TronWalletBase
       if (shouldSendAll) {
         totalAmount = walletBalanceForCurrency;
       } else {
-        final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
-        totalAmount =
-            totalAmount.copyWith(amount: TronHelper.toSun(totalOriginalAmount.toString()));
+        totalAmount = Money.parse(output.cryptoAmount ?? '0.0', transactionCurrency);
       }
 
       if (walletBalanceForCurrency < totalAmount || totalAmount < Money.zero(transactionCurrency)) {
@@ -363,8 +361,7 @@ abstract class TronWalletBase
       toAddress: tronCredentials.outputs.first.isParsedAddress
           ? tronCredentials.outputs.first.extractedAddress!
           : tronCredentials.outputs.first.address,
-      amount: TronHelper.fromSun(totalAmount.amount),
-      currency: transactionCurrency,
+      amount: totalAmount,
       tronBalance: tronBalance.amount,
       sendAll: shouldSendAll,
     );
@@ -397,7 +394,7 @@ abstract class TronWalletBase
         continue;
       }
 
-      // Filter out spam transaactions that involve receiving TRC10 assets transaction, we deal with TRX and TRC20 transactions
+      // Filter out spam transactions that involve receiving TRC10 assets transaction, we deal with TRX and TRC20 transactions
       if (transactionModel.contracts?.first.type == "TransferAssetContract") {
         continue;
       }
@@ -431,8 +428,7 @@ abstract class TronWalletBase
             ? TransactionDirection.outgoing
             : TransactionDirection.incoming,
         blockTime: transactionModel.date,
-        txFee: transactionModel.fee,
-        tokenSymbol: txCurrency.symbol,
+        fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
         to: transactionModel.to,
         from: transactionModel.from,
         isPending: false,
@@ -453,7 +449,7 @@ abstract class TronWalletBase
 
     final Map<String, TronTransactionInfo> result = {};
 
-    for (var transactionModel in transactions) {
+    for (final transactionModel in transactions) {
       if (transactionHistory.transactions.containsKey(transactionModel.hash)) {
         continue;
       }
@@ -465,8 +461,7 @@ abstract class TronWalletBase
             ? TransactionDirection.outgoing
             : TransactionDirection.incoming,
         blockTime: transactionModel.date,
-        txFee: transactionModel.fee,
-        tokenSymbol: transactionModel.tokenSymbol ?? "TRX",
+        fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
         to: transactionModel.to,
         from: transactionModel.from,
         isPending: false,
@@ -614,7 +609,8 @@ abstract class TronWalletBase
   }
 
   Future<void> _removeTokenTransactionsInHistory(TronToken token) async {
-    transactionHistory.transactions.removeWhere((key, value) => value.tokenSymbol == token.title);
+    transactionHistory.transactions
+        .removeWhere((key, value) => value.amount.currency.symbol == token.title);
     await transactionHistory.save();
   }
 
@@ -664,10 +660,9 @@ abstract class TronWalletBase
 
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address}) async {
-    if (address == null) {
-      return false;
-    }
-    TronPublicKey pubKey = TronPublicKey.fromPersonalSignature(ascii.encode(message), signature)!;
+    if (address == null) return false;
+
+    final pubKey = TronPublicKey.fromPersonalSignature(ascii.encode(message), signature)!;
     return pubKey.toAddress().toString() == address;
   }
 

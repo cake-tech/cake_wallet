@@ -527,7 +527,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
                 ))
             .toList(),
         cwOutputs: credentials.outputs,
-        fee: BigInt.from(tx.fee),
+        fee: tx.fee.amount,
         network: network,
         memo: credentials.outputs.first.memo,
         outputOrdering: BitcoinOrdering.none,
@@ -546,8 +546,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     tx.commitOverride = () async {
       final sender =
           await payjoinManager.initSender(payjoinUri!, originalPsbt, int.parse(tx.feeRate));
-      payjoinManager.spawnNewSender(
-          sender: sender, pjUrl: payjoinUri, amount: BigInt.from(tx.amount));
+      payjoinManager.spawnNewSender(sender: sender, pjUrl: payjoinUri, amount: tx.amount.amount);
     };
 
     return tx;
@@ -567,8 +566,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       btcTx,
       type,
       electrumClient: electrumClient,
-      amount: 0,
-      fee: 0,
+      amount: Money.zero(currency),
+      fee: Money.zero(currency),
       feeRate: "",
       network: network,
       hasChange: true,
@@ -625,8 +624,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         btcTx,
         type,
         electrumClient: electrumClient,
-        amount: 0,
-        fee: 0,
+        amount: Money.zero(currency),
+        fee: Money.zero(currency),
         feeRate: "",
         network: network,
         hasChange: true,

@@ -299,8 +299,8 @@ class EVMChainClient {
   Future<PendingEVMChainTransaction> signTransaction({
     required Credentials privateKey,
     required String toAddress,
-    required BigInt amount,
-    required BigInt gasFee,
+    required Money amount,
+    required Money gasFee,
     required int estimatedGasUnits,
     required int maxFeePerGas,
     required EVMChainTransactionPriority? priority,
@@ -319,11 +319,13 @@ class EVMChainClient {
         currency == CryptoCurrency.bnb ||
         contractAddress != null);
 
-    bool isNativeToken = currency == CryptoCurrency.eth ||
-        currency == CryptoCurrency.maticpoly ||
-        currency == CryptoCurrency.baseEth ||
-        currency == CryptoCurrency.arbEth ||
-        currency == CryptoCurrency.bnb;
+    final isNativeToken = [
+      CryptoCurrency.eth,
+      CryptoCurrency.maticpoly,
+      CryptoCurrency.baseEth,
+      CryptoCurrency.arbEth,
+      CryptoCurrency.bnb
+    ].contains(currency);
 
     // Get nonce with "pending" block tag to include pending transactions
     // This prevents "Nonce too low" errors when sending multiple transactions quickly
@@ -337,7 +339,7 @@ class EVMChainClient {
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas:
           priority != null ? EtherAmount.fromInt(EtherUnit.gwei, priority.tip) : null,
-      amount: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
+      amount: isNativeToken ? EtherAmount.inWei(amount.amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
       maxGas: estimatedGasUnits,
       maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
@@ -360,7 +362,7 @@ class EVMChainClient {
 
       signedTransaction = await erc20.transfer(
         EthereumAddress.fromHex(toAddress),
-        amount,
+        amount.amount,
         credentials: privateKey,
         transaction: transaction,
       );
@@ -371,9 +373,8 @@ class EVMChainClient {
 
     return PendingEVMChainTransaction(
       signedTransaction: prepareSignedTransactionForSending(signedTransaction),
-      amount: amount.toString(),
+      amount: amount,
       fee: gasFee,
-      feeCurrency: feeCurrency,
       sendTransaction: _sendTransaction,
       exponent: exponent,
     );
@@ -382,9 +383,8 @@ class EVMChainClient {
   Future<PendingEVMChainTransaction> signApprovalTransaction({
     required Credentials privateKey,
     required String spender,
-    required BigInt amount,
-    required BigInt gasFee,
-    required String feeCurrency,
+    required Money amount,
+    required Money gasFee,
     required int estimatedGasUnits,
     required int maxFeePerGas,
     required EVMChainTransactionPriority? priority,
@@ -418,20 +418,19 @@ class EVMChainClient {
 
     final signedTransaction = await erc20.approve(
       EthereumAddress.fromHex(spender),
-      amount,
+      amount.amount,
       credentials: privateKey,
       transaction: transaction,
     );
 
     return PendingEVMChainTransaction(
       signedTransaction: prepareSignedTransactionForSending(signedTransaction),
-      amount: amount.toString(),
+      amount: amount,
       fee: gasFee,
-      feeCurrency: feeCurrency,
       sendTransaction: () =>
           sendTransaction(signedTransaction, useBlinkProtection: useBlinkProtection),
       exponent: exponent,
-      isInfiniteApproval: amount.toRadixString(16) ==
+      isInfiniteApproval: amount.amount.toRadixString(16) ==
           'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
     );
   }

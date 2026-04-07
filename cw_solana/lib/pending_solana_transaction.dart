@@ -1,11 +1,10 @@
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/pending_transaction.dart';
 
 class PendingSolanaTransaction with PendingTransaction {
-  final double amount;
   final String serializedTransaction;
   final String destinationAddress;
   final Function sendTransaction;
-  final double fee;
   String? _sig;
 
   PendingSolanaTransaction({
@@ -15,6 +14,12 @@ class PendingSolanaTransaction with PendingTransaction {
     required this.destinationAddress,
     required this.sendTransaction,
   });
+
+  @override
+  final Money amount;
+
+  @override
+  final Money fee;
 
   @override
   String get amountFormatted {

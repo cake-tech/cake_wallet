@@ -248,20 +248,16 @@ class CWEVM extends EVM {
   @override
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
-    BigInt amount,
+    Money amount,
     String spender,
-    CryptoCurrency token,
     TransactionPriority? priority, {
     bool useBlinkProtection = true,
   }) {
     final evmWallet = wallet as EVMChainWallet;
-    final feeCurrency = EVMChainUtils.getFeeCurrency(evmWallet.selectedChainId);
     return evmWallet.createApprovalTransaction(
       amount,
       spender,
-      token,
       priority as EVMChainTransactionPriority?,
-      feeCurrency,
       useBlinkProtection: useBlinkProtection,
     );
   }

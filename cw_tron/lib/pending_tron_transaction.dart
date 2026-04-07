@@ -1,13 +1,10 @@
-
-
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:web3dart/crypto.dart';
 
 class PendingTronTransaction with PendingTransaction {
   final Function sendTransaction;
   final List<int> signedTransaction;
-  final String fee;
-  final String amount;
 
   PendingTronTransaction({
     required this.sendTransaction,
@@ -17,16 +14,22 @@ class PendingTronTransaction with PendingTransaction {
   });
 
   @override
-  String get amountFormatted => amount;
+  final Money amount;
+
+  @override
+  final Money fee;
+
+  @override
+  String get amountFormatted => amount.toString();
 
   @override
   Future<void> commit() async => await sendTransaction();
 
   @override
-  String get feeFormatted => "$feeFormattedValue TRX";
+  String get feeFormatted => fee.toStringWithSymbol();
 
   @override
-  String get feeFormattedValue => fee;
+  String get feeFormattedValue => fee.toString();
 
   @override
   String get hex => bytesToHex(signedTransaction);

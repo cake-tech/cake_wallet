@@ -19,9 +19,8 @@ class CWDecred extends Decred {
       DecredRestoreWalletFromPubkeyCredentials(name: name, pubkey: pubkey, password: password);
 
   @override
-  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource) {
-    return DecredWalletService(unspentCoinSource);
-  }
+  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
+      DecredWalletService(unspentCoinSource);
 
   @override
   List<TransactionPriority> getTransactionPriorities() => DecredTransactionPriority.all;

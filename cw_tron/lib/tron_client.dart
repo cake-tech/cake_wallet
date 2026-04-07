@@ -236,26 +236,18 @@ class TronClient {
   }
 
   Future<int> getTRCEstimatedFee(TronAddress ownerAddress) async {
-    String contractAddress = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
-    String constantAmount =
-        '0'; // We're using 0 as the base amount here as we get an error when balance is zero i.e for new wallets.
+    const usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
     final contract = ContractABI.fromJson(trc20Abi, isTron: true);
-
     final function = contract.functionFromName("transfer");
 
-    /// address /// amount
-    final transferparams = [
-      ownerAddress,
-      TronHelper.toSun(constantAmount),
-    ];
-
-    final contractAddr = TronAddress(contractAddress);
+    // We're using 0 as the base amount here as we get an error when balance is zero i.e for new wallets.
+    final transferParams = [ownerAddress, BigInt.zero];
 
     final request = await _provider!.request(
       TronRequestTriggerConstantContract(
         ownerAddress: ownerAddress,
-        contractAddress: contractAddr,
-        data: function.encodeHex(transferparams),
+        contractAddress: TronAddress(usdtContractAddress),
+        data: function.encodeHex(transferParams),
       ),
     );
 
@@ -263,21 +255,19 @@ class TronClient {
       log("Tron TRC20 error: ${request.error} \n ${request.respose}");
     }
 
-    final feeLimit = await getFeeLimit(
+    return getFeeLimit(
       request.transactionRaw!,
       ownerAddress,
       ownerAddress,
       energyUsed: request.energyUsed ?? 0,
       isEstimatedFeeFlow: true,
     );
-    return feeLimit;
   }
 
   Future<PendingTronTransaction> signTransaction({
     required TronPrivateKey ownerPrivKey,
     required String toAddress,
-    required String amount,
-    required CryptoCurrency currency,
+    required Money amount,
     required BigInt tronBalance,
     required bool sendAll,
   }) async {
@@ -287,9 +277,9 @@ class TronClient {
     // Define the receiving Tron address for the transaction.
     final receiverAddress = TronAddress(toAddress);
 
-    bool isNativeTransaction = currency == CryptoCurrency.trx;
+    final isNativeTransaction = amount.currency == CryptoCurrency.trx;
 
-    String totalAmount;
+    Money totalAmount;
     TransactionRaw rawTransaction;
     if (isNativeTransaction) {
       if (sendAll) {
@@ -302,12 +292,10 @@ class TronClient {
         if (availableBandWidth >= 269) {
           totalAmount = amount;
         } else {
-          final amountInSun = TronHelper.toSun(amount).toInt();
-
           // 5000 added here is a buffer since we're working with "estimated" value of the fee.
-          final result = amountInSun - (_nativeTxEstimatedFee + 5000);
+          final result = amount.amount - BigInt.from(_nativeTxEstimatedFee + 5000);
 
-          totalAmount = TronHelper.fromSun(BigInt.from(result));
+          totalAmount = amount.copyWith(amount: result);
         }
       } else {
         totalAmount = amount;
@@ -320,7 +308,7 @@ class TronClient {
         sendAll,
       );
     } else {
-      final tokenAddress = (currency as TronToken).contractAddress;
+      final tokenAddress = (amount.currency as TronToken).contractAddress;
       totalAmount = amount;
       rawTransaction = await _signTrcTokenTransaction(
         ownerAddress,
@@ -341,7 +329,7 @@ class TronClient {
     return PendingTronTransaction(
       signedTransaction: signature,
       amount: totalAmount,
-      fee: TronHelper.fromSun(rawTransaction.feeLimit ?? BigInt.zero),
+      fee: Money(rawTransaction.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
       sendTransaction: sendTx,
     );
   }
@@ -349,7 +337,7 @@ class TronClient {
   Future<TransactionRaw> _signNativeTransaction(
     TronAddress ownerAddress,
     TronAddress receiverAddress,
-    String amount,
+    Money amount,
     BigInt tronBalance,
     bool sendAll,
   ) async {
@@ -360,7 +348,7 @@ class TronClient {
     final block = await _provider!.request(TronRequestGetNowBlock());
     // Create the transfer contract
     final contract = TransferContract(
-      amount: TronHelper.toSun(amount),
+      amount: amount.amount,
       ownerAddress: ownerAddress,
       toAddress: receiverAddress,
     );
@@ -375,8 +363,7 @@ class TronClient {
     // Set the transaction expiration time (maximum 24 hours)
     final expireTime = DateTime.now().add(const Duration(minutes: 30));
 
-    // Create a raw transaction
-    TransactionRaw rawTransaction = TransactionRaw(
+    final rawTransaction = TransactionRaw(
       refBlockBytes: block.blockHeader.rawData.refBlockBytes,
       refBlockHash: block.blockHeader.rawData.refBlockHash,
       expiration: BigInt.from(expireTime.millisecondsSinceEpoch),
@@ -395,45 +382,31 @@ class TronClient {
       );
     }
 
-    rawTransaction = rawTransaction.copyWith(
-      feeLimit: BigInt.from(feeLimitToUse),
-    );
-
-    return rawTransaction;
+    return rawTransaction.copyWith(feeLimit: BigInt.from(feeLimitToUse));
   }
 
   Future<TransactionRaw> _signTrcTokenTransaction(
     TronAddress ownerAddress,
     TronAddress receiverAddress,
-    String amount,
+    Money amount,
     String contractAddress,
     BigInt tronBalance,
   ) async {
     final contract = ContractABI.fromJson(trc20Abi, isTron: true);
 
     final function = contract.functionFromName("transfer");
-
-    /// address /// amount
-    final transferparams = [
-      receiverAddress,
-      TronHelper.toSun(amount),
-    ];
-
-    final contractAddr = TronAddress(contractAddress);
-
+    final transferParams = [receiverAddress, amount.amount];
     final request = await _provider!.request(
       TronRequestTriggerConstantContract(
         ownerAddress: ownerAddress,
-        contractAddress: contractAddr,
-        data: function.encodeHex(transferparams),
+        contractAddress: TronAddress(contractAddress),
+        data: function.encodeHex(transferParams),
       ),
     );
 
     if (!request.isSuccess) {
       log("Tron TRC20 error: ${request.error} \n ${request.respose}");
-      throw Exception(
-        'An error occurred while creating the transfer request. Please try again.',
-      );
+      throw Exception('An error occurred while creating the transfer request. Please try again.');
     }
 
     final feeLimit = await getFeeLimit(
@@ -443,20 +416,14 @@ class TronClient {
       energyUsed: request.energyUsed ?? 0,
     );
 
-    final tronBalanceInt = tronBalance.toInt();
-
-    if (feeLimit > tronBalanceInt) {
+    if (feeLimit > tronBalance.toInt()) {
       final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
       throw Exception(
         'You don\'t have enough TRX to cover the transaction fee for this transaction. Please top up. Transaction fee: $feeInTrx TRX',
       );
     }
 
-    final rawTransaction = request.transactionRaw!.copyWith(
-      feeLimit: BigInt.from(feeLimit),
-    );
-
-    return rawTransaction;
+    return request.transactionRaw!.copyWith(feeLimit: BigInt.from(feeLimit));
   }
 
   Future<String> sendTransaction({
@@ -486,16 +453,13 @@ class TronClient {
     try {
       final ownerAddress = TronAddress(userAddress);
 
-      final tokenAddress = TronAddress(contractAddress);
-
       final contract = ContractABI.fromJson(trc20Abi, isTron: true);
-
       final function = contract.functionFromName("balanceOf");
 
       final request = await _provider!.request(
         TronRequestTriggerConstantContract.fromMethod(
           ownerAddress: ownerAddress,
-          contractAddress: tokenAddress,
+          contractAddress: TronAddress(contractAddress),
           function: function,
           params: [ownerAddress],
         ),

@@ -1,7 +1,7 @@
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_zano/api/model/destination.dart';
 import 'package:cw_zano/api/model/transfer_result.dart';
-import 'package:cw_zano/zano_formatter.dart';
 import 'package:cw_zano/zano_wallet.dart';
 
 class PendingZanoTransaction with PendingTransaction {
@@ -11,19 +11,19 @@ class PendingZanoTransaction with PendingTransaction {
     required this.fee,
     required this.comment,
     required this.assetId,
-    required this.ticker,
-    this.decimalPoint = ZanoFormatter.defaultDecimalPoint,
     required this.amount,
   });
 
   final ZanoWalletBase zanoWallet;
   final List<Destination> destinations;
-  final BigInt fee;
   final String comment;
   final String assetId;
-  final String ticker;
-  final int decimalPoint;
-  final BigInt amount;
+
+  @override
+  final Money amount;
+
+  @override
+  final Money fee;
 
   @override
   String get id => transferResult?.txHash ?? '';
@@ -32,24 +32,22 @@ class PendingZanoTransaction with PendingTransaction {
   String get hex => '';
 
   @override
-  String get amountFormatted => ZanoFormatter.bigIntAmountToString(amount, decimalPoint);
+  String get amountFormatted => amount.toString();
 
   @override
-  String get feeFormatted => "$feeFormattedValue ZANO";
+  String get feeFormatted => fee.toStringWithSymbol();
 
   @override
-  String get feeFormattedValue => ZanoFormatter.bigIntAmountToString(fee);
+  String get feeFormattedValue => fee.toString();
 
   TransferResult? transferResult;
 
   @override
   Future<void> commit() async {
-    transferResult = await zanoWallet.transfer(destinations, fee, comment);
+    transferResult = await zanoWallet.transfer(destinations, fee.amount, comment);
     zanoWallet.fetchTransactions();
   }
   
   @override
-  Future<Map<String, String>> commitUR() {
-    throw UnimplementedError();
-  }
+  Future<Map<String, String>> commitUR() => throw UnimplementedError();
 }

@@ -51,6 +51,7 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_mod
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -1342,9 +1343,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     return await evm!.createTokenApproval(
       wallet,
-      requiredAmount,
+      Money(requiredAmount, erc20Token),
       spender,
-      erc20Token,
       priority,
       useBlinkProtection:
       canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,

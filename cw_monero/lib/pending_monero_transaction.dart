@@ -1,13 +1,11 @@
 import 'dart:async';
 
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
-import 'package:cw_monero/api/transaction_history.dart'
-    as monero_transaction_history;
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/amount_converter.dart';
-
-import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_monero/api/transaction_history.dart' as monero_transaction_history;
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/monero_wallet.dart';
 
@@ -25,6 +23,10 @@ class PendingMoneroTransaction with PendingTransaction {
   final PendingTransactionDescription pendingTransactionDescription;
   final MoneroWalletBase wallet;
 
+  Money get amount => Money.fromInt(pendingTransactionDescription.amount, CryptoCurrency.xmr);
+
+  Money get fee => Money.fromInt(pendingTransactionDescription.fee, CryptoCurrency.xmr);
+
   @override
   String get id => pendingTransactionDescription.hash;
 
@@ -32,15 +34,13 @@ class PendingMoneroTransaction with PendingTransaction {
   String get hex => pendingTransactionDescription.hex;
 
   @override
-  String get amountFormatted => AmountConverter.amountIntToString(
-      CryptoCurrency.xmr, pendingTransactionDescription.amount);
+  String get amountFormatted => amount.toString();
 
   @override
-  String get feeFormatted => "$feeFormattedValue XMR";
+  String get feeFormatted => fee.toStringWithSymbol();
 
   @override
-  String get feeFormattedValue => AmountConverter.amountIntToString(
-      CryptoCurrency.xmr, pendingTransactionDescription.fee);
+  String get feeFormattedValue => fee.toString();
 
   @override
   bool shouldCommitUR() => isViewOnly;

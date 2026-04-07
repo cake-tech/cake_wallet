@@ -244,8 +244,7 @@ abstract class SolanaWalletBase
     final solBalance = balance[CryptoCurrency.sol]!.available;
 
     var totalAmount = Money.zero(transactionCurrency);
-
-    bool isSendAll = false;
+    var isSendAll = false;
 
     if (hasMultiDestination) {
       // Solana doesn't have multi destination right now

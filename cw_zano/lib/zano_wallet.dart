@@ -235,6 +235,7 @@ abstract class ZanoWalletBase
     final unlockedBalanceZano = balance[CryptoCurrency.zano]?.unlocked ?? Money.zero(CryptoCurrency.zano);
     final unlockedBalanceCurrency = balance[credentials.currency]?.unlocked ?? Money.zero(credentials.currency);
     final fee = Money(BigInt.from(calculateEstimatedFee(credentials.priority)), CryptoCurrency.zano);
+
     var totalAmount = Money.zero(credentials.currency);
     void checkForEnoughBalances() {
       if (isZano) {
@@ -293,12 +294,10 @@ abstract class ZanoWalletBase
     return PendingZanoTransaction(
       zanoWallet: this,
       destinations: destinations,
-      fee: fee.amount,
+      fee: fee,
       comment: outputs.first.note ?? '',
       assetId: assetId,
-      ticker: credentials.currency.title,
-      decimalPoint: credentials.currency.decimals,
-      amount: totalAmount.amount,
+      amount: totalAmount,
     );
   }
 

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math' as math;
 
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
@@ -1344,11 +1343,11 @@ class SolanaWalletClient {
         );
 
     final pendingTransaction = PendingSolanaTransaction(
-      amount: double.parse(inputAmount.toString()),
+      amount: inputAmount,
       serializedTransaction: serializedTransaction,
       destinationAddress: destinationAddress,
       sendTransaction: sendTx,
-      fee: double.parse(fee.toString()),
+      fee: fee,
     );
 
     return pendingTransaction;
@@ -1749,11 +1748,11 @@ class SolanaWalletClient {
         );
 
     return PendingSolanaTransaction(
-      amount: double.parse(inputAmount.toString()),
+      amount: inputAmount,
       serializedTransaction: serializedTransaction,
       destinationAddress: destinationAddress,
       sendTransaction: sendTx,
-      fee: double.parse(fee.toString()),
+      fee: fee,
     );
   }
 

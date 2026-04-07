@@ -241,7 +241,7 @@ abstract class ZcashWalletBase
       zcashWallet: this as ZcashWallet,
       credentials: creds,
       txPlan: txPlan,
-      fee: internalCalculateEstimatedFee(creds.priority, null),
+      fee: Money.fromInt(internalCalculateEstimatedFee(creds.priority, null), currency),
       availableBalance: availableBalance,
     );
   }

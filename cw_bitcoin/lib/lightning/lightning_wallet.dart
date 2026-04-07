@@ -8,6 +8,7 @@ import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -22,6 +23,7 @@ class LightningWallet {
   final String apiKey;
   final String lnurlDomain;
   final Network network;
+  final Currency currency;
   late BreezSdk sdk;
 
   String? cachedAddress;
@@ -35,6 +37,7 @@ class LightningWallet {
     required this.apiKey,
     required this.lnurlDomain,
     this.network = Network.mainnet,
+    this.currency = CryptoCurrency.btcln,
     this.cachedAddress
   });
 
@@ -188,11 +191,17 @@ class LightningWallet {
         final lightningFeeSats = paymentMethod.lightningFeeSats;
         final sparkTransferFeeSats = paymentMethod.sparkTransferFeeSats;
 
+        final baseAmount = request.amount ?? amountSats;
+        final amount = baseAmount != null
+            ? Money(baseAmount, currency)
+            : Money(paymentMethod.invoiceDetails.amountMsat ?? BigInt.zero, currency) /
+                BigInt.from(1000);
+
         return PendingLightningTransaction(
           id: paymentMethod.invoiceDetails.paymentHash,
-          amount: request.amount?.toInt() ?? amountSats?.toInt() ??
-              ((paymentMethod.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
-          fee: lightningFeeSats.toInt() + (sparkTransferFeeSats?.toInt() ?? 0),
+          amount: amount,
+          fee:
+              Money(lightningFeeSats + (sparkTransferFeeSats ?? BigInt.zero), currency),
           commitOverride: () async {
             try {
               final res = await sdk.sendPayment(
@@ -229,12 +238,10 @@ class LightningWallet {
 
       final prepareResponse = await sdk.prepareLnurlPay(request: request);
 
-      final feeSats = prepareResponse.feeSats;
-
       return PendingLightningTransaction(
         id: prepareResponse.invoiceDetails.paymentHash,
-        amount: prepareResponse.amountSats.toInt(),
-        fee: feeSats.toInt(),
+        amount: Money(prepareResponse.amountSats, currency),
+        fee: Money(prepareResponse.feeSats, currency),
         commitOverride: () async {
           final res =
               await sdk.lnurlPay(request: LnurlPayRequest(prepareResponse: prepareResponse));
@@ -254,27 +261,26 @@ class LightningWallet {
         final feeQuote = paymentMethod.feeQuote;
 
         OnchainConfirmationSpeed onchainConfirmationSpeed;
-        int fee;
+        BigInt fee;
         switch (priority) {
           case BitcoinTransactionPriority.fast:
-            fee = (feeQuote.speedFast.userFeeSat + feeQuote.speedFast.l1BroadcastFeeSat).toInt();
+            fee = feeQuote.speedFast.userFeeSat + feeQuote.speedFast.l1BroadcastFeeSat;
             onchainConfirmationSpeed = OnchainConfirmationSpeed.fast;
             break;
           case BitcoinTransactionPriority.medium:
-            fee =
-                (feeQuote.speedMedium.userFeeSat + feeQuote.speedMedium.l1BroadcastFeeSat).toInt();
+            fee = feeQuote.speedMedium.userFeeSat + feeQuote.speedMedium.l1BroadcastFeeSat;
             onchainConfirmationSpeed = OnchainConfirmationSpeed.medium;
             break;
           case BitcoinTransactionPriority.slow:
           default:
-            fee = (feeQuote.speedSlow.userFeeSat + feeQuote.speedSlow.l1BroadcastFeeSat).toInt();
+            fee = feeQuote.speedSlow.userFeeSat + feeQuote.speedSlow.l1BroadcastFeeSat;
             onchainConfirmationSpeed = OnchainConfirmationSpeed.slow;
         }
 
         return PendingLightningTransaction(
           id: "", // ToDo: Find out where to get it
-          amount: prepareResponse.amount.toInt(),
-          fee: fee,
+          amount: Money(prepareResponse.amount, currency),
+          fee: Money(fee, currency),
           commitOverride: () async {
             final options =
                 SendPaymentOptions.bitcoinAddress(confirmationSpeed: onchainConfirmationSpeed);
@@ -401,7 +407,7 @@ class LightningWallet {
   }
 
   ElectrumTransactionInfo _getElectrumTransactionInfoFromPayment(Payment payment) {
-    TransactionDirection direction = TransactionDirection.outgoing;
+    var direction = TransactionDirection.outgoing;
 
     if (payment.paymentType == PaymentType.receive) {
       direction = TransactionDirection.incoming;
@@ -413,10 +419,10 @@ class LightningWallet {
     return ElectrumTransactionInfo(
       WalletType.bitcoin,
       id: payment.id,
-      amount: Money(payment.amount, CryptoCurrency.btcln),
+      amount: Money(payment.amount, currency),
       direction: direction,
       isPending: payment.status == PaymentStatus.pending,
-      fee: Money(payment.fees, CryptoCurrency.btcln),
+      fee: Money(payment.fees, currency),
       date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
       confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
       additionalInfo: {"isLightning": true},
@@ -427,10 +433,10 @@ class LightningWallet {
     return ElectrumTransactionInfo(
       WalletType.bitcoin,
       id: deposit.txid,
-      amount: Money(deposit.amountSats, CryptoCurrency.btcln),
+      amount: Money(deposit.amountSats, currency),
       direction: TransactionDirection.incoming,
       isPending: true,
-      fee: Money.zero(CryptoCurrency.btcln),
+      fee: Money.zero(currency),
       date: DateTime.now(),
       confirmations: 0,
       additionalInfo: {"isLightning": true, "isSparkDeposit": true},

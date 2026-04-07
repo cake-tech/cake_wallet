@@ -8,6 +8,7 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
@@ -30,7 +31,6 @@ import 'package:cw_evm/evm_chain_exceptions.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_erc20_currency.dart';
-import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -1032,8 +1032,8 @@ abstract class EVMChainWalletBase
       estimatedGasUnits: estimatedGasUnitsForTransaction,
       privateKey: _evmChainPrivateKey,
       toAddress: toAddress,
-      amount: totalAmount.amount,
-      gasFee: estimatedFeesForTransaction.amount,
+      amount: totalAmount,
+      gasFee: estimatedFeesForTransaction,
       priority: _credentials.priority,
       currency: transactionCurrency,
       feeCurrency: EVMChainUtils.getFeeCurrency(selectedChainId),
@@ -1096,28 +1096,25 @@ abstract class EVMChainWalletBase
     final cleanAddress = sourceTokenAddress?.toLowerCase() ?? '';
 
     // Check for both 0xeeee... AND 0x0000... (Zero Address)
-    bool isNativeSource = sourceTokenAddress == null ||
+    final isNativeSource = sourceTokenAddress == null ||
         cleanAddress == '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' ||
         cleanAddress == '0x0000000000000000000000000000000000000000';
 
+    Currency tokenKey = const ERC20Currency(decimals: 18, symbol: "");
     if (!isNativeSource && sourceTokenAmount != null && sourceTokenAmount > BigInt.zero) {
-
-      // Filter list to find match.
-      final matchingTokens = balance.keys.where((k) =>
-      k is Erc20Token &&
-          k.contractAddress.toLowerCase() == cleanAddress
-      );
+      final matchingTokens = balance.keys
+          .where((k) => k is Erc20Token && k.contractAddress.toLowerCase() == cleanAddress);
 
       if (matchingTokens.isEmpty) {
         // Token is not in the wallet balance map -> Balance is 0
         throw Exception('Insufficient token balance (Token not found in wallet).');
       }
 
-      final tokenKey = matchingTokens.first;
+      tokenKey = matchingTokens.first;
       final tokenBalance = balance[tokenKey]?.balance ?? Money.zero(tokenKey);
 
       if (tokenBalance < Money(sourceTokenAmount, tokenKey)) {
-        throw Exception('Insufficient ${tokenKey.title} balance to cover the transaction amount.');
+        throw Exception('Insufficient ${tokenKey.symbol} balance to cover the transaction amount.');
       }
     }
 
@@ -1129,8 +1126,8 @@ abstract class EVMChainWalletBase
       return _client.signTransaction(
         privateKey: _evmChainPrivateKey,
         toAddress: to,
-        amount: valueWei,
-        gasFee: BigInt.from(gas.estimatedGasFee),
+        amount: Money(valueWei, tokenKey),
+        gasFee: Money.fromInt(gas.estimatedGasFee, currency),
         estimatedGasUnits: gasUnits,
         maxFeePerGas: gas.maxFeePerGas,
         priority: priority,
@@ -1147,16 +1144,16 @@ abstract class EVMChainWalletBase
     }
   }
 
-  Future<PendingTransaction> createApprovalTransaction(BigInt amount, String spender,
-      CryptoCurrency token, EVMChainTransactionPriority? priority, String feeCurrency,
+  Future<PendingTransaction> createApprovalTransaction(
+      Money amount, String spender, EVMChainTransactionPriority? priority,
       {bool useBlinkProtection = true}) async {
-    final CryptoCurrency transactionCurrency =
-        balance.keys.firstWhere((element) => element.title == token.title);
+    final transactionCurrency =
+        balance.keys.firstWhere((element) => element.symbol == amount.currency.symbol);
     assert(transactionCurrency is Erc20Token);
 
     final data = _client.getEncodedDataForApprovalTransaction(
       contractAddress: EthereumAddress.fromHex((transactionCurrency as Erc20Token).contractAddress),
-      value: EtherAmount.fromBigInt(EtherUnit.wei, amount),
+      value: EtherAmount.fromBigInt(EtherUnit.wei, amount.amount),
       toAddress: EthereumAddress.fromHex(spender),
     );
 
@@ -1179,9 +1176,8 @@ abstract class EVMChainWalletBase
       spender: spender,
       amount: amount,
       priority: priority,
-      gasFee: BigInt.from(gasFeesModel.estimatedGasFee),
+      gasFee: Money.fromInt(gasFeesModel.estimatedGasFee, currency),
       maxFeePerGas: gasFeesModel.maxFeePerGas,
-      feeCurrency: feeCurrency,
       estimatedGasUnits: safeGasUnits,
       exponent: transactionCurrency.decimal,
       contractAddress: tokenContract,

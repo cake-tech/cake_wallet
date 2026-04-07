@@ -1,3 +1,5 @@
+import 'package:cw_core/amount/money.dart';
+
 class PendingChange {
   final String address;
   final BigInt amount;
@@ -7,6 +9,10 @@ class PendingChange {
 
 mixin PendingTransaction {
   String get id;
+
+  Money get amount;
+  Money get fee;
+
   String get amountFormatted;
   String get feeFormatted;
   String get feeFormattedValue;

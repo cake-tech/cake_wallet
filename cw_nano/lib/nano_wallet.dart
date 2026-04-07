@@ -245,7 +245,7 @@ abstract class NanoWalletBase
     }
 
     return PendingNanoTransaction(
-      amount: runningAmount,
+      amount: Money(runningAmount, currency),
       id: "",
       nanoClient: _client,
       blocks: blocks,

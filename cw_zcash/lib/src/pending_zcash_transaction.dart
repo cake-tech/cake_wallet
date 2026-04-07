@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_zcash/cw_zcash.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:warp_api/data_fb_generated.dart';
 import 'package:warp_api/warp_api.dart';
@@ -34,7 +32,10 @@ class PendingZcashTransaction with PendingTransaction {
   String get hex => '';
 
   @override
-  String get amountFormatted => formatFixed(BigInt.from(totalAmount), CryptoCurrency.zec.decimals);
+  Money get amount => Money.fromInt(totalAmount, CryptoCurrency.zec);
+
+  @override
+  String get amountFormatted => amount.toString();
 
   int get totalAmount {
     final isAll = credentials.outputs.fold<bool>(false, (final a, final b) => a || (b.sendAll));
@@ -48,13 +49,13 @@ class PendingZcashTransaction with PendingTransaction {
   }
 
   @override
-  String get feeFormatted =>
-      '$feeFormattedValue ${walletTypeToCryptoCurrency(WalletType.zcash).title}';
+  String get feeFormatted => fee.toStringWithSymbol();
 
   @override
-  late String feeFormattedValue = formatFixed(BigInt.from(fee), CryptoCurrency.zec.decimals);
+  String get feeFormattedValue => fee.toString();
 
-  int fee;
+  @override
+  final Money fee;
 
   @override
   Future<void> commit() async {

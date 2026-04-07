@@ -247,10 +247,6 @@ class CWBitcoin extends Bitcoin {
       bitcoinAmountToString(amount: amount);
 
   @override
-  double formatterBitcoinAmountToDouble({required int amount}) =>
-      bitcoinAmountToDouble(amount: amount);
-
-  @override
   int formatterStringDoubleToBitcoinAmount(String amount) => stringDoubleToBitcoinAmount(amount);
 
   @override

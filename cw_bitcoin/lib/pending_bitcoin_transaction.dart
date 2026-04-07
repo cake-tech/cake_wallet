@@ -1,9 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:bbqrdart/bbqrdart.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
@@ -11,7 +8,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_bitcoin/electrum.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -44,8 +40,6 @@ class PendingBitcoinTransaction with PendingTransaction {
   final WalletType type;
   final BtcTransaction _tx;
   final ElectrumClient electrumClient;
-  final int amount;
-  final int fee;
   final String feeRate;
   final BasedUtxoNetwork? network;
   final bool isSendAll;
@@ -64,19 +58,25 @@ class PendingBitcoinTransaction with PendingTransaction {
   Uint8List? unsignedPsbt;
 
   @override
+  final Money amount;
+
+  @override
+  final Money fee;
+
+  @override
   String get id => idOverride ?? _tx.txId();
 
   @override
   String get hex => hexOverride ?? _tx.serialize();
 
   @override
-  String get amountFormatted => bitcoinAmountToString(amount: amount);
+  String get amountFormatted => amount.toString();
 
   @override
   String get feeFormatted => "$feeFormattedValue ${_feeCurrency}";
 
   String get _feeCurrency {
-    switch(type) {
+    switch (type) {
       case WalletType.bitcoin:
         return "BTC";
       case WalletType.litecoin:
@@ -88,12 +88,10 @@ class PendingBitcoinTransaction with PendingTransaction {
       default:
         return type.name;
     }
-
   }
 
-
   @override
-  String get feeFormattedValue => bitcoinAmountToString(amount: fee);
+  String get feeFormattedValue => fee.toString();
 
   @override
   int? get outputCount => _tx.outputs.length;
@@ -157,14 +155,12 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   Future<void> _ltcCommit() async {
     try {
-      final resp = await CwMweb.broadcast(
-          BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
+      final resp = await CwMweb.broadcast(BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
       idOverride = resp.txid;
     } on GrpcError catch (e) {
       throw BitcoinTransactionCommitFailed(errorMessage: e.message);
     } catch (e) {
-      throw BitcoinTransactionCommitFailed(
-          errorMessage: "Unknown error: ${e.toString()}");
+      throw BitcoinTransactionCommitFailed(errorMessage: "Unknown error: ${e.toString()}");
     }
   }
 
@@ -183,15 +179,14 @@ class PendingBitcoinTransaction with PendingTransaction {
     _listeners.forEach((listener) => listener(transactionInfo()));
   }
 
-  void addListener(
-          void Function(ElectrumTransactionInfo transaction) listener) =>
+  void addListener(void Function(ElectrumTransactionInfo transaction) listener) =>
       _listeners.add(listener);
 
   ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(
         type,
         id: id,
         height: 0,
-        amount: Money.fromInt(amount, walletTypeToCryptoCurrency(type)),
+        amount: amount,
         direction: TransactionDirection.outgoing,
         date: DateTime.now(),
         isPending: true,
@@ -199,7 +194,7 @@ class PendingBitcoinTransaction with PendingTransaction {
         confirmations: 0,
         inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
         outputAddresses: outputAddresses,
-        fee: Money.fromInt(fee, walletTypeToCryptoCurrency(type)),
+        fee: fee,
       );
 
   @override
@@ -211,8 +206,8 @@ class PendingBitcoinTransaction with PendingTransaction {
     var cborEncoder = CBOREncoder();
     cborEncoder.encodeBytes(sourceBytes);
     var ur = UR("psbt", cborEncoder.getBytes());
-    var urLegacy = UR("crypto-psbt", cborEncoder.getBytes());  
-    // var ur = UR("psbt", Uint8List.fromList(List.generate(64*1024, (int x) => x % 256)));    
+    var urLegacy = UR("crypto-psbt", cborEncoder.getBytes());
+    // var ur = UR("psbt", Uint8List.fromList(List.generate(64*1024, (int x) => x % 256)));
     var encoded = UREncoder(ur, 120);
     var encodedLegacy = UREncoder(urLegacy, 120);
     List<String> values = [];
@@ -234,8 +229,7 @@ class PendingBitcoinTransaction with PendingTransaction {
     return Future.value({
       "Cupcake bcur": values.join("\n"),
       "ColdCard bbqr": bbqr.join("\n"),
-      if (kDebugMode)
-        "SeedSigner bcur legacy": valuesLegacy.join("\n"),
+      if (kDebugMode) "SeedSigner bcur legacy": valuesLegacy.join("\n"),
     });
   }
 }

@@ -215,7 +215,6 @@ abstract class Bitcoin {
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});
-  double formatterBitcoinAmountToDouble({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);
   String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
 
@@ -909,6 +908,7 @@ Future<void> generateSolana(bool hasImplementation) async {
   const solanaCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -1217,7 +1217,6 @@ import 'package:cw_decred/transaction_priority.dart';
 import 'package:cw_decred/wallet.dart';
 import 'package:cw_decred/wallet_service.dart';
 import 'package:cw_decred/wallet_creation_credentials.dart';
-import 'package:cw_decred/amount_format.dart';
 import 'package:cw_decred/transaction_credentials.dart';
 import 'package:cw_decred/mnemonic.dart';
 """;
@@ -1330,6 +1329,7 @@ Future<void> generateEVM(bool hasImplementation) async {
 import 'dart:math' as math;
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
@@ -1477,9 +1477,8 @@ abstract class EVM {
   
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
-    BigInt amount,
+    Money amount,
     String spender,
-    CryptoCurrency token,
     TransactionPriority? priority,
     {bool useBlinkProtection = true}
   );

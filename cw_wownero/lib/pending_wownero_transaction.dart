@@ -1,8 +1,7 @@
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
-import 'package:cw_wownero/api/transaction_history.dart'
-    as wownero_transaction_history;
+import 'package:cw_wownero/api/transaction_history.dart' as wownero_transaction_history;
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/amount_converter.dart';
 
 import 'package:cw_core/pending_transaction.dart';
 
@@ -19,6 +18,10 @@ class PendingWowneroTransaction with PendingTransaction {
 
   final PendingTransactionDescription pendingTransactionDescription;
 
+  Money get amount => Money.fromInt(pendingTransactionDescription.amount, CryptoCurrency.wow);
+
+  Money get fee => Money.fromInt(pendingTransactionDescription.fee, CryptoCurrency.wow);
+
   @override
   String get id => pendingTransactionDescription.hash;
 
@@ -28,15 +31,13 @@ class PendingWowneroTransaction with PendingTransaction {
   String get txKey => pendingTransactionDescription.txKey;
 
   @override
-  String get amountFormatted =>
-      AmountConverter.amountIntToString(CryptoCurrency.wow, pendingTransactionDescription.amount);
+  String get amountFormatted => amount.toString();
 
   @override
-  String get feeFormatted => "$feeFormattedValue WOW";
+  String get feeFormatted => fee.toStringWithSymbol();
 
   @override
-  String get feeFormattedValue =>
-      AmountConverter.amountIntToString(CryptoCurrency.wow, pendingTransactionDescription.fee);
+  String get feeFormattedValue => fee.toString();
 
   @override
   Future<void> commit() async {

@@ -8,41 +8,48 @@ class TronTransactionInfo extends TransactionInfo {
   TronTransactionInfo({
     required this.id,
     required this.amount,
-    required this.txFee,
+    required this.fee,
     required this.direction,
     required this.blockTime,
     required this.to,
     required this.from,
     required this.isPending,
-    this.tokenSymbol = 'TRX',
   });
 
   @override
   final String id;
+
   @override
   final String? to;
+
   @override
   final String? from;
+
   @override
   final Money amount;
+
+  @override
+  final Money? fee;
+
   @override
   final bool isPending;
+
   @override
   final TransactionDirection direction;
 
-  final String tokenSymbol;
   final DateTime blockTime;
-  final int? txFee;
-
 
   factory TronTransactionInfo.fromJson(Map<String, dynamic> data) {
+    final tokenSymbol = data['tokenSymbol'] as String;
+    final decimals = data['decimals'] as int? ?? CryptoCurrency.trx.decimals;
+    final currency = CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
+
     return TronTransactionInfo(
       id: data['id'] as String,
-      amount: Money(BigInt.parse(data['tronAmount']), CryptoCurrency.trx),
-      txFee: data['txFee'],
+      amount: Money(BigInt.parse(data['tronAmount']), currency),
+      fee: Money(BigInt.parse(data['txFee']), CryptoCurrency.trx),
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       blockTime: DateTime.fromMillisecondsSinceEpoch(data['blockTime'] as int),
-      tokenSymbol: data['tokenSymbol'] as String,
       to: data['to'],
       from: data['from'],
       isPending: data['isPending'],
@@ -52,13 +59,14 @@ class TronTransactionInfo extends TransactionInfo {
   Map<String, dynamic> toJson() => {
         'id': id,
         'tronAmount': amount.amount.toString(),
-        'txFee': txFee,
+        'txFee': fee?.amount.toString(),
         'direction': direction.index,
         'blockTime': blockTime.millisecondsSinceEpoch,
-        'tokenSymbol': tokenSymbol,
         'to': to,
         'from': from,
         'isPending': isPending,
+        'tokenSymbol': amount.currency.symbol,
+        'decimals': amount.currency.decimals
       };
 
   @override

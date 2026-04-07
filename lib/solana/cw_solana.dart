@@ -280,11 +280,11 @@ class CWSolana extends Solana {
     }
 
     return PendingSolanaTransaction(
-      amount: amount,
+      amount: Money.tryParse(amount.toString(), CryptoCurrency.sol) ?? Money.zero(CryptoCurrency.sol),
       serializedTransaction: signedTransactionBase64,
       destinationAddress: destinationAddress,
       sendTransaction: sendTx,
-      fee: fee,
+      fee: Money.tryParse(fee.toString(), CryptoCurrency.sol) ?? Money.zero(CryptoCurrency.sol),
     );
   }
 
