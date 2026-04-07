@@ -1,14 +1,45 @@
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:flutter/material.dart';
+
+
+class AlertButtonStyle {
+  final Color backgroundColor;
+  final Color textColor;
+  final FontWeight fontWeight;
+
+  const AlertButtonStyle({
+    required this.backgroundColor,
+    required this.textColor,
+    this.fontWeight = FontWeight.w400
+  });
+
+  factory AlertButtonStyle.primary(BuildContext context) => AlertButtonStyle(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      textColor: Theme.of(context).colorScheme.onPrimary,
+    );
+
+  factory AlertButtonStyle.secondary(BuildContext context) => AlertButtonStyle(
+    backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+    textColor: Theme.of(context).colorScheme.primary,
+  );
+
+  factory AlertButtonStyle.error(BuildContext context) => AlertButtonStyle(
+    backgroundColor: Theme.of(context).colorScheme.errorContainer,
+    textColor: Theme.of(context).colorScheme.error,
+    fontWeight: FontWeight.w500
+  );
+}
+
 
 class BaseAlertDialog extends StatelessWidget {
   String? get headerText => '';
 
   String? get titleText => '';
 
-  double? get titleTextSize => 20;
+  double? get titleTextSize => 18;
 
   String get contentText => '';
 
@@ -28,14 +59,6 @@ class BaseAlertDialog extends StatelessWidget {
 
   bool get barrierDismissible => true;
 
-  Color? get leftActionButtonTextColor => null;
-
-  Color? get rightActionButtonTextColor => null;
-
-  Color? get leftActionButtonColor => null;
-
-  Color? get rightActionButtonColor => null;
-
   String? get headerImageUrl => null;
 
   Key? leftActionButtonKey;
@@ -43,6 +66,12 @@ class BaseAlertDialog extends StatelessWidget {
   Key? rightActionButtonKey;
 
   Key? dialogKey;
+  
+  AlertButtonStyle? get leftAlertButtonStyle => null;
+
+  AlertButtonStyle? get rightAlertButtonStyle => null;
+
+  bool get showLeftButton => true;
 
   Widget title(BuildContext context) {
     return Text(
@@ -83,7 +112,7 @@ class BaseAlertDialog extends StatelessWidget {
                 contentText,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 16,
+                      fontSize: 14,
                       decoration: TextDecoration.none,
                     ),
               ),
@@ -93,59 +122,56 @@ class BaseAlertDialog extends StatelessWidget {
   }
 
   Widget actionButtons(BuildContext context) {
-    return Container(
-      height: 60,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: TextButton(
-                key: leftActionButtonKey,
-                onPressed: actionLeft,
-                style: TextButton.styleFrom(
-                  backgroundColor: leftActionButtonColor ?? Theme.of(context).colorScheme.surface,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.zero),
+    final rightButtonStyle = rightAlertButtonStyle ?? AlertButtonStyle.primary(context);
+    final leftButtonStyle = leftAlertButtonStyle ?? AlertButtonStyle.secondary(context);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      spacing:8,
+      children: <Widget>[
+        if(showLeftButton)
+        Expanded(
+          child: GestureDetector(
+              key: leftActionButtonKey,
+              onTap: actionLeft,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999999),
+                  color: leftButtonStyle.backgroundColor
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                  child: AutoSizeText(
+                    maxLines:1,
+                    leftActionButtonText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: leftButtonStyle.textColor, fontWeight: leftButtonStyle.fontWeight)
                   ),
                 ),
-                child: Text(
-                  leftActionButtonText,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: leftActionButtonTextColor ??
-                            Theme.of(context).colorScheme.errorContainer,
-                        decoration: TextDecoration.none,
-                      ),
-                )),
-          ),
-          const VerticalSectionDivider(),
-          Expanded(
-            child: TextButton(
+              )),
+        ),
+        Expanded(
+          child: GestureDetector(
               key: rightActionButtonKey,
-              onPressed: actionRight,
-              style: TextButton.styleFrom(
-                backgroundColor: rightActionButtonColor ?? Theme.of(context).colorScheme.surface,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.zero),
+              onTap: actionRight,
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999999),
+                    color: rightButtonStyle.backgroundColor
                 ),
-              ),
-              child: Text(
-                rightActionButtonText,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: rightActionButtonTextColor ?? Theme.of(context).colorScheme.onSurface,
-                      decoration: TextDecoration.none,
-                    ),
-              ),
-            ),
-          ),
-        ],
-      ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                  child: AutoSizeText(
+                    maxLines: 1,
+                    rightActionButtonText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: rightButtonStyle.textColor, fontWeight: rightButtonStyle.fontWeight)
+                  ),
+                ),
+              )),
+        ),
+      ],
     );
   }
 
@@ -178,53 +204,53 @@ class BaseAlertDialog extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
             decoration:
-                BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.8)),
+                BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withAlpha(25)),
             child: Center(
-              child: GestureDetector(
-                onTap: () => null,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: Theme.of(context).colorScheme.surface,
-                  ),
-                  width: 300,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      if (headerImageUrl != null) headerImage(context, headerImageUrl!),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          if (headerImageUrl != null) const SizedBox(height: 50),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GestureDetector(
+                  onTap: () => null,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          if (headerImageUrl != null) headerImage(context, headerImageUrl!),
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
-                              if (headerText?.isNotEmpty ?? false) headerTitle(context),
-                              titleText != null
-                                  ? Padding(
-                                      padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
-                                      child: title(context),
-                                    )
-                                  : SizedBox(height: 16),
-                              isDividerExists
-                                  ? Padding(
-                                      padding: EdgeInsets.only(top: 16, bottom: 8),
-                                      child: const HorizontalSectionDivider(),
-                                    )
-                                  : Offstage(),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(24, 8, 24, 32),
-                                child: content(context),
-                              )
+                              if (headerImageUrl != null) const SizedBox(height: 50),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  if (headerText?.isNotEmpty ?? false) headerTitle(context),
+                                  titleText != null
+                                      ? title(context)
+                                      : SizedBox(height: 16),
+                                  isDividerExists
+                                      ? Padding(
+                                          padding: EdgeInsets.only(top: 16, bottom: 8),
+                                          child: const HorizontalSectionDivider(),
+                                        )
+                                      : Offstage(),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 25),
+                                    child: content(context),
+                                  )
+                                ],
+                              ),
+                              // if (isBottomDividerExists) const HorizontalSectionDivider(),
+                              actionButtons(context)
                             ],
                           ),
-                          if (isBottomDividerExists) const HorizontalSectionDivider(),
-                          ClipRRect(
-                              borderRadius: BorderRadius.all(Radius.circular(30)),
-                              child: actionButtons(context))
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
