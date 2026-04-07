@@ -134,7 +134,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
             ),
           StandardTile(
             itemTitle: amount,
-            itemValue: '$amountValue ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}',
+            itemValue: amountValue,
             itemTitleTextStyle: itemTitleTextStyle,
             itemSubTitle: fiatAmountValue,
             itemSubTitleTextStyle: itemSubTitleTextStyle,

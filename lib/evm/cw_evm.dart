@@ -349,7 +349,7 @@ class CWEVM extends EVM {
 
   // Chain-specific integrations (only for Ethereum)
   @override
-  Future<BigInt>? getDEuroSavingsBalance(WalletBase wallet) {
+  Future<Money>? getDEuroSavingsBalance(WalletBase wallet) {
     if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).savingsBalance;
     }
@@ -357,7 +357,7 @@ class CWEVM extends EVM {
   }
 
   @override
-  Future<BigInt>? getDEuroAccruedInterest(WalletBase wallet) {
+  Future<Money>? getDEuroAccruedInterest(WalletBase wallet) {
     if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).accruedInterest;
     }

@@ -36,10 +36,11 @@ class DEuro {
 
   EthereumAddress get _address => EthereumAddress.fromHex(_wallet.walletAddresses.primaryAddress);
 
-  Future<BigInt> get savingsBalance async =>
-      (await _savingsGateway.savings(accountOwner: _address)).saved;
+  Future<Money> get savingsBalance async =>
+      Money((await _savingsGateway.savings(accountOwner: _address)).saved, CryptoCurrency.deuro);
 
-  Future<BigInt> get accruedInterest => _savingsGateway.accruedInterest(accountOwner: _address);
+  Future<Money> get accruedInterest async =>
+      Money(await _savingsGateway.accruedInterest(accountOwner: _address), CryptoCurrency.deuro);
 
   Future<BigInt> get interestRate => _savingsGateway.currentRatePPM();
 

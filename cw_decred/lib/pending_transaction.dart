@@ -23,12 +23,6 @@ class DecredPendingTransaction with PendingTransaction {
   String get amountFormatted => amount.toString();
 
   @override
-  String get feeFormatted => fee.toStringWithSymbol();
-
-  @override
-  String get feeFormattedValue => fee.toString();
-
-  @override
   String get hex => rawHex;
 
   @override

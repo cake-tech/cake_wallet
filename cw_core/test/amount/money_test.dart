@@ -253,8 +253,10 @@ void main() {
         });
 
         test("handles exact division perfectly", () {
-          expect((Money(BigInt.from(100), CryptoCurrency.btc) / BigInt.from(20)).amount, BigInt.from(5));
-          expect((Money(BigInt.from(-100), CryptoCurrency.btc) / BigInt.from(20)).amount, BigInt.from(-5));
+          expect((Money(BigInt.from(100), CryptoCurrency.btc) / BigInt.from(20)).amount,
+              BigInt.from(5));
+          expect((Money(BigInt.from(-100), CryptoCurrency.btc) / BigInt.from(20)).amount,
+              BigInt.from(-5));
         });
       });
     });
@@ -287,6 +289,13 @@ void main() {
         expect(copy.amount, BigInt.one);
         expect(copy.currency.decimals, 8);
       });
+    });
+
+    test("toString as satoshi", () {
+      final money = Money.parse("100000000", CryptoCurrency.btc.copyWith(decimals: 0));
+      expect(money.amount, equals(BigInt.parse("100000000")));
+      expect(money.currency.decimals, equals(0));
+      expect(money.toString(), "100000000");
     });
   });
 }

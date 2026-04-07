@@ -34,12 +34,6 @@ class PendingWowneroTransaction with PendingTransaction {
   String get amountFormatted => amount.toString();
 
   @override
-  String get feeFormatted => fee.toStringWithSymbol();
-
-  @override
-  String get feeFormattedValue => fee.toString();
-
-  @override
   Future<void> commit() async {
     try {
       wownero_transaction_history.commitTransactionFromPointerAddress(

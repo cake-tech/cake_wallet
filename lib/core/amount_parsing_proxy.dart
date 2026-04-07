@@ -1,7 +1,9 @@
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 
 class AmountParsingProxy {
@@ -61,6 +63,16 @@ class AmountParsingProxy {
     return cryptoCurrency.formatAmount(BigInt.from(amount));
   }
 
+  String asDisplayString(Money amount) {
+    if (useSatoshi(amount.currency)) return "${amount.amount}";
+    return amount.toString();
+  }
+
+  String asDisplayStringWithSymbol(Money amount) {
+    if (useSatoshi(amount.currency)) return "${amount.amount} sats";
+    return amount.toStringWithSymbol();
+  }
+
   /// [parseCryptoString] turns the input [string] into a `BigInt` presentation of the [cryptoCurrency]
   BigInt parseCryptoString(String amount, CryptoCurrency cryptoCurrency) {
     if (useSatoshi(cryptoCurrency)) {
@@ -83,7 +95,7 @@ class AmountParsingProxy {
   String getCryptoSymbol(CryptoCurrency cryptoCurrency) =>
       useSatoshi(cryptoCurrency) ? "sats" : cryptoCurrency.title.safeSubString(0, 8);
 
-  bool useSatoshi(CryptoCurrency cryptoCurrency) =>
+  bool useSatoshi(Currency cryptoCurrency) =>
       ([CryptoCurrency.btc, CryptoCurrency.btcln].contains(cryptoCurrency) &&
           displayMode == BitcoinAmountDisplayMode.satoshi) ||
       (CryptoCurrency.btcln == cryptoCurrency &&

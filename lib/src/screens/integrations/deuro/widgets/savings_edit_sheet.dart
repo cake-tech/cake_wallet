@@ -3,11 +3,11 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/numpad.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cw_core/parse_fixed.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:flutter/material.dart';
 
 class SavingsEditSheet extends BaseBottomSheet {
-  final String? balance;
+  final Money? balance;
   final String? balanceTitle;
 
   const SavingsEditSheet({
@@ -32,7 +32,7 @@ class SavingsEditSheet extends BaseBottomSheet {
 }
 
 class _SavingsEditBody extends StatefulWidget {
-  final String? balance;
+  final Money? balance;
   final String? balanceTitle;
 
   const _SavingsEditBody({this.balance, this.balanceTitle});
@@ -59,7 +59,7 @@ class _SavingsEditBodyState extends State<_SavingsEditBody> {
   final FocusNode _numpadFocusNode = FocusNode();
 
   void _onPressedAll() => setState(() {
-        amount = widget.balance!;
+        amount = widget.balance!.toString();
         isValid = _validate();
       });
 
@@ -79,9 +79,12 @@ class _SavingsEditBodyState extends State<_SavingsEditBody> {
       });
 
   bool _validate() {
-    final amountBigInt = parseFixed(amount, 18);
-    final balanceBigInt = parseFixed(widget.balance!, 18);
-    return balanceBigInt >= amountBigInt && amountBigInt > BigInt.zero;
+    try {
+      final amountBigInt = Money.parse(amount, widget.balance!.currency);
+      return widget.balance! >= amountBigInt && amountBigInt.sign > 0;
+    } catch (_) {
+      return false;
+    }
   }
 
   @override
@@ -108,7 +111,7 @@ class _SavingsEditBodyState extends State<_SavingsEditBody> {
             Divider(),
             AssetBalanceRow(
               title: widget.balanceTitle!,
-              amount: widget.balance!,
+              amount: widget.balance!.toStringWithSymbol(fractionalDigits: 6),
               onAllPressed: _onPressedAll,
             ),
           ],

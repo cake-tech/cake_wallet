@@ -26,12 +26,6 @@ class PendingTronTransaction with PendingTransaction {
   Future<void> commit() async => await sendTransaction();
 
   @override
-  String get feeFormatted => fee.toStringWithSymbol();
-
-  @override
-  String get feeFormattedValue => fee.toString();
-
-  @override
   String get hex => bytesToHex(signedTransaction);
 
   @override

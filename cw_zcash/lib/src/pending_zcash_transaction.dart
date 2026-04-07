@@ -32,12 +32,12 @@ class PendingZcashTransaction with PendingTransaction {
   String get hex => '';
 
   @override
-  Money get amount => Money.fromInt(totalAmount, CryptoCurrency.zec);
+  Money get amount => Money.fromInt(_totalAmount, CryptoCurrency.zec);
 
   @override
   String get amountFormatted => amount.toString();
 
-  int get totalAmount {
+  int get _totalAmount {
     final isAll = credentials.outputs.fold<bool>(false, (final a, final b) => a || (b.sendAll));
     if (isAll) {
       return availableBalance;
@@ -47,12 +47,6 @@ class PendingZcashTransaction with PendingTransaction {
       (final a, final b) => a + (b.formattedCryptoAmount ?? 0),
     );
   }
-
-  @override
-  String get feeFormatted => fee.toStringWithSymbol();
-
-  @override
-  String get feeFormattedValue => fee.toString();
 
   @override
   final Money fee;
@@ -72,7 +66,7 @@ class PendingZcashTransaction with PendingTransaction {
               txId: _txId,
               height: 0,
               timestamp: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-              value: -totalAmount,
+              value: -_totalAmount,
             ).pack,
           ),
         ),
@@ -82,7 +76,7 @@ class PendingZcashTransaction with PendingTransaction {
       _txId ?? '',
       credentials.outputs.reduce((final o1, final o2) {
         return OutputInfo(
-          address: o1.address + "," + o2.address,
+          address: "${o1.address},${o2.address}",
           sendAll: false,
           isParsedAddress: false,
         );
@@ -93,9 +87,7 @@ class PendingZcashTransaction with PendingTransaction {
   }
 
   @override
-  Future<Map<String, String>> commitUR() {
-    throw UnimplementedError('UR not supported for Zcash');
-  }
+  Future<Map<String, String>> commitUR() => throw UnimplementedError('UR not supported for Zcash');
 
   @override
   bool shouldCommitUR() => false;

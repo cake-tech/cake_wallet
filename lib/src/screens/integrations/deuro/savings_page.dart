@@ -58,7 +58,8 @@ class DEuroSavingsPage extends BasePage {
                   Observer(
                     builder: (_) => SavingsCard(
                       interestRate: "${_dEuroViewModel.interestRateFormated}%",
-                      savingsBalance: _dEuroViewModel.savingsBalanceFormated,
+                      savingsBalance:
+                          _dEuroViewModel.savingsBalance.toStringWithPrecision(fractionalDigits: 6),
                       fiatSavingsBalance: _dEuroViewModel.fiatSavingsBalanceFormated,
                       currency: CryptoCurrency.deuro,
                       fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
@@ -215,7 +216,7 @@ class DEuroSavingsPage extends BasePage {
           amount: S.of(bottomSheetContext).send_amount,
           amountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
               ? _dEuroViewModel.accruedInterestFormated
-              : tx.amountFormatted,
+              : tx.amount.toStringWithSymbol(),
           fiatAmountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
               ? _dEuroViewModel.fiatAccruedInterestFormated
               : _dEuroViewModel.pendingTransactionFiatAmountFormatted,
@@ -251,7 +252,7 @@ class DEuroSavingsPage extends BasePage {
           amountValue: tx.amountFormatted,
           fiatAmountValue: "",
           fee: S.of(bottomSheetContext).send_estimated_fee,
-          feeValue: tx.feeFormatted,
+          feeValue: tx.fee.toStringWithSymbol(),
           feeFiatAmount: "",
           outputs: [],
           onSlideActionComplete: () {
@@ -411,8 +412,8 @@ class DEuroSavingsPage extends BasePage {
             ? S.of(context).deuro_savings_available_to_add
             : S.of(context).deuro_savings_available_to_remove,
         balance: isAdding
-            ? _dEuroViewModel.accountBalanceFormated
-            : _dEuroViewModel.savingsBalanceFormated,
+            ? _dEuroViewModel.accountBalance
+            : _dEuroViewModel.savingsBalance,
         footerType: FooterType.none,
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),

@@ -1509,8 +1509,8 @@ abstract class EVM {
   String? getEVMERC20EstimatedFee(WalletBase wallet);
   
   // Chain-specific integrations (optional, can be null for non-Ethereum chains)
-  Future<BigInt>? getDEuroSavingsBalance(WalletBase wallet) => null;
-  Future<BigInt>? getDEuroAccruedInterest(WalletBase wallet) => null;
+  Future<Money>? getDEuroSavingsBalance(WalletBase wallet) => null;
+  Future<Money>? getDEuroAccruedInterest(WalletBase wallet) => null;
   Future<BigInt>? getDEuroInterestRate(WalletBase wallet) => null;
   Future<BigInt>? getDEuroSavingsApproved(WalletBase wallet) => null;
   Future<PendingTransaction>? addDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority) => null;

@@ -38,12 +38,6 @@ class PendingSolanaTransaction with PendingTransaction {
   }
 
   @override
-  String get feeFormatted => "$feeFormattedValue SOL";
-
-  @override
-  String get feeFormattedValue => fee.toString();
-
-  @override
   String get hex => serializedTransaction;
 
   @override

@@ -106,13 +106,13 @@ class CWTron extends Tron {
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     transaction as TronTransactionInfo;
-    if (transaction.tokenSymbol == CryptoCurrency.trx.title) {
+    if (transaction.amount.currency.symbol == CryptoCurrency.trx.title) {
       return CryptoCurrency.trx;
     }
 
     wallet as TronWallet;
-    return wallet.tronTokenCurrencies.firstWhere(
-        (element) => transaction.tokenSymbol.toLowerCase() == element.symbol.toLowerCase());
+    return wallet.tronTokenCurrencies.firstWhere((element) =>
+        transaction.amount.currency.symbol.toLowerCase() == element.symbol.toLowerCase());
   }
 
   @override

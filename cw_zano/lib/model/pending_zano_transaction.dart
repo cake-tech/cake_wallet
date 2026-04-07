@@ -34,12 +34,6 @@ class PendingZanoTransaction with PendingTransaction {
   @override
   String get amountFormatted => amount.toString();
 
-  @override
-  String get feeFormatted => fee.toStringWithSymbol();
-
-  @override
-  String get feeFormattedValue => fee.toString();
-
   TransferResult? transferResult;
 
   @override

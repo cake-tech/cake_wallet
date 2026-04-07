@@ -73,27 +73,6 @@ class PendingBitcoinTransaction with PendingTransaction {
   String get amountFormatted => amount.toString();
 
   @override
-  String get feeFormatted => "$feeFormattedValue ${_feeCurrency}";
-
-  String get _feeCurrency {
-    switch (type) {
-      case WalletType.bitcoin:
-        return "BTC";
-      case WalletType.litecoin:
-        return "LTC";
-      case WalletType.bitcoinCash:
-        return "BCH";
-      case WalletType.dogecoin:
-        return "DOGE";
-      default:
-        return type.name;
-    }
-  }
-
-  @override
-  String get feeFormattedValue => fee.toString();
-
-  @override
   int? get outputCount => _tx.outputs.length;
 
   List<TxOutput> get outputs => _tx.outputs;

@@ -23,12 +23,6 @@ class PendingNanoTransaction with PendingTransaction {
   String get amountFormatted => amount.toString();
 
   @override
-  String get feeFormatted => "$feeFormattedValue XNO";
-
-  @override
-  String get feeFormattedValue => "0";
-
-  @override
   Money get fee => Money.zero(CryptoCurrency.nano);
 
   @override
