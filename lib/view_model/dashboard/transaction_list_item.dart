@@ -1,23 +1,17 @@
-import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
-import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/keyable.dart';
@@ -52,14 +46,9 @@ class TransactionListItem extends ActionListItem with Keyable {
   String get formattedCryptoAmount {
     if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
     if (balanceViewModel.wallet.type == WalletType.bitcoin) {
-      final isLightning = (transaction.additionalInfo["isLightning"] as bool?) ?? false;
-      final crypto = isLightning ? CryptoCurrency.btcln : CryptoCurrency.btc;
-      final amount = _appStore.amountParsingProxy
-          .getDisplayCryptoStringFromBigInt(transaction.amount.amount, crypto)
-          .withMaxDecimals(8)
+      return _appStore.amountParsingProxy
+          .asDisplayStringWithSymbol(transaction.amount)
           .withLocalSeperator(_appStore.settingsStore.languageCode);
-
-      return '$amount ${_appStore.amountParsingProxy.getCryptoSymbol(crypto)}';
     }
 
     return transaction.amount.toStringWithSymbol();

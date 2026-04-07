@@ -308,10 +308,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // Handle case where balance might not be available yet (e.g., during chain switch)
     final balanceForCurrency = wallet.balance[selectedCryptoCurrency];
     if (balanceForCurrency == null) {
-      return _appStore.amountParsingProxy.getDisplayCryptoString(0, selectedCryptoCurrency);
+      return _appStore.amountParsingProxy.asDisplayString(Money.zero(selectedCryptoCurrency));
     }
-    return _appStore.amountParsingProxy.getDisplayCryptoStringFromBigInt(
-        wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance.amount, selectedCryptoCurrency);
+    return _appStore.amountParsingProxy
+        .asDisplayString(wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance);
   }
 
   @action

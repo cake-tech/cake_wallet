@@ -28,6 +28,18 @@ void main() {
 
       // To many decimals
       expect(() => Money.parse("-1.000000000000000", CryptoCurrency.btc), throwsFormatException);
+
+      money = Money.parse("1", CryptoCurrency.btc, isBaseUnit: true);
+      expect(money.amount, BigInt.from(1));
+
+      money = Money.parse("0", CryptoCurrency.btc, isBaseUnit: true);
+      expect(money.amount, BigInt.from(0));
+
+      money = Money.parse("-1", CryptoCurrency.btc, isBaseUnit: true);
+      expect(money.amount, BigInt.from(-1));
+
+      // canonical representation when expecting base units
+      expect(() => Money.parse("1.0", CryptoCurrency.btc, isBaseUnit: true), throwsFormatException);
     });
 
     test("tryParse", () {
@@ -55,6 +67,19 @@ void main() {
 
       // To many decimals
       money = Money.tryParse("-1.000000000000000", CryptoCurrency.btc);
+      expect(money?.amount, isNull);
+
+      money = Money.tryParse("1", CryptoCurrency.btc, isBaseUnit: true);
+      expect(money?.amount, BigInt.from(1));
+
+      money = Money.tryParse("0", CryptoCurrency.btc, isBaseUnit: true);
+      expect(money?.amount, BigInt.from(0));
+
+      money = Money.tryParse("-1", CryptoCurrency.btc, isBaseUnit: true);
+      expect(money?.amount, BigInt.from(-1));
+
+      // canonical representation when expecting base units
+      money = Money.tryParse("1.0", CryptoCurrency.btc, isBaseUnit: true);
       expect(money?.amount, isNull);
     });
 
@@ -291,11 +316,36 @@ void main() {
       });
     });
 
-    test("toString as satoshi", () {
-      final money = Money.parse("100000000", CryptoCurrency.btc.copyWith(decimals: 0));
-      expect(money.amount, equals(BigInt.parse("100000000")));
-      expect(money.currency.decimals, equals(0));
-      expect(money.toString(), "100000000");
+    group("toStringWithPrecision", (){
+      test("with fractionalDigits and padded with zeros", () {
+        final money = Money.parse("1", CryptoCurrency.btc);
+        expect(money.amount, equals(BigInt.parse("100000000")));
+        expect(money.currency.decimals, equals(8));
+        expect(money.toStringWithPrecision(fractionalDigits: 5, trimZeros: false), "1.00000");
+      });
+
+      test("using base unit sats", () {
+        final money = Money.parse("1", CryptoCurrency.btc);
+        expect(money.amount, equals(BigInt.parse("100000000")));
+        expect(money.currency.decimals, equals(8));
+        expect(money.toStringWithPrecision(useBaseUnit: true), "100000000");
+      });
+    });
+
+    group("toStringWithSymbol", (){
+      test("with fractionalDigits and padded with zeros", () {
+        final money = Money.parse("1", CryptoCurrency.btc);
+        expect(money.amount, equals(BigInt.parse("100000000")));
+        expect(money.currency.decimals, equals(8));
+        expect(money.toStringWithSymbol(fractionalDigits: 5, trimZeros: false), "1.00000 BTC");
+      });
+
+      test("using base unit sats", () {
+        final money = Money.parse("1", CryptoCurrency.btc);
+        expect(money.amount, equals(BigInt.parse("100000000")));
+        expect(money.currency.decimals, equals(8));
+        expect(money.toStringWithSymbol(useBaseUnit: true), "100000000 sats");
+      });
     });
   });
 }

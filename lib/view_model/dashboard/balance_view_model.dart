@@ -10,9 +10,9 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -358,7 +358,7 @@ abstract class BalanceViewModelBase with Store {
     if (amount == null) return "";
 
     return appStore.amountParsingProxy
-        .getDisplayCryptoStringFromBigInt(amount, cryptoCurrency)
+        .asDisplayString(Money(amount, cryptoCurrency))
         .withMaxDecimals(8).withLocalSeperator(settingsStore.languageCode);
   }
 

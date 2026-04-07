@@ -42,6 +42,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/currency.dart';
 import "package:cw_core/wallet_info.dart";
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -234,17 +235,18 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         }
         final balance = wallet.balance[depositCurrency];
         if (balance != null) {
-          depositAvailableAmount = _appStore.amountParsingProxy
-              .getDisplayCryptoStringFromBigInt(balance.fullAvailableBalance.amount, depositCurrency);
+          depositAvailableAmount =
+              _appStore.amountParsingProxy.asDisplayString(balance.fullAvailableBalance);
           return false;
         }
         return true;
       });
     } else {
       final currency = depositCurrency;
-      final amount = _appStore.amountParsingProxy.getDisplayCryptoString(
-          (await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any)), depositCurrency);
-      if(depositCurrency == currency) {
+      final sendingBalance = Money.fromInt(
+          await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any), currency);
+      final amount = _appStore.amountParsingProxy.asDisplayString(sendingBalance);
+      if (depositCurrency == currency) {
         depositAvailableAmount = amount;
       }
     }
@@ -470,7 +472,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String? get balanceDisplay {
     final bal = wallet.balance[depositCurrency]?.fullAvailableBalance;
     if(bal == null) return null;
-    return amountParsingProxy.getDisplayCryptoStringFromBigInt(bal.amount, depositCurrency);
+    return amountParsingProxy.asDisplayString(bal);
   }
 
   //* Still open to further optimize these checks
@@ -1223,7 +1225,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       final amount = depositCurrency == CryptoCurrency.btcln
           // FIXME amount estimation is broken/impossible for ln, konsti suggested this
           ? (amountParsingProxy
-          .parseCryptoString(depositAvailableAmount, depositCurrency).toInt() - 10)
+          .parseCryptoString(depositAvailableAmount, depositCurrency).amount.toInt() - 10)
           : await bitcoin!.estimateFakeSendAllTxAmount(
               wallet,
               priority,

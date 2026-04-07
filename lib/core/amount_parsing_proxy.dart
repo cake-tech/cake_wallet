@@ -22,74 +22,46 @@ class AmountParsingProxy {
 
   /// [getCryptoOutputAmount] turns the input [amount] into the preferred representation of [cryptoCurrency]
   String getDisplayCryptoAmount(String amount, CryptoCurrency cryptoCurrency) {
-
     try {
       if (useSatoshi(cryptoCurrency) && amount.isNotEmpty) {
-        return cryptoCurrency.parseAmount(amount.withMaxDecimals(cryptoCurrency.decimals)).toString();
+        return cryptoCurrency
+            .parseAmount(amount.withMaxDecimals(cryptoCurrency.decimals))
+            .toString();
       }
 
       return amount.withMaxDecimals(cryptoCurrency.decimals);
-
-    } catch(_) {
-      printV("failed to parse amount $amount for currency ${cryptoCurrency.title}, falling back to showing unparsed");
+    } catch (_) {
+      printV(
+          "failed to parse amount $amount for currency ${cryptoCurrency.title}, falling back to showing unparsed");
       return amount;
     }
-
   }
 
-  /// [getCryptoStringRepresentation] turns the input [amount] into the preferred representation of [cryptoCurrency]
-  String getDisplayCryptoString(int amount, CryptoCurrency cryptoCurrency) {
-    if (useSatoshi(cryptoCurrency)) {
-      return "$amount";
-    }
+  String getDisplayCryptoString(int amount, CryptoCurrency cryptoCurrency) =>
+      asDisplayString(Money.fromInt(amount, cryptoCurrency));
 
-    return cryptoCurrency.formatAmount(BigInt.from(amount));
-  }
+  /// [getDisplayCryptoString] turns the input [amount] into the preferred representation of [cryptoCurrency]
+  ///
+  /// if [displayMode] is [BitcoinAmountDisplayMode.satoshi] it returns 1 BTC as 100000000
+  /// if [displayMode] is [BitcoinAmountDisplayMode.bitcoin] it returns 1 BTC as 1
+  String asDisplayString(Money amount) =>
+      amount.toStringWithPrecision(useBaseUnit: useSatoshi(amount.currency));
 
-  String getDisplayCryptoStringFromBigInt(BigInt amount, CryptoCurrency cryptoCurrency) {
-    if (useSatoshi(cryptoCurrency)) {
-      return "$amount";
-    }
+  /// [asDisplayStringWithSymbol] turns the input [amount] into the preferred representation of
+  /// [cryptoCurrency] following the symbol of the unit
+  ///
+  /// if [displayMode] is [BitcoinAmountDisplayMode.satoshi] it returns 1 BTC as 100000000 sats
+  /// if [displayMode] is [BitcoinAmountDisplayMode.bitcoin] it returns 1 BTC as 1 BTC
+  String asDisplayStringWithSymbol(Money amount) =>
+      amount.toStringWithSymbol(useBaseUnit: useSatoshi(amount.currency));
 
-    return cryptoCurrency.formatAmount(amount);
-  }
+  /// [parseCryptoString] turns the the display representation [string] into `Money` with [cryptoCurrency]
+  Money parseCryptoString(String amount, CryptoCurrency cryptoCurrency) =>
+      Money.parse(amount, cryptoCurrency, isBaseUnit: useSatoshi(cryptoCurrency));
 
-  /// [getCryptoStringFromDouble] turns the input [amount] into the preferred representation of [cryptoCurrency] and
-  String getDisplayCryptoStringFromDouble(double amount, CryptoCurrency cryptoCurrency) {
-    if (useSatoshi(cryptoCurrency)) {
-      return "$amount";
-    }
-
-    return cryptoCurrency.formatAmount(BigInt.from(amount));
-  }
-
-  String asDisplayString(Money amount) {
-    if (useSatoshi(amount.currency)) return "${amount.amount}";
-    return amount.toString();
-  }
-
-  String asDisplayStringWithSymbol(Money amount) {
-    if (useSatoshi(amount.currency)) return "${amount.amount} sats";
-    return amount.toStringWithSymbol();
-  }
-
-  /// [parseCryptoString] turns the input [string] into a `BigInt` presentation of the [cryptoCurrency]
-  BigInt parseCryptoString(String amount, CryptoCurrency cryptoCurrency) {
-    if (useSatoshi(cryptoCurrency)) {
-      return BigInt.parse(amount);
-    }
-
-    return cryptoCurrency.parseAmount(amount).amount;
-  }
-
-  /// [tryParseCryptoString] tries to turn the display representation [string] into a `BigInt` presentation of the [cryptoCurrency]
-  BigInt? tryParseCryptoString(String amount, CryptoCurrency cryptoCurrency) {
-    if (useSatoshi(cryptoCurrency)) {
-      return BigInt.tryParse(amount);
-    }
-
-    return cryptoCurrency.tryParseAmount(amount)?.amount;
-  }
+  /// [tryParseCryptoString] tries to turn the display representation [string] into `Money` with [cryptoCurrency]
+  Money? tryParseCryptoString(String amount, CryptoCurrency cryptoCurrency) =>
+      Money.tryParse(amount, cryptoCurrency, isBaseUnit: useSatoshi(cryptoCurrency));
 
   /// [getCryptoSymbol] returns the correct Symbol related to the presentation
   String getCryptoSymbol(CryptoCurrency cryptoCurrency) =>

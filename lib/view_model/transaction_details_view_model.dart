@@ -71,7 +71,7 @@ class TxDetailRowDefinition {
         title: S.current.transaction_details_height,
         valueGetter: (vm) => vm.transactionInfo.height.toString(),
         applicable: (vm) => !([WalletType.solana, WalletType.tron].contains(vm.wallet.type) &&
-            !isLightning(vm.transactionInfo))),
+            isLightning(vm.transactionInfo))),
 
 
     TxDetailRowDefinition(

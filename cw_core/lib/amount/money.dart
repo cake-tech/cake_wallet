@@ -1,4 +1,5 @@
 import 'package:cw_core/crypto_amount_format.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/parse_fixed.dart';
@@ -16,9 +17,9 @@ class Money implements Comparable<Money> {
   /// Parse the [source] and turn it into [Money]
   ///
   /// Throws a [FormatException] if the [source] is not a valid decimal or
-  /// not in canonical representation
-  factory Money.parse(String source, Currency currency) {
-    final amount = parseFixed(source, currency.decimals);
+  /// not in canonical representation or if it is a decimal when [isBaseUnit]
+  factory Money.parse(String source, Currency currency, {bool isBaseUnit = false}) {
+    final amount = isBaseUnit ? BigInt.parse(source) : parseFixed(source, currency.decimals);
 
     return Money(amount, currency);
   }
@@ -26,9 +27,9 @@ class Money implements Comparable<Money> {
   /// Parse the [source] and turn it into [Money] if possible
   ///
   /// As [parse] except that this method returns `null` if the input is not
-  /// valid
-  static Money? tryParse(String source, Currency currency) {
-    final amount = tryParseFixed(source, currency.decimals);
+  /// valid or if it is a decimal when [isBaseUnit]
+  static Money? tryParse(String source, Currency currency, {bool isBaseUnit = false}) {
+    final amount = isBaseUnit ? BigInt.tryParse(source) : tryParseFixed(source, currency.decimals);
 
     return amount != null ? Money(amount, currency) : null;
   }
@@ -188,10 +189,18 @@ class Money implements Comparable<Money> {
   @override
   String toString() => formatFixed(amount, currency.decimals);
 
-  String toStringWithSymbol({int? fractionalDigits, bool trimZeros = true}) =>
-      "${toStringWithPrecision(fractionalDigits: fractionalDigits, trimZeros: trimZeros)} ${currency.symbol}";
+  String toStringWithSymbol(
+          {int? fractionalDigits, bool trimZeros = true, bool useBaseUnit = false}) =>
+      "${toStringWithPrecision(fractionalDigits: fractionalDigits, trimZeros: trimZeros, useBaseUnit: useBaseUnit)} ${_getSymbol(useBaseUnit)}";
 
-  String toStringWithPrecision({int? fractionalDigits, bool trimZeros = true}) =>
-      formatFixed(amount, currency.decimals,
+  String toStringWithPrecision(
+          {int? fractionalDigits, bool trimZeros = true, bool useBaseUnit = false}) =>
+      formatFixed(amount, useBaseUnit ? 0 : currency.decimals,
           fractionalDigits: fractionalDigits, trimZeros: trimZeros);
+
+  // To Override the symbol with the ticker of the base unit
+  String _getSymbol(bool useBaseUnit) {
+    if (useBaseUnit && [CryptoCurrency.btc, CryptoCurrency.btcln].contains(currency)) return "sats";
+    return currency.symbol;
+  }
 }

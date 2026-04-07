@@ -6,6 +6,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -205,13 +206,17 @@ class ElectrumTransactionInfo extends TransactionInfo {
     final inputAddresses = data['inputAddresses'] as List<dynamic>? ?? [];
     final outputAddresses = data['outputAddresses'] as List<dynamic>? ?? [];
     final unspents = data['unspents'] as List<dynamic>? ?? [];
+    final additionalInfo = data['additionalInfo'] as Map<String, dynamic>?;
+    final isLightning = (additionalInfo?['isLightning'] as bool?) == true;
+
+    final currency = isLightning ? CryptoCurrency.btcln : walletTypeToCryptoCurrency(type);
 
     return ElectrumTransactionInfo(
       type,
       id: data['id'] as String,
       height: data['height'] as int?,
-      amount: Money.fromInt(data['amount'] as int, walletTypeToCryptoCurrency(type)),
-      fee: Money.fromInt(data['fee'] as int, walletTypeToCryptoCurrency(type)),
+      amount: Money.fromInt(data['amount'] as int, currency),
+      fee: Money.fromInt(data['fee'] as int, currency),
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       isPending: data['isPending'] as bool,
@@ -227,7 +232,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
               BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
-      additionalInfo: data['additionalInfo'] as Map<String, dynamic>?,
+      additionalInfo: additionalInfo,
     );
   }
 
