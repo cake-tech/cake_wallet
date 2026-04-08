@@ -4,19 +4,17 @@ import 'package:cw_core/amount/money.dart';
 abstract class Balance {
   const Balance(
     this.available,
-    this.additional, {
+    this.unavailable, {
     this.secondAvailable,
-    this.secondAdditional,
+    this.secondUnavailable,
     this.frozen,
   });
 
   final Money available;
-  final Money additional;
+  final Money unavailable;
 
   final Money? secondAvailable;
-  final Money? secondAdditional;
+  final Money? secondUnavailable;
 
   final Money? frozen;
-
-  Money get fullAvailableBalance => available;
 }

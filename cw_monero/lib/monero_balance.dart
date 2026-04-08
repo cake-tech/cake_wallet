@@ -10,7 +10,7 @@ class MoneroBalance extends Balance {
   }) : super(
           unlockedBalance,
           fullBalance - unlockedBalance,
-          frozen: frozen ?? Money.fromInt(0, CryptoCurrency.xmr),
+          frozen: frozen ?? Money.zero(CryptoCurrency.xmr),
         );
 
   final Money fullBalance;

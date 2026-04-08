@@ -10,7 +10,7 @@ class WowneroBalance extends Balance {
   }) : super(
           unlockedBalance,
           fullBalance - unlockedBalance,
-          frozen: frozen ?? Money.fromInt(0, CryptoCurrency.wow),
+          frozen: frozen ?? Money.zero(CryptoCurrency.wow),
         );
 
   final Money fullBalance;

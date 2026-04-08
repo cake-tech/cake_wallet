@@ -947,7 +947,7 @@ abstract class EVMChainWalletBase
       estimatedGasUnitsForTransaction = gasFeesModel.estimatedGasUnits;
       maxFeePerGasForTransaction = gasFeesModel.maxFeePerGas;
 
-      if (currencyBalance.balance < totalAmount) {
+      if (currencyBalance.available < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
     } else {
@@ -957,7 +957,7 @@ abstract class EVMChainWalletBase
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {
-        totalAmount = currencyBalance.balance;
+        totalAmount = currencyBalance.available;
       }
 
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
@@ -982,24 +982,24 @@ abstract class EVMChainWalletBase
           final gasBuffer = gasBufferPercent > gasBufferMin ? gasBufferPercent : gasBufferMin;
 
           // Using the buffered fee for the final amount
-          totalAmount = totalAmount.copyWith(amount: currencyBalance.balance.amount - gasBuffer);
+          totalAmount = totalAmount.copyWith(amount: currencyBalance.available.amount - gasBuffer);
           estimatedFeesForTransaction = estimatedFeesForTransaction.copyWith(amount: gasBuffer);
         } else {
           // Calculating the final amount with the estimated gas fee
-          totalAmount = currencyBalance.balance - estimatedFeesForTransaction;
+          totalAmount = currencyBalance.available - estimatedFeesForTransaction;
         }
       }
 
       // check the fees on the base currency
-      if (estimatedFeesForTransaction > balance[currency]!.balance) {
+      if (estimatedFeesForTransaction > balance[currency]!.available) {
         throw EVMChainTransactionFeesException.fromCurrency(currency.title);
       }
 
-      if (currencyBalance.balance < totalAmount) {
+      if (currencyBalance.available < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
       if (transactionCurrency is! Erc20Token &&
-          totalAmount + estimatedFeesForTransaction > currencyBalance.balance) {
+          totalAmount + estimatedFeesForTransaction > currencyBalance.available) {
         throw EVMChainTransactionFeesException.fromCurrency(currency.title);
       }
     }
@@ -1066,7 +1066,7 @@ abstract class EVMChainWalletBase
     }
 
     // Validate NATIVE Balance (for Gas + Value)
-    final nativeBal = balance[nativeCurrency]?.balance ?? Money.zero(nativeCurrency);
+    final nativeBal = balance[nativeCurrency]?.available ?? Money.zero(nativeCurrency);
     final requiredNative = valueWei + Money.fromInt(gas.estimatedGasFee, nativeCurrency);
 
     if (requiredNative > nativeBal) {
@@ -1086,12 +1086,11 @@ abstract class EVMChainWalletBase
           .where((k) => k is Erc20Token && k.contractAddress.toLowerCase() == cleanAddress);
 
       if (matchingTokens.isEmpty) {
-        // Token is not in the wallet balance map -> Balance is 0
         throw Exception('Insufficient token balance (Token not found in wallet).');
       }
 
       final tokenKey = matchingTokens.first;
-      final tokenBalance = balance[tokenKey]?.balance ?? Money.zero(tokenKey);
+      final tokenBalance = balance[tokenKey]?.available ?? Money.zero(tokenKey);
 
       if (tokenBalance < Money(sourceTokenAmount, tokenKey)) {
         throw Exception('Insufficient ${tokenKey.symbol} balance to cover the transaction amount.');

@@ -5,14 +5,9 @@ import "package:cw_core/balance.dart";
 import "package:cw_core/currency.dart";
 
 class EVMChainERC20Balance extends Balance {
-  EVMChainERC20Balance(this.balance) : super(balance, Money.zero(balance.currency));
+  EVMChainERC20Balance(Money balance) : super(balance, Money.zero(balance.currency));
 
-  final Money balance;
-
-  String toJSON() => json.encode({
-        "balanceInWei": balance.amount.toString(),
-        "exponent": balance.currency.decimals,
-      });
+  String toJSON() => json.encode({ "balanceInWei": available.amount.toString() });
 
   static EVMChainERC20Balance? fromJSON(String? jsonSource, Currency currency) {
     if (jsonSource == null) return null;

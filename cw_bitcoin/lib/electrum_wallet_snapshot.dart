@@ -97,9 +97,9 @@ class ElectrumWalletSnapshot {
     final currency = walletTypeToCryptoCurrency(type);
     final balance = ElectrumBalance.fromJSON(data['balance'] as String?, currency) ??
         ElectrumBalance(
-          confirmed: Money.fromInt(0, currency),
-          unconfirmed: Money.fromInt(0, currency),
-          frozen: Money.fromInt(0, currency),
+          confirmed: Money.zero(currency),
+          unconfirmed: Money.zero(currency),
+          frozen: Money.zero(currency),
         );
     final lightningBalance =
         ElectrumBalance.fromJSON(data['lightningBalance'] as String?, currency);

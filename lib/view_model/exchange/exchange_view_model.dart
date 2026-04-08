@@ -235,8 +235,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         }
         final balance = wallet.balance[depositCurrency];
         if (balance != null) {
-          depositAvailableAmount =
-              _appStore.amountParsingProxy.asDisplayString(balance.fullAvailableBalance);
+          depositAvailableAmount = _appStore.amountParsingProxy.asDisplayString(balance.available);
           return false;
         }
         return true;
@@ -470,7 +469,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String? get balanceDisplay {
-    final bal = wallet.balance[depositCurrency]?.fullAvailableBalance;
+    final bal = wallet.balance[depositCurrency]?.available;
     if(bal == null) return null;
     return amountParsingProxy.asDisplayString(bal);
   }

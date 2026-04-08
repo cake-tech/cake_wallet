@@ -388,7 +388,7 @@ class MoneroBalance extends Balance {
   }) : super(
           unlockedBalance,
           fullBalance - unlockedBalance,
-          frozen: frozen ?? Money.fromInt(0, CryptoCurrency.xmr),
+          frozen: frozen ?? Money.zero(CryptoCurrency.xmr),
         );
 
   final Money fullBalance;
@@ -1459,7 +1459,6 @@ abstract class EVM {
   void updateScanProviderUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
-  BigInt? getERC20AvailableBalance(Object balance);
   
   Future<bool> isApprovalRequired(
     WalletBase wallet,
