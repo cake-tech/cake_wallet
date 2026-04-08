@@ -35,7 +35,7 @@ void main() {
     final walletConfigs = [
       {
         'type': WalletType.solana,
-        'seed': secrets.solanaTestWalletSeeds2,
+        'seed': "secrets.solanaTestWalletSeeds2",
         'name': 'Solana Wallet 1',
       },
       {

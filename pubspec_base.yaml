@@ -243,7 +243,6 @@ flutter:
     - assets/images/evm_switcher_icons/
     - assets/images/flags/
     - assets/images/hardware_wallet/
-    - assets/images/crypto/
     - assets/images/stocks/
     - assets/images/main_actions/
     - assets/images/wallet_connect_step_icons/
