@@ -72,8 +72,7 @@ abstract class OutputBase with Store {
   String? displayName;
 
   @computed
-  String get displayCryptoAmount =>
-      _appStore.amountParsingProxy.getDisplayCryptoAmount(cryptoAmount, cryptoCurrencyHandler());
+  String get displayCryptoAmount => _appStore.amountParsingProxy.asDisplayString(cryptoAmountMoney);
 
   @observable
   String cryptoFullBalance;
