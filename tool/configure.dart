@@ -341,8 +341,6 @@ import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/api/wallet.dart' as monero_wallet_api;
 import 'package:cw_monero/ledger.dart';
-import 'package:cw_monero/monero_unspent.dart';
-import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
@@ -434,7 +432,7 @@ abstract class Monero {
 
   Map<String, String> exportOutputsUR(Object wallet);
 
-  bool needExportOutputs(Object wallet, int amount);
+  bool needExportOutputs(Object wallet, Money amount);
 
   bool importKeyImagesUR(Object wallet, String ur);
 

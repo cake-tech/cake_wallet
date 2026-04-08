@@ -43,23 +43,21 @@ class CWZcash extends Zcash {
 
   @override
   Object createZcashTransactionCredentials(List<Output> outputs,
-      {required CryptoCurrency currency,
-      int? feeRate,
-      TransactionPriority? priority}) {
-    final txPriority = (priority ?? getZcashTransactionPriorityAutomatic())
-        as MoneroTransactionPriority;
+      {required CryptoCurrency currency, int? feeRate, TransactionPriority? priority}) {
+    final txPriority =
+        (priority ?? getZcashTransactionPriorityAutomatic()) as MoneroTransactionPriority;
     return ZcashTransactionCredentials(
       outputs: outputs
           .map((out) => OutputInfo(
-              fiatAmount: out.fiatAmount,
-              cryptoAmount: out.cryptoAmount,
-              address: out.address,
-              note: out.note,
-              memo: out.memo,
-              sendAll: out.sendAll,
-              extractedAddress: out.extractedAddress,
-              isParsedAddress: out.isParsedAddress,
-              formattedCryptoAmount: out.formattedCryptoAmount))
+                fiatAmount: out.fiatAmount,
+                cryptoAmount: out.cryptoAmountMoney,
+                address: out.address,
+                note: out.note,
+                memo: out.memo,
+                sendAll: out.sendAll,
+                extractedAddress: out.extractedAddress,
+                isParsedAddress: out.isParsedAddress,
+              ))
           .toList(),
       priority: txPriority,
       currency: currency,

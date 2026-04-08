@@ -374,15 +374,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     };
   }
 
-  bool needExportOutputs(int amount) {
+  bool needExportOutputs(Money amount) {
     if (int.tryParse(currentWallet!.secretSpendKey()) != 0) {
       return false;
     }
     // viewOnlyBalance - balance that we can spend
     // TODO(mrcyjanek): remove hasUnknownKeyImages when we cleanup coin control
-    return (currentWallet!.viewOnlyBalance(
-                accountIndex: walletAddresses.account!.id) < amount) ||
-              currentWallet!.hasUnknownKeyImages();
+    return (currentWallet!.viewOnlyBalance(accountIndex: walletAddresses.account!.id) <
+            amount.amount.toInt()) ||
+        currentWallet!.hasUnknownKeyImages();
   }
 
   @override
@@ -411,11 +411,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
 
     if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+      if (outputs.any((item) => item.sendAll || item.cryptoAmount.amount <= BigInt.zero)) {
         throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
       }
 
-      final totalAmount = outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
+      final totalAmount = outputs.fold(0, (acc, value) => acc + value.cryptoAmount.amount.toInt());
 
       if (unlockedBalance < Money.fromInt(totalAmount, CryptoCurrency.xmr)) {
         throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
@@ -424,12 +424,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       if (inputs.isEmpty) MoneroTransactionCreationException('No inputs selected');
 
       final moneroOutputs = outputs.map((output) {
-        final outputAddress =
-            output.isParsedAddress ? output.extractedAddress : output.address;
+        final outputAddress = output.isParsedAddress ? output.extractedAddress : output.address;
 
-        return MoneroOutput(
-            address: outputAddress!,
-            amount: output.cryptoAmount!.replaceAll(',', '.'));
+        return MoneroOutput(address: outputAddress!, amount: output.cryptoAmount.toString());
       }).toList();
 
       pendingTransactionDescription =
@@ -443,8 +440,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final output = outputs.first;
       final address =
           output.isParsedAddress ? output.extractedAddress : output.address;
-      final amount =
-          output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
+      final amount = output.sendAll ? null : output.cryptoAmount.toString();
 
       // if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
       //     (formattedAmount == null && unlockedBalance <= 0)) {
@@ -454,8 +450,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       //       'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       // }
 
-      if (inputs.isEmpty) MoneroTransactionCreationException(
-        'No inputs selected');
+      if (inputs.isEmpty) MoneroTransactionCreationException('No inputs selected');
       pendingTransactionDescription =
           await transaction_history.createTransactionSync(
               address: address!,

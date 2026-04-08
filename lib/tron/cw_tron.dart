@@ -58,13 +58,12 @@ class CWTron extends Tron {
             .map(
               (out) => OutputInfo(
                 fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
+                cryptoAmount: out.cryptoAmountMoney,
                 address: out.address,
                 note: out.note,
                 sendAll: out.sendAll,
                 extractedAddress: out.extractedAddress,
                 isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount,
               ),
             )
             .toList(),

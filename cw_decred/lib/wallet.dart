@@ -378,9 +378,8 @@ abstract class DecredWalletBase
 
         sendAll = true;
         totalAmt = totalIn;
-      } else if (out.cryptoAmount != null) {
-        final coins = double.parse(out.cryptoAmount!);
-        amt = (coins * 1e8).round();
+      } else {
+        amt = out.cryptoAmount.amount.toInt();
       }
       totalAmt += amt;
       final o = {

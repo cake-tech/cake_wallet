@@ -136,33 +136,21 @@ abstract class ZcashWalletBase
     await updateBalance();
 
     final zcashBalance = balance[CryptoCurrency.zec];
-    final availableBalance = zcashBalance?.confirmed.amount.toInt() ?? 0;
+    final availableBalance = zcashBalance?.confirmed ?? Money.zero(currency);
 
     final recipients = <Recipient>[];
-    int totalAmount = 0;
+    var totalAmount = Money.zero(currency);
 
     for (final output in creds.outputs) {
-      int amount;
+      Money amount;
       if (output.sendAll) {
         amount = availableBalance;
       } else {
-        amount = output.formattedCryptoAmount ?? 0;
+        amount = output.cryptoAmount;
 
-        if (amount == 0 && output.cryptoAmount != null && output.cryptoAmount!.isNotEmpty) {
-          try {
-            final parsedAmount = CryptoCurrency.zec.parseAmount(
-              output.cryptoAmount!.replaceAll(',', '.'),
-            );
-            amount = parsedAmount.amount.toInt();
-            printV("Parsed amount from cryptoAmount '${output.cryptoAmount}': $amount");
-          } catch (e) {
-            printV("Failed to parse cryptoAmount '${output.cryptoAmount}': $e");
-          }
-        }
-
-        if (amount <= 0) {
+        if (amount <= Money.zero(currency)) {
           throw Exception(
-            'Invalid amount for output. Amount: ${output.cryptoAmount}, Formatted: ${output.formattedCryptoAmount}',
+            'Invalid amount for output. Amount: ${output.cryptoAmount}, Formatted: ${output.cryptoAmount}',
           );
         }
       }
@@ -201,7 +189,7 @@ abstract class ZcashWalletBase
       final builder = RecipientObjectBuilder(
         address: address,
         pools: recipientPools,
-        amount: amount,
+        amount: amount.amount.toInt(),
         feeIncluded: output.sendAll,
         replyTo: false,
         memo: memo.isNotEmpty ? memo : null,

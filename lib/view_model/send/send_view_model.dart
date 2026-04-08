@@ -659,7 +659,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 wallet,
                 routerTo,
                 routerData,
-                BigInt.zero,
+                Money.zero(wallet.currency),
                 priority,
                 useBlinkProtection: canSupportBlinkProtection(selectedChainId)
                     ? _settingsStore.useBlinkProtection
@@ -782,7 +782,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 wallet,
                 routerTo,
                 routerData,
-                routerValueWei,
+                Money(routerValueWei, wallet.currency),
                 priority,
                 sourceTokenAddress: tokenContract,
                 sourceTokenAmount: requiredAmount,

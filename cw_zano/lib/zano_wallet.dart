@@ -258,15 +258,15 @@ abstract class ZanoWalletBase
     final assetId = isZano ? zanoAssetId : (credentials.currency as ZanoAsset).assetId;
     late List<Destination> destinations;
     if (hasMultiDestination) {
-      if (outputs.any((output) => output.sendAll || (output.formattedCryptoAmount ?? 0) <= 0)) {
+      if (outputs.any((output) => output.sendAll || output.cryptoAmount.amount <= BigInt.zero)) {
         throw ZanoTransactionCreationException("You don't have enough coins.");
       }
-      totalAmount = outputs.fold(Money.zero(credentials.currency),
-          (acc, value) => acc + Money(BigInt.from(value.formattedCryptoAmount ?? 0), acc.currency));
+      totalAmount =
+          outputs.fold(Money.zero(credentials.currency), (acc, value) => acc + value.cryptoAmount);
       checkForEnoughBalances();
       destinations = outputs
           .map((output) => Destination(
-                amount: BigInt.from(output.formattedCryptoAmount ?? 0),
+                amount: output.cryptoAmount.amount,
                 address: output.isParsedAddress ? output.extractedAddress! : output.address,
                 assetId: assetId,
               ))
@@ -280,7 +280,7 @@ abstract class ZanoWalletBase
           totalAmount = unlockedBalanceCurrency;
         }
       } else {
-        totalAmount = totalAmount.copyWith(amount: BigInt.from(output.formattedCryptoAmount!));
+        totalAmount = output.cryptoAmount;
       }
       checkForEnoughBalances();
       destinations = [

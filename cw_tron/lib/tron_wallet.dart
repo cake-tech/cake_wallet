@@ -326,18 +326,8 @@ abstract class TronWalletBase
     var totalAmount = Money.zero(transactionCurrency);
     var shouldSendAll = false;
     if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+        // Tron does not have multi Destination right now
         throw TronTransactionCreationException(transactionCurrency);
-      }
-
-      final totalAmountFromCredentials =
-          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
-
-      totalAmount = Money.fromInt(totalAmountFromCredentials, transactionCurrency);
-
-      if (walletBalanceForCurrency < totalAmount) {
-        throw TronTransactionCreationException(transactionCurrency);
-      }
     } else {
       final output = outputs.first;
 
@@ -346,7 +336,7 @@ abstract class TronWalletBase
       if (shouldSendAll) {
         totalAmount = walletBalanceForCurrency;
       } else {
-        totalAmount = Money.parse(output.cryptoAmount ?? '0.0', transactionCurrency);
+        totalAmount = output.cryptoAmount;
       }
 
       if (walletBalanceForCurrency < totalAmount || totalAmount < Money.zero(transactionCurrency)) {
@@ -416,7 +406,7 @@ abstract class TronWalletBase
           "decimals",
           ownerAddress,
           tokenAddress,
-        ) as int?) ?? txCurrency.decimals;
+        ) as BigInt?)?.toInt() ?? txCurrency.decimals;
 
         txCurrency = CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
       }

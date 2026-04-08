@@ -205,9 +205,7 @@ abstract class NanoWalletBase
       if (txOut.sendAll) {
         amt = balance[currency]?.currentBalance.amount ?? BigInt.zero;
       } else {
-        amt = BigInt.tryParse(NanoAmounts.getAmountAsRaw(
-                txOut.cryptoAmount?.replaceAll(',', '.') ?? "0", NanoAmounts.rawPerNano)) ??
-            BigInt.zero;
+        amt = txOut.cryptoAmount.amount;
       }
 
       if (balance[currency]?.currentBalance != null && amt > balance[currency]!.currentBalance.amount) {

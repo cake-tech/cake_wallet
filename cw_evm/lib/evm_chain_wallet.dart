@@ -8,7 +8,6 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
@@ -478,14 +477,12 @@ abstract class EVMChainWalletBase
   @override
   Future<bool> checkNodeHealth() async {
     try {
-      // Check native balance
       await _client.getBalance(_evmChainPrivateKey.address);
 
-      // Check USDC token balance
-      String usdcContractAddress = _getUSDCContractAddress();
+      final usdcContractAddress = Erc20Token(
+          name: "USDC", symbol: "USDC", contractAddress: _getUSDCContractAddress(), decimal: 6);
 
-      await _client.fetchERC20Balances(_evmChainPrivateKey.address, usdcContractAddress,
-          erc20Symbol: '', decimals: 0);
+      await _client.fetchERC20Balances(_evmChainPrivateKey.address, usdcContractAddress);
 
       return true;
     } catch (e) {
@@ -763,7 +760,7 @@ abstract class EVMChainWalletBase
   /// - The addressHex for the receiving wallet,
   /// - A contract address which would be essential in determining if to calculate the estimate for ERC20 or native ETH
   Future<GasParamsHandler> calculateActualEstimatedFeeForCreateTransaction({
-    required amount,
+    required Money amount,
     required String? contractAddress,
     required String receivingAddressHex,
     required TransactionPriority? priority,
@@ -780,15 +777,12 @@ abstract class EVMChainWalletBase
       final gasBaseFee = await _client.getGasBaseFee();
       final gasPrice = await _client.getGasUnitPrice();
 
-      // Validate that we got valid gas price
       if (gasPrice <= 0) {
         printV('Invalid gas price received: $gasPrice');
         throw EVMChainTransactionFeesException('Failed to retrieve gas price from node');
       }
 
       int maxFeePerGas;
-      int adjustedGasPrice;
-
       if (gasBaseFee != null && gasBaseFee > 0) {
         // For chains with base fee, add priority fee (if supported) and a buffer to account for base fee increases
         // Base fee can increase between estimation and transaction submission
@@ -802,16 +796,15 @@ abstract class EVMChainWalletBase
         final bufferMin = baseFeeWithPriority + (baseFeeWithPriority ~/ 100);
         maxFeePerGas = bufferPercent > bufferMin ? bufferPercent : bufferMin;
       } else {
-        // Fallback to gasPrice if baseFee is not available
         maxFeePerGas = gasPrice + priorityFee;
       }
 
-      adjustedGasPrice = maxFeePerGas;
+      final adjustedGasPrice = maxFeePerGas;
 
       final estimatedGas = await _client.getEstimatedGasUnitsForTransaction(
         contractAddress: contractAddress,
         senderAddress: _evmChainPrivateKey.address,
-        value: EtherAmount.fromBigInt(EtherUnit.wei, amount!),
+        value: EtherAmount.fromBigInt(EtherUnit.wei, amount.amount),
         gasPrice: EtherAmount.fromInt(EtherUnit.wei, adjustedGasPrice),
         toAddress: EthereumAddress.fromHex(receivingAddressHex),
         maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
@@ -919,15 +912,15 @@ abstract class EVMChainWalletBase
             'Currency ${_credentials.currency.title} ${_credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
 
     final currencyBalance = balance[transactionCurrency]!;
-    var totalAmount = Money.zero(transactionCurrency);
-    var estimatedFeesForTransaction = Money.zero(currency);
-    int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
-    String? contractAddress;
-    int estimatedGasUnitsForTransaction = 0;
-    int maxFeePerGasForTransaction = 0;
-    String toAddress = _credentials.outputs.first.isParsedAddress
+    final toAddress = _credentials.outputs.first.isParsedAddress
         ? _credentials.outputs.first.extractedAddress!
         : _credentials.outputs.first.address;
+    var totalAmount = Money.zero(transactionCurrency);
+    var estimatedFeesForTransaction = Money.zero(currency);
+    var estimatedGasUnitsForTransaction = 0;
+    var maxFeePerGasForTransaction = 0;
+
+    String? contractAddress;
 
     if (transactionCurrency is Erc20Token) {
       contractAddress = transactionCurrency.contractAddress;
@@ -935,19 +928,12 @@ abstract class EVMChainWalletBase
 
     // so far this can not be made with Ethereum as Ethereum does not support multiple recipients
     if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+      if (outputs.any((item) => item.sendAll || item.cryptoAmount.amount <= BigInt.zero)) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
 
       totalAmount = outputs.fold<Money>(
-        Money.zero(transactionCurrency),
-        (acc, output) {
-          if (output.cryptoAmount != null && output.cryptoAmount!.isNotEmpty) {
-            return acc + Money.parse(output.cryptoAmount!, acc.currency);
-          }
-          return acc;
-        },
-      );
+          Money.zero(transactionCurrency), (acc, output) => acc + output.cryptoAmount);
 
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
@@ -967,11 +953,7 @@ abstract class EVMChainWalletBase
     } else {
       final output = outputs.first;
       if (!output.sendAll) {
-        if (output.cryptoAmount != null && output.cryptoAmount!.isNotEmpty) {
-          totalAmount = Money.parse(output.cryptoAmount!, totalAmount.currency);
-        } else {
-          totalAmount = totalAmount.copyWith(amount: BigInt.zero);
-        }
+        totalAmount = output.cryptoAmount;
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {
@@ -1038,7 +1020,6 @@ abstract class EVMChainWalletBase
       currency: transactionCurrency,
       feeCurrency: EVMChainUtils.getFeeCurrency(selectedChainId),
       maxFeePerGas: maxFeePerGasForTransaction,
-      exponent: exponent,
       contractAddress:
           transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
       data: hexOpReturnMemo,
@@ -1052,7 +1033,7 @@ abstract class EVMChainWalletBase
   Future<PendingTransaction> createCallDataTransaction(
       String to,
       String dataHex,
-      BigInt valueWei,
+      Money valueWei,
       EVMChainTransactionPriority? priority,
       String? sourceTokenAddress,
       BigInt? sourceTokenAmount, {
@@ -1086,7 +1067,7 @@ abstract class EVMChainWalletBase
 
     // Validate NATIVE Balance (for Gas + Value)
     final nativeBal = balance[nativeCurrency]?.balance ?? Money.zero(nativeCurrency);
-    final requiredNative = Money(valueWei + BigInt.from(gas.estimatedGasFee), nativeCurrency);
+    final requiredNative = valueWei + Money.fromInt(gas.estimatedGasFee, nativeCurrency);
 
     if (requiredNative > nativeBal) {
       throw Exception('Not enough ${nativeCurrency.title} to cover value and fees.');
@@ -1100,7 +1081,6 @@ abstract class EVMChainWalletBase
         cleanAddress == '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' ||
         cleanAddress == '0x0000000000000000000000000000000000000000';
 
-    Currency tokenKey = const ERC20Currency(decimals: 18, symbol: "");
     if (!isNativeSource && sourceTokenAmount != null && sourceTokenAmount > BigInt.zero) {
       final matchingTokens = balance.keys
           .where((k) => k is Erc20Token && k.contractAddress.toLowerCase() == cleanAddress);
@@ -1110,7 +1090,7 @@ abstract class EVMChainWalletBase
         throw Exception('Insufficient token balance (Token not found in wallet).');
       }
 
-      tokenKey = matchingTokens.first;
+      final tokenKey = matchingTokens.first;
       final tokenBalance = balance[tokenKey]?.balance ?? Money.zero(tokenKey);
 
       if (tokenBalance < Money(sourceTokenAmount, tokenKey)) {
@@ -1126,14 +1106,13 @@ abstract class EVMChainWalletBase
       return _client.signTransaction(
         privateKey: _evmChainPrivateKey,
         toAddress: to,
-        amount: Money(valueWei, tokenKey),
+        amount: valueWei,
         gasFee: Money.fromInt(gas.estimatedGasFee, currency),
         estimatedGasUnits: gasUnits,
         maxFeePerGas: gas.maxFeePerGas,
         priority: priority,
         currency: nativeCurrency,
         feeCurrency: nativeCurrency.title,
-        exponent: 18,
         contractAddress: null,
         data: dataHex,
         gasPrice: gas.gasPrice,
@@ -1160,7 +1139,7 @@ abstract class EVMChainWalletBase
     final tokenContract = transactionCurrency.contractAddress;
 
     final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
-      amount: BigInt.zero,
+      amount: Money.zero(currency),
       receivingAddressHex: tokenContract,
       priority: priority,
       contractAddress: tokenContract,
@@ -1179,7 +1158,6 @@ abstract class EVMChainWalletBase
       gasFee: Money.fromInt(gasFeesModel.estimatedGasFee, currency),
       maxFeePerGas: gasFeesModel.maxFeePerGas,
       estimatedGasUnits: safeGasUnits,
-      exponent: transactionCurrency.decimal,
       contractAddress: tokenContract,
       gasPrice: gasFeesModel.gasPrice,
       useBlinkProtection: useBlinkProtection,
@@ -1397,12 +1375,7 @@ abstract class EVMChainWalletBase
 
       try {
         if (token.enabled) {
-          balance[token] = await _client.fetchERC20Balances(
-            _evmChainPrivateKey.address,
-            token.contractAddress,
-            erc20Symbol: token.symbol,
-            decimals: token.decimals,
-          );
+          balance[token] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, token);
         } else {
           balance.remove(token);
         }
@@ -1506,14 +1479,7 @@ abstract class EVMChainWalletBase
 
     if (newToken.enabled) {
       try {
-        final erc20Balance = await _client.fetchERC20Balances(
-          _evmChainPrivateKey.address,
-          newToken.contractAddress,
-          erc20Symbol: newToken.symbol,
-          decimals: newToken.decimals,
-        );
-
-        balance[newToken] = erc20Balance;
+        balance[newToken] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, newToken);
 
         await evmChainErc20TokensBox.put(newToken.contractAddress, newToken);
       } on Exception catch (_) {

@@ -38,18 +38,19 @@ class CWDecred extends Decred {
   @override
   Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority) =>
       DecredTransactionCredentials(
-          outputs
-              .map((out) => OutputInfo(
+        outputs
+            .map((out) => OutputInfo(
                   fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
                   address: out.address,
                   note: out.note,
                   sendAll: out.sendAll,
                   extractedAddress: out.extractedAddress,
                   isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount))
-              .toList(),
-          priority: priority as DecredTransactionPriority);
+                ))
+            .toList(),
+        priority: priority as DecredTransactionPriority,
+      );
 
   List<WalletInfoAddressInfo> getAddressInfos(Object wallet) {
     final decredWallet = wallet as DecredWallet;

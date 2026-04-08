@@ -28,7 +28,6 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/output_info.dart';
-import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -349,7 +348,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final lBalance = await lightningWallet!.getBalance();
 
     this.balance[CryptoCurrency.btcln] = ElectrumBalance(
-        confirmed: Money(lBalance, CryptoCurrency.btcln),
+        confirmed: lBalance,
         unconfirmed: Money.zero(CryptoCurrency.btcln),
         frozen: Money.zero(CryptoCurrency.btcln));
 
@@ -496,19 +495,19 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final isLNCompatible = await lightningWallet?.isCompatible(lnAddr);
     if ((credentials.coinTypeToSpendFrom == UnspentCoinType.lightning && lightningWallet != null) ||
         isLNCompatible == true) {
-      BigInt amount;
+      Money amount;
       if (credentials.outputs.first.sendAll) {
         amount = await lightningWallet!.getBalance();
       } else {
-        amount = parseFixed(
-            credentials.outputs.first.cryptoAmount?.isNotEmpty == true
-                ? credentials.outputs.first.cryptoAmount!
-                : "0",
-            8);
+        amount = credentials.outputs.first.cryptoAmount;
       }
 
-      return lightningWallet!.createTransaction(lnAddr, amount > BigInt.zero ? amount : null,
-          credentials.priority, credentials.outputs.first.sendAll);
+
+      return lightningWallet!.createTransaction(
+          lnAddr,
+          amount > Money.zero(CryptoCurrency.btcln) ? amount.amount : null,
+          credentials.priority,
+          credentials.outputs.first.sendAll,);
     }
 
     final tx = (await super.createTransaction(credentials)) as PendingBitcoinTransaction;

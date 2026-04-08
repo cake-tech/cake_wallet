@@ -129,13 +129,14 @@ class LightningWallet {
           request: ReceivePaymentRequest(paymentMethod: ReceivePaymentMethod.bitcoinAddress())))
       .paymentRequest;
 
-  Future<BigInt> getBalance() async {
+  Future<Money> getBalance() async {
     try {
-      return (await sdk.getInfo(request: GetInfoRequest(ensureSynced: true))).balanceSats;
+      return Money((await sdk.getInfo(request: GetInfoRequest(ensureSynced: true))).balanceSats,
+          CryptoCurrency.btcln);
     } on SdkError_Generic catch (_) {
     } on SdkError_NetworkError catch (_) {}
 
-    return BigInt.zero;
+    return Money.zero(CryptoCurrency.btcln);
   }
 
   Future<String> registerAddress(String username) async {
@@ -200,8 +201,7 @@ class LightningWallet {
         return PendingLightningTransaction(
           id: paymentMethod.invoiceDetails.paymentHash,
           amount: amount,
-          fee:
-              Money(lightningFeeSats + (sparkTransferFeeSats ?? BigInt.zero), currency),
+          fee: Money(lightningFeeSats + (sparkTransferFeeSats ?? BigInt.zero), currency),
           commitOverride: () async {
             try {
               final res = await sdk.sendPayment(

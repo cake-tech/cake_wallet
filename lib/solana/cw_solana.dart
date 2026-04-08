@@ -53,6 +53,8 @@ class CWSolana extends Solana {
   @override
   String getPublicKey(WalletBase wallet) =>
       (wallet as SolanaWallet).solanaPublicKey.toAddress().address;
+
+  @override
   Object createSolanaTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,
@@ -60,14 +62,14 @@ class CWSolana extends Solana {
       SolanaTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount))
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                ))
             .toList(),
         currency: currency,
       );

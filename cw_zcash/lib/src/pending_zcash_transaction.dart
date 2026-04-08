@@ -23,7 +23,7 @@ class PendingZcashTransaction with PendingTransaction {
   final ZcashTransactionCredentials credentials;
   final String txPlan;
   String? _txId;
-  final int availableBalance;
+  final Money availableBalance;
 
   @override
   String get id => _txId ?? '';
@@ -40,12 +40,10 @@ class PendingZcashTransaction with PendingTransaction {
   int get _totalAmount {
     final isAll = credentials.outputs.fold<bool>(false, (final a, final b) => a || (b.sendAll));
     if (isAll) {
-      return availableBalance;
+      return availableBalance.amount.toInt();
     }
     return credentials.outputs.fold<int>(
-      0,
-      (final a, final b) => a + (b.formattedCryptoAmount ?? 0),
-    );
+        0, (final a, final b) => a + b.cryptoAmount.amount.toInt());
   }
 
   @override
@@ -76,6 +74,7 @@ class PendingZcashTransaction with PendingTransaction {
       _txId ?? '',
       credentials.outputs.reduce((final o1, final o2) {
         return OutputInfo(
+          cryptoAmount: Money.zero(CryptoCurrency.zec),
           address: "${o1.address},${o2.address}",
           sendAll: false,
           isParsedAddress: false,

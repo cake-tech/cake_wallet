@@ -8,7 +8,6 @@ import 'package:hex/hex.dart' as Hex;
 class PendingEVMChainTransaction with PendingTransaction {
   final Function sendTransaction;
   final Uint8List signedTransaction;
-  final int exponent;
   final bool isInfiniteApproval;
 
   PendingEVMChainTransaction({
@@ -16,7 +15,6 @@ class PendingEVMChainTransaction with PendingTransaction {
     required this.signedTransaction,
     required this.fee,
     required this.amount,
-    required this.exponent,
     this.isInfiniteApproval = false,
   });
 

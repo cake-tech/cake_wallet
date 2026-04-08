@@ -105,26 +105,25 @@ class CWEVM extends EVM {
     TransactionPriority? priority,
     int? feeRate,
     bool useBlinkProtection = true,
-  }) {
-    return EVMChainTransactionCredentials(
-      outputs
-          .map((out) => OutputInfo(
-              fiatAmount: out.fiatAmount,
-              cryptoAmount: out.cryptoAmount,
-              address: out.address,
-              note: out.note,
-              sendAll: out.sendAll,
-              extractedAddress: out.extractedAddress,
-              isParsedAddress: out.isParsedAddress,
-              formattedCryptoAmount: out.formattedCryptoAmount,
-              memo: out.memo))
-          .toList(),
-      priority: priority as EVMChainTransactionPriority?,
-      currency: currency,
-      feeRate: feeRate,
-      useBlinkProtection: useBlinkProtection,
-    );
-  }
+  }) =>
+      EVMChainTransactionCredentials(
+        outputs
+            .map((out) => OutputInfo(
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                  memo: out.memo,
+                ))
+            .toList(),
+        priority: priority as EVMChainTransactionPriority?,
+        currency: currency,
+        feeRate: feeRate,
+        useBlinkProtection: useBlinkProtection,
+      );
 
   @override
   Object createEVMTransactionCredentialsRaw(
@@ -267,7 +266,7 @@ class CWEVM extends EVM {
     WalletBase wallet,
     String to,
     String dataHex,
-    BigInt valueWei,
+    Money valueWei,
     TransactionPriority? priority,{
     bool useBlinkProtection = true,
     String? sourceTokenAddress,

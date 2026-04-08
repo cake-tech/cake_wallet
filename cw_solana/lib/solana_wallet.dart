@@ -257,7 +257,7 @@ abstract class SolanaWalletBase
       if (isSendAll) {
         totalAmount = walletBalanceForCurrency;
       } else {
-        totalAmount = Money.parse(output.cryptoAmount ?? "0.0", transactionCurrency);
+        totalAmount = output.cryptoAmount;
       }
 
       if (walletBalanceForCurrency < totalAmount) {

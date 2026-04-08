@@ -156,13 +156,12 @@ class CWBitcoin extends Bitcoin {
         outputs
             .map((out) => OutputInfo(
                   fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
                   address: out.address,
                   note: out.note,
                   sendAll: out.sendAll,
                   extractedAddress: out.extractedAddress,
                   isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount,
                   memo: out.memo.isNotEmpty ? out.memo : null,
                   extra: out.extra,
                 ))

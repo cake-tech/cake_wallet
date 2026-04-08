@@ -301,13 +301,12 @@ abstract class WowneroWalletBase
     final spendAllCoins = inputs.length == unspentCoins.length;
 
     if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+      if (outputs.any((item) => item.sendAll || item.cryptoAmount.amount <= BigInt.zero)) {
         throw WowneroTransactionCreationException(
             'You do not have enough WOW to send this amount.');
       }
 
-      final int totalAmount =
-          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
+      final totalAmount = outputs.fold(0, (acc, value) => acc + value.cryptoAmount.amount.toInt());
 
       final estimatedFee = calculateEstimatedFee(_credentials.priority, totalAmount);
       if (unlockedBalance < totalAmount) {
@@ -322,8 +321,7 @@ abstract class WowneroWalletBase
       final wowneroOutputs = outputs.map((output) {
         final outputAddress = output.isParsedAddress ? output.extractedAddress : output.address;
 
-        return WowneroOutput(
-            address: outputAddress!, amount: output.cryptoAmount!.replaceAll(',', '.'));
+        return WowneroOutput(address: outputAddress!, amount: output.cryptoAmount.toString());
       }).toList();
 
       pendingTransactionDescription = await transaction_history.createTransactionMultDest(
@@ -334,8 +332,8 @@ abstract class WowneroWalletBase
     } else {
       final output = outputs.first;
       final address = output.isParsedAddress ? output.extractedAddress : output.address;
-      final amount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
-      final formattedAmount = output.sendAll ? null : output.formattedCryptoAmount;
+      final amount = output.sendAll ? null : output.cryptoAmount.toString();
+      final formattedAmount = output.sendAll ? null : output.cryptoAmount.amount.toInt();
 
       if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
           (formattedAmount == null && unlockedBalance <= 0)) {

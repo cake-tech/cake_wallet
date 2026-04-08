@@ -11,7 +11,6 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
-import 'package:cw_evm/evm_erc20_currency.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/.secrets.g.dart' as secrets;
 import 'package:cw_evm/utils/evm_chain_utils.dart';
@@ -306,7 +305,6 @@ class EVMChainClient {
     required EVMChainTransactionPriority? priority,
     required CryptoCurrency currency,
     required String feeCurrency,
-    required int exponent,
     String? contractAddress,
     String? data,
     int? gasPrice,
@@ -376,7 +374,6 @@ class EVMChainClient {
       amount: amount,
       fee: gasFee,
       sendTransaction: _sendTransaction,
-      exponent: exponent,
     );
   }
 
@@ -388,7 +385,6 @@ class EVMChainClient {
     required int estimatedGasUnits,
     required int maxFeePerGas,
     required EVMChainTransactionPriority? priority,
-    required int exponent,
     required String contractAddress,
     int? gasPrice,
     bool useBlinkProtection = true,
@@ -429,7 +425,6 @@ class EVMChainClient {
       fee: gasFee,
       sendTransaction: () =>
           sendTransaction(signedTransaction, useBlinkProtection: useBlinkProtection),
-      exponent: exponent,
       isInfiniteApproval: amount.amount.toRadixString(16) ==
           'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
     );
@@ -524,17 +519,12 @@ class EVMChainClient {
     */
   }
 
-  Future<EVMChainERC20Balance> fetchERC20Balances(
-      EthereumAddress userAddress, String contractAddress, {String? erc20Symbol, int? decimals}) async {
+  Future<EVMChainERC20Balance> fetchERC20Balances(EthereumAddress userAddress, Erc20Token token) async {
     try {
-      final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+      final erc20 = ERC20(address: EthereumAddress.fromHex(token.contractAddress), client: _client!);
       final balance = await erc20.balanceOf(userAddress);
 
-      final exponent = decimals ?? (await erc20.decimals()).toInt();
-      final symbol = erc20Symbol ?? await erc20.symbol();
-      final currency = ERC20Currency(decimals: exponent, symbol: symbol);
-
-      return EVMChainERC20Balance(Money(balance, currency));
+      return EVMChainERC20Balance(Money(balance, token));
     } on RangeError catch (_) {
       throw Exception('Invalid token contract for this network.');
     } catch (e) {
