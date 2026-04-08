@@ -92,7 +92,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                     children: [
                       if (trailingTextToShow != null)
                         Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
+                          padding: const EdgeInsets.only(top: 4.0, bottom: 4.0, right: 8.0),
                           child: Text(
                             trailingTextToShow,
                             style: labelStyle,
@@ -108,10 +108,13 @@ class ListItemRegularRowWidget extends StatelessWidget {
                           colorFilter: ColorFilter.mode(foregroundColor ?? Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),
                         )
                       else if (showArrow)
-                          CakeImageWidget(imageUrl:
-                          "assets/new-ui/arrow_forward.svg",
-                              height: 14,
-                              color: theme.colorScheme.onSurfaceVariant
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 7.0),
+                            child: CakeImageWidget(imageUrl:
+                            "assets/new-ui/arrow_forward.svg",
+                                height: 14,
+                                color: theme.colorScheme.onSurfaceVariant
+                            ),
                           )
                     ],
                   ),
