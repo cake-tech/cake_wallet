@@ -467,7 +467,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       switch (chainId) {
         case 1:
           return [
-            'assets/images/crypto/ethereum.webp',
+            'assets/new-ui/crypto_full_icons/ethereum.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
             'assets/images/deuro_icon.svg',
@@ -483,7 +483,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           ];
         case 8453:
           return [
-            'assets/images/crypto/ethereum.webp',
+            'assets/new-ui/crypto_full_icons/ethereum.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/more_tokens.svg',
           ];

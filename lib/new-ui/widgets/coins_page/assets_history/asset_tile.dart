@@ -186,7 +186,7 @@ class AssetTile extends StatelessWidget {
 
   String _getIconPath() {
     if(balance.asset == CryptoCurrency.baseEth)
-      return "assets/images/crypto/ethereum.webp";
+      return "assets/new-ui/crypto_full_icons/base.svg";
 
     return balance.asset.iconPath ?? "";
   }
