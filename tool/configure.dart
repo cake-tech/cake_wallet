@@ -967,7 +967,6 @@ abstract class Solana {
   Future<CryptoCurrency?> getSPLToken(WalletBase wallet, String contractAddress);
 
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
-  double getTransactionAmountRaw(TransactionInfo transactionInfo);
   String getTokenAddress(CryptoCurrency asset);
   List<int>? getValidationLength(CryptoCurrency type);
   double? getEstimateFees(WalletBase wallet);
@@ -1089,7 +1088,6 @@ abstract class Tron {
   Future<void> deleteTronToken(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency?> getTronToken(WalletBase wallet, String contractAddress);
 
-  double getTransactionAmountRaw(TransactionInfo transactionInfo);
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   String getTokenAddress(CryptoCurrency asset);
   String getTronBase58Address(String hexAddress, WalletBase wallet);
@@ -1443,11 +1441,6 @@ abstract class EVM {
   });
   
   int formatterEVMParseAmount(String amount);
-  double formatterEVMAmountToDouble({
-    TransactionInfo? transaction,
-    BigInt? amount,
-    int exponent = 18,
-  });
   
   List<Erc20Token> getERC20Currencies(WalletBase wallet);
   Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token);

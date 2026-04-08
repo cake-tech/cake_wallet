@@ -118,21 +118,13 @@ class CWSolana extends Solana {
 
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
-    transaction as SolanaTransactionInfo;
-    if (transaction.tokenSymbol == CryptoCurrency.sol.title) {
+    if (transaction.amount.currency.symbol == CryptoCurrency.sol.symbol) {
       return CryptoCurrency.sol;
     }
 
-    wallet as SolanaWallet;
-
-    return wallet.splTokenCurrencies.firstWhere(
-      (element) => transaction.tokenSymbol == element.symbol,
+    return (wallet as SolanaWallet).splTokenCurrencies.firstWhere(
+      (element) => transaction.amount.currency.symbol == element.symbol,
     );
-  }
-
-  @override
-  double getTransactionAmountRaw(TransactionInfo transactionInfo) {
-    return (transactionInfo as SolanaTransactionInfo).solAmount.toDouble();
   }
 
   @override

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/solana_rpc_http_service.dart';
@@ -32,7 +33,7 @@ class TransactionFetchResult {
 
 class SolanaWalletClient {
   // Minimum amount in SOL to consider a transaction valid (to filter spam)
-  static const double minValidAmount = 0.00000003;
+  static Money minValidAmount = Money.parse("0.00000003", CryptoCurrency.sol);
   late final client = ProxyWrapper().getHttpIOClient();
   SolanaRPC? _provider;
 
@@ -150,7 +151,7 @@ class SolanaWalletClient {
   Future<List<SolanaTransactionModel>?> parseTransaction({
     VersionedTransactionResponse? txResponse,
     required String walletAddress,
-    String? splTokenSymbol,
+    SPLToken? splToken,
   }) async {
     if (txResponse == null) return null;
 
@@ -161,8 +162,7 @@ class SolanaWalletClient {
 
       if (meta == null || transaction == null) return null;
 
-      final int fee = meta.fee;
-      final feeInSol = fee / SolanaUtils.lamportsPerSol;
+      final fee = meta.fee;
 
       final message = transaction.message;
       final instructions = message.compiledInstructions;
@@ -180,12 +180,10 @@ class SolanaWalletClient {
           message: message,
           meta: meta,
           fee: fee,
-          feeInSol: feeInSol,
           walletAddress: walletAddress,
           signature: signature,
           blockTime: blockTime,
           instructions: instructions,
-          splTokenSymbol: splTokenSymbol,
         );
 
         if (swapTransactions.isNotEmpty) return swapTransactions;
@@ -209,7 +207,6 @@ class SolanaWalletClient {
             message: message,
             meta: meta,
             fee: fee,
-            feeInSol: feeInSol,
             feePayerIndex: feePayerIndex,
             walletAddress: walletAddress,
             signature: signature,
@@ -227,12 +224,11 @@ class SolanaWalletClient {
             message: message,
             meta: meta,
             fee: fee,
-            feeInSol: feeInSol,
             instruction: instruction,
             walletAddress: walletAddress,
             signature: signature,
             blockTime: blockTime,
-            splTokenSymbol: splTokenSymbol,
+            splToken: splToken,
           );
 
           if (transactionModel != null) {
@@ -380,12 +376,10 @@ class SolanaWalletClient {
     required VersionedMessage message,
     required ConfirmedTransactionMeta meta,
     required int fee,
-    required double feeInSol,
     required String walletAddress,
     required String signature,
     required BigInt? blockTime,
     required List<CompiledInstruction> instructions,
-    String? splTokenSymbol,
   }) async {
     final List<SolanaTransactionModel> swapTransactions = [];
 
@@ -431,7 +425,7 @@ class SolanaWalletClient {
 
     // Parse outgoing side (what was sent)
     double outgoingAmount = 0.0;
-    String outgoingTokenSymbol = '';
+    Currency outgoingToken = CryptoCurrency.sol;
     String? outgoingMintAddress;
     String? outgoingFrom;
     String? outgoingTo;
@@ -454,7 +448,7 @@ class SolanaWalletClient {
           if (balanceChange > BigInt.zero) {
             // The wallet sent SOL
             outgoingAmount = balanceChange.toDouble() / SolanaUtils.lamportsPerSol;
-            outgoingTokenSymbol = 'SOL';
+            outgoingToken = CryptoCurrency.sol;
             outgoingMintAddress = null;
             outgoingFrom = walletAddress;
             // We find the intermediate account or swap program account
@@ -498,7 +492,7 @@ class SolanaWalletClient {
                 outgoingAmount = diff.toDouble();
                 outgoingMintAddress = mint;
                 final token = await getTokenInfo(mint);
-                outgoingTokenSymbol = token?.symbol ?? 'TOKEN';
+                outgoingToken = token ?? const CryptoCurrency(name: "TOKEN", title: "TOKEN", decimals: 6);
                 outgoingFrom = walletAddress;
                 // We find the intermediate account
                 if (instructions.isNotEmpty && instructions[0].accounts.isNotEmpty) {
@@ -520,7 +514,7 @@ class SolanaWalletClient {
 
     // Parse incoming side (what was received)
     double incomingAmount = 0.0;
-    String incomingTokenSymbol = '';
+    Currency incomingToken = CryptoCurrency.sol;
     String? incomingMintAddress;
     String? incomingFrom;
     String? incomingTo;
@@ -542,7 +536,7 @@ class SolanaWalletClient {
           if (balanceChange > BigInt.zero) {
             // The wallet received SOL
             incomingAmount = balanceChange.toDouble() / SolanaUtils.lamportsPerSol;
-            incomingTokenSymbol = 'SOL';
+            incomingToken = CryptoCurrency.sol;
             incomingMintAddress = null;
             incomingTo = walletAddress;
             // We find the intermediate account
@@ -629,7 +623,9 @@ class SolanaWalletClient {
               incomingAmount = diff.toDouble();
               incomingMintAddress = mint;
               final token = await getTokenInfo(mint);
-              incomingTokenSymbol = token?.symbol ?? 'TOKEN';
+              printV(token?.symbol);
+              printV(token?.decimals);
+              incomingToken = token ?? const CryptoCurrency(name: "TOKEN", title: "TOKEN", decimals: 6);
               incomingTo = walletAddress;
               // We find the intermediate account
               if (instructions.isNotEmpty && instructions[0].accounts.isNotEmpty) {
@@ -658,13 +654,12 @@ class SolanaWalletClient {
         from: outgoingFrom,
         to: outgoingTo,
         id: outgoingId,
-        amount: outgoingAmount,
+        amount: Money.parse(outgoingAmount.toStringAsFixed(outgoingToken.decimals), outgoingToken),
         programId: outgoingMintAddress == null
             ? SystemProgramConst.programId.address
             : SPLTokenProgramConst.tokenProgramId.address,
         blockTimeInInt: blockTime?.toInt() ?? 0,
-        tokenSymbol: outgoingTokenSymbol,
-        fee: feeInSol,
+        fee: Money.fromInt(fee, CryptoCurrency.sol),
       ));
     }
 
@@ -677,13 +672,12 @@ class SolanaWalletClient {
         from: incomingFrom,
         to: incomingTo,
         id: incomingId,
-        amount: incomingAmount,
+        amount: Money.parse(incomingAmount.toStringAsFixed(incomingToken.decimals), incomingToken),
         programId: incomingMintAddress == null
             ? SystemProgramConst.programId.address
             : SPLTokenProgramConst.tokenProgramId.address,
         blockTimeInInt: blockTime?.toInt() ?? 0,
-        tokenSymbol: incomingTokenSymbol,
-        fee: 0.0, // Fee only charged on outgoing side
+        fee: Money.zero(CryptoCurrency.sol), // Fee only charged on outgoing side
       ));
     }
 
@@ -694,7 +688,6 @@ class SolanaWalletClient {
     required VersionedMessage message,
     required ConfirmedTransactionMeta meta,
     required int fee,
-    required double feeInSol,
     required int feePayerIndex,
     required String walletAddress,
     required String signature,
@@ -733,10 +726,9 @@ class SolanaWalletClient {
     final netChange = walletPaidFee ? walletChange - BigInt.from(fee) : walletChange;
 
     final isOutgoing = netChange > BigInt.zero;
-    final amountLamports = netChange.abs();
-    final amountInSol = amountLamports.toDouble() / SolanaUtils.lamportsPerSol;
+    final amountLamports = Money(netChange.abs(), CryptoCurrency.sol);
 
-    if (amountInSol < minValidAmount) return null;
+    if (amountLamports < minValidAmount) return null;
 
     // Find the most likely receiver, the account that has the largest opposite balance change.
     String? receiver;
@@ -762,11 +754,10 @@ class SolanaWalletClient {
       from: isOutgoing ? walletAddress : receiver,
       to: isOutgoing ? receiver : walletAddress,
       id: signature,
-      amount: amountInSol,
+      amount: amountLamports,
       programId: SystemProgramConst.programId.address,
-      tokenSymbol: 'SOL',
       blockTimeInInt: blockTime?.toInt() ?? 0,
-      fee: feeInSol,
+      fee: Money.fromInt(fee, CryptoCurrency.sol),
     );
   }
 
@@ -774,12 +765,11 @@ class SolanaWalletClient {
     required VersionedMessage message,
     required ConfirmedTransactionMeta meta,
     required int fee,
-    required double feeInSol,
     required CompiledInstruction instruction,
     required String walletAddress,
     required String signature,
     required BigInt? blockTime,
-    String? splTokenSymbol,
+    SPLToken? splToken,
   }) async {
     final preTokenBalances = meta.preTokenBalances;
     final postTokenBalances = meta.postTokenBalances;
@@ -870,11 +860,8 @@ class SolanaWalletClient {
     final sender = senderOwner ?? accountKeys[sourceAccountIndex].address;
     final receiver = receiverOwner ?? accountKeys[destinationAccountIndex].address;
 
-    String? tokenSymbol = splTokenSymbol;
-
-    if (tokenSymbol == null && mintAddress != null) {
-      final token = await getTokenInfo(mintAddress);
-      tokenSymbol = token?.symbol;
+    if (splToken == null && mintAddress != null) {
+      splToken = await getTokenInfo(mintAddress);
     }
 
     return SolanaTransactionModel(
@@ -882,20 +869,21 @@ class SolanaWalletClient {
       from: sender,
       to: receiver,
       id: signature,
-      amount: amount,
+      amount: Money.parse(amount.toStringAsFixed((splToken ?? CryptoCurrency.sol).decimals),
+          splToken ?? CryptoCurrency.sol),
       programId: SPLTokenProgramConst.tokenProgramId.address,
       blockTimeInInt: blockTime?.toInt() ?? 0,
-      tokenSymbol: tokenSymbol ?? '',
-      fee: feeInSol,
+      fee: Money.fromInt(fee, CryptoCurrency.sol),
     );
   }
 
   /// Fetches a specific transaction by signature and parses it
-  /// It returns a TransactionFetchResult object containing both transactions and token mints extracted from the transaction or null if the transaction is not found or cannot be parsed
+  /// It returns a TransactionFetchResult object containing both transactions and token mints
+  /// extracted from the transaction or null if the transaction is not found or cannot be parsed
   Future<TransactionFetchResult?> fetchTransactionBySignature({
     required String signature,
     required String walletAddress,
-    String? splTokenSymbol,
+    SPLToken? splToken,
   }) async {
     try {
       final txResponse = await _provider!.request(
@@ -915,7 +903,7 @@ class SolanaWalletClient {
       final parsed = await parseTransaction(
         txResponse: versionedResponse,
         walletAddress: walletAddress,
-        splTokenSymbol: splTokenSymbol,
+        splToken: splToken,
       );
 
       if (parsed == null) return null;
@@ -964,8 +952,7 @@ class SolanaWalletClient {
   /// Load the Address's transactions into the account
   Future<List<SolanaTransactionModel>> fetchTransactions(
     SolAddress address, {
-    String? splTokenSymbol,
-    int? splTokenDecimal,
+    SPLToken? splToken,
     Commitment? commitment,
     SolAddress? walletAddress,
     required void Function(List<SolanaTransactionModel>) onUpdate,
@@ -1004,7 +991,7 @@ class SolanaWalletClient {
 
         final parsedTransactionsFutures = versionedBatchResponses.map((tx) => parseTransaction(
               txResponse: tx,
-              splTokenSymbol: splTokenSymbol,
+              splToken: splToken,
               walletAddress: walletAddress?.address ?? address.address,
             ));
 
@@ -1036,8 +1023,7 @@ class SolanaWalletClient {
 
   Future<List<SolanaTransactionModel>> getSPLTokenTransfers({
     required String mintAddress,
-    required String splTokenSymbol,
-    required int splTokenDecimal,
+    required SPLToken splToken,
     required SolanaPrivateKey privateKey,
     required void Function(List<SolanaTransactionModel>) onUpdate,
   }) async {
@@ -1056,23 +1042,19 @@ class SolanaWalletClient {
 
     if (associatedTokenAccount == null) return [];
 
-    final accountPublicKey = associatedTokenAccount.address;
-
-    final tokenTransactions = await fetchTransactions(
-      accountPublicKey,
-      splTokenSymbol: splTokenSymbol,
-      splTokenDecimal: splTokenDecimal,
+    return fetchTransactions(
+      associatedTokenAccount.address,
+      splToken: splToken,
       walletAddress: ownerWalletAddress,
       onUpdate: onUpdate,
     );
-
-    return tokenTransactions;
   }
 
   final Map<String, SPLToken?> tokenInfoCache = {};
 
   Future<SPLToken?> getTokenInfo(String mintAddress) async {
     if (tokenInfoCache.containsKey(mintAddress)) {
+      printV("Cached");
       return tokenInfoCache[mintAddress];
     } else {
       final token = await fetchSPLTokenInfo(mintAddress);
@@ -1098,16 +1080,15 @@ class SolanaWalletClient {
         },
       );
 
+      if (response.statusCode != 200) return null;
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
-      final symbol = (decodedResponse['symbol'] ?? '') as String;
-
+      final symbol = decodedResponse['symbol'] ?? '';
       final name = decodedResponse['name'] ?? '';
       final decimal = decodedResponse['decimals'] ?? '0';
       final iconPath = decodedResponse['logo'] ?? '';
 
-      String filteredTokenSymbol =
-          symbol.replaceFirst(RegExp('^\\\$'), '').replaceAll('\u0000', '');
+      final filteredTokenSymbol = symbol.replaceFirst(RegExp('^\\\$'), '').replaceAll('\u0000', '');
 
       return SPLToken(
         name: name,
@@ -1342,15 +1323,13 @@ class SolanaWalletClient {
           commitment: commitment,
         );
 
-    final pendingTransaction = PendingSolanaTransaction(
+    return PendingSolanaTransaction(
       amount: inputAmount,
       serializedTransaction: serializedTransaction,
       destinationAddress: destinationAddress,
       sendTransaction: sendTx,
       fee: fee,
     );
-
-    return pendingTransaction;
   }
 
   SolanaTransaction _constructNativeTransaction({

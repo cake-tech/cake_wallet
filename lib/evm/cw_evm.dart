@@ -146,22 +146,6 @@ class CWEVM extends EVM {
   int formatterEVMParseAmount(String amount) => EVMChainFormatter.parseEVMChainAmount(amount);
 
   @override
-  double formatterEVMAmountToDouble({
-    TransactionInfo? transaction,
-    BigInt? amount,
-    int exponent = 18,
-  }) {
-    assert(transaction != null || amount != null);
-
-    if (transaction != null) {
-      transaction as EVMChainTransactionInfo;
-      return transaction.amount.amount / BigInt.from(10).pow(transaction.exponent);
-    } else {
-      return (amount!) / BigInt.from(10).pow(exponent);
-    }
-  }
-
-  @override
   List<Erc20Token> getERC20Currencies(WalletBase wallet) =>
       (wallet as EVMChainWallet).erc20Currencies;
 

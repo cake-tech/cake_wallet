@@ -202,7 +202,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = evm!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: evm!.formatterEVMAmountToDouble(transaction: transaction),
+          cryptoAmount: double.parse(transaction.amount.toString()),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
@@ -210,16 +210,15 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: solana!.getTransactionAmountRaw(transaction),
+          cryptoAmount: double.parse(transaction.amount.toString()),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
       case WalletType.tron:
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConversionStore.prices[asset];
-        final cryptoAmount = tron!.getTransactionAmountRaw(transaction);
         amount = calculateFiatAmountRaw(
-          cryptoAmount: cryptoAmount,
+          cryptoAmount: double.parse(transaction.amount.toString()),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;

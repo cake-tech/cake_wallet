@@ -97,12 +97,6 @@ class CWTron extends Tron {
       (wallet as TronWallet).getTronToken(contractAddress);
 
   @override
-  double getTransactionAmountRaw(TransactionInfo transactionInfo) {
-    final amount = (transactionInfo as TronTransactionInfo).rawTronAmount();
-    return double.parse(amount);
-  }
-
-  @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     transaction as TronTransactionInfo;
     if (transaction.amount.currency.symbol == CryptoCurrency.trx.title) {

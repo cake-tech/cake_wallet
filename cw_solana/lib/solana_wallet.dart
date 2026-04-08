@@ -373,8 +373,7 @@ abstract class SolanaWalletBase
           try {
             return await _client.getSPLTokenTransfers(
               mintAddress: token.mintAddress,
-              splTokenSymbol: token.symbol,
-              splTokenDecimal: token.decimal,
+              splToken: token,
               privateKey: _solanaPrivateKey,
               onUpdate: updateTransactions,
             );
@@ -400,14 +399,13 @@ abstract class SolanaWalletBase
         id: transactionModel.id,
         to: transactionModel.to,
         from: transactionModel.from,
-        blockTime: transactionModel.blockTime,
+        date: transactionModel.blockTime,
         direction: transactionModel.isOutgoingTx
             ? TransactionDirection.outgoing
             : TransactionDirection.incoming,
-        solAmount: transactionModel.amount,
+        amount: transactionModel.amount,
         isPending: false,
-        txFee: transactionModel.fee,
-        tokenSymbol: transactionModel.tokenSymbol,
+        fee: transactionModel.fee,
       );
     }
 
@@ -641,7 +639,8 @@ abstract class SolanaWalletBase
   }
 
   Future<void> _removeTokenTransactionsInHistory(SPLToken token) async {
-    transactionHistory.transactions.removeWhere((key, value) => value.tokenSymbol == token.title);
+    transactionHistory.transactions
+        .removeWhere((key, value) => value.amount.currency.symbol == token.symbol);
     await transactionHistory.save();
   }
 
