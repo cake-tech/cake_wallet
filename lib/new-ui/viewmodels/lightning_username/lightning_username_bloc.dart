@@ -81,10 +81,15 @@ class LightningUsernameBloc extends Bloc<LightningUsernameEvent, LightningUserna
       return UsernameError(S.current.already_your_username, isInfo: true);
     }
 
-    if ((await LNUrlPayRecord.checkWellKnownUsername(
-            "${username}${usernameSuffix}", CryptoCurrency.btc)) !=
-        null) {
-      return UsernameError(S.current.username_not_available);
+    try {
+      if ((await LNUrlPayRecord.checkWellKnownUsername(
+              "${username}${usernameSuffix}", CryptoCurrency.btc,
+              allowRethrow: true)) !=
+          null) {
+        return UsernameError(S.current.username_not_available);
+      }
+    } catch (e) {
+      return UsernameError(S.current.username_check_your_network);
     }
 
     return null;

@@ -17,6 +17,8 @@ class HistoryTile extends StatelessWidget {
     required this.direction,
     required this.pending,
     required this.bottomSeparator,
+    required this.hasTokens,
+    this.chainIconPath,
     this.asset,
   });
 
@@ -27,6 +29,8 @@ class HistoryTile extends StatelessWidget {
   final bool roundedTop;
   final bool roundedBottom;
   final bool bottomSeparator;
+  final bool hasTokens;
+  final String? chainIconPath;
   final TransactionDirection direction;
   final bool pending;
   final CryptoCurrency? asset;
@@ -91,6 +95,33 @@ class HistoryTile extends StatelessWidget {
             )
         ],
       );
+    }
+
+    if(hasTokens) {
+      return Stack(children: [
+        Opacity(
+          opacity: pending ? 0.5 : 1,
+          child: CakeImageWidget(imageUrl: asset?.iconSvgPath ?? asset?.iconPath ??"",            width: 34,
+            height: 34,),
+        ),
+        Align(
+            alignment: Alignment.bottomRight,
+            child: Container(
+                decoration: ShapeDecoration(
+                    shape: RoundedSuperellipseBorder(
+                        borderRadius: BorderRadius.circular(5),side: BorderSide(color: Colors.black)),
+                    color: Colors.white),
+                child: Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: CakeImageWidget(
+                    imageUrl: chainIconPath,
+                    width: 12,
+                    height: 12,
+                    colorFilter:
+                    ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  ),
+                )))
+      ],);
     }
 
     return CakeImageWidget(imageUrl:_getDirectionIcon(),

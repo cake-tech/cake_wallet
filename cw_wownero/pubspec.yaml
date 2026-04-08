@@ -24,7 +24,7 @@ dependencies:
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c
-      ref: 411e8a1cdb3f4c2812d83f28c335d2a4eb18bd29 # monero_c hash
+      ref: bc8d1a0b75b97156d71579581b4cdfe58c777ed2 # monero_c hash
       path: impls/monero.dart
   mutex: ^3.1.0
 
@@ -48,7 +48,6 @@ flutter:
   # The androidPackage and pluginClass identifiers should not ordinarily
   # be modified. They are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
-
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

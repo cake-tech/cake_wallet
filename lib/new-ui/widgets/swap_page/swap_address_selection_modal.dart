@@ -6,16 +6,16 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart' show WalletType;
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SwapAddressSelectionResult {
   String? address;
-  String? walletName;
+  WalletInfo? walletInfo;
   String? accountName;
 
-  SwapAddressSelectionResult({this.address, this.walletName, this.accountName});
+  SwapAddressSelectionResult({this.address, this.walletInfo, this.accountName});
 }
 
 class SwapAddressSelectionModal extends StatefulWidget {
@@ -52,8 +52,8 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
           ? await widget.exchangeViewModel.receiveWallets
           : await widget.exchangeViewModel.depositWallets;
       for (final item in items) {
-        if (item.type.toString() == "WalletType.monero") {
-          accounts[item.id] = await widget.exchangeViewModel.addressesForWallet(item);
+        if (item.type == WalletType.monero) {
+          accounts[item.id] = await widget.exchangeViewModel.addressesForAccountsWallet(item);
         }
       }
       setState(() {
@@ -107,10 +107,10 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
 
                       final String currencyIconPath = walletTypeToCryptoCurrency(item.type).iconPath ?? "";
 
-                      final bool hasAccounts =
-                          item.type.toString() == "WalletType.monero" && widget.isSelectingReceiver;
+                            final bool hasAccounts =
+                                item.type == WalletType.monero && widget.isSelectingReceiver;
 
-                      List<WalletInfoAddressInfo>? accounts =
+                            List<WalletInfoAddressInfo>? accounts =
                           hasAccounts ? this.accounts[item.id] : null;
 
                       return Padding(
@@ -123,7 +123,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                           onAddressChosen: (address, accountName) {
                                   Navigator.of(context).pop(SwapAddressSelectionResult(
                                       address: address,
-                                      walletName: item.name,
+                                      walletInfo: item,
                                       accountName: accountName));
                                 },
                         ),

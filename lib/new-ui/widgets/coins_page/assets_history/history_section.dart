@@ -1,9 +1,11 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_trade_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
@@ -15,7 +17,6 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
@@ -28,14 +29,13 @@ class HistorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         sliver: Observer(
-          builder: (_) => (dashboardViewModel.items.isEmpty &&
-                  dashboardViewModel.status is! SyncingSyncStatus)
+          builder: (_) => (dashboardViewModel.items.isEmpty)
               ? SliverPadding(
                   padding: EdgeInsets.only(top: 24),
                   sliver: SliverToBoxAdapter(
-                    child: Center(
+                    child: (dashboardViewModel.status is SyncingSyncStatus) ? SizedBox.shrink() : Center(
                       child: Text(S.of(context).transactions_will_appear_here,
                           style: TextStyle(
                               fontSize: 14,
@@ -49,6 +49,7 @@ class HistorySection extends StatelessWidget {
                     childCount: dashboardViewModel.items.length,
                     (context, index) => Observer(builder: (_) {
                       final prevItem = index == 0 ? null : dashboardViewModel.items[index - 1];
+                      final topPadding = index == 0 ? 0.0 : 18.0;
                       final item = dashboardViewModel.items[index];
             final nextItem = index == dashboardViewModel.items.length - 1
                 ? null
@@ -68,15 +69,21 @@ class HistorySection extends StatelessWidget {
                     CryptoCurrency? asset;
                     if (transaction.additionalInfo["isLightning"] == true)
                       asset = CryptoCurrency.btcln;
+                    else
+                      asset = item.assetOfTransaction;
 
                     return GestureDetector(
-                      onTap: () => Navigator.of(context)
-                          .pushNamed(Routes.transactionDetails, arguments: transaction),
+                      onTap: () {
+                        final page = getIt.get<TransactionDetailsModal>(param1: transaction);
+                        showModalBottomSheet(isScrollControlled:true,context: context, builder: (context) => page);
+                      },
                       child: HistoryTile(
                         title: item.formattedTitle + transactionType,
                         date: DateFormat('HH:mm').format(transaction.date),
                         amount: item.formattedCryptoAmount,
                         amountFiat: item.formattedFiatAmount,
+                        hasTokens: item.hasTokens,
+                        chainIconPath: _getChainIconPath(),
                         roundedBottom: roundedBottom,
                         roundedTop: roundedTop,
                         bottomSeparator: !roundedBottom,
@@ -98,6 +105,7 @@ class HistorySection extends StatelessWidget {
                 child: HistoryTradeTile(
                   from: tradeFrom!,
                   to: tradeTo!,
+                  provider: trade.provider,
                   date: DateFormat('HH:mm').format(item.trade.createdAt!),
                   amount: trade.amountFormatted(),
                   receiveAmount: trade.receiveAmountFormatted(),
@@ -109,7 +117,7 @@ class HistorySection extends StatelessWidget {
               );
             } else if (item is DateSectionItem) {
               return Padding(
-                  padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: 18.0),
+                  padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
                   child: Text(DateFormatter.convertDateTimeToReadableString(item.date),
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)));
             }else if(item is OrderListItem){
@@ -167,5 +175,13 @@ class HistorySection extends StatelessWidget {
         ),
       ),
     ));
+  }
+
+  String _getChainIconPath() {
+    try {
+      return CryptoCurrency.fromString(dashboardViewModel.wallet.currency.tag ??dashboardViewModel.wallet.currency.title).chainIconPath!;
+    } catch(e) {
+      return dashboardViewModel.wallet.currency.chainIconPath ?? "";
+    }
   }
 }
