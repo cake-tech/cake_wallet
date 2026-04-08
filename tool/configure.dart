@@ -578,30 +578,17 @@ class Subaddress {
 }
 
 class WowneroBalance extends Balance {
-  WowneroBalance({required this.fullBalance, required this.unlockedBalance})
-      : formattedFullBalance = wownero!.formatterWowneroAmountToString(amount: fullBalance),
-        formattedUnlockedBalance =
-            wownero!.formatterWowneroAmountToString(amount: unlockedBalance),
-        super.fromInt(unlockedBalance, fullBalance);
+  WowneroBalance({
+    required this.fullBalance,
+    required Money unlockedBalance,
+    Money? frozen,
+  }) : super(
+          unlockedBalance,
+          fullBalance - unlockedBalance,
+          frozen: frozen ?? Money.zero(CryptoCurrency.wow),
+        );
 
-  WowneroBalance.fromString(
-      {required this.formattedFullBalance,
-      required this.formattedUnlockedBalance})
-      : fullBalance = wownero!.formatterWowneroParseAmount(amount: formattedFullBalance),
-        unlockedBalance = wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
-        super.fromInt(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
-            wownero!.formatterWowneroParseAmount(amount: formattedFullBalance));
-
-  final int fullBalance;
-  final int unlockedBalance;
-  final String formattedFullBalance;
-  final String formattedUnlockedBalance;
-
-  @override
-  String get formattedAvailableBalance => formattedUnlockedBalance;
-
-  @override
-  String get formattedAdditionalBalance => formattedFullBalance;
+  final Money fullBalance;
 }
 
 abstract class WowneroWalletDetails {
@@ -1477,7 +1464,7 @@ abstract class EVM {
     WalletBase wallet,
     String to,
     String dataHex,
-    BigInt valueWei,
+    Money valueWei,
     TransactionPriority? priority,
     {bool useBlinkProtection = true,
     String? sourceTokenAddress,
