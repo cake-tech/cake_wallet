@@ -605,4 +605,26 @@ class CWEVM extends EVM {
       await Future.wait(tokenChecks);
     } catch (_) {}
   }
+
+  @override
+  Future<int> calculateNativeGasFeeForTransaction({
+    required WalletBase wallet,
+    required BigInt valueWei,
+    required String to,
+    TransactionPriority? priority,
+    String? contractAddress,
+    String? dataHex,
+  }) async {
+    final gasParams =
+        await (wallet as EVMChainWallet).calculateActualEstimatedFeeForCreateTransaction(
+      amount: valueWei,
+      receivingAddressHex: to,
+      priority: priority,
+      contractAddress: contractAddress,
+      data: dataHex != null && dataHex.isNotEmpty
+          ? wallet.evmChainClient.hexToBytes(dataHex)
+          : null,
+    );
+    return gasParams.estimatedGasFee;
+  }
 }

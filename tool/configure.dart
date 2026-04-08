@@ -1556,6 +1556,15 @@ abstract class EVM {
   bool hasPriorityFee(int chainId);
 
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
+
+  Future<int> calculateNativeGasFeeForTransaction({
+    required WalletBase wallet,
+    required BigInt valueWei,
+    required String to,
+    TransactionPriority? priority,
+    String? contractAddress,
+    String? dataHex,
+  });
 }
 
 class ChainInfo {
