@@ -128,6 +128,7 @@ import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:collection/collection.dart';
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
