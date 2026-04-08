@@ -286,6 +286,9 @@ abstract class ElectrumWalletBase
 
   static const int transactionBatchTimeoutMs = 15000;
 
+  static const int batchTestTimeoutMs = 4000;
+  static const int batchTestHashesCount = 2;
+
   static const bool useBatchForHistory = true;
 
   @observable
@@ -369,6 +372,7 @@ abstract class ElectrumWalletBase
   bool silentPaymentsScanningActive = false;
 
   bool _isTryingToConnect = false;
+  bool? _isBatchSupported;
   DateTime? _syncBenchmarkStartTime;
 
   Completer<SharedPreferences> sharedPrefs = Completer();
@@ -686,6 +690,7 @@ abstract class ElectrumWalletBase
       }
 
       await subscribeForUpdates();
+      await _checkIfBatchSupported();
       await updateTransactions();
 
       await updateAllUnspents();
@@ -818,6 +823,7 @@ abstract class ElectrumWalletBase
   @override
   Future<void> connectToNode({required Node node}) async {
     this.node = node;
+    _isBatchSupported = null;
 
     if (syncStatus is ConnectingSyncStatus) return;
 
@@ -826,6 +832,7 @@ abstract class ElectrumWalletBase
 
       await _receiveStream?.cancel();
       await electrumClient.close();
+      _isBatchSupported = null;
 
       electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
@@ -1743,6 +1750,7 @@ abstract class ElectrumWalletBase
     try {
       await _receiveStream?.cancel();
       await electrumClient.close();
+      _isBatchSupported = null;
     } catch (_) {}
     _autoSaveTimer?.cancel();
     _updateFeeRateTimer?.cancel();
@@ -2369,9 +2377,12 @@ abstract class ElectrumWalletBase
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
     try {
       final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
+      final shouldUseBatchForHistory = useBatchForHistory && _isBatchSupported == true;
+
+      printV('[BATCH_TEST] Fetching transactions with batch: $shouldUseBatchForHistory');
 
       if (type == WalletType.bitcoin) {
-        await Future.wait(BITCOIN_ADDRESS_TYPES.map((type) => useBatchForHistory
+        await Future.wait(BITCOIN_ADDRESS_TYPES.map((type) => shouldUseBatchForHistory
             ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
             : fetchTransactionsForAddressType(historiesWithDetails, type)));
       } else if (type == WalletType.bitcoinCash) {
@@ -3388,6 +3399,43 @@ abstract class ElectrumWalletBase
     final hexEncoded = priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
     final decodedSig = hex.decode(hexEncoded);
     return base64Encode(decodedSig);
+  }
+
+  Future<void> _checkIfBatchSupported() async {
+
+    if (_isBatchSupported != null) {
+      printV('[BATCH_TEST] Already checked: $_isBatchSupported');
+      return;
+    }
+
+    final hashes = publicScriptHashes.take(batchTestHashesCount).toList();
+
+    if (hashes.length < batchTestHashesCount) {
+      _isBatchSupported = false;
+      printV('[BATCH_TEST] Failed: not enough script hashes');
+      return;
+    }
+
+    try {
+      final paramsList = hashes.map((hash) => <Object>[hash]).toList();
+
+      printV('[BATCH_TEST] Start: hashes=${hashes.length}, timeout=${batchTestTimeoutMs}ms');
+
+      await electrumClient.callBatchWithTimeout(
+        method: 'blockchain.scripthash.get_history',
+        paramsList: paramsList,
+        timeout: batchTestTimeoutMs,
+      );
+
+      _isBatchSupported = true;
+      printV('[BATCH_TEST] Result: supported=true');
+    } on electrum.RequestFailedTimeoutException catch (e) {
+      _isBatchSupported = false;
+      printV('[BATCH_TEST] Timeout: $e');
+    } catch (e) {
+      _isBatchSupported = false;
+      printV('[BATCH_TEST] Exception: $e');
+    }
   }
 
   @override
