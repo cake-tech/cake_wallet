@@ -193,8 +193,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const sol = CryptoCurrency(title: 'SOL', fullName: 'Solana', raw: 39, name: 'sol', iconPath: 'assets/new-ui/crypto_full_icons/solana.svg', decimals: 9, flatIconPath: "assets/new-ui/balance_card_icons/solana.svg", chainIconPath: "assets/new-ui/chain_badges/solana.svg");
   static const usdc = CryptoCurrency(title: 'USDC', tag: 'ETH', fullName: 'USDC', raw: 40, name: 'usdc', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg', decimals: 6);
   static const usdcsol = CryptoCurrency(title: 'USDC', tag: 'SOL', fullName: 'USDC Coin', raw: 41, name: 'usdcsol', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg',  decimals: 6);
-  static const zaddr = CryptoCurrency(title: 'ZZEC', tag: 'ZEC', fullName: 'Shielded Zcash', raw: 42, name: 'zaddr', iconPath: 'assets/images/zec_icon.png', decimals: 8);
-  static const tzec = CryptoCurrency(title: 'tZEC', tag: 'ZEC', fullName: 'Transparent Zcash', raw: 43, name: 'zec', iconPath: 'assets/images/zec_icon.png', decimals: 8);
+  static const zaddr = CryptoCurrency(title: 'ZZEC', tag: 'ZEC', fullName: 'Shielded Zcash', raw: 42, name: 'zaddr', iconPath: 'assets/new-ui/crypto_full_icons/zcash.svg', decimals: 8);
+  static const tzec = CryptoCurrency(title: 'tZEC', tag: 'ZEC', fullName: 'Transparent Zcash', raw: 43, name: 'zec', iconPath: 'assets/new-ui/crypto_full_icons/zcash.svg', decimals: 8);
   static const zen = CryptoCurrency(title: 'ZEN', fullName: 'Horizen', raw: 44, name: 'zen', iconPath: 'assets/images/zen_icon.png', decimals: 8);
   static const xvg = CryptoCurrency(title: 'XVG', fullName: 'Verge', raw: 45, name: 'xvg', iconPath: 'assets/images/xvg_icon.png', decimals: 8);
 
