@@ -112,6 +112,8 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
       final CryptoCurrency newPin;
       if(s.pinnedCurrency == event.currency) {
           newPin = newCurrencies.first;
+          await ChartsAsset(asset: s.pinnedCurrency, isFavorite: false).insert();
+          await ChartsAsset(asset: newPin, isFavorite: true).insert();
       } else {
         newPin = s.pinnedCurrency;
       }
