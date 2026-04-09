@@ -11,6 +11,7 @@ import 'package:cw_starknet/starknet_wallet.dart';
 import 'package:cw_starknet/starknet_mnemonics.dart';
 import 'package:cw_starknet/starknet_wallet_service.dart';
 import 'package:cw_starknet/starknet_transaction_info.dart';
+import 'package:cw_starknet/pending_starknet_transaction.dart';
 import 'package:cw_starknet/starknet_transaction_credentials.dart';
 import 'package:cw_starknet/starknet_wallet_creation_credentials.dart';
 
