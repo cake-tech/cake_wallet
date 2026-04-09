@@ -32,6 +32,18 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
 
   Future<void> _init(Init event, Emitter<ChartsState> emit) async {
     final assets = await ChartsAsset.get();
+
+    if(assets.isEmpty) {
+      // generally this shouldn't happen, but i wanna make sure we can recover from a broken db
+      assets.add(ChartsAsset(asset: CryptoCurrency.btc, isFavorite: true));
+      assets.first.insert();
+    }
+    
+    if(assets.firstWhereOrNull((item)=>item.isFavorite) == null) {
+      assets.first = ChartsAsset(asset: assets.first.asset, isFavorite: true);
+      assets.first.insert();
+    }
+
     emit(ChartsLoading(
         pinnedCurrency: assets.firstWhere((item) => item.isFavorite).asset,
         currencies: assets.map((item) => item.asset).toList(),
