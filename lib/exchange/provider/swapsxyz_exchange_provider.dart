@@ -283,18 +283,57 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     required bool isSendAll,
   }) async {
     try {
-      final preparedRequest = await _prepareGetActionRequest(
-        request: request,
-        isFixedRateMode: isFixedRateMode,
-      );
-      if (preparedRequest == null) {
+      final sender = request.refundAddress.trim();
+      final recipient = request.toAddress.trim();
+      if (sender.isEmpty || recipient.isEmpty) {
         throw Exception(
-          'Invalid request, chains, or amount (empty sender/recipient?)',
-        );
+            'Sender (refundAddress) or recipient (toAddress) is empty');
       }
 
-      final srcToken = preparedRequest.srcToken;
-      final res = await ProxyWrapper().get(clearnetUri: preparedRequest.uri, headers: _headers);
+      final chains = await _geSupportedChain();
+      if (chains.isEmpty) throw Exception('Failed to fetch supported chains');
+      final srcChain = _findChainByCurrency(request.fromCurrency, chains);
+      final dstChain = _findChainByCurrency(request.toCurrency, chains);
+
+      await _ensureTokensCached(
+        fromChain: srcChain,
+        toChain: dstChain,
+        from: request.fromCurrency,
+        to: request.toCurrency,
+      );
+
+      final srcToken =
+          _getTokenAddress(currency: request.fromCurrency, chain: srcChain);
+      final dstToken =
+          _getTokenAddress(currency: request.toCurrency, chain: dstChain);
+
+      final amountStr = isFixedRateMode ? request.toAmount : request.fromAmount;
+      final rawAmount = double.tryParse(amountStr) ?? 0.0;
+      if (rawAmount <= 0) throw Exception('Invalid amount');
+
+      final formattedAmount = AmountConverter.toBaseUnits(
+        amountStr,
+        isFixedRateMode
+            ? request.toCurrency.decimals
+            : request.fromCurrency.decimals,
+      );
+
+      final params = {
+        'actionType': 'swap-action',
+        'sender': sender,
+        'srcChainId': '${srcChain.chainId}',
+        'srcToken': srcToken,
+        'dstChainId': '${dstChain.chainId}',
+        'dstToken': dstToken,
+        'slippage': '300',
+        'swapDirection':
+            isFixedRateMode ? 'exact-amount-out' : 'exact-amount-in',
+        'amount': formattedAmount,
+        'recipient': recipient,
+      };
+
+      final uri = Uri.https(_baseUrl, _getAction, params);
+      final res = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
       if (res.statusCode != 200) {
         throw Exception('getAction failed: ${res.statusCode} ${res.body}');
@@ -311,7 +350,17 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final chainId = txObj['chainId']?.toString();
       final routerData = txObj['data']?.toString();
 
-      if (!_isRouterDataAllowed(routerData)) {
+      // Allow only:
+      // - null (native / deposit-address flow)
+      // - '0x' (no call data)
+      // - ERC20 transfer(0xa9059cbb) selector
+      // - swapAndExecute(0x9be111d1) selector
+      final isAllowed = routerData == null ||
+          routerData == '0x' ||
+          _decodeMethodSelector(routerData) == _transferSig ||
+          _decodeMethodSelector(routerData) == _swapAndExecuteSig;
+
+      if (!isAllowed) {
         throw Exception('Does not support that method selector');
       }
 
@@ -368,42 +417,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     } catch (e) {
       printV('createTrade error: $e');
       throw TradeNotCreatedException(description, description: e.toString());
-    }
-  }
-
-    // I'm using this to get the router data majorly, I need that in the estiamtion flow to calculate the gas for a swap all tx
-  Future<SwapsXyzGetActionTx?> fetchGetActionTxForEstimate(
-      {required TradeRequest request, required bool isFixedRateMode}) async {
-    try {
-      final prepared = await _prepareGetActionRequest(
-        request: request,
-        isFixedRateMode: isFixedRateMode,
-      );
-      if (prepared == null) return null;
-
-      final res = await ProxyWrapper().get(
-        clearnetUri: prepared.uri,
-        headers: _headers,
-      );
-      if (res.statusCode != 200) return null;
-
-      final data = json.decode(res.body) as Map<String, dynamic>;
-
-      final txObj = (data['tx'] as Map?) ?? const {};
-      final txTo = txObj['to']?.toString();
-      if (txTo == null || txTo.isEmpty) return null;
-      final routerData = txObj['data']?.toString();
-
-      if (!_isRouterDataAllowed(routerData)) return null;
-
-      return SwapsXyzGetActionTx(
-        txTo: txTo,
-        routerData: routerData,
-        routerValue: txObj['value']?.toString() ?? '0',
-      );
-    } catch (e) {
-      printV('fetchGetActionTxForEstimate: $e');
-      return null;
     }
   }
 
@@ -803,82 +816,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
   String _decodeMethodSelector(String s) =>
       (s.startsWith('0x') && s.length >= 10) ? s.substring(0, 10) : '';
-
-  bool _isRouterDataAllowed(String? routerData) {
-    // Allow only:
-    // - null (native / deposit-address flow)
-    // - '0x' (no call data)
-    // - ERC20 transfer(0xa9059cbb) selector
-    // - swapAndExecute(0x9be111d1) selector
-    return routerData == null ||
-        routerData == '0x' ||
-        _decodeMethodSelector(routerData) == _transferSig ||
-        _decodeMethodSelector(routerData) == _swapAndExecuteSig;
-  }
-
-  Future<({Uri uri, String srcToken})?> _prepareGetActionRequest({
-    required TradeRequest request,
-    required bool isFixedRateMode,
-  }) async {
-    final sender = request.refundAddress.trim();
-    final recipient = request.toAddress.trim();
-    if (sender.isEmpty || recipient.isEmpty) return null;
-
-    final chains = await _geSupportedChain();
-    if (chains.isEmpty) return null;
-
-    final srcChain = _findChainByCurrency(request.fromCurrency, chains);
-    final dstChain = _findChainByCurrency(request.toCurrency, chains);
-
-    await _ensureTokensCached(
-      fromChain: srcChain,
-      toChain: dstChain,
-      from: request.fromCurrency,
-      to: request.toCurrency,
-    );
-
-    final srcToken = _getTokenAddress(currency: request.fromCurrency, chain: srcChain);
-    final dstToken = _getTokenAddress(currency: request.toCurrency, chain: dstChain);
-
-    final amountStr = isFixedRateMode ? request.toAmount : request.fromAmount;
-    final rawAmount = double.tryParse(amountStr) ?? 0.0;
-    if (rawAmount <= 0) return null;
-
-    final formattedAmount = AmountConverter.toBaseUnits(
-      amountStr,
-      isFixedRateMode ? request.toCurrency.decimals : request.fromCurrency.decimals,
-    );
-
-    final params = {
-      'actionType': 'swap-action',
-      'sender': sender,
-      'srcChainId': '${srcChain.chainId}',
-      'srcToken': srcToken,
-      'dstChainId': '${dstChain.chainId}',
-      'dstToken': dstToken,
-      'slippage': '300',
-      'swapDirection': isFixedRateMode ? 'exact-amount-out' : 'exact-amount-in',
-      'amount': formattedAmount,
-      'recipient': recipient,
-    };
-
-    return (
-      uri: Uri.https(_baseUrl, _getAction, params),
-      srcToken: srcToken,
-    );
-  }
-}
-
-class SwapsXyzGetActionTx {
-  SwapsXyzGetActionTx({
-    required this.txTo,
-    required this.routerData,
-    required this.routerValue,
-  });
-
-  final String txTo;
-  final String? routerData;
-  final String routerValue;
 }
 
 class TokenPathInfo {

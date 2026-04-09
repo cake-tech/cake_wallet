@@ -131,8 +131,6 @@ abstract class EVMChainWalletBase
 
   late EVMChainClient _client;
 
-  EVMChainClient get evmChainClient => _client;
-
   @override
   int? get chainId => selectedChainId;
 

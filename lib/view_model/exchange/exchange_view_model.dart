@@ -1255,72 +1255,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     isFixedRateMode = true;
   }
 
-  bool get _isSwapsXyzSelected =>
-      forcedProvider?.description == ExchangeProviderDescription.swapsXyz ||
-      bestRateProvider?.description == ExchangeProviderDescription.swapsXyz;
-
-  Future<(int feeWei, String depositAmountCanonical)?> _swapsXyzNativeSendAllGasAndAmount({
-    required CryptoCurrency balanceCurrency,
-    required BigInt balanceWei,
-    required TransactionPriority? priority,
-  }) async {
-    final provider =
-        providerList.whereType<SwapsXyzExchangeProvider>().firstOrNull;
-    if (provider == null) return null;
-
-    var currentBalanceWei = balanceWei;
-    for (var i = 0; i < 4; i++) {
-      final amountStr = _appStore.amountParsingProxy
-          .getDisplayCryptoStringFromBigInt(currentBalanceWei, balanceCurrency);
-
-      final request = TradeRequest(
-        fromCurrency: depositCurrency,
-        toCurrency: receiveCurrency,
-        fromAmount: amountStr.replaceAll(',', '.'),
-        toAmount: _receiveAmount.replaceAll(',', '.'),
-        refundAddress: depositAddress,
-        toAddress: receiveAddress,
-        isFixedRate: isFixedRateMode,
-      );
-
-      final tx = await provider.fetchGetActionTxForEstimate(
-        request: request,
-        isFixedRateMode: isFixedRateMode,
-      );
-      if (tx == null) return null;
-
-      final valueWei = BigInt.tryParse(tx.routerValue) ?? BigInt.zero;
-      final data = tx.routerData;
-      final hasData = data != null && data.isNotEmpty && data != '0x';
-
-      late final int fee;
-      try {
-        fee = await evm!.calculateNativeGasFeeForTransaction(
-          wallet: wallet,
-          valueWei: valueWei,
-          to: tx.txTo,
-          priority: priority,
-          contractAddress: null,
-          dataHex: hasData ? data : null,
-        );
-      } catch (e) {
-        printV('Swaps.XYZ native send-all gas: $e');
-        return null;
-      }
-
-      if (valueWei + BigInt.from(fee) <= balanceWei) {
-        return (fee, amountStr.replaceAll(',', '.'));
-      }
-
-      final next = balanceWei - BigInt.from(fee);
-      if (next <= BigInt.zero || next >= currentBalanceWei) {
-        return null;
-      }
-      currentBalanceWei = next;
-    }
-    return null;
-  }
-
   @action
   Future<void> calculateDepositAllAmount() async {
     if ([
@@ -1380,32 +1314,20 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       try {
         final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
         await wallet.updateEstimatedFeesParams(priority);
-        final swapsXyz = _isSwapsXyzSelected;
 
-        if (swapsXyz) {
-          final swapsEst = await _swapsXyzNativeSendAllGasAndAmount(
-            balanceCurrency: balanceCurrency,
-            balanceWei: balanceForCurrency.fullAvailableBalance,
-            priority: priority,
-          );
-          if (swapsEst != null) {
-            changeDepositAmount(amount: swapsEst.$2, isCanonical: true);
-            return;
-          }
+        String? feeString;
+        if (isEVMCompatibleChain(wallet.type)) {
+          feeString = evm!.getEVMNativeEstimatedFee(wallet);
         }
-        
-        final fee = await evm!.calculateNativeGasFeeForTransaction(
-          wallet: wallet,
-          valueWei: balanceForCurrency.fullAvailableBalance,
-          to:  wallet.walletAddresses.addressForExchange,
-          priority: priority,
-          dataHex: null,
-        );
+
+        if (feeString == null || feeString.isEmpty) {
+          changeDepositAmount(amount: balanceAmount, isCanonical: true);
+          return;
+        }
 
         final balanceWei = balanceForCurrency.fullAvailableBalance;
-        final feeWei = BigInt.from(fee);
-        final amountAfterFeeWei =
-            balanceWei > feeWei ? balanceWei - feeWei : BigInt.zero;
+        final feeWei = BigInt.parse(feeString);
+        final amountAfterFeeWei = balanceWei > feeWei ? balanceWei - feeWei : BigInt.zero;
         changeDepositAmount(
           amount: wallet.currency.formatAmount(amountAfterFeeWei), isCanonical: true);
       } catch (e) {
