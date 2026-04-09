@@ -872,6 +872,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         isReceiveAmount: isFixedRateMode);
   }
 
+  bool _excludeProviderForSwapAll(ExchangeProvider provider) =>
+      isSendAllEnabled &&
+      (provider.description == ExchangeProviderDescription.swapsXyz ||
+          provider.description == ExchangeProviderDescription.nearIntents);
+
   Future<void> calculateBestRate() async {
     if (depositCurrency == receiveCurrency) {
       bestRate = 0.0;
@@ -882,6 +887,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         initialAmountByAssets(isFixedRateMode ? receiveCurrency : depositCurrency);
 
     final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
+      if (_excludeProviderForSwapAll(provider)) return false;
+
       final limits = _providerLimits[provider];
 
       if (limits == null) return false;
@@ -1116,6 +1123,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
         printV('createTrade: trying provider=${provider.title}');
 
+        if (_excludeProviderForSwapAll(provider)) {
+          printV('Skipping Swaps.xyz or Near Intents for swap all');
+          continue;
+        }
         // Skip Swaps.xyz when sending from external
         if (isSendFromExternal &&
             provider.description == ExchangeProviderDescription.swapsXyz) {
