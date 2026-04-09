@@ -1517,6 +1517,12 @@ abstract class EVM {
   
   bool hasPriorityFee(int chainId);
 
+
+  Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
+    WalletBase wallet,
+    TransactionPriority priority,
+  );
+
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
 
@@ -1538,6 +1544,18 @@ class ChainInfo {
 
   @override
   int get hashCode => chainId.hashCode;
+}
+
+class EvmWalletConnectFeeQuote {
+  const EvmWalletConnectFeeQuote({
+    required this.maxFeePerGasWei,
+    required this.maxPriorityFeePerGasWei,
+    this.latestBaseFeeWei,
+  });
+
+  final int maxFeePerGasWei;
+  final int maxPriorityFeePerGasWei;
+  final int? latestBaseFeeWei;
 }
   """;
 
