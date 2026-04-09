@@ -26,7 +26,6 @@ import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
-import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
@@ -249,36 +248,6 @@ abstract class DashboardViewModelBase with Store {
           ),
         ),
       );
-    } else if (_wallet.type == WalletType.wownero) {
-      subname = wow.wownero!.getCurrentAccount(_wallet).label;
-
-      _onMoneroAccountChangeReaction = reaction(
-          (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
-          (wow.Account account) => _onMoneroAccountChange(_wallet));
-
-      _onMoneroBalanceChangeReaction = reaction(
-          (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
-          (wow.WowneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
-
-      final _accountTransactions = _wallet.transactionHistory.transactions.values
-          .where((tx) =>
-              wow.wownero!.getTransactionInfoAccountId(tx) ==
-              wow.wownero!.getCurrentAccount(wallet).id)
-          .toList();
-
-      final sortedTransactions = [..._accountTransactions];
-      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
-
-      transactions = ObservableList.of(
-        sortedTransactions.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            appStore: appStore,
-            key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
-          ),
-        ),
-      );
     } else {
       final sortedTransactions = [...wallet.transactionHistory.transactions.values];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
@@ -401,8 +370,6 @@ abstract class DashboardViewModelBase with Store {
     late final int numAccounts;
     if (wallet.type == WalletType.monero) {
       numAccounts = monero!.getAccountList(wallet).accounts.length;
-    } else if (wallet.type == WalletType.wownero) {
-      numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
     } else if (wallet.type == WalletType.bitcoin) {
       // bitcoin and lightning
       numAccounts = 2;
@@ -463,17 +430,13 @@ abstract class DashboardViewModelBase with Store {
     try {
       final currentAccountId = wallet.type == WalletType.monero
           ? monero!.getCurrentAccount(wallet).id
-          : wallet.type == WalletType.wownero
-              ? wow.wownero!.getCurrentAccount(wallet).id
-              : null;
+          : null;
       final List<TransactionInfo> relevantTxs = [];
 
       for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
         bool isRelevant = true;
         if (wallet.type == WalletType.monero) {
           isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
-        } else if (wallet.type == WalletType.wownero) {
-          isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
         }
 
         if (isRelevant) {
@@ -729,17 +692,6 @@ abstract class DashboardViewModelBase with Store {
     if (wallet.type != WalletType.monero) return null;
     try {
       monero!.monerocCheck();
-    } catch (e) {
-      return e.toString();
-    }
-    return null;
-  }
-
-  @computed
-  String? get getWowneroError {
-    if (wallet.type != WalletType.wownero) return null;
-    try {
-      wow.wownero!.wownerocCheck();
     } catch (e) {
       return e.toString();
     }
@@ -1231,21 +1183,6 @@ abstract class DashboardViewModelBase with Store {
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
 
       _onMoneroTransactionsUpdate(wallet);
-    } else if (wallet.type == WalletType.wownero) {
-      subname = wow.wownero!.getCurrentAccount(wallet).label;
-
-      _onMoneroAccountChangeReaction?.reaction.dispose();
-      _onMoneroBalanceChangeReaction?.reaction.dispose();
-
-      _onMoneroAccountChangeReaction = reaction(
-          (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
-          (wow.Account account) => _onMoneroAccountChange(wallet));
-
-      _onMoneroBalanceChangeReaction = reaction(
-          (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
-          (wow.WowneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
-
-      _onMoneroTransactionsUpdate(wallet);
     } else {
       // FIX-ME: Check for side effects
       // subname = null;
@@ -1292,8 +1229,6 @@ abstract class DashboardViewModelBase with Store {
   void _onMoneroAccountChange(WalletBase wallet) {
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
-    } else if (wallet.type == WalletType.wownero) {
-      subname = wow.wownero!.getCurrentAccount(wallet).label;
     }
     _onMoneroTransactionsUpdate(wallet);
   }
@@ -1317,26 +1252,6 @@ abstract class DashboardViewModelBase with Store {
             balanceViewModel: balanceViewModel,
             appStore: appStore,
             key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
-          ),
-        ),
-      );
-    } else if (wallet.type == WalletType.wownero) {
-      final _accountTransactions = wow.wownero!
-          .getTransactionHistory(wallet)
-          .transactions
-          .values
-          .where((tx) =>
-              wow.wownero!.getTransactionInfoAccountId(tx) ==
-              wow.wownero!.getCurrentAccount(wallet).id)
-          .toList();
-
-      transactions.addAll(
-        _accountTransactions.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            appStore: appStore,
-            key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
           ),
         ),
       );

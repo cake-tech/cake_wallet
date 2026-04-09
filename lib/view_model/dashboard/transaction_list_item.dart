@@ -8,7 +8,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/wownero/cw_wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/crypto_amount_format.dart';
@@ -198,12 +198,6 @@ class TransactionListItem extends ActionListItem with Keyable {
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
-      case WalletType.wownero:
-        amount = calculateFiatAmountRaw(
-          cryptoAmount: wownero!.formatterWowneroAmountToDouble(amount: transaction.amount),
-          price: price,
-        ).withLocalSeperator(_appStore.settingsStore.languageCode);
-        break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -278,6 +272,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.none:
       case WalletType.banano:
       case WalletType.haven:
+      case WalletType.wownero:
         break;
     }
 

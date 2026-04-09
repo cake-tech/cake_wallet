@@ -29,7 +29,7 @@ import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/wownero/cw_wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -1158,10 +1158,6 @@ abstract class SettingsStoreBase with Store {
       bitcoinCashTransactionPriority = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!);
     }
-    if (sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority) != null) {
-      wowneroTransactionPriority = wownero?.deserializeWowneroTransactionPriority(
-          raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!);
-    }
     if (sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority) != null) {
       zanoTransactionPriority = monero?.deserializeMoneroTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority)!);
@@ -1182,7 +1178,6 @@ abstract class SettingsStoreBase with Store {
     ethereumTransactionPriority ??= evm?.getDefaultTransactionPriority();
     evmTransactionPriority ??= evm?.getDefaultTransactionPriority();
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
-    wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
     polygonTransactionPriority ??= evm?.getDefaultTransactionPriority();
     baseTransactionPriority ??= evm?.getDefaultTransactionPriority();
@@ -1301,7 +1296,6 @@ abstract class SettingsStoreBase with Store {
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
-    final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
@@ -1336,8 +1330,6 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == solanaDefaultNodeUri);
     final tronNode = nodeSource.get(tronNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == tronDefaultNodeUri);
-    final wowneroNode = nodeSource.get(wowneroNodeId) ??
-        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
     final zanoNode = nodeSource.get(zanoNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
     final zcashNode = nodeSource.get(zcashNodeId) ??
@@ -1430,10 +1422,6 @@ abstract class SettingsStoreBase with Store {
 
     if (tronNode != null) {
       nodes[WalletType.tron] = tronNode;
-    }
-
-    if (wowneroNode != null) {
-      nodes[WalletType.wownero] = wowneroNode;
     }
 
     if (zanoNode != null) {
@@ -1687,12 +1675,6 @@ abstract class SettingsStoreBase with Store {
     priority[WalletType.monero] = monero?.deserializeMoneroTransactionPriority(
             raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
         priority[WalletType.monero]!;
-
-    if (wownero != null &&
-        sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority) != null) {
-      priority[WalletType.wownero] = wownero!.deserializeWowneroTransactionPriority(
-          raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!);
-    }
 
     if (bitcoin != null &&
         sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority) != null) {

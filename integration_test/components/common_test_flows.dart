@@ -364,8 +364,6 @@ class CommonTestFlows {
         return secrets.tronTestWalletSeeds;
       case WalletType.nano:
         return secrets.nanoTestWalletSeeds;
-      case WalletType.wownero:
-        return secrets.wowneroTestWalletSeeds;
       case WalletType.zano:
         return secrets.zanoTestWalletSeeds;
       case WalletType.decred:
@@ -377,6 +375,7 @@ class CommonTestFlows {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
+      case WalletType.wownero:
         throw Exception("Unable to get seeds for ${walletType}");
     }
   }
@@ -408,8 +407,6 @@ class CommonTestFlows {
         return secrets.tronTestWalletReceiveAddress;
       case WalletType.nano:
         return secrets.nanoTestWalletReceiveAddress;
-      case WalletType.wownero:
-        return secrets.wowneroTestWalletReceiveAddress;
       default:
         return '';
     }

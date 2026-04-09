@@ -17,7 +17,6 @@ import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -191,14 +190,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             password: password,
             passphrase: passphrase,
           );
-        case WalletType.wownero:
-          return wownero!.createWowneroRestoreWalletFromSeedCredentials(
-            name: name,
-            mnemonic: seed,
-            password: password,
-            passphrase: passphrase ?? '',
-            height: height,
-          );
         case WalletType.zano:
           return zano!.createZanoRestoreWalletFromSeedCredentials(
             name: name,
@@ -223,6 +214,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.none:
         case WalletType.haven:
+        case WalletType.wownero:
           break;
       }
     }
@@ -293,16 +285,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             password: password,
             privateKey: options['private_key'] as String,
-          );
-        case WalletType.wownero:
-          return wownero!.createWowneroRestoreWalletFromKeysCredentials(
-            name: name,
-            height: height,
-            spendKey: spendKey!,
-            viewKey: viewKey!,
-            address: address!,
-            password: password,
-            language: 'English',
           );
         case WalletType.decred:
           return decred!.createDecredRestoreWalletFromPubkeyCredentials(

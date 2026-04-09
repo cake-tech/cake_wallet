@@ -9,7 +9,7 @@ cd "$(dirname "$0")"
 
 ../prepare_moneroc.sh
 
-for COIN in monero wownero zano;
+for COIN in monero zano;
 do
     pushd ../monero_c
         monero_c_tag=$(git describe --tags)

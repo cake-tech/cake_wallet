@@ -5,7 +5,6 @@ import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -126,14 +125,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           mnemonic: newWalletArguments!.mnemonic,
           passphrase: passphrase,
         );
-      case WalletType.wownero:
-        return wownero!.createWowneroNewWalletCredentials(
-          name: name,
-          language: options!.first as String,
-          isPolyseed: (options.last as MoneroSeedType).raw == 1,
-          password: walletPassword,
-          passphrase: passphrase,
-        );
       case WalletType.zano:
         return zano!.createZanoNewWalletCredentials(
           name: name,
@@ -151,6 +142,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return decred!.createDecredNewWalletCredentials(name: name);
       case WalletType.none:
       case WalletType.haven:
+      case WalletType.wownero:
         throw Exception('Unexpected type: ${type.toString()}');
     }
   }

@@ -3,7 +3,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -117,8 +116,6 @@ abstract class WalletKeysViewModelBase with Store {
 
       if (_wallet.type == WalletType.monero) {
         return (_wallet as MoneroWalletBase).seedLegacy(langName);
-      } else if (_wallet.type == WalletType.wownero) {
-        return wownero!.getLegacySeed(_wallet, langName);
       }
     }
     return '';
@@ -127,9 +124,6 @@ abstract class WalletKeysViewModelBase with Store {
   String get legacyRestoreHeight {
     if (_wallet.type == WalletType.monero) {
       return monero!.getRestoreHeight(_wallet)?.toString() ?? '';
-    }
-    if (_wallet.type == WalletType.wownero) {
-      return wownero!.getRestoreHeight(_wallet)?.toString() ?? '';
     }
     return '';
   }
@@ -156,9 +150,6 @@ abstract class WalletKeysViewModelBase with Store {
     switch (_wallet.type) {
       case WalletType.monero:
         keys = monero!.getKeys(_wallet);
-        break;
-      case WalletType.wownero:
-        keys = wownero!.getKeys(_wallet);
         break;
       case WalletType.zano:
         keys = zano!.getKeys(_wallet);
@@ -229,6 +220,7 @@ abstract class WalletKeysViewModelBase with Store {
         break;
       case WalletType.none:
       case WalletType.haven:
+      case WalletType.wownero:
         break;
     }
 
@@ -283,9 +275,6 @@ abstract class WalletKeysViewModelBase with Store {
     if (_wallet.type == WalletType.monero) {
       return await monero!.getCurrentHeight();
     }
-    if (_wallet.type == WalletType.wownero) {
-      return await wownero!.getCurrentHeight();
-    }
     return null;
   }
 
@@ -338,9 +327,6 @@ abstract class WalletKeysViewModelBase with Store {
     if (_wallet.type == WalletType.monero) {
       return monero!.getRestoreHeight(_wallet)?.toString();
     }
-    if (_wallet.type == WalletType.wownero) {
-      return wownero!.getRestoreHeight(_wallet)?.toString();
-    }
     if (_wallet.type == WalletType.zcash) {
       return zcash!.getKeys(_wallet)["restoreHeight"]?.toString();
     }
@@ -382,8 +368,6 @@ abstract class WalletKeysViewModelBase with Store {
   List<TransactionInfo> _getWalletTransactions(WalletBase wallet) {
     if (wallet.type == WalletType.monero) {
       return monero!.getTransactionHistory(wallet).transactions.values.toList();
-    } else if (wallet.type == WalletType.wownero) {
-      return wownero!.getTransactionHistory(wallet).transactions.values.toList();
     }
     return [];
   }
@@ -391,8 +375,6 @@ abstract class WalletKeysViewModelBase with Store {
   int _getRestoreHeightByTransactions(WalletType type, DateTime date) {
     if (type == WalletType.monero) {
       return monero!.getHeightByDate(date: date);
-    } else if (type == WalletType.wownero) {
-      return wownero!.getHeightByDate(date: date);
     }
     return 0;
   }

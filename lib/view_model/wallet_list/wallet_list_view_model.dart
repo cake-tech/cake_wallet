@@ -1,9 +1,17 @@
 import 'dart:async';
 
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/get_encryption_key.dart';
+import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -75,12 +83,16 @@ abstract class WalletListViewModelBase with Store {
 
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
-    if (walletItem.type == WalletType.haven) {
-      return;
+    if ([WalletType.haven, WalletType.wownero].contains(walletItem.type)) {
+      final havenSeedStoreBoxKey = await getEncryptionKey(secureStorage: secureStorageShared, forKey: HavenSeedStore.boxKey);
+      final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(HavenSeedStore.boxName, encryptionKey: havenSeedStoreBoxKey);
+      final backedUpSeed = havenSeedStore.get(walletItem.key);
+      printV("seed: $backedUpSeed");
+      throw Exception(backedUpSeed?.seed??"Unknown seed");
     }
-    // bool switchingToSameWalletType = walletItem.type == _appStore.wallet?.type;
-    // await _appStore.wallet?.close(shouldCleanup: !switchingToSameWalletType);
+
     final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
+
     await _appStore.changeCurrentWallet(wallet);
     updateList();
   }

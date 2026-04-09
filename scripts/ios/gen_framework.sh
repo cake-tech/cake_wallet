@@ -6,8 +6,8 @@ monero_c_tag=$(cd $(pwd)/../../scripts/monero_c/; git describe --tags)
 DYLIB_PATH="$(pwd)/../../scripts/monero_c/release/${monero_c_tag}/"
 TMP_DIR="${IOS_DIR}/tmp"
 
-rm -rf "${IOS_DIR:?}/MoneroWallet.xcframework" "${IOS_DIR:?}/WowneroWallet.xcframework" "${IOS_DIR:?}/ZanoWallet.xcframework"
-rm -rf "${IOS_DIR:?}/MoneroWallet.framework" "${IOS_DIR:?}/WowneroWallet.framework" "${IOS_DIR:?}/ZanoWallet.framework"
+rm -rf "${IOS_DIR:?}/MoneroWallet.xcframework" "${IOS_DIR:?}/ZanoWallet.xcframework"
+rm -rf "${IOS_DIR:?}/MoneroWallet.framework" "${IOS_DIR:?}/ZanoWallet.framework"
 rm -rf "$TMP_DIR"
 mkdir -p "$TMP_DIR"
 
@@ -132,8 +132,8 @@ create_xcframework() {
     echo "Created XCFramework: ${xcframework_output}"
 }
 
-wallets=("monero" "wownero" "zano")
-framework_names=("MoneroWallet" "WowneroWallet" "ZanoWallet")
+wallets=("monero" "zano")
+framework_names=("MoneroWallet" "ZanoWallet")
 
 for i in "${!wallets[@]}"; do
     wallet="${wallets[$i]}"

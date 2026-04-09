@@ -17,7 +17,6 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/balance.dart';
@@ -143,9 +142,6 @@ abstract class OutputBase with Store {
           case WalletType.bsc:
             _amount = evm!.formatterEVMParseAmount(_cryptoAmount);
             break;
-          case WalletType.wownero:
-            _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
-            break;
           case WalletType.zano:
             _amount = zano!
                 .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
@@ -159,6 +155,7 @@ abstract class OutputBase with Store {
           case WalletType.banano:
           case WalletType.solana:
           case WalletType.tron:
+          case WalletType.wownero:
             break;
         }
 

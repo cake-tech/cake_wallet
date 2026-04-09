@@ -15,12 +15,11 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/wownero/cw_wownero.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
@@ -803,11 +802,7 @@ Future<void> disableServiceStatusFiatDisabled(SharedPreferences sharedPreference
   }
 }
 
-Future<void> _backupWowneroSeeds(Box<HavenSeedStore> havenSeedStore) async {
-  final future = wownero?.backupSeeds(havenSeedStore);
-  if (future != null) await future;
-  return;
-}
+Future<void> _backupWowneroSeeds(Box<HavenSeedStore> havenSeedStore) async { /* dummy */ }
 
 Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
   final currentPriority =

@@ -25,7 +25,6 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_hidden
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_util.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -230,20 +229,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.addAll(addressItems);
     }
 
-    if (wallet.type == WalletType.wownero) {
-      final primaryAddress = wownero!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = wownero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
-        final isPrimary = subaddress == primaryAddress;
-
-        return WalletAddressListItem(
-            id: subaddress.id,
-            isPrimary: isPrimary,
-            name: subaddress.label,
-            address: subaddress.address);
-      });
-      addressList.addAll(addressItems);
-    }
-
     if (isElectrumWallet) {
       if (bitcoin!.hasSelectedSilentPayments(wallet)) {
         final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
@@ -412,10 +397,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       monero!
           .getSubaddressList(wallet)
           .update(wallet, accountIndex: monero!.getCurrentAccount(wallet).id);
-    } else if (wallet.type == WalletType.wownero) {
-      wownero!
-          .getSubaddressList(wallet)
-          .update(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id);
     }
   }
 
@@ -427,12 +408,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     switch (wallet.type) {
       case WalletType.monero:
         return monero!.getCurrentAccount(wallet).label;
-      case WalletType.wownero:
-        wownero!.getCurrentAccount(wallet).label;
       default:
         return '';
     }
-    return '';
   }
 
   @computed

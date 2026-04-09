@@ -1,7 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/utils/date_picker.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -190,8 +189,6 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
           height = decred!.heightByDate(date);
         } else if (widget.walletType == WalletType.monero) {
           height = monero!.getHeightByDate(date: date);
-        } else if (widget.walletType == WalletType.wownero){
-          height = wownero!.getHeightByDate(date: date);
         } else if (widget.walletType == WalletType.zcash) {
           height = await zcash!.getHeightByDate(date);
         } else {

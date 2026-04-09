@@ -1,6 +1,5 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -42,17 +41,6 @@ abstract class MoneroAccountListViewModelBase with Store {
         .toList();
     }
 
-    if (_wallet.type == WalletType.wownero) {
-      return wownero
-        !.getAccountList(_wallet)
-        .accounts.map((acc) => AccountListItem(
-            label: acc.label,
-            id: acc.id,
-            balance: hideBalance ? '●●●●●●' : acc.balance,
-            isSelected: acc.id == wownero!.getCurrentAccount(_wallet).id))
-        .toList();
-    }
-
     throw Exception('Unexpected wallet type: ${_wallet.type} for monero');
   }
 
@@ -67,15 +55,6 @@ abstract class MoneroAccountListViewModelBase with Store {
   void select(AccountListItem item) {
     if (_wallet.type == WalletType.monero) {
       monero!.setCurrentAccount(
-        _wallet,
-        item.id,
-        item.label,
-        item.balance,
-        );
-    }
-
-    if (_wallet.type == WalletType.wownero) {
-      wownero!.setCurrentAccount(
         _wallet,
         item.id,
         item.label,

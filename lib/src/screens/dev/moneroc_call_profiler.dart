@@ -6,7 +6,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/wownero/cw_wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +46,6 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
 
   late ProfilableWallet wallet = switch (dashboardViewModel.wallet.type) {
     WalletType.monero => ProfilableWallet.monero,
-    WalletType.wownero => ProfilableWallet.wownero,
     WalletType.zano => ProfilableWallet.zano,
     _ => throw Exception("Unknown wallet type"),
   };
@@ -54,8 +53,8 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
 
   late Map<String, List<int>> debugCallLength = switch (wallet) {
     ProfilableWallet.monero => monero!.debugCallLength(),
-    ProfilableWallet.wownero => wownero!.debugCallLength(),
     ProfilableWallet.zano => zano!.debugCallLength(),
+    _ => throw Exception("Unknown wallet type"),
   };
 
   int getOpenWalletTime() {
