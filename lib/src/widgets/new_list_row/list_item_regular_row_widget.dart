@@ -66,7 +66,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                         if (iconPath != null)
                           Padding(
                             padding: const EdgeInsets.only(right: 12.0),
-                            child: CakeImageWidget(imageUrl: iconPath!, width: 24,height: 24,)
+                            child: CakeImageWidget(imageUrl: iconPath!, width: 24, height: 24,)
                           ),
                         Flexible(
                           child: Column(
@@ -92,7 +92,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                     children: [
                       if (trailingTextToShow != null)
                         Padding(
-                          padding: const EdgeInsets.only(top: 4.0, bottom: 4.0, right: 8.0),
+                          padding: const EdgeInsets.only(right: 8.0),
                           child: Text(
                             trailingTextToShow,
                             style: labelStyle,
