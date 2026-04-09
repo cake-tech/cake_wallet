@@ -1,4 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/new-ui/model/charts/charts_asset.dart';
 import 'package:cake_wallet/new-ui/model/charts/price_data.dart';
 import 'package:cake_wallet/new-ui/model/charts/util/price_data_sort_criteria.dart';
@@ -19,13 +21,13 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
   final AppStore appStore;
 
   ChartsBloc({required this.priceStore, required this.appStore}) : super(ChartsInitial()) {
-    on<RangeChanged>(_onRangeChanged);
+    on<RangeChanged>(_onRangeChanged, transformer: sequential());
     on<SortingCriteriumChanged>(_onSortingCriteriumChanged);
-    on<CurrencyAdded>(_onCurrencyAdded);
-    on<CurrencyRemoved>(_onCurrencyRemoved);
-    on<CurrencyPinned>(_onCurrencyPinned);
-    on<PageRefreshed>(_onPageRefreshed);
-    on<PageLoadStarted>(_onPageLoadStarted);
+    on<CurrencyAdded>(_onCurrencyAdded, transformer: sequential());
+    on<CurrencyRemoved>(_onCurrencyRemoved, transformer: sequential());
+    on<CurrencyPinned>(_onCurrencyPinned, transformer: sequential());
+    on<PageRefreshed>(_onPageRefreshed, transformer: sequential());
+    on<PageLoadStarted>(_onPageLoadStarted, transformer: restartable());
     on<Init>(_init);
     add(Init());
 }
@@ -57,8 +59,10 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
   Future<void> _onPageLoadStarted(PageLoadStarted event, Emitter<ChartsState> emit) async {
     if (state case ChartsStateWithData s) {
       final Map<CryptoCurrency, List<PriceData>> data = {};
-      for (final curr in s.currencies) {
-        data[curr] = await priceStore.getPrices(appStore.settingsStore.fiatCurrency, curr, s.range);
+      final currencies = s.currencies.toList();
+      final range = s.range;
+      for (final curr in currencies) {
+        data[curr] = await priceStore.getPrices(appStore.settingsStore.fiatCurrency, curr, range);
       }
       emit(ChartsLoaded(pinnedCurrency: s.pinnedCurrency, prices: data, range: s.range, sortCriterium: s.sortCriterium));
     } else {
