@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChartHeader extends StatefulWidget {
@@ -87,6 +88,7 @@ class _ChartHeaderState extends State<ChartHeader> {
                                   });
                                   return;
                                 }
+                                HapticFeedback.selectionClick();
                                 setState(() {
                                   _viewedPrice =
                                       response?.lineBarSpots?.firstOrNull?.y.toStringAsFixed(2);

@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChartsAssetGrid extends StatelessWidget {
@@ -106,6 +107,7 @@ class ChartsAssetCard extends StatelessWidget {
           isSingleCurrency ? LongPressFooter(text: S.of(context).cannot_remove_last_asset) : null,
       child: GestureDetector(
         onTap: () async {
+          HapticFeedback.mediumImpact();
           final res = await showModalBottomSheet(
               isScrollControlled: true,
               context: context,
