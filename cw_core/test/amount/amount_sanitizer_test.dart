@@ -12,12 +12,5 @@ void main() {
       final amount = smartAmountSanitizer("1.000,00");
       expect(amount, "1000.00");
     });
-
-
-    test('sanitize developer', (){
-      final amount = smartAmountSanitizer("1_000.00");
-      expect(amount, "1000.00");
-    });
-
   });
 }

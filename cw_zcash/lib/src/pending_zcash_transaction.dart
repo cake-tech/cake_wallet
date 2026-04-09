@@ -43,7 +43,9 @@ class PendingZcashTransaction with PendingTransaction {
       return availableBalance.amount.toInt();
     }
     return credentials.outputs.fold<int>(
-        0, (final a, final b) => a + b.cryptoAmount.amount.toInt());
+      0,
+      (final a, final b) => a + b.cryptoAmount.amount.toInt(),
+    );
   }
 
   @override
