@@ -1,4 +1,3 @@
-
 class ChartRange {
   final Duration? duration;
   final String displayText;
@@ -16,7 +15,7 @@ class ChartRange {
   static const sevenDays = ChartRange._(Duration(days: 7), "7D", Duration(hours: 1));
   static const thirtyDays = ChartRange._(Duration(days: 30), "30D", Duration(hours: 4));
   static const oneYear = ChartRange._(Duration(days: 365), "1Y", Duration(days: 1));
-  static const all = ChartRange._(null, "ALL", Duration(days: 5));
+  static const all = ChartRange._(null, "ALL", Duration(days: 1));
 
   static const ranges = [oneHour, oneDay, sevenDays, thirtyDays, oneYear, all];
 }

@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
 
 class CoinActionButton extends StatelessWidget {
   const CoinActionButton({
@@ -11,11 +10,13 @@ class CoinActionButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.action,
+    this.gradientColors,
   });
 
   final Widget icon;
   final String label;
   final VoidCallback action;
+  final List<Color>? gradientColors;
 
   static const sizeFactor = 0.16;
 
@@ -32,7 +33,7 @@ class CoinActionButton extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [
+              colors: gradientColors ?? [
                 context.customColors.cardGradientColorPrimary,
                 context.customColors.cardGradientColorSecondary
               ],

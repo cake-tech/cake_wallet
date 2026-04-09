@@ -3,7 +3,7 @@ class OutputInfo {
 		{required this.address,
 		required this.sendAll,
 		required this.isParsedAddress,
-    this.cryptoAmount,
+    required this.cryptoAmount,
 		this.formattedCryptoAmount,
     this.fiatAmount,
     this.note,
@@ -12,7 +12,7 @@ class OutputInfo {
     this.extra = const {}});
 
   	final String? fiatAmount;
-  	final String? cryptoAmount;
+  	final String cryptoAmount;
   	final String address;
   	final String? note;
   	final String? extractedAddress;

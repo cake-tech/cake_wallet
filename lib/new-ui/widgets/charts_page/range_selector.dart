@@ -35,7 +35,7 @@ class ChartRangeSelector extends StatelessWidget {
           children: ChartRange.ranges.map((item) {
             final selected = selectedRange == item;
             return GestureDetector(
-              onTap: ()=>onRangeSelected(item),
+              onTap: () => onRangeSelected(item),
               child: Container(
                 width: optionSize,
                 height: optionSize,

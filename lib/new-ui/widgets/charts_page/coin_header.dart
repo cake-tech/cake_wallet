@@ -11,17 +11,20 @@ class ChartViewCoinHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: isFavorite ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           spacing: 10,
           children: [
+            if(isFavorite)
             CakeImageWidget(
               imageUrl: currency.iconSvgPath ?? currency.iconPath ?? "",
               width: 30,
               height: 30,
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               spacing: 5,
               children: [
                 Text(
@@ -57,8 +60,6 @@ class ChartViewCoinHeader extends StatelessWidget {
             colorFilter:
             ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
           )
-        else
-          SizedBox.shrink()
       ],
     );
   }

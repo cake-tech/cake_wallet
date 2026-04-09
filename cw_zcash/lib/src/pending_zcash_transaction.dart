@@ -85,6 +85,7 @@ class PendingZcashTransaction with PendingTransaction {
         return OutputInfo(
           address: o1.address + "," + o2.address,
           sendAll: false,
+          cryptoAmount: "",
           isParsedAddress: false,
         );
       }).address,

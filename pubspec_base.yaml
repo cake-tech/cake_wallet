@@ -284,6 +284,7 @@ flutter:
     - assets/new-ui/changelog/icons/
     - assets/new-ui/changelog/text/
     - assets/new-ui/crypto_full_icons/
+    - assets/new-ui/charts_sort_criteria/
 
   fonts:
     - family: Lato

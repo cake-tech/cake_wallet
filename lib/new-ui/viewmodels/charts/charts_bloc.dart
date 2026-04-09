@@ -1,10 +1,14 @@
 import 'package:bloc/bloc.dart';
+import 'package:cake_wallet/new-ui/model/charts/charts_asset.dart';
 import 'package:cake_wallet/new-ui/model/charts/price_data.dart';
+import 'package:cake_wallet/new-ui/model/charts/util/price_data_sort_criteria.dart';
 import 'package:cake_wallet/new-ui/model/charts/price_store.dart';
 import 'package:cake_wallet/new-ui/model/charts/util/chart_range.dart';
+import 'package:cake_wallet/new-ui/model/charts/util/price_change_data.dart';
+import 'package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart';
 
 part 'charts_event.dart';
 
@@ -27,8 +31,12 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
 }
 
   Future<void> _init(Init event, Emitter<ChartsState> emit) async {
-    // TODO store the config data, load it here.
-    emit(ChartsLoading(pinnedCurrency: CryptoCurrency.btc, currencies: [CryptoCurrency.btc, CryptoCurrency.xmr, CryptoCurrency.eth], range: ChartRange.all));
+    final assets = await ChartsAsset.get();
+    emit(ChartsLoading(
+        pinnedCurrency: assets.firstWhere((item) => item.isFavorite).asset,
+        currencies: assets.map((item) => item.asset).toList(),
+        range: ChartRange.all,
+        sortCriterium: PriceDataSortCriterium.all.first));
     add(PageLoadStarted());
   }
 
@@ -40,7 +48,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
       for (final curr in s.currencies) {
         data[curr] = await priceStore.getPrices(appStore.settingsStore.fiatCurrency, curr, s.range);
       }
-      emit(ChartsLoaded(pinnedCurrency: s.pinnedCurrency, prices: data, range: s.range));
+      emit(ChartsLoaded(pinnedCurrency: s.pinnedCurrency, prices: data, range: s.range, sortCriterium: s.sortCriterium));
     } else {
       throw Exception("attempted price load without currency data");
     }
@@ -51,7 +59,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     Emitter<ChartsState> emit,
   ) async {
     if(state case ChartsStateWithData s) {
-      emit(ChartsLoading(pinnedCurrency: s.pinnedCurrency, currencies: s.currencies, range: event.newRange));
+      emit(s.toLoading().copyWith(range: event.newRange));
       add(PageLoadStarted());
     }
   }
@@ -60,7 +68,9 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     SortingCriteriumChanged event,
     Emitter<ChartsState> emit,
   ) async {
-    //TODO sorting criteria ig?
+    if(state case ChartsStateWithData s) {
+      emit(s.copyWith(sortCriterium: event.newCriterium));
+    }
   }
 
   Future<void> _onCurrencyAdded(
@@ -69,7 +79,8 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
   ) async {
     if(state case ChartsStateWithData s) {
       final newCurrencies = s.currencies..add(event.currency);
-      emit(ChartsLoading(pinnedCurrency: s.pinnedCurrency, currencies: newCurrencies, range: s.range));
+      await ChartsAsset(asset: event.currency, isFavorite: false).insert();
+      emit(s.toLoading().copyWith(currencies: newCurrencies));
       add(PageLoadStarted());
     }
   }
@@ -80,7 +91,23 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
   ) async {
     if(state case ChartsStateWithData s) {
       final newCurrencies = s.currencies..remove(event.currency);
-      emit(ChartsLoading(pinnedCurrency: s.pinnedCurrency, currencies: newCurrencies, range: s.range));
+
+      if(newCurrencies.isEmpty) {
+        throw Exception("removed the last currency ${(kDebugMode) ? "- your ui should block this! what did you do?" : ""}");
+      }
+
+
+      final CryptoCurrency newPin;
+      if(s.pinnedCurrency == event.currency) {
+          newPin = newCurrencies.first;
+      } else {
+        newPin = s.pinnedCurrency;
+      }
+
+      await ChartsAsset(asset: event.currency, isFavorite: false).remove();
+
+
+      emit(s.toLoading().copyWith(currencies: newCurrencies, pinnedCurrency: newPin));
       add(PageLoadStarted());
     }
   }
@@ -90,7 +117,12 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     Emitter<ChartsState> emit,
   ) async {
     if(state case ChartsStateWithData s) {
-      emit(ChartsLoading(pinnedCurrency: event.currency, currencies: s.currencies, range: s.range));
+      if(s.pinnedCurrency == event.currency) {
+        return;
+      }
+      await ChartsAsset(asset: s.pinnedCurrency, isFavorite: false).insert();
+      await ChartsAsset(asset: event.currency, isFavorite: true).insert();
+      emit(s.toLoading().copyWith(pinnedCurrency: event.currency));
       add(PageLoadStarted());
     }
   }
@@ -100,7 +132,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     Emitter<ChartsState> emit,
   ) async {
     if(state case ChartsStateWithData s) {
-      emit(ChartsLoading(pinnedCurrency: s.pinnedCurrency, currencies: s.currencies, range: s.range));
+      emit(s.toLoading());
       add(PageLoadStarted());
     }
   }

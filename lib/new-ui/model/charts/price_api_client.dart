@@ -19,8 +19,9 @@ class PriceRequest {
       {this.beginTime, required this.interval, this.count, required this.from, required this.to});
 
   Uri get uri => Uri.https(priceApiHost, "/v3/rates", {
-        "time": (beginTime?.secondsSinceEpoch ?? 0).toString(),
-        "interval": "${interval.inSeconds}s",
+        "start": (beginTime?.secondsSinceEpoch ?? 0).toString(),
+        "end": DateTime.now().secondsSinceEpoch.toString(),
+        "interval": "${interval.inSeconds}",
         if (count != null) "count": count.toString(),
         "quote": from.apiString,
         "base": to.apiString
@@ -31,7 +32,7 @@ class PriceApiClient {
   static Future<Map<String, dynamic>?> _getJson(Uri uri) async {
     final resp =
         await ProxyWrapper().get(headers: {"x-api-key": secrets.fiatApiKey}, clearnetUri: uri);
-    if(!(resp.statusCode >= 200 && resp.statusCode < 300)) {
+    if (!(resp.statusCode >= 200 && resp.statusCode < 300)) {
       printV("server returned code: ${resp.statusCode}\nuri: ${uri}\nresp body: ${resp.body}");
       return null;
     }
@@ -49,8 +50,8 @@ class PriceApiClient {
     if (data == null) return [];
     final results = data["results"] as Map<String, dynamic>?;
     if (results == null) {
-     printV(data.toString());
-     return [];
+      printV(data.toString());
+      return [];
     }
     for (final time in results.keys) {
       ret.add(PriceData(

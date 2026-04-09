@@ -2,6 +2,7 @@ import 'package:cake_wallet/new-ui/model/charts/price_api_client.dart';
 import 'package:cake_wallet/new-ui/model/charts/price_data.dart';
 import 'package:cake_wallet/new-ui/model/charts/util/chart_range.dart';
 import 'package:cw_core/currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 abstract class PriceSource {
   Future<List<PriceData>> get(
@@ -90,15 +91,12 @@ class PriceStore {
 
   static DateTime? _firstUnavailablePrice(
       List<PriceData> prices, Duration precision, DateTime start, DateTime end) {
-    final priceTimestamps = prices.map((p) => p.time.millisecondsSinceEpoch).toSet();
-
-    for (int i = start.millisecondsSinceEpoch;
-        i < end.millisecondsSinceEpoch;
-        i += precision.inMilliseconds) {
-      if (!priceTimestamps.contains(i)) {
-        return DateTime.fromMillisecondsSinceEpoch(i);
-      }
-    }
-    return null;
+    if (prices.isEmpty) return start;
+    prices.sort();
+    final last = prices.last;
+    printV("last.time: ${last.time.toIso8601String()} end: ${end.toIso8601String()}");
+    if (last.time.isAfter(end.subtract(precision)) ||
+        last.time.isAtSameMomentAs(end.subtract(precision))) return null;
+    return last.time.add(precision);
   }
 }

@@ -15,23 +15,21 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/new-ui/model/charts/charts_asset.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
-import 'package:cw_core/db/sqlite.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/erc20_token.dart';
 
@@ -614,6 +612,9 @@ Future<void> defaultSettingsMigration(
           break;
         case 63:
           await _addXaut0TokenToExistingSolanaWallets();
+          break;
+        case 64:
+          await createDefaultChartsData();
           break;
         default:
           break;
@@ -1528,4 +1529,10 @@ Future<void> _addXaut0TokenToExistingSolanaWallets() async {
   } catch (e) {
     printV('Error in XAUT0 migration: $e');
   }
+}
+
+Future<void> createDefaultChartsData() async {
+    await ChartsAsset(asset: CryptoCurrency.btc, isFavorite: true).insert();
+    await ChartsAsset(asset: CryptoCurrency.xmr, isFavorite: false).insert();
+    await ChartsAsset(asset: CryptoCurrency.eth, isFavorite: false).insert();
 }

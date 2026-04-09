@@ -12,7 +12,11 @@ class RangeChanged extends ChartsEvent {
   const RangeChanged({required this.newRange});
 }
 
-class SortingCriteriumChanged extends ChartsEvent {}
+class SortingCriteriumChanged extends ChartsEvent {
+  final PriceDataSortCriterium newCriterium;
+
+  const SortingCriteriumChanged({required this.newCriterium});
+}
 
 class CurrencyAdded extends ChartsEvent {
   final CryptoCurrency currency;

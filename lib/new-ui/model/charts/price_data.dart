@@ -23,7 +23,7 @@ Currency currencyFromApiString(String key) {
   throw Exception("unknown api string");
 }
 
-class PriceData {
+class PriceData implements Comparable<PriceData> {
   final DateTime time;
   final Currency from;
   final Currency to;
@@ -34,20 +34,20 @@ class PriceData {
   Map<String, dynamic> toJson() => {
         "timestamp": time.secondsSinceEpoch.toString(),
         "price": price,
-        "from_currency": from.apiString,
-        "to_currency": to.apiString,
+        "fromCurrency": from.apiString,
+        "toCurrency": to.apiString,
       };
 
   static PriceData fromJson(Map<String, dynamic> json) => PriceData(
       time: DateTimeX.fromSecondsSinceEpoch(json["timestamp"] as int),
-      from: currencyFromApiString(json["from_currency"] as String),
-      to: currencyFromApiString(json["to_currency"] as String),
+      from: currencyFromApiString(json["fromCurrency"] as String),
+      to: currencyFromApiString(json["toCurrency"] as String),
       price: json["price"] as String);
 
   static Future<List<PriceData>> get(
       Currency from, Currency to, DateTime? start, DateTime? end) async {
     final json = await db!.query(tableName,
-        where: "from_currency = ? AND to_currency = ? AND timestamp >= ? AND timestamp <= ?",
+        where: "fromCurrency = ? AND toCurrency = ? AND timestamp >= ? AND timestamp <= ?",
         whereArgs: [
           from.apiString,
           to.apiString,
@@ -84,6 +84,9 @@ class PriceData {
 
   @override
   int get hashCode => Object.hash(time, from, to);
+
+  @override
+  int compareTo(PriceData other) => time.compareTo(other.time);
 
   const PriceData({required this.time, required this.from, required this.to, required this.price});
 }

@@ -89,15 +89,7 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         await _addColumnIfNotExists(db, table: "WalletInfo", column: "favoriteTokenAddress", definition: "TEXT DEFAULT NULL");
       }
       if(oldVersion <= 4) {
-        await db.execute('''
-CREATE TABLE PriceData (
-  from_currency TEXT NOT NULL,
-  to_currency TEXT NOT NULL,
-  timestamp INTEGER NOT NULL,
-  price TEXT NOT NULL,
-  PRIMARY KEY (from_currency, to_currency, timestamp)
-);        
-''');
+        _createChartsTables(db);
       }
     },
     onCreate: (Database db, int version) async {
@@ -196,17 +188,27 @@ CREATE TABLE BalanceCardStyleSettings (
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
         ''');
-      await db.execute('''
-CREATE TABLE PriceData (
-  from_currency TEXT NOT NULL,
-  to_currency TEXT NOT NULL,
-  timestamp INTEGER NOT NULL,
-  price TEXT NOT NULL,
-  PRIMARY KEY (from_currency, to_currency, timestamp)
-);        
-''');
+_createChartsTables(db);
     }
   );
+}
+
+void _createChartsTables(Database db) async {
+  await db.execute('''
+CREATE TABLE PriceData (
+  fromCurrency TEXT NOT NULL,
+  toCurrency TEXT NOT NULL,
+  timestamp INTEGER NOT NULL,
+  price TEXT NOT NULL,
+  PRIMARY KEY (fromCurrency, toCurrency, timestamp)
+);        
+''');
+  await db.execute('''
+CREATE TABLE ChartsAssets (
+  asset TEXT PRIMARY KEY,
+  isFavorite BOOLEAN DEFAULT FALSE
+);
+        ''');
 }
 
 Future<Map<String, dynamic>> dumpDb() async {

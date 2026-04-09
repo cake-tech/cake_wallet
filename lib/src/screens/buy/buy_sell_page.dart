@@ -24,8 +24,24 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
+class BuySellPageParams {
+    final bool startWithSell;
+    final CryptoCurrency? initialCurrency;
+
+  BuySellPageParams({this.startWithSell = false, this.initialCurrency});
+}
+
 class BuySellPage extends BasePage {
-  BuySellPage(this.buySellViewModel);
+  BuySellPage(this.buySellViewModel, {BuySellPageParams? params}) {
+    if(params != null) {
+      if(buySellViewModel.isBuyAction && params.startWithSell) {
+        buySellViewModel.changeBuySellAction();
+      }
+      if(params.initialCurrency != null) {
+        buySellViewModel.changeCryptoCurrency(currency: params.initialCurrency!);
+      }
+    }
+  }
 
   final BuySellViewModel buySellViewModel;
   final cryptoCurrencyKey = GlobalKey<ExchangeCardState>();

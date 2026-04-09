@@ -1507,7 +1507,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuySellViewModel(getIt.get<AppStore>()));
 
-  getIt.registerFactory(() => BuySellPage(getIt.get<BuySellViewModel>()));
+  getIt.registerFactoryParam<BuySellPage, BuySellPageParams?, void>((params, _) => BuySellPage(getIt.get<BuySellViewModel>(), params: params,));
 
   getIt.registerFactoryParam<BuyOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
     final items = args.first as List<SelectableItem>;
