@@ -432,42 +432,13 @@ class EvmChainServiceImpl {
       }
     }
 
-    // we need to check if dApp provides the gas values and if not, we need to estimate them
-    final hasGasLimit = transaction.maxGas != null && transaction.maxGas! > 0;
-    final hasGasPrice = transaction.gasPrice != null;
-    final hasMaxFeePerGas = transaction.maxFeePerGas != null;
-    final hasMaxPriorityFeePerGas = transaction.maxPriorityFeePerGas != null;
-
-    final needsGasEstimation = !hasGasLimit || (!hasGasPrice && !hasMaxFeePerGas);
-
-    if (needsGasEstimation) {
-      try {
-        final gasPrice = hasGasPrice ? transaction.gasPrice! : await ethClient.getGasPrice();
-
-        if (!hasGasLimit) {
-          final gasLimit = await ethClient.estimateGas(
-            sender: transaction.from,
-            to: transaction.to,
-            value: transaction.value,
-            data: transaction.data,
-            gasPrice: gasPrice,
-          );
-
-          if (hasMaxFeePerGas || hasMaxPriorityFeePerGas) {
-            transaction = transaction.copyWith(maxGas: gasLimit.toInt());
-          } else {
-            transaction = transaction.copyWith(
-              gasPrice: hasGasPrice ? transaction.gasPrice : gasPrice,
-              maxGas: gasLimit.toInt(),
-            );
-          }
-        } else if (!hasGasPrice && !hasMaxFeePerGas) {
-          transaction = transaction.copyWith(gasPrice: gasPrice);
-        }
-      } on RPCError catch (e) {
-        return JsonRpcError(code: e.errorCode, message: e.message);
-      }
+    try {
+      transaction = await _ensureWCTransactionHasGasLimit(transaction);
+    } on RPCError catch (e) {
+      return JsonRpcError(code: e.errorCode, message: e.message);
     }
+
+    transaction = await _applyWCBufferedFees(transaction);
 
     final gweiGasPrice =
         (transaction.gasPrice?.getInWei ?? transaction.maxFeePerGas?.getInWei ?? BigInt.zero) /
@@ -498,6 +469,90 @@ class EvmChainServiceImpl {
     }
 
     return JsonRpcError(code: 5002, message: S.current.user_rejected_method);
+  }
+
+  Future<Transaction> _ensureWCTransactionHasGasLimit(Transaction transaction) async {
+    final hasGasLimit = transaction.maxGas != null && transaction.maxGas! > 0;
+    if (hasGasLimit) return transaction;
+
+    final hint = transaction.gasPrice ?? transaction.maxFeePerGas ?? await ethClient.getGasPrice();
+
+    final gasLimit = await ethClient.estimateGas(
+      sender: transaction.from,
+      to: transaction.to,
+      value: transaction.value,
+      data: transaction.data,
+      gasPrice: hint,
+    );
+
+    if (transaction.isEIP1559) {
+      return transaction.copyWith(maxGas: gasLimit.toInt());
+    }
+
+    return transaction.copyWith(
+      maxGas: gasLimit.toInt(),
+      gasPrice: transaction.gasPrice ?? hint,
+    );
+  }
+
+  Future<Transaction> _applyWCBufferedFees(Transaction transaction) async {
+    try {
+      final storedPriority =
+          appStore.settingsStore.getPriority(appStore.wallet!.type, chainId: reference.chainId);
+      final priority = storedPriority ?? evm!.getDefaultTransactionPriority();
+
+      final quote = await evm!.getWCBufferedFeeQuote(appStore.wallet!, priority);
+      if (quote != null) {
+        return _mergeWCBufferedFees(transaction, quote);
+      }
+    } catch (e) {
+      debugPrint('WalletConnect fee refresh failed: $e');
+    }
+
+    if (!transaction.isEIP1559 && transaction.gasPrice == null) {
+      return transaction.copyWith(gasPrice: await ethClient.getGasPrice());
+    }
+
+    return transaction;
+  }
+
+  Transaction _mergeWCBufferedFees(Transaction transaction, EvmWalletConnectFeeQuote quote) {
+    if (transaction.isEIP1559) {
+      // the fees coming from the dApp
+      final dAppMax = transaction.maxFeePerGas?.getInWei ?? BigInt.zero;
+      final dAppPri = transaction.maxPriorityFeePerGas?.getInWei ?? BigInt.zero;
+
+      // the updated fees coming from the wallet, handles buffered fees
+      final quoteMax = BigInt.from(quote.maxFeePerGasWei);
+      final quotePri = BigInt.from(quote.maxPriorityFeePerGasWei);
+
+      // we'll just use the higher of the two
+      var newMaxFeePerGasWei = dAppMax > quoteMax ? dAppMax : quoteMax;
+      var newPriorityFeePerGasWei = dAppPri > quotePri ? dAppPri : quotePri;
+
+      final base = quote.latestBaseFeeWei;
+      if (base != null) {
+        final baseB = BigInt.from(base);
+        final maxPriAllowed = newMaxFeePerGasWei - baseB;
+        if (newPriorityFeePerGasWei > maxPriAllowed) {
+          if (maxPriAllowed > BigInt.zero) {
+            newPriorityFeePerGasWei = maxPriAllowed;
+          } else {
+            newMaxFeePerGasWei = baseB + newPriorityFeePerGasWei;
+          }
+        }
+      }
+
+      return transaction.copyWith(
+        maxFeePerGas: EtherAmount.inWei(newMaxFeePerGasWei),
+        maxPriorityFeePerGas: EtherAmount.inWei(newPriorityFeePerGasWei),
+      );
+    }
+
+    final dPrice = transaction.gasPrice?.getInWei ?? BigInt.zero;
+    final floor = BigInt.from(quote.maxFeePerGasWei);
+    final newPriceWei = dPrice > floor ? dPrice : floor;
+    return transaction.copyWith(gasPrice: EtherAmount.inWei(newPriceWei));
   }
 
   void _onSessionRequest(SessionRequestEvent? args) async {
