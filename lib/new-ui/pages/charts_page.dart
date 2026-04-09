@@ -37,29 +37,29 @@ class ChartsPage extends StatelessWidget {
             );
           }
 
-          return CustomScrollView(
-            physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            slivers: [
-              SliverPadding(
-                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                sliver: CupertinoSliverRefreshControl(
-                  refreshTriggerPullDistance: 160,
-                  refreshIndicatorExtent: 90,
-                  onRefresh: () async => context.read<ChartsBloc>().add(PageRefreshed()),
-                ),
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.surface,
+                  Theme.of(context).colorScheme.surfaceDim,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
-              SliverToBoxAdapter(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Theme.of(context).colorScheme.surface,
-                        Theme.of(context).colorScheme.surfaceDim,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
+            ),
+            child: CustomScrollView(
+              physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              slivers: [
+                SliverPadding(
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                  sliver: CupertinoSliverRefreshControl(
+                    refreshTriggerPullDistance: 160,
+                    refreshIndicatorExtent: 90,
+                    onRefresh: () async => context.read<ChartsBloc>().add(PageRefreshed()),
                   ),
+                ),
+                SliverToBoxAdapter(
                   child: SafeArea(
                     child: Column(
                       spacing: 24,
@@ -85,9 +85,9 @@ class ChartsPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           );
         },
       ),
