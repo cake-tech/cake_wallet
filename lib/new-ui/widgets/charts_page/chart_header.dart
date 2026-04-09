@@ -88,11 +88,15 @@ class _ChartHeaderState extends State<ChartHeader> {
                                   });
                                   return;
                                 }
-                                HapticFeedback.selectionClick();
-                                setState(() {
-                                  _viewedPrice =
-                                      response?.lineBarSpots?.firstOrNull?.y.toStringAsFixed(2);
-                                });
+
+                                final newPrice =
+                                    response?.lineBarSpots?.firstOrNull?.y.toStringAsFixed(2);
+                                if (_viewedPrice != newPrice) {
+                                  HapticFeedback.selectionClick();
+                                  setState(() {
+                                    _viewedPrice = newPrice;
+                                  });
+                                }
                               },
                             ),
                           )
