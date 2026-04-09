@@ -490,14 +490,16 @@ abstract class DashboardViewModelBase with Store {
       }
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
-      String _txIdentityString(String txHash, TransactionDirection direction) => '${txHash}_$direction';
+      String _txIdentityString(String txHash, TransactionDirection direction) => "${txHash}_$direction";
+      String _txIdentityStringConfirmations(String txHash, TransactionDirection direction, int confirmations) => "${txHash}_${direction}_$confirmations";
+
 
       final existingKeys = transactions
-          .map((item) => _txIdentityString(item.transaction.txHash, item.transaction.direction))
+          .map((item) => _txIdentityStringConfirmations(item.transaction.txHash, item.transaction.direction, item.transaction.confirmations))
           .toSet();
 
       final newTransactions = relevantTxs
-          .where((tx) => !existingKeys.contains(_txIdentityString(tx.txHash, tx.direction)))
+          .where((tx) => !existingKeys.contains(_txIdentityStringConfirmations(tx.txHash, tx.direction, tx.confirmations)))
           .map((tx) => TransactionListItem(
                 transaction: tx,
                 balanceViewModel: balanceViewModel,
