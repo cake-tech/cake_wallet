@@ -40,8 +40,8 @@ class ChartModal extends StatelessWidget {
               ),
               ChartHeader(
                 currency: currency,
-                chartHeight: 140,
-                chartPadding: 102,
+                chartHeight: 220,
+                chartPadding: 32,
                 centered: true,
                 favorite: false,
               ),
