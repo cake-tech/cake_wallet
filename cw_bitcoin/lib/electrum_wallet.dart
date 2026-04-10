@@ -18,6 +18,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/octojoin_transaction_builder.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart' as electrum;
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -815,6 +816,7 @@ abstract class ElectrumWalletBase
     int credentialsAmount = 0,
     int? inputsCount,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+    List<BitcoinUnspent>? forcedUTXOs,
   }) {
     List<UtxoWithAddress> utxos = [];
     List<Outpoint> vinOutpoints = [];
@@ -825,7 +827,7 @@ abstract class ElectrumWalletBase
     bool spendsUnconfirmedTX = false;
 
     int leftAmount = credentialsAmount;
-    var availableInputs = unspentCoins.where((utx) {
+    var availableInputs = forcedUTXOs ?? unspentCoins.where((utx) {
       if (!utx.isSending || utx.isFrozen) {
         return false;
       }
@@ -1014,6 +1016,7 @@ abstract class ElectrumWalletBase
     bool? useUnconfirmed,
     bool hasSilentPayment = false,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+    List<BitcoinUnspent>? forcedUTXOs,
   }) async {
     // Attempting to send less than the dust limit
     if (_isBelowDust(credentialsAmount)) {
@@ -1066,6 +1069,7 @@ abstract class ElectrumWalletBase
       inputsCount: inputsCount,
       paysToSilentPayment: hasSilentPayment,
       coinTypeToSpendFrom: coinTypeToSpendFrom,
+      forcedUTXOs: forcedUTXOs,
     );
 
     final spendingAllCoins = utxoDetails.availableInputs.length == utxoDetails.utxos.length;
@@ -1087,6 +1091,7 @@ abstract class ElectrumWalletBase
           memo: memo,
           hasSilentPayment: hasSilentPayment,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
+          forcedUTXOs: forcedUTXOs,
         );
       }
 
@@ -1393,7 +1398,72 @@ abstract class ElectrumWalletBase
               ))
           .toList();
 
-      if (sendAll) {
+      if (transactionCredentials.isOctojoin) {
+        printV('[Octojoin] === OCTOJOIN TRANSACTION START ===');
+        printV('[Octojoin] credentialsAmount=$credentialsAmount');
+        printV('[Octojoin] numInputs=${transactionCredentials.octojoinNumInputs}');
+        printV('[Octojoin] numOutputs=${transactionCredentials.octojoinNumOutputs}');
+        printV('[Octojoin] octojoinAddresses=${transactionCredentials.octojoinAddresses}');
+        printV('[Octojoin] unspentCoins count=${unspentCoins.length}');
+        printV('[Octojoin] unspentCoinsInfo count=${unspentCoinsInfo.length}');
+
+        for (final coin in unspentCoins) {
+          final info = unspentCoinsInfo.values.firstWhereOrNull(
+            (e) => e.walletId == walletInfo.id && e.hash == coin.hash && e.vout == coin.vout);
+          printV('[Octojoin] UTXO hash=${coin.hash.substring(0, 8)}... vout=${coin.vout} value=${coin.value} note="${info?.note ?? 'N/A'}" isSending=${coin.isSending} isFrozen=${coin.isFrozen}');
+        }
+
+        final totalAmount = credentialsAmount;
+        
+        final selection = OctojoinTransactionBuilder.selectUTXOs(
+            unspentCoins, unspentCoinsInfo.values, transactionCredentials.octojoinNumInputs ?? 3, walletInfo.id, totalAmount);
+            
+        final inputList = selection['all'] as List<BitcoinUnspent>;
+        printV('[Octojoin] Selected ${inputList.length} inputs, totalValue=${selection['totalValue']}');
+        for (final inp in inputList) {
+          printV('[Octojoin]   Input: hash=${inp.hash.substring(0, 8)}... vout=${inp.vout} value=${inp.value}');
+        }
+        
+        estimatedTx = await estimateTxForAmount(
+          totalAmount,
+          outputs,
+          updatedOutputs,
+          feeRateInt,
+          memo: memo,
+          hasSilentPayment: false,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+          forcedUTXOs: inputList,
+          inputsCount: inputList.length,
+        );
+
+        final inputTotal = selection['totalValue'] as int;
+        final actualFee = inputTotal - totalAmount; 
+        final remainder = actualFee - estimatedTx.fee;
+        
+        if (remainder > 0 && remainder < 1000) {
+           printV('[Octojoin] Absorbing $remainder sats remainder into fee for a changeless transaction.');
+           estimatedTx = EstimatedTxResult(
+              utxos: estimatedTx.utxos,
+              inputPrivKeyInfos: estimatedTx.inputPrivKeyInfos,
+              publicKeys: estimatedTx.publicKeys,
+              fee: actualFee,
+              amount: estimatedTx.amount,
+              hasChange: false,
+              isSendAll: estimatedTx.isSendAll,
+              memo: estimatedTx.memo,
+              spendsUnconfirmedTX: estimatedTx.spendsUnconfirmedTX,
+              spendsSilentPayment: estimatedTx.spendsSilentPayment,
+           );
+           
+           if (updatedOutputs.isNotEmpty && updatedOutputs.last.isChange) {
+              updatedOutputs.removeLast();
+              outputs.removeLast();
+           }
+        }
+
+        printV('[Octojoin] estimatedTx: fee=${estimatedTx.fee} amount=${estimatedTx.amount} utxos=${estimatedTx.utxos.length} hasChange=${estimatedTx.hasChange}');
+        printV('[Octojoin] === OCTOJOIN TRANSACTION END ===');
+      } else if (sendAll) {
         estimatedTx = await estimateSendAllTx(
           updatedOutputs,
           feeRateInt,
@@ -1444,7 +1514,7 @@ abstract class ElectrumWalletBase
           network: network,
           hasChange: estimatedTx.hasChange,
           isSendAll: estimatedTx.isSendAll,
-          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot,
+          hasTaprootInputs: false,
           isViewOnly: false,
         )..addListener((transaction) async {
             transactionHistory.addOne(transaction);

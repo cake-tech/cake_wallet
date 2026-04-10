@@ -149,6 +149,10 @@ class CWBitcoin extends Bitcoin {
     int? feeRate,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
     String? payjoinUri,
+    bool isOctojoin = false,
+    int octojoinNumInputs = 3,
+    int octojoinNumOutputs = 2,
+    List<String> octojoinAddresses = const [],
   }) {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
@@ -170,7 +174,17 @@ class CWBitcoin extends Bitcoin {
         priority: priority as BitcoinTransactionPriority,
         feeRate: bitcoinFeeRate,
         coinTypeToSpendFrom: coinTypeToSpendFrom,
-        payjoinUri: payjoinUri);
+        payjoinUri: payjoinUri,
+        isOctojoin: isOctojoin,
+        octojoinNumInputs: octojoinNumInputs,
+        octojoinNumOutputs: octojoinNumOutputs,
+        octojoinAddresses: octojoinAddresses);
+  }
+
+  @override
+  Map<String, int> explodeOctojoinOutputs(int amount, List<String> addresses) {
+    final denominations = OctojoinTransactionBuilder.decomposeAmount(amount);
+    return OctojoinTransactionBuilder.distributeOutputs(denominations, addresses);
   }
 
   @override
