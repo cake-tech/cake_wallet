@@ -22,6 +22,22 @@ class EVMChainUtils {
     };
   }
 
+  static int computeBufferedMaxFeePerGasWei({
+    required int? gasBaseFee,
+    required int gasPrice,
+    required int priorityFeeWei,
+    required bool chainHasPriorityFee,
+  }) {
+    if (gasBaseFee != null && gasBaseFee > 0) {
+      final baseFeeWithPriority = gasBaseFee + priorityFeeWei;
+      final bufferMultiplier = chainHasPriorityFee ? 115 : 105;
+      final bufferPercent = (baseFeeWithPriority * bufferMultiplier) ~/ 100;
+      final bufferMin = baseFeeWithPriority + (baseFeeWithPriority ~/ 100);
+      return bufferPercent > bufferMin ? bufferPercent : bufferMin;
+    }
+    return gasPrice + priorityFeeWei;
+  }
+
   static String getErc20TokensBoxName(String walletName, int chainId) {
     final sanitizedName = walletName.replaceAll(" ", "_");
 

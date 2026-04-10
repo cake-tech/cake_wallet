@@ -128,6 +128,7 @@ import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:collection/collection.dart';
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
@@ -191,7 +192,7 @@ abstract class Bitcoin {
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
   WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub, HardwareWalletType? hardwareWalletType});
-  WalletCredentials createLitecoinWalletFromKeys({required String name, required String password, required String xpub, required String scanSecret, required String spendPubkey});
+  WalletCredentials createLitecoinWalletFromKeys({required String name, required String password, required String xpub, required String scanSecret, required String spendPubkey, HardwareWalletType? hardwareWalletType});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
@@ -456,6 +457,7 @@ abstract class Monero {
     required String address,
     required String password,
     required String language,
+    HardwareWalletType? hardwareWalletType,
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
   WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});
@@ -1553,6 +1555,12 @@ abstract class EVM {
   
   bool hasPriorityFee(int chainId);
 
+
+  Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
+    WalletBase wallet,
+    TransactionPriority priority,
+  );
+
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
 
@@ -1574,6 +1582,18 @@ class ChainInfo {
 
   @override
   int get hashCode => chainId.hashCode;
+}
+
+class EvmWalletConnectFeeQuote {
+  const EvmWalletConnectFeeQuote({
+    required this.maxFeePerGasWei,
+    required this.maxPriorityFeePerGasWei,
+    this.latestBaseFeeWei,
+  });
+
+  final int maxFeePerGasWei;
+  final int maxPriorityFeePerGasWei;
+  final int? latestBaseFeeWei;
 }
   """;
 
