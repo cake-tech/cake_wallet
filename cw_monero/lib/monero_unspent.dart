@@ -38,9 +38,6 @@ class MoneroUnspent extends Unspent {
 
   @override
   set isFrozen(bool freeze) {
-    if(_frozen == freeze) {
-      return;
-    }
     _frozen = freeze;
     printV("set isFrozen: $freeze ($keyImage): $freeze");
     getCoinByKeyImage(keyImage!).then((coinId) async {
